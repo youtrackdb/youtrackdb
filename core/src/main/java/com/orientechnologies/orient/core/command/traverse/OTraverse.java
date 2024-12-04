@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.command.traverse;
 import com.orientechnologies.orient.core.command.OCommand;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,19 +34,19 @@ import java.util.List;
 /**
  * Base class for traversing.
  */
-public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OIdentifiable> {
+public class OTraverse implements OCommand, Iterable<YTIdentifiable>, Iterator<YTIdentifiable> {
 
   private OCommandPredicate predicate;
-  private Iterator<? extends OIdentifiable> target;
+  private Iterator<? extends YTIdentifiable> target;
   private final List<Object> fields = new ArrayList<Object>();
   private long resultCount = 0;
   private long limit = 0;
-  private OIdentifiable lastTraversed;
+  private YTIdentifiable lastTraversed;
   private STRATEGY strategy = STRATEGY.DEPTH_FIRST;
   private final OTraverseContext context = new OTraverseContext();
   private int maxDepth = -1;
 
-  public OTraverse(ODatabaseSessionInternal db) {
+  public OTraverse(YTDatabaseSessionInternal db) {
     context.setDatabase(db);
   }
 
@@ -56,14 +56,14 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
   }
 
   /*
-   * Executes a traverse collecting all the result in the returning List<OIdentifiable>. This could be memory expensive because for
+   * Executes a traverse collecting all the result in the returning List<YTIdentifiable>. This could be memory expensive because for
    * large results the list could be huge. it's always better to use it as an Iterable and lazy fetch each result on next() call.
    *
    * @see com.orientechnologies.orient.core.command.OCommand#execute()
    */
-  public List<OIdentifiable> execute(ODatabaseSessionInternal session) {
+  public List<YTIdentifiable> execute(YTDatabaseSessionInternal session) {
     context.setDatabase(session);
-    final List<OIdentifiable> result = new ArrayList<>();
+    final List<YTIdentifiable> result = new ArrayList<>();
 
     while (hasNext()) {
       result.add(next());
@@ -99,14 +99,14 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
     return lastTraversed != null;
   }
 
-  public OIdentifiable next() {
+  public YTIdentifiable next() {
     if (Thread.interrupted()) {
       throw new OCommandExecutionException("The traverse execution has been interrupted");
     }
 
     if (lastTraversed != null) {
       // RETURN LATEST AND RESET IT
-      final OIdentifiable result = lastTraversed;
+      final YTIdentifiable result = lastTraversed;
       lastTraversed = null;
       return result;
     }
@@ -115,7 +115,7 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
       return null;
     }
 
-    OIdentifiable result;
+    YTIdentifiable result;
     OTraverseAbstractProcess<?> toProcess;
     // RESUME THE LAST PROCESS
     while ((toProcess = nextProcess()) != null) {
@@ -133,7 +133,7 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
     throw new UnsupportedOperationException("remove()");
   }
 
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return this;
   }
 
@@ -141,25 +141,25 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
     return context;
   }
 
-  public OTraverse target(final Iterable<? extends OIdentifiable> iTarget) {
+  public OTraverse target(final Iterable<? extends YTIdentifiable> iTarget) {
     return target(iTarget.iterator());
   }
 
-  public OTraverse target(final OIdentifiable... iRecords) {
-    final List<OIdentifiable> list = new ArrayList<OIdentifiable>();
+  public OTraverse target(final YTIdentifiable... iRecords) {
+    final List<YTIdentifiable> list = new ArrayList<YTIdentifiable>();
     Collections.addAll(list, iRecords);
     return target(list.iterator());
   }
 
   @SuppressWarnings("unchecked")
-  public OTraverse target(final Iterator<? extends OIdentifiable> iTarget) {
+  public OTraverse target(final Iterator<? extends YTIdentifiable> iTarget) {
     target = iTarget;
     context.reset();
-    new OTraverseRecordSetProcess(this, (Iterator<OIdentifiable>) target, OTraversePath.empty());
+    new OTraverseRecordSetProcess(this, (Iterator<YTIdentifiable>) target, OTraversePath.empty());
     return this;
   }
 
-  public Iterator<? extends OIdentifiable> getTarget() {
+  public Iterator<? extends YTIdentifiable> getTarget() {
     return target;
   }
 
@@ -220,7 +220,7 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
     return resultCount;
   }
 
-  public OIdentifiable getLastTraversed() {
+  public YTIdentifiable getLastTraversed() {
     return lastTraversed;
   }
 

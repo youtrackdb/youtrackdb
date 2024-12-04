@@ -23,11 +23,11 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.parser.OCreateClassStatement;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
   public static final String KEYWORD_EXISTS = "EXISTS";
 
   private String className;
-  private final List<OClass> superClasses = new ArrayList<OClass>();
+  private final List<YTClass> superClasses = new ArrayList<YTClass>();
   private int[] clusterIds;
   private Integer clusters = null;
   private boolean ifNotExists = false;
@@ -66,7 +66,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final ODatabaseSessionInternal database = getDatabase();
+      final YTDatabaseSessionInternal database = getDatabase();
       init((OCommandRequestText) iRequest);
 
       StringBuilder word = new StringBuilder();
@@ -106,7 +106,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
         if (k.equals(KEYWORD_EXTENDS)) {
           boolean hasNext;
           boolean newParser = this.preParsedStatement != null;
-          OClass superClass;
+          YTClass superClass;
           do {
             oldPos = pos;
             pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
@@ -269,7 +269,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
   @Override
@@ -285,7 +285,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
   /**
    * Execute the CREATE CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (className == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -299,12 +299,12 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
         database
             .getMetadata()
             .getSchema()
-            .createClass(className, clusters, superClasses.toArray(new OClass[0]));
+            .createClass(className, clusters, superClasses.toArray(new YTClass[0]));
       } else {
         database
             .getMetadata()
             .getSchema()
-            .createClass(className, clusterIds, superClasses.toArray(new OClass[0]));
+            .createClass(className, clusterIds, superClasses.toArray(new YTClass[0]));
       }
     }
     return database.getMetadata().getSchema().getClasses().size();

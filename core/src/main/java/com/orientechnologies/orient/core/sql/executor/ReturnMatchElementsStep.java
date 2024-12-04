@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,9 +21,9 @@ public class ReturnMatchElementsStep extends AbstractUnrollStep {
     for (String s : doc.getPropertyNames()) {
       if (!s.startsWith(OMatchExecutionPlanner.DEFAULT_ALIAS_PREFIX)) {
         Object elem = doc.getProperty(s);
-        if (elem instanceof OIdentifiable) {
+        if (elem instanceof YTIdentifiable) {
           OResultInternal newelem = new OResultInternal(iContext.getDatabase(),
-              (OIdentifiable) elem);
+              (YTIdentifiable) elem);
           elem = newelem;
         }
         if (elem instanceof OResult) {

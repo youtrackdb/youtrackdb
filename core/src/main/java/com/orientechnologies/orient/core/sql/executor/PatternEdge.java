@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.OMatchStatement;
 
@@ -14,10 +14,10 @@ public class PatternEdge {
   public PatternNode out;
   public OMatchPathItem item;
 
-  public Iterable<OIdentifiable> executeTraversal(
+  public Iterable<YTIdentifiable> executeTraversal(
       OMatchStatement.MatchContext matchContext,
       OCommandContext iCommandContext,
-      OIdentifiable startingPoint,
+      YTIdentifiable startingPoint,
       int depth) {
     return item.executeTraversal(matchContext, iCommandContext, startingPoint, depth);
   }

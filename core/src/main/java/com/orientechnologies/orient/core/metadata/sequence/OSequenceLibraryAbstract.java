@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.core.metadata.sequence;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 
@@ -26,16 +26,16 @@ public abstract class OSequenceLibraryAbstract extends OProxedResource<OSequence
     implements OSequenceLibrary {
 
   public OSequenceLibraryAbstract(
-      final OSequenceLibraryImpl iDelegate, final ODatabaseSessionInternal iDatabase) {
+      final OSequenceLibraryImpl iDelegate, final YTDatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 
   abstract void dropSequence(String iName, boolean executeViaDistributed) throws ODatabaseException;
 
-  abstract OSequence createSequence(
+  abstract YTSequence createSequence(
       String iName,
-      OSequence.SEQUENCE_TYPE sequenceType,
-      OSequence.CreateParams params,
+      YTSequence.SEQUENCE_TYPE sequenceType,
+      YTSequence.CreateParams params,
       boolean executeViaDistributed)
       throws ODatabaseException;
 }

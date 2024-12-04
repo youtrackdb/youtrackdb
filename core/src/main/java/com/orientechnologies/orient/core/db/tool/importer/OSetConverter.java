@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,7 +14,7 @@ public final class OSetConverter extends OAbstractCollectionConverter<Set> {
   }
 
   @Override
-  public Set convert(ODatabaseSessionInternal db, Set value) {
+  public Set convert(YTDatabaseSessionInternal db, Set value) {
     boolean updated = false;
     final Set result;
 

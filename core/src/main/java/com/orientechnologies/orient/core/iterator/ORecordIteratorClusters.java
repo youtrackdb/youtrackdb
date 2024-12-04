@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecord;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -36,17 +36,17 @@ import java.util.Objects;
  * item in any cluster the iterator is browsing. If the cluster are hot removed by from the database
  * the iterator could be invalid and throw exception of cluster not found.
  */
-public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableIterator<REC> {
+public class ORecordIteratorClusters<REC extends YTRecord> extends OIdentifiableIterator<REC> {
 
   protected int[] clusterIds;
   protected int currentClusterIdx;
-  protected ORecord currentRecord;
-  protected ORID beginRange;
-  protected ORID endRange;
+  protected YTRecord currentRecord;
+  protected YTRID beginRange;
+  protected YTRID endRange;
 
   @Deprecated
   public ORecordIteratorClusters(
-      final ODatabaseSessionInternal iDatabase, final int[] iClusterIds) {
+      final YTDatabaseSessionInternal iDatabase, final int[] iClusterIds) {
     super(iDatabase);
 
     checkForSystemClusters(iDatabase, iClusterIds);
@@ -59,13 +59,13 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
   }
 
   @Deprecated
-  protected ORecordIteratorClusters(final ODatabaseSessionInternal iDatabase) {
+  protected ORecordIteratorClusters(final YTDatabaseSessionInternal iDatabase) {
     super(iDatabase);
   }
 
-  public ORecordIteratorClusters<REC> setRange(final ORID iBegin, final ORID iEnd) {
-    final ORID oldBegin = beginRange;
-    final ORID oldEnd = endRange;
+  public ORecordIteratorClusters<REC> setRange(final YTRID iBegin, final YTRID iEnd) {
+    final YTRID oldBegin = beginRange;
+    final YTRID oldEnd = endRange;
 
     beginRange = iBegin;
     endRange = iEnd;
@@ -230,7 +230,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
       }
     }
 
-    ORecord record;
+    YTRecord record;
 
     // MOVE FORWARD IN THE CURRENT CLUSTER
     while (hasNext()) {
@@ -421,7 +421,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
         Arrays.toString(clusterIds), currentRecord, beginRange, endRange);
   }
 
-  protected boolean include(final ORecord iRecord) {
+  protected boolean include(final YTRecord iRecord) {
     return true;
   }
 
@@ -487,7 +487,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
     begin();
   }
 
-  private boolean outsideOfTheRange(ORID orid) {
+  private boolean outsideOfTheRange(YTRID orid) {
     if (beginRange != null && orid.compareTo(beginRange) < 0) {
       return true;
     }

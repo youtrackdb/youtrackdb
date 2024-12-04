@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -79,7 +79,7 @@ public class OArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, Object result, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, Object result, OCommandContext ctx) {
     if (result == null) {
       return null;
     }
@@ -404,7 +404,7 @@ public class OArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("from", from);
     result.setProperty("to", to);

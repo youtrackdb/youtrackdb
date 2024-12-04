@@ -24,8 +24,8 @@ import com.orientechnologies.orient.client.remote.OEngineRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import java.io.File;
 import java.io.FileReader;
@@ -35,25 +35,25 @@ import java.io.IOException;
 public class ODatabaseHelper {
 
   @Deprecated
-  public static void createDatabase(ODatabaseSession database, final String url)
+  public static void createDatabase(YTDatabaseSession database, final String url)
       throws IOException {
     createDatabase(database, url, "server", "plocal");
   }
 
   @Deprecated
-  public static void createDatabase(ODatabaseSession database, final String url, String type)
+  public static void createDatabase(YTDatabaseSession database, final String url, String type)
       throws IOException {
     createDatabase(database, url, "server", type);
   }
 
   @Deprecated
-  public static void openDatabase(ODatabaseSession database) {
-    ((ODatabaseSessionInternal) database).open("admin", "admin");
+  public static void openDatabase(YTDatabaseSession database) {
+    ((YTDatabaseSessionInternal) database).open("admin", "admin");
   }
 
   @Deprecated
   public static void createDatabase(
-      ODatabaseSession database, final String url, String directory, String type)
+      YTDatabaseSession database, final String url, String directory, String type)
       throws IOException {
     if (url.startsWith(OEngineRemote.NAME)) {
       new OServerAdmin(url)
@@ -61,33 +61,33 @@ public class ODatabaseHelper {
           .createDatabase("document", type)
           .close();
     } else {
-      ((ODatabaseSessionInternal) database).create();
+      ((YTDatabaseSessionInternal) database).create();
       database.close();
     }
   }
 
   @Deprecated
-  public static void deleteDatabase(final ODatabaseSession database, String storageType)
+  public static void deleteDatabase(final YTDatabaseSession database, String storageType)
       throws IOException {
     deleteDatabase(database, "server", storageType);
   }
 
   @Deprecated
   public static void deleteDatabase(
-      final ODatabaseSession database, final String directory, String storageType)
+      final YTDatabaseSession database, final String directory, String storageType)
       throws IOException {
     dropDatabase(database, directory, storageType);
   }
 
   @Deprecated
-  public static void dropDatabase(final ODatabaseSession database, String storageType)
+  public static void dropDatabase(final YTDatabaseSession database, String storageType)
       throws IOException {
     dropDatabase(database, "server", storageType);
   }
 
   @Deprecated
   public static void dropDatabase(
-      final ODatabaseSession database, final String directory, String storageType)
+      final YTDatabaseSession database, final String directory, String storageType)
       throws IOException {
     if (existsDatabase(database, storageType)) {
       if (database.getURL().startsWith("remote:")) {
@@ -103,13 +103,13 @@ public class ODatabaseHelper {
         } else {
           database.activateOnCurrentThread();
         }
-        ((ODatabaseSessionInternal) database).drop();
+        ((YTDatabaseSessionInternal) database).drop();
       }
     }
   }
 
   @Deprecated
-  public static boolean existsDatabase(final ODatabaseSession database, String storageType)
+  public static boolean existsDatabase(final YTDatabaseSession database, String storageType)
       throws IOException {
     database.activateOnCurrentThread();
     if (database.getURL().startsWith("remote")) {
@@ -120,11 +120,11 @@ public class ODatabaseHelper {
       return exist;
     }
 
-    return ((ODatabaseSessionInternal) database).exists();
+    return ((YTDatabaseSessionInternal) database).exists();
   }
 
   @Deprecated
-  public static void freezeDatabase(final ODatabaseSession database) throws IOException {
+  public static void freezeDatabase(final YTDatabaseSession database) throws IOException {
     database.activateOnCurrentThread();
     if (database.getURL().startsWith("remote")) {
       final OServerAdmin serverAdmin = new OServerAdmin(database.getURL());
@@ -136,7 +136,7 @@ public class ODatabaseHelper {
   }
 
   @Deprecated
-  public static void releaseDatabase(final ODatabaseSession database) throws IOException {
+  public static void releaseDatabase(final YTDatabaseSession database) throws IOException {
     database.activateOnCurrentThread();
     if (database.getURL().startsWith("remote")) {
       final OServerAdmin serverAdmin = new OServerAdmin(database.getURL());

@@ -17,11 +17,11 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -42,14 +42,14 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.createClass("PropertyIndexTestClass");
-    oClass.createProperty(database, "prop0", OType.LINK);
-    oClass.createProperty(database, "prop1", OType.STRING);
-    oClass.createProperty(database, "prop2", OType.INTEGER);
-    oClass.createProperty(database, "prop3", OType.BOOLEAN);
-    oClass.createProperty(database, "prop4", OType.INTEGER);
-    oClass.createProperty(database, "prop5", OType.STRING);
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.createClass("PropertyIndexTestClass");
+    oClass.createProperty(database, "prop0", YTType.LINK);
+    oClass.createProperty(database, "prop1", YTType.STRING);
+    oClass.createProperty(database, "prop2", YTType.INTEGER);
+    oClass.createProperty(database, "prop3", YTType.BOOLEAN);
+    oClass.createProperty(database, "prop4", YTType.INTEGER);
+    oClass.createProperty(database, "prop5", YTType.STRING);
   }
 
   @AfterClass
@@ -69,12 +69,12 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateUniqueIndex() {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("PropertyIndexTestClass");
-    final OProperty propOne = oClass.getProperty("prop1");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
+    final YTProperty propOne = oClass.getProperty("prop1");
 
-    propOne.createIndex(database, OClass.INDEX_TYPE.UNIQUE,
-        new ODocument().field("ignoreNullValues", true));
+    propOne.createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+        new YTDocument().field("ignoreNullValues", true));
 
     final Collection<OIndex> indexes = propOne.getIndexes(database);
     OIndexDefinition indexDefinition = null;
@@ -91,46 +91,46 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(indexDefinition.getFields().size(), 1);
     Assert.assertTrue(indexDefinition.getFields().contains("prop1"));
     Assert.assertEquals(indexDefinition.getTypes().length, 1);
-    Assert.assertEquals(indexDefinition.getTypes()[0], OType.STRING);
+    Assert.assertEquals(indexDefinition.getTypes()[0], YTType.STRING);
   }
 
   @Test(dependsOnMethods = {"testCreateUniqueIndex"})
   public void createAdditionalSchemas() {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("PropertyIndexTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
 
     oClass.createIndex(database,
         "propOne0",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
     oClass.createIndex(database,
         "propOne1",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
     oClass.createIndex(database,
         "propOne2",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop3"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop3"});
     oClass.createIndex(database,
         "propOne3",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop2", "prop3"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop2", "prop3"});
     oClass.createIndex(database,
         "propOne4",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop2", "prop1"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop2", "prop1"});
   }
 
   @Test(dependsOnMethods = "createAdditionalSchemas")
   public void testGetIndexes() {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("PropertyIndexTestClass");
-    final OProperty propOne = oClass.getProperty("prop1");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
+    final YTProperty propOne = oClass.getProperty("prop1");
 
     final Collection<OIndex> indexes = propOne.getIndexes(database);
     Assert.assertEquals(indexes.size(), 1);
@@ -139,9 +139,9 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "createAdditionalSchemas")
   public void testGetAllIndexes() {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("PropertyIndexTestClass");
-    final OProperty propOne = oClass.getProperty("prop1");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
+    final YTProperty propOne = oClass.getProperty("prop1");
 
     final Collection<OIndex> indexes = propOne.getAllIndexes(database);
     Assert.assertEquals(indexes.size(), 5);
@@ -154,17 +154,17 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testIsIndexedNonIndexedField() {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("PropertyIndexTestClass");
-    final OProperty propThree = oClass.getProperty("prop3");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
+    final YTProperty propThree = oClass.getProperty("prop3");
     Assert.assertFalse(propThree.isIndexed(database));
   }
 
   @Test(dependsOnMethods = {"testCreateUniqueIndex"})
   public void testIsIndexedIndexedField() {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("PropertyIndexTestClass");
-    final OProperty propOne = oClass.getProperty("prop1");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
+    final YTProperty propOne = oClass.getProperty("prop1");
     Assert.assertTrue(propOne.isIndexed(database));
   }
 
@@ -188,11 +188,11 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
             .size(database);
 
     database.begin();
-    ODocument doc =
-        new ODocument("PropertyIndexTestClass").fields("prop1", "testComposite3");
+    YTDocument doc =
+        new YTDocument("PropertyIndexTestClass").fields("prop1", "testComposite3");
     doc.save();
-    new ODocument("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite1").save();
-    new ODocument("PropertyIndexTestClass").fields("prop0", doc).save();
+    new YTDocument("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite1").save();
+    new YTDocument("PropertyIndexTestClass").fields("prop0", doc).save();
     database.commit();
 
     Assert.assertEquals(
@@ -232,11 +232,12 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
             .getInternal()
             .size(database);
 
-    ODocument doc =
-        new ODocument("PropertyIndexTestClass").fields("prop1", "testComposite34");
+    YTDocument doc =
+        new YTDocument("PropertyIndexTestClass").fields("prop1", "testComposite34");
     doc.save();
-    new ODocument("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite33").save();
-    new ODocument("PropertyIndexTestClass").fields("prop0", doc).save();
+    new YTDocument("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite33")
+        .save();
+    new YTDocument("PropertyIndexTestClass").fields("prop0", doc).save();
 
     database.commit();
 
@@ -260,19 +261,19 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testDropIndexes() throws Exception {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("PropertyIndexTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
 
     oClass.createIndex(database,
         "PropertyIndexFirstIndex",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop4"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop4"});
     oClass.createIndex(database,
         "PropertyIndexSecondIndex",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop4"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop4"});
 
     oClass.getProperty("prop4").dropIndexes(database);
 
@@ -290,19 +291,19 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testDropIndexesForComposite() throws Exception {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("PropertyIndexTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
 
     oClass.createIndex(database,
         "PropertyIndexFirstIndex",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop4"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop4"});
     oClass.createIndex(database,
         "PropertyIndexSecondIndex",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop4", "prop5"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop4", "prop5"});
 
     try {
       oClass.getProperty("prop4").dropIndexes(database);

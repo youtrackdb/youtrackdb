@@ -12,10 +12,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.client.remote.OStorageRemote;
-import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -144,7 +144,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
               long start = System.currentTimeMillis();
               for (int j = 0; j < operations_write; j++) {
 
-                ODocument dummy = new ODocument("DummyObject");
+                YTDocument dummy = new YTDocument("DummyObject");
                 dummy.field("name", "name" + j);
 
                 db.begin();
@@ -195,10 +195,10 @@ public class MultipleDBTest extends DocumentDBBaseTest {
     }
   }
 
-  private static String getDbId(ODatabaseSessionInternal db) {
+  private static String getDbId(YTDatabaseSessionInternal db) {
     if (db.getStorage() instanceof OStorageRemote) {
       return db.getURL() + " - sessionId: " + ((OStorageRemote) db.getStorage()).getSessionId(
-          (ODatabaseSessionRemote) db);
+          (YTDatabaseSessionRemote) db);
     } else {
       return db.getURL();
     }

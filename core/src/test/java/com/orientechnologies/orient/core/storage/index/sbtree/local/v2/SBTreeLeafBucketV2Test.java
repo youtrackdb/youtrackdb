@@ -4,8 +4,8 @@ import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.orientechnologies.common.directmemory.OPointer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntryImpl;
@@ -34,7 +34,7 @@ public class SBTreeLeafBucketV2Test {
     OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    OSBTreeBucketV2<Long, OIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
     treeBucket.init(true);
 
     Assert.assertEquals(treeBucket.size(), 0);
@@ -71,7 +71,7 @@ public class SBTreeLeafBucketV2Test {
 
     cachePointer.incrementReferrer();
 
-    OSBTreeBucketV2<Long, OIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
     treeBucket.init(true);
 
     int index = 0;
@@ -80,7 +80,7 @@ public class SBTreeLeafBucketV2Test {
       if (!treeBucket.addLeafEntry(
           index,
           OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new ORecordId(index, index), true))) {
+          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new YTRecordId(index, index), true))) {
         break;
       }
       keyIndexMap.put(key, index);
@@ -119,7 +119,7 @@ public class SBTreeLeafBucketV2Test {
 
     cachePointer.incrementReferrer();
 
-    OSBTreeBucketV2<Long, OIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
     treeBucket.init(true);
 
     Map<Long, Integer> keyIndexMap = new HashMap<>();
@@ -128,7 +128,7 @@ public class SBTreeLeafBucketV2Test {
       if (!treeBucket.addLeafEntry(
           index,
           OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new ORecordId(index, index)))) {
+          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new YTRecordId(index, index)))) {
         break;
       }
 
@@ -141,12 +141,12 @@ public class SBTreeLeafBucketV2Test {
     for (int i = 0; i < treeBucket.size(); i++) {
       final byte[] rawValue = new byte[OLinkSerializer.RID_SIZE];
 
-      OLinkSerializer.INSTANCE.serializeNativeObject(new ORecordId(i + 5, i + 5), rawValue, 0);
+      OLinkSerializer.INSTANCE.serializeNativeObject(new YTRecordId(i + 5, i + 5), rawValue, 0);
       treeBucket.updateValue(i, rawValue, OLongSerializer.LONG_SIZE);
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      OSBTreeBucketV2.SBTreeEntry<Long, OIdentifiable> entry =
+      OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable> entry =
           treeBucket.getEntry(
               keyIndexEntry.getValue(), OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
 
@@ -159,7 +159,7 @@ public class SBTreeLeafBucketV2Test {
               new OSBTreeValue<>(
                   false,
                   -1,
-                  new ORecordId(keyIndexEntry.getValue() + 5, keyIndexEntry.getValue() + 5))));
+                  new YTRecordId(keyIndexEntry.getValue() + 5, keyIndexEntry.getValue() + 5))));
       Assert.assertEquals(
           keyIndexEntry.getKey(),
           treeBucket.getKey(keyIndexEntry.getValue(), OLongSerializer.INSTANCE));
@@ -190,7 +190,7 @@ public class SBTreeLeafBucketV2Test {
     OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    OSBTreeBucketV2<Long, OIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
     treeBucket.init(true);
 
     int index = 0;
@@ -198,7 +198,7 @@ public class SBTreeLeafBucketV2Test {
       if (!treeBucket.addLeafEntry(
           index,
           OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new ORecordId(index, index)))) {
+          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new YTRecordId(index, index)))) {
         break;
       }
 
@@ -233,7 +233,7 @@ public class SBTreeLeafBucketV2Test {
       if (!treeBucket.addLeafEntry(
           index,
           OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new ORecordId(index, index)))) {
+          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new YTRecordId(index, index)))) {
         break;
       }
 
@@ -243,7 +243,7 @@ public class SBTreeLeafBucketV2Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      OSBTreeBucketV2.SBTreeEntry<Long, OIdentifiable> entry =
+      OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable> entry =
           treeBucket.getEntry(
               keyIndexEntry.getValue(), OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
 
@@ -254,7 +254,7 @@ public class SBTreeLeafBucketV2Test {
               -1,
               keyIndexEntry.getKey(),
               new OSBTreeValue<>(
-                  false, -1, new ORecordId(keyIndexEntry.getValue(), keyIndexEntry.getValue()))));
+                  false, -1, new YTRecordId(keyIndexEntry.getValue(), keyIndexEntry.getValue()))));
     }
 
     Assert.assertEquals(treeBucket.size(), originalSize);
@@ -285,7 +285,7 @@ public class SBTreeLeafBucketV2Test {
     OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    OSBTreeBucketV2<Long, OIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
     treeBucket.init(true);
 
     int index = 0;
@@ -293,7 +293,7 @@ public class SBTreeLeafBucketV2Test {
       if (!treeBucket.addLeafEntry(
           index,
           OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new ORecordId(index, index)))) {
+          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new YTRecordId(index, index)))) {
         break;
       }
 
@@ -336,7 +336,7 @@ public class SBTreeLeafBucketV2Test {
       if (!treeBucket.addLeafEntry(
           index,
           OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
-          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new ORecordId(index, index)))) {
+          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new YTRecordId(index, index)))) {
         break;
       }
 
@@ -346,7 +346,7 @@ public class SBTreeLeafBucketV2Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      OSBTreeBucketV2.SBTreeEntry<Long, OIdentifiable> entry =
+      OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable> entry =
           treeBucket.getEntry(
               keyIndexEntry.getValue(), OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
 
@@ -357,7 +357,7 @@ public class SBTreeLeafBucketV2Test {
               -1,
               keyIndexEntry.getKey(),
               new OSBTreeValue<>(
-                  false, -1, new ORecordId(keyIndexEntry.getValue(), keyIndexEntry.getValue()))));
+                  false, -1, new YTRecordId(keyIndexEntry.getValue(), keyIndexEntry.getValue()))));
     }
 
     Assert.assertEquals(treeBucket.size(), originalSize);
@@ -378,7 +378,7 @@ public class SBTreeLeafBucketV2Test {
     OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    OSBTreeBucketV2<Long, OIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
     treeBucket.init(true);
 
     treeBucket.setLeftSibling(123);
@@ -399,7 +399,7 @@ public class SBTreeLeafBucketV2Test {
     OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
-    OSBTreeBucketV2<Long, OIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
     treeBucket.init(true);
 
     treeBucket.setRightSibling(123);

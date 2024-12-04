@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -14,10 +14,10 @@ import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexes;
 import com.orientechnologies.orient.core.index.OSimpleKeyIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -70,7 +70,7 @@ public class OCreateIndexStatement extends ODDLStatement {
   }
 
   Object execute(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = ctx.getDatabase();
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
 
     if (database.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
       if (ifNotExists) {
@@ -84,12 +84,12 @@ public class OCreateIndexStatement extends ODDLStatement {
     List<OCollate> collatesList = calculateCollates(ctx);
     String engine =
         this.engine == null ? null : this.engine.getStringValue().toUpperCase(Locale.ENGLISH);
-    ODocument metadataDoc = calculateMetadata(ctx);
+    YTDocument metadataDoc = calculateMetadata(ctx);
 
     if (propertyList == null || propertyList.size() == 0) {
       OIndexFactory factory = OIndexes.getFactory(type.getStringValue(), engine);
 
-      OType[] keyTypes = calculateKeyTypes(ctx);
+      YTType[] keyTypes = calculateKeyTypes(ctx);
 
       if (keyTypes != null && keyTypes.length > 0) {
         idx =
@@ -110,7 +110,7 @@ public class OCreateIndexStatement extends ODDLStatement {
           && "LUCENE_CROSS_CLASS".equalsIgnoreCase(engine)) {
         // handle special case of cross class  Lucene index: awful but works
         OIndexDefinition keyDef =
-            new OSimpleKeyIndexDefinition(new OType[]{OType.STRING}, collatesList);
+            new OSimpleKeyIndexDefinition(new YTType[]{YTType.STRING}, collatesList);
         idx =
             database
                 .getMetadata()
@@ -134,7 +134,7 @@ public class OCreateIndexStatement extends ODDLStatement {
                   + " "
                   + this);
         }
-        OClass oClass = database.getClass(split[0]);
+        YTClass oClass = database.getClass(split[0]);
         if (oClass == null) {
           throw new ODatabaseException(
               "Impossible to create an index, class not found: " + split[0]);
@@ -154,7 +154,7 @@ public class OCreateIndexStatement extends ODDLStatement {
       }
     } else {
       String[] fields = calculateProperties(ctx);
-      OClass oClass = getIndexClass(ctx);
+      YTClass oClass = getIndexClass(ctx);
       idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
     }
 
@@ -166,12 +166,12 @@ public class OCreateIndexStatement extends ODDLStatement {
   }
 
   private OIndex getoIndex(
-      OClass oClass,
+      YTClass oClass,
       String[] fields,
       String engine,
-      ODatabaseSessionInternal database,
+      YTDatabaseSessionInternal database,
       List<OCollate> collatesList,
-      ODocument metadataDoc) {
+      YTDocument metadataDoc) {
     OIndex idx;
     if ((keyTypes == null || keyTypes.size() == 0) && collatesList == null) {
 
@@ -179,7 +179,7 @@ public class OCreateIndexStatement extends ODDLStatement {
           oClass.createIndex(database,
               name.getValue(), type.getStringValue(), null, metadataDoc, engine, fields);
     } else {
-      final List<OType> fieldTypeList;
+      final List<YTType> fieldTypeList;
       if (keyTypes == null || keyTypes.size() == 0 && fields.length > 0) {
         for (final String fieldName : fields) {
           if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
@@ -193,11 +193,11 @@ public class OCreateIndexStatement extends ODDLStatement {
                     + "' is absent in class definition.");
           }
         }
-        fieldTypeList = ((OClassImpl) oClass).extractFieldTypes(fields);
+        fieldTypeList = ((YTClassImpl) oClass).extractFieldTypes(fields);
       } else {
         fieldTypeList =
             keyTypes.stream()
-                .map(x -> OType.valueOf(x.getStringValue()))
+                .map(x -> YTType.valueOf(x.getStringValue()))
                 .collect(Collectors.toList());
       }
 
@@ -246,11 +246,11 @@ public class OCreateIndexStatement extends ODDLStatement {
   /**
    * calculates the indexed class based on the class name
    */
-  private OClass getIndexClass(OCommandContext ctx) {
+  private YTClass getIndexClass(OCommandContext ctx) {
     if (className == null) {
       return null;
     }
-    OClass result =
+    YTClass result =
         ctx.getDatabase().getMetadata().getSchema().getClass(className.getStringValue());
     if (result == null) {
       throw new OCommandExecutionException("Cannot find class " + className);
@@ -261,21 +261,21 @@ public class OCreateIndexStatement extends ODDLStatement {
   /**
    * returns index metadata as an ODocuemnt (as expected by Index API)
    */
-  private ODocument calculateMetadata(OCommandContext ctx) {
+  private YTDocument calculateMetadata(OCommandContext ctx) {
     if (metadata == null) {
       return null;
     }
     return metadata.toDocument(null, ctx);
   }
 
-  private OType[] calculateKeyTypes(OCommandContext ctx) {
+  private YTType[] calculateKeyTypes(OCommandContext ctx) {
     if (keyTypes == null) {
-      return new OType[0];
+      return new YTType[0];
     }
     return keyTypes.stream()
-        .map(x -> OType.valueOf(x.getStringValue()))
+        .map(x -> YTType.valueOf(x.getStringValue()))
         .collect(Collectors.toList())
-        .toArray(new OType[]{});
+        .toArray(new YTType[]{});
   }
 
   private List<OCollate> calculateCollates(OCommandContext ctx) {

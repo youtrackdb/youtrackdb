@@ -23,7 +23,7 @@ import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
 import java.util.Comparator;
@@ -37,7 +37,7 @@ public interface OHashTable<K, V> {
       OAtomicOperation atomicOperation,
       OBinarySerializer<K> keySerializer,
       OBinarySerializer<V> valueSerializer,
-      OType[] keyTypes,
+      YTType[] keyTypes,
       OEncryption encryption,
       OHashFunction<K> keyHashFunction,
       boolean nullKeyIsSupported)
@@ -70,7 +70,7 @@ public interface OHashTable<K, V> {
 
   void load(
       String name,
-      OType[] keyTypes,
+      YTType[] keyTypes,
       boolean nullKeyIsSupported,
       OEncryption encryption,
       OHashFunction<K> keyHashFunction,

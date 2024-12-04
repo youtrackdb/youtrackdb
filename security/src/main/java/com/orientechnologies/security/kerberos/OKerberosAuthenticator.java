@@ -15,11 +15,11 @@ package com.orientechnologies.security.kerberos;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.security.authenticator.OSecurityAuthenticatorAbstract;
 import com.orientechnologies.orient.core.security.kerberos.OKrb5ClientLoginModuleConfig;
@@ -91,7 +91,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   // OSecurityAuthenticator
   // Kerberos magic happens here.
   public OSecurityUser authenticate(
-      ODatabaseSessionInternal session, final String username, final String password) {
+      YTDatabaseSessionInternal session, final String username, final String password) {
     // username will contain either the principal or be null.
     // password will contain either a Kerberos 5 service ticket or a SPNEGO ticket.
     String principal = null;
@@ -192,7 +192,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   // OSecurityAuthenticator
-  public void config(ODatabaseSessionInternal session, final ODocument kerbConfig,
+  public void config(YTDatabaseSessionInternal session, final YTDocument kerbConfig,
       OSecuritySystem security) {
     super.config(session, kerbConfig, security);
 
@@ -204,7 +204,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // service
     if (kerbConfig.containsField("service")) {
-      ODocument serviceDoc = kerbConfig.field("service");
+      YTDocument serviceDoc = kerbConfig.field("service");
 
       if (serviceDoc.containsField("ktname")) {
         serviceKTName = OSystemVariableResolver.resolveSystemVariables(serviceDoc.field("ktname"));
@@ -221,7 +221,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // SPNEGO
     if (kerbConfig.containsField("spnego")) {
-      ODocument spnegoDoc = kerbConfig.field("spnego");
+      YTDocument spnegoDoc = kerbConfig.field("spnego");
 
       if (spnegoDoc.containsField("ktname")) {
         spnegoKTName = OSystemVariableResolver.resolveSystemVariables(spnegoDoc.field("ktname"));
@@ -238,10 +238,10 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // client
     if (kerbConfig.containsField("client")) {
-      ODocument clientDoc = kerbConfig.field("client");
+      YTDocument clientDoc = kerbConfig.field("client");
 
       if (clientDoc.containsField("useTicketCache")) {
-        clientUseTicketCache = clientDoc.field("useTicketCache", OType.BOOLEAN);
+        clientUseTicketCache = clientDoc.field("useTicketCache", YTType.BOOLEAN);
 
         OLogManager.instance().info(this, "Client useTicketCache = " + clientUseTicketCache);
       }

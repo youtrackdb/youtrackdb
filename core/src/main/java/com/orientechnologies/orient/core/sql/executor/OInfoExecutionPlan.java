@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class OInfoExecutionPlan implements OExecutionPlan {
   }
 
   @Override
-  public OResult toResult(ODatabaseSessionInternal db) {
+  public OResult toResult(YTDatabaseSessionInternal db) {
     return null;
   }
 

@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
+import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -17,7 +17,7 @@ import java.util.Optional;
  */
 public class ORemoteResultSet implements OResultSet {
 
-  private final ODatabaseSessionRemote db;
+  private final YTDatabaseSessionRemote db;
   private final String queryId;
   private List<OResult> currentPage;
   private Optional<OExecutionPlan> executionPlan;
@@ -25,7 +25,7 @@ public class ORemoteResultSet implements OResultSet {
   private boolean hasNextPage;
 
   public ORemoteResultSet(
-      ODatabaseSessionRemote db,
+      YTDatabaseSessionRemote db,
       String queryId,
       List<OResult> currentPage,
       Optional<OExecutionPlan> executionPlan,
@@ -79,7 +79,7 @@ public class ORemoteResultSet implements OResultSet {
     OResult internal = currentPage.remove(0);
 
     if (internal.isRecord() && db != null && db.getTransaction().isActive()) {
-      ORecord record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
+      YTRecord record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
       if (record != null && record != OTransactionAbstract.DELETED_RECORD) {
         internal = new OResultInternal(db, record);
       }

@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -40,15 +40,15 @@ public class AbstractClassTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
   @BeforeClass
   public void createSchema() throws IOException {
-    OClass abstractPerson =
+    YTClass abstractPerson =
         database.getMetadata().getSchema().createAbstractClass("AbstractPerson");
-    abstractPerson.createProperty(database, "name", OType.STRING);
+    abstractPerson.createProperty(database, "name", YTType.STRING);
 
     Assert.assertTrue(abstractPerson.isAbstract());
     Assert.assertEquals(abstractPerson.getClusterIds().length, 1);
@@ -59,7 +59,7 @@ public class AbstractClassTest extends DocumentDBBaseTest {
   public void testCannotCreateInstances() {
     try {
       database.begin();
-      new ODocument("AbstractPerson").save();
+      new YTDocument("AbstractPerson").save();
       database.begin();
     } catch (OException e) {
       Throwable cause = e;

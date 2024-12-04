@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ public class ODropDatabaseStatementExecutionTest {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
       try (OResultSet result =
@@ -38,7 +38,7 @@ public class ODropDatabaseStatementExecutionTest {
       }
       Assert.assertTrue(youTrackDb.exists(dbName));
 
-      ODatabaseSession session =
+      YTDatabaseSession session =
           youTrackDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
 
@@ -56,7 +56,7 @@ public class ODropDatabaseStatementExecutionTest {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
       try (OResultSet result =
@@ -73,7 +73,7 @@ public class ODropDatabaseStatementExecutionTest {
       }
       Assert.assertTrue(youTrackDb.exists(dbName));
 
-      ODatabaseSession session =
+      YTDatabaseSession session =
           youTrackDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
 
@@ -90,7 +90,7 @@ public class ODropDatabaseStatementExecutionTest {
     try (YouTrackDB youTrackDb = new YouTrackDB(
         DBTestBase.embeddedDBUrl(getClass()) + getClass().getSimpleName(),
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build())) {
       youTrackDb.execute("drop database " + dbName + " if exists");
       Assert.assertFalse(youTrackDb.exists(dbName));

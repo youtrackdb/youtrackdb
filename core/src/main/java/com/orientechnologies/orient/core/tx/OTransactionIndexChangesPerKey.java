@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -45,9 +45,9 @@ public class OTransactionIndexChangesPerKey {
   public class OTransactionIndexEntry {
 
     private final OPERATION operation;
-    private OIdentifiable value;
+    private YTIdentifiable value;
 
-    public OTransactionIndexEntry(final OIdentifiable iValue, final OPERATION iOperation) {
+    public OTransactionIndexEntry(final YTIdentifiable iValue, final OPERATION iOperation) {
       value = iValue;
       operation = iOperation;
     }
@@ -82,13 +82,13 @@ public class OTransactionIndexChangesPerKey {
       return operation;
     }
 
-    public OIdentifiable getValue() {
+    public YTIdentifiable getValue() {
       return value;
     }
 
-    public void setValue(OIdentifiable newValue) {
-      ORID oldValueId = value == null ? null : value.getIdentity();
-      ORID newValueId = newValue == null ? null : newValue.getIdentity();
+    public void setValue(YTIdentifiable newValue) {
+      YTRID oldValueId = value == null ? null : value.getIdentity();
+      YTRID newValueId = newValue == null ? null : newValue.getIdentity();
       Optional<OTxIndexChangesList.Node> node = entries.getNode(this);
 
       this.value = newValue;
@@ -101,9 +101,9 @@ public class OTransactionIndexChangesPerKey {
     entries = new OTxIndexChangesList();
   }
 
-  public void add(OIdentifiable iValue, final OPERATION operation) {
+  public void add(YTIdentifiable iValue, final OPERATION operation) {
     synchronized (this) {
-      ORID valueIdentity = iValue == null ? null : iValue.getIdentity();
+      YTRID valueIdentity = iValue == null ? null : iValue.getIdentity();
       if (operation == OPERATION.REMOVE) {
         Optional<OTxIndexChangesList.Node> nodeToRemove =
             entries.getFirstNode(valueIdentity, OPERATION.PUT);
@@ -178,8 +178,8 @@ public class OTransactionIndexChangesPerKey {
         return Collections.singletonList(entryA); // only one removal is observed anyway
       }
 
-      final ORID ridA = entryA.value == null ? null : entryA.value.getIdentity();
-      final ORID ridB = entryB.value == null ? null : entryB.value.getIdentity();
+      final YTRID ridA = entryA.value == null ? null : entryA.value.getIdentity();
+      final YTRID ridB = entryB.value == null ? null : entryB.value.getIdentity();
 
       if (ridA != null && ridA.equals(ridB)) {
         if (entryA.operation == entryB.operation) // both operations do the same on the same RID
@@ -210,7 +210,7 @@ public class OTransactionIndexChangesPerKey {
         new HashSet<OTransactionIndexEntry>(entries.size());
     OTransactionIndexEntry firstExternalRemove = null;
     for (OTransactionIndexEntry entry : entries) {
-      final OIdentifiable value = entry.value;
+      final YTIdentifiable value = entry.value;
 
       switch (entry.operation) {
         case PUT:
@@ -279,8 +279,8 @@ public class OTransactionIndexChangesPerKey {
         return Collections.singletonList(entryA); // only one removal is observed anyway
       }
 
-      final ORID ridA = entryA.value == null ? null : entryA.value.getIdentity();
-      final ORID ridB = entryB.value == null ? null : entryB.value.getIdentity();
+      final YTRID ridA = entryA.value == null ? null : entryA.value.getIdentity();
+      final YTRID ridB = entryB.value == null ? null : entryB.value.getIdentity();
 
       if (ridA != null && ridA.equals(ridB)) {
         if (entryA.operation == entryB.operation) // both operations do the same on the same RID
@@ -320,7 +320,7 @@ public class OTransactionIndexChangesPerKey {
         new HashSet<OTransactionIndexEntry>(entries.size());
     OTransactionIndexEntry firstExternalRemove = null;
     for (OTransactionIndexEntry entry : entries) {
-      final OIdentifiable value = entry.value;
+      final YTIdentifiable value = entry.value;
 
       switch (entry.operation) {
         case PUT:
@@ -388,8 +388,8 @@ public class OTransactionIndexChangesPerKey {
       final OTransactionIndexEntry entryA = entries.get(0);
       final OTransactionIndexEntry entryB = entries.get(1);
 
-      final ORID ridA = entryA.value == null ? null : entryA.value.getIdentity();
-      final ORID ridB = entryB.value == null ? null : entryB.value.getIdentity();
+      final YTRID ridA = entryA.value == null ? null : entryA.value.getIdentity();
+      final YTRID ridB = entryB.value == null ? null : entryB.value.getIdentity();
 
       if (ridA == null) {
         assert entryA.operation == OPERATION.REMOVE;
@@ -427,8 +427,8 @@ public class OTransactionIndexChangesPerKey {
         new HashSet<OTransactionIndexEntry>(entries.size());
     boolean seenKeyRemoval = false;
     for (OTransactionIndexEntry entry : entries) {
-      final OIdentifiable value = entry.value;
-      final ORID rid = value == null ? null : value.getIdentity();
+      final YTIdentifiable value = entry.value;
+      final YTRID rid = value == null ? null : value.getIdentity();
 
       switch (entry.operation) {
         case PUT:
@@ -546,7 +546,7 @@ public class OTransactionIndexChangesPerKey {
    * @return
    */
   protected OTransactionIndexEntry createEntryInternal(
-      final OIdentifiable iValue, final OPERATION iOperation) {
+      final YTIdentifiable iValue, final OPERATION iOperation) {
     return new OTransactionIndexEntry(iValue, iOperation);
   }
 }

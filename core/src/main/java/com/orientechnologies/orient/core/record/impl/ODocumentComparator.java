@@ -23,9 +23,9 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLSelect;
 import java.text.Collator;
 import java.util.Comparator;
@@ -36,7 +36,7 @@ import java.util.Locale;
  * Comparator implementation class used by ODocumentSorter class to sort documents following dynamic
  * criteria.
  */
-public class ODocumentComparator implements Comparator<OIdentifiable> {
+public class ODocumentComparator implements Comparator<YTIdentifiable> {
 
   private final List<OPair<String, String>> orderCriteria;
   private final OCommandContext context;
@@ -46,7 +46,7 @@ public class ODocumentComparator implements Comparator<OIdentifiable> {
       final List<OPair<String, String>> iOrderCriteria, OCommandContext iContext) {
     this.orderCriteria = iOrderCriteria;
     this.context = iContext;
-    ODatabaseSessionInternal internal = ODatabaseRecordThreadLocal.instance().get();
+    YTDatabaseSessionInternal internal = ODatabaseRecordThreadLocal.instance().get();
     collator =
         Collator.getInstance(
             new Locale(
@@ -56,7 +56,7 @@ public class ODocumentComparator implements Comparator<OIdentifiable> {
   }
 
   @SuppressWarnings("unchecked")
-  public int compare(final OIdentifiable iDoc1, final OIdentifiable iDoc2) {
+  public int compare(final YTIdentifiable iDoc1, final YTIdentifiable iDoc2) {
     if (iDoc1 != null && iDoc1.equals(iDoc2)) {
       return 0;
     }
@@ -70,8 +70,8 @@ public class ODocumentComparator implements Comparator<OIdentifiable> {
       final String fieldName = field.getKey();
       final String ordering = field.getValue();
 
-      fieldValue1 = ((ODocument) iDoc1.getRecord()).field(fieldName);
-      fieldValue2 = ((ODocument) iDoc2.getRecord()).field(fieldName);
+      fieldValue1 = ((YTDocument) iDoc1.getRecord()).field(fieldName);
+      fieldValue2 = ((YTDocument) iDoc2.getRecord()).field(fieldName);
 
       if (fieldValue1 == null && fieldValue2 == null) {
         continue;

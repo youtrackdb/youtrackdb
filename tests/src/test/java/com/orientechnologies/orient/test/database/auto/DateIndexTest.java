@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,54 +32,54 @@ public class DateIndexTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
 
-    OClass dateIndexTest = schema.createClass("DateIndexTest");
+    YTClass dateIndexTest = schema.createClass("DateIndexTest");
 
-    dateIndexTest.createProperty(database, "dateField", OType.DATE);
-    dateIndexTest.createProperty(database, "dateTimeField", OType.DATETIME);
+    dateIndexTest.createProperty(database, "dateField", YTType.DATE);
+    dateIndexTest.createProperty(database, "dateTimeField", YTType.DATETIME);
 
-    dateIndexTest.createProperty(database, "dateList", OType.EMBEDDEDLIST, OType.DATE);
-    dateIndexTest.createProperty(database, "dateTimeList", OType.EMBEDDEDLIST, OType.DATETIME);
+    dateIndexTest.createProperty(database, "dateList", YTType.EMBEDDEDLIST, YTType.DATE);
+    dateIndexTest.createProperty(database, "dateTimeList", YTType.EMBEDDEDLIST, YTType.DATETIME);
 
-    dateIndexTest.createProperty(database, "value", OType.STRING);
+    dateIndexTest.createProperty(database, "value", YTType.STRING);
 
-    dateIndexTest.createIndex(database, "DateIndexTestDateIndex", OClass.INDEX_TYPE.UNIQUE,
+    dateIndexTest.createIndex(database, "DateIndexTestDateIndex", YTClass.INDEX_TYPE.UNIQUE,
         "dateField");
     dateIndexTest.createIndex(database,
-        "DateIndexTestValueDateIndex", OClass.INDEX_TYPE.UNIQUE, "value", "dateField");
+        "DateIndexTestValueDateIndex", YTClass.INDEX_TYPE.UNIQUE, "value", "dateField");
 
     dateIndexTest.createIndex(database,
-        "DateIndexTestDateTimeIndex", OClass.INDEX_TYPE.UNIQUE, "dateTimeField");
+        "DateIndexTestDateTimeIndex", YTClass.INDEX_TYPE.UNIQUE, "dateTimeField");
     dateIndexTest.createIndex(database,
-        "DateIndexTestValueDateTimeIndex", OClass.INDEX_TYPE.UNIQUE, "value", "dateTimeField");
+        "DateIndexTestValueDateTimeIndex", YTClass.INDEX_TYPE.UNIQUE, "value", "dateTimeField");
 
     dateIndexTest.createIndex(database,
-        "DateIndexTestValueDateListIndex", OClass.INDEX_TYPE.UNIQUE, "value", "dateList");
+        "DateIndexTestValueDateListIndex", YTClass.INDEX_TYPE.UNIQUE, "value", "dateList");
     dateIndexTest.createIndex(database,
-        "DateIndexTestValueDateTimeListIndex", OClass.INDEX_TYPE.UNIQUE, "value", "dateTimeList");
+        "DateIndexTestValueDateTimeListIndex", YTClass.INDEX_TYPE.UNIQUE, "value", "dateTimeList");
 
     dateIndexTest.createIndex(database,
-        "DateIndexTestDateHashIndex", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "dateField");
+        "DateIndexTestDateHashIndex", YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "dateField");
     dateIndexTest.createIndex(database,
         "DateIndexTestValueDateHashIndex",
-        OClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+        YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
         "value", "dateField");
 
     dateIndexTest.createIndex(database,
-        "DateIndexTestDateTimeHashIndex", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "dateTimeField");
+        "DateIndexTestDateTimeHashIndex", YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "dateTimeField");
     dateIndexTest.createIndex(database,
         "DateIndexTestValueDateTimeHashIndex",
-        OClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+        YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
         "value", "dateTimeField");
 
     dateIndexTest.createIndex(database,
         "DateIndexTestValueDateListHashIndex",
-        OClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+        YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
         "value", "dateList");
     dateIndexTest.createIndex(database,
         "DateIndexTestValueDateTimeListHashIndex",
-        OClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+        YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
         "value", "dateTimeList");
   }
 
@@ -90,7 +90,7 @@ public class DateIndexTest extends DocumentDBBaseTest {
 
     final Date dateTwo = new Date(dateOne.getTime() + 24 * 60 * 60 * 1000 + 100);
 
-    final ODocument dateDoc = new ODocument("DateIndexTest");
+    final YTDocument dateDoc = new YTDocument("DateIndexTest");
 
     dateDoc.field("dateField", dateOne);
     dateDoc.field("dateTimeField", dateTwo);
@@ -122,10 +122,10 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestDateIndex");
-    try (Stream<ORID> stream = dateIndexTestDateIndex.getInternal().getRids(database, dateOne)) {
+    try (Stream<YTRID> stream = dateIndexTestDateIndex.getInternal().getRids(database, dateOne)) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream = dateIndexTestDateIndex.getInternal().getRids(database, dateTwo)) {
+    try (Stream<YTRID> stream = dateIndexTestDateIndex.getInternal().getRids(database, dateTwo)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
@@ -134,11 +134,11 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestDateTimeIndex");
-    try (Stream<ORID> stream = dateIndexTestDateTimeIndex.getInternal()
+    try (Stream<YTRID> stream = dateIndexTestDateTimeIndex.getInternal()
         .getRids(database, dateTwo)) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream = dateIndexTestDateTimeIndex.getInternal()
+    try (Stream<YTRID> stream = dateIndexTestDateTimeIndex.getInternal()
         .getRids(database, dateOne)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
@@ -148,12 +148,12 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestValueDateIndex");
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateIndex.getInternal()
             .getRids(database, new OCompositeKey("v1", dateOne))) {
       Assert.assertEquals((stream.findAny().orElse(null)), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateIndex.getInternal()
             .getRids(database, new OCompositeKey("v1", dateTwo))) {
       Assert.assertFalse(stream.findAny().isPresent());
@@ -164,12 +164,12 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestValueDateTimeIndex");
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateTimeIndex.getInternal()
             .getRids(database, new OCompositeKey("v1", dateTwo))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateTimeIndex.getInternal()
             .getRids(database, new OCompositeKey("v1", dateOne))) {
       Assert.assertFalse(stream.findAny().isPresent());
@@ -181,12 +181,12 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestValueDateListIndex");
 
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateListIndex.getInternal()
             .getRids(database, new OCompositeKey("v1", dateThree))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateListIndex.getInternal()
             .getRids(database, new OCompositeKey("v1", dateFour))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
@@ -197,13 +197,13 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestValueDateListIndex");
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateTimeListIndex
             .getInternal()
             .getRids(database, new OCompositeKey("v1", dateThree))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateTimeListIndex
             .getInternal()
             .getRids(database, new OCompositeKey("v1", dateFour))) {
@@ -215,11 +215,11 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestDateHashIndex");
-    try (Stream<ORID> stream = dateIndexTestDateHashIndexIndex.getInternal()
+    try (Stream<YTRID> stream = dateIndexTestDateHashIndexIndex.getInternal()
         .getRids(database, dateOne)) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream = dateIndexTestDateHashIndexIndex.getInternal()
+    try (Stream<YTRID> stream = dateIndexTestDateHashIndexIndex.getInternal()
         .getRids(database, dateTwo)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
@@ -229,11 +229,11 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestDateTimeHashIndex");
-    try (Stream<ORID> stream = dateIndexTestDateTimeHashIndex.getInternal()
+    try (Stream<YTRID> stream = dateIndexTestDateTimeHashIndex.getInternal()
         .getRids(database, dateTwo)) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream = dateIndexTestDateTimeHashIndex.getInternal()
+    try (Stream<YTRID> stream = dateIndexTestDateTimeHashIndex.getInternal()
         .getRids(database, dateOne)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
@@ -243,12 +243,12 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestValueDateHashIndex");
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateHashIndex.getInternal()
             .getRids(database, new OCompositeKey("v1", dateOne))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateHashIndex.getInternal()
             .getRids(database, new OCompositeKey("v1", dateTwo))) {
       Assert.assertFalse(stream.findAny().isPresent());
@@ -259,13 +259,13 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestValueDateTimeHashIndex");
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateTimeHashIndex
             .getInternal()
             .getRids(database, new OCompositeKey("v1", dateTwo))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateTimeHashIndex
             .getInternal()
             .getRids(database, new OCompositeKey("v1", dateOne))) {
@@ -278,13 +278,13 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestValueDateListHashIndex");
 
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateListHashIndex
             .getInternal()
             .getRids(database, new OCompositeKey("v1", dateThree))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateListHashIndex
             .getInternal()
             .getRids(database, new OCompositeKey("v1", dateFour))) {
@@ -296,13 +296,13 @@ public class DateIndexTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "DateIndexTestValueDateListHashIndex");
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateTimeListHashIndex
             .getInternal()
             .getRids(database, new OCompositeKey("v1", dateThree))) {
       Assert.assertEquals(stream.findAny().orElse(null), dateDoc.getIdentity());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         dateIndexTestValueDateTimeListHashIndex
             .getInternal()
             .getRids(database, new OCompositeKey("v1", dateFour))) {

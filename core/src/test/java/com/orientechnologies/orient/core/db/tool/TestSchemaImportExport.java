@@ -2,11 +2,11 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,10 +25,10 @@ public class TestSchemaImportExport extends DBTestBase {
         "admin");
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     try (var db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      OClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty(db, "some", OType.STRING);
+      YTClass clazz = db.getMetadata().getSchema().createClass("Test");
+      clazz.createProperty(db, "some", YTType.STRING);
       clazz.setCustom(db, "testcustom", "test");
       ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
@@ -43,13 +43,13 @@ public class TestSchemaImportExport extends DBTestBase {
         "admin",
         "admin");
     try (var db1 =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       ODatabaseImport imp =
           new ODatabaseImport(
               db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      OClass clas1 = db1.getMetadata().getSchema().getClass("Test");
+      YTClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertNotNull(clas1);
       Assert.assertEquals("test", clas1.getCustom("testcustom"));
     } finally {
@@ -68,10 +68,10 @@ public class TestSchemaImportExport extends DBTestBase {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     try (var db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      OClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty(db, "bla", OType.STRING).setDefaultValue(db, "something");
+      YTClass clazz = db.getMetadata().getSchema().createClass("Test");
+      clazz.createProperty(db, "bla", YTType.STRING).setDefaultValue(db, "something");
       ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
@@ -85,16 +85,16 @@ public class TestSchemaImportExport extends DBTestBase {
         "admin",
         "admin");
     try (var db1 =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       ODatabaseImport imp =
           new ODatabaseImport(
               db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
 
-      OClass clas1 = db1.getMetadata().getSchema().getClass("Test");
+      YTClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertNotNull(clas1);
-      OProperty prop1 = clas1.getProperty("bla");
+      YTProperty prop1 = clas1.getProperty("bla");
       Assert.assertNotNull(prop1);
       Assert.assertEquals("something", prop1.getDefaultValue());
     } finally {
@@ -112,9 +112,9 @@ public class TestSchemaImportExport extends DBTestBase {
         "admin");
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     try (var db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      OClass clazz = db.getMetadata().getSchema().createClass("Test");
+      YTClass clazz = db.getMetadata().getSchema().createClass("Test");
       clazz.addSuperClass(db, db.getMetadata().getSchema().getClass("ORestricted"));
       clazz.addSuperClass(db, db.getMetadata().getSchema().getClass("OIdentity"));
 
@@ -131,13 +131,13 @@ public class TestSchemaImportExport extends DBTestBase {
         "admin",
         "admin");
     try (var db1 =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       ODatabaseImport imp =
           new ODatabaseImport(
               db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      OClass clas1 = db1.getMetadata().getSchema().getClass("Test");
+      YTClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertTrue(clas1.isSubClassOf("OIdentity"));
       Assert.assertTrue(clas1.isSubClassOf("ORestricted"));
     } finally {

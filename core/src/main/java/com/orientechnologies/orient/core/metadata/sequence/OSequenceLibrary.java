@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import java.util.Set;
 
 /**
@@ -32,10 +32,11 @@ public interface OSequenceLibrary {
 
   int getSequenceCount();
 
-  OSequence createSequence(String iName, SEQUENCE_TYPE sequenceType, OSequence.CreateParams params)
+  YTSequence createSequence(String iName, SEQUENCE_TYPE sequenceType,
+      YTSequence.CreateParams params)
       throws ODatabaseException;
 
-  OSequence getSequence(String iName);
+  YTSequence getSequence(String iName);
 
   void dropSequence(String iName) throws ODatabaseException;
 

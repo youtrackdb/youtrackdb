@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -46,14 +46,14 @@ public class OFieldMatchPathItem extends OMatchPathItem {
     }
   }
 
-  protected Iterable<OIdentifiable> traversePatternEdge(
+  protected Iterable<YTIdentifiable> traversePatternEdge(
       OMatchStatement.MatchContext matchContext,
-      OIdentifiable startingPoint,
+      YTIdentifiable startingPoint,
       OCommandContext iCommandContext) {
 
     //    Iterable possibleResults = null;
     //    if (filter != null) {
-    //      OIdentifiable matchedNode = matchContext.matched.get(filter.getAlias());
+    //      YTIdentifiable matchedNode = matchContext.matched.get(filter.getAlias());
     //      if (matchedNode != null) {
     //        possibleResults = Collections.singleton(matchedNode);
     //      } else if (matchContext.matched.containsKey(filter.getAlias())) {
@@ -70,9 +70,9 @@ public class OFieldMatchPathItem extends OMatchPathItem {
     }
     // TODO check possible results!
     Object qR = this.exp.execute(startingPoint, iCommandContext);
-    return (qR instanceof Iterable && !(qR instanceof ODocument))
+    return (qR instanceof Iterable && !(qR instanceof YTDocument))
         ? (Iterable) qR
-        : Collections.singleton((OIdentifiable) qR);
+        : Collections.singleton((YTIdentifiable) qR);
   }
 
   @Override

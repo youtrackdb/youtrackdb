@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,18 +34,18 @@ import java.util.Map;
 public abstract class OCommandExecutorSQLEarlyResultsetAbstract
     extends OCommandExecutorSQLResultsetAbstract {
 
-  private Iterator<OIdentifiable> iterator;
+  private Iterator<YTIdentifiable> iterator;
 
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return iterator(ODatabaseRecordThreadLocal.instance().get(), null);
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator(ODatabaseSessionInternal querySession,
+  public Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
       Map<Object, Object> iArgs) {
     if (iterator == null) {
       if (tempResult == null) {
-        tempResult = (List<OIdentifiable>) execute(iArgs, querySession);
+        tempResult = (List<YTIdentifiable>) execute(iArgs, querySession);
       }
       iterator = tempResult.iterator();
     }

@@ -15,11 +15,11 @@ package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
@@ -38,7 +38,7 @@ public class OSystemDBImporter extends Thread {
     return enabled;
   }
 
-  public OSystemDBImporter(final YouTrackDBInternal context, final ODocument jsonConfig) {
+  public OSystemDBImporter(final YouTrackDBInternal context, final YTDocument jsonConfig) {
     super(YouTrackDBManager.instance().getThreadGroup(), "YouTrackDB Auditing Log Importer Thread");
 
     this.context = context;
@@ -89,8 +89,8 @@ public class OSystemDBImporter extends Thread {
   }
 
   private void importDB(final String dbName) {
-    ODatabaseSessionInternal db = null;
-    ODatabaseSessionInternal sysdb = null;
+    YTDatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal sysdb = null;
 
     try {
       db = context.openNoAuthorization(dbName);
@@ -125,33 +125,33 @@ public class OSystemDBImporter extends Thread {
         while (result.hasNext()) {
           OResult doc = result.next();
           try {
-            OElement copy = new ODocument();
+            YTEntity copy = new YTDocument();
 
             if (doc.hasProperty("date")) {
-              copy.setProperty("date", doc.getProperty("date"), OType.DATETIME);
+              copy.setProperty("date", doc.getProperty("date"), YTType.DATETIME);
             }
 
             if (doc.hasProperty("operation")) {
-              copy.setProperty("operation", doc.getProperty("operation"), OType.BYTE);
+              copy.setProperty("operation", doc.getProperty("operation"), YTType.BYTE);
             }
 
             if (doc.hasProperty("record")) {
-              copy.setProperty("record", doc.getProperty("record"), OType.LINK);
+              copy.setProperty("record", doc.getProperty("record"), YTType.LINK);
             }
 
             if (doc.hasProperty("changes")) {
-              copy.setProperty("changes", doc.getProperty("changes"), OType.EMBEDDED);
+              copy.setProperty("changes", doc.getProperty("changes"), YTType.EMBEDDED);
             }
 
             if (doc.hasProperty("note")) {
-              copy.setProperty("note", doc.getProperty("note"), OType.STRING);
+              copy.setProperty("note", doc.getProperty("note"), YTType.STRING);
             }
 
             try {
               // Convert user RID to username.
               if (doc.hasProperty("user")) {
-                // doc.field("user") will throw an exception if the user's ORID is not found.
-                ODocument userDoc = doc.getProperty("user");
+                // doc.field("user") will throw an exception if the user's YTRID is not found.
+                YTDocument userDoc = doc.getProperty("user");
                 final String username = userDoc.field("name");
 
                 if (username != null) {

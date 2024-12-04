@@ -2,8 +2,8 @@ package com.orientechnologies.lucene.benchmark;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
@@ -49,7 +49,7 @@ public class FulltextIndexFunctionBenchmark {
     new Runner(opt).run();
   }
 
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
   private YouTrackDB context;
   private ODatabaseType type;
 
@@ -86,7 +86,7 @@ public class FulltextIndexFunctionBenchmark {
     context.execute(
         "create database " + name + " plocal users ( admin identified by 'admin' role admin)");
 
-    db = (ODatabaseSessionInternal) context.open(name, "admin", "admin");
+    db = (YTDatabaseSessionInternal) context.open(name, "admin", "admin");
     db.set(ATTRIBUTES.MINIMUMCLUSTERS, 8);
   }
 

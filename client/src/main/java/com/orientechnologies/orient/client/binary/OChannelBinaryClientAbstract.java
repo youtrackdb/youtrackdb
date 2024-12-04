@@ -24,7 +24,7 @@ import com.orientechnologies.common.exception.OSystemException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.enterprise.channel.OSocketFactory;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -72,7 +72,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
       if (iDatabaseName != null) {
         serverURL += "/" + iDatabaseName;
       }
-      socketTimeout = iConfig.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
+      socketTimeout = iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
 
       try {
         if (remoteHost.contains(":")) {

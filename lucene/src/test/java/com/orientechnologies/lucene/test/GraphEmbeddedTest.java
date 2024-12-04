@@ -18,9 +18,9 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -37,10 +37,10 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    OClass type = db.createVertexClass("City");
-    type.createProperty(db, "latitude", OType.DOUBLE);
-    type.createProperty(db, "longitude", OType.DOUBLE);
-    type.createProperty(db, "name", OType.STRING);
+    YTClass type = db.createVertexClass("City");
+    type.createProperty(db, "latitude", YTType.DOUBLE);
+    type.createProperty(db, "longitude", YTType.DOUBLE);
+    type.createProperty(db, "name", YTType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -51,7 +51,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     // THIS WON'T USE LUCENE INDEXES!!!! see #6997
 
     db.begin();
-    OVertex city = db.newVertex("City");
+    YTVertex city = db.newVertex("City");
     city.setProperty("name", "London / a");
     db.save(city);
 
@@ -73,21 +73,21 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
 
   @Test
   public void testGetVericesFilterClass() {
-    OClass v = db.getClass("V");
-    v.createProperty(db, "name", OType.STRING);
+    YTClass v = db.getClass("V");
+    v.createProperty(db, "name", YTType.STRING);
     db.command("CREATE INDEX V.name ON V(name) NOTUNIQUE");
 
-    OClass oneClass = db.createVertexClass("One");
-    OClass twoClass = db.createVertexClass("Two");
+    YTClass oneClass = db.createVertexClass("One");
+    YTClass twoClass = db.createVertexClass("Two");
 
-    OVertex one = db.newVertex(oneClass);
+    YTVertex one = db.newVertex(oneClass);
     one.setProperty("name", "Same");
 
     db.begin();
     db.save(one);
     db.commit();
 
-    OVertex two = db.newVertex(twoClass);
+    YTVertex two = db.newVertex(twoClass);
     two.setProperty("name", "Same");
     db.begin();
     db.save(two);

@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
@@ -74,7 +74,7 @@ public class OSQLFunctionIf extends OSQLFunctionAbstract {
   @Override
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
       final OCommandContext iContext) {
@@ -103,7 +103,7 @@ public class OSQLFunctionIf extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "if(<field|value|expression>, <return_value_if_true> [,<return_value_if_false>])";
   }
 }

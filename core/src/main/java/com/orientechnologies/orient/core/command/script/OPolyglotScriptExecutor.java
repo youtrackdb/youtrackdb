@@ -6,8 +6,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -29,39 +29,39 @@ import org.graalvm.polyglot.Value;
  *
  */
 public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
-    implements OResourcePoolListener<ODatabaseSessionInternal, Context> {
+    implements OResourcePoolListener<YTDatabaseSessionInternal, Context> {
 
   private final OScriptTransformer transformer;
-  protected ConcurrentHashMap<String, OResourcePool<ODatabaseSessionInternal, Context>>
+  protected ConcurrentHashMap<String, OResourcePool<YTDatabaseSessionInternal, Context>>
       contextPools =
-      new ConcurrentHashMap<String, OResourcePool<ODatabaseSessionInternal, Context>>();
+      new ConcurrentHashMap<String, OResourcePool<YTDatabaseSessionInternal, Context>>();
 
   public OPolyglotScriptExecutor(final String language, OScriptTransformer scriptTransformer) {
     super("javascript".equalsIgnoreCase(language) ? "js" : language);
     this.transformer = scriptTransformer;
   }
 
-  private Context resolveContext(ODatabaseSessionInternal database) {
-    OResourcePool<ODatabaseSessionInternal, Context> pool =
+  private Context resolveContext(YTDatabaseSessionInternal database) {
+    OResourcePool<YTDatabaseSessionInternal, Context> pool =
         contextPools.computeIfAbsent(
             database.getName(),
             (k) -> {
-              return new OResourcePool<ODatabaseSessionInternal, Context>(
-                  database.getConfiguration().getValueAsInteger(OGlobalConfiguration.SCRIPT_POOL),
+              return new OResourcePool<YTDatabaseSessionInternal, Context>(
+                  database.getConfiguration().getValueAsInteger(YTGlobalConfiguration.SCRIPT_POOL),
                   OPolyglotScriptExecutor.this);
             });
     return pool.getResource(database, 0);
   }
 
-  private void returnContext(Context context, ODatabaseSessionInternal database) {
-    OResourcePool<ODatabaseSessionInternal, Context> pool = contextPools.get(database.getName());
+  private void returnContext(Context context, YTDatabaseSessionInternal database) {
+    OResourcePool<YTDatabaseSessionInternal, Context> pool = contextPools.get(database.getName());
     if (pool != null) {
       pool.returnResource(context);
     }
   }
 
   @Override
-  public Context createNewResource(ODatabaseSessionInternal database, Object... iAdditionalArgs) {
+  public Context createNewResource(YTDatabaseSessionInternal database, Object... iAdditionalArgs) {
     final OScriptManager scriptManager =
         database.getSharedContext().getYouTrackDB().getScriptManager();
 
@@ -104,12 +104,12 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
 
   @Override
   public boolean reuseResource(
-      ODatabaseSessionInternal iKey, Object[] iAdditionalArgs, Context iValue) {
+      YTDatabaseSessionInternal iKey, Object[] iAdditionalArgs, Context iValue) {
     return true;
   }
 
   @Override
-  public OResultSet execute(ODatabaseSessionInternal database, String script, Object... params) {
+  public OResultSet execute(YTDatabaseSessionInternal database, String script, Object... params) {
     preExecute(database, script, params);
 
     Int2ObjectOpenHashMap<Object> par = new Int2ObjectOpenHashMap<>();
@@ -121,7 +121,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   }
 
   @Override
-  public OResultSet execute(ODatabaseSessionInternal database, String script, Map params) {
+  public OResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
 
     preExecute(database, script, params);
 
@@ -153,7 +153,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseSessionInternal database = context.getDatabase();
+    YTDatabaseSessionInternal database = context.getDatabase();
     final OFunction f = database.getMetadata().getFunctionLibrary().getFunction(functionName);
 
     database.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ,
@@ -204,7 +204,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
 
   @Override
   public void close(String iDatabaseName) {
-    OResourcePool<ODatabaseSessionInternal, Context> contextPool =
+    OResourcePool<YTDatabaseSessionInternal, Context> contextPool =
         contextPools.remove(iDatabaseName);
     if (contextPool != null) {
       for (Context c : contextPool.getAllResources()) {
@@ -216,7 +216,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
 
   @Override
   public void closeAll() {
-    for (OResourcePool<ODatabaseSessionInternal, Context> d : contextPools.values()) {
+    for (OResourcePool<YTDatabaseSessionInternal, Context> d : contextPools.values()) {
       for (Context c : d.getAllResources()) {
         c.close();
       }

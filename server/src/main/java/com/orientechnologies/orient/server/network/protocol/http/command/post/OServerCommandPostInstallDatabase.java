@@ -17,7 +17,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -57,7 +57,7 @@ public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticat
                   () -> {
                     return null;
                   });
-          try (ODatabaseSession session = server.getDatabases().openNoAuthorization(name)) {
+          try (YTDatabaseSession session = server.getDatabases().openNoAuthorization(name)) {
           }
 
           iResponse.send(

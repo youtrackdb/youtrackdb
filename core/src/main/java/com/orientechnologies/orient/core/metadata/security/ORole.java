@@ -21,13 +21,13 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.io.Serial;
 import java.util.HashMap;
@@ -84,13 +84,13 @@ public class ORole extends OIdentity implements OSecurityRole {
   public ORole() {
   }
 
-  public ORole(ODatabaseSession session, final String iName, final ORole iParent,
+  public ORole(YTDatabaseSession session, final String iName, final ORole iParent,
       final ALLOW_MODES iAllowMode) {
     this(session, iName, iParent, iAllowMode, null);
   }
 
   public ORole(
-      ODatabaseSession session, final String iName,
+      YTDatabaseSession session, final String iName,
       final ORole iParent,
       final ALLOW_MODES iAllowMode,
       Map<String, OSecurityPolicy> policies) {
@@ -101,9 +101,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     getDocument(session).field("inheritedRole",
         iParent != null ? iParent.getIdentity(session) : null);
     if (policies != null) {
-      Map<String, OIdentifiable> p = new HashMap<>();
+      Map<String, YTIdentifiable> p = new HashMap<>();
       policies.forEach((k, v) -> p.put(k,
-          ((OSecurityPolicyImpl) v).getElement((ODatabaseSessionInternal) session)));
+          ((OSecurityPolicyImpl) v).getElement((YTDatabaseSessionInternal) session)));
       getDocument(session).setProperty("policies", p);
     }
 
@@ -113,8 +113,8 @@ public class ORole extends OIdentity implements OSecurityRole {
   /**
    * Create the role by reading the source document.
    */
-  public ORole(ODatabaseSession session, final ODocument iSource) {
-    fromStream((ODatabaseSessionInternal) session, iSource);
+  public ORole(YTDatabaseSession session, final YTDocument iSource) {
+    fromStream((YTDatabaseSessionInternal) session, iSource);
   }
 
   /**
@@ -166,7 +166,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   @Override
-  public void fromStream(ODatabaseSessionInternal session, final ODocument iSource) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iSource) {
     if (getDocument(session) != null) {
       return;
     }
@@ -189,7 +189,7 @@ public class ORole extends OIdentity implements OSecurityRole {
       mode = ALLOW_MODES.DENY_ALL_BUT;
     }
 
-    final OIdentifiable role = document.field("inheritedRole");
+    final YTIdentifiable role = document.field("inheritedRole");
     parentRole =
         role != null ? session.getMetadata().getSecurity().getRole(role) : null;
 
@@ -198,9 +198,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     if (loadedRules instanceof Map) {
       loadOldVersionOfRules((Map<String, Number>) loadedRules);
     } else {
-      final Set<ODocument> storedRules = (Set<ODocument>) loadedRules;
+      final Set<YTDocument> storedRules = (Set<YTDocument>) loadedRules;
       if (storedRules != null) {
-        for (ODocument ruleDoc : storedRules) {
+        for (YTDocument ruleDoc : storedRules) {
           final ORule.ResourceGeneric resourceGeneric =
               ORule.ResourceGeneric.valueOf(ruleDoc.field("resourceGeneric"));
           if (resourceGeneric == null) {
@@ -262,7 +262,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   public ORole addRule(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      YTDatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
     ORule rule = rules.get(resourceGeneric);
 
@@ -310,7 +310,7 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   @Deprecated
   @Override
-  public OSecurityRole addRule(ODatabaseSession session, String iResource, int iOperation) {
+  public OSecurityRole addRule(YTDatabaseSession session, String iResource, int iOperation) {
     final String specificResource = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -324,7 +324,7 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   @Deprecated
   @Override
-  public OSecurityRole grant(ODatabaseSession session, String iResource, int iOperation) {
+  public OSecurityRole grant(YTDatabaseSession session, String iResource, int iOperation) {
     final String specificResource = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -338,7 +338,7 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   @Deprecated
   @Override
-  public OSecurityRole revoke(ODatabaseSession session, String iResource, int iOperation) {
+  public OSecurityRole revoke(YTDatabaseSession session, String iResource, int iOperation) {
     final String specificResource = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -356,7 +356,7 @@ public class ORole extends OIdentity implements OSecurityRole {
    * @return
    */
   public ORole grant(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      YTDatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
     ORule rule = rules.get(resourceGeneric);
 
@@ -376,7 +376,7 @@ public class ORole extends OIdentity implements OSecurityRole {
    * Revoke a permission to the resource.
    */
   public ORole revoke(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      YTDatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
     if (iOperation == PERMISSION_NONE) {
       return this;
@@ -397,7 +397,7 @@ public class ORole extends OIdentity implements OSecurityRole {
     return this;
   }
 
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return getDocument(session).field("name");
   }
 
@@ -417,7 +417,7 @@ public class ORole extends OIdentity implements OSecurityRole {
     return parentRole;
   }
 
-  public ORole setParentRole(ODatabaseSession session, final OSecurityRole iParent) {
+  public ORole setParentRole(YTDatabaseSession session, final OSecurityRole iParent) {
     this.parentRole = (ORole) iParent;
     getDocument(session).field("inheritedRole",
         parentRole != null ? parentRole.getIdentity(session) : null);
@@ -425,7 +425,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   @Override
-  public ORole save(ODatabaseSessionInternal session) {
+  public ORole save(YTDatabaseSessionInternal session) {
     getDocument(session).save(ORole.class.getSimpleName());
     return this;
   }
@@ -465,7 +465,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   @Override
-  public OIdentifiable getIdentity(ODatabaseSession session) {
+  public YTIdentifiable getIdentity(YTDatabaseSession session) {
     return getDocument(session);
   }
 
@@ -490,13 +490,13 @@ public class ORole extends OIdentity implements OSecurityRole {
     }
   }
 
-  private void updateRolesDocumentContent(ODatabaseSession session) {
+  private void updateRolesDocumentContent(YTDatabaseSession session) {
     getDocument(session).field("rules", getRules());
   }
 
   @Override
-  public Map<String, OSecurityPolicy> getPolicies(ODatabaseSession session) {
-    Map<String, OIdentifiable> policies = getDocument(session).getProperty("policies");
+  public Map<String, OSecurityPolicy> getPolicies(YTDatabaseSession session) {
+    Map<String, YTIdentifiable> policies = getDocument(session).getProperty("policies");
     if (policies == null) {
       return null;
     }
@@ -504,7 +504,7 @@ public class ORole extends OIdentity implements OSecurityRole {
     policies.forEach(
         (key, value) -> {
           try {
-            OElement rec = value.getRecord();
+            YTEntity rec = value.getRecord();
             result.put(key, new OSecurityPolicyImpl(rec));
           } catch (ORecordNotFoundException rnf) {
             // ignore
@@ -514,16 +514,16 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   @Override
-  public OSecurityPolicy getPolicy(ODatabaseSession session, String resource) {
-    Map<String, OIdentifiable> policies = getDocument(session).getProperty("policies");
+  public OSecurityPolicy getPolicy(YTDatabaseSession session, String resource) {
+    Map<String, YTIdentifiable> policies = getDocument(session).getProperty("policies");
     if (policies == null) {
       return null;
     }
-    OIdentifiable entry = policies.get(resource);
+    YTIdentifiable entry = policies.get(resource);
     if (entry == null) {
       return null;
     }
-    OElement policy;
+    YTEntity policy;
     try {
       policy = entry.getRecord();
 

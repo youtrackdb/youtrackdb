@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OResult toResult(ODatabaseSessionInternal db) {
+  public OResult toResult(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());
@@ -105,7 +105,7 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
     return 0L;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());

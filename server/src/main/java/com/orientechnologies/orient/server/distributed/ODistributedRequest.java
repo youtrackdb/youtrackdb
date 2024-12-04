@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -42,7 +42,7 @@ public class ODistributedRequest {
   private String databaseName;
   private long senderThreadId;
   private ORemoteTask task;
-  private ORecordId
+  private YTRecordId
       userRID; // KEEP ALSO THE RID TO AVOID SECURITY PROBLEM ON DELETE & RECREATE USERS
 
   public ODistributedRequest(final ODistributedServerManager manager) {

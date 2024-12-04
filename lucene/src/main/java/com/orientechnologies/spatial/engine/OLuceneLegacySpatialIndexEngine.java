@@ -23,16 +23,16 @@ import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexEngineException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
@@ -75,7 +75,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
     super(storage, indexName, id, factory);
   }
 
-  private Set<OIdentifiable> legacySearch(ODatabaseSessionInternal session, Object key,
+  private Set<YTIdentifiable> legacySearch(YTDatabaseSessionInternal session, Object key,
       OLuceneTxChanges changes) throws IOException {
     if (key instanceof OSpatialCompositeKey newKey) {
 
@@ -95,13 +95,14 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
     throw new OIndexEngineException("Unknown key" + key, null);
   }
 
-  private Set<OIdentifiable> searchIntersect(
-      ODatabaseSessionInternal session, OCompositeKey key, double distance, OCommandContext context,
+  private Set<YTIdentifiable> searchIntersect(
+      YTDatabaseSessionInternal session, OCompositeKey key, double distance,
+      OCommandContext context,
       OLuceneTxChanges changes)
       throws IOException {
 
-    double lat = (Double) OType.convert(session, key.getKeys().get(0), Double.class);
-    double lng = (Double) OType.convert(session, key.getKeys().get(1), Double.class);
+    double lat = (Double) YTType.convert(session, key.getKeys().get(0), Double.class);
+    double lng = (Double) YTType.convert(session, key.getKeys().get(1), Double.class);
     SpatialOperation operation = SpatialOperation.Intersects;
 
     @SuppressWarnings("deprecation")
@@ -133,7 +134,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
     return new OLuceneResultSet(this, queryContext, EMPTY_METADATA);
   }
 
-  private Set<OIdentifiable> searchWithin(
+  private Set<YTIdentifiable> searchWithin(
       OSpatialCompositeKey key, OCommandContext context, OLuceneTxChanges changes) {
 
     Shape shape = legacyBuilder.makeShape(context.getDatabase(), key, ctx);
@@ -160,7 +161,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   @Override
   public void onRecordAddedToResultSet(
       OLuceneQueryContext queryContext,
-      OContextualRecordId recordId,
+      YTContextualRecordId recordId,
       Document doc,
       ScoreDoc score) {
 
@@ -179,7 +180,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   }
 
   @Override
-  public Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+  public Set<YTIdentifiable> getInTx(YTDatabaseSessionInternal session, Object key,
       OLuceneTxChanges changes) {
     try {
       updateLastAccess();
@@ -192,12 +193,12 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   }
 
   @Override
-  public Object get(ODatabaseSessionInternal session, Object key) {
+  public Object get(YTDatabaseSessionInternal session, Object key) {
     return getInTx(session, key, null);
   }
 
   @Override
-  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  public void put(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       Object value) {
 
     if (key instanceof OCompositeKey compositeKey) {
@@ -205,7 +206,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
       openIfClosed();
       addDocument(
           newGeoDocument(
-              (OIdentifiable) value,
+              (YTIdentifiable) value,
               legacyBuilder.makeShape(session, compositeKey, ctx),
               compositeKey.toDocument()));
     }
@@ -213,7 +214,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
 
   @Override
   public void update(
-      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       OIndexKeyUpdater<Object> updater) {
     throw new UnsupportedOperationException();
   }
@@ -222,14 +223,15 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator) {
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator) {
     throw new UnsupportedOperationException(
         "Validated put is not supported by OLuceneLegacySpatialIndexEngine");
   }
 
   @Override
-  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
+  public Document buildDocument(YTDatabaseSessionInternal session, Object key,
+      YTIdentifiable value) {
     return newGeoDocument(
         value,
         legacyBuilder.makeShape(session, (OCompositeKey) key, ctx),

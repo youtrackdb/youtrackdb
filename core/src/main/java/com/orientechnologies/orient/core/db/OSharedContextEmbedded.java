@@ -1,22 +1,22 @@
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexManagerShared;
 import com.orientechnologies.orient.core.index.OIndexes;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.function.OFunctionLibraryImpl;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaEmbedded;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryImpl;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.schedule.OSchedulerImpl;
 import com.orientechnologies.orient.core.sql.executor.OQueryStats;
 import com.orientechnologies.orient.core.sql.parser.OExecutionPlanCache;
@@ -46,7 +46,7 @@ public class OSharedContextEmbedded extends OSharedContext {
             storage
                 .getConfiguration()
                 .getContextConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.DB_STRING_CAHCE_SIZE));
+                .getValueAsInteger(YTGlobalConfiguration.DB_STRING_CAHCE_SIZE));
     schema = new OSchemaEmbedded();
     security = youtrackDB.getSecuritySystem().newSecurity(storage.getName());
     indexManager = new OIndexManagerShared(storage);
@@ -60,14 +60,14 @@ public class OSharedContextEmbedded extends OSharedContext {
             storage
                 .getConfiguration()
                 .getContextConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.STATEMENT_CACHE_SIZE));
+                .getValueAsInteger(YTGlobalConfiguration.STATEMENT_CACHE_SIZE));
 
     executionPlanCache =
         new OExecutionPlanCache(
             storage
                 .getConfiguration()
                 .getContextConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.STATEMENT_CACHE_SIZE));
+                .getValueAsInteger(YTGlobalConfiguration.STATEMENT_CACHE_SIZE));
     this.registerListener(executionPlanCache);
 
     queryStats = new OQueryStats();
@@ -83,7 +83,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     this.viewManager = new ViewManager(youtrackDB, storage.getName());
   }
 
-  public synchronized void load(ODatabaseSessionInternal database) {
+  public synchronized void load(YTDatabaseSessionInternal database) {
     final long timer = PROFILER.startChrono();
 
     try {
@@ -129,7 +129,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     loaded = false;
   }
 
-  public synchronized void reload(ODatabaseSessionInternal database) {
+  public synchronized void reload(YTDatabaseSessionInternal database) {
     schema.reload(database);
     indexManager.reload(database);
     // The Immutable snapshot should be after index and schema that require and before everything
@@ -141,7 +141,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     scheduler.load(database);
   }
 
-  public synchronized void create(ODatabaseSessionInternal database) {
+  public synchronized void create(YTDatabaseSessionInternal database) {
     schema.create(database);
     indexManager.create(database);
     security.create(database);
@@ -152,13 +152,13 @@ public class OSharedContextEmbedded extends OSharedContext {
     schema.forceSnapshot(database);
 
     // CREATE BASE VERTEX AND EDGE CLASSES
-    schema.createClass(database, OElement.DEFAULT_CLASS_NAME);
+    schema.createClass(database, YTEntity.DEFAULT_CLASS_NAME);
     schema.createClass(database, "V");
     schema.createClass(database, "E");
 
     // create geospatial classes
     try {
-      OIndexFactory factory = OIndexes.getFactory(OClass.INDEX_TYPE.SPATIAL.toString(), "LUCENE");
+      OIndexFactory factory = OIndexes.getFactory(YTClass.INDEX_TYPE.SPATIAL.toString(), "LUCENE");
       if (factory instanceof ODatabaseLifecycleListener) {
         ((ODatabaseLifecycleListener) factory).onCreate(database);
       }
@@ -179,7 +179,7 @@ public class OSharedContextEmbedded extends OSharedContext {
   }
 
   public synchronized void reInit(
-      OAbstractPaginatedStorage storage2, ODatabaseSessionInternal database) {
+      OAbstractPaginatedStorage storage2, YTDatabaseSessionInternal database) {
     this.close();
     this.storage = storage2;
     this.init(storage2);
@@ -188,7 +188,7 @@ public class OSharedContextEmbedded extends OSharedContext {
   }
 
   public synchronized Map<String, Object> loadConfig(
-      ODatabaseSessionInternal session, String name) {
+      YTDatabaseSessionInternal session, String name) {
     //noinspection unchecked
     return (Map<String, Object>)
         OScenarioThreadLocal.executeAsDistributed(
@@ -197,9 +197,9 @@ public class OSharedContextEmbedded extends OSharedContext {
               String propertyName = "__config__" + name;
               String id = storage.getConfiguration().getProperty(propertyName);
               if (id != null) {
-                ORecordId recordId = new ORecordId(id);
-                ODocument config = session.load(recordId);
-                ORecordInternal.setIdentity(config, new ORecordId(-1, -1));
+                YTRecordId recordId = new YTRecordId(id);
+                YTDocument config = session.load(recordId);
+                ORecordInternal.setIdentity(config, new YTRecordId(-1, -1));
                 return config.toMap();
               } else {
                 return null;
@@ -207,7 +207,7 @@ public class OSharedContextEmbedded extends OSharedContext {
             });
   }
 
-  public Map<String, Object> loadDistributedConfig(ODatabaseSessionInternal session) {
+  public Map<String, Object> loadDistributedConfig(YTDatabaseSessionInternal session) {
     return loadConfig(session, "ditributedConfig");
   }
 }

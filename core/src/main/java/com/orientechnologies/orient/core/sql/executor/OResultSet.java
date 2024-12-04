@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -84,29 +84,29 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
     return stream().findFirst().orElseThrow(() -> new IllegalStateException("No result found"));
   }
 
-  default OElement findFirstElement() {
+  default YTEntity findFirstElement() {
     return elementStream().findFirst().orElse(null);
   }
 
-  default OElement findFirstElementOrThrow() {
+  default YTEntity findFirstElementOrThrow() {
     return elementStream().findFirst()
         .orElseThrow(() -> new IllegalStateException("No element found"));
   }
 
-  default OVertex findFirstVertex() {
+  default YTVertex findFirstVertex() {
     return vertexStream().findFirst().orElse(null);
   }
 
-  default OVertex findFirstVertexOrThrow() {
+  default YTVertex findFirstVertexOrThrow() {
     return vertexStream().findFirst()
         .orElseThrow(() -> new IllegalStateException("No vertex found"));
   }
 
-  default OEdge findFirstEdge() {
+  default YTEdge findFirstEdge() {
     return edgeStream().findFirst().orElse(null);
   }
 
-  default OEdge findFirstEdgeOrThrow() {
+  default YTEdge findFirstEdgeOrThrow() {
     return edgeStream().findFirst()
         .orElseThrow(() -> new IllegalStateException("No edge found"));
   }
@@ -117,11 +117,11 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
    *
    * @return
    */
-  default Stream<OElement> elementStream() {
+  default Stream<YTEntity> elementStream() {
     return StreamSupport.stream(
-            new Spliterator<OElement>() {
+            new Spliterator<YTEntity>() {
               @Override
-              public boolean tryAdvance(Consumer<? super OElement> action) {
+              public boolean tryAdvance(Consumer<? super YTEntity> action) {
                 while (hasNext()) {
                   OResult elem = next();
                   if (elem.isElement()) {
@@ -133,7 +133,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               }
 
               @Override
-              public Spliterator<OElement> trySplit() {
+              public Spliterator<YTEntity> trySplit() {
                 return null;
               }
 
@@ -151,7 +151,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
         .onClose(this::close);
   }
 
-  default List<OElement> toElementList() {
+  default List<YTEntity> toElementList() {
     return elementStream().toList();
   }
 
@@ -161,11 +161,11 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
    *
    * @return
    */
-  default Stream<OVertex> vertexStream() {
+  default Stream<YTVertex> vertexStream() {
     return StreamSupport.stream(
-            new Spliterator<OVertex>() {
+            new Spliterator<YTVertex>() {
               @Override
-              public boolean tryAdvance(Consumer<? super OVertex> action) {
+              public boolean tryAdvance(Consumer<? super YTVertex> action) {
                 while (hasNext()) {
                   OResult elem = next();
                   if (elem.isVertex()) {
@@ -177,7 +177,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               }
 
               @Override
-              public Spliterator<OVertex> trySplit() {
+              public Spliterator<YTVertex> trySplit() {
                 return null;
               }
 
@@ -195,7 +195,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
         .onClose(this::close);
   }
 
-  default List<OVertex> toVertexList() {
+  default List<YTVertex> toVertexList() {
     return vertexStream().toList();
   }
 
@@ -205,11 +205,11 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
    *
    * @return
    */
-  default Stream<OEdge> edgeStream() {
+  default Stream<YTEdge> edgeStream() {
     return StreamSupport.stream(
-            new Spliterator<OEdge>() {
+            new Spliterator<YTEdge>() {
               @Override
-              public boolean tryAdvance(Consumer<? super OEdge> action) {
+              public boolean tryAdvance(Consumer<? super YTEdge> action) {
                 while (hasNext()) {
                   OResult nextElem = next();
                   if (nextElem != null && nextElem.isEdge()) {
@@ -221,7 +221,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               }
 
               @Override
-              public Spliterator<OEdge> trySplit() {
+              public Spliterator<YTEdge> trySplit() {
                 return null;
               }
 
@@ -239,7 +239,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
         .onClose(this::close);
   }
 
-  default List<OEdge> toEdgeList() {
+  default List<YTEdge> toEdgeList() {
     return edgeStream().toList();
   }
 }

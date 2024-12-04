@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testCreateSingleEdge() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     String vClass = "testCreateSingleEdgeV";
     schema.createClass(vClass, schema.getClass("V"));
@@ -26,13 +26,13 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     schema.createClass(eClass, schema.getClass("E"));
 
     db.begin();
-    OVertex v1 = db.newVertex(vClass);
+    YTVertex v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
     db.commit();
 
     db.begin();
-    OVertex v2 = db.newVertex(vClass);
+    YTVertex v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
     db.commit();
@@ -62,7 +62,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testCreateEdgeWithProperty() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     String vClass = "testCreateEdgeWithPropertyV";
     schema.createClass(vClass, schema.getClass("V"));
@@ -71,13 +71,13 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     schema.createClass(eClass, schema.getClass("E"));
 
     db.begin();
-    OVertex v1 = db.newVertex(vClass);
+    YTVertex v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
     db.commit();
 
     db.begin();
-    OVertex v2 = db.newVertex(vClass);
+    YTVertex v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
     db.commit();
@@ -106,7 +106,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testCreateTwoByTwo() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     String vClass = "testCreateTwoByTwoV";
     schema.createClass(vClass, schema.getClass("V"));
@@ -116,7 +116,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 4; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass);
+      YTVertex v1 = db.newVertex(vClass);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -158,25 +158,25 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testUpsert() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     String vClass1 = "testUpsertV1";
-    OClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
+    YTClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
 
     String vClass2 = "testUpsertV2";
-    OClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
+    YTClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
 
     String eClass = "testUpsertE";
 
-    OClass eclazz = schema.createClass(eClass, schema.getClass("E"));
-    eclazz.createProperty(db, "out", OType.LINK, vclazz1);
-    eclazz.createProperty(db, "in", OType.LINK, vclazz2);
+    YTClass eclazz = schema.createClass(eClass, schema.getClass("E"));
+    eclazz.createProperty(db, "out", YTType.LINK, vclazz1);
+    eclazz.createProperty(db, "in", YTType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass1);
+      YTVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -184,7 +184,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass2);
+      YTVertex v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -232,25 +232,25 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testUpsertHashIndex() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     String vClass1 = "testUpsertHashIndexV1";
-    OClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
+    YTClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
 
     String vClass2 = "testUpsertHashIndexV2";
-    OClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
+    YTClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
 
     String eClass = "testUpsertHashIndexE";
 
-    OClass eclazz = schema.createClass(eClass, schema.getClass("E"));
-    eclazz.createProperty(db, "out", OType.LINK, vclazz1);
-    eclazz.createProperty(db, "in", OType.LINK, vclazz2);
+    YTClass eclazz = schema.createClass(eClass, schema.getClass("E"));
+    eclazz.createProperty(db, "out", YTType.LINK, vclazz1);
+    eclazz.createProperty(db, "in", YTType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass1);
+      YTVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -258,7 +258,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass2);
+      YTVertex v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -305,25 +305,25 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testBreakUniqueWithoutUpsert() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     String vClass1 = "testBreakUniqueWithoutUpsertV1";
-    OClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
+    YTClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
 
     String vClass2 = "testBreakUniqueWithoutUpsertV2";
-    OClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
+    YTClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
 
     String eClass = "testBreakUniqueWithoutUpsertE";
 
-    OClass eclazz = schema.createClass(eClass, schema.getClass("E"));
-    eclazz.createProperty(db, "out", OType.LINK, vclazz1);
-    eclazz.createProperty(db, "in", OType.LINK, vclazz2);
+    YTClass eclazz = schema.createClass(eClass, schema.getClass("E"));
+    eclazz.createProperty(db, "out", YTType.LINK, vclazz1);
+    eclazz.createProperty(db, "in", YTType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass1);
+      YTVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -331,7 +331,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass2);
+      YTVertex v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -375,7 +375,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testUpsertNoIndex() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     String vClass1 = "testUpsertNoIndexV1";
     schema.createClass(vClass1, schema.getClass("V"));
@@ -387,7 +387,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass1);
+      YTVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -395,7 +395,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass2);
+      YTVertex v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();
@@ -428,7 +428,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vClass1);
+      YTVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
       db.commit();

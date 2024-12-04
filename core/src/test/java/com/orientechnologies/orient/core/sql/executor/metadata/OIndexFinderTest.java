@@ -5,13 +5,13 @@ import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.Optional;
 import org.junit.After;
@@ -20,7 +20,7 @@ import org.junit.Test;
 
 public class OIndexFinderTest {
 
-  private ODatabaseSessionInternal session;
+  private YTDatabaseSessionInternal session;
   private YouTrackDB youTrackDb;
 
   @Before
@@ -32,16 +32,16 @@ public class OIndexFinderTest {
             + OIndexFinderTest.class.getSimpleName()
             + " memory users (admin identified by 'adminpwd' role admin)");
     this.session =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             this.youTrackDb.open(OIndexFinderTest.class.getSimpleName(), "admin", "adminpwd");
   }
 
   @Test
   public void testFindSimpleMatchIndex() {
-    OClass cl = this.session.createClass("cl");
-    OProperty prop = cl.createProperty(session, "name", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    OProperty prop1 = cl.createProperty(session, "surname", OType.STRING);
+    YTProperty prop1 = cl.createProperty(session, "surname", YTType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -57,10 +57,10 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindSimpleMatchHashIndex() {
-    OClass cl = this.session.createClass("cl");
-    OProperty prop = cl.createProperty(session, "name", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
-    OProperty prop1 = cl.createProperty(session, "surname", OType.STRING);
+    YTProperty prop1 = cl.createProperty(session, "surname", YTType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE_HASH_INDEX);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -76,10 +76,10 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindRangeMatchIndex() {
-    OClass cl = this.session.createClass("cl");
-    OProperty prop = cl.createProperty(session, "name", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    OProperty prop1 = cl.createProperty(session, "surname", OType.STRING);
+    YTProperty prop1 = cl.createProperty(session, "surname", YTType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -97,12 +97,12 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindRangeNotMatchIndex() {
-    OClass cl = this.session.createClass("cl");
-    OProperty prop = cl.createProperty(session, "name", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
-    OProperty prop1 = cl.createProperty(session, "surname", OType.STRING);
+    YTProperty prop1 = cl.createProperty(session, "surname", YTType.STRING);
     prop1.createIndex(session, INDEX_TYPE.UNIQUE_HASH_INDEX);
-    OProperty prop2 = cl.createProperty(session, "third", OType.STRING);
+    YTProperty prop2 = cl.createProperty(session, "third", YTType.STRING);
     prop2.createIndex(session, INDEX_TYPE.FULLTEXT);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -125,8 +125,8 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindByKey() {
-    OClass cl = this.session.createClass("cl");
-    cl.createProperty(session, "map", OType.EMBEDDEDMAP);
+    YTClass cl = this.session.createClass("cl");
+    cl.createProperty(session, "map", YTType.EMBEDDEDMAP);
     this.session.command("create index cl.map on cl(map by key) NOTUNIQUE").close();
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -138,8 +138,8 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindByValue() {
-    OClass cl = this.session.createClass("cl");
-    cl.createProperty(session, "map", OType.EMBEDDEDMAP, OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    cl.createProperty(session, "map", YTType.EMBEDDEDMAP, YTType.STRING);
     this.session.command("create index cl.map on cl(map by value) NOTUNIQUE").close();
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -151,8 +151,8 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindFullTextMatchIndex() {
-    OClass cl = this.session.createClass("cl");
-    OProperty prop = cl.createProperty(session, "name", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.FULLTEXT);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -164,10 +164,10 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindChainMatchIndex() {
-    OClass cl = this.session.createClass("cl");
-    OProperty prop = cl.createProperty(session, "name", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    OProperty prop1 = cl.createProperty(session, "friend", OType.LINK, cl);
+    YTProperty prop1 = cl.createProperty(session, "friend", YTType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -181,10 +181,10 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindChainRangeIndex() {
-    OClass cl = this.session.createClass("cl");
-    OProperty prop = cl.createProperty(session, "name", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    OProperty prop1 = cl.createProperty(session, "friend", OType.LINK, cl);
+    YTProperty prop1 = cl.createProperty(session, "friend", YTType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -198,10 +198,10 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindChainByKeyIndex() {
-    OClass cl = this.session.createClass("cl");
-    cl.createProperty(session, "map", OType.EMBEDDEDMAP, OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    cl.createProperty(session, "map", YTType.EMBEDDEDMAP, YTType.STRING);
     this.session.command("create index cl.map on cl(map by key) NOTUNIQUE").close();
-    OProperty prop1 = cl.createProperty(session, "friend", OType.LINK, cl);
+    YTProperty prop1 = cl.createProperty(session, "friend", YTType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -215,10 +215,10 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindChainByValueIndex() {
-    OClass cl = this.session.createClass("cl");
-    cl.createProperty(session, "map", OType.EMBEDDEDMAP, OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    cl.createProperty(session, "map", YTType.EMBEDDEDMAP, YTType.STRING);
     this.session.command("create index cl.map on cl(map by value) NOTUNIQUE").close();
-    OProperty prop1 = cl.createProperty(session, "friend", OType.LINK, cl);
+    YTProperty prop1 = cl.createProperty(session, "friend", YTType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -232,10 +232,10 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindChainFullTextMatchIndex() {
-    OClass cl = this.session.createClass("cl");
-    OProperty prop = cl.createProperty(session, "name", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.FULLTEXT);
-    OProperty prop1 = cl.createProperty(session, "friend", OType.LINK, cl);
+    YTProperty prop1 = cl.createProperty(session, "friend", YTType.LINK, cl);
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
@@ -250,9 +250,9 @@ public class OIndexFinderTest {
 
   @Test
   public void testFindMultivalueMatchIndex() {
-    OClass cl = this.session.createClass("cl");
-    cl.createProperty(session, "name", OType.STRING);
-    cl.createProperty(session, "surname", OType.STRING);
+    YTClass cl = this.session.createClass("cl");
+    cl.createProperty(session, "name", YTType.STRING);
+    cl.createProperty(session, "surname", YTType.STRING);
     cl.createIndex(session, "cl.name_surname", INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     OIndexFinder finder = new OClassIndexFinder("cl");

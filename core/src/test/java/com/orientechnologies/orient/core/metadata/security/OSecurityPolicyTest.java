@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Map;
@@ -144,10 +144,10 @@ public class OSecurityPolicyTest extends DBTestBase {
     security.setSecurityPolicy(db, reader, resource, policy);
     db.commit();
 
-    ORID policyRid = policy.getElement(db).getIdentity();
+    YTRID policyRid = policy.getElement(db).getIdentity();
     try (OResultSet rs = db.query("select from ORole where name = 'reader'")) {
-      Map<String, OIdentifiable> rolePolicies = rs.next().getProperty("policies");
-      OIdentifiable id = rolePolicies.get(resource);
+      Map<String, YTIdentifiable> rolePolicies = rs.next().getProperty("policies");
+      YTIdentifiable id = rolePolicies.get(resource);
       Assert.assertEquals(id.getIdentity(), policyRid);
     }
 

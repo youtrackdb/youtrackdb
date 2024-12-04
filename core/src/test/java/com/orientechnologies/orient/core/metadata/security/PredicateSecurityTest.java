@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.stream.Stream;
@@ -25,7 +25,7 @@ public class PredicateSecurityTest {
 
   private static final String DB_NAME = PredicateSecurityTest.class.getSimpleName();
   private static YouTrackDB orient;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
@@ -33,7 +33,7 @@ public class PredicateSecurityTest {
         new YouTrackDB(
             "plocal:.",
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
   }
 
@@ -57,7 +57,7 @@ public class PredicateSecurityTest {
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role writer)");
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
@@ -84,12 +84,12 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     db.executeInTx(
         () -> {
-          OElement elem = db.newElement("Person");
+          YTEntity elem = db.newElement("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -123,7 +123,7 @@ public class PredicateSecurityTest {
     db.close();
     Thread.sleep(500);
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     db.begin();
@@ -155,7 +155,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          OElement elem = db.newElement("Person");
+          YTEntity elem = db.newElement("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -169,7 +169,7 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select from Person");
     Assert.assertTrue(rs.hasNext());
@@ -182,8 +182,8 @@ public class PredicateSecurityTest {
   public void testSqlReadWithIndex() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
@@ -196,7 +196,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          OElement elem = db.newElement("Person");
+          YTEntity elem = db.newElement("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -210,7 +210,7 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select from Person where name = 'bar'");
     Assert.assertFalse(rs.hasNext());
@@ -221,8 +221,8 @@ public class PredicateSecurityTest {
   public void testSqlReadWithIndex2() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
@@ -235,7 +235,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          OElement elem = db.newElement("Person");
+          YTEntity elem = db.newElement("Person");
           elem.setProperty("name", "foo");
           elem.setProperty("surname", "foo");
           db.save(elem);
@@ -251,7 +251,7 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select from Person where name = 'foo'");
     Assert.assertTrue(rs.hasNext());
@@ -278,10 +278,10 @@ public class PredicateSecurityTest {
     db.close();
     Thread.sleep(500);
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem =
+    YTEntity elem =
         db.computeInTx(
             () -> {
               var e = db.newElement("Person");
@@ -333,10 +333,10 @@ public class PredicateSecurityTest {
 
   private boolean doTestBeforeUpdateSQL() {
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem =
+    YTEntity elem =
         db.computeInTx(
             () -> {
               var e = db.newElement("Person");
@@ -373,10 +373,10 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem =
+    YTEntity elem =
         db.computeInTx(
             () -> {
               var e = db.newElement("Person");
@@ -416,10 +416,10 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem =
+    YTEntity elem =
         db.computeInTx(
             () -> {
               var e = db.newElement("Person");
@@ -455,10 +455,10 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem =
+    YTEntity elem =
         db.computeInTx(
             () -> {
               var e = db.newElement("Person");
@@ -503,12 +503,12 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     db.executeInTx(
         () -> {
-          OElement elem = db.newElement("Person");
+          YTEntity elem = db.newElement("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -542,8 +542,8 @@ public class PredicateSecurityTest {
   public void testSqlCount() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
@@ -555,7 +555,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          OElement elem = db.newElement("Person");
+          YTEntity elem = db.newElement("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -569,7 +569,7 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select count(*) as count from Person");
     Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
@@ -580,8 +580,8 @@ public class PredicateSecurityTest {
   public void testSqlCountWithIndex() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
@@ -608,7 +608,7 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select count(*) as count from Person where name = 'bar'");
     Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
@@ -623,8 +623,8 @@ public class PredicateSecurityTest {
   public void testIndexGet() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
@@ -637,7 +637,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          OElement elem = db.newElement("Person");
+          YTEntity elem = db.newElement("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
@@ -651,16 +651,16 @@ public class PredicateSecurityTest {
 
     db.close();
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
 
     OIndex index = db.getMetadata().getIndexManager().getIndex("Person.name");
 
-    try (Stream<ORID> rids = index.getInternal().getRids(db, "bar")) {
+    try (Stream<YTRID> rids = index.getInternal().getRids(db, "bar")) {
       Assert.assertEquals(0, rids.count());
     }
 
-    try (Stream<ORID> rids = index.getInternal().getRids(db, "foo")) {
+    try (Stream<YTRID> rids = index.getInternal().getRids(db, "foo")) {
       Assert.assertEquals(1, rids.count());
     }
   }

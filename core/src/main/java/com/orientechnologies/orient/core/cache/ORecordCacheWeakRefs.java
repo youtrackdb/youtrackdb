@@ -20,25 +20,26 @@
 
 package com.orientechnologies.orient.core.cache;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import java.util.function.BiConsumer;
 
 /**
  * Cache implementation that uses Soft References.
  */
-public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashMap<ORecordAbstract>>
+public class ORecordCacheWeakRefs extends
+    OAbstractMapCache<ORIDsWeakValuesHashMap<YTRecordAbstract>>
     implements ORecordCache {
 
-  private static final BiConsumer<ORID, ORecordAbstract> UNLOAD_RECORDS_CONSUMER =
+  private static final BiConsumer<YTRID, YTRecordAbstract> UNLOAD_RECORDS_CONSUMER =
       (rid, record) -> {
         ORecordInternal.unsetDirty(record);
         record.unload();
       };
 
-  private static final BiConsumer<ORID, ORecordAbstract> UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER =
+  private static final BiConsumer<YTRID, YTRecordAbstract> UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER =
       (rid, record) -> {
         if (!record.isDirtyNoLoading()) {
           record.unload();
@@ -50,7 +51,7 @@ public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashM
   }
 
   @Override
-  public ORecordAbstract get(final ORID rid) {
+  public YTRecordAbstract get(final YTRID rid) {
     if (!isEnabled()) {
       return null;
     }
@@ -59,7 +60,7 @@ public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashM
   }
 
   @Override
-  public ORecordAbstract put(final ORecordAbstract record) {
+  public YTRecordAbstract put(final YTRecordAbstract record) {
     if (!isEnabled()) {
       return null;
     }
@@ -67,7 +68,7 @@ public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashM
   }
 
   @Override
-  public ORecordAbstract remove(final ORID rid) {
+  public YTRecordAbstract remove(final YTRID rid) {
     if (!isEnabled()) {
       return null;
     }
@@ -96,7 +97,7 @@ public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashM
   }
 
   public void clearRecords() {
-    for (ORecord rec : cache.values()) {
+    for (YTRecord rec : cache.values()) {
       rec.clear();
     }
   }

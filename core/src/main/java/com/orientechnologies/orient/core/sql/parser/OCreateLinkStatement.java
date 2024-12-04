@@ -4,16 +4,16 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -70,17 +70,17 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final ODatabaseSessionInternal database = ctx.getDatabase();
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
     if (database.getDatabaseOwner() == null) {
       throw new OCommandSQLParsingException(
-          "This command supports only the database type ODatabaseDocumentTx and type '"
+          "This command supports only the database type YTDatabaseDocumentTx and type '"
               + database.getClass()
               + "' was found");
     }
 
-    final ODatabaseSessionInternal db = database.getDatabaseOwner();
+    final YTDatabaseSessionInternal db = database.getDatabaseOwner();
 
-    OClass sourceClass =
+    YTClass sourceClass =
         database
             .getMetadata()
             .getImmutableSchemaSnapshot()
@@ -90,7 +90,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
           "Source class '" + this.sourceClass.getStringValue() + "' not found");
     }
 
-    OClass destClass =
+    YTClass destClass =
         database
             .getMetadata()
             .getImmutableSchemaSnapshot()
@@ -114,11 +114,11 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
     try {
       final boolean[] multipleRelationship = new boolean[1];
 
-      OType linkType = OType.valueOf(type.getStringValue().toUpperCase(Locale.ENGLISH));
+      YTType linkType = YTType.valueOf(type.getStringValue().toUpperCase(Locale.ENGLISH));
       if (linkType != null)
       // DETERMINE BASED ON FORCED TYPE
       {
-        multipleRelationship[0] = linkType == OType.LINKSET || linkType == OType.LINKLIST;
+        multipleRelationship[0] = linkType == YTType.LINKSET || linkType == YTType.LINKLIST;
       } else {
         multipleRelationship[0] = false;
       }
@@ -126,19 +126,19 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
       var txLinkType = linkType;
       var txDestClass = destClass;
 
-      List<ODocument> result;
+      List<YTDocument> result;
       Object oldValue;
-      ODocument target;
+      YTDocument target;
 
       // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-      for (ODocument doc : db.browseClass(documentSourceClass.getName())) {
+      for (YTDocument doc : db.browseClass(documentSourceClass.getName())) {
         if (breakExec) {
           break;
         }
         Object value = doc.getProperty(sourceField.getStringValue());
 
         if (value != null) {
-          if (value instanceof ODocument || value instanceof ORID) {
+          if (value instanceof YTDocument || value instanceof YTRID) {
             // ALREADY CONVERTED
           } else if (value instanceof Collection<?>) {
             // TODO
@@ -185,24 +185,24 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
                   multipleRelationship[0] = true;
                 }
 
-                Collection<ODocument> coll;
+                Collection<YTDocument> coll;
                 if (oldValue instanceof Collection) {
                   // ADD IT IN THE EXISTENT COLLECTION
-                  coll = (Collection<ODocument>) oldValue;
+                  coll = (Collection<YTDocument>) oldValue;
                   target.setDirty();
                 } else {
                   // CREATE A NEW COLLECTION FOR BOTH
-                  coll = new ArrayList<ODocument>(2);
+                  coll = new ArrayList<YTDocument>(2);
                   target.setProperty(linkName, coll);
-                  coll.add((ODocument) oldValue);
+                  coll.add((YTDocument) oldValue);
                 }
                 coll.add(doc);
               } else {
                 if (txLinkType != null) {
-                  if (txLinkType == OType.LINKSET) {
+                  if (txLinkType == YTType.LINKSET) {
                     value = new OSet(target);
-                    ((Set<OIdentifiable>) value).add(doc);
-                  } else if (txLinkType == OType.LINKLIST) {
+                    ((Set<YTIdentifiable>) value).add(doc);
+                  } else if (txLinkType == YTType.LINKLIST) {
                     value = new OList(target);
                     ((OList) value).add(doc);
                   } else
@@ -233,7 +233,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
       if (total[0] > 0) {
         if (inverse) {
           // REMOVE THE OLD PROPERTY IF ANY
-          OProperty prop = destClass.getProperty(linkName);
+          YTProperty prop = destClass.getProperty(linkName);
           destClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
             if (linkType != prop.getType()) {
@@ -257,10 +257,10 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
           }
         } else {
           // REMOVE THE OLD PROPERTY IF ANY
-          OProperty prop = sourceClass.getProperty(linkName);
+          YTProperty prop = sourceClass.getProperty(linkName);
           sourceClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
-            if (prop.getType() != OType.LINK) {
+            if (prop.getType() != YTType.LINK) {
               throw new OCommandExecutionException(
                   "Cannot create the link because the property '"
                       + linkName
@@ -269,7 +269,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
                       + " and has a different type - actual: "
                       + prop.getType()
                       + " expected: "
-                      + OType.LINK);
+                      + YTType.LINK);
             }
           } else {
             throw new OCommandExecutionException(
@@ -289,13 +289,13 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
     return total[0];
   }
 
-  private List<ODocument> toList(OResultSet rs) {
+  private List<YTDocument> toList(OResultSet rs) {
     if (!rs.hasNext()) {
       return null;
     }
-    List<ODocument> result = new ArrayList<>();
+    List<YTDocument> result = new ArrayList<>();
     while (rs.hasNext()) {
-      result.add((ODocument) rs.next().getElement().orElse(null));
+      result.add((YTDocument) rs.next().getElement().orElse(null));
     }
     return result;
   }

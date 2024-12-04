@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
@@ -125,10 +125,10 @@ public class OrientDataSource implements DataSource {
       YouTrackDBConfig settings =
           YouTrackDBConfig.builder()
               .addConfig(
-                  OGlobalConfiguration.DB_POOL_MIN,
+                  YTGlobalConfiguration.DB_POOL_MIN,
                   Integer.valueOf(info.getProperty("db.pool.min", "1")))
               .addConfig(
-                  OGlobalConfiguration.DB_POOL_MAX,
+                  YTGlobalConfiguration.DB_POOL_MAX,
                   Integer.valueOf(info.getProperty("db.pool.max", "10")))
               .build();
 

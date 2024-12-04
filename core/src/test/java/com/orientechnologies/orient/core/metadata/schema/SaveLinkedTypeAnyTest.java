@@ -13,9 +13,9 @@ public class SaveLinkedTypeAnyTest extends DBTestBase {
 
   @Test
   public void testRemoveLinkedType() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestRemoveLinkedType");
-    classA.createProperty(db, "prop", OType.EMBEDDEDLIST, OType.ANY);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestRemoveLinkedType");
+    classA.createProperty(db, "prop", YTType.EMBEDDEDLIST, YTType.ANY);
 
     db.begin();
     db.command("insert into TestRemoveLinkedType set prop = [4]").close();
@@ -32,9 +32,9 @@ public class SaveLinkedTypeAnyTest extends DBTestBase {
 
   @Test
   public void testAlterRemoveLinkedType() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestRemoveLinkedType");
-    classA.createProperty(db, "prop", OType.EMBEDDEDLIST, OType.ANY);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestRemoveLinkedType");
+    classA.createProperty(db, "prop", YTType.EMBEDDEDLIST, YTType.ANY);
 
     db.command("alter property TestRemoveLinkedType.prop linkedtype null").close();
 

@@ -2,11 +2,11 @@ package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OMurmurHash3HashFunction;
@@ -34,9 +34,9 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
 
     youTrackDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
-    final ODatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin", config);
+    final YTDatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin", config);
     storage =
-        (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
     OMurmurHash3HashFunction<Integer> murmurHash3HashFunction =
         new OMurmurHash3HashFunction<Integer>(OIntegerSerializer.INSTANCE);
 
@@ -51,7 +51,7 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
                 localHashTable.create(
                     atomicOperation,
                     OIntegerSerializer.INSTANCE,
-                    OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING),
+                    OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING),
                     null,
                     null,
                     murmurHash3HashFunction,

@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
@@ -30,11 +30,11 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -97,7 +97,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         server.createDatabase(
             databaseName, ODatabaseType.valueOf(storageMode.toUpperCase(Locale.ENGLISH)), null);
 
-        try (ODatabaseSessionInternal database =
+        try (YTDatabaseSessionInternal database =
             server.openDatabase(databaseName, serverUser, serverPassword, null)) {
 
           if (createAdmin) {
@@ -137,7 +137,8 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
   }
 
   protected void sendDatabaseInfo(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSessionInternal db)
+      final OHttpRequest iRequest, final OHttpResponse iResponse,
+      final YTDatabaseSessionInternal db)
       throws IOException {
     final StringWriter buffer = new StringWriter();
     final OJSONWriter json = new OJSONWriter(buffer);
@@ -147,7 +148,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     if (db.getMetadata().getSchema().getClasses() != null) {
       json.beginCollection(1, false, "classes");
       Set<String> exportedNames = new HashSet<String>();
-      for (OClass cls : db.getMetadata().getSchema().getClasses()) {
+      for (YTClass cls : db.getMetadata().getSchema().getClasses()) {
         if (!exportedNames.contains(cls.getName())) {
           try {
             exportClass(db, json, cls);
@@ -191,7 +192,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
     json.beginCollection(1, false, "users");
     OUser user;
-    for (ODocument doc : db.getMetadata().getSecurity().getAllUsers()) {
+    for (YTDocument doc : db.getMetadata().getSecurity().getAllUsers()) {
       user = new OUser(db, doc);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", user.getName(db));
@@ -206,7 +207,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
     json.beginCollection(1, true, "roles");
     ORole role;
-    for (ODocument doc : db.getMetadata().getSecurity().getAllRoles()) {
+    for (YTDocument doc : db.getMetadata().getSecurity().getAllRoles()) {
       role = new ORole(db, doc);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", role.getName(db));
@@ -280,7 +281,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
   }
 
   protected void exportClass(
-      final ODatabaseSessionInternal db, final OJSONWriter json, final OClass cls)
+      final YTDatabaseSessionInternal db, final OJSONWriter json, final YTClass cls)
       throws IOException {
     json.beginObject(2, true, null);
     json.writeAttribute(3, true, "name", cls.getName());
@@ -298,7 +299,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection(3, true, "properties");
-      for (final OProperty prop : cls.properties(db)) {
+      for (final YTProperty prop : cls.properties(db)) {
         json.beginObject(4, true, null);
         json.writeAttribute(4, true, "name", prop.getName());
         if (prop.getLinkedClass() != null) {

@@ -20,10 +20,10 @@
 
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import java.io.Serializable;
@@ -37,7 +37,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
- * Implementation of Set bound to a source ORecord object to keep track of changes. This avoid to
+ * Implementation of Set bound to a source YTRecord object to keep track of changes. This avoid to
  * call the makeDirty() by hand when the set is changed.
  */
 public class OTrackedSet<T> extends LinkedHashSet<T>
@@ -153,8 +153,8 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   }
 
   private void removeEvent(T removed) {
-    if (removed instanceof ODocument) {
-      ODocumentInternal.removeOwner((ODocument) removed, this);
+    if (removed instanceof YTDocument) {
+      ODocumentInternal.removeOwner((YTDocument) removed, this);
     }
 
     if (tracker.isEnabled()) {
@@ -167,8 +167,8 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   @SuppressWarnings("unchecked")
   public OTrackedSet<T> setDirty() {
     if (sourceRecord != null) {
-      if (!(sourceRecord instanceof ORecordAbstract)
-          || !((ORecordAbstract) sourceRecord).isDirty()) {
+      if (!(sourceRecord instanceof YTRecordAbstract)
+          || !((YTRecordAbstract) sourceRecord).isDirty()) {
         sourceRecord.setDirty();
       }
     }
@@ -185,7 +185,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   }
 
   public Set<T> returnOriginalState(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final List<OMultiValueChangeEvent<T, T>> multiValueChangeEvents) {
     final Set<T> reverted = new HashSet<T>(this);
 
@@ -214,12 +214,13 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   }
 
   private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof ODocument && !((ODocument) e).getIdentity().isValid()) {
-      ODocumentInternal.addOwner((ODocument) e, this);
+    if (embeddedCollection && e instanceof YTDocument && !((YTDocument) e).getIdentity()
+        .isValid()) {
+      ODocumentInternal.addOwner((YTDocument) e, this);
     }
 
-    if (e instanceof ODocument) {
-      ORecordInternal.track(sourceRecord, (ODocument) e);
+    if (e instanceof YTDocument) {
+      ORecordInternal.track(sourceRecord, (YTDocument) e);
     }
   }
 

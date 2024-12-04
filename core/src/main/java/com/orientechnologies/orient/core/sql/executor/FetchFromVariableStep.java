@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collections;
 
@@ -36,11 +36,11 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
       source =
           OExecutionStream.resultIterator(((OResultSet) src).stream().iterator())
               .onClose((context) -> ((OResultSet) src).close());
-    } else if (src instanceof OElement) {
+    } else if (src instanceof YTEntity) {
       source =
           OExecutionStream.resultIterator(
               Collections.singleton(
-                  (OResult) new OResultInternal(ctx.getDatabase(), (OElement) src)).iterator());
+                  (OResult) new OResultInternal(ctx.getDatabase(), (YTEntity) src)).iterator());
     } else if (src instanceof OResult) {
       source = OExecutionStream.resultIterator(Collections.singleton((OResult) src).iterator());
     } else if (src instanceof Iterable) {
@@ -61,7 +61,7 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("variableName", variableName);
     return result;

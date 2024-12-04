@@ -5,11 +5,11 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -18,12 +18,12 @@ import org.junit.Test;
 public class OSQLFunctionDijkstraTest {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSession graph;
+  private YTDatabaseSession graph;
 
-  private OVertex v1;
-  private OVertex v2;
-  private OVertex v3;
-  private OVertex v4;
+  private YTVertex v1;
+  private YTVertex v2;
+  private YTVertex v3;
+  private YTVertex v4;
   private OSQLFunctionDijkstra functionDijkstra;
 
   @Before
@@ -61,19 +61,19 @@ public class OSQLFunctionDijkstraTest {
     v4.setProperty("node_id", "D");
 
     graph.begin();
-    OEdge e1 = graph.newEdge(v1, v2, "weight");
+    YTEdge e1 = graph.newEdge(v1, v2, "weight");
     e1.setProperty("weight", 1.0f);
     e1.save();
 
-    OEdge e2 = graph.newEdge(v2, v3, "weight");
+    YTEdge e2 = graph.newEdge(v2, v3, "weight");
     e2.setProperty("weight", 1.0f);
     e2.save();
 
-    OEdge e3 = graph.newEdge(v1, v3, "weight");
+    YTEdge e3 = graph.newEdge(v1, v3, "weight");
     e3.setProperty("weight", 100.0f);
     e3.save();
 
-    OEdge e4 = graph.newEdge(v3, v4, "weight");
+    YTEdge e4 = graph.newEdge(v3, v4, "weight");
     e4.setProperty("weight", 1.0f);
     e4.save();
     graph.commit();
@@ -85,9 +85,9 @@ public class OSQLFunctionDijkstraTest {
     v4 = graph.bindToSession(v4);
 
     var context = new OBasicCommandContext();
-    context.setDatabase((ODatabaseSessionInternal) graph);
+    context.setDatabase((YTDatabaseSessionInternal) graph);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionDijkstra.execute(
             null, null, null, new Object[]{v1, v4, "'weight'"}, context);
 

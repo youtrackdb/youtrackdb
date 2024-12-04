@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
@@ -46,7 +46,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   // Returns the actual username if successful, null otherwise.
   // This will authenticate username using the system database.
   public OSecurityUser authenticate(
-      ODatabaseSessionInternal session, final String username, final String password) {
+      YTDatabaseSessionInternal session, final String username, final String password) {
 
     try {
       if (getSecurity() != null) {
@@ -69,7 +69,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   // OSecurityAuthenticator
   // If not supported by the authenticator, return false.
   // Checks to see if a
-  public boolean isAuthorized(ODatabaseSessionInternal session, final String username,
+  public boolean isAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource) {
     if (username == null || resource == null) {
       return false;
@@ -105,7 +105,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   // OSecurityAuthenticator
-  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
+  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
     OSecurityUser userCfg = null;
 
     try {

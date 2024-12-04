@@ -23,8 +23,8 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordOperationMetadata;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationMetadata;
 import java.nio.ByteBuffer;
@@ -75,10 +75,10 @@ public class OAtomicUnitEndRecord extends OOperationUnitBodyRecord {
 
           final ORecordOperationMetadata recordOperationMetadata =
               (ORecordOperationMetadata) entry.getValue();
-          final Set<ORID> rids = recordOperationMetadata.getValue();
+          final Set<YTRID> rids = recordOperationMetadata.getValue();
           buffer.putInt(rids.size());
 
-          for (final ORID rid : rids) {
+          for (final YTRID rid : rids) {
             buffer.putLong(rid.getClusterPosition());
             buffer.putInt(rid.getClusterId());
           }
@@ -107,7 +107,7 @@ public class OAtomicUnitEndRecord extends OOperationUnitBodyRecord {
         final long clusterPosition = buffer.getLong();
         final int clusterId = buffer.getInt();
 
-        recordOperationMetadata.addRid(new ORecordId(clusterId, clusterPosition));
+        recordOperationMetadata.addRid(new YTRecordId(clusterId, clusterPosition));
       }
 
       atomicOperationMetadataMap.put(recordOperationMetadata.getKey(), recordOperationMetadata);
@@ -135,7 +135,7 @@ public class OAtomicUnitEndRecord extends OOperationUnitBodyRecord {
             (ORecordOperationMetadata) entry.getValue();
 
         size += OIntegerSerializer.INT_SIZE;
-        final Set<ORID> rids = recordOperationMetadata.getValue();
+        final Set<YTRID> rids = recordOperationMetadata.getValue();
         size += rids.size() * (OLongSerializer.LONG_SIZE + OIntegerSerializer.INT_SIZE);
       } else {
         throw new IllegalStateException(

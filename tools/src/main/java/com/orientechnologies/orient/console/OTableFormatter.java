@@ -24,14 +24,14 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.OImmutableRecordId;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTImmutableRecordId;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class OTableFormatter {
   protected String nullValue = "";
   private boolean leftBorder = true;
   private boolean rightBorder = true;
-  private ODocument footer;
+  private YTDocument footer;
 
   public interface OTableOutput {
 
@@ -95,22 +95,22 @@ public class OTableFormatter {
     columnHidden.add(column);
   }
 
-  public void writeRecords(final List<? extends OIdentifiable> resultSet, final int limit) {
+  public void writeRecords(final List<? extends YTIdentifiable> resultSet, final int limit) {
     writeRecords(resultSet, limit, null);
   }
 
   public void writeRecords(
-      final List<? extends OIdentifiable> resultSet,
+      final List<? extends YTIdentifiable> resultSet,
       final int limit,
-      final OCallable<Object, OIdentifiable> iAfterDump) {
+      final OCallable<Object, YTIdentifiable> iAfterDump) {
     final Map<String, Integer> columns = parseColumns(resultSet, limit);
 
     if (columnSorting != null) {
       resultSet.sort(
           (Comparator<Object>)
               (o1, o2) -> {
-                final ODocument doc1 = ((OIdentifiable) o1).getRecord();
-                final ODocument doc2 = ((OIdentifiable) o2).getRecord();
+                final YTDocument doc1 = ((YTIdentifiable) o1).getRecord();
+                final YTDocument doc2 = ((YTIdentifiable) o2).getRecord();
                 final Object value1 = doc1.field(columnSorting.getKey());
                 final Object value2 = doc2.field(columnSorting.getKey());
                 final boolean ascending = columnSorting.getValue();
@@ -131,7 +131,7 @@ public class OTableFormatter {
     }
 
     int fetched = 0;
-    for (OIdentifiable record : resultSet) {
+    for (YTIdentifiable record : resultSet) {
       dumpRecordInTable(fetched++, record, columns);
       if (iAfterDump != null) {
         iAfterDump.call(record);
@@ -188,7 +188,7 @@ public class OTableFormatter {
   }
 
   public void dumpRecordInTable(
-      final int iIndex, final OIdentifiable iRecord, final Map<String, Integer> iColumns) {
+      final int iIndex, final YTIdentifiable iRecord, final Map<String, Integer> iColumns) {
     if (iIndex == 0) {
       printHeader(iColumns);
     }
@@ -196,8 +196,8 @@ public class OTableFormatter {
     // FORMAT THE LINE DYNAMICALLY
     List<String> vargs = new ArrayList<String>();
     try {
-      if (iRecord instanceof ODocument) {
-        ((ODocument) iRecord).setLazyLoad(false);
+      if (iRecord instanceof YTDocument) {
+        ((YTDocument) iRecord).setLazyLoad(false);
       }
 
       final StringBuilder format = new StringBuilder(maxWidthSize);
@@ -282,7 +282,7 @@ public class OTableFormatter {
   }
 
   private Object getFieldValue(
-      final int iIndex, final OIdentifiable iRecord, final String iColumnName) {
+      final int iIndex, final YTIdentifiable iRecord, final String iColumnName) {
     Object value = null;
 
     if (iColumnName.equals("#"))
@@ -293,16 +293,16 @@ public class OTableFormatter {
     // RID
     {
       value = iRecord.getIdentity().toString();
-    } else if (iRecord instanceof ODocument) {
-      value = ((ODocument) iRecord).getProperty(iColumnName);
-    } else if (iRecord instanceof OBlob) {
-      value = "<binary> (size=" + ((ORecordAbstract) iRecord).toStream().length + " bytes)";
-    } else if (iRecord instanceof OIdentifiable) {
-      final ORecord rec = iRecord.getRecord();
-      if (rec instanceof ODocument) {
-        value = ((ODocument) rec).getProperty(iColumnName);
-      } else if (rec instanceof OBlob) {
-        value = "<binary> (size=" + ((ORecordAbstract) rec).toStream().length + " bytes)";
+    } else if (iRecord instanceof YTDocument) {
+      value = ((YTDocument) iRecord).getProperty(iColumnName);
+    } else if (iRecord instanceof YTBlob) {
+      value = "<binary> (size=" + ((YTRecordAbstract) iRecord).toStream().length + " bytes)";
+    } else if (iRecord instanceof YTIdentifiable) {
+      final YTRecord rec = iRecord.getRecord();
+      if (rec instanceof YTDocument) {
+        value = ((YTDocument) rec).getProperty(iColumnName);
+      } else if (rec instanceof YTBlob) {
+        value = "<binary> (size=" + ((YTRecordAbstract) rec).toStream().length + " bytes)";
       }
     }
 
@@ -349,7 +349,7 @@ public class OTableFormatter {
     return value.toString();
   }
 
-  public void setFooter(final ODocument footer) {
+  public void setFooter(final YTDocument footer) {
     this.footer = footer;
   }
 
@@ -364,14 +364,14 @@ public class OTableFormatter {
       value = getPrettyFieldMultiValue((Iterator<?>) value, multiValueMaxEntries);
     } else if (value instanceof Collection<?>) {
       value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries);
-    } else if (value instanceof ORecord) {
-      if (((ORecord) value).getIdentity().equals(OImmutableRecordId.EMPTY_RECORD_ID)) {
+    } else if (value instanceof YTRecord) {
+      if (((YTRecord) value).getIdentity().equals(YTImmutableRecordId.EMPTY_RECORD_ID)) {
         value = value.toString();
       } else {
-        value = ((ORecord) value).getIdentity().toString();
+        value = ((YTRecord) value).getIdentity().toString();
       }
     } else if (value instanceof Date) {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
         value = ODateHelper.getDateTimeFormatInstance(db).format((Date) value);
       } else {
@@ -524,7 +524,7 @@ public class OTableFormatter {
    * @return
    */
   private Map<String, Integer> parseColumns(
-      final Collection<? extends OIdentifiable> resultSet, final int limit) {
+      final Collection<? extends YTIdentifiable> resultSet, final int limit) {
     final Map<String, Integer> columns = new LinkedHashMap<String, Integer>();
 
     for (String c : prefixedColumns) {
@@ -535,14 +535,14 @@ public class OTableFormatter {
     boolean hasClass = false;
 
     int fetched = 0;
-    for (OIdentifiable id : resultSet) {
-      ORecord rec = id.getRecord();
+    for (YTIdentifiable id : resultSet) {
+      YTRecord rec = id.getRecord();
 
       for (String c : prefixedColumns) {
         columns.put(c, getColumnSize(fetched, rec, c, columns.get(c)));
       }
 
-      if (rec instanceof ODocument doc) {
+      if (rec instanceof YTDocument doc) {
         doc.setLazyLoad(false);
         // PARSE ALL THE DOCUMENT'S FIELDS
         for (String fieldName : doc.getPropertyNames()) {
@@ -553,7 +553,7 @@ public class OTableFormatter {
           hasClass = true;
         }
 
-      } else if (rec instanceof OBlob) {
+      } else if (rec instanceof YTBlob) {
         // UNIQUE BINARY FIELD
         columns.put("value", maxWidthSize - 15);
       }
@@ -660,7 +660,8 @@ public class OTableFormatter {
   }
 
   private Integer getColumnSize(
-      final Integer iIndex, final ORecord iRecord, final String fieldName, final Integer origSize) {
+      final Integer iIndex, final YTRecord iRecord, final String fieldName,
+      final Integer origSize) {
     Integer newColumnSize;
     if (origSize == null)
     // START FROM THE FIELD NAME SIZE

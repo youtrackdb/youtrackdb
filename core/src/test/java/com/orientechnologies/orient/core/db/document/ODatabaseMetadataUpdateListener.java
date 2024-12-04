@@ -6,16 +6,16 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import java.util.Locale;
 import org.junit.After;
 import org.junit.Assert;
@@ -25,7 +25,7 @@ import org.junit.Test;
 public class ODatabaseMetadataUpdateListener {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal session;
+  private YTDatabaseSessionInternal session;
   private int count;
 
   @Before
@@ -33,33 +33,33 @@ public class ODatabaseMetadataUpdateListener {
     youTrackDB =
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
-    session = (ODatabaseSessionInternal) youTrackDB.open("test", "admin",
+    session = (YTDatabaseSessionInternal) youTrackDB.open("test", "admin",
         OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     count = 0;
     OMetadataUpdateListener listener =
         new OMetadataUpdateListener() {
 
           @Override
-          public void onSchemaUpdate(ODatabaseSessionInternal session, String database,
+          public void onSchemaUpdate(YTDatabaseSessionInternal session, String database,
               OSchemaShared schema) {
             count++;
             assertNotNull(schema);
           }
 
           @Override
-          public void onIndexManagerUpdate(ODatabaseSessionInternal session, String database,
+          public void onIndexManagerUpdate(YTDatabaseSessionInternal session, String database,
               OIndexManagerAbstract indexManager) {
             count++;
             assertNotNull(indexManager);
           }
 
           @Override
-          public void onFunctionLibraryUpdate(ODatabaseSessionInternal session, String database) {
+          public void onFunctionLibraryUpdate(YTDatabaseSessionInternal session, String database) {
             count++;
           }
 
           @Override
-          public void onSequenceLibraryUpdate(ODatabaseSessionInternal session, String database) {
+          public void onSequenceLibraryUpdate(YTDatabaseSessionInternal session, String database) {
             count++;
           }
 
@@ -91,7 +91,7 @@ public class ODatabaseMetadataUpdateListener {
       session
           .getMetadata()
           .getSequenceLibrary()
-          .createSequence("sequence1", OSequence.SEQUENCE_TYPE.ORDERED, null);
+          .createSequence("sequence1", YTSequence.SEQUENCE_TYPE.ORDERED, null);
     } catch (ODatabaseException exc) {
       Assert.fail("Failed to create sequence");
     }
@@ -102,8 +102,8 @@ public class ODatabaseMetadataUpdateListener {
   public void testIndexUpdate() {
     session
         .createClass("Some")
-        .createProperty(session, "test", OType.STRING)
-        .createIndex(session, OClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(session, "test", YTType.STRING)
+        .createIndex(session, YTClass.INDEX_TYPE.NOTUNIQUE);
     assertEquals(count, 3);
   }
 

@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
@@ -35,17 +35,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiable> {
+public class OTraverseRecordProcess extends OTraverseAbstractProcess<YTIdentifiable> {
 
   private final OTraversePath path;
 
   public OTraverseRecordProcess(
-      final OTraverse iCommand, final OIdentifiable iTarget, OTraversePath parentPath) {
+      final OTraverse iCommand, final YTIdentifiable iTarget, OTraversePath parentPath) {
     super(iCommand, iTarget);
     this.path = parentPath.append(iTarget);
   }
 
-  public OIdentifiable process() {
+  public YTIdentifiable process() {
     if (target == null) {
       return pop();
     }
@@ -74,8 +74,8 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
       // SKIP IT
       pop();
     } else {
-      final ORecord targetRec = target.getRecord();
-      if (!(targetRec instanceof ODocument targetDoc))
+      final YTRecord targetRec = target.getRecord();
+      if (!(targetRec instanceof YTDocument targetDoc))
       // SKIP IT
       {
         return pop();
@@ -118,7 +118,7 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
                   - 1;
           if (pos > -1) {
             // FOUND <CLASS>.<FIELD>
-            final OClass cls = ODocumentInternal.getImmutableSchemaClass(targetDoc);
+            final YTClass cls = ODocumentInternal.getImmutableSchemaClass(targetDoc);
             if (cls == null)
             // JUMP IT BECAUSE NO SCHEMA
             {
@@ -158,7 +158,7 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
   }
 
   private void processFields(Iterator<Object> target) {
-    ODocument doc = this.target.getRecord();
+    YTDocument doc = this.target.getRecord();
     var database = command.getContext().getDatabase();
     if (doc.isNotBound(database)) {
       doc = database.bindToSession(doc);
@@ -185,12 +185,12 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
           subProcess =
               new OTraverseMultiValueProcess(
                   command, (Iterator<Object>) coll, path.appendField(field.toString()));
-        } else if (fieldValue instanceof OIdentifiable
-            && ((OIdentifiable) fieldValue).getRecord() instanceof ODocument) {
+        } else if (fieldValue instanceof YTIdentifiable
+            && ((YTIdentifiable) fieldValue).getRecord() instanceof YTDocument) {
           subProcess =
               new OTraverseRecordProcess(
                   command,
-                  ((OIdentifiable) fieldValue).getRecord(),
+                  ((YTIdentifiable) fieldValue).getRecord(),
                   path.appendField(field.toString()));
         } else {
           continue;
@@ -211,13 +211,13 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
     return path;
   }
 
-  public OIdentifiable drop() {
+  public YTIdentifiable drop() {
     command.getContext().pop(null);
     return null;
   }
 
   @Override
-  public OIdentifiable pop() {
+  public YTIdentifiable pop() {
     command.getContext().pop(target);
     return null;
   }

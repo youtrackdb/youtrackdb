@@ -21,8 +21,8 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -37,21 +37,21 @@ public final class OReadRecordResponse implements OBinaryResponse {
   private byte recordType;
   private int version;
   private byte[] record;
-  private Set<ORecordAbstract> recordsToSend;
+  private Set<YTRecordAbstract> recordsToSend;
   private ORawBuffer result;
 
   public OReadRecordResponse() {
   }
 
   public OReadRecordResponse(
-      byte recordType, int version, byte[] record, Set<ORecordAbstract> recordsToSend) {
+      byte recordType, int version, byte[] record, Set<YTRecordAbstract> recordsToSend) {
     this.recordType = recordType;
     this.version = version;
     this.record = record;
     this.recordsToSend = recordsToSend;
   }
 
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput network,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     if (record != null) {
@@ -65,7 +65,7 @@ public final class OReadRecordResponse implements OBinaryResponse {
         network.writeVersion(version);
         network.writeBytes(record);
       }
-      for (ORecordAbstract d : recordsToSend) {
+      for (YTRecordAbstract d : recordsToSend) {
         if (d.getIdentity().isValid()) {
           network.writeByte((byte) 2); // CLIENT CACHE
           // RECORD. IT ISN'T PART OF THE RESULT SET
@@ -78,7 +78,7 @@ public final class OReadRecordResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     if (network.readByte() == 0) {
@@ -92,9 +92,9 @@ public final class OReadRecordResponse implements OBinaryResponse {
     buffer = new ORawBuffer(bytes, recVersion, type);
 
     // TODO: This should not be here, move it in a callback or similar
-    ORecordAbstract record;
+    YTRecordAbstract record;
     while (network.readByte() == 2) {
-      record = (ORecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
+      record = (YTRecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
 
       if (db != null && record != null) {
         var cacheRecord = db.getLocalCache().findRecord(record.getIdentity());

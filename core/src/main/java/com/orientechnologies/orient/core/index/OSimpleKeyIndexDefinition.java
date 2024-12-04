@@ -22,9 +22,9 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,9 +34,9 @@ import javax.annotation.Nonnull;
 
 public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
 
-  private OType[] keyTypes;
+  private YTType[] keyTypes;
 
-  public OSimpleKeyIndexDefinition(final OType... keyTypes) {
+  public OSimpleKeyIndexDefinition(final YTType... keyTypes) {
     super();
 
     this.keyTypes = keyTypes;
@@ -45,7 +45,7 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   public OSimpleKeyIndexDefinition() {
   }
 
-  public OSimpleKeyIndexDefinition(OType[] keyTypes2, List<OCollate> collatesList) {
+  public OSimpleKeyIndexDefinition(YTType[] keyTypes2, List<OCollate> collatesList) {
     super();
 
     this.keyTypes = Arrays.copyOf(keyTypes2, keyTypes2.length);
@@ -79,17 +79,17 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
     return null;
   }
 
-  public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
+  public Object createValue(YTDatabaseSessionInternal session, final List<?> params) {
     return createValue(session, params != null ? params.toArray() : null);
   }
 
-  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
+  public Object createValue(YTDatabaseSessionInternal session, final Object... params) {
     if (params == null || params.length == 0) {
       return null;
     }
 
     if (keyTypes.length == 1) {
-      return OType.convert(session, refreshRid(session, params[0]),
+      return YTType.convert(session, refreshRid(session, params[0]),
           keyTypes[0].getDefaultJavaType());
     }
 
@@ -98,7 +98,7 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
     for (int i = 0; i < params.length; ++i) {
       final Comparable<?> paramValue =
           (Comparable<?>)
-              OType.convert(session, refreshRid(session, params[i]),
+              YTType.convert(session, refreshRid(session, params[i]),
                   keyTypes[i].getDefaultJavaType());
 
       if (paramValue == null) {
@@ -114,33 +114,33 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
     return keyTypes.length;
   }
 
-  public OType[] getTypes() {
+  public YTType[] getTypes() {
     return Arrays.copyOf(keyTypes, keyTypes.length);
   }
 
   @Override
-  public @Nonnull ODocument toStream(@Nonnull ODocument document) {
+  public @Nonnull YTDocument toStream(@Nonnull YTDocument document) {
     serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream(ODocument document) {
+  protected void serializeToStream(YTDocument document) {
     super.serializeToStream(document);
 
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 
-    for (final OType keyType : keyTypes) {
+    for (final YTType keyType : keyTypes) {
       keyTypeNames.add(keyType.toString());
     }
 
-    document.field("keyTypes", keyTypeNames, OType.EMBEDDEDLIST);
+    document.field("keyTypes", keyTypeNames, YTType.EMBEDDEDLIST);
     if (collate instanceof OCompositeCollate) {
       List<String> collatesNames = new ArrayList<>();
       for (OCollate curCollate : ((OCompositeCollate) this.collate).getCollates()) {
         collatesNames.add(curCollate.getName());
       }
-      document.field("collates", collatesNames, OType.EMBEDDEDLIST);
+      document.field("collates", collatesNames, YTType.EMBEDDEDLIST);
     } else {
       document.field("collate", collate.getName());
     }
@@ -149,20 +149,20 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   @Override
-  public void fromStream(@Nonnull ODocument document) {
+  public void fromStream(@Nonnull YTDocument document) {
     serializeFromStream(document);
   }
 
   @Override
-  protected void serializeFromStream(ODocument document) {
+  protected void serializeFromStream(YTDocument document) {
     super.serializeFromStream(document);
 
     final List<String> keyTypeNames = document.field("keyTypes");
-    keyTypes = new OType[keyTypeNames.size()];
+    keyTypes = new YTType[keyTypeNames.size()];
 
     int i = 0;
     for (final String keyTypeName : keyTypeNames) {
-      keyTypes[i] = OType.valueOf(keyTypeName);
+      keyTypes[i] = YTType.valueOf(keyTypeName);
       i++;
     }
     String collate = document.field("collate");
@@ -183,7 +183,7 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public Object getDocumentValueToIndex(
-      ODatabaseSessionInternal session, final ODocument iDocument) {
+      YTDatabaseSessionInternal session, final YTDocument iDocument) {
     throw new OIndexException("This method is not supported in given index definition.");
   }
 

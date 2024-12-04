@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.index;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import org.junit.After;
@@ -26,7 +26,7 @@ public class OLuceneFailTest {
 
   @Test
   public void test() {
-    try (ODatabaseSession session = odb.open("tdb", "admin", "admpwd")) {
+    try (YTDatabaseSession session = odb.open("tdb", "admin", "admpwd")) {
       session.command("create property V.text string").close();
       session.command("create index lucene_index on V(text) FULLTEXT ENGINE LUCENE").close();
       try {

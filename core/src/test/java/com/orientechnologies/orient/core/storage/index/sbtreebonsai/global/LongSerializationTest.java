@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
 import java.nio.ByteBuffer;
@@ -216,7 +216,7 @@ public class LongSerializationTest {
 
     final int size = LongSerializer.getObjectSize(value);
     final ByteBuffer byteBuffer =
-        ByteBuffer.allocate(OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024)
+        ByteBuffer.allocate(YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024)
             .order(ByteOrder.nativeOrder());
     final byte[] serializedValue = new byte[size];
     LongSerializer.serialize(value, serializedValue, 0);

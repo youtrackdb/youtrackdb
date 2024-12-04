@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
@@ -72,7 +72,8 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
         }
 
         if (!users.isEmpty()) {
-          configBuilder = configBuilder.addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false);
+          configBuilder = configBuilder.addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS,
+              false);
         }
 
         server.create(
@@ -112,9 +113,9 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
     if (globalConfig != null && globalConfig instanceof Map) {
       ((Map<String, Object>) globalConfig)
           .entrySet().stream()
-          .filter(x -> OGlobalConfiguration.findByKey(x.getKey()) != null)
+          .filter(x -> YTGlobalConfiguration.findByKey(x.getKey()) != null)
           .forEach(
-              x -> builder.addConfig(OGlobalConfiguration.findByKey(x.getKey()), x.getValue()));
+              x -> builder.addConfig(YTGlobalConfiguration.findByKey(x.getKey()), x.getValue()));
     }
 
     return builder;

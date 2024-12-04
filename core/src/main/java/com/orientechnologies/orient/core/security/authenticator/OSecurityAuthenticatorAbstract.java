@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.security.authenticator;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityAuthenticator;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import javax.security.auth.Subject;
@@ -55,7 +55,7 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
   }
 
   // OSecurityComponent
-  public void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final YTDocument jsonConfig,
       OSecuritySystem security) {
     this.security = security;
     if (jsonConfig != null) {
@@ -110,18 +110,18 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     return name;
   }
 
-  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
+  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
     return null;
   }
 
-  public boolean isAuthorized(ODatabaseSessionInternal session, final String username,
+  public boolean isAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource) {
     return false;
   }
 
   @Override
   public OSecurityUser authenticate(
-      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
+      YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     // Return null means no valid authentication
     return null;
   }
@@ -130,7 +130,7 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     return false;
   }
 
-  protected boolean isPasswordValid(ODatabaseSessionInternal session, final OSecurityUser user) {
+  protected boolean isPasswordValid(YTDatabaseSessionInternal session, final OSecurityUser user) {
     return user != null && user.getPassword(session) != null && !user.getPassword(session)
         .isEmpty();
   }

@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
@@ -42,19 +42,19 @@ public class OSQLFunctionThrowCME extends OSQLFunctionAbstract {
 
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
     throw new OConcurrentModificationException(
-        (ORecordId) iParams[0], (int) iParams[1], (int) iParams[2], (int) iParams[3]);
+        (YTRecordId) iParams[0], (int) iParams[1], (int) iParams[2], (int) iParams[3]);
   }
 
   public boolean aggregateResults(final Object[] configuredParameters) {
     return false;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "throwCME(RID, DatabaseVersion, RecordVersion, RecordOperation)";
   }
 

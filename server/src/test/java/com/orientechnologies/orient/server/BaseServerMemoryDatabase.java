@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import java.io.File;
@@ -12,7 +12,7 @@ import org.junit.rules.TestName;
 
 public class BaseServerMemoryDatabase {
 
-  protected ODatabaseSessionInternal db;
+  protected YTDatabaseSessionInternal db;
   protected YouTrackDB context;
   @Rule
   public TestName name = new TestName();
@@ -35,7 +35,7 @@ public class BaseServerMemoryDatabase {
                 + name.getMethodName()
                 + " memory users(admin identified by 'adminpwd' role admin) ")
         .close();
-    db = (ODatabaseSessionInternal) context.open(name.getMethodName(), "admin", "adminpwd");
+    db = (YTDatabaseSessionInternal) context.open(name.getMethodName(), "admin", "adminpwd");
   }
 
   @After

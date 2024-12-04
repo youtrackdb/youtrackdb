@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -56,7 +56,7 @@ public class OSQLFunctionDate extends OSQLFunctionAbstract {
 
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -102,7 +102,7 @@ public class OSQLFunctionDate extends OSQLFunctionAbstract {
     return false;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "date([<date-as-string>] [,<format>] [,<timezone>])";
   }
 

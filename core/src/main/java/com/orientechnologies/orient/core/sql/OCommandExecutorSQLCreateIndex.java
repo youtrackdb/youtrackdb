@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -37,10 +37,10 @@ import com.orientechnologies.orient.core.index.OIndexes;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition;
 import com.orientechnologies.orient.core.index.ORuntimeKeyIndexDefinition;
 import com.orientechnologies.orient.core.index.OSimpleKeyIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,13 +68,13 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
   public static final String KEYWORD_ENGINE = "ENGINE";
 
   private String indexName;
-  private OClass oClass;
+  private YTClass oClass;
   private String[] fields;
-  private OClass.INDEX_TYPE indexType;
-  private OType[] keyTypes;
+  private YTClass.INDEX_TYPE indexType;
+  private YTType[] keyTypes;
   private byte serializerKeyId;
   private String engine;
-  private ODocument metadataDoc = null;
+  private YTDocument metadataDoc = null;
   private String[] collates;
 
   public OCommandExecutorSQLCreateIndex parse(final OCommandRequest iRequest) {
@@ -197,7 +197,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         }
       }
 
-      indexType = OClass.INDEX_TYPE.valueOf(word.toString());
+      indexType = YTClass.INDEX_TYPE.valueOf(word.toString());
 
       if (indexType == null) {
         throw new OCommandSQLParsingException("Index type is null", parserText, oldPos);
@@ -220,7 +220,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
       if (configPos > -1) {
         final String configString =
             parserText.substring(configPos + KEYWORD_METADATA.length()).trim();
-        metadataDoc = new ODocument();
+        metadataDoc = new YTDocument();
         metadataDoc.fromJSON(configString);
       }
 
@@ -241,12 +241,12 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
 
           serializerKeyId = Byte.parseByte(word.toString());
         } else {
-          ArrayList<OType> keyTypeList = new ArrayList<OType>();
+          ArrayList<YTType> keyTypeList = new ArrayList<YTType>();
           for (String typeName : OPatternConst.PATTERN_COMMA_SEPARATED.split(typesString)) {
-            keyTypeList.add(OType.valueOf(typeName));
+            keyTypeList.add(YTType.valueOf(typeName));
           }
 
-          keyTypes = new OType[keyTypeList.size()];
+          keyTypes = new YTType[keyTypeList.size()];
           keyTypeList.toArray(keyTypes);
 
           if (fields != null && fields.length != 0 && fields.length != keyTypes.length) {
@@ -273,13 +273,13 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
    * Execute the CREATE INDEX.
    */
   @SuppressWarnings("rawtypes")
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (indexName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final ODatabaseSessionInternal database = getDatabase();
+    final YTDatabaseSessionInternal database = getDatabase();
     final OIndex idx;
     List<OCollate> collatesList = null;
 
@@ -338,7 +338,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
             oClass.createIndex(database, indexName, indexType.toString(), null, metadataDoc, engine,
                 fields);
       } else {
-        final List<OType> fieldTypeList;
+        final List<YTType> fieldTypeList;
         if (keyTypes == null) {
           for (final String fieldName : fields) {
             if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
@@ -352,7 +352,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
                       + "' is absent in class definition.");
             }
           }
-          fieldTypeList = ((OClassImpl) oClass).extractFieldTypes(fields);
+          fieldTypeList = ((YTClassImpl) oClass).extractFieldTypes(fields);
         } else {
           fieldTypeList = Arrays.asList(keyTypes);
         }
@@ -400,7 +400,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         + " [<key-type>] [ENGINE <engine>] [METADATA {JSON Index Metadata Document}]";
   }
 
-  private OClass findClass(String part) {
+  private YTClass findClass(String part) {
     return getDatabase().getMetadata().getSchema().getClass(part);
   }
 

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -12,7 +12,7 @@ import java.util.Map;
 public class ORebeginTransactionRequest extends OBeginTransactionRequest {
 
   public ORebeginTransactionRequest(
-      ODatabaseSessionInternal session, int txId,
+      YTDatabaseSessionInternal session, int txId,
       boolean usingLong,
       Iterable<ORecordOperation> operations,
       Map<String, OTransactionIndexChanges> changes) {

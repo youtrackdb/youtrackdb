@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.parser.operators;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.sql.parser.OEqualsCompareOperator;
 import java.math.BigDecimal;
 import org.junit.Assert;
@@ -61,8 +61,8 @@ public class OEqualsCompareOperatorTest {
     Assert.assertFalse(op.execute(BigDecimal.ONE, 2));
     Assert.assertFalse(op.execute(BigDecimal.ONE, 1.0001));
 
-    Assert.assertTrue(op.execute(new ORecordId(1, 10), new ORecordId((short) 1, 10)));
-    Assert.assertFalse(op.execute(new ORecordId(1, 10), new ORecordId((short) 1, 20)));
+    Assert.assertTrue(op.execute(new YTRecordId(1, 10), new YTRecordId((short) 1, 10)));
+    Assert.assertFalse(op.execute(new YTRecordId(1, 10), new YTRecordId((short) 1, 20)));
 
     Assert.assertFalse(op.execute(new Object(), new Object()));
   }

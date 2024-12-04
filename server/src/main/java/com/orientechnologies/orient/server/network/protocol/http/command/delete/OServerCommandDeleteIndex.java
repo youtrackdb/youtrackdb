@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -39,7 +39,7 @@ public class OServerCommandDeleteIndex extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Index remove";
 
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
@@ -50,7 +50,7 @@ public class OServerCommandDeleteIndex extends OServerCommandDocumentAbstract {
 
       final boolean found;
       if (urlParts.length > 4) {
-        found = index.remove(db, urlParts[3], new ORecordId(urlParts[3]));
+        found = index.remove(db, urlParts[3], new YTRecordId(urlParts[3]));
       } else {
         found = index.remove(db, urlParts[3]);
       }

@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -33,10 +33,10 @@ import java.util.Set;
 public class ODirtyManager {
 
   private ODirtyManager overrider;
-  private Set<ORecordAbstract> newRecords;
-  private Set<ORecordAbstract> updateRecords;
+  private Set<YTRecordAbstract> newRecords;
+  private Set<YTRecordAbstract> updateRecords;
 
-  public void setDirty(ORecordAbstract record) {
+  public void setDirty(YTRecordAbstract record) {
     ODirtyManager real = getReal();
     if (record.getIdentity().isNew() && !record.getIdentity().isTemporary()) {
       if (real.newRecords == null) {
@@ -62,11 +62,11 @@ public class ODirtyManager {
     return real;
   }
 
-  public Set<ORecordAbstract> getNewRecords() {
+  public Set<YTRecordAbstract> getNewRecords() {
     return getReal().newRecords;
   }
 
-  public Set<ORecordAbstract> getUpdateRecords() {
+  public Set<YTRecordAbstract> getUpdateRecords() {
     return getReal().updateRecords;
   }
 
@@ -90,8 +90,8 @@ public class ODirtyManager {
    * @param source
    * @return
    */
-  private static Set<ORecordAbstract> mergeSet(
-      Set<ORecordAbstract> target, Set<ORecordAbstract> source) {
+  private static Set<YTRecordAbstract> mergeSet(
+      Set<YTRecordAbstract> target, Set<YTRecordAbstract> source) {
     if (source != null) {
       if (target == null) {
         return source;
@@ -109,20 +109,20 @@ public class ODirtyManager {
     }
   }
 
-  public void track(ORecord pointing, OIdentifiable pointed) {
+  public void track(YTRecord pointing, YTIdentifiable pointed) {
     getReal().internalTrack(pointing, pointed);
   }
 
-  public void unTrack(ORecord pointing, OIdentifiable pointed) {
+  public void unTrack(YTRecord pointing, YTIdentifiable pointed) {
     getReal().internalUnTrack(pointing, pointed);
   }
 
-  private void internalUnTrack(ORecord pointing, OIdentifiable pointed) {
+  private void internalUnTrack(YTRecord pointing, YTIdentifiable pointed) {
   }
 
-  private void internalTrack(ORecord pointing, OIdentifiable pointed) {
-    if (pointed instanceof ORecord) {
-      ORecordInternal.setDirtyManager((ORecord) pointed, this);
+  private void internalTrack(YTRecord pointing, YTIdentifiable pointed) {
+    if (pointed instanceof YTRecord) {
+      ORecordInternal.setDirtyManager((YTRecord) pointed, this);
     }
   }
 
@@ -143,7 +143,7 @@ public class ODirtyManager {
     real.updateRecords = null;
   }
 
-  public void removeNew(ORecord record) {
+  public void removeNew(YTRecord record) {
     ODirtyManager real = getReal();
     if (real.newRecords != null) {
       real.newRecords.remove(record);

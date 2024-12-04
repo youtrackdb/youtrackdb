@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * This operator add an entry in a map. The entry is composed by a key and a value.
  */
-public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocument> {
+public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<YTDocument> {
 
   public static final String NAME = "document";
 
@@ -41,7 +41,7 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
   @SuppressWarnings("unchecked")
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -49,14 +49,14 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
     if (iParams.length > 2)
     // IN LINE MODE
     {
-      context = new ODocument();
+      context = new YTDocument();
     }
 
     if (iParams.length == 1) {
-      if (iParams[0] instanceof ODocument)
+      if (iParams[0] instanceof YTDocument)
       // INSERT EVERY DOCUMENT FIELD
       {
-        context.merge((ODocument) iParams[0], true, false);
+        context.merge((YTDocument) iParams[0], true, false);
       } else if (iParams[0] instanceof Map<?, ?>)
       // INSERT EVERY SINGLE COLLECTION ITEM
       {
@@ -77,7 +77,7 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
           if (iParams.length <= 2 && context == null)
           // AGGREGATION MODE (STATEFULL)
           {
-            context = new ODocument();
+            context = new YTDocument();
           }
 
           context.field(key, value);
@@ -88,7 +88,7 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
     return prepareResult(context);
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "document(<map>|[<key>,<value>]*)";
   }
 
@@ -97,15 +97,15 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
   }
 
   @Override
-  public ODocument getResult() {
-    final ODocument res = context;
+  public YTDocument getResult() {
+    final YTDocument res = context;
     context = null;
     return prepareResult(res);
   }
 
-  protected ODocument prepareResult(ODocument res) {
+  protected YTDocument prepareResult(YTDocument res) {
     if (returnDistributedResult()) {
-      final ODocument doc = new ODocument();
+      final YTDocument doc = new YTDocument();
       doc.field("node", getDistributedStorageId());
       doc.field("context", res);
       return doc;

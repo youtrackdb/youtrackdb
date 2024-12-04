@@ -4,12 +4,12 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -103,7 +103,7 @@ public class OBaseExpression extends OMathExpression {
     }
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     Object result = null;
     if (number != null) {
       result = number.getValue();
@@ -161,7 +161,7 @@ public class OBaseExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
     if (this.identifier == null) {
       return false;
     }
@@ -176,7 +176,7 @@ public class OBaseExpression extends OMathExpression {
     return identifier.estimateIndexedFunction(target, context, operator, right);
   }
 
-  public Iterable<OIdentifiable> executeIndexedFunction(
+  public Iterable<YTIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.identifier == null) {
       return null;
@@ -298,7 +298,7 @@ public class OBaseExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     return identifier != null && identifier.isAggregate(session);
   }
 
@@ -417,7 +417,7 @@ public class OBaseExpression extends OMathExpression {
     }
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = (OResultInternal) super.serialize(db);
 
     if (number != null) {
@@ -473,7 +473,7 @@ public class OBaseExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isDefinedFor(OElement currentRecord) {
+  public boolean isDefinedFor(YTEntity currentRecord) {
     if (this.identifier != null) {
       if (modifier == null) {
         return identifier.isDefinedFor(currentRecord);
@@ -494,7 +494,7 @@ public class OBaseExpression extends OMathExpression {
     }
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (modifier != null && !modifier.isCacheable(session)) {
       return false;
     }
@@ -509,13 +509,13 @@ public class OBaseExpression extends OMathExpression {
     this.inputParam = inputParam;
   }
 
-  public boolean isIndexChain(OCommandContext ctx, OClass clazz) {
+  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
     if (modifier == null) {
       return false;
     }
     if (identifier.isIndexChain(ctx, clazz)) {
-      OProperty prop = clazz.getProperty(identifier.getSuffix().getIdentifier().getStringValue());
-      OClass linkedClass = prop.getLinkedClass();
+      YTProperty prop = clazz.getProperty(identifier.getSuffix().getIdentifier().getStringValue());
+      YTClass linkedClass = prop.getLinkedClass();
       if (linkedClass != null) {
         return modifier.isIndexChain(ctx, linkedClass);
       }

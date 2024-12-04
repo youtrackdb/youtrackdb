@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.serialization.serializer.binary.impl.i
 
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
 import java.nio.ByteBuffer;
@@ -78,19 +78,19 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
 
   protected void init(T key, Object[] hints) {
     if (binarySerializer == null) {
-      final OType[] types;
+      final YTType[] types;
 
       if (hints != null && hints.length > 0) {
-        types = (OType[]) hints;
+        types = (YTType[]) hints;
       } else {
         types = OCommonConst.EMPTY_TYPES_ARRAY;
       }
 
-      OType type;
+      YTType type;
       if (types.length > 0) {
         type = types[0];
       } else {
-        type = OType.getTypeByClass(key.getClass());
+        type = YTType.getTypeByClass(key.getClass());
       }
 
       binarySerializer = OBinarySerializerFactory.getInstance().getObjectSerializer(type);

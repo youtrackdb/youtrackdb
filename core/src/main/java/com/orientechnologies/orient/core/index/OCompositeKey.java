@@ -20,14 +20,14 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ChangeableIdentity;
 import com.orientechnologies.orient.core.id.IdentityChangeListener;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysLessKey;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import java.io.DataInput;
@@ -208,8 +208,8 @@ public class OCompositeKey
   }
 
   @Override
-  public ODocument toDocument() {
-    final ODocument document = new ODocument();
+  public YTDocument toDocument() {
+    final YTDocument document = new YTDocument();
     for (int i = 0; i < keys.size(); i++) {
       document.field("key" + i, keys.get(i));
     }
@@ -218,7 +218,7 @@ public class OCompositeKey
   }
 
   @Override
-  public void fromDocument(ODocument document) {
+  public void fromDocument(YTDocument document) {
     document.setLazyLoad(false);
 
     final String[] fieldNames = document.fieldNames();
@@ -247,7 +247,7 @@ public class OCompositeKey
       if (key == null) {
         out.writeByte((byte) -1);
       } else {
-        OType type = OType.getTypeByValue(key);
+        YTType type = YTType.getTypeByValue(key);
         byte[] bytes = serializer.serializeValue(key, type);
         out.writeByte((byte) type.getId());
         out.writeInt(bytes.length);
@@ -256,7 +256,7 @@ public class OCompositeKey
     }
   }
 
-  public void fromStream(ODatabaseSessionInternal db, ORecordSerializerNetworkV37 serializer,
+  public void fromStream(YTDatabaseSessionInternal db, ORecordSerializerNetworkV37 serializer,
       DataInput in) throws IOException {
     int l = in.readInt();
     for (int i = 0; i < l; i++) {
@@ -267,7 +267,7 @@ public class OCompositeKey
         int len = in.readInt();
         byte[] bytes = new byte[len];
         in.readFully(bytes);
-        OType type = OType.getById(b);
+        YTType type = YTType.getById(b);
         Object k = serializer.deserializeValue(db, bytes, type);
         addKey(k);
       }

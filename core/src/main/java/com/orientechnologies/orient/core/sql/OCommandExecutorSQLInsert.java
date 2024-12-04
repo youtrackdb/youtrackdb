@@ -25,19 +25,19 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.OElementInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
@@ -61,14 +61,14 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   protected static final String KEYWORD_RETURN = "RETURN";
   private static final String KEYWORD_VALUES = "VALUES";
   private String className = null;
-  private OClass clazz = null;
+  private YTClass clazz = null;
   private String clusterName = null;
   private String indexName = null;
   private List<Map<String, Object>> newRecords;
-  private OSQLAsynchQuery<OIdentifiable> subQuery = null;
+  private OSQLAsynchQuery<YTIdentifiable> subQuery = null;
   private final AtomicLong saved = new AtomicLong(0);
   private Object returnExpression = null;
-  private List<ODocument> queryResult = null;
+  private List<YTDocument> queryResult = null;
   private boolean unsafe = false;
 
   @SuppressWarnings("unchecked")
@@ -117,7 +117,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
           subjectName = subjectName.substring(OCommandExecutorSQLAbstract.CLASS_PREFIX.length());
         }
 
-        final OClass cls =
+        final YTClass cls =
             database.getMetadata().getImmutableSchemaSnapshot().getClass(subjectName);
         if (cls == null) {
           throwParsingException("Class " + subjectName + " not found in database");
@@ -139,7 +139,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       }
 
       if (clusterName != null && className == null) {
-        ODatabaseSessionInternal db = getDatabase();
+        YTDatabaseSessionInternal db = getDatabase();
         final int clusterId = db.getClusterIdByName(clusterName);
         if (clusterId >= 0) {
           clazz = db.getMetadata().getSchema().getClassByClusterId(clusterId);
@@ -203,7 +203,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
         if (parserGetLastWord().equals(KEYWORD_FROM)) {
           newRecords = null;
           subQuery =
-              new OSQLAsynchQuery<OIdentifiable>(
+              new OSQLAsynchQuery<YTIdentifiable>(
                   parserText.substring(parserGetCurrentPosition()), this);
         }
       }
@@ -216,10 +216,10 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Execute the INSERT and return the ODocument object created.
+   * Execute the INSERT and return the YTDocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+    final YTDatabaseSessionInternal database = getDatabase();
     if (newRecords == null && content == null && subQuery == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -244,7 +244,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
 
       for (Map<String, Object> candidate : newRecords) {
         Object indexKey = getIndexKeyValue(database, commandParameters, candidate);
-        OIdentifiable indexValue = getIndexValue(database, commandParameters, candidate);
+        YTIdentifiable indexValue = getIndexValue(database, commandParameters, candidate);
         index.put(database, indexKey, indexValue);
 
         result.put(KEYWORD_KEY, indexKey);
@@ -252,13 +252,13 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       }
 
       // RETURN LAST ENTRY
-      return prepareReturnItem(new ODocument(result));
+      return prepareReturnItem(new YTDocument(result));
     } else {
       // CREATE NEW DOCUMENTS
-      final List<ODocument> docs = new ArrayList<ODocument>();
+      final List<YTDocument> docs = new ArrayList<YTDocument>();
       if (newRecords != null) {
         for (Map<String, Object> candidate : newRecords) {
-          final ODocument doc = className != null ? new ODocument(className) : new ODocument();
+          final YTDocument doc = className != null ? new YTDocument(className) : new YTDocument();
           OSQLHelper.bindParameters(doc, candidate, commandParameters, context);
 
           saveRecord(doc);
@@ -271,7 +271,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
           return prepareReturnResult(docs);
         }
       } else if (content != null) {
-        final ODocument doc = className != null ? new ODocument(className) : new ODocument();
+        final YTDocument doc = className != null ? new YTDocument(className) : new YTDocument();
         doc.merge(content, true, false);
         saveRecord(doc);
         return prepareReturnItem(doc);
@@ -298,7 +298,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   @Override
   public Set<String> getInvolvedClusters() {
     if (className != null) {
-      final OClass clazz =
+      final YTClass clazz =
           getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(className);
       return Collections.singleton(
           getDatabase().getClusterNameById(clazz.getClusterSelection().getCluster(clazz, null)));
@@ -317,19 +317,19 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   }
 
   @Override
-  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
-    OClass oldClass = null;
-    ORecordAbstract oldRecord = ((OIdentifiable) iRecord).getRecord();
+  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
+    YTClass oldClass = null;
+    YTRecordAbstract oldRecord = ((YTIdentifiable) iRecord).getRecord();
 
-    if (oldRecord instanceof ODocument) {
-      oldClass = ODocumentInternal.getImmutableSchemaClass(((ODocument) oldRecord));
+    if (oldRecord instanceof YTDocument) {
+      oldClass = ODocumentInternal.getImmutableSchemaClass(((YTDocument) oldRecord));
     }
-    final ORecordAbstract rec = oldRecord.copy();
+    final YTRecordAbstract rec = oldRecord.copy();
 
     // RESET THE IDENTITY TO AVOID UPDATE
     rec.getIdentity().reset();
 
-    if (rec instanceof ODocument doc) {
+    if (rec instanceof YTDocument doc) {
 
       if (className != null) {
         doc.setClassName(className);
@@ -337,8 +337,8 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       }
     }
 
-    if (rec instanceof OElement) {
-      OElementInternal doc = (OElementInternal) rec;
+    if (rec instanceof YTEntity) {
+      YTEntityInternal doc = (YTEntityInternal) rec;
 
       if (oldClass != null && oldClass.isSubClassOf("V")) {
         OLogManager.instance()
@@ -347,20 +347,20 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
                 "WARNING: copying vertex record "
                     + doc
                     + " with INSERT/SELECT, the edge pointers won't be copied");
-        String[] fields = ((ODocument) rec).fieldNames();
+        String[] fields = ((YTDocument) rec).fieldNames();
         for (String field : fields) {
           if (field.startsWith("out_") || field.startsWith("in_")) {
             Object edges = doc.getPropertyInternal(field);
-            if (edges instanceof OIdentifiable) {
-              ODocument edgeRec = ((OIdentifiable) edges).getRecord();
-              OClass clazz = ODocumentInternal.getImmutableSchemaClass(edgeRec);
+            if (edges instanceof YTIdentifiable) {
+              YTDocument edgeRec = ((YTIdentifiable) edges).getRecord();
+              YTClass clazz = ODocumentInternal.getImmutableSchemaClass(edgeRec);
               if (clazz != null && clazz.isSubClassOf("E")) {
                 doc.removeProperty(field);
               }
             } else if (edges instanceof Iterable) {
               for (Object edge : (Iterable) edges) {
-                if (edge instanceof OIdentifiable) {
-                  OElement edgeRec = ((OIdentifiable) edge).getRecord();
+                if (edge instanceof YTIdentifiable) {
+                  YTEntity edgeRec = ((YTIdentifiable) edge).getRecord();
                   if (edgeRec.getSchemaType().isPresent()
                       && edgeRec.getSchemaType().get().isSubClassOf("E")) {
                     doc.removeProperty(field);
@@ -377,7 +377,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     synchronized (this) {
       saveRecord(rec);
       if (queryResult != null) {
-        queryResult.add(((ODocument) rec));
+        queryResult.add(((YTDocument) rec));
       }
     }
 
@@ -388,28 +388,28 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   public void end() {
   }
 
-  protected Object prepareReturnResult(List<ODocument> res) {
+  protected Object prepareReturnResult(List<YTDocument> res) {
     if (returnExpression == null) {
       return res; // No transformation
     }
     final ArrayList<Object> ret = new ArrayList<Object>();
-    for (ODocument resItem : res) {
+    for (YTDocument resItem : res) {
       ret.add(prepareReturnItem(resItem));
     }
     return ret;
   }
 
-  protected Object prepareReturnItem(ODocument item) {
+  protected Object prepareReturnItem(YTDocument item) {
     if (returnExpression == null) {
       return item; // No transformation
     }
 
     this.getContext().setVariable("current", item);
     final Object res = OSQLHelper.getValue(returnExpression, item, this.getContext());
-    if (res instanceof OIdentifiable) {
+    if (res instanceof YTIdentifiable) {
       return res;
     } else { // wrapping doc
-      final ODocument wrappingDoc = new ODocument("result", res);
+      final YTDocument wrappingDoc = new YTDocument("result", res);
       wrappingDoc.field(
           "rid", item.getIdentity()); // passing record id.In many cases usable on client side
       wrappingDoc.field("version", item.getVersion()); // passing record version
@@ -417,7 +417,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     }
   }
 
-  protected void saveRecord(final ORecordAbstract rec) {
+  protected void saveRecord(final YTRecordAbstract rec) {
     if (clusterName != null) {
       rec.save(clusterName);
     } else {
@@ -508,7 +508,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     String returning = parserGetLastWord().trim();
     if (returning.startsWith("$") || returning.startsWith("@")) {
       if (subQueryExpected) {
-        queryResult = new ArrayList<ODocument>();
+        queryResult = new ArrayList<YTDocument>();
       }
       returnExpression =
           (returning.length() > 0)
@@ -521,7 +521,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   }
 
   private Object getIndexKeyValue(
-      ODatabaseSession session, OCommandParameters commandParameters,
+      YTDatabaseSession session, OCommandParameters commandParameters,
       Map<String, Object> candidate) {
     final Object parsedKey = candidate.get(KEYWORD_KEY);
     if (parsedKey instanceof OSQLFilterItemField f) {
@@ -538,22 +538,22 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     return parsedKey;
   }
 
-  private OIdentifiable getIndexValue(
-      ODatabaseSession session, OCommandParameters commandParameters,
+  private YTIdentifiable getIndexValue(
+      YTDatabaseSession session, OCommandParameters commandParameters,
       Map<String, Object> candidate) {
     final Object parsedRid = candidate.get(KEYWORD_RID);
     if (parsedRid instanceof OSQLFilterItemField f) {
       if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER
       {
-        return (OIdentifiable) commandParameters.getNext();
+        return (YTIdentifiable) commandParameters.getNext();
       } else if (f.getRoot(session).startsWith(":"))
       // NAMED PARAMETER
       {
-        return (OIdentifiable) commandParameters.getByName(f.getRoot(session).substring(1));
+        return (YTIdentifiable) commandParameters.getByName(f.getRoot(session).substring(1));
       }
     }
-    return (OIdentifiable) parsedRid;
+    return (YTIdentifiable) parsedRid;
   }
 
   @Override

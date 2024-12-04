@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,16 +14,16 @@ public class DefaultValueSerializationTest extends DBTestBase {
   @Test
   public void testKeepValueSerialization() {
     // create example schema
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassC");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassC");
 
-    OProperty prop = classA.createProperty(db, "name", OType.STRING);
+    YTProperty prop = classA.createProperty(db, "name", YTType.STRING);
     prop.setDefaultValue(db, "uuid()");
 
-    ODocument doc = new ODocument("ClassC");
+    YTDocument doc = new YTDocument("ClassC");
 
     byte[] val = doc.toStream();
-    ODocument doc1 = new ODocument();
+    YTDocument doc1 = new YTDocument();
     ORecordInternal.unsetDirty(doc1);
     doc1.fromStream(val);
     doc1.deserializeFields();

@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import java.util.Collection;
 
@@ -39,7 +39,7 @@ public class OQueryOperatorContainsAll extends OQueryOperatorEqualityNotNulls {
   @Override
   @SuppressWarnings("unchecked")
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -84,11 +84,11 @@ public class OQueryOperatorContainsAll extends OQueryOperatorEqualityNotNulls {
 
     } else if (iLeft instanceof Collection<?>) {
 
-      final Collection<ODocument> collection = (Collection<ODocument>) iLeft;
+      final Collection<YTDocument> collection = (Collection<YTDocument>) iLeft;
 
       if (condition != null) {
         // CHECK AGAINST A CONDITION
-        for (final ODocument o : collection) {
+        for (final YTDocument o : collection) {
           if (condition.evaluate(o, null, iContext) == Boolean.FALSE) {
             return false;
           }
@@ -104,10 +104,10 @@ public class OQueryOperatorContainsAll extends OQueryOperatorEqualityNotNulls {
     } else if (iRight instanceof Collection<?>) {
 
       // CHECK AGAINST A CONDITION
-      final Collection<ODocument> collection = (Collection<ODocument>) iRight;
+      final Collection<YTDocument> collection = (Collection<YTDocument>) iRight;
 
       if (condition != null) {
-        for (final ODocument o : collection) {
+        for (final YTDocument o : collection) {
           if (condition.evaluate(o, null, iContext) == Boolean.FALSE) {
             return false;
           }
@@ -130,12 +130,12 @@ public class OQueryOperatorContainsAll extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

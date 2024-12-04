@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;

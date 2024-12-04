@@ -19,10 +19,10 @@ package com.orientechnologies.orient.core.sql.method.misc;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final OCommandContext iContext,
       Object ioResult,
       final Object[] iParams) {
@@ -60,19 +60,19 @@ public class OSQLMethodField extends OAbstractSQLMethod {
       if (ioResult instanceof OResult) {
         ioResult = ((OResult) ioResult).toElement();
       }
-      if (ioResult instanceof Iterable && !(ioResult instanceof ODocument)) {
+      if (ioResult instanceof Iterable && !(ioResult instanceof YTDocument)) {
         ioResult = ((Iterable) ioResult).iterator();
       }
       if (ioResult instanceof String) {
         try {
-          ioResult = new ORecordId((String) ioResult).getRecord();
+          ioResult = new YTRecordId((String) ioResult).getRecord();
         } catch (Exception e) {
           OLogManager.instance().error(this, "Error on reading rid with value '%s'", e, ioResult);
           ioResult = null;
         }
-      } else if (ioResult instanceof OIdentifiable) {
+      } else if (ioResult instanceof YTIdentifiable) {
         try {
-          ioResult = ((OIdentifiable) ioResult).getRecord();
+          ioResult = ((YTIdentifiable) ioResult).getRecord();
         } catch (ORecordNotFoundException rnf) {
           OLogManager.instance()
               .error(this, "Error on reading rid with value '%s'", null, ioResult);
@@ -85,7 +85,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
         for (Object o : OMultiValue.getMultiValueIterable(ioResult)) {
           Object newlyAdded = ODocumentHelper.getFieldValue(db, o, paramAsString);
           if (OMultiValue.isMultiValue(newlyAdded)) {
-            if (newlyAdded instanceof Map || newlyAdded instanceof OIdentifiable) {
+            if (newlyAdded instanceof Map || newlyAdded instanceof YTIdentifiable) {
               result.add(newlyAdded);
             } else {
               for (Object item : OMultiValue.getMultiValueIterable(newlyAdded)) {

@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.metadata.function;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import java.util.Set;
 
@@ -31,7 +31,7 @@ public class OFunctionLibraryProxy extends OProxedResource<OFunctionLibraryImpl>
     implements OFunctionLibrary {
 
   public OFunctionLibraryProxy(
-      final OFunctionLibraryImpl iDelegate, final ODatabaseSessionInternal iDatabase) {
+      final OFunctionLibraryImpl iDelegate, final YTDatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 
@@ -66,12 +66,12 @@ public class OFunctionLibraryProxy extends OProxedResource<OFunctionLibraryImpl>
   }
 
   @Override
-  public void dropFunction(ODatabaseSession session, OFunction function) {
-    delegate.dropFunction((ODatabaseSessionInternal) session, function);
+  public void dropFunction(YTDatabaseSession session, OFunction function) {
+    delegate.dropFunction((YTDatabaseSessionInternal) session, function);
   }
 
   @Override
-  public void dropFunction(ODatabaseSession session, String iName) {
-    delegate.dropFunction((ODatabaseSessionInternal) session, iName);
+  public void dropFunction(YTDatabaseSession session, String iName) {
+    delegate.dropFunction((YTDatabaseSessionInternal) session, iName);
   }
 }

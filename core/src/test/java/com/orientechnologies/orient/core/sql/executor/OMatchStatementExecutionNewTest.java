@@ -3,10 +3,10 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +68,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     db.executeInTx(
         () -> {
           for (int i = 0; i < nodes; i++) {
-            ODocument doc = new ODocument("IndexedVertex");
+            YTDocument doc = new YTDocument("IndexedVertex");
             doc.field("uid", i);
             doc.save();
           }
@@ -273,7 +273,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     for (int i = 0; i < 6; i++) {
       OResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
-      OElement person = db.load(item.getProperty("person"));
+      YTEntity person = db.load(item.getProperty("person"));
 
       String name = person.getProperty("name");
       Assert.assertTrue(name.startsWith("n"));
@@ -290,9 +290,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     for (int i = 0; i < 2; i++) {
       OResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
-      OElement personId = db.load(item.getProperty("person"));
+      YTEntity personId = db.load(item.getProperty("person"));
 
-      ODocument person = personId.getRecord();
+      YTDocument person = personId.getRecord();
       String name = person.field("name");
       Assert.assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -351,7 +351,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
       OResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
-      OElement person = db.load(item.getProperty("person"));
+      YTEntity person = db.load(item.getProperty("person"));
 
       String name = person.getProperty("name");
       Assert.assertTrue(name.equals("n1") || name.equals("n2"));
@@ -879,7 +879,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertEquals("b", getManagerArrows("p11").field("name"));
   }
 
-  private ODocument getManager(String personName) {
+  private YTDocument getManager(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -902,7 +902,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     return item.getElement().get().getRecord();
   }
 
-  private ODocument getManagerArrows(String personName) {
+  private YTDocument getManagerArrows(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -1230,9 +1230,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
-    OElement friend1 = db.load(doc.getProperty("friend1"));
-    OElement friend2 = db.load(doc.getProperty("friend2"));
-    OElement friend3 = db.load(doc.getProperty("friend3"));
+    YTEntity friend1 = db.load(doc.getProperty("friend1"));
+    YTEntity friend2 = db.load(doc.getProperty("friend2"));
+    YTEntity friend3 = db.load(doc.getProperty("friend3"));
     Assert.assertEquals(0, friend1.<Object>getProperty("uid"));
     Assert.assertEquals(1, friend2.<Object>getProperty("uid"));
     Assert.assertEquals(2, friend3.<Object>getProperty("uid"));
@@ -1255,9 +1255,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
-    OElement friend1 = db.load(doc.getProperty("friend1"));
-    OElement friend2 = db.load(doc.getProperty("friend2"));
-    OElement friend3 = db.load(doc.getProperty("friend3"));
+    YTEntity friend1 = db.load(doc.getProperty("friend1"));
+    YTEntity friend2 = db.load(doc.getProperty("friend2"));
+    YTEntity friend3 = db.load(doc.getProperty("friend3"));
     Assert.assertEquals(0, friend1.<Object>getProperty("uid"));
     Assert.assertEquals(1, friend2.<Object>getProperty("uid"));
     Assert.assertEquals(2, friend3.<Object>getProperty("uid"));
@@ -1280,9 +1280,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
-    OElement friend1 = db.load(doc.getProperty("friend1"));
-    OElement friend2 = db.load(doc.getProperty("friend2"));
-    OElement friend3 = db.load(doc.getProperty("friend3"));
+    YTEntity friend1 = db.load(doc.getProperty("friend1"));
+    YTEntity friend2 = db.load(doc.getProperty("friend2"));
+    YTEntity friend3 = db.load(doc.getProperty("friend3"));
     Assert.assertEquals(0, friend1.<Object>getProperty("uid"));
     Assert.assertEquals(1, friend2.<Object>getProperty("uid"));
     Assert.assertEquals(2, friend3.<Object>getProperty("uid"));
@@ -1381,7 +1381,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       OResult doc = result.next();
-      OElement friend1 = db.load(doc.getProperty("friend1"));
+      YTEntity friend1 = db.load(doc.getProperty("friend1"));
       Assert.assertEquals(friend1.<Object>getProperty("uid"), 1);
     }
     Assert.assertFalse(result.hasNext());
@@ -1425,7 +1425,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     Assert.assertTrue(result.hasNext());
     OResult d = result.next();
-    OElement friend1 = db.load(d.getProperty("friend1"));
+    YTEntity friend1 = db.load(d.getProperty("friend1"));
     Assert.assertEquals(friend1.<Object>getProperty("uid"), 1);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1446,7 +1446,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     OResult doc = result.next();
     Object foo = db.load(doc.getProperty("foo"));
     Assert.assertNotNull(foo);
-    Assert.assertTrue(((OElement) foo).isVertex());
+    Assert.assertTrue(((YTEntity) foo).isVertex());
     result.close();
   }
 
@@ -1546,7 +1546,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertNotNull(foo);
     Assert.assertTrue(foo instanceof List);
     Assert.assertEquals(1, ((List) foo).size());
-    OVertex resultVertex = (OVertex) ((List) foo).get(0);
+    YTVertex resultVertex = (YTVertex) ((List) foo).get(0);
     Assert.assertEquals(2, resultVertex.<Object>getProperty("uid"));
     result.close();
   }
@@ -1597,7 +1597,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
 
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("uuid"));
     result.close();
@@ -1615,7 +1615,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub.uuid"));
     result.close();
@@ -1633,7 +1633,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub[0].uuid"));
 
@@ -1668,7 +1668,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub[0].uuid"));
   }
@@ -1704,7 +1704,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub[0].uuid"));
   }
@@ -1787,7 +1787,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
       Assert.assertTrue(qResult.hasNext());
       OResult doc = qResult.next();
       Assert.assertEquals(2, doc.getPropertyNames().size());
-      OElement person = db.load(doc.getProperty("person"));
+      YTEntity person = db.load(doc.getProperty("person"));
 
       String name = person.getProperty("name");
       Assert.assertTrue(name.startsWith("n"));
@@ -1805,7 +1805,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
       Assert.assertTrue(qResult.hasNext());
       OResult doc = qResult.next();
       Assert.assertEquals(2, doc.getPropertyNames().size());
-      OElement person = db.load(doc.getProperty("person"));
+      YTEntity person = db.load(doc.getProperty("person"));
 
       String name = person.getProperty("name");
       Assert.assertTrue(name.startsWith("n"));
@@ -2170,23 +2170,23 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
       OResult item = result.next();
       Object path = item.getProperty("xy");
       Assert.assertTrue(path instanceof List);
-      List<OIdentifiable> thePath = (List<OIdentifiable>) path;
+      List<YTIdentifiable> thePath = (List<YTIdentifiable>) path;
 
       String bname = item.getProperty("bname");
       if (bname.equals("aaa")) {
         Assert.assertEquals(0, thePath.size());
       } else if (bname.equals("aaa")) {
         Assert.assertEquals(1, thePath.size());
-        Assert.assertEquals("bbb", ((OElement) thePath.get(0).getRecord()).getProperty("name"));
+        Assert.assertEquals("bbb", ((YTEntity) thePath.get(0).getRecord()).getProperty("name"));
       } else if (bname.equals("ccc")) {
         Assert.assertEquals(2, thePath.size());
-        Assert.assertEquals("bbb", ((OElement) thePath.get(0).getRecord()).getProperty("name"));
-        Assert.assertEquals("ccc", ((OElement) thePath.get(1).getRecord()).getProperty("name"));
+        Assert.assertEquals("bbb", ((YTEntity) thePath.get(0).getRecord()).getProperty("name"));
+        Assert.assertEquals("ccc", ((YTEntity) thePath.get(1).getRecord()).getProperty("name"));
       } else if (bname.equals("ddd")) {
         Assert.assertEquals(3, thePath.size());
-        Assert.assertEquals("bbb", ((OElement) thePath.get(0).getRecord()).getProperty("name"));
-        Assert.assertEquals("ccc", ((OElement) thePath.get(1).getRecord()).getProperty("name"));
-        Assert.assertEquals("ddd", ((OElement) thePath.get(2).getRecord()).getProperty("name"));
+        Assert.assertEquals("bbb", ((YTEntity) thePath.get(0).getRecord()).getProperty("name"));
+        Assert.assertEquals("ccc", ((YTEntity) thePath.get(1).getRecord()).getProperty("name"));
+        Assert.assertEquals("ddd", ((YTEntity) thePath.get(2).getRecord()).getProperty("name"));
       }
     }
     Assert.assertFalse(result.hasNext());
@@ -2201,15 +2201,15 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     db.executeInTx(
         () -> {
-          OVertex v1 = db.newVertex(clazz);
+          YTVertex v1 = db.newVertex(clazz);
           v1.setProperty("name", "a");
           v1.save();
 
-          OVertex v2 = db.newVertex(clazz);
+          YTVertex v2 = db.newVertex(clazz);
           v2.setProperty("name", "b");
           v2.save();
 
-          OVertex v3 = db.newVertex(clazz);
+          YTVertex v3 = db.newVertex(clazz);
           v3.setProperty("name", "c");
           v3.save();
 
@@ -2236,15 +2236,15 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     db.executeInTx(
         () -> {
-          OVertex v1 = db.newVertex(clazz);
+          YTVertex v1 = db.newVertex(clazz);
           v1.setProperty("name", "a");
           v1.save();
 
-          OVertex v2 = db.newVertex(clazz);
+          YTVertex v2 = db.newVertex(clazz);
           v2.setProperty("name", "b");
           v2.save();
 
-          OVertex v3 = db.newVertex(clazz);
+          YTVertex v3 = db.newVertex(clazz);
           v3.setProperty("name", "c");
           v3.save();
 
@@ -2270,15 +2270,15 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     db.executeInTx(
         () -> {
-          OVertex v1 = db.newVertex(clazz);
+          YTVertex v1 = db.newVertex(clazz);
           v1.setProperty("name", "a");
           v1.save();
 
-          OVertex v2 = db.newVertex(clazz);
+          YTVertex v2 = db.newVertex(clazz);
           v2.setProperty("name", "b");
           v2.save();
 
-          OVertex v3 = db.newVertex(clazz);
+          YTVertex v3 = db.newVertex(clazz);
           v3.setProperty("name", "c");
           v3.save();
 
@@ -2306,15 +2306,15 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     db.executeInTx(
         () -> {
-          OVertex v1 = db.newVertex(clazz);
+          YTVertex v1 = db.newVertex(clazz);
           v1.setProperty("name", "a");
           v1.save();
 
-          OVertex v2 = db.newVertex(clazz);
+          YTVertex v2 = db.newVertex(clazz);
           v2.setProperty("name", "b");
           v2.save();
 
-          OVertex v3 = db.newVertex(clazz);
+          YTVertex v3 = db.newVertex(clazz);
           v3.setProperty("name", "c");
           v3.save();
 

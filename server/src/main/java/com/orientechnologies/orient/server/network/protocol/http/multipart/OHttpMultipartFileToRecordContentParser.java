@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.multipart;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.io.IOException;
 import java.util.Map;
@@ -26,16 +26,16 @@ import java.util.Map;
 /**
  *
  */
-public class OHttpMultipartFileToRecordContentParser implements OHttpMultipartContentParser<ORID> {
+public class OHttpMultipartFileToRecordContentParser implements OHttpMultipartContentParser<YTRID> {
 
   @Override
-  public ORID parse(
+  public YTRID parse(
       final OHttpRequest iRequest,
       final Map<String, String> headers,
       final OHttpMultipartContentInputStream in,
-      ODatabaseSession database)
+      YTDatabaseSession database)
       throws IOException {
-    final OBlob record = new ORecordBytes();
+    final YTBlob record = new YTRecordBytes();
     record.fromInputStream(in);
     record.save();
     return record.getIdentity();

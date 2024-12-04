@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,9 +29,9 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
   public static final String URL = "plocal:target/testdb/OSBTreeRidBagConcurrencySingleRidBag";
   private final AtomicInteger positionCounter = new AtomicInteger();
-  private final ConcurrentSkipListSet<ORID> ridTree = new ConcurrentSkipListSet<ORID>();
+  private final ConcurrentSkipListSet<YTRID> ridTree = new ConcurrentSkipListSet<YTRID>();
   private final CountDownLatch latch = new CountDownLatch(1);
-  private ORID docContainerRid;
+  private YTRID docContainerRid;
   private final ExecutorService threadExecutor = Executors.newCachedThreadPool();
   private volatile boolean cont = true;
 
@@ -41,23 +41,23 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
   @Before
   public void beforeMethod() {
     topThreshold =
-        OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+        YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
     bottomThreshold =
-        OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
+        YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
 
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(30);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(20);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(30);
+    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(20);
   }
 
   @After
   public void afterMethod() {
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
+    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
   }
 
   @Test
   public void testConcurrency() throws Exception {
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -65,12 +65,12 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
     db.create();
 
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     ORidBag ridBag = new ORidBag(db);
 
     document.field("ridBag", ridBag);
     for (int i = 0; i < 100; i++) {
-      final ORID ridToAdd = new ORecordId(0, positionCounter.incrementAndGet());
+      final YTRID ridToAdd = new YTRecordId(0, positionCounter.incrementAndGet());
       ridBag.add(ridToAdd);
       ridTree.add(ridToAdd);
     }
@@ -102,7 +102,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
     ridBag = document.field("ridBag");
 
-    for (OIdentifiable identifiable : ridBag) {
+    for (YTIdentifiable identifiable : ridBag) {
       Assert.assertTrue(ridTree.remove(identifiable.getIdentity()));
     }
 
@@ -126,22 +126,22 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
       int addedRecords = 0;
 
-      ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
+      YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
       try {
         while (cont) {
-          List<ORID> ridsToAdd = new ArrayList<ORID>();
+          List<YTRID> ridsToAdd = new ArrayList<YTRID>();
           for (int i = 0; i < 10; i++) {
-            ridsToAdd.add(new ORecordId(0, positionCounter.incrementAndGet()));
+            ridsToAdd.add(new YTRecordId(0, positionCounter.incrementAndGet()));
           }
 
           while (true) {
-            ODocument document = db.load(docContainerRid);
+            YTDocument document = db.load(docContainerRid);
             document.setLazyLoad(false);
 
             ORidBag ridBag = document.field("ridBag");
-            for (ORID rid : ridsToAdd) {
+            for (YTRID rid : ridsToAdd) {
               ridBag.add(rid);
             }
 
@@ -182,21 +182,21 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
       int deletedRecords = 0;
 
       Random rnd = new Random();
-      ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
+      YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
       try {
         while (cont) {
           while (true) {
-            ODocument document = db.load(docContainerRid);
+            YTDocument document = db.load(docContainerRid);
             document.setLazyLoad(false);
             ORidBag ridBag = document.field("ridBag");
-            Iterator<OIdentifiable> iterator = ridBag.iterator();
+            Iterator<YTIdentifiable> iterator = ridBag.iterator();
 
-            List<ORID> ridsToDelete = new ArrayList<ORID>();
+            List<YTRID> ridsToDelete = new ArrayList<YTRID>();
             int counter = 0;
             while (iterator.hasNext()) {
-              OIdentifiable identifiable = iterator.next();
+              YTIdentifiable identifiable = iterator.next();
               if (rnd.nextBoolean()) {
                 iterator.remove();
                 counter++;

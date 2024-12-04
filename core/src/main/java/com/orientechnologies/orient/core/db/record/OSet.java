@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Lazy implementation of Set. Can be bound to a source ORecord object to keep track of changes.
+ * Lazy implementation of Set. Can be bound to a source YTRecord object to keep track of changes.
  * This avoid to call the makeDirty() by hand when the set is changed.
  *
  * <p><b>Internals</b>:
@@ -41,13 +41,13 @@ import javax.annotation.Nullable;
  *
  * <p>
  */
-public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeListener {
+public class OSet extends OTrackedSet<YTIdentifiable> implements IdentityChangeListener {
 
   public OSet(final ORecordElement iSourceRecord) {
     super(iSourceRecord);
   }
 
-  public OSet(ORecordElement iSourceRecord, Collection<OIdentifiable> iOrigin) {
+  public OSet(ORecordElement iSourceRecord, Collection<YTIdentifiable> iOrigin) {
     this(iSourceRecord);
 
     if (iOrigin != null && !iOrigin.isEmpty()) {
@@ -55,7 +55,7 @@ public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeLi
     }
   }
 
-  public boolean addInternal(final OIdentifiable e) {
+  public boolean addInternal(final YTIdentifiable e) {
     var result = super.addInternal(e);
 
     if (result) {
@@ -95,13 +95,13 @@ public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeLi
     return result;
   }
 
-  public boolean addAll(final Collection<? extends OIdentifiable> c) {
+  public boolean addAll(final Collection<? extends YTIdentifiable> c) {
     if (c == null || c.isEmpty()) {
       return false;
     }
 
     var result = false;
-    for (OIdentifiable o : c) {
+    for (YTIdentifiable o : c) {
       var resultAdd = super.add(o);
       result = result || resultAdd;
 
@@ -123,7 +123,7 @@ public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeLi
 
     Objects.requireNonNull(c);
     boolean modified = false;
-    Iterator<OIdentifiable> it = iterator();
+    Iterator<YTIdentifiable> it = iterator();
 
     while (it.hasNext()) {
       if (!c.contains(it.next())) {
@@ -137,7 +137,7 @@ public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeLi
 
   @Override
   public Class<?> getGenericClass() {
-    return OIdentifiable.class;
+    return YTIdentifiable.class;
   }
 
   @Override
@@ -147,10 +147,10 @@ public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeLi
 
   @Override
   @Nonnull
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     var iterator = super.iterator();
     return new Iterator<>() {
-      private OIdentifiable current = null;
+      private YTIdentifiable current = null;
 
       @Override
       public boolean hasNext() {
@@ -158,7 +158,7 @@ public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeLi
       }
 
       @Override
-      public OIdentifiable next() {
+      public YTIdentifiable next() {
         current = iterator.next();
         return current;
       }
@@ -176,7 +176,7 @@ public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeLi
   }
 
   @Override
-  public boolean add(@Nullable OIdentifiable e) {
+  public boolean add(@Nullable YTIdentifiable e) {
     var result = super.add(e);
 
     if (result) {
@@ -196,7 +196,7 @@ public class OSet extends OTrackedSet<OIdentifiable> implements IdentityChangeLi
 
   @Override
   public void onAfterIdentityChange(Object source) {
-    super.addInternal((OIdentifiable) source);
+    super.addInternal((YTIdentifiable) source);
   }
 
   public boolean remove(Object o) {

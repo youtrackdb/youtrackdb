@@ -24,15 +24,15 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTEdgeInternal;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
 
   private String from;
   private String to;
-  private OClass clazz;
+  private YTClass clazz;
   private String edgeLabel;
   private String clusterName;
   private List<OPair<String, Object>> fields;
@@ -126,8 +126,8 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
             }
 
             try {
-              OSchema schema = database.getMetadata().getSchema();
-              OClass e = schema.getClass("E");
+              YTSchema schema = database.getMetadata().getSchema();
+              YTClass e = schema.getClass("E");
               clazz = schema.createClass(className, e);
             } finally {
               // RESTART TRANSACTION
@@ -163,32 +163,32 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Execute the command and return the ODocument object created.
+   * Execute the command and return the YTDocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clazz == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    ODatabaseSessionInternal db = getDatabase();
+    YTDatabaseSessionInternal db = getDatabase();
     final List<Object> edges = new ArrayList<Object>();
-    Set<OIdentifiable> fromIds = null;
-    Set<OIdentifiable> toIds = null;
+    Set<YTIdentifiable> fromIds = null;
+    Set<YTIdentifiable> toIds = null;
     db.begin();
     try {
       fromIds = OSQLEngine.getInstance().parseRIDTarget(db, from, context, iArgs);
       toIds = OSQLEngine.getInstance().parseRIDTarget(db, to, context, iArgs);
 
       // CREATE EDGES
-      for (OIdentifiable from : fromIds) {
-        final OVertex fromVertex = toVertex(from);
+      for (YTIdentifiable from : fromIds) {
+        final YTVertex fromVertex = toVertex(from);
         if (fromVertex == null) {
           throw new OCommandExecutionException("Source vertex '" + from + "' does not exist");
         }
 
-        for (OIdentifiable to : toIds) {
-          final OVertex toVertex;
+        for (YTIdentifiable to : toIds) {
+          final YTVertex toVertex;
           if (from.equals(to)) {
             toVertex = fromVertex;
           } else {
@@ -210,7 +210,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
             }
           }
 
-          OEdgeInternal edge;
+          YTEdgeInternal edge;
 
           if (content != null) {
             if (fields != null)
@@ -222,7 +222,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
             }
           }
 
-          edge = (OEdgeInternal) fromVertex.addEdge(toVertex, edgeLabel);
+          edge = (YTEdgeInternal) fromVertex.addEdge(toVertex, edgeLabel);
           if (fields != null && !fields.isEmpty()) {
             OSQLHelper.bindParameters(
                 edge.getRecord(), fields, new OCommandParameters(iArgs), context);
@@ -259,20 +259,20 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
     return edges;
   }
 
-  private static OVertex toVertex(OIdentifiable item) {
+  private static YTVertex toVertex(YTIdentifiable item) {
     if (item == null) {
       return null;
     }
-    if (item instanceof OElement) {
-      return ((OElement) item).asVertex().orElse(null);
+    if (item instanceof YTEntity) {
+      return ((YTEntity) item).asVertex().orElse(null);
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
       } catch (ORecordNotFoundException e) {
         return null;
       }
-      if (item instanceof OElement) {
-        return ((OElement) item).asVertex().orElse(null);
+      if (item instanceof YTEntity) {
+        return ((YTEntity) item).asVertex().orElse(null);
       }
     }
     return null;

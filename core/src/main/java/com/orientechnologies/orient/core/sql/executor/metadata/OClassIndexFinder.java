@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql.executor.metadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +21,7 @@ public class OClassIndexFinder implements OIndexFinder {
 
   private static class PrePath {
 
-    OClass cl;
+    YTClass cl;
     Optional<OIndexCandidate> chain;
     boolean valid;
     String last;
@@ -41,9 +41,9 @@ public class OClassIndexFinder implements OIndexFinder {
           }
         };
     for (String ele : rawPath) {
-      OProperty prop = cand.cl.getProperty(ele);
+      YTProperty prop = cand.cl.getProperty(ele);
       if (prop != null) {
-        OClass linkedClass = prop.getLinkedClass();
+        YTClass linkedClass = prop.getLinkedClass();
         Collection<OIndex> indexes = prop.getAllIndexes(db);
         if (prop.getType().isLink() && linkedClass != null) {
           boolean found = false;
@@ -83,11 +83,11 @@ public class OClassIndexFinder implements OIndexFinder {
     if (!pre.valid) {
       return Optional.empty();
     }
-    OClass cl = pre.cl;
+    YTClass cl = pre.cl;
     Optional<OIndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    OProperty prop = cl.getProperty(last);
+    YTProperty prop = cl.getProperty(last);
     if (prop != null) {
       Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
       for (OIndex index : indexes) {
@@ -111,13 +111,13 @@ public class OClassIndexFinder implements OIndexFinder {
     if (!pre.valid) {
       return Optional.empty();
     }
-    OClass cl = pre.cl;
+    YTClass cl = pre.cl;
     Optional<OIndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    OProperty prop = cl.getProperty(last);
+    YTProperty prop = cl.getProperty(last);
     if (prop != null) {
-      if (prop.getType() == OType.EMBEDDEDMAP) {
+      if (prop.getType() == YTType.EMBEDDEDMAP) {
         Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
         for (OIndex index : indexes) {
           if (index.getInternal().canBeUsedInEqualityOperators()) {
@@ -147,11 +147,11 @@ public class OClassIndexFinder implements OIndexFinder {
     if (!pre.valid) {
       return Optional.empty();
     }
-    OClass cl = pre.cl;
+    YTClass cl = pre.cl;
     Optional<OIndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    OProperty prop = cl.getProperty(last);
+    YTProperty prop = cl.getProperty(last);
     if (prop != null) {
       Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
       for (OIndex index : indexes) {
@@ -176,13 +176,13 @@ public class OClassIndexFinder implements OIndexFinder {
     if (!pre.valid) {
       return Optional.empty();
     }
-    OClass cl = pre.cl;
+    YTClass cl = pre.cl;
     Optional<OIndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    OProperty prop = cl.getProperty(last);
+    YTProperty prop = cl.getProperty(last);
     if (prop != null) {
-      if (prop.getType() == OType.EMBEDDEDMAP) {
+      if (prop.getType() == YTType.EMBEDDEDMAP) {
         Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
         for (OIndex index : indexes) {
           OIndexDefinition def = index.getDefinition();
@@ -212,15 +212,15 @@ public class OClassIndexFinder implements OIndexFinder {
     if (!pre.valid) {
       return Optional.empty();
     }
-    OClass cl = pre.cl;
+    YTClass cl = pre.cl;
     Optional<OIndexCandidate> cand = pre.chain;
     String last = pre.last;
 
-    OProperty prop = cl.getProperty(last);
+    YTProperty prop = cl.getProperty(last);
     if (prop != null) {
       Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
       for (OIndex index : indexes) {
-        if (OClass.INDEX_TYPE.FULLTEXT.name().equalsIgnoreCase(index.getType())
+        if (YTClass.INDEX_TYPE.FULLTEXT.name().equalsIgnoreCase(index.getType())
             && !index.getAlgorithm().equalsIgnoreCase("LUCENE")) {
           if (cand.isPresent()) {
             ((OIndexCandidateChain) cand.get()).add(index.getName());

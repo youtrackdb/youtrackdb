@@ -14,9 +14,9 @@ public class AlterPropertyTest extends DBTestBase {
 
   @Test
   public void testPropertyRenaming() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestPropertyRenaming");
-    OProperty property = classA.createProperty(db, "propertyOld", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestPropertyRenaming");
+    YTProperty property = classA.createProperty(db, "propertyOld", YTType.STRING);
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
     property.setName(db, "propertyNew");
@@ -26,9 +26,9 @@ public class AlterPropertyTest extends DBTestBase {
 
   @Test
   public void testPropertyRenamingReload() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestPropertyRenaming");
-    OProperty property = classA.createProperty(db, "propertyOld", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestPropertyRenaming");
+    YTProperty property = classA.createProperty(db, "propertyOld", YTType.STRING);
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
     property.setName(db, "propertyNew");
@@ -39,41 +39,41 @@ public class AlterPropertyTest extends DBTestBase {
 
   @Test
   public void testLinkedMapPropertyLinkedType() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestMapProperty");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestMapProperty");
     try {
-      classA.createProperty(db, "propertyMap", OType.LINKMAP, OType.STRING);
+      classA.createProperty(db, "propertyMap", YTType.LINKMAP, YTType.STRING);
       fail("create linkmap property should not allow linked type");
     } catch (OSchemaException e) {
 
     }
 
-    OProperty prop = classA.getProperty("propertyMap");
+    YTProperty prop = classA.getProperty("propertyMap");
     assertNull(prop);
   }
 
   @Test
   public void testLinkedMapPropertyLinkedClass() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestMapProperty");
-    OClass classLinked = schema.createClass("LinkedClass");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestMapProperty");
+    YTClass classLinked = schema.createClass("LinkedClass");
     try {
-      classA.createProperty(db, "propertyString", OType.STRING, classLinked);
+      classA.createProperty(db, "propertyString", YTType.STRING, classLinked);
       fail("create linkmap property should not allow linked type");
     } catch (OSchemaException e) {
 
     }
 
-    OProperty prop = classA.getProperty("propertyString");
+    YTProperty prop = classA.getProperty("propertyString");
     assertNull(prop);
   }
 
   @Test
   public void testRemoveLinkedClass() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestRemoveLinkedClass");
-    OClass classLinked = schema.createClass("LinkedClass");
-    OProperty prop = classA.createProperty(db, "propertyLink", OType.LINK, classLinked);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestRemoveLinkedClass");
+    YTClass classLinked = schema.createClass("LinkedClass");
+    YTProperty prop = classA.createProperty(db, "propertyLink", YTType.LINK, classLinked);
     assertNotNull(prop.getLinkedClass());
     prop.setLinkedClass(db, null);
     assertNull(prop.getLinkedClass());
@@ -81,10 +81,10 @@ public class AlterPropertyTest extends DBTestBase {
 
   @Test
   public void testRemoveLinkedClassSQL() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestRemoveLinkedClass");
-    OClass classLinked = schema.createClass("LinkedClass");
-    OProperty prop = classA.createProperty(db, "propertyLink", OType.LINK, classLinked);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestRemoveLinkedClass");
+    YTClass classLinked = schema.createClass("LinkedClass");
+    YTProperty prop = classA.createProperty(db, "propertyLink", YTType.LINK, classLinked);
     assertNotNull(prop.getLinkedClass());
     db.command("alter property TestRemoveLinkedClass.propertyLink linkedclass null").close();
     assertNull(prop.getLinkedClass());
@@ -92,9 +92,9 @@ public class AlterPropertyTest extends DBTestBase {
 
   @Test
   public void testMax() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestWrongMax");
-    OProperty prop = classA.createProperty(db, "dates", OType.EMBEDDEDLIST, OType.DATE);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestWrongMax");
+    YTProperty prop = classA.createProperty(db, "dates", YTType.EMBEDDEDLIST, YTType.DATE);
 
     db.command("alter property TestWrongMax.dates max 2016-05-25").close();
 
@@ -108,7 +108,7 @@ public class AlterPropertyTest extends DBTestBase {
   @Test
   public void testAlterPropertyWithDot() {
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     db.command("create class testAlterPropertyWithDot").close();
     db.command("create property testAlterPropertyWithDot.`a.b` STRING").close();
     Assert.assertNotNull(schema.getClass("testAlterPropertyWithDot").getProperty("a.b"));
@@ -119,9 +119,9 @@ public class AlterPropertyTest extends DBTestBase {
 
   @Test
   public void testAlterCustomAttributeInProperty() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("TestCreateCustomAttributeClass");
-    OProperty property = oClass.createProperty(db, "property", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("TestCreateCustomAttributeClass");
+    YTProperty property = oClass.createProperty(db, "property", YTType.STRING);
 
     property.setCustom(db, "customAttribute", "value1");
     assertEquals("value1", property.getCustom("customAttribute"));

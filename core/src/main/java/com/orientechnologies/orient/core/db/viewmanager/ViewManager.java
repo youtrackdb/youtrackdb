@@ -4,12 +4,12 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseSessionEmbedded;
+import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
@@ -19,17 +19,17 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionFactory;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition.INDEX_BY;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.OIndexConfigProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.metadata.schema.OView;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
-import com.orientechnologies.orient.core.metadata.schema.OViewImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTViewImpl;
 import com.orientechnologies.orient.core.metadata.schema.OViewIndexConfig;
 import com.orientechnologies.orient.core.metadata.schema.OViewRemovedMetadata;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.parser.OProjection;
@@ -104,15 +104,15 @@ public class ViewManager {
         });
   }
 
-  private void registerLiveUpdates(ODatabaseSessionInternal db) {
+  private void registerLiveUpdates(YTDatabaseSessionInternal db) {
     boolean liveViewsExist = false;
-    Collection<OView> views = db.getMetadata().getSchema().getViews();
-    for (OView view : views) {
+    Collection<YTView> views = db.getMetadata().getSchema().getViews();
+    for (YTView view : views) {
       liveViewsExist = registerLiveUpdateFor(db, view.getName()) || liveViewsExist;
     }
   }
 
-  public boolean registerLiveUpdateFor(ODatabaseSession db, String viewName) {
+  public boolean registerLiveUpdateFor(YTDatabaseSession db, String viewName) {
     return false;
   }
 
@@ -135,9 +135,9 @@ public class ViewManager {
   private void schedule() {
   }
 
-  private void updateViews(ODatabaseSessionInternal db) {
+  private void updateViews(YTDatabaseSessionInternal db) {
     try {
-      OView view;
+      YTView view;
       do {
         cleanUnusedViewClusters(db);
         cleanUnusedViewIndexes(db);
@@ -159,8 +159,8 @@ public class ViewManager {
     }
   }
 
-  public void cleanUnusedViewClusters(ODatabaseSession db) {
-    if (((ODatabaseSessionEmbedded) db).getStorage().isIcrementalBackupRunning()) {
+  public void cleanUnusedViewClusters(YTDatabaseSession db) {
+    if (((YTDatabaseSessionEmbedded) db).getStorage().isIcrementalBackupRunning()) {
       // backup is running handle delete the next run
       return;
     }
@@ -187,7 +187,7 @@ public class ViewManager {
     }
   }
 
-  public void cleanUnusedViewIndexes(ODatabaseSessionInternal db) {
+  public void cleanUnusedViewIndexes(YTDatabaseSessionInternal db) {
     if (db.getStorage().isIcrementalBackupRunning()) {
       // backup is running handle delete the next run
       return;
@@ -210,15 +210,15 @@ public class ViewManager {
     }
   }
 
-  public OView getNextViewToUpdate(ODatabaseSessionInternal db) {
-    OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+  public YTView getNextViewToUpdate(YTDatabaseSessionInternal db) {
+    YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
 
-    Collection<OView> views = schema.getViews();
+    Collection<YTView> views = schema.getViews();
 
     if (views.isEmpty()) {
       return null;
     }
-    for (OView view : views) {
+    for (YTView view : views) {
       if (!buildOnThisNode(db, view)) {
         continue;
       }
@@ -240,15 +240,15 @@ public class ViewManager {
     return null;
   }
 
-  private boolean isViewRefreshing(OView view) {
+  private boolean isViewRefreshing(YTView view) {
     return this.refreshing.contains(view.getName());
   }
 
-  private boolean isLiveUpdate(ODatabaseSessionInternal db, OView view) {
+  private boolean isLiveUpdate(YTDatabaseSessionInternal db, YTView view) {
     return OViewConfig.UPDATE_STRATEGY_LIVE.equalsIgnoreCase(view.getUpdateStrategy());
   }
 
-  protected boolean buildOnThisNode(ODatabaseSessionInternal db, OView name) {
+  protected boolean buildOnThisNode(YTDatabaseSessionInternal db, YTView name) {
     return true;
   }
 
@@ -260,7 +260,7 @@ public class ViewManager {
    * @return true if there are no watch rules for this view; true if there are watch rules and some
    * of them happened since last update; true if the view was never updated; false otherwise.
    */
-  private boolean needsUpdateBasedOnWatchRules(OView view, ODatabaseSessionInternal db) {
+  private boolean needsUpdateBasedOnWatchRules(YTView view, YTDatabaseSessionInternal db) {
     if (view == null) {
       return false;
     }
@@ -285,13 +285,13 @@ public class ViewManager {
     return false;
   }
 
-  private boolean isUpdateExpiredFor(OView view, ODatabaseSessionInternal db) {
+  private boolean isUpdateExpiredFor(YTView view, YTDatabaseSessionInternal db) {
     long lastUpdate = view.getLastRefreshTime();
     int updateInterval = view.getUpdateIntervalSeconds();
     return lastUpdate + (updateInterval * 1000L) < System.currentTimeMillis();
   }
 
-  public void updateView(OView view, ODatabaseSessionInternal db) {
+  public void updateView(YTView view, YTDatabaseSessionInternal db) {
     OScenarioThreadLocal.executeAsDistributed(
         () -> {
           this.updateViewInternal(view, db);
@@ -299,7 +299,7 @@ public class ViewManager {
         });
   }
 
-  public void updateViewInternal(OView view, ODatabaseSessionInternal db) {
+  public void updateViewInternal(YTView view, YTDatabaseSessionInternal db) {
     if (db.getStorage().isIcrementalBackupRunning() || closed) {
       // backup is running handle rebuild the next run
       return;
@@ -340,7 +340,7 @@ public class ViewManager {
         return;
       }
       OViewRemovedMetadata oldMetadata =
-          ((OViewImpl) view).replaceViewClusterAndIndex(db, cluster, indexes, lastRefreshTime);
+          ((YTViewImpl) view).replaceViewClusterAndIndex(db, cluster, indexes, lastRefreshTime);
       OLogManager.instance()
           .info(
               this,
@@ -378,7 +378,7 @@ public class ViewManager {
   }
 
   private void fillView(
-      ODatabaseSessionInternal db,
+      YTDatabaseSessionInternal db,
       String viewName,
       String query,
       String originRidField,
@@ -402,24 +402,24 @@ public class ViewManager {
 
   private void addItemToView(
       OResult item,
-      ODatabaseSessionInternal db,
+      YTDatabaseSessionInternal db,
       String originRidField,
       String viewName,
       String clusterName,
       List<OIndex> indexes) {
     db.begin();
-    OElement newRow = copyElement(item, db);
+    YTEntity newRow = copyElement(item, db);
     if (originRidField != null) {
       newRow.setProperty(originRidField, item.getIdentity().orElse(item.getProperty("@rid")));
       newRow.setProperty("@view", viewName);
     }
     db.save(newRow, clusterName);
-    OClassIndexManager.addIndexesEntries(db, (ODocument) newRow, indexes);
+    OClassIndexManager.addIndexesEntries(db, (YTDocument) newRow, indexes);
     db.commit();
   }
 
   private List<OIndex> createNewIndexesForView(
-      OView view, int cluster, ODatabaseSessionInternal db) {
+      YTView view, int cluster, YTDatabaseSessionInternal db) {
     try {
       List<OIndex> result = new ArrayList<>();
       OIndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
@@ -444,8 +444,8 @@ public class ViewManager {
       String viewName, List<OIndexConfigProperty> requiredIndexesInfo) {
     if (requiredIndexesInfo.size() == 1) {
       String fieldName = requiredIndexesInfo.get(0).getName();
-      OType fieldType = requiredIndexesInfo.get(0).getType();
-      OType linkedType = requiredIndexesInfo.get(0).getLinkedType();
+      YTType fieldType = requiredIndexesInfo.get(0).getType();
+      YTType linkedType = requiredIndexesInfo.get(0).getLinkedType();
       OCollate collate = requiredIndexesInfo.get(0).getCollate();
       INDEX_BY index_by = requiredIndexesInfo.get(0).getIndexBy();
       return OIndexDefinitionFactory.createSingleFieldIndexDefinition(
@@ -454,8 +454,8 @@ public class ViewManager {
     OCompositeIndexDefinition result = new OCompositeIndexDefinition(viewName);
     for (OIndexConfigProperty pair : requiredIndexesInfo) {
       String fieldName = pair.getName();
-      OType fieldType = pair.getType();
-      OType linkedType = pair.getLinkedType();
+      YTType fieldType = pair.getType();
+      YTType linkedType = pair.getLinkedType();
       OCollate collate = pair.getCollate();
       INDEX_BY index_by = pair.getIndexBy();
       OIndexDefinition definition =
@@ -466,7 +466,7 @@ public class ViewManager {
     return result;
   }
 
-  private String createNextClusterNameFor(OView view, ODatabaseSessionInternal db) {
+  private String createNextClusterNameFor(YTView view, YTDatabaseSessionInternal db) {
     int i = 0;
     String viewName = view.getName();
     while (true) {
@@ -483,8 +483,8 @@ public class ViewManager {
     }
   }
 
-  private OElement copyElement(OResult item, ODatabaseSession db) {
-    OElement newRow = db.newElement();
+  private YTEntity copyElement(OResult item, YTDatabaseSession db) {
+    YTEntity newRow = db.newElement();
     for (String prop : item.getPropertyNames()) {
       if (!prop.equalsIgnoreCase("@rid") && !prop.equalsIgnoreCase("@class")) {
         newRow.setProperty(prop, item.getProperty(prop));
@@ -502,7 +502,7 @@ public class ViewManager {
             return null;
           }
           try {
-            OView view = databaseSession.getMetadata().getSchema().getView(name);
+            YTView view = databaseSession.getMetadata().getSchema().getView(name);
             if (view != null) {
               updateView(view, databaseSession);
             }
@@ -537,7 +537,7 @@ public class ViewManager {
   }
 
   public void recordAdded(
-      OImmutableClass clazz, ODocument doc, ODatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      YTImmutableClass clazz, YTDocument doc, YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -545,7 +545,7 @@ public class ViewManager {
   }
 
   public void recordUpdated(
-      OImmutableClass clazz, ODocument doc, ODatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      YTImmutableClass clazz, YTDocument doc, YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -553,7 +553,7 @@ public class ViewManager {
   }
 
   public void recordDeleted(
-      OImmutableClass clazz, ODocument doc, ODatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      YTImmutableClass clazz, YTDocument doc, YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -590,9 +590,9 @@ public class ViewManager {
     }
 
     @Override
-    public void onCreate(ODatabaseSession db, OResult data) {
-//      OView view = db.getMetadata().getSchema().getView(viewName);
-//      var dbInternal = (ODatabaseSessionInternal) db;
+    public void onCreate(YTDatabaseSession db, OResult data) {
+//      YTView view = db.getMetadata().getSchema().getView(viewName);
+//      var dbInternal = (YTDatabaseSessionInternal) db;
 //      if (view != null) {
 //        int cluster = view.getClusterIds()[0];
 //        addItemToView(
@@ -606,8 +606,8 @@ public class ViewManager {
     }
 
     @Override
-    public void onUpdate(ODatabaseSession db, OResult before, OResult after) {
-//      OView view = db.getMetadata().getSchema().getView(viewName);
+    public void onUpdate(YTDatabaseSession db, OResult before, OResult after) {
+//      YTView view = db.getMetadata().getSchema().getView(viewName);
 //      if (view != null && view.getOriginRidField() != null) {
 //        try (OResultSet rs =
 //            db.query(
@@ -616,14 +616,14 @@ public class ViewManager {
 //          while (rs.hasNext()) {
 //            OResult row = rs.next();
 //            row.getElement()
-//                .ifPresent(elem -> updateViewRow(elem, after, view, (ODatabaseSessionInternal) db));
+//                .ifPresent(elem -> updateViewRow(elem, after, view, (YTDatabaseSessionInternal) db));
 //          }
 //        }
 //      }
     }
 
     private void updateViewRow(
-        OElement viewRow, OResult origin, OView view, ODatabaseSessionInternal db) {
+        YTEntity viewRow, OResult origin, YTView view, YTDatabaseSessionInternal db) {
       db.executeInTx(
           () -> {
             var boundRow = db.bindToSession(viewRow);
@@ -653,8 +653,8 @@ public class ViewManager {
     }
 
     @Override
-    public void onDelete(ODatabaseSession db, OResult data) {
-//      OView view = db.getMetadata().getSchema().getView(viewName);
+    public void onDelete(YTDatabaseSession db, OResult data) {
+//      YTView view = db.getMetadata().getSchema().getView(viewName);
 //      if (view != null && view.getOriginRidField() != null) {
 //        try (OResultSet rs =
 //            db.query(
@@ -668,12 +668,12 @@ public class ViewManager {
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, OException exception) {
       OLogManager.instance().error(ViewManager.this, "Error updating view " + viewName, exception);
     }
 
     @Override
-    public void onEnd(ODatabaseSession database) {
+    public void onEnd(YTDatabaseSession database) {
     }
   }
 }

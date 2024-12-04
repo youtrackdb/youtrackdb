@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
@@ -176,7 +176,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     final String query = "SELECT from Song where SEARCH_FIELDS(['title'], '*EVE*', ?) = true";
 
     db.query(query, "{'allowLeadingWildcard': true}").close();
-    db.query(query, new ODocument("allowLeadingWildcard", Boolean.TRUE)).close();
+    db.query(query, new YTDocument("allowLeadingWildcard", Boolean.TRUE)).close();
 
     Map<String, Object> mdMap = new HashMap();
     mdMap.put("allowLeadingWildcard", true);

@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
@@ -23,7 +23,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
   int mapSize;
 
   protected long lastInvalidation = -1;
-  protected long lastGlobalTimeout = OGlobalConfiguration.COMMAND_TIMEOUT.getValueAsLong();
+  protected long lastGlobalTimeout = YTGlobalConfiguration.COMMAND_TIMEOUT.getValueAsLong();
 
   /**
    * @param size the size of the cache
@@ -39,7 +39,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
         };
   }
 
-  public static long getLastInvalidation(ODatabaseSessionInternal db) {
+  public static long getLastInvalidation(YTDatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }
@@ -55,7 +55,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
    * @return true if the corresponding executor is present in the cache
    */
   public boolean contains(String statement) {
-    if (OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
+    if (YTGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       return false;
     }
     synchronized (map) {
@@ -73,7 +73,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
    * @return a statement executor from the cache
    */
   public static OExecutionPlan get(
-      String statement, OCommandContext ctx, ODatabaseSessionInternal db) {
+      String statement, OCommandContext ctx, YTDatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }
@@ -86,7 +86,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
     return result;
   }
 
-  public static void put(String statement, OExecutionPlan plan, ODatabaseSessionInternal db) {
+  public static void put(String statement, OExecutionPlan plan, YTDatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }
@@ -98,12 +98,12 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
     resource.putInternal(statement, plan, db);
   }
 
-  public void putInternal(String statement, OExecutionPlan plan, ODatabaseSessionInternal db) {
+  public void putInternal(String statement, OExecutionPlan plan, YTDatabaseSessionInternal db) {
     if (statement == null) {
       return;
     }
 
-    if (OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
+    if (YTGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       return;
     }
 
@@ -124,11 +124,11 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
    * @return the corresponding executor, taking it from the internal cache, if it exists
    */
   public OExecutionPlan getInternal(
-      String statement, OCommandContext ctx, ODatabaseSessionInternal db) {
+      String statement, OCommandContext ctx, YTDatabaseSessionInternal db) {
     OInternalExecutionPlan result;
 
     long currentGlobalTimeout =
-        db.getConfiguration().getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT);
+        db.getConfiguration().getValueAsLong(YTGlobalConfiguration.COMMAND_TIMEOUT);
     if (currentGlobalTimeout != this.lastGlobalTimeout) {
       invalidate();
     }
@@ -137,7 +137,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
     if (statement == null) {
       return null;
     }
-    if (OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
+    if (YTGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       return null;
     }
     synchronized (map) {
@@ -153,7 +153,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
   }
 
   public void invalidate() {
-    if (OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
+    if (YTGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       lastInvalidation = System.currentTimeMillis();
       return;
     }
@@ -167,24 +167,24 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
   }
 
   @Override
-  public void onSchemaUpdate(ODatabaseSessionInternal session, String database,
+  public void onSchemaUpdate(YTDatabaseSessionInternal session, String database,
       OSchemaShared schema) {
     invalidate();
   }
 
   @Override
-  public void onIndexManagerUpdate(ODatabaseSessionInternal session, String database,
+  public void onIndexManagerUpdate(YTDatabaseSessionInternal session, String database,
       OIndexManagerAbstract indexManager) {
     invalidate();
   }
 
   @Override
-  public void onFunctionLibraryUpdate(ODatabaseSessionInternal session, String database) {
+  public void onFunctionLibraryUpdate(YTDatabaseSessionInternal session, String database) {
     invalidate();
   }
 
   @Override
-  public void onSequenceLibraryUpdate(ODatabaseSessionInternal session, String database) {
+  public void onSequenceLibraryUpdate(YTDatabaseSessionInternal session, String database) {
     invalidate();
   }
 
@@ -193,7 +193,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
     invalidate();
   }
 
-  public static OExecutionPlanCache instance(ODatabaseSessionInternal db) {
+  public static OExecutionPlanCache instance(YTDatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }

@@ -22,14 +22,14 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OTruncateClusterStatement;
 import java.util.Map;
@@ -107,30 +107,30 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
   /**
    * Execute the command.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clusterName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final ODatabaseSessionInternal database = getDatabase();
+    final YTDatabaseSessionInternal database = getDatabase();
 
     final int clusterId = database.getClusterIdByName(clusterName);
     if (clusterId < 0) {
       throw new ODatabaseException("Cluster with name " + clusterName + " does not exist");
     }
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass clazz = schema.getClassByClusterId(clusterId);
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass clazz = schema.getClassByClusterId(clusterId);
     if (clazz == null) {
       database.checkForClusterPermissions(clusterName);
 
-      final ORecordIteratorCluster<ORecord> iteratorCluster = database.browseCluster(clusterName);
+      final ORecordIteratorCluster<YTRecord> iteratorCluster = database.browseCluster(clusterName);
       if (iteratorCluster == null) {
         throw new ODatabaseException("Cluster with name " + clusterName + " does not exist");
       }
       while (iteratorCluster.hasNext()) {
-        final ORecord record = iteratorCluster.next();
+        final YTRecord record = iteratorCluster.next();
         record.delete();
       }
     } else {
@@ -143,7 +143,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
   }
 
   @Override

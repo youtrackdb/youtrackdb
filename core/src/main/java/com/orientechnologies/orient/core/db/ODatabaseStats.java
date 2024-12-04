@@ -16,7 +16,7 @@ public class ODatabaseStats {
   public long minRidbagPrefetchTimeMs;
   public long maxRidbagPrefetchTimeMs;
 
-  public OResult toResult(@Nonnull ODatabaseSessionInternal db) {
+  public OResult toResult(@Nonnull YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
 
     result.setProperty("loadedRecords", loadedRecords);

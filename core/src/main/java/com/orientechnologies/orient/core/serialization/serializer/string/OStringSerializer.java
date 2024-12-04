@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.string;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 public interface OStringSerializer {
 
   StringBuilder toStream(StringBuilder iOutput, Object iSource);
 
-  Object fromStream(ODatabaseSessionInternal db, String iSource);
+  Object fromStream(YTDatabaseSessionInternal db, String iSource);
 
   String getName();
 }

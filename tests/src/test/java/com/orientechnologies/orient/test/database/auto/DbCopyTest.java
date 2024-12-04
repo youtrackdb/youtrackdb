@@ -16,11 +16,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
 import org.testng.Assert;
@@ -38,7 +38,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -51,11 +51,11 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
         new Thread() {
           @Override
           public void run() {
-            final ODatabaseSessionInternal otherDB = database.copy();
+            final YTDatabaseSessionInternal otherDB = database.copy();
             otherDB.activateOnCurrentThread();
             for (int i = 0; i < 5; i++) {
               otherDB.begin();
-              ODocument doc = otherDB.newInstance(className);
+              YTDocument doc = otherDB.newInstance(className);
               doc.field("num", i);
               doc.save();
               otherDB.commit();
@@ -72,7 +72,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
 
     for (int i = 0; i < 20; i++) {
       database.begin();
-      ODocument doc = database.newInstance(className);
+      YTDocument doc = database.newInstance(className);
       doc.field("num", i);
       doc.save();
       database.commit();

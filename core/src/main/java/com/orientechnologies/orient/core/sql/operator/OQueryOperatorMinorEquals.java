@@ -22,16 +22,16 @@ package com.orientechnologies.orient.core.sql.operator;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
@@ -50,7 +50,7 @@ public class OQueryOperatorMinorEquals extends OQueryOperatorEqualityNotNulls {
 
   public OQueryOperatorMinorEquals() {
     super("<=", 5, false);
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
       binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
     }
@@ -59,12 +59,12 @@ public class OQueryOperatorMinorEquals extends OQueryOperatorEqualityNotNulls {
   @Override
   @SuppressWarnings("unchecked")
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
       OCommandContext iContext) {
-    final Object right = OType.convert(iContext.getDatabase(), iRight, iLeft.getClass());
+    final Object right = YTType.convert(iContext.getDatabase(), iRight, iLeft.getClass());
     if (right == null) {
       return false;
     }
@@ -80,12 +80,12 @@ public class OQueryOperatorMinorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     final OIndexInternal internalIndex = index.getInternal();
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators() || !internalIndex.hasRangeQuerySupport()) {
       return null;
     }
@@ -140,20 +140,20 @@ public class OQueryOperatorMinorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, final Object iLeft, final Object iRight) {
     if (iLeft instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot(session))) {
-      if (iRight instanceof ORID) {
-        return (ORID) iRight;
+      if (iRight instanceof YTRID) {
+        return (YTRID) iRight;
       } else {
         if (iRight instanceof OSQLFilterItemParameter
-            && ((OSQLFilterItemParameter) iRight).getValue(null, null, null) instanceof ORID) {
-          return (ORID) ((OSQLFilterItemParameter) iRight).getValue(null, null, null);
+            && ((OSQLFilterItemParameter) iRight).getValue(null, null, null) instanceof YTRID) {
+          return (YTRID) ((OSQLFilterItemParameter) iRight).getValue(null, null, null);
         }
       }
     }

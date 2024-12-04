@@ -27,8 +27,8 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import java.util.ArrayList;
@@ -176,7 +176,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
     }
   }
 
-  public int removeLeafEntry(final int entryIndex, final ORID value) {
+  public int removeLeafEntry(final int entryIndex, final YTRID value) {
     assert isLeaf();
 
     final int entryPosition =
@@ -516,7 +516,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
     final long mId = getLongValue(entryPosition);
     entryPosition += OLongSerializer.LONG_SIZE;
 
-    final List<ORID> values = new ArrayList<>(entriesCount);
+    final List<YTRID> values = new ArrayList<>(entriesCount);
 
     int clusterId = getShortValue(entryPosition);
     entryPosition += OShortSerializer.SHORT_SIZE;
@@ -525,7 +525,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
       final long clusterPosition = getLongValue(entryPosition);
       entryPosition += OLongSerializer.LONG_SIZE;
 
-      values.add(new ORecordId(clusterId, clusterPosition));
+      values.add(new YTRecordId(clusterId, clusterPosition));
     } else {
       entryPosition += OLongSerializer.LONG_SIZE;
     }
@@ -555,7 +555,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
                     + OByteSerializer.BYTE_SIZE
                     + i * RID_SIZE);
 
-        values.add(new ORecordId(clusterId, clusterPosition));
+        values.add(new YTRecordId(clusterId, clusterPosition));
       }
 
       nextItem = nextNextItem;
@@ -679,7 +679,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
       for (int i = 0; i < entries.size(); i++) {
         final LeafEntry entry = (LeafEntry) entries.get(i);
         final byte[] key = entry.key;
-        final List<ORID> values = entry.values;
+        final List<YTRID> values = entry.values;
 
         if (!values.isEmpty()) {
           doCreateMainLeafEntry(i + currentSize, key, values.get(0), entry.mId);
@@ -719,7 +719,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
       int index = 0;
       for (final LeafEntry entry : entriesToAdd) {
         final byte[] key = entry.key;
-        final List<ORID> values = entry.values;
+        final List<YTRID> values = entry.values;
 
         if (!values.isEmpty()) {
           doCreateMainLeafEntry(index, key, values.get(0), entry.mId);
@@ -758,11 +758,11 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   }
 
   public boolean createMainLeafEntry(
-      final int index, final byte[] serializedKey, final ORID value, final long mId) {
+      final int index, final byte[] serializedKey, final YTRID value, final long mId) {
     return !doCreateMainLeafEntry(index, serializedKey, value, mId);
   }
 
-  private boolean doCreateMainLeafEntry(int index, byte[] serializedKey, ORID value, long mId) {
+  private boolean doCreateMainLeafEntry(int index, byte[] serializedKey, YTRID value, long mId) {
     assert isLeaf();
 
     final int entrySize =
@@ -820,7 +820,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
     return false;
   }
 
-  public long appendNewLeafEntry(final int index, final ORID value) {
+  public long appendNewLeafEntry(final int index, final YTRID value) {
     assert isLeaf();
 
     final int entryPosition =
@@ -873,7 +873,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   }
 
   private void appendNewLeafEntries(
-      final int index, final List<ORID> values, final int entriesCount) {
+      final int index, final List<YTRID> values, final int entriesCount) {
     assert isLeaf();
 
     final int entryPosition =
@@ -890,7 +890,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
 
     int startIndex = 0;
     if (embeddedEntriesCount == 0) {
-      final ORID rid = values.get(0);
+      final YTRID rid = values.get(0);
 
       setShortValue(
           entryPosition + 2 * OIntegerSerializer.INT_SIZE + OByteSerializer.BYTE_SIZE,
@@ -923,7 +923,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
       freePointer += setByteValue(freePointer, (byte) values.size());
 
       for (int i = startIndex; i < values.size(); i++) {
-        final ORID rid = values.get(i);
+        final YTRID rid = values.get(i);
 
         freePointer += setShortValue(freePointer, (short) rid.getClusterId());
         freePointer += setLongValue(freePointer, rid.getClusterPosition());
@@ -1083,10 +1083,10 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   public static final class LeafEntry extends Entry {
 
     public final long mId;
-    public final List<ORID> values;
+    public final List<YTRID> values;
     public final int entriesCount;
 
-    public LeafEntry(final byte[] key, final long mId, final List<ORID> values, int entriesCount) {
+    public LeafEntry(final byte[] key, final long mId, final List<YTRID> values, int entriesCount) {
       super(key);
       this.mId = mId;
       this.values = values;

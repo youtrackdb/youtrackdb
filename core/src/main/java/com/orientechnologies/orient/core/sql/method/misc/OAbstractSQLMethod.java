@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.core.sql.method.misc;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.method.OSQLMethod;
 
 /**
@@ -83,11 +83,11 @@ public abstract class OAbstractSQLMethod implements OSQLMethod {
   }
 
   @Override
-  public int getMaxParams(ODatabaseSession session) {
+  public int getMaxParams(YTDatabaseSession session) {
     return maxparams;
   }
 
-  protected Object getParameterValue(final OIdentifiable iRecord, final String iValue) {
+  protected Object getParameterValue(final YTIdentifiable iRecord, final String iValue) {
     if (iValue == null) {
       return null;
     }
@@ -102,7 +102,7 @@ public abstract class OAbstractSQLMethod implements OSQLMethod {
     }
     try {
       // SEARCH FOR FIELD
-      return ((ODocument) iRecord.getRecord()).field(iValue);
+      return ((YTDocument) iRecord.getRecord()).field(iValue);
     } catch (ORecordNotFoundException rnf) {
       return null;
     }

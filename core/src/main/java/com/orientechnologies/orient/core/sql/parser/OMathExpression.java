@@ -5,11 +5,11 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -39,11 +39,11 @@ public class OMathExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isDefinedFor(OElement currentRecord) {
+  public boolean isDefinedFor(YTEntity currentRecord) {
     return true;
   }
 
-  public boolean isIndexChain(OCommandContext ctx, OClass clazz) {
+  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
     return false;
   }
 
@@ -636,7 +636,7 @@ public class OMathExpression extends SimpleNode {
     super(p, id);
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (childExpressions != null) {
       for (OMathExpression exp : childExpressions) {
         if (!exp.isCacheable(session)) {
@@ -647,7 +647,7 @@ public class OMathExpression extends SimpleNode {
     return true;
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     if (childExpressions == null || operators == null) {
       return null;
     }
@@ -718,7 +718,7 @@ public class OMathExpression extends SimpleNode {
     return iterateOnPriorities(valuesStack, operatorsStack);
   }
 
-  private Object calculateWithOpPriority(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  private Object calculateWithOpPriority(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     Deque valuesStack = new ArrayDeque<>();
     Deque<Operator> operatorsStack = new ArrayDeque<Operator>();
     if (childExpressions != null && operators != null) {
@@ -931,7 +931,7 @@ public class OMathExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
         return this.childExpressions.get(0).isIndexedFunctionCall(session);
@@ -952,7 +952,7 @@ public class OMathExpression extends SimpleNode {
     return -1;
   }
 
-  public Iterable<OIdentifiable> executeIndexedFunction(
+  public Iterable<YTIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
@@ -1113,7 +1113,7 @@ public class OMathExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     if (this.childExpressions != null) {
       for (OMathExpression expr : this.childExpressions) {
         if (expr.isAggregate(session)) {
@@ -1275,7 +1275,7 @@ public class OMathExpression extends SimpleNode {
     }
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("__class", getClass().getName());
     if (childExpressions != null) {

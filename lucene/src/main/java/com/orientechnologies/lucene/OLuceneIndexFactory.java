@@ -16,7 +16,7 @@
 
 package com.orientechnologies.lucene;
 
-import static com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE.FULLTEXT;
+import static com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
@@ -24,13 +24,13 @@ import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Collections;
 import java.util.HashSet;
@@ -90,7 +90,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
     final String algorithm = im.getAlgorithm();
 
     if (metadata == null) {
-      var metadataDoc = new ODocument();
+      var metadataDoc = new YTDocument();
       metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
       im.setMetadata(metadataDoc);
     }
@@ -112,22 +112,22 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   @Override
-  public void onCreate(ODatabaseSessionInternal db) {
+  public void onCreate(YTDatabaseSessionInternal db) {
     OLogManager.instance().debug(this, "onCreate");
   }
 
   @Override
-  public void onOpen(ODatabaseSessionInternal db) {
+  public void onOpen(YTDatabaseSessionInternal db) {
     OLogManager.instance().debug(this, "onOpen");
   }
 
   @Override
-  public void onClose(ODatabaseSessionInternal db) {
+  public void onClose(YTDatabaseSessionInternal db) {
     OLogManager.instance().debug(this, "onClose");
   }
 
   @Override
-  public void onDrop(final ODatabaseSessionInternal db) {
+  public void onDrop(final YTDatabaseSessionInternal db) {
     try {
       if (db.isClosed()) {
         return;
@@ -135,7 +135,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
 
       OLogManager.instance().debug(this, "Dropping Lucene indexes...");
 
-      final ODatabaseSessionInternal internal = db;
+      final YTDatabaseSessionInternal internal = db;
       internal.getMetadata().getIndexManagerInternal().getIndexes(internal).stream()
           .filter(idx -> idx.getInternal() instanceof OLuceneFullTextIndex)
           .peek(idx -> OLogManager.instance().debug(this, "deleting index " + idx.getName()))
@@ -147,6 +147,6 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
   }
 }

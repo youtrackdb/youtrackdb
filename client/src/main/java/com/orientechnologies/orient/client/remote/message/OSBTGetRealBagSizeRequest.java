@@ -26,8 +26,8 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.ChangeSerializationHelper;
@@ -41,23 +41,23 @@ import java.util.Map;
 public class OSBTGetRealBagSizeRequest implements OBinaryRequest<OSBTGetRealBagSizeResponse> {
 
   private OBonsaiCollectionPointer collectionPointer;
-  private Map<OIdentifiable, Change> changes;
-  private OBinarySerializer<OIdentifiable> keySerializer;
+  private Map<YTIdentifiable, Change> changes;
+  private OBinarySerializer<YTIdentifiable> keySerializer;
 
   public OSBTGetRealBagSizeRequest() {
   }
 
   public OSBTGetRealBagSizeRequest(
-      OBinarySerializer<OIdentifiable> keySerializer,
+      OBinarySerializer<YTIdentifiable> keySerializer,
       OBonsaiCollectionPointer collectionPointer,
-      Map<OIdentifiable, Change> changes) {
+      Map<YTIdentifiable, Change> changes) {
     this.collectionPointer = collectionPointer;
     this.changes = changes;
     this.keySerializer = keySerializer;
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     OCollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, collectionPointer);
     final ChangeSerializationHelper changeSerializer = ChangeSerializationHelper.INSTANCE;
@@ -69,7 +69,7 @@ public class OSBTGetRealBagSizeRequest implements OBinaryRequest<OSBTGetRealBagS
     network.writeBytes(stream);
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     collectionPointer = OCollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);
@@ -88,7 +88,7 @@ public class OSBTGetRealBagSizeRequest implements OBinaryRequest<OSBTGetRealBagS
     return "RidBag get size";
   }
 
-  public Map<OIdentifiable, Change> getChanges() {
+  public Map<YTIdentifiable, Change> getChanges() {
     return changes;
   }
 

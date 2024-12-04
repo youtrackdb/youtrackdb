@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 
 /**
@@ -59,6 +59,6 @@ public abstract class OCommandExecutorSQLPermissionAbstract extends OCommandExec
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 }

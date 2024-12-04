@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +20,7 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
 
   @Before
   public void beforeMethod() {
-    simpleKeyIndexDefinition = new OSimpleKeyIndexDefinition(OType.INTEGER, OType.STRING);
+    simpleKeyIndexDefinition = new OSimpleKeyIndexDefinition(YTType.INTEGER, YTType.STRING);
   }
 
   @Test
@@ -36,7 +36,7 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
   @Test
   public void testCreateValueSimpleKey() {
     final OSimpleKeyIndexDefinition keyIndexDefinition =
-        new OSimpleKeyIndexDefinition(OType.INTEGER);
+        new OSimpleKeyIndexDefinition(YTType.INTEGER);
     final Object result = keyIndexDefinition.createValue(db, "2");
     Assert.assertEquals(result, 2);
   }
@@ -118,7 +118,7 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
   @Test
   public void testParamCountOneItem() {
     final OSimpleKeyIndexDefinition keyIndexDefinition =
-        new OSimpleKeyIndexDefinition(OType.INTEGER);
+        new OSimpleKeyIndexDefinition(YTType.INTEGER);
 
     Assert.assertEquals(keyIndexDefinition.getParamCount(), 1);
   }
@@ -126,30 +126,30 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
   @Test
   public void testGetKeyTypes() {
     Assert.assertEquals(
-        simpleKeyIndexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.STRING});
+        simpleKeyIndexDefinition.getTypes(), new YTType[]{YTType.INTEGER, YTType.STRING});
   }
 
   @Test
   public void testGetKeyTypesOneType() {
     final OSimpleKeyIndexDefinition keyIndexDefinition =
-        new OSimpleKeyIndexDefinition(OType.BOOLEAN);
+        new OSimpleKeyIndexDefinition(YTType.BOOLEAN);
 
-    Assert.assertEquals(keyIndexDefinition.getTypes(), new OType[]{OType.BOOLEAN});
+    Assert.assertEquals(keyIndexDefinition.getTypes(), new YTType[]{YTType.BOOLEAN});
   }
 
   @Test
   public void testReload() {
-    final ODatabaseSessionInternal databaseDocumentTx =
-        new ODatabaseDocumentTx("memory:osimplekeyindexdefinitiontest");
+    final YTDatabaseSessionInternal databaseDocumentTx =
+        new YTDatabaseDocumentTx("memory:osimplekeyindexdefinitiontest");
     databaseDocumentTx.create();
 
     databaseDocumentTx.begin();
-    final ODocument storeDocument = simpleKeyIndexDefinition.toStream(new ODocument());
+    final YTDocument storeDocument = simpleKeyIndexDefinition.toStream(new YTDocument());
     storeDocument.save(
         databaseDocumentTx.getClusterNameById(databaseDocumentTx.getDefaultClusterId()));
     databaseDocumentTx.commit();
 
-    final ODocument loadDocument = databaseDocumentTx.load(storeDocument.getIdentity());
+    final YTDocument loadDocument = databaseDocumentTx.load(storeDocument.getIdentity());
     final OSimpleKeyIndexDefinition loadedKeyIndexDefinition = new OSimpleKeyIndexDefinition();
     loadedKeyIndexDefinition.fromStream(loadDocument);
 
@@ -160,6 +160,6 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
 
   @Test(expected = OIndexException.class)
   public void testGetDocumentValueToIndex() {
-    simpleKeyIndexDefinition.getDocumentValueToIndex(db, new ODocument());
+    simpleKeyIndexDefinition.getDocumentValueToIndex(db, new YTDocument());
   }
 }

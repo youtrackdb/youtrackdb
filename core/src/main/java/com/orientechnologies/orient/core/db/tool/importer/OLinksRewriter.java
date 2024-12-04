@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODocumentFieldVisitor;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 
 /**
  *
@@ -16,7 +16,7 @@ public final class OLinksRewriter implements ODocumentFieldVisitor {
   }
 
   @Override
-  public Object visitField(ODatabaseSessionInternal db, OType type, OType linkedType,
+  public Object visitField(YTDatabaseSessionInternal db, YTType type, YTType linkedType,
       Object value) {
     boolean oldAutoConvertValue = false;
 
@@ -39,12 +39,12 @@ public final class OLinksRewriter implements ODocumentFieldVisitor {
   }
 
   @Override
-  public boolean goFurther(OType type, OType linkedType, Object value, Object newValue) {
+  public boolean goFurther(YTType type, YTType linkedType, Object value, Object newValue) {
     return true;
   }
 
   @Override
-  public boolean goDeeper(OType type, OType linkedType, Object value) {
+  public boolean goDeeper(YTType type, YTType linkedType, Object value) {
     return true;
   }
 

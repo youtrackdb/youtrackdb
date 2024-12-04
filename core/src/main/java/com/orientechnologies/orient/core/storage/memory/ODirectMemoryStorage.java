@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.storage.memory;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
@@ -59,7 +59,7 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
 
     final ODirectMemoryOnlyDiskCache diskCache =
         new ODirectMemoryOnlyDiskCache(
-            contextConfiguration.getValueAsInteger(OGlobalConfiguration.DISK_CACHE_PAGE_SIZE)
+            contextConfiguration.getValueAsInteger(YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE)
                 * ONE_KB,
             1);
 

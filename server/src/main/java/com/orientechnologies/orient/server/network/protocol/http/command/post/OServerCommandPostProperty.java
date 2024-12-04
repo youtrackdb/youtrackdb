@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -40,7 +40,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       if (iRequest.getContent() == null || iRequest.getContent().length() <= 0) {
         return addSingleProperty(iRequest, iResponse, db);
       } else {
@@ -51,7 +51,8 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
   @SuppressWarnings("unused")
   protected boolean addSingleProperty(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSessionInternal db)
+      final OHttpRequest iRequest, final OHttpResponse iResponse,
+      final YTDatabaseSessionInternal db)
       throws InterruptedException, IOException {
     String[] urlParts =
         checkSyntax(
@@ -67,23 +68,23 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
       throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
     }
 
-    final OClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
+    final YTClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
     final String propertyName = urlParts[3];
 
-    final OType propertyType = urlParts.length > 4 ? OType.valueOf(urlParts[4]) : OType.STRING;
+    final YTType propertyType = urlParts.length > 4 ? YTType.valueOf(urlParts[4]) : YTType.STRING;
 
     switch (propertyType) {
       case LINKLIST:
       case LINKMAP:
       case LINKSET:
       case LINK: {
-        /* try link as OType */
-        OType linkType = null;
-        OClass linkClass = null;
+        /* try link as YTType */
+        YTType linkType = null;
+        YTClass linkClass = null;
         if (urlParts.length >= 6) {
           try {
-            linkType = OType.valueOf(urlParts[5]);
+            linkType = YTType.valueOf(urlParts[5]);
           } catch (IllegalArgumentException ex) {
           }
 
@@ -100,17 +101,17 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
         }
 
         if (linkType != null) {
-          final OProperty prop = cls.createProperty(db, propertyName, propertyType, linkType);
+          final YTProperty prop = cls.createProperty(db, propertyName, propertyType, linkType);
         } else if (linkClass != null) {
-          final OProperty prop = cls.createProperty(db, propertyName, propertyType, linkClass);
+          final YTProperty prop = cls.createProperty(db, propertyName, propertyType, linkClass);
         } else {
-          final OProperty prop = cls.createProperty(db, propertyName, propertyType);
+          final YTProperty prop = cls.createProperty(db, propertyName, propertyType);
         }
         break;
       }
 
       default:
-        final OProperty prop = cls.createProperty(db, propertyName, propertyType);
+        final YTProperty prop = cls.createProperty(db, propertyName, propertyType);
         break;
     }
 
@@ -126,7 +127,8 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
   @SuppressWarnings({"unchecked", "unused"})
   protected boolean addMultipreProperties(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSessionInternal db)
+      final OHttpRequest iRequest, final OHttpResponse iResponse,
+      final YTDatabaseSessionInternal db)
       throws InterruptedException, IOException {
     String[] urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: property/<database>/<class-name>");
@@ -138,14 +140,14 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
       throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
     }
 
-    final OClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
+    final YTClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
-    final ODocument propertiesDoc = new ODocument();
+    final YTDocument propertiesDoc = new YTDocument();
     propertiesDoc.fromJSON(iRequest.getContent());
 
     for (String propertyName : propertiesDoc.fieldNames()) {
       final Map<String, String> doc = propertiesDoc.field(propertyName);
-      final OType propertyType = OType.valueOf(doc.get(PROPERTY_TYPE_JSON_FIELD));
+      final YTType propertyType = YTType.valueOf(doc.get(PROPERTY_TYPE_JSON_FIELD));
       switch (propertyType) {
         case LINKLIST:
         case LINKMAP:
@@ -153,10 +155,10 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
           final String linkType = doc.get(LINKED_TYPE_JSON_FIELD);
           final String linkClass = doc.get(LINKED_CLASS_JSON_FIELD);
           if (linkType != null) {
-            final OProperty prop =
-                cls.createProperty(db, propertyName, propertyType, OType.valueOf(linkType));
+            final YTProperty prop =
+                cls.createProperty(db, propertyName, propertyType, YTType.valueOf(linkType));
           } else if (linkClass != null) {
-            final OProperty prop =
+            final YTProperty prop =
                 cls.createProperty(db,
                     propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
           } else {
@@ -172,7 +174,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
         case LINK: {
           final String linkClass = doc.get(LINKED_CLASS_JSON_FIELD);
           if (linkClass != null) {
-            final OProperty prop =
+            final YTProperty prop =
                 cls.createProperty(db,
                     propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
           } else {
@@ -187,7 +189,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
         }
 
         default:
-          final OProperty prop = cls.createProperty(db, propertyName, propertyType);
+          final YTProperty prop = cls.createProperty(db, propertyName, propertyType);
           break;
       }
     }

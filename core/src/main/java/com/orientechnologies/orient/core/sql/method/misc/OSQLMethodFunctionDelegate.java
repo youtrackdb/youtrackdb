@@ -17,8 +17,8 @@
 package com.orientechnologies.orient.core.sql.method.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 
@@ -42,7 +42,7 @@ public class OSQLMethodFunctionDelegate extends OAbstractSQLMethod {
   }
 
   @Override
-  public int getMaxParams(ODatabaseSession session) {
+  public int getMaxParams(YTDatabaseSession session) {
     final int max = func.getFunction().getMaxParams(session);
     return max == -1 ? -1 : max - 1;
   }
@@ -50,7 +50,7 @@ public class OSQLMethodFunctionDelegate extends OAbstractSQLMethod {
   @Override
   public Object execute(
       final Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final OCommandContext iContext,
       final Object ioResult,
       final Object[] iParams) {

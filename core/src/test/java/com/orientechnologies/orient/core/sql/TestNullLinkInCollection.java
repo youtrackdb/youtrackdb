@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,31 +28,31 @@ public class TestNullLinkInCollection extends DBTestBase {
   public void testLinkListRemovedRecord() {
 
     db.begin();
-    ODocument doc = new ODocument("Test");
-    List<ORecordId> docs = new ArrayList<>();
-    docs.add(new ORecordId(10, 20));
-    doc.field("items", docs, OType.LINKLIST);
+    YTDocument doc = new YTDocument("Test");
+    List<YTRecordId> docs = new ArrayList<>();
+    docs.add(new YTRecordId(10, 20));
+    doc.field("items", docs, YTType.LINKLIST);
     db.save(doc);
     db.commit();
 
     try (OResultSet res = db.query("select items from Test")) {
-      assertEquals(new ORecordId(10, 20), ((List) res.next().getProperty("items")).get(0));
+      assertEquals(new YTRecordId(10, 20), ((List) res.next().getProperty("items")).get(0));
     }
   }
 
   @Test
   public void testLinkSetRemovedRecord() {
     db.begin();
-    ODocument doc = new ODocument("Test");
-    Set<ORecordId> docs = new HashSet<>();
-    docs.add(new ORecordId(10, 20));
-    doc.field("items", docs, OType.LINKSET);
+    YTDocument doc = new YTDocument("Test");
+    Set<YTRecordId> docs = new HashSet<>();
+    docs.add(new YTRecordId(10, 20));
+    doc.field("items", docs, YTType.LINKSET);
     db.save(doc);
     db.commit();
 
     try (OResultSet res = db.query("select items from Test")) {
       Assert.assertEquals(
-          new ORecordId(10, 20), ((Set) res.next().getProperty("items")).iterator().next());
+          new YTRecordId(10, 20), ((Set) res.next().getProperty("items")).iterator().next());
     }
   }
 }

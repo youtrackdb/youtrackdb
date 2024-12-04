@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.spatial.shape.legacy;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Collection;
 import java.util.List;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -28,7 +28,7 @@ import org.locationtech.spatial4j.shape.Rectangle;
 public class ORectangleLegacyBuilder implements OShapeBuilderLegacy<Rectangle> {
 
   @Override
-  public Rectangle makeShape(ODatabaseSessionInternal session, OCompositeKey key,
+  public Rectangle makeShape(YTDatabaseSessionInternal session, OCompositeKey key,
       SpatialContext ctx) {
 
     Point[] points = new Point[2];
@@ -36,8 +36,8 @@ public class ORectangleLegacyBuilder implements OShapeBuilderLegacy<Rectangle> {
 
     for (Object o : key.getKeys()) {
       List<Number> numbers = (List<Number>) o;
-      double lat = ((Double) OType.convert(session, numbers.get(0), Double.class)).doubleValue();
-      double lng = ((Double) OType.convert(session, numbers.get(1), Double.class)).doubleValue();
+      double lat = ((Double) YTType.convert(session, numbers.get(0), Double.class)).doubleValue();
+      double lng = ((Double) YTType.convert(session, numbers.get(1), Double.class)).doubleValue();
       points[i] = ctx.makePoint(lng, lat);
       i++;
     }

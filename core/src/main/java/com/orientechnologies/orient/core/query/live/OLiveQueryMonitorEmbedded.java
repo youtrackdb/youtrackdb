@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.query.live;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 
 /**
@@ -10,16 +10,16 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 public class OLiveQueryMonitorEmbedded implements OLiveQueryMonitor {
 
   private final int token;
-  private final ODatabaseSessionInternal db;
+  private final YTDatabaseSessionInternal db;
 
-  public OLiveQueryMonitorEmbedded(int token, ODatabaseSessionInternal dbCopy) {
+  public OLiveQueryMonitorEmbedded(int token, YTDatabaseSessionInternal dbCopy) {
     this.token = token;
     this.db = dbCopy;
   }
 
   @Override
   public void unSubscribe() {
-    ODatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
     db.activateOnCurrentThread();
     OLiveQueryHookV2.unsubscribe(token, db);
     if (prev != null) {

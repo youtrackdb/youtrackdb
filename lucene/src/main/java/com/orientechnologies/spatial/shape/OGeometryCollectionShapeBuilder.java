@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,13 +48,13 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
 
   @Override
   public ShapeCollection<Shape> fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    ODocument doc = new ODocument(getName());
+    YTDocument doc = new YTDocument(getName());
     doc.field("geometries", geoJsonMap.get("geometries"));
     return fromDoc(doc);
   }
 
   @Override
-  public ShapeCollection<Shape> fromDoc(ODocument doc) {
+  public ShapeCollection<Shape> fromDoc(YTDocument doc) {
 
     List<Object> geometries = doc.field("geometries");
 
@@ -69,12 +69,12 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
   }
 
   @Override
-  public void initClazz(ODatabaseSessionInternal db) {
+  public void initClazz(YTDatabaseSessionInternal db) {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass shape = superClass(db);
-    OClass polygon = schema.createAbstractClass(getName(), shape);
-    polygon.createProperty(db, "geometries", OType.EMBEDDEDLIST, shape);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass shape = superClass(db);
+    YTClass polygon = schema.createAbstractClass(getName(), shape);
+    polygon.createProperty(db, "geometries", YTType.EMBEDDEDLIST, shape);
   }
 
   @Override
@@ -90,10 +90,10 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
   }
 
   @Override
-  public ODocument toDoc(ShapeCollection<Shape> shapes) {
+  public YTDocument toDoc(ShapeCollection<Shape> shapes) {
 
-    ODocument doc = new ODocument(getName());
-    List<ODocument> geometries = new ArrayList<ODocument>(shapes.size());
+    YTDocument doc = new YTDocument(getName());
+    List<YTDocument> geometries = new ArrayList<YTDocument>(shapes.size());
     for (Shape s : shapes) {
       geometries.add(shapeFactory.toDoc(s));
     }

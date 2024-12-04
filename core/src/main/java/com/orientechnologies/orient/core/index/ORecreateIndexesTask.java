@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.document.ODatabaseSessionEmbedded;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.ArrayList;
@@ -31,23 +31,23 @@ public class ORecreateIndexesTask implements Runnable {
   @Override
   public void run() {
     try {
-      final ODatabaseSessionEmbedded newDb =
-          new ODatabaseSessionEmbedded((OStorage) ctx.getStorage());
+      final YTDatabaseSessionEmbedded newDb =
+          new YTDatabaseSessionEmbedded((OStorage) ctx.getStorage());
       newDb.activateOnCurrentThread();
       newDb.init(null, ctx);
       newDb.internalOpen("admin", "nopass", false);
 
-      final Collection<ODocument> indexesToRebuild;
+      final Collection<YTDocument> indexesToRebuild;
       indexManager.acquireExclusiveLock();
       try {
-        final Collection<ODocument> knownIndexes =
+        final Collection<YTDocument> knownIndexes =
             indexManager.getDocument(newDb).field(OIndexManagerShared.CONFIG_INDEXES);
         if (knownIndexes == null) {
           OLogManager.instance().warn(this, "List of indexes is empty");
           indexesToRebuild = Collections.emptyList();
         } else {
           indexesToRebuild = new ArrayList<>();
-          for (ODocument index : knownIndexes) {
+          for (YTDocument index : knownIndexes) {
             indexesToRebuild.add(index.copy()); // make copies to safely iterate them later
           }
         }
@@ -71,10 +71,10 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void recreateIndexes(
-      Collection<ODocument> indexesToRebuild, ODatabaseSessionEmbedded db) {
+      Collection<YTDocument> indexesToRebuild, YTDatabaseSessionEmbedded db) {
     ok = 0;
     errors = 0;
-    for (ODocument index : indexesToRebuild) {
+    for (YTDocument index : indexesToRebuild) {
       try {
         recreateIndex(index, db);
       } catch (RuntimeException e) {
@@ -91,7 +91,7 @@ public class ORecreateIndexesTask implements Runnable {
         .info(this, "%d indexes were restored successfully, %d errors", ok, errors);
   }
 
-  private void recreateIndex(ODocument indexDocument, ODatabaseSessionEmbedded db) {
+  private void recreateIndex(YTDocument indexDocument, YTDatabaseSessionEmbedded db) {
     final OIndexInternal index = createIndex(indexDocument);
     final OIndexMetadata indexMetadata = index.loadMetadata(indexDocument);
     final OIndexDefinition indexDefinition = indexMetadata.getIndexDefinition();
@@ -144,7 +144,7 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void rebuildNonDurableAutomaticIndex(
-      ODatabaseSessionInternal session, ODocument indexDocument,
+      YTDatabaseSessionInternal session, YTDocument indexDocument,
       OIndexInternal index,
       OIndexMetadata indexMetadata,
       OIndexDefinition indexDefinition) {
@@ -189,7 +189,7 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void addIndexAsIs(
-      ODocument indexDocument, OIndexInternal index, ODatabaseSessionEmbedded database) {
+      YTDocument indexDocument, OIndexInternal index, YTDatabaseSessionEmbedded database) {
     if (index.loadFromConfiguration(database, indexDocument)) {
       indexManager.addIndexInternal(database, index);
 
@@ -207,7 +207,7 @@ public class ORecreateIndexesTask implements Runnable {
     }
   }
 
-  private OIndexInternal createIndex(ODocument idx) {
+  private OIndexInternal createIndex(YTDocument idx) {
     final String indexType = idx.field(OIndexInternal.CONFIG_TYPE);
 
     if (indexType == null) {

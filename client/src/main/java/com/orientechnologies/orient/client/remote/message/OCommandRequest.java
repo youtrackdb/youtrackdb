@@ -24,7 +24,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.stream.OStreamSerializerAnyStreamable;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -34,13 +34,13 @@ import java.io.IOException;
 
 public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
 
-  private ODatabaseSessionInternal database;
+  private YTDatabaseSessionInternal database;
   private boolean asynch;
   private OCommandRequestText query;
   private boolean live;
 
   public OCommandRequest(
-      ODatabaseSessionInternal database,
+      YTDatabaseSessionInternal database,
       boolean asynch,
       OCommandRequestText iCommand,
       boolean live) {
@@ -54,7 +54,7 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     if (live) {
       network.writeByte((byte) 'l');
@@ -64,7 +64,7 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
     network.writeBytes(OStreamSerializerAnyStreamable.INSTANCE.toStream(query));
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
 

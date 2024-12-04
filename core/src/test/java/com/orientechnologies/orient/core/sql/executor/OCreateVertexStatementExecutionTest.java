@@ -4,7 +4,7 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -18,7 +18,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
   @Test
   public void testInsertSet() {
     String className = "testInsertSet";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
     db.begin();
@@ -48,7 +48,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
   @Test
   public void testInsertSetNoVertex() {
     String className = "testInsertSetNoVertex";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
     try {
@@ -63,7 +63,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
   @Test
   public void testInsertValue() {
     String className = "testInsertValue";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
     db.begin();
@@ -94,7 +94,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
   @Test
   public void testInsertValue2() {
     String className = "testInsertValue2";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
     db.begin();
@@ -136,7 +136,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
   @Test
   public void testContent() {
     String className = "testContent";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
     db.begin();

@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest.EXECUTION_MODE;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
@@ -133,7 +133,7 @@ public interface ODistributedServerManager {
   ODistributedServerManager unregisterLifecycleListener(ODistributedLifecycleListener iListener);
 
   Object executeOnLocalNode(
-      ODistributedRequestId reqId, ORemoteTask task, ODatabaseSessionInternal database);
+      ODistributedRequestId reqId, ORemoteTask task, YTDatabaseSessionInternal database);
 
   void executeOnLocalNodeFromRemote(ODistributedRequest request);
 
@@ -203,15 +203,15 @@ public interface ODistributedServerManager {
 
   String getLocalNodeName();
 
-  ODocument getClusterConfiguration();
+  YTDocument getClusterConfiguration();
 
   String getNodeNameById(int id);
 
   int getNodeIdByName(String node);
 
-  ODocument getNodeConfigurationByUuid(String iNode, boolean useCache);
+  YTDocument getNodeConfigurationByUuid(String iNode, boolean useCache);
 
-  ODocument getLocalNodeConfiguration();
+  YTDocument getLocalNodeConfiguration();
 
   ODistributedConfiguration getDatabaseConfiguration(String iDatabaseName);
 
@@ -246,7 +246,7 @@ public interface ODistributedServerManager {
       Object localResult,
       ODistributedResponseManagerFactory responseManagerFactory);
 
-  ODocument getStats();
+  YTDocument getStats();
 
   Throwable convertException(Throwable original);
 
@@ -323,5 +323,5 @@ public interface ODistributedServerManager {
   default void messageProcessEnd(ODistributedRequest iRequest, Object responsePayload) {
   }
 
-  ODocument getOnlineDatabaseConfiguration(String databaseName);
+  YTDocument getOnlineDatabaseConfiguration(String databaseName);
 }

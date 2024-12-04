@@ -18,10 +18,10 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,29 +47,29 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
     public int unsubscribe;
 
     @Override
-    public void onCreate(ODatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, OResult data) {
       ops.add(new OPair<>("create", data));
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
       ops.add(new OPair<>("update", after));
       latch.countDown();
     }
 
     @Override
-    public void onDelete(ODatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, OResult data) {
       ops.add(new OPair<>("delete", data));
       latch.countDown();
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, OException exception) {
     }
 
     @Override
-    public void onEnd(ODatabaseSession database) {
+    public void onEnd(YTDatabaseSession database) {
       unsubscribe = 1;
       unLatch.countDown();
     }
@@ -105,7 +105,7 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
       OResult res = (OResult) doc.getValue();
       Assert.assertEquals((res).getProperty("name"), "foo");
       Assert.assertNotNull(res.getProperty("@rid"));
-      Assert.assertTrue(((ORID) res.getProperty("@rid")).getClusterPosition() >= 0);
+      Assert.assertTrue(((YTRID) res.getProperty("@rid")).getClusterPosition() >= 0);
     }
     unLatch.await(1, TimeUnit.MINUTES);
   }

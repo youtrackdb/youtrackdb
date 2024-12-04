@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.config;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -86,11 +86,11 @@ public class OServerConfigurationLoaderXml {
       }
 
       // AUTO CONFIGURE SYSTEM CONFIGURATION
-      OGlobalConfiguration config;
+      YTGlobalConfiguration config;
       if (obj.properties != null) {
         for (OServerEntryConfiguration prop : obj.properties) {
           try {
-            config = OGlobalConfiguration.findByKey(prop.name);
+            config = YTGlobalConfiguration.findByKey(prop.name);
             if (config != null) {
               config.setValue(prop.value);
             }

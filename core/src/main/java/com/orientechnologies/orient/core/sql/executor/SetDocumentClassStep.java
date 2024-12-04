@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
@@ -30,7 +30,7 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result.isElement()) {
       var element = result.toElement();
-      ((ODocument) element).setClassName(targetClass);
+      ((YTDocument) element).setClassName(targetClass);
       if (!(result instanceof OResultInternal)) {
         result = new OUpdatableResult(ctx.getDatabase(), element);
       } else {

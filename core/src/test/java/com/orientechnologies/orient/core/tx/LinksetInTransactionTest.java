@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -13,13 +13,13 @@ public class LinksetInTransactionTest extends DBTestBase {
   @Test
   public void test() {
 
-    db.createClass("WithLinks").createProperty(db, "links", OType.LINKSET);
+    db.createClass("WithLinks").createProperty(db, "links", YTType.LINKSET);
     db.createClass("Linked");
 
     db.begin();
     /* A link must already be there */
-    OElement withLinks1 = db.newInstance("WithLinks");
-    OElement link1 = db.newInstance("Linked");
+    YTEntity withLinks1 = db.newInstance("WithLinks");
+    YTEntity link1 = db.newInstance("Linked");
     link1.save();
     Set set = new HashSet<>();
     set.add(link1);
@@ -33,7 +33,7 @@ public class LinksetInTransactionTest extends DBTestBase {
     link1 = db.bindToSession(link1);
 
     /* Add a new linked record */
-    OElement link2 = db.newInstance("Linked");
+    YTEntity link2 = db.newInstance("Linked");
     link2.save();
     Set links = withLinks1.getProperty("links");
     links.add(link2);

@@ -34,9 +34,9 @@ import com.orientechnologies.orient.core.command.script.formatter.OSQLScriptForm
 import com.orientechnologies.orient.core.command.script.formatter.OScriptFormatter;
 import com.orientechnologies.orient.core.command.script.js.OJSScriptEngineFactory;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformerImpl;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.function.OFunctionUtilWrapper;
@@ -85,7 +85,7 @@ public class OScriptManager {
   public OScriptManager() {
     scriptEngineManager = new ScriptEngineManager();
 
-    final boolean useGraal = OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean();
+    final boolean useGraal = YTGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean();
     executorsFactories.put(
         "javascript",
         (lang) ->
@@ -150,7 +150,7 @@ public class OScriptManager {
     customExecutors.forEachRemaining(e -> e.registerExecutor(this, commandManager));
   }
 
-  public String getFunctionDefinition(ODatabaseSession session, final OFunction iFunction) {
+  public String getFunctionDefinition(YTDatabaseSession session, final OFunction iFunction) {
     final OScriptFormatter formatter =
         formatters.get(iFunction.getLanguage(session).toLowerCase(Locale.ENGLISH));
     if (formatter == null) {
@@ -158,10 +158,10 @@ public class OScriptManager {
           "Cannot find script formatter for the language '" + iFunction.getLanguage(session) + "'");
     }
 
-    return formatter.getFunctionDefinition((ODatabaseSessionInternal) session, iFunction);
+    return formatter.getFunctionDefinition((YTDatabaseSessionInternal) session, iFunction);
   }
 
-  public String getFunctionInvoke(ODatabaseSessionInternal session, final OFunction iFunction,
+  public String getFunctionInvoke(YTDatabaseSessionInternal session, final OFunction iFunction,
       final Object[] iArgs) {
     final OScriptFormatter formatter =
         formatters.get(iFunction.getLanguage(session).toLowerCase(Locale.ENGLISH));
@@ -180,7 +180,7 @@ public class OScriptManager {
    * @param iLanguage Language as filter
    * @return String containing all the functions
    */
-  public String getLibrary(final ODatabaseSessionInternal db, final String iLanguage) {
+  public String getLibrary(final YTDatabaseSessionInternal db, final String iLanguage) {
     if (db == null)
     // NO DB = NO LIBRARY
     {
@@ -289,7 +289,7 @@ public class OScriptManager {
   public Bindings bindContextVariables(
       ScriptEngine engine,
       final Bindings binding,
-      final ODatabaseSessionInternal db,
+      final YTDatabaseSessionInternal db,
       final OCommandContext iContext,
       final Map<Object, Object> iArgs) {
 
@@ -308,7 +308,7 @@ public class OScriptManager {
   public Bindings bind(
       ScriptEngine scriptEngine,
       final Bindings binding,
-      final ODatabaseSessionInternal db,
+      final YTDatabaseSessionInternal db,
       final OCommandContext iContext,
       final Map<Object, Object> iArgs) {
 
@@ -325,7 +325,7 @@ public class OScriptManager {
     return binding;
   }
 
-  private void bindInjectors(ScriptEngine engine, Bindings binding, ODatabaseSession database) {
+  private void bindInjectors(ScriptEngine engine, Bindings binding, YTDatabaseSession database) {
     for (OScriptInjection i : injections) {
       i.bind(engine, binding, database);
     }
@@ -341,7 +341,7 @@ public class OScriptManager {
     }
   }
 
-  private void bindLegacyDatabaseAndUtil(Bindings binding, ODatabaseSessionInternal db) {
+  private void bindLegacyDatabaseAndUtil(Bindings binding, YTDatabaseSessionInternal db) {
     if (db != null) {
       // BIND FIXED VARIABLES
       //      binding.put("db", new OScriptDocumentDatabaseWrapper(db));
@@ -350,7 +350,7 @@ public class OScriptManager {
     binding.put("util", new OFunctionUtilWrapper());
   }
 
-  private void bindDatabase(Bindings binding, ODatabaseSessionInternal db) {
+  private void bindDatabase(Bindings binding, YTDatabaseSessionInternal db) {
     if (db != null) {
       binding.put("db", new OScriptDatabaseWrapper(db));
     }
@@ -543,7 +543,7 @@ public class OScriptManager {
       Object result,
       ScriptEngine engine,
       Bindings binding,
-      ODatabaseSession database) {
+      YTDatabaseSession database) {
     OScriptResultHandler handler = handlers.get(language);
     if (handler != null) {
       return handler.handle(result, engine, binding, database);

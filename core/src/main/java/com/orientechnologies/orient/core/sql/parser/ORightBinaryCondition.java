@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -82,7 +82,7 @@ public class ORightBinaryCondition extends SimpleNode {
       return null;
     }
     Iterator iterator;
-    if (elementToFilter instanceof OIdentifiable) {
+    if (elementToFilter instanceof YTIdentifiable) {
       iterator = Collections.singleton(elementToFilter).iterator();
     } else if (elementToFilter instanceof Iterable) {
       iterator = ((Iterable) elementToFilter).iterator();
@@ -102,12 +102,13 @@ public class ORightBinaryCondition extends SimpleNode {
     return result;
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, Object elementToFilter, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, Object elementToFilter,
+      OCommandContext ctx) {
     if (elementToFilter == null) {
       return null;
     }
     Iterator iterator;
-    if (elementToFilter instanceof OIdentifiable) {
+    if (elementToFilter instanceof YTIdentifiable) {
       iterator = Collections.singleton(elementToFilter).iterator();
     } else if (elementToFilter instanceof Iterable) {
       iterator = ((Iterable) elementToFilter).iterator();
@@ -128,7 +129,7 @@ public class ORightBinaryCondition extends SimpleNode {
   }
 
   private boolean matchesFilters(
-      OIdentifiable iCurrentRecord, Object element, OCommandContext ctx) {
+      YTIdentifiable iCurrentRecord, Object element, OCommandContext ctx) {
     if (operator != null) {
       operator.execute(element, right.execute(iCurrentRecord, ctx));
     } else if (inOperator != null) {
@@ -164,7 +165,7 @@ public class ORightBinaryCondition extends SimpleNode {
     return false;
   }
 
-  public Object evaluateRight(OIdentifiable currentRecord, OCommandContext ctx) {
+  public Object evaluateRight(YTIdentifiable currentRecord, OCommandContext ctx) {
     return right.execute(currentRecord, ctx);
   }
 
@@ -186,7 +187,7 @@ public class ORightBinaryCondition extends SimpleNode {
     return right != null && right.refersToParent();
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("operator", operator.getClass().getName());
     result.setProperty("not", not);

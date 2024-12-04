@@ -23,7 +23,7 @@ import com.orientechnologies.lucene.analyzer.OLuceneAnalyzerFactory;
 import com.orientechnologies.lucene.parser.OLuceneMultiFieldQueryParser;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.parser.ParseException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,7 +101,7 @@ public class OLuceneQueryBuilder {
         fields[i] = "k" + i;
       }
     }
-    final Map<String, OType> types = new HashMap<>();
+    final Map<String, YTType> types = new HashMap<>();
     for (int i = 0; i < fields.length; i++) {
       final String field = fields[i];
       types.put(field, index.getTypes()[i]);
@@ -115,7 +115,7 @@ public class OLuceneQueryBuilder {
       final Map<String, ?> metadata,
       final Analyzer queryAnalyzer,
       final String[] fields,
-      final Map<String, OType> types)
+      final Map<String, YTType> types)
       throws ParseException {
     @SuppressWarnings("unchecked") final Map<String, Float> boost =
         Optional.ofNullable((Map<String, Number>) metadata.get("boost"))

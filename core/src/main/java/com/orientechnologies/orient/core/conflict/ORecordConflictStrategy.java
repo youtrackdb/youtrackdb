@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.conflict;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,7 +32,7 @@ public interface ORecordConflictStrategy {
   byte[] onUpdate(
       OStorage storage,
       byte iRecordType,
-      ORecordId rid,
+      YTRecordId rid,
       int iRecordVersion,
       byte[] iRecordContent,
       AtomicInteger iDatabaseVersion);

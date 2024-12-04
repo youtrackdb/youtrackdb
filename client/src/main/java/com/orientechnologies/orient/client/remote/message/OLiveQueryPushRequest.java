@@ -3,7 +3,7 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -48,7 +48,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
     channel.writeInt(monitorId);
     channel.writeByte(status);
@@ -71,7 +71,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     monitorId = network.readInt();
     status = network.readByte();
     if (status == ERROR) {
@@ -94,7 +94,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
   }
 
   @Override
-  public OBinaryPushResponse execute(ODatabaseSessionInternal session, ORemotePushHandler remote) {
+  public OBinaryPushResponse execute(YTDatabaseSessionInternal session, ORemotePushHandler remote) {
     remote.executeLiveQueryPush(this);
     return null;
   }

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testAddOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -37,7 +37,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testAddTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -49,7 +49,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testAddThree() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -63,7 +63,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testAddFour() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -84,7 +84,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -108,7 +108,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -127,7 +127,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationFour() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -147,7 +147,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testClearOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -180,7 +180,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testClearThree() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -199,7 +199,7 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testReturnOriginalState() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
 
     final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
     trackedSet.add("value1");
@@ -231,7 +231,7 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testSetSerialization() throws Exception {
 
-    class NotSerializableDocument extends ODocument {
+    class NotSerializableDocument extends YTDocument {
 
       private static final long serialVersionUID = 1L;
 
@@ -260,8 +260,8 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testStackOverflowOnRecursion() {
-    final ODocument doc = new ODocument();
-    final OTrackedSet<ODocument> trackedSet = new OTrackedSet<>(doc);
+    final YTDocument doc = new YTDocument();
+    final OTrackedSet<YTDocument> trackedSet = new OTrackedSet<>(doc);
     trackedSet.add(doc);
   }
 }

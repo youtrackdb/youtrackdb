@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +15,7 @@ public class OQueryStats {
 
   public Map<String, Long> stats = new ConcurrentHashMap<>();
 
-  public static OQueryStats get(ODatabaseSessionInternal db) {
+  public static OQueryStats get(YTDatabaseSessionInternal db) {
     return db.getSharedContext().getQueryStats();
   }
 
@@ -24,7 +24,7 @@ public class OQueryStats {
       int params,
       boolean range,
       boolean additionalRange,
-      ODatabaseSession database) {
+      YTDatabaseSession database) {
     String key =
         generateKey(
             "INDEX",
@@ -36,7 +36,7 @@ public class OQueryStats {
     if (val != null) {
       return val;
     }
-    if (database != null && database instanceof ODatabaseSessionInternal db) {
+    if (database != null && database instanceof YTDatabaseSessionInternal db) {
       OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, indexName);
       if (idx != null
           && idx.isUnique()

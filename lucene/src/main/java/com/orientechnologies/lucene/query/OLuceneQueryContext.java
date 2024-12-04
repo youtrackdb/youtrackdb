@@ -22,7 +22,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.lucene.exception.OLuceneIndexException;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -120,11 +120,11 @@ public class OLuceneQueryContext {
     return changes.map(c -> c.deletedDocs(query)).orElse(0L);
   }
 
-  public boolean isUpdated(final Document doc, final Object key, final OIdentifiable value) {
+  public boolean isUpdated(final Document doc, final Object key, final YTIdentifiable value) {
     return changes.map(c -> c.isUpdated(doc, key, value)).orElse(false);
   }
 
-  public boolean isDeleted(final Document doc, final Object key, final OIdentifiable value) {
+  public boolean isDeleted(final Document doc, final Object key, final YTIdentifiable value) {
     return changes.map(c -> c.isDeleted(doc, key, value)).orElse(false);
   }
 

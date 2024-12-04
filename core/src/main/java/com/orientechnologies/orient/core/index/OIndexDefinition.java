@@ -20,18 +20,19 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.OCollate;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
  * Presentation of index that is used information and contained in document
- * {@link com.orientechnologies.orient.core.metadata.schema.OClass} .
+ * {@link YTClass} .
  *
  * <p>This object cannot be created directly, use {@link
- * com.orientechnologies.orient.core.metadata.schema.OClass} manipulation method instead.
+ * YTClass} manipulation method instead.
  */
 public interface OIndexDefinition extends OIndexCallback {
 
@@ -78,7 +79,7 @@ public interface OIndexDefinition extends OIndexCallback {
    * @param params  Parameters from which index key will be calculated.
    * @return Key value or null if calculation is impossible.
    */
-  Object createValue(ODatabaseSessionInternal session, List<?> params);
+  Object createValue(YTDatabaseSessionInternal session, List<?> params);
 
   /**
    * Calculates key value by passed in parameters.
@@ -90,7 +91,7 @@ public interface OIndexDefinition extends OIndexCallback {
    * @param params  Parameters from which index key will be calculated.
    * @return Key value or null if calculation is impossible.
    */
-  Object createValue(ODatabaseSessionInternal session, Object... params);
+  Object createValue(YTDatabaseSessionInternal session, Object... params);
 
   /**
    * Returns amount of parameters that are used to calculate key value. It does not mean that all
@@ -109,7 +110,7 @@ public interface OIndexDefinition extends OIndexCallback {
    *
    * @return Types of values from which index key consist.
    */
-  OType[] getTypes();
+  YTType[] getTypes();
 
   /**
    * Serializes internal index state to document.
@@ -117,14 +118,14 @@ public interface OIndexDefinition extends OIndexCallback {
    * @return Document that contains internal index state.
    */
   @Nonnull
-  ODocument toStream(@Nonnull ODocument document);
+  YTDocument toStream(@Nonnull YTDocument document);
 
   /**
    * Deserialize internal index state from document.
    *
    * @param document Serialized index presentation.
    */
-  void fromStream(@Nonnull ODocument document);
+  void fromStream(@Nonnull YTDocument document);
 
   String toCreateIndexDDL(String indexName, String indexType, String engine);
 

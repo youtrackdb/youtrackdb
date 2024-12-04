@@ -15,11 +15,11 @@ public class LocalHashTableV2WALTestIT {
   //  private String actualStorageDir;
   //  private String expectedStorageDir;
   //
-  //  private ODatabaseSession databaseDocumentTx;
+  //  private YTDatabaseSession databaseDocumentTx;
   //
   //  private OWriteCache actualWriteCache;
   //
-  //  private ODatabaseSession expectedDatabaseDocumentTx;
+  //  private YTDatabaseSession expectedDatabaseDocumentTx;
   //  private OWriteCache      expectedWriteCache;
   //
   //  private YouTrackDB youTrackDB;
@@ -79,7 +79,7 @@ public class LocalHashTableV2WALTestIT {
   //        (OAbstractPaginatedStorage) ((ODatabaseInternal) databaseDocumentTx).getStorage());
   //    localHashTable
   //        .create(OIntegerSerializer.INSTANCE,
-  // OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING), null, null,
+  // OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING), null, null,
   //            murmurHash3HashFunction, true);
   //  }
   //

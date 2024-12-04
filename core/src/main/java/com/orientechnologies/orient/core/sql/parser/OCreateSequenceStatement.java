@@ -4,9 +4,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -27,8 +27,8 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
   OExpression start;
   OExpression increment;
   OExpression cache;
-  boolean positive = OSequence.DEFAULT_ORDER_TYPE == SequenceOrderType.ORDER_POSITIVE;
-  boolean cyclic = OSequence.DEFAULT_RECYCLABLE_VALUE;
+  boolean positive = YTSequence.DEFAULT_ORDER_TYPE == SequenceOrderType.ORDER_POSITIVE;
+  boolean cyclic = YTSequence.DEFAULT_RECYCLABLE_VALUE;
   OExpression limitValue;
 
   public OCreateSequenceStatement(int id) {
@@ -42,7 +42,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    OSequence seq =
+    YTSequence seq =
         db
             .getMetadata()
             .getSequenceLibrary()
@@ -72,9 +72,9 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
 
   private void executeInternal(OCommandContext ctx, OResultInternal result)
       throws ExecutionException, InterruptedException {
-    OSequence.CreateParams params = createParams(ctx, result);
-    OSequence.SEQUENCE_TYPE seqType =
-        type == TYPE_CACHED ? OSequence.SEQUENCE_TYPE.CACHED : OSequence.SEQUENCE_TYPE.ORDERED;
+    YTSequence.CreateParams params = createParams(ctx, result);
+    YTSequence.SEQUENCE_TYPE seqType =
+        type == TYPE_CACHED ? YTSequence.SEQUENCE_TYPE.CACHED : YTSequence.SEQUENCE_TYPE.ORDERED;
     result.setProperty("type", seqType.toString());
     ctx.getDatabase()
         .getMetadata()
@@ -82,10 +82,10 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
         .createSequence(this.name.getStringValue(), seqType, params);
   }
 
-  private OSequence.CreateParams createParams(OCommandContext ctx, OResultInternal result) {
-    OSequence.CreateParams params = new OSequence.CreateParams();
+  private YTSequence.CreateParams createParams(OCommandContext ctx, OResultInternal result) {
+    YTSequence.CreateParams params = new YTSequence.CreateParams();
     if (start != null) {
-      Object o = start.execute((OIdentifiable) null, ctx);
+      Object o = start.execute((YTIdentifiable) null, ctx);
       if (o instanceof Number) {
         params.setStart(((Number) o).longValue());
         result.setProperty("start", o);
@@ -94,7 +94,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
       }
     }
     if (increment != null) {
-      Object o = increment.execute((OIdentifiable) null, ctx);
+      Object o = increment.execute((YTIdentifiable) null, ctx);
       if (o instanceof Number) {
         params.setIncrement(((Number) o).intValue());
         result.setProperty("increment", o);
@@ -103,7 +103,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
       }
     }
     if (cache != null) {
-      Object o = cache.execute((OIdentifiable) null, ctx);
+      Object o = cache.execute((YTIdentifiable) null, ctx);
       if (o instanceof Number) {
         params.setCacheSize(((Number) o).intValue());
         result.setProperty("cacheSize", o);
@@ -113,7 +113,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
     }
 
     if (limitValue != null) {
-      Object o = limitValue.execute((OIdentifiable) null, ctx);
+      Object o = limitValue.execute((YTIdentifiable) null, ctx);
       if (o instanceof Number) {
         params.setLimitValue(((Number) o).longValue());
         result.setProperty("limitValue", o);
@@ -166,7 +166,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
       builder.append(" LIMIT ");
       limitValue.toString(params, builder);
     }
-    if (cyclic != OSequence.DEFAULT_RECYCLABLE_VALUE) {
+    if (cyclic != YTSequence.DEFAULT_RECYCLABLE_VALUE) {
       builder.append(" CYCLE ").append(Boolean.toString(cyclic).toUpperCase());
     }
     if (positive) {
@@ -211,7 +211,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
       builder.append(" LIMIT ");
       limitValue.toGenericStatement(builder);
     }
-    if (cyclic != OSequence.DEFAULT_RECYCLABLE_VALUE) {
+    if (cyclic != YTSequence.DEFAULT_RECYCLABLE_VALUE) {
       builder.append(" CYCLE ").append(Boolean.toString(cyclic).toUpperCase());
     }
     if (positive) {

@@ -17,14 +17,14 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,9 +57,9 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
   public static class DocumentChangeListener {
 
-    final Map<ODocument, List<String>> changes = new HashMap<ODocument, List<String>>();
+    final Map<YTDocument, List<String>> changes = new HashMap<YTDocument, List<String>>();
 
-    public DocumentChangeListener(final ODatabaseSession db) {
+    public DocumentChangeListener(final YTDatabaseSession db) {
       db.registerHook(
           new ODocumentHookAbstract(db) {
 
@@ -69,7 +69,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
             }
 
             @Override
-            public void onRecordAfterUpdate(ODocument iDocument) {
+            public void onRecordAfterUpdate(YTDocument iDocument) {
               List<String> changedFields = new ArrayList<>();
               Collections.addAll(changedFields, iDocument.getDirtyFields());
               changes.put(iDocument, changedFields);
@@ -77,7 +77,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
           });
     }
 
-    public Map<ODocument, List<String>> getChanges() {
+    public Map<YTDocument, List<String>> getChanges() {
       return changes;
     }
   }
@@ -85,32 +85,32 @@ public class DbListenerTest extends DocumentDBBaseTest {
   public class DbListener implements ODatabaseListener {
 
     @Override
-    public void onAfterTxCommit(ODatabaseSession iDatabase) {
+    public void onAfterTxCommit(YTDatabaseSession iDatabase) {
       onAfterTxCommit++;
     }
 
     @Override
-    public void onAfterTxRollback(ODatabaseSession iDatabase) {
+    public void onAfterTxRollback(YTDatabaseSession iDatabase) {
       onAfterTxRollback++;
     }
 
     @Override
-    public void onBeforeTxBegin(ODatabaseSession iDatabase) {
+    public void onBeforeTxBegin(YTDatabaseSession iDatabase) {
       onBeforeTxBegin++;
     }
 
     @Override
-    public void onBeforeTxCommit(ODatabaseSession iDatabase) {
+    public void onBeforeTxCommit(YTDatabaseSession iDatabase) {
       onBeforeTxCommit++;
     }
 
     @Override
-    public void onBeforeTxRollback(ODatabaseSession iDatabase) {
+    public void onBeforeTxRollback(YTDatabaseSession iDatabase) {
       onBeforeTxRollback++;
     }
 
     @Override
-    public void onClose(ODatabaseSession iDatabase) {
+    public void onClose(YTDatabaseSession iDatabase) {
       onClose++;
     }
 
@@ -126,23 +126,23 @@ public class DbListenerTest extends DocumentDBBaseTest {
     }
 
     @Override
-    public void onCreate(ODatabaseSession iDatabase) {
+    public void onCreate(YTDatabaseSession iDatabase) {
       onCreate++;
     }
 
     @Override
-    public void onDelete(ODatabaseSession iDatabase) {
+    public void onDelete(YTDatabaseSession iDatabase) {
       onDelete++;
     }
 
     @Override
-    public void onOpen(ODatabaseSession iDatabase) {
+    public void onOpen(YTDatabaseSession iDatabase) {
       onOpen++;
     }
 
     @Override
     public boolean onCorruptionRepairDatabase(
-        ODatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
+        YTDatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
       onCorruption++;
       return true;
     }
@@ -166,7 +166,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
-        .<ODocument>newInstance().save();
+        .<YTDocument>newInstance().save();
     database.commit();
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
@@ -174,7 +174,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
-    database.<ODocument>newInstance().save();
+    database.<YTDocument>newInstance().save();
     database.rollback();
     Assert.assertEquals(onBeforeTxRollback, 1);
     Assert.assertEquals(onAfterTxRollback, 1);
@@ -196,7 +196,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
-        .<ODocument>newInstance()
+        .<YTDocument>newInstance()
         .save();
     var baseOnBeforeTxCommit = onBeforeTxCommit;
     var baseOnAfterTxCommit = onAfterTxCommit;
@@ -208,7 +208,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
     database
-        .<ODocument>newInstance()
+        .<YTDocument>newInstance()
         .save();
     var baseOnBeforeTxRollback = onBeforeTxRollback;
     var baseOnAfterTxRollback = onAfterTxRollback;
@@ -229,9 +229,9 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    ODocument rec =
+    YTDocument rec =
         database
-            .<ODocument>newInstance()
+            .<YTDocument>newInstance()
             .field("name", "Jay");
     rec.save();
     database.commit();
@@ -248,7 +248,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 

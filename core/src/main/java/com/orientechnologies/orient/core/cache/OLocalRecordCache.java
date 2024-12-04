@@ -20,12 +20,12 @@
 package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 
 /**
@@ -41,12 +41,12 @@ public class OLocalRecordCache extends OAbstractRecordCache {
     super(
         YouTrackDBManager.instance()
             .getLocalRecordCache()
-            .newInstance(OGlobalConfiguration.CACHE_LOCAL_IMPL.getValueAsString()));
+            .newInstance(YTGlobalConfiguration.CACHE_LOCAL_IMPL.getValueAsString()));
   }
 
   @Override
   public void startup() {
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
     profilerPrefix = "db." + db.getName() + ".cache.level1.";
     profilerMetadataPrefix = "db.*.cache.level1.";
@@ -62,7 +62,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    *
    * @param record record that should be cached
    */
-  public void updateRecord(final ORecordAbstract record) {
+  public void updateRecord(final YTRecordAbstract record) {
     assert !record.isUnloaded();
     var rid = record.getIdentity();
     if (rid.getClusterId() != excludedCluster
@@ -90,8 +90,8 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    * @param rid unique identifier of record
    * @return record stored in cache if any, otherwise - {@code null}
    */
-  public ORecordAbstract findRecord(final ORID rid) {
-    ORecordAbstract record;
+  public YTRecordAbstract findRecord(final YTRID rid) {
+    YTRecordAbstract record;
     record = underlying.get(rid);
 
     if (record != null) {
@@ -117,7 +117,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    *
    * @param rid unique identifier of record
    */
-  public void deleteRecord(final ORID rid) {
+  public void deleteRecord(final YTRID rid) {
     super.deleteRecord(rid);
   }
 

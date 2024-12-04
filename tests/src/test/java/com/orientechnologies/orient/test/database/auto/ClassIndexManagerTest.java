@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
 
     if (schema.existsClass("classIndexManagerTestClass")) {
       schema.dropClass("classIndexManagerTestClass");
@@ -56,67 +56,67 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       schema.dropClass("classIndexManagerTestCompositeCollectionClass");
     }
 
-    final OClass superClass = schema.createClass("classIndexManagerTestSuperClass");
-    final OProperty propertyZero = superClass.createProperty(database, "prop0", OType.STRING);
+    final YTClass superClass = schema.createClass("classIndexManagerTestSuperClass");
+    final YTProperty propertyZero = superClass.createProperty(database, "prop0", YTType.STRING);
     superClass.createIndex(database,
         "classIndexManagerTestSuperClass.prop0",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop0"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop0"});
 
-    final OClass oClass = schema.createClass("classIndexManagerTestClass", superClass);
-    final OProperty propOne = oClass.createProperty(database, "prop1", OType.STRING);
+    final YTClass oClass = schema.createClass("classIndexManagerTestClass", superClass);
+    final YTProperty propOne = oClass.createProperty(database, "prop1", YTType.STRING);
     oClass.createIndex(database,
         "classIndexManagerTestClass.prop1",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop1"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop1"});
 
-    final OProperty propTwo = oClass.createProperty(database, "prop2", OType.INTEGER);
-    propTwo.createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    final YTProperty propTwo = oClass.createProperty(database, "prop2", YTType.INTEGER);
+    propTwo.createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
 
-    oClass.createProperty(database, "prop3", OType.BOOLEAN);
+    oClass.createProperty(database, "prop3", YTType.BOOLEAN);
 
-    final OProperty propFour = oClass.createProperty(database, "prop4", OType.EMBEDDEDLIST,
-        OType.STRING);
-    propFour.createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    final YTProperty propFour = oClass.createProperty(database, "prop4", YTType.EMBEDDEDLIST,
+        YTType.STRING);
+    propFour.createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
 
-    oClass.createProperty(database, "prop5", OType.EMBEDDEDMAP, OType.STRING);
-    oClass.createIndex(database, "classIndexManagerTestIndexByKey", OClass.INDEX_TYPE.NOTUNIQUE,
+    oClass.createProperty(database, "prop5", YTType.EMBEDDEDMAP, YTType.STRING);
+    oClass.createIndex(database, "classIndexManagerTestIndexByKey", YTClass.INDEX_TYPE.NOTUNIQUE,
         "prop5");
     oClass.createIndex(database,
-        "classIndexManagerTestIndexByValue", OClass.INDEX_TYPE.NOTUNIQUE, "prop5 by value");
+        "classIndexManagerTestIndexByValue", YTClass.INDEX_TYPE.NOTUNIQUE, "prop5 by value");
 
-    final OProperty propSix = oClass.createProperty(database, "prop6", OType.EMBEDDEDSET,
-        OType.STRING);
-    propSix.createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    final YTProperty propSix = oClass.createProperty(database, "prop6", YTType.EMBEDDEDSET,
+        YTType.STRING);
+    propSix.createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     oClass.createIndex(database,
         "classIndexManagerComposite",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
 
-    final OClass oClassTwo = schema.createClass("classIndexManagerTestClassTwo");
-    oClassTwo.createProperty(database, "prop1", OType.STRING);
-    oClassTwo.createProperty(database, "prop2", OType.INTEGER);
+    final YTClass oClassTwo = schema.createClass("classIndexManagerTestClassTwo");
+    oClassTwo.createProperty(database, "prop1", YTType.STRING);
+    oClassTwo.createProperty(database, "prop2", YTType.INTEGER);
 
-    final OClass compositeCollectionClass =
+    final YTClass compositeCollectionClass =
         schema.createClass("classIndexManagerTestCompositeCollectionClass");
-    compositeCollectionClass.createProperty(database, "prop1", OType.STRING);
-    compositeCollectionClass.createProperty(database, "prop2", OType.EMBEDDEDLIST, OType.INTEGER);
+    compositeCollectionClass.createProperty(database, "prop1", YTType.STRING);
+    compositeCollectionClass.createProperty(database, "prop2", YTType.EMBEDDEDLIST, YTType.INTEGER);
 
     compositeCollectionClass.createIndex(database,
         "classIndexManagerTestIndexValueAndCollection",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
 
     oClass.createIndex(database,
         "classIndexManagerTestIndexOnPropertiesFromClassAndSuperclass",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
+        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
 
     database.close();
   }
@@ -158,8 +158,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeysCreate() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    final YTDocument docOne = new YTDocument("classIndexManagerTestClass");
+    final YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
 
     docOne.field("prop1", "a");
     database.begin();
@@ -180,8 +180,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullCreate() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    final YTDocument docOne = new YTDocument("classIndexManagerTestClass");
+    final YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
 
     docOne.field("prop1", "a");
     database.begin();
@@ -195,8 +195,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullCreateInTx() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    final YTDocument docOne = new YTDocument("classIndexManagerTestClass");
+    final YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
 
     database.begin();
     docOne.field("prop1", "a");
@@ -208,8 +208,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexInParentDubKeysCreate() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    final YTDocument docOne = new YTDocument("classIndexManagerTestClass");
+    final YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
 
     docOne.field("prop0", "a");
     database.begin();
@@ -230,8 +230,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   public void testPropertiesCheckUniqueIndexDubKeysUpdate() {
     database.begin();
-    ODocument docOne = new ODocument("classIndexManagerTestClass");
-    ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    YTDocument docOne = new YTDocument("classIndexManagerTestClass");
+    YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
 
     boolean exceptionThrown = false;
     docOne.field("prop1", "a");
@@ -260,8 +260,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdate() {
     database.begin();
-    ODocument docOne = new ODocument("classIndexManagerTestClass");
-    ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    YTDocument docOne = new YTDocument("classIndexManagerTestClass");
+    YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
 
     docOne.field("prop1", "a");
 
@@ -283,8 +283,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdateInTX() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    final YTDocument docOne = new YTDocument("classIndexManagerTestClass");
+    final YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
 
     database.begin();
     docOne.field("prop1", "a");
@@ -299,13 +299,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckNonUniqueIndexDubKeys() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
+    final YTDocument docOne = new YTDocument("classIndexManagerTestClass");
     docOne.field("prop2", 1);
     database.begin();
     docOne.save();
     database.commit();
 
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    final YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
     docTwo.field("prop2", 1);
     database.begin();
     docTwo.save();
@@ -313,12 +313,12 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueNullKeys() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
+    final YTDocument docOne = new YTDocument("classIndexManagerTestClass");
     database.begin();
     docOne.save();
     database.commit();
 
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    final YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
     database.begin();
     docTwo.save();
     database.commit();
@@ -336,11 +336,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.field("prop1", "a");
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.field("prop1", "a");
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -365,11 +365,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.field("prop1", "a");
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.field("prop1", "b");
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -386,7 +386,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testDeleteDocumentWithoutClass() {
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.field("prop1", "a");
 
     database.begin();
@@ -399,7 +399,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testDeleteModifiedDocumentWithoutClass() {
-    ODocument docOne = new ODocument();
+    YTDocument docOne = new YTDocument();
     docOne.field("prop1", "a");
 
     database.begin();
@@ -415,7 +415,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   public void testDocumentUpdateWithoutDirtyFields() {
     database.begin();
-    ODocument docOne = new ODocument("classIndexManagerTestClass");
+    YTDocument docOne = new YTDocument("classIndexManagerTestClass");
     docOne.field("prop1", "a");
 
     docOne.save();
@@ -431,7 +431,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCreateDocumentIndexRecordAdded() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    final YTDocument doc = new YTDocument("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -440,12 +440,12 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
-    final OClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
 
     final OIndex propOneIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop1");
-    try (Stream<ORID> stream = propOneIndex.getInternal().getRids(database, "a")) {
+    try (Stream<YTRID> stream = propOneIndex.getInternal().getRids(database, "a")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
     Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
@@ -453,7 +453,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     final OIndex compositeIndex = oClass.getClassIndex(database, "classIndexManagerComposite");
 
     final OIndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
-    try (Stream<ORID> rids =
+    try (Stream<YTRID> rids =
         compositeIndex
             .getInternal()
             .getRids(database, compositeIndexDefinition.createValue(database, "a", 1))) {
@@ -463,7 +463,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     final OIndex propZeroIndex = oSuperClass.getClassIndex(database,
         "classIndexManagerTestSuperClass.prop0");
-    try (Stream<ORID> stream = propZeroIndex.getInternal().getRids(database, "x")) {
+    try (Stream<YTRID> stream = propZeroIndex.getInternal().getRids(database, "x")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
     Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
@@ -473,7 +473,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -481,9 +481,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propOneIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop1");
     final OIndex compositeIndex = oClass.getClassIndex(database, "classIndexManagerComposite");
@@ -511,7 +511,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
 
     doc.field("prop0", "x");
     doc.field("prop1", "a");
@@ -520,9 +520,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propOneIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop1");
     final OIndex compositeIndex = oClass.getClassIndex(database, "classIndexManagerComposite");
@@ -549,7 +549,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -557,9 +557,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propZeroIndex = oSuperClass.getClassIndex(database,
         "classIndexManagerTestSuperClass.prop0");
@@ -582,13 +582,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
     Assert.assertEquals(propZeroIndex.getInternal().size(database), 1);
 
-    try (Stream<ORID> stream = propZeroIndex.getInternal().getRids(database, "y")) {
+    try (Stream<YTRID> stream = propZeroIndex.getInternal().getRids(database, "y")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<ORID> stream = propOneIndex.getInternal().getRids(database, "a")) {
+    try (Stream<YTRID> stream = propOneIndex.getInternal().getRids(database, "a")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         compositeIndex
             .getInternal()
             .getRids(database, compositeIndexDefinition.createValue(database, "a", 2))) {
@@ -600,15 +600,15 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propOneIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop1");
     final OIndex compositeIndex = oClass.getClassIndex(database, "classIndexManagerComposite");
@@ -626,10 +626,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propOneIndex.getInternal().size(database), 1);
     Assert.assertEquals(compositeIndex.getInternal().size(database), 1);
 
-    try (Stream<ORID> stream = propOneIndex.getInternal().getRids(database, "a")) {
+    try (Stream<YTRID> stream = propOneIndex.getInternal().getRids(database, "a")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         compositeIndex
             .getInternal()
             .getRids(database, compositeIndexDefinition.createValue(database, "a", 2))) {
@@ -640,15 +640,15 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testListUpdate() {
     checkEmbeddedDB();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propFourIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop4");
 
     Assert.assertEquals(propFourIndex.getInternal().size(database), 0);
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
@@ -659,10 +659,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(database), 2);
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value1")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value1")) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value2")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -682,14 +682,14 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(database), 3);
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value3")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value4")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value5")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -697,8 +697,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testMapUpdate() {
     checkEmbeddedDB();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propFiveIndexKey = oClass.getClassIndex(database,
         "classIndexManagerTestIndexByKey");
@@ -708,7 +708,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 0);
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
@@ -719,10 +719,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 2);
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key2")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -745,33 +745,33 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 5);
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key3")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key4")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key6")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key7")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     Assert.assertEquals(propFiveIndexValue.getInternal().size(database), 4);
-    try (Stream<ORID> stream = propFiveIndexValue.getInternal().getRids(database, "value5")) {
+    try (Stream<YTRID> stream = propFiveIndexValue.getInternal().getRids(database, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexValue.getInternal().getRids(database, "value3")) {
+    try (Stream<YTRID> stream = propFiveIndexValue.getInternal().getRids(database, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexValue.getInternal().getRids(database, "value7")) {
+    try (Stream<YTRID> stream = propFiveIndexValue.getInternal().getRids(database, "value7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexValue.getInternal().getRids(database, "value6")) {
+    try (Stream<YTRID> stream = propFiveIndexValue.getInternal().getRids(database, "value6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -779,15 +779,15 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testSetUpdate() {
     checkEmbeddedDB();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propSixIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop6");
 
     Assert.assertEquals(propSixIndex.getInternal().size(database), 0);
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
@@ -798,10 +798,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(database), 2);
-    try (Stream<ORID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
+    try (Stream<YTRID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propSixIndex.getInternal().getRids(database, "value2")) {
+    try (Stream<YTRID> stream = propSixIndex.getInternal().getRids(database, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -823,10 +823,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(database), 2);
-    try (Stream<ORID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
+    try (Stream<YTRID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propSixIndex.getInternal().getRids(database, "value5")) {
+    try (Stream<YTRID> stream = propSixIndex.getInternal().getRids(database, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -834,15 +834,15 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testListDelete() {
     checkEmbeddedDB();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propFourIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop4");
 
     Assert.assertEquals(propFourIndex.getInternal().size(database), 0);
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
@@ -853,10 +853,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(database), 2);
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value1")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value2")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -876,13 +876,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(database), 3);
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value3")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value4")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFourIndex.getInternal().getRids(database, "value5")) {
+    try (Stream<YTRID> stream = propFourIndex.getInternal().getRids(database, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -902,8 +902,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testMapDelete() {
     checkEmbeddedDB();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propFiveIndexKey = oClass.getClassIndex(database,
         "classIndexManagerTestIndexByKey");
@@ -913,7 +913,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 0);
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
@@ -924,10 +924,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 2);
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key2")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -950,33 +950,33 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 5);
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key3")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key4")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key4")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key6")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexKey.getInternal().getRids(database, "key7")) {
+    try (Stream<YTRID> stream = propFiveIndexKey.getInternal().getRids(database, "key7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     Assert.assertEquals(propFiveIndexValue.getInternal().size(database), 4);
-    try (Stream<ORID> stream = propFiveIndexValue.getInternal().getRids(database, "value5")) {
+    try (Stream<YTRID> stream = propFiveIndexValue.getInternal().getRids(database, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexValue.getInternal().getRids(database, "value3")) {
+    try (Stream<YTRID> stream = propFiveIndexValue.getInternal().getRids(database, "value3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexValue.getInternal().getRids(database, "value7")) {
+    try (Stream<YTRID> stream = propFiveIndexValue.getInternal().getRids(database, "value7")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propFiveIndexValue.getInternal().getRids(database, "value6")) {
+    try (Stream<YTRID> stream = propFiveIndexValue.getInternal().getRids(database, "value6")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -1000,15 +1000,15 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testSetDelete() {
     checkEmbeddedDB();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propSixIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop6");
 
     Assert.assertEquals(propSixIndex.getInternal().size(database), 0);
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
@@ -1019,10 +1019,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(database), 2);
-    try (Stream<ORID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
+    try (Stream<YTRID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propSixIndex.getInternal().getRids(database, "value2")) {
+    try (Stream<YTRID> stream = propSixIndex.getInternal().getRids(database, "value2")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -1044,10 +1044,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(database), 2);
-    try (Stream<ORID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
+    try (Stream<YTRID> stream = propSixIndex.getInternal().getRids(database, "value1")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<ORID> stream = propSixIndex.getInternal().getRids(database, "value5")) {
+    try (Stream<YTRID> stream = propSixIndex.getInternal().getRids(database, "value5")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -1066,7 +1066,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testDeleteDocumentIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    final YTDocument doc = new YTDocument("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -1075,9 +1075,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propZeroIndex = oSuperClass.getClassIndex(database,
         "classIndexManagerTestSuperClass.prop0");
@@ -1101,7 +1101,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -1109,9 +1109,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oSuperClass = schema.getClass("classIndexManagerTestSuperClass");
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propOneIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop1");
     final OIndex compositeIndex = oClass.getClassIndex(database, "classIndexManagerComposite");
@@ -1139,15 +1139,15 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    final YTDocument doc = new YTDocument("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propOneIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop1");
     final OIndex compositeIndex = oClass.getClassIndex(database, "classIndexManagerComposite");
@@ -1167,15 +1167,15 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final OIndex propOneIndex = oClass.getClassIndex(database, "classIndexManagerTestClass.prop1");
     final OIndex compositeIndex = oClass.getClassIndex(database, "classIndexManagerComposite");
@@ -1198,7 +1198,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClassTwo");
+    YTDocument doc = new YTDocument("classIndexManagerTestClassTwo");
     doc.field("prop1", "a");
 
     doc.save();
@@ -1210,8 +1210,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
 
     final Collection<OIndex> indexes = oClass.getIndexes(database);
     for (final OIndex index : indexes) {
@@ -1221,7 +1221,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   public void testNoClassIndexesDelete() {
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestClassTwo");
+    YTDocument doc = new YTDocument("classIndexManagerTestClassTwo");
     doc.field("prop1", "a");
 
     doc.save();
@@ -1235,7 +1235,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeCreation() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    final YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1251,11 +1251,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test1", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test1", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1271,7 +1271,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    final YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", (Object) null);
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1294,7 +1294,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeNullCollectionFieldCreation() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    final YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", (Object) null);
@@ -1319,7 +1319,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1341,11 +1341,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test2", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test2", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1363,7 +1363,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1385,11 +1385,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test1", 1))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test1", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1407,7 +1407,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1434,19 +1434,19 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test1", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test1", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test1", 4))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test1", 5))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1464,7 +1464,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1495,19 +1495,19 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(index.getInternal().size(database), 4);
 
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test2", 2))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test2", 3))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test2", 4))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
-    try (Stream<ORID> stream = index.getInternal()
+    try (Stream<YTRID> stream = index.getInternal()
         .getRids(database, new OCompositeKey("test2", 5))) {
       Assert.assertEquals(stream.findAny().orElse(null), doc.getIdentity());
     }
@@ -1523,7 +1523,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1558,7 +1558,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1593,7 +1593,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1629,7 +1629,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1671,7 +1671,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1700,7 +1700,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1729,7 +1729,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1762,7 +1762,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1797,7 +1797,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1827,7 +1827,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1856,7 +1856,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1885,7 +1885,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1915,7 +1915,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    YTDocument doc = new YTDocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1949,7 +1949,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testIndexOnPropertiesFromClassAndSuperclass() {
     checkEmbeddedDB();
 
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
+    final YTDocument docOne = new YTDocument("classIndexManagerTestClass");
     docOne.field("prop0", "doc1-prop0");
     docOne.field("prop1", "doc1-prop1");
 
@@ -1957,7 +1957,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     docOne.save();
     database.commit();
 
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    final YTDocument docTwo = new YTDocument("classIndexManagerTestClass");
     docTwo.field("prop0", "doc2-prop0");
     docTwo.field("prop1", "doc2-prop1");
 
@@ -1965,8 +1965,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     docTwo.save();
     database.commit();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.getClass("classIndexManagerTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.getClass("classIndexManagerTestClass");
     final OIndex oIndex =
         oClass.getClassIndex(database,
             "classIndexManagerTestIndexOnPropertiesFromClassAndSuperclass");

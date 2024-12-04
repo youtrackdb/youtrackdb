@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStreamProducer;
@@ -145,7 +145,7 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
 
     result.setProperty("orderByRidAsc", orderByRidAsc);

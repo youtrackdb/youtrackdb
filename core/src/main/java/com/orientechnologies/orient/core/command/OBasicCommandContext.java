@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.common.concur.OTimeoutException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
@@ -47,7 +47,7 @@ public class OBasicCommandContext implements OCommandContext {
   public static final String TIMEOUT_STRATEGY = "TIMEOUT_STARTEGY";
   public static final String INVALID_COMPARE_COUNT = "INVALID_COMPARE_COUNT";
 
-  protected ODatabaseSessionInternal database;
+  protected YTDatabaseSessionInternal database;
   protected Object[] args;
 
   protected boolean recordMetrics = false;
@@ -72,7 +72,7 @@ public class OBasicCommandContext implements OCommandContext {
   public OBasicCommandContext() {
   }
 
-  public OBasicCommandContext(ODatabaseSessionInternal session) {
+  public OBasicCommandContext(YTDatabaseSessionInternal session) {
     this.database = session;
   }
 
@@ -249,7 +249,7 @@ public class OBasicCommandContext implements OCommandContext {
         if (v == null) {
           variables.put(iName, 1);
         } else if (v instanceof Number) {
-          variables.put(iName, OType.increment((Number) v, 1));
+          variables.put(iName, YTType.increment((Number) v, 1));
         } else {
           throw new IllegalArgumentException(
               "Variable '" + iName + "' is not a number, but: " + v.getClass());
@@ -440,13 +440,13 @@ public class OBasicCommandContext implements OCommandContext {
    */
   public synchronized boolean addToUniqueResult(Object o) {
     Object toAdd = o;
-    if (o instanceof ODocument && ((ODocument) o).getIdentity().isNew()) {
-      toAdd = new ODocumentEqualityWrapper((ODocument) o);
+    if (o instanceof YTDocument && ((YTDocument) o).getIdentity().isNew()) {
+      toAdd = new ODocumentEqualityWrapper((YTDocument) o);
     }
     return this.uniqueResult.add(toAdd);
   }
 
-  public ODatabaseSessionInternal getDatabase() {
+  public YTDatabaseSessionInternal getDatabase() {
     if (database != null) {
       return database;
     }
@@ -463,7 +463,7 @@ public class OBasicCommandContext implements OCommandContext {
   }
 
 
-  public void setDatabase(ODatabaseSessionInternal database) {
+  public void setDatabase(YTDatabaseSessionInternal database) {
     this.database = database;
 
     if (child != null) {

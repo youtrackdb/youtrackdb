@@ -4,8 +4,8 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Test;
 
 /**
@@ -22,15 +22,15 @@ public class HookSaveTest extends DBTestBase {
           }
 
           @Override
-          public RESULT onTrigger(TYPE iType, ORecord iRecord) {
+          public RESULT onTrigger(TYPE iType, YTRecord iRecord) {
             if (iType != TYPE.BEFORE_CREATE) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            ODocument doc = (ODocument) iRecord;
+            YTDocument doc = (YTDocument) iRecord;
             if (doc.containsField("test")) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            ODocument doc1 = new ODocument("test");
+            YTDocument doc1 = new YTDocument("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
             return RESULT.RECORD_CHANGED;
@@ -44,10 +44,10 @@ public class HookSaveTest extends DBTestBase {
 
     db.getMetadata().getSchema().createClass("test");
     db.begin();
-    ODocument doc = db.save(new ODocument("test"));
+    YTDocument doc = db.save(new YTDocument("test"));
     db.commit();
 
-    ODocument newRef = db.bindToSession(doc).field("testNewLinkedRecord");
+    YTDocument newRef = db.bindToSession(doc).field("testNewLinkedRecord");
     assertNotNull(newRef);
     assertNotNull(newRef.getIdentity().isPersistent());
   }
@@ -61,15 +61,15 @@ public class HookSaveTest extends DBTestBase {
           }
 
           @Override
-          public RESULT onTrigger(TYPE iType, ORecord iRecord) {
+          public RESULT onTrigger(TYPE iType, YTRecord iRecord) {
             if (iType != TYPE.BEFORE_CREATE) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            ODocument doc = (ODocument) iRecord;
+            YTDocument doc = (YTDocument) iRecord;
             if (doc.containsField("test")) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            ODocument doc1 = new ODocument("test");
+            YTDocument doc1 = new YTDocument("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
             doc1.field("backLink", doc);
@@ -84,10 +84,10 @@ public class HookSaveTest extends DBTestBase {
 
     db.getMetadata().getSchema().createClass("test");
     db.begin();
-    ODocument doc = db.save(new ODocument("test"));
+    YTDocument doc = db.save(new YTDocument("test"));
     db.commit();
 
-    ODocument newRef = db.bindToSession(doc).field("testNewLinkedRecord");
+    YTDocument newRef = db.bindToSession(doc).field("testNewLinkedRecord");
     assertNotNull(newRef);
     assertNotNull(newRef.getIdentity().isPersistent());
   }

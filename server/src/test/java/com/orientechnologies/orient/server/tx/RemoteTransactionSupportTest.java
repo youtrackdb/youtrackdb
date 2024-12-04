@@ -4,16 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
@@ -29,34 +29,35 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   private static final String FIELD_VALUE = "VALUE";
 
   public void beforeTest() {
-    OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.setValue(1);
+    YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.setValue(1);
     super.beforeTest();
 
     db.createClass("SomeTx");
     db.createClass("SomeTx2");
 
-    OClass klass = db.createClass("IndexedTx");
-    klass.createProperty(db, "name", OType.STRING).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass klass = db.createClass("IndexedTx");
+    klass.createProperty(db, "name", YTType.STRING).createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
-    OClass uniqueClass = db.createClass("UniqueIndexedTx");
-    uniqueClass.createProperty(db, "name", OType.STRING).createIndex(db, OClass.INDEX_TYPE.UNIQUE);
+    YTClass uniqueClass = db.createClass("UniqueIndexedTx");
+    uniqueClass.createProperty(db, "name", YTType.STRING)
+        .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
   }
 
   @Test
   public void testQueryUpdateUpdatedInTxTransaction() {
     db.begin();
-    ODocument doc = new ODocument("SomeTx");
+    YTDocument doc = new YTDocument("SomeTx");
     doc.setProperty("name", "Joe");
-    OIdentifiable id = db.save(doc);
+    YTIdentifiable id = db.save(doc);
     db.commit();
 
     db.begin();
-    ODocument doc2 = db.load(id.getIdentity());
+    YTDocument doc2 = db.load(id.getIdentity());
     doc2.setProperty("name", "Jane");
     db.save(doc2);
     OResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertEquals(1L, (long) result.next().getProperty("count"));
-    ODocument doc3 = db.load(id.getIdentity());
+    YTDocument doc3 = db.load(id.getIdentity());
     assertEquals("July", doc3.getProperty("name"));
     db.rollback();
   }
@@ -65,10 +66,10 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testResetUpdatedInTxTransaction() {
     db.begin();
 
-    ODocument doc1 = new ODocument();
+    YTDocument doc1 = new YTDocument();
     doc1.setProperty("name", "Jane");
     db.save(doc1);
-    ODocument doc2 = new ODocument("SomeTx");
+    YTDocument doc2 = new YTDocument("SomeTx");
     doc2.setProperty("name", "Jane");
     db.save(doc2);
     OResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
@@ -80,18 +81,18 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryUpdateCreatedInTxTransaction() throws InterruptedException {
     db.begin();
-    ODocument doc1 = new ODocument("SomeTx");
+    YTDocument doc1 = new YTDocument("SomeTx");
     doc1.setProperty("name", "Jane");
-    OIdentifiable id = db.save(doc1);
+    YTIdentifiable id = db.save(doc1);
 
-    ODocument docx = new ODocument("SomeTx2");
+    YTDocument docx = new YTDocument("SomeTx2");
     docx.setProperty("name", "Jane");
     db.save(docx);
 
     OResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertTrue(result.hasNext());
     assertEquals(1L, (long) result.next().getProperty("count"));
-    ODocument doc2 = db.load(id.getIdentity());
+    YTDocument doc2 = db.load(id.getIdentity());
     assertEquals("July", doc2.getProperty("name"));
     assertFalse(result.hasNext());
     result.close();
@@ -100,13 +101,13 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testRollbackTxTransaction() {
     db.begin();
-    ODocument doc = new ODocument("SomeTx");
+    YTDocument doc = new YTDocument("SomeTx");
     doc.setProperty("name", "Jane");
     db.save(doc);
     db.commit();
 
     db.begin();
-    ODocument doc1 = new ODocument("SomeTx");
+    YTDocument doc1 = new YTDocument("SomeTx");
     doc1.setProperty("name", "Jane");
     db.save(doc1);
 
@@ -125,13 +126,13 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testRollbackTxCheckStatusTransaction() {
     db.begin();
-    ODocument doc = new ODocument("SomeTx");
+    YTDocument doc = new YTDocument("SomeTx");
     doc.setProperty("name", "Jane");
     db.save(doc);
     db.commit();
 
     db.begin();
-    ODocument doc1 = new ODocument("SomeTx");
+    YTDocument doc1 = new YTDocument("SomeTx");
     doc1.setProperty("name", "Jane");
     db.save(doc1);
 
@@ -179,7 +180,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryDeleteTxSQLTransaction() {
     db.begin();
-    OElement someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
     someTx.save();
     db.commit();
@@ -196,7 +197,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testDoubleSaveTransaction() {
     db.begin();
-    OElement someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
     db.save(someTx);
     db.save(someTx);
@@ -209,7 +210,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testDoubleSaveDoubleFlushTransaction() {
     db.begin();
-    OElement someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
     db.save(someTx);
     db.save(someTx);
@@ -230,11 +231,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testRefFlushedInTransaction() {
     db.begin();
-    OElement someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
     db.save(someTx);
 
-    OElement oneMore = db.newElement("SomeTx");
+    YTEntity oneMore = db.newElement("SomeTx");
     oneMore.setProperty("name", "bar");
     oneMore.setProperty("ref", someTx);
     OResultSet result = db.query("select from SomeTx");
@@ -251,11 +252,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testDoubleRefFlushedInTransaction() {
     db.begin();
-    OElement someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
     db.save(someTx);
 
-    OElement oneMore = db.newElement("SomeTx");
+    YTEntity oneMore = db.newElement("SomeTx");
     oneMore.setProperty("name", "bar");
     oneMore.setProperty("ref", someTx.getIdentity());
 
@@ -263,7 +264,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     assertEquals(1, result.stream().count());
     result.close();
 
-    OElement ref2 = db.newElement("SomeTx");
+    YTEntity ref2 = db.newElement("SomeTx");
     ref2.setProperty("name", "other");
     db.save(ref2);
 
@@ -293,18 +294,18 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testGenerateIdCounterTransaction() {
     db.begin();
 
-    ODocument doc = new ODocument("SomeTx");
+    YTDocument doc = new YTDocument("SomeTx");
     doc.setProperty("name", "Jane");
     db.save(doc);
 
     db.command("insert into SomeTx set name ='Jane1' ").close();
     db.command("insert into SomeTx set name ='Jane2' ").close();
 
-    ODocument doc1 = new ODocument("SomeTx");
+    YTDocument doc1 = new YTDocument("SomeTx");
     doc1.setProperty("name", "Jane3");
     db.save(doc1);
 
-    doc1 = new ODocument("SomeTx");
+    doc1 = new YTDocument("SomeTx");
     doc1.setProperty("name", "Jane4");
     db.save(doc1);
     db.command("insert into SomeTx set name ='Jane2' ").close();
@@ -331,9 +332,9 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     db.createEdgeClass("MyE");
     db.begin();
 
-    OVertex v1 = db.newVertex("MyV");
-    OVertex v2 = db.newVertex("MyV");
-    OEdge edge = v1.addEdge(v2, "MyE");
+    YTVertex v1 = db.newVertex("MyV");
+    YTVertex v2 = db.newVertex("MyV");
+    YTEdge edge = v1.addEdge(v2, "MyE");
     edge.setProperty("some", "value");
     db.save(v1);
     OResultSet result1 = db.query("select out_MyE from MyV  where out_MyE is not null");
@@ -348,8 +349,8 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testRidbagsTx() {
     db.begin();
 
-    OElement v1 = db.newElement("SomeTx");
-    OElement v2 = db.newElement("SomeTx");
+    YTEntity v1 = db.newElement("SomeTx");
+    YTEntity v2 = db.newElement("SomeTx");
     db.save(v2);
     ORidBag ridbag = new ORidBag(db);
     ridbag.add(v2.getIdentity());
@@ -357,7 +358,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     db.save(v1);
     OResultSet result1 = db.query("select rids from SomeTx where rids is not null");
     assertTrue(result1.hasNext());
-    OElement v3 = db.newElement("SomeTx");
+    YTEntity v3 = db.newElement("SomeTx");
     db.save(v3);
     ArrayList<Object> val = new ArrayList<>();
     val.add(v2.getIdentity());
@@ -373,12 +374,12 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testProperIndexingOnDoubleInternalBegin() {
     db.begin();
 
-    OElement idx = db.newElement("IndexedTx");
+    YTEntity idx = db.newElement("IndexedTx");
     idx.setProperty("name", FIELD_VALUE);
     db.save(idx);
-    OElement someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
-    ORecord id = db.save(someTx);
+    YTRecord id = db.save(someTx);
     try (OResultSet rs = db.query("select from ?", id)) {
     }
 
@@ -394,11 +395,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testDuplicateIndexTx() {
     db.begin();
 
-    OElement v1 = db.newElement("UniqueIndexedTx");
+    YTEntity v1 = db.newElement("UniqueIndexedTx");
     v1.setProperty("name", "a");
     db.save(v1);
 
-    OElement v2 = db.newElement("UniqueIndexedTx");
+    YTEntity v2 = db.newElement("UniqueIndexedTx");
     v2.setProperty("name", "a");
     db.save(v2);
     db.commit();

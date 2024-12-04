@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OCreateEdgeExecutionPlanner;
 import com.orientechnologies.orient.core.sql.executor.OInsertExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -38,7 +38,8 @@ public class OCreateEdgeStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSessionInternal db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
+      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -63,7 +64,7 @@ public class OCreateEdgeStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
+      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -171,7 +172,7 @@ public class OCreateEdgeStatement extends OStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached(ODatabaseSessionInternal session) {
+  public boolean executinPlanCanBeCached(YTDatabaseSessionInternal session) {
     if (this.leftExpression != null && !this.leftExpression.isCacheable(session)) {
       return false;
     }

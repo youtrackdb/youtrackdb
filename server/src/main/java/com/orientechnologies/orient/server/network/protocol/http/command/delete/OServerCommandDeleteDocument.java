@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -37,7 +37,7 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
 
-    try (ODatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+    try (YTDatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
       final String[] urlParts =
           checkSyntax(iRequest.getUrl(), 3, "Syntax error: document/<database>/<record-id>");
 
@@ -46,7 +46,7 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
       // PARSE PARAMETERS
       final int parametersPos = urlParts[2].indexOf('?');
       final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
-      final ORecordId recordId = new ORecordId(rid);
+      final YTRecordId recordId = new YTRecordId(rid);
 
       if (!recordId.isValid()) {
         throw new IllegalArgumentException("Invalid Record ID in request: " + urlParts[2]);
@@ -54,7 +54,7 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
 
       db.executeInTx(
           () -> {
-            final ODocument doc = recordId.getRecord();
+            final YTDocument doc = recordId.getRecord();
 
             // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
             if (iRequest.getContent() != null)
@@ -73,7 +73,7 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
               }
             }
 
-            final OClass cls = ODocumentInternal.getImmutableSchemaClass(doc);
+            final YTClass cls = ODocumentInternal.getImmutableSchemaClass(doc);
             if (cls != null) {
               if (cls.isSubClassOf("V"))
               // DELETE IT AS VERTEX

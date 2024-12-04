@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OInsertExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
@@ -35,7 +35,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     if (expression != null) {
       return expression.execute(iCurrentRecord, ctx);
     }
@@ -120,7 +120,7 @@ public class OParenthesisExpression extends OMathExpression {
     return false;
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     if (expression != null) {
       return expression.isAggregate(session);
     }
@@ -225,7 +225,7 @@ public class OParenthesisExpression extends OMathExpression {
     }
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = (OResultInternal) super.serialize(db);
     if (expression != null) {
       result.setProperty("expression", expression.serialize(db));
@@ -248,7 +248,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (expression != null) {
       return expression.isCacheable(session);
     }

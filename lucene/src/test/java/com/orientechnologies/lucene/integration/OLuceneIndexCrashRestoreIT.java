@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -75,9 +75,9 @@ public class OLuceneIndexCrashRestoreIT {
 
   public void spawnServer() throws Exception {
     OLogManager.instance().installCustomFormatter();
-    OGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(1000000);
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
-    OGlobalConfiguration.FILE_LOCK.setValue(false);
+    YTGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(1000000);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
+    YTGlobalConfiguration.FILE_LOCK.setValue(false);
 
     final File buildDir = new File(BUILD_DIRECTORY);
     if (buildDir.exists()) {
@@ -130,7 +130,7 @@ public class OLuceneIndexCrashRestoreIT {
   @Test
   public void testEntriesAddition() throws Exception {
     List<DataPropagationTask> futures = new ArrayList<>();
-    ODatabaseSessionInternal db;
+    YTDatabaseSessionInternal db;
     OResultSet res;
     try {
       createSchema(databasePool);
@@ -149,7 +149,7 @@ public class OLuceneIndexCrashRestoreIT {
         System.out.println("Wait for 30 seconds");
         TimeUnit.SECONDS.sleep(30);
 
-        db = (ODatabaseSessionInternal) databasePool.acquire();
+        db = (YTDatabaseSessionInternal) databasePool.acquire();
         // wildcard will not work
         res = db.query("select from Person where name lucene 'Robert' ");
         assertThat(res).hasSize(0);
@@ -203,7 +203,7 @@ public class OLuceneIndexCrashRestoreIT {
     databasePool = new ODatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
 
     // test query
-    db = (ODatabaseSessionInternal) databasePool.acquire();
+    db = (YTDatabaseSessionInternal) databasePool.acquire();
     db.getMetadata().reload();
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
@@ -250,7 +250,7 @@ public class OLuceneIndexCrashRestoreIT {
 
   private void createSchema(ODatabasePool pool) {
 
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
+    final YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
 
     System.out.println("create index for db:: " + db.getURL());
     db.command("Create class Person");
@@ -279,8 +279,8 @@ public class OLuceneIndexCrashRestoreIT {
 
     public static void main(String[] args) throws Exception {
       //      System.out.println("prepare server");
-      OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
-      OGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(100000000);
+      YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
+      YTGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(100000000);
 
       //      System.out.println("create server instance");
       OServer server = OServerMain.create();
@@ -318,7 +318,7 @@ public class OLuceneIndexCrashRestoreIT {
     @Override
     public Void call() throws Exception {
 
-      ODatabaseSession testDB = null;
+      YTDatabaseSession testDB = null;
       try {
         testDB = pool.acquire();
         while (!stop) {

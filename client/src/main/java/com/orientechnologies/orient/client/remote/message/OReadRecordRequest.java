@@ -23,8 +23,8 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -34,12 +34,12 @@ import java.io.IOException;
 public final class OReadRecordRequest implements OBinaryRequest<OReadRecordResponse> {
 
   private boolean ignoreCache;
-  private ORecordId rid;
+  private YTRecordId rid;
   private String fetchPlan;
   private boolean loadTumbstone;
 
   public OReadRecordRequest(
-      boolean iIgnoreCache, ORecordId iRid, String iFetchPlan, boolean iLoadTumbstone) {
+      boolean iIgnoreCache, YTRecordId iRid, String iFetchPlan, boolean iLoadTumbstone) {
     this.ignoreCache = iIgnoreCache;
     this.rid = iRid;
     this.fetchPlan = iFetchPlan;
@@ -50,7 +50,7 @@ public final class OReadRecordRequest implements OBinaryRequest<OReadRecordRespo
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeRID(rid);
     network.writeString(fetchPlan != null ? fetchPlan : "");
@@ -58,7 +58,7 @@ public final class OReadRecordRequest implements OBinaryRequest<OReadRecordRespo
     network.writeByte((byte) (loadTumbstone ? 1 : 0));
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     rid = channel.readRID();
@@ -77,7 +77,7 @@ public final class OReadRecordRequest implements OBinaryRequest<OReadRecordRespo
     return "Load record";
   }
 
-  public ORecordId getRid() {
+  public YTRecordId getRid() {
     return rid;
   }
 

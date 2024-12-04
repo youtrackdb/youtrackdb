@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -43,7 +43,7 @@ public class OResultSerializationTest extends DBTestBase {
   public void testSimpleSerialization() {
     try (var orientDB = new YouTrackDB("memory", YouTrackDBConfig.defaultConfig())) {
       orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
-      try (var db = (ODatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
+      try (var db = (YTDatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
         OResultInternal document = new OResultInternal(db);
 
         document.setProperty("name", "name");
@@ -56,7 +56,7 @@ public class OResultSerializationTest extends DBTestBase {
         document.setProperty("character", 'C');
         document.setProperty("alive", true);
         document.setProperty("date", new Date());
-        document.setProperty("recordId", new ORecordId(10, 10));
+        document.setProperty("recordId", new YTRecordId(10, 10));
 
         OResultInternal extr = serializeDeserialize(db, document);
 
@@ -74,7 +74,7 @@ public class OResultSerializationTest extends DBTestBase {
     }
   }
 
-  private OResultInternal serializeDeserialize(ODatabaseSessionInternal db,
+  private OResultInternal serializeDeserialize(YTDatabaseSessionInternal db,
       OResultInternal document) {
     BytesContainer bytes = new BytesContainer();
     serializer.serialize(document, bytes);

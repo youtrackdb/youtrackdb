@@ -3,15 +3,15 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
@@ -140,7 +140,7 @@ public class OUpdateItem extends SimpleNode {
 
   public void applyUpdate(OResultInternal doc, OCommandContext ctx) {
     Object rightValue = right.execute(doc, ctx);
-    OClass linkedType = calculateLinkedTypeForThisItem(doc, ctx);
+    YTClass linkedType = calculateLinkedTypeForThisItem(doc, ctx);
     if (leftModifier == null) {
       applyOperation(doc, left, rightValue, ctx);
     } else {
@@ -155,11 +155,11 @@ public class OUpdateItem extends SimpleNode {
   }
 
   private Object initSchemafullCollections(OResultInternal doc, String propName) {
-    OClass oClass = doc.getElement().flatMap(x -> x.getSchemaType()).orElse(null);
+    YTClass oClass = doc.getElement().flatMap(x -> x.getSchemaType()).orElse(null);
     if (oClass == null) {
       return null;
     }
-    OProperty prop = oClass.getProperty(propName);
+    YTProperty prop = oClass.getProperty(propName);
 
     Object result = null;
     if (prop == null) {
@@ -168,13 +168,13 @@ public class OUpdateItem extends SimpleNode {
         doc.setProperty(propName, result);
       }
     } else {
-      if (prop.getType() == OType.EMBEDDEDMAP || prop.getType() == OType.LINKMAP) {
+      if (prop.getType() == YTType.EMBEDDEDMAP || prop.getType() == YTType.LINKMAP) {
         result = new HashMap<>();
         doc.setProperty(propName, result);
-      } else if (prop.getType() == OType.EMBEDDEDLIST || prop.getType() == OType.LINKLIST) {
+      } else if (prop.getType() == YTType.EMBEDDEDLIST || prop.getType() == YTType.LINKLIST) {
         result = new ArrayList<>();
         doc.setProperty(propName, result);
-      } else if (prop.getType() == OType.EMBEDDEDSET || prop.getType() == OType.LINKSET) {
+      } else if (prop.getType() == YTType.EMBEDDEDSET || prop.getType() == YTType.LINKSET) {
         result = new HashSet<>();
         doc.setProperty(propName, result);
       }
@@ -182,7 +182,7 @@ public class OUpdateItem extends SimpleNode {
     return result;
   }
 
-  private OClass calculateLinkedTypeForThisItem(OResultInternal doc, OCommandContext ctx) {
+  private YTClass calculateLinkedTypeForThisItem(OResultInternal doc, OCommandContext ctx) {
     if (doc.isElement()) {
       var elem = doc.toElement();
 
@@ -190,24 +190,24 @@ public class OUpdateItem extends SimpleNode {
     return null;
   }
 
-  private OType calculateTypeForThisItem(OResultInternal doc, String propertyName,
+  private YTType calculateTypeForThisItem(OResultInternal doc, String propertyName,
       OCommandContext ctx) {
-    OElement elem = doc.toElement();
-    OClass clazz = elem.getSchemaType().orElse(null);
+    YTEntity elem = doc.toElement();
+    YTClass clazz = elem.getSchemaType().orElse(null);
     if (clazz == null) {
       return null;
     }
     return calculateTypeForThisItem(clazz, left.getStringValue(), leftModifier, ctx);
   }
 
-  private OType calculateTypeForThisItem(
-      OClass clazz, String propName, OModifier modifier, OCommandContext ctx) {
-    OProperty prop = clazz.getProperty(propName);
+  private YTType calculateTypeForThisItem(
+      YTClass clazz, String propName, OModifier modifier, OCommandContext ctx) {
+    YTProperty prop = clazz.getProperty(propName);
     if (prop == null) {
       return null;
     }
-    OType type = prop.getType();
-    if (type == OType.LINKMAP && modifier != null) {
+    YTType type = prop.getType();
+    if (type == YTType.LINKMAP && modifier != null) {
       if (prop.getLinkedClass() != null && modifier.next != null) {
         if (modifier.suffix == null) {
           return null;
@@ -215,7 +215,7 @@ public class OUpdateItem extends SimpleNode {
         return calculateTypeForThisItem(
             prop.getLinkedClass(), modifier.suffix.toString(), modifier.next, ctx);
       }
-      return OType.LINK;
+      return YTType.LINK;
     }
     // TODO specialize more
     return null;
@@ -263,29 +263,29 @@ public class OUpdateItem extends SimpleNode {
 
   public static Object convertToPropertyType(
       OResultInternal res, OIdentifier attrName, Object newValue, OCommandContext ctx) {
-    OElement doc = res.toElement();
-    Optional<OClass> optSchema = doc.getSchemaType();
+    YTEntity doc = res.toElement();
+    Optional<YTClass> optSchema = doc.getSchemaType();
     if (!optSchema.isPresent()) {
       return newValue;
     }
-    OProperty prop = optSchema.get().getProperty(attrName.getStringValue());
+    YTProperty prop = optSchema.get().getProperty(attrName.getStringValue());
     if (prop == null) {
       return newValue;
     }
 
-    OType type = prop.getType();
-    OClass linkedClass = prop.getLinkedClass();
+    YTType type = prop.getType();
+    YTClass linkedClass = prop.getLinkedClass();
     return convertToType(newValue, type, linkedClass, ctx);
   }
 
   @SuppressWarnings("unchecked")
   private static Object convertToType(
-      Object value, OType type, OClass linkedClass, OCommandContext ctx) {
+      Object value, YTType type, YTClass linkedClass, OCommandContext ctx) {
     if (type == null) {
       return value;
     }
     if (value instanceof Collection) {
-      if (type == OType.LINK) {
+      if (type == YTType.LINK) {
         if (((Collection<?>) value).isEmpty()) {
           value = null;
         } else if (((Collection<?>) value).size() == 1) {
@@ -294,37 +294,37 @@ public class OUpdateItem extends SimpleNode {
           throw new OCommandExecutionException("Cannot assign a collection to a LINK property");
         }
       } else {
-        if (type == OType.EMBEDDEDLIST && linkedClass != null) {
+        if (type == YTType.EMBEDDEDLIST && linkedClass != null) {
           return ((Collection<?>) value)
               .stream()
               .map(item -> convertToType(item, linkedClass, ctx))
               .collect(Collectors.toList());
 
-        } else if (type == OType.EMBEDDEDSET && linkedClass != null) {
+        } else if (type == YTType.EMBEDDEDSET && linkedClass != null) {
           return ((Collection<?>) value)
               .stream()
               .map(item -> convertToType(item, linkedClass, ctx))
               .collect(Collectors.toSet());
         }
-        if (type == OType.LINKSET && !(value instanceof OSet)) {
+        if (type == YTType.LINKSET && !(value instanceof OSet)) {
           var db = ctx.getDatabase();
           return ((Collection<?>) value)
               .stream()
-              .map(item -> OType.convert(db, item, OIdentifiable.class))
+              .map(item -> YTType.convert(db, item, YTIdentifiable.class))
               .collect(Collectors.toSet());
-        } else if (type == OType.LINKLIST && !(value instanceof OList)) {
+        } else if (type == YTType.LINKLIST && !(value instanceof OList)) {
           var db = ctx.getDatabase();
           return ((Collection<?>) value)
               .stream()
-              .map(item -> OType.convert(db, item, OIdentifiable.class))
+              .map(item -> YTType.convert(db, item, YTIdentifiable.class))
               .collect(Collectors.toList());
-        } else if (type == OType.LINKBAG && !(value instanceof ORidBag)) {
+        } else if (type == YTType.LINKBAG && !(value instanceof ORidBag)) {
           var db = ctx.getDatabase();
           var bag = new ORidBag(db);
 
           ((Collection<?>) value)
               .stream()
-              .map(item -> (OIdentifiable) OType.convert(db, item, OIdentifiable.class))
+              .map(item -> (YTIdentifiable) YTType.convert(db, item, YTIdentifiable.class))
               .forEach(bag::add);
 
         }
@@ -333,20 +333,20 @@ public class OUpdateItem extends SimpleNode {
     return value;
   }
 
-  private static Object convertToType(Object item, OClass linkedClass, OCommandContext ctx) {
-    if (item instanceof OElement) {
-      OClass currentType = ((OElement) item).getSchemaType().orElse(null);
+  private static Object convertToType(Object item, YTClass linkedClass, OCommandContext ctx) {
+    if (item instanceof YTEntity) {
+      YTClass currentType = ((YTEntity) item).getSchemaType().orElse(null);
       if (currentType == null || !currentType.isSubClassOf(linkedClass)) {
-        OElement result = ctx.getDatabase().newElement(linkedClass.getName());
-        for (String prop : ((OElement) item).getPropertyNames()) {
-          result.setProperty(prop, ((OElement) item).getProperty(prop));
+        YTEntity result = ctx.getDatabase().newElement(linkedClass.getName());
+        for (String prop : ((YTEntity) item).getPropertyNames()) {
+          result.setProperty(prop, ((YTEntity) item).getProperty(prop));
         }
         return result;
       } else {
         return item;
       }
     } else if (item instanceof Map) {
-      OElement result = ctx.getDatabase().newElement(linkedClass.getName());
+      YTEntity result = ctx.getDatabase().newElement(linkedClass.getName());
       ((Map<String, Object>) item)
           .entrySet().stream().forEach(x -> result.setProperty(x.getKey(), x.getValue()));
       return result;
@@ -358,7 +358,7 @@ public class OUpdateItem extends SimpleNode {
     if (value instanceof OResult) {
       return ((OResult) value).toElement();
     }
-    if (value instanceof OIdentifiable) {
+    if (value instanceof YTIdentifiable) {
       return value;
     }
     if (value instanceof List && containsOResult((Collection) value)) {

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 /**
  *
@@ -10,11 +10,11 @@ public class OTraverseResult extends OResultInternal {
 
   protected Integer depth;
 
-  public OTraverseResult(ODatabaseSessionInternal db) {
+  public OTraverseResult(YTDatabaseSessionInternal db) {
     super(db);
   }
 
-  public OTraverseResult(ODatabaseSessionInternal db, OIdentifiable element) {
+  public OTraverseResult(YTDatabaseSessionInternal db, YTIdentifiable element) {
     super(db, element);
   }
 

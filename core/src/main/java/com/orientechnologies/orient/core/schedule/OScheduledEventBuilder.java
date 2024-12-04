@@ -17,10 +17,10 @@
 package com.orientechnologies.orient.core.schedule;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import java.util.Date;
 import java.util.Map;
@@ -33,38 +33,38 @@ import java.util.Map;
 public class OScheduledEventBuilder extends ODocumentWrapper {
 
   public OScheduledEventBuilder() {
-    super(new ODocument(OScheduledEvent.CLASS_NAME));
+    super(new YTDocument(OScheduledEvent.CLASS_NAME));
   }
 
   /**
    * Creates a scheduled event object from a configuration.
    */
-  public OScheduledEventBuilder(final ODocument doc) {
+  public OScheduledEventBuilder(final YTDocument doc) {
     super(doc);
   }
 
-  public OScheduledEventBuilder setFunction(ODatabaseSession session, final OFunction function) {
+  public OScheduledEventBuilder setFunction(YTDatabaseSession session, final OFunction function) {
     getDocument(session).field(OScheduledEvent.PROP_FUNC, function);
     return this;
   }
 
-  public OScheduledEventBuilder setRule(ODatabaseSession session, final String rule) {
+  public OScheduledEventBuilder setRule(YTDatabaseSession session, final String rule) {
     getDocument(session).field(OScheduledEvent.PROP_RULE, rule);
     return this;
   }
 
-  public OScheduledEventBuilder setArguments(ODatabaseSession session,
+  public OScheduledEventBuilder setArguments(YTDatabaseSession session,
       final Map<Object, Object> arguments) {
     getDocument(session).field(OScheduledEvent.PROP_ARGUMENTS, arguments);
     return this;
   }
 
-  public OScheduledEventBuilder setStartTime(ODatabaseSession session, final Date startTime) {
+  public OScheduledEventBuilder setStartTime(YTDatabaseSession session, final Date startTime) {
     getDocument(session).field(OScheduledEvent.PROP_STARTTIME, startTime);
     return this;
   }
 
-  public OScheduledEvent build(ODatabaseSessionInternal session) {
+  public OScheduledEvent build(YTDatabaseSessionInternal session) {
     var event = new OScheduledEvent(getDocument(session), session);
     event.save(session);
     return event;
@@ -78,7 +78,7 @@ public class OScheduledEventBuilder extends ODocumentWrapper {
     return super.toString();
   }
 
-  public OScheduledEventBuilder setName(ODatabaseSession session, final String name) {
+  public OScheduledEventBuilder setName(YTDatabaseSession session, final String name) {
     getDocument(session).field(OScheduledEvent.PROP_NAME, name);
     return this;
   }

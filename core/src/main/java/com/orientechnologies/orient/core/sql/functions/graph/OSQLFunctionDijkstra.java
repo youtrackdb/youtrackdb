@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.sql.functions.graph;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -46,9 +46,9 @@ public class OSQLFunctionDijkstra extends OSQLFunctionPathFinder {
     super(NAME, 3, 4);
   }
 
-  public LinkedList<OVertex> execute(
+  public LinkedList<YTVertex> execute(
       final Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
       final OCommandContext iContext) {
@@ -70,15 +70,15 @@ public class OSQLFunctionDijkstra extends OSQLFunctionPathFinder {
     return result;
   }
 
-  private LinkedList<OVertex> internalExecute(final OCommandContext iContext) {
+  private LinkedList<YTVertex> internalExecute(final OCommandContext iContext) {
     return super.execute(iContext);
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "dijkstra(<sourceVertex>, <destinationVertex>, <weightEdgeFieldName>, [<direction>])";
   }
 
-  protected float getDistance(final OVertex node, final OVertex target) {
+  protected float getDistance(final YTVertex node, final YTVertex target) {
     return -1; // not used anymore
   }
 

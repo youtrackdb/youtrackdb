@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.query;
 
 import com.orientechnologies.orient.core.command.OCommandRequestAbstract;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import javax.annotation.Nonnull;
 
@@ -33,7 +33,7 @@ public abstract class OQueryAbstract<T extends Object> extends OCommandRequestAb
   }
 
   @SuppressWarnings("unchecked")
-  public <RET> RET execute(@Nonnull ODatabaseSessionInternal querySession, final Object... iArgs) {
+  public <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, final Object... iArgs) {
     return (RET) run(iArgs);
   }
 

@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -14,7 +14,7 @@ public class ORestricetedUserCleanUpTest extends DBTestBase {
 
   @Test
   public void testAutoCleanUserAfterDelete() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass("TestRecord", schema.getClass(OSecurityShared.RESTRICTED_CLASSNAME));
 
     System.gc();
@@ -25,8 +25,8 @@ public class ORestricetedUserCleanUpTest extends DBTestBase {
     db.begin();
     OUser auser = security.createUser("auser", "wherever", new String[]{});
     OUser reader = security.getUser("admin");
-    ODocument doc = new ODocument("TestRecord");
-    Set<OIdentifiable> users = new HashSet<OIdentifiable>();
+    YTDocument doc = new YTDocument("TestRecord");
+    Set<YTIdentifiable> users = new HashSet<YTIdentifiable>();
     users.add(auser.getIdentity(db));
     users.add(reader.getIdentity(db));
 
@@ -34,7 +34,7 @@ public class ORestricetedUserCleanUpTest extends DBTestBase {
     doc.field(OSecurityShared.ALLOW_UPDATE_FIELD, users);
     doc.field(OSecurityShared.ALLOW_DELETE_FIELD, users);
     doc.field(OSecurityShared.ALLOW_ALL_FIELD, users);
-    ODocument rid = db.save(doc);
+    YTDocument rid = db.save(doc);
     db.commit();
 
     System.gc();

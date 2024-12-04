@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import java.util.Set;
@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public interface ODistributedTxContext {
 
-  OTransactionId acquirePromise(ORID rid, int version, boolean force);
+  OTransactionId acquirePromise(YTRID rid, int version, boolean force);
 
   OTransactionId acquireIndexKeyPromise(Object key, int version, boolean force);
 
@@ -39,9 +39,9 @@ public interface ODistributedTxContext {
 
   ODistributedRequestId getReqId();
 
-  void commit(ODatabaseSessionInternal database);
+  void commit(YTDatabaseSessionInternal database);
 
-  Set<ORecordId> rollback(ODatabaseSessionInternal database);
+  Set<YTRecordId> rollback(YTDatabaseSessionInternal database);
 
   void destroy();
 
@@ -49,11 +49,11 @@ public interface ODistributedTxContext {
 
   long getStartedOn();
 
-  Set<ORecordId> cancel(ODistributedServerManager current, ODatabaseSessionInternal database);
+  Set<YTRecordId> cancel(ODistributedServerManager current, YTDatabaseSessionInternal database);
 
   OTransactionInternal getTransaction();
 
   OTransactionId getTransactionId();
 
-  void begin(ODatabaseSessionInternal distributed, boolean local);
+  void begin(YTDatabaseSessionInternal distributed, boolean local);
 }

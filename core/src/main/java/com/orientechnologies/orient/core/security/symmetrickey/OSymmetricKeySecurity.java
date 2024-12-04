@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.core.security.symmetrickey;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -38,8 +38,8 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +62,12 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSessionInternal session, String userName, String password) {
+      YTDatabaseSessionInternal session, String userName, String password) {
     return authenticate(session, userName, password);
   }
 
   public OUser authenticate(
-      ODatabaseSessionInternal session, final String username, final String password) {
+      YTDatabaseSessionInternal session, final String username, final String password) {
     if (delegate == null) {
       throw new OSecurityAccessException(
           "OSymmetricKeySecurity.authenticate() Delegate is null for username: " + username);
@@ -127,83 +127,83 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public boolean isAllowed(
-      ODatabaseSessionInternal session,
-      final Set<OIdentifiable> iAllowAll,
-      final Set<OIdentifiable> iAllowOperation) {
+      YTDatabaseSessionInternal session,
+      final Set<YTIdentifiable> iAllowAll,
+      final Set<YTIdentifiable> iAllowOperation) {
     return delegate.isAllowed(session, iAllowAll, iAllowOperation);
   }
 
   @Override
-  public OIdentifiable allowUser(
-      ODatabaseSession session,
-      ODocument iDocument,
+  public YTIdentifiable allowUser(
+      YTDatabaseSession session,
+      YTDocument iDocument,
       ORestrictedOperation iOperationType,
       String iUserName) {
     return delegate.allowUser(session, iDocument, iOperationType, iUserName);
   }
 
   @Override
-  public OIdentifiable allowRole(
-      ODatabaseSession session,
-      ODocument iDocument,
+  public YTIdentifiable allowRole(
+      YTDatabaseSession session,
+      YTDocument iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName) {
     return delegate.allowRole(session, iDocument, iOperationType, iRoleName);
   }
 
   @Override
-  public OIdentifiable denyUser(
-      ODatabaseSessionInternal session,
-      ODocument iDocument,
+  public YTIdentifiable denyUser(
+      YTDatabaseSessionInternal session,
+      YTDocument iDocument,
       ORestrictedOperation iOperationType,
       String iUserName) {
     return delegate.denyUser(session, iDocument, iOperationType, iUserName);
   }
 
   @Override
-  public OIdentifiable denyRole(
-      ODatabaseSessionInternal session,
-      ODocument iDocument,
+  public YTIdentifiable denyRole(
+      YTDatabaseSessionInternal session,
+      YTDocument iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName) {
     return delegate.denyRole(session, iDocument, iOperationType, iRoleName);
   }
 
   @Override
-  public OIdentifiable allowIdentity(
-      ODatabaseSession session, ODocument iDocument, String iAllowFieldName, OIdentifiable iId) {
+  public YTIdentifiable allowIdentity(
+      YTDatabaseSession session, YTDocument iDocument, String iAllowFieldName, YTIdentifiable iId) {
     return delegate.allowIdentity(session, iDocument, iAllowFieldName, iId);
   }
 
   @Override
-  public OIdentifiable disallowIdentity(
-      ODatabaseSessionInternal session, ODocument iDocument, String iAllowFieldName,
-      OIdentifiable iId) {
+  public YTIdentifiable disallowIdentity(
+      YTDatabaseSessionInternal session, YTDocument iDocument, String iAllowFieldName,
+      YTIdentifiable iId) {
     return delegate.disallowIdentity(session, iDocument, iAllowFieldName, iId);
   }
 
-  public OUser create(ODatabaseSessionInternal session) {
+  public OUser create(YTDatabaseSessionInternal session) {
     return delegate.create(session);
   }
 
-  public void load(ODatabaseSessionInternal session) {
+  public void load(YTDatabaseSessionInternal session) {
     delegate.load(session);
   }
 
-  public OUser authenticate(ODatabaseSessionInternal session, final OToken authToken) {
+  public OUser authenticate(YTDatabaseSessionInternal session, final OToken authToken) {
     return null;
   }
 
-  public OUser getUser(ODatabaseSession session, final String iUserName) {
+  public OUser getUser(YTDatabaseSession session, final String iUserName) {
     return delegate.getUser(session, iUserName);
   }
 
-  public OUser getUser(ODatabaseSession session, final ORID iUserId) {
+  public OUser getUser(YTDatabaseSession session, final YTRID iUserId) {
     return delegate.getUser(session, iUserId);
   }
 
   public OUser createUser(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
@@ -211,85 +211,85 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   public OUser createUser(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final ORole... iRoles) {
     return delegate.createUser(session, iUserName, iUserPassword, iRoles);
   }
 
-  public ORole getRole(ODatabaseSession session, final String iRoleName) {
+  public ORole getRole(YTDatabaseSession session, final String iRoleName) {
     return delegate.getRole(session, iRoleName);
   }
 
-  public ORole getRole(ODatabaseSession session, final OIdentifiable iRole) {
+  public ORole getRole(YTDatabaseSession session, final YTIdentifiable iRole) {
     return delegate.getRole(session, iRole);
   }
 
   public ORole createRole(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final String iRoleName,
       final ALLOW_MODES iAllowMode) {
     return delegate.createRole(session, iRoleName, iAllowMode);
   }
 
   public ORole createRole(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final String iRoleName,
       final ORole iParent,
       final ALLOW_MODES iAllowMode) {
     return delegate.createRole(session, iRoleName, iParent, iAllowMode);
   }
 
-  public List<ODocument> getAllUsers(ODatabaseSession session) {
+  public List<YTDocument> getAllUsers(YTDatabaseSession session) {
     return delegate.getAllUsers(session);
   }
 
-  public List<ODocument> getAllRoles(ODatabaseSession session) {
+  public List<YTDocument> getAllRoles(YTDatabaseSession session) {
     return delegate.getAllRoles(session);
   }
 
   @Override
   public Map<String, OSecurityPolicy> getSecurityPolicies(
-      ODatabaseSession session, OSecurityRole role) {
+      YTDatabaseSession session, OSecurityRole role) {
     return delegate.getSecurityPolicies(session, role);
   }
 
   @Override
   public OSecurityPolicy getSecurityPolicy(
-      ODatabaseSession session, OSecurityRole role, String resource) {
+      YTDatabaseSession session, OSecurityRole role, String resource) {
     return delegate.getSecurityPolicy(session, role, resource);
   }
 
   @Override
   public void setSecurityPolicy(
-      ODatabaseSessionInternal session, OSecurityRole role, String resource,
+      YTDatabaseSessionInternal session, OSecurityRole role, String resource,
       OSecurityPolicyImpl policy) {
     delegate.setSecurityPolicy(session, role, resource, policy);
   }
 
   @Override
-  public OSecurityPolicyImpl createSecurityPolicy(ODatabaseSession session, String name) {
+  public OSecurityPolicyImpl createSecurityPolicy(YTDatabaseSession session, String name) {
     return delegate.createSecurityPolicy(session, name);
   }
 
   @Override
-  public OSecurityPolicyImpl getSecurityPolicy(ODatabaseSession session, String name) {
+  public OSecurityPolicyImpl getSecurityPolicy(YTDatabaseSession session, String name) {
     return delegate.getSecurityPolicy(session, name);
   }
 
   @Override
-  public void saveSecurityPolicy(ODatabaseSession session, OSecurityPolicyImpl policy) {
+  public void saveSecurityPolicy(YTDatabaseSession session, OSecurityPolicyImpl policy) {
     delegate.saveSecurityPolicy(session, policy);
   }
 
   @Override
-  public void deleteSecurityPolicy(ODatabaseSession session, String name) {
+  public void deleteSecurityPolicy(YTDatabaseSession session, String name) {
     delegate.deleteSecurityPolicy(session, name);
   }
 
   @Override
-  public void removeSecurityPolicy(ODatabaseSession session, ORole role, String resource) {
+  public void removeSecurityPolicy(YTDatabaseSession session, ORole role, String resource) {
     delegate.removeSecurityPolicy(session, role, resource);
   }
 
@@ -297,78 +297,78 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
     return delegate.toString();
   }
 
-  public boolean dropUser(ODatabaseSession session, final String iUserName) {
+  public boolean dropUser(YTDatabaseSession session, final String iUserName) {
     return delegate.dropUser(session, iUserName);
   }
 
-  public boolean dropRole(ODatabaseSession session, final String iRoleName) {
+  public boolean dropRole(YTDatabaseSession session, final String iRoleName) {
     return delegate.dropRole(session, iRoleName);
   }
 
-  public void createClassTrigger(ODatabaseSessionInternal session) {
+  public void createClassTrigger(YTDatabaseSessionInternal session) {
     delegate.createClassTrigger(session);
   }
 
   @Override
-  public long getVersion(ODatabaseSession session) {
+  public long getVersion(YTDatabaseSession session) {
     return delegate.getVersion(session);
   }
 
   @Override
-  public void incrementVersion(ODatabaseSession session) {
+  public void incrementVersion(YTDatabaseSession session) {
     delegate.incrementVersion(session);
   }
 
   @Override
-  public Set<String> getFilteredProperties(ODatabaseSessionInternal session, ODocument document) {
+  public Set<String> getFilteredProperties(YTDatabaseSessionInternal session, YTDocument document) {
     return delegate.getFilteredProperties(session, document);
   }
 
   @Override
-  public boolean isAllowedWrite(ODatabaseSessionInternal session, ODocument document,
+  public boolean isAllowedWrite(YTDatabaseSessionInternal session, YTDocument document,
       String propertyName) {
     return delegate.isAllowedWrite(session, document, propertyName);
   }
 
   @Override
-  public boolean canCreate(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canCreate(YTDatabaseSessionInternal session, YTRecord record) {
     return delegate.canCreate(session, record);
   }
 
   @Override
-  public boolean canRead(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canRead(YTDatabaseSessionInternal session, YTRecord record) {
     return delegate.canRead(session, record);
   }
 
   @Override
-  public boolean canUpdate(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canUpdate(YTDatabaseSessionInternal session, YTRecord record) {
     return delegate.canUpdate(session, record);
   }
 
   @Override
-  public boolean canDelete(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canDelete(YTDatabaseSessionInternal session, YTRecord record) {
     return delegate.canDelete(session, record);
   }
 
   @Override
-  public boolean canExecute(ODatabaseSessionInternal session, OFunction function) {
+  public boolean canExecute(YTDatabaseSessionInternal session, OFunction function) {
     return delegate.canExecute(session, function);
   }
 
   @Override
-  public boolean isReadRestrictedBySecurityPolicy(ODatabaseSession session, String resource) {
+  public boolean isReadRestrictedBySecurityPolicy(YTDatabaseSession session, String resource) {
     return delegate.isReadRestrictedBySecurityPolicy(session, resource);
   }
 
   @Override
   public Set<OSecurityResourceProperty> getAllFilteredProperties(
-      ODatabaseSessionInternal database) {
+      YTDatabaseSessionInternal database) {
     return delegate.getAllFilteredProperties(database);
   }
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
+      YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     return delegate.securityAuthenticate(session, authenticationInfo);
   }
 

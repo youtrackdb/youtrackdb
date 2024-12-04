@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,16 +32,16 @@ public class OLiveIndexRebuildTest {
   @Test
   @Ignore
   public void testLiveIndexRebuild() throws Exception {
-    final ODatabaseDocumentTx database = new ODatabaseDocumentTx(databaseURL);
+    final YTDatabaseDocumentTx database = new YTDatabaseDocumentTx(databaseURL);
     database.create();
 
-    final OClass clazz = database.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(database, propertyName, OType.INTEGER);
+    final YTClass clazz = database.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(database, propertyName, YTType.INTEGER);
 
-    clazz.createIndex(database, indexName, OClass.INDEX_TYPE.UNIQUE, propertyName);
+    clazz.createIndex(database, indexName, YTClass.INDEX_TYPE.UNIQUE, propertyName);
 
     for (int i = 0; i < 1000000; i++) {
-      ODocument document = new ODocument(className);
+      YTDocument document = new YTDocument(className);
       document.field(propertyName, i);
       document.save();
     }
@@ -93,7 +93,7 @@ public class OLiveIndexRebuildTest {
         long rebuildCount = 0;
         while (!stop.get()) {
           for (int i = 0; i < 10; i++) {
-            final ODatabaseDocumentTx database = pool.acquire();
+            final YTDatabaseDocumentTx database = pool.acquire();
             try {
               long start = System.nanoTime();
               database.command("rebuild index " + indexName).close();
@@ -132,7 +132,7 @@ public class OLiveIndexRebuildTest {
       try {
 
         while (!stop.get()) {
-          ODatabaseDocumentTx database = pool.acquire();
+          YTDatabaseDocumentTx database = pool.acquire();
           try {
             long start = System.nanoTime();
 

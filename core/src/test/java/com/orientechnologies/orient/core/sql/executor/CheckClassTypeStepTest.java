@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,8 +16,8 @@ public class CheckClassTypeStepTest extends TestUtilsFixture {
   public void shouldCheckSubclasses() {
     OBasicCommandContext context = new OBasicCommandContext();
     context.setDatabase(db);
-    OClass parentClass = createClassInstance();
-    OClass childClass = createChildClassInstance(parentClass);
+    YTClass parentClass = createClassInstance();
+    YTClass childClass = createChildClassInstance(parentClass);
     CheckClassTypeStep step =
         new CheckClassTypeStep(childClass.getName(), parentClass.getName(), context, false);
 

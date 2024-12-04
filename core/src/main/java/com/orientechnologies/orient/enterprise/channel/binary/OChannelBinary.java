@@ -23,9 +23,9 @@ import com.orientechnologies.common.exception.OInvalidBinaryChunkException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.OBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.OChannel;
 import java.io.DataInputStream;
@@ -55,10 +55,10 @@ public abstract class OChannelBinary extends OChannel
     super(iSocket, iConfig);
     socket.setKeepAlive(true);
     maxChunkSize =
-        iConfig.getValueAsInteger(OGlobalConfiguration.NETWORK_BINARY_MAX_CONTENT_LENGTH) * 1024;
-    debug = iConfig.getValueAsBoolean(OGlobalConfiguration.NETWORK_BINARY_DEBUG);
-    responseTimeout = iConfig.getValueAsInteger(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT);
-    networkTimeout = iConfig.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
+        iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_BINARY_MAX_CONTENT_LENGTH) * 1024;
+    debug = iConfig.getValueAsBoolean(YTGlobalConfiguration.NETWORK_BINARY_DEBUG);
+    responseTimeout = iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_REQUEST_TIMEOUT);
+    networkTimeout = iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
 
     if (debug) {
       OLogManager.instance().info(this, "%s - Connected", socket.getRemoteSocketAddress());
@@ -237,10 +237,10 @@ public abstract class OChannelBinary extends OChannel
     return tmp;
   }
 
-  public ORecordId readRID() throws IOException {
+  public YTRecordId readRID() throws IOException {
     final int clusterId = readShort();
     final long clusterPosition = readLong();
-    return new ORecordId(clusterId, clusterPosition);
+    return new YTRecordId(clusterId, clusterPosition);
   }
 
   public int readVersion() throws IOException {
@@ -374,7 +374,7 @@ public abstract class OChannelBinary extends OChannel
     return this;
   }
 
-  public void writeRID(final ORID iRID) throws IOException {
+  public void writeRID(final YTRID iRID) throws IOException {
     writeShort((short) iRID.getClusterId());
     writeLong(iRID.getClusterPosition());
   }

@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -107,7 +107,7 @@ public class StorageStartupMetadata {
               StandardOpenOption.CREATE,
               StandardOpenOption.WRITE,
               StandardOpenOption.SYNC);
-      if (OGlobalConfiguration.FILE_LOCK.getValueAsBoolean()) {
+      if (YTGlobalConfiguration.FILE_LOCK.getValueAsBoolean()) {
         lockFile();
       }
 
@@ -276,7 +276,7 @@ public class StorageStartupMetadata {
           }
         }
 
-        if (OGlobalConfiguration.FILE_LOCK.getValueAsBoolean()) {
+        if (YTGlobalConfiguration.FILE_LOCK.getValueAsBoolean()) {
           lockFile();
         }
 

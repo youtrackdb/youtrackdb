@@ -21,7 +21,7 @@ public interface IndexEngineValidator<K, V> {
    *
    * @param key      the put operation key.
    * @param oldValue the old value or {@code null} if no value is currently stored.
-   * @param newValue the new value passed to validatedPut(Object, OIdentifiable, Validator).
+   * @param newValue the new value passed to validatedPut(Object, YTIdentifiable, Validator).
    * @return the new value to store, may differ from the passed one, or the special {@link #IGNORE}
    * value to silently ignore the put operation request being processed.
    */

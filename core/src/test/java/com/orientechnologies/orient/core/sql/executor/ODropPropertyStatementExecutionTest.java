@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,8 +17,8 @@ public class ODropPropertyStatementExecutionTest extends DBTestBase {
   public void testPlain() {
     String className = "testPlain";
     String propertyName = "foo";
-    OSchema schema = db.getMetadata().getSchema();
-    schema.createClass(className).createProperty(db, propertyName, OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    schema.createClass(className).createProperty(db, propertyName, YTType.STRING);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     OResultSet result = db.command("drop property " + className + "." + propertyName);
@@ -35,11 +35,11 @@ public class ODropPropertyStatementExecutionTest extends DBTestBase {
   public void testDropIndexForce() {
     String className = "testDropIndexForce";
     String propertyName = "foo";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema
         .createClass(className)
-        .createProperty(db, propertyName, OType.STRING)
-        .createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(db, propertyName, YTType.STRING)
+        .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     OResultSet result = db.command("drop property " + className + "." + propertyName + " force");
@@ -60,11 +60,11 @@ public class ODropPropertyStatementExecutionTest extends DBTestBase {
 
     String className = "testDropIndex";
     String propertyName = "foo";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema
         .createClass(className)
-        .createProperty(db, propertyName, OType.STRING)
-        .createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(db, propertyName, YTType.STRING)
+        .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     try {

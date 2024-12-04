@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTEdgeInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OBatch;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
@@ -75,7 +75,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   private OIndex findIndex(String uniqueIndexName) {
     if (uniqueIndexName != null) {
-      final ODatabaseSessionInternal database = ctx.getDatabase();
+      final YTDatabaseSessionInternal database = ctx.getDatabase();
       OIndex uniqueIndex =
           database.getMetadata().getIndexManagerInternal().getIndex(database, uniqueIndexName);
       if (uniqueIndex == null) {
@@ -88,7 +88,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   private List<Object> fetchTo() {
     Object toValues = ctx.getVariable(toAlias.getStringValue());
-    if (toValues instanceof Iterable && !(toValues instanceof OIdentifiable)) {
+    if (toValues instanceof Iterable && !(toValues instanceof YTIdentifiable)) {
       toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator)) {
       toValues = Collections.singleton(toValues).iterator();
@@ -114,7 +114,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   private Iterator<?> fetchFroms() {
     Object fromValues = ctx.getVariable(fromAlias.getStringValue());
-    if (fromValues instanceof Iterable && !(fromValues instanceof OIdentifiable)) {
+    if (fromValues instanceof Iterable && !(fromValues instanceof YTIdentifiable)) {
       fromValues = ((Iterable<?>) fromValues).iterator();
     } else if (!(fromValues instanceof Iterator)) {
       fromValues = Collections.singleton(fromValues).iterator();
@@ -132,18 +132,18 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return fromIter;
   }
 
-  public Stream<OResult> mapTo(ODatabaseSessionInternal db, List<Object> to, OVertex currentFrom,
+  public Stream<OResult> mapTo(YTDatabaseSessionInternal db, List<Object> to, YTVertex currentFrom,
       OIndex uniqueIndex) {
     return to.stream()
         .map(
             (obj) -> {
-              OVertex currentTo = asVertex(obj);
+              YTVertex currentTo = asVertex(obj);
               if (currentTo == null) {
                 throw new OCommandExecutionException("Invalid TO vertex for edge");
               }
-              OEdgeInternal edgeToUpdate = null;
+              YTEdgeInternal edgeToUpdate = null;
               if (uniqueIndex != null) {
-                OEdgeInternal existingEdge =
+                YTEdgeInternal existingEdge =
                     getExistingEdge(ctx.getDatabase(), currentFrom, currentTo, uniqueIndex);
                 if (existingEdge != null) {
                   edgeToUpdate = existingEdge;
@@ -152,7 +152,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
               if (edgeToUpdate == null) {
                 edgeToUpdate =
-                    (OEdgeInternal) currentFrom.addEdge(currentTo, targetClass.getStringValue());
+                    (YTEdgeInternal) currentFrom.addEdge(currentTo, targetClass.getStringValue());
                 if (targetCluster != null) {
                   if (edgeToUpdate.isLightweight()) {
                     throw new OCommandExecutionException(
@@ -171,18 +171,18 @@ public class CreateEdgesStep extends AbstractExecutionStep {
             });
   }
 
-  private static OEdgeInternal getExistingEdge(
-      ODatabaseSessionInternal session,
-      OVertex currentFrom,
-      OVertex currentTo,
+  private static YTEdgeInternal getExistingEdge(
+      YTDatabaseSessionInternal session,
+      YTVertex currentFrom,
+      YTVertex currentTo,
       OIndex uniqueIndex) {
     Object key =
         uniqueIndex
             .getDefinition()
             .createValue(session, currentFrom.getIdentity(), currentTo.getIdentity());
 
-    final Iterator<ORID> iterator;
-    try (Stream<ORID> stream = uniqueIndex.getInternal().getRids(session, key)) {
+    final Iterator<YTRID> iterator;
+    try (Stream<YTRID> stream = uniqueIndex.getInternal().getRids(session, key)) {
       iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next().getRecord();
@@ -192,9 +192,9 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return null;
   }
 
-  private static OVertex asVertex(Object currentFrom) {
-    if (currentFrom instanceof ORID) {
-      currentFrom = ((ORID) currentFrom).getRecord();
+  private static YTVertex asVertex(Object currentFrom) {
+    if (currentFrom instanceof YTRID) {
+      currentFrom = ((YTRID) currentFrom).getRecord();
     }
     if (currentFrom instanceof OResult) {
       Object from = currentFrom;
@@ -205,12 +205,12 @@ public class CreateEdgesStep extends AbstractExecutionStep {
                   () ->
                       new OCommandExecutionException("Invalid vertex for edge creation: " + from));
     }
-    if (currentFrom instanceof OVertex) {
-      return (OVertex) currentFrom;
+    if (currentFrom instanceof YTVertex) {
+      return (YTVertex) currentFrom;
     }
-    if (currentFrom instanceof OElement) {
+    if (currentFrom instanceof YTEntity) {
       Object from = currentFrom;
-      return ((OElement) currentFrom)
+      return ((YTEntity) currentFrom)
           .asVertex()
           .orElseThrow(
               () -> new OCommandExecutionException("Invalid vertex for edge creation: " + from));

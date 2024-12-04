@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial.functions;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 
@@ -34,7 +34,7 @@ public class OSTDistanceFunction extends OSpatialFunctionAbstract {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
       OCommandContext iContext) {
@@ -54,7 +54,7 @@ public class OSTDistanceFunction extends OSpatialFunctionAbstract {
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return null;
   }
 }

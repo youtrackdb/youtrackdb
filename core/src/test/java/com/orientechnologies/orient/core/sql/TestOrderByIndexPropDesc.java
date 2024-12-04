@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,8 +16,8 @@ public class TestOrderByIndexPropDesc extends DBTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    OClass oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
-    oclass.createProperty(db, PROP_INDEXED_STRING, OType.INTEGER);
+    YTClass oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
+    oclass.createProperty(db, PROP_INDEXED_STRING, YTType.INTEGER);
     oclass.createIndex(db, "index", INDEX_TYPE.NOTUNIQUE, PROP_INDEXED_STRING);
   }
 
@@ -32,7 +32,7 @@ public class TestOrderByIndexPropDesc extends DBTestBase {
   }
 
   private void test(int count) {
-    ODocument doc;
+    YTDocument doc;
     for (int i = 0; i < count; i++) {
       db.begin();
       doc = db.newInstance();

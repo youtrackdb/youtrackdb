@@ -5,13 +5,13 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +32,7 @@ public class OUpdateStatementExecutionTest {
   @Rule
   public TestName name = new TestName();
 
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   private String className;
   private YouTrackDB youTrackDB;
@@ -44,7 +44,7 @@ public class OUpdateStatementExecutionTest {
             name.getMethodName(), DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     className = name.getMethodName();
@@ -52,7 +52,7 @@ public class OUpdateStatementExecutionTest {
 
     db.begin();
     for (int i = 0; i < 10; i++) {
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("number", 4L);
@@ -577,11 +577,11 @@ public class OUpdateStatementExecutionTest {
   public void testRemove1() {
     String className = "overridden" + this.className;
 
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "theProperty", OType.EMBEDDEDLIST);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "theProperty", YTType.EMBEDDEDLIST);
 
     db.begin();
-    ODocument doc = db.newInstance(className);
+    YTDocument doc = db.newInstance(className);
     List theList = new ArrayList();
     for (int i = 0; i < 10; i++) {
       theList.add("n" + i);
@@ -617,11 +617,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testRemove2() {
     String className = "overridden" + this.className;
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "theProperty", OType.EMBEDDEDLIST);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "theProperty", YTType.EMBEDDEDLIST);
 
     db.begin();
-    ODocument doc = db.newInstance(className);
+    YTDocument doc = db.newInstance(className);
     List theList = new ArrayList();
     for (int i = 0; i < 10; i++) {
       theList.add("n" + i);
@@ -672,12 +672,12 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testRemove3() {
     String className = "overriden" + this.className;
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "theProperty", OType.EMBEDDED);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "theProperty", YTType.EMBEDDED);
 
     db.begin();
-    ODocument doc = db.newInstance(className);
-    ODocument emb = new ODocument();
+    YTDocument doc = db.newInstance(className);
+    YTDocument emb = new YTDocument();
     emb.setProperty("sub", "foo");
     emb.setProperty("aaa", "bar");
     doc.setProperty("theProperty", emb);
@@ -752,9 +752,9 @@ public class OUpdateStatementExecutionTest {
   public void testUpdateWhereSubquery() {
 
     db.begin();
-    OVertex vertex = db.newVertex();
+    YTVertex vertex = db.newVertex();
     vertex.setProperty("one", "two");
-    ORID identity = db.save(vertex).getIdentity();
+    YTRID identity = db.save(vertex).getIdentity();
     db.commit();
 
     db.begin();

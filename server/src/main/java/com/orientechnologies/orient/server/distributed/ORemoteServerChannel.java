@@ -24,7 +24,7 @@ import com.orientechnologies.orient.client.binary.OChannelBinarySynchClient;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectRequest;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectResponse;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -88,7 +88,7 @@ public class ORemoteServerChannel {
     remoteHost = iURL.substring(0, sepPos);
     remotePort = Integer.parseInt(iURL.substring(sepPos + 1));
     long timeout =
-        contextConfig.getValueAsLong(OGlobalConfiguration.DISTRIBUTED_TX_EXPIRE_TIMEOUT) / 2;
+        contextConfig.getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_TX_EXPIRE_TIMEOUT) / 2;
     protocolVersion = currentProtocolVersion;
     RejectedExecutionHandler reject =
         (task, executor) -> {

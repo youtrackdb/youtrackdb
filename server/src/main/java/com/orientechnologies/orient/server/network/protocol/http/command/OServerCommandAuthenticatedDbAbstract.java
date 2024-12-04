@@ -22,14 +22,14 @@ package com.orientechnologies.orient.server.network.protocol.http.command;
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -184,7 +184,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       // clear local cache to ensure that zomby records will not pile up in cache.
       try {
         if (iRequest.getDatabaseName() != null) {
-          ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest);
+          YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest);
           if (db != null && !db.getTransaction().isActive()) {
             db.activateOnCurrentThread();
             db.getLocalCache().clear();
@@ -210,7 +210,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       final List<String> iAuthenticationParts,
       final String iDatabaseName)
       throws IOException {
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
     try {
       db =
           server.openDatabase(
@@ -282,7 +282,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     }
   }
 
-  protected ODatabaseSessionInternal getProfiledDatabaseInstance(final OHttpRequest iRequest)
+  protected YTDatabaseSessionInternal getProfiledDatabaseInstance(final OHttpRequest iRequest)
       throws InterruptedException {
     if (iRequest.getBearerToken() != null) {
       return getProfiledDatabaseInstanceToken(iRequest);
@@ -291,19 +291,19 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     }
   }
 
-  protected ODatabaseSessionInternal getProfiledDatabaseInstanceToken(final OHttpRequest iRequest)
+  protected YTDatabaseSessionInternal getProfiledDatabaseInstanceToken(final OHttpRequest iRequest)
       throws InterruptedException {
     // after authentication, if current login user is different compare with current DB user, reset
     // DB user to login user
-    ODatabaseSessionInternal localDatabase = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal localDatabase = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (localDatabase == null) {
       localDatabase = server.openDatabase(iRequest.getDatabaseName(), iRequest.getBearerToken());
     } else {
-      ORID currentUserId = iRequest.getBearerToken().getToken().getUserId();
+      YTRID currentUserId = iRequest.getBearerToken().getToken().getUserId();
       if (currentUserId != null && localDatabase.getUser() != null) {
         if (!currentUserId.equals(
             localDatabase.getUser().getIdentity(localDatabase).getIdentity())) {
-          ODocument userDoc = localDatabase.load(currentUserId);
+          YTDocument userDoc = localDatabase.load(currentUserId);
           localDatabase.setUser(new OUser(localDatabase, userDoc));
         }
       }
@@ -315,7 +315,8 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     return localDatabase.getDatabaseOwner();
   }
 
-  protected ODatabaseSessionInternal getProfiledDatabaseInstanceBasic(final OHttpRequest iRequest) {
+  protected YTDatabaseSessionInternal getProfiledDatabaseInstanceBasic(
+      final OHttpRequest iRequest) {
     final OHttpSession session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
 
     if (session == null) {
@@ -324,7 +325,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
 
     // after authentication, if current login user is different compare with current DB user, reset
     // DB user to login user
-    ODatabaseSessionInternal localDatabase = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal localDatabase = ODatabaseRecordThreadLocal.instance().getIfDefined();
 
     if (localDatabase == null) {
       localDatabase =
@@ -334,7 +335,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       String currentUserId = iRequest.getData().currentUserId;
       if (currentUserId != null && !currentUserId.isEmpty() && localDatabase.getUser() != null) {
         if (!currentUserId.equals(localDatabase.getUser().getIdentity(localDatabase).toString())) {
-          ODocument userDoc = localDatabase.load(new ORecordId(currentUserId));
+          YTDocument userDoc = localDatabase.load(new YTRecordId(currentUserId));
           localDatabase.setUser(new OUser(localDatabase, userDoc));
         }
       }
@@ -351,7 +352,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     if (tokenHandler == null
         && server
         .getContextConfiguration()
-        .getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
+        .getValueAsBoolean(YTGlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
       tokenHandler = server.getTokenHandler();
     }
   }

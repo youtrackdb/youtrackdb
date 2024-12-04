@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.serialization.serializer.stream;
 
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
 import java.nio.ByteBuffer;
@@ -16,12 +16,12 @@ public class OStreamSerializerRIDTest {
   private static final int FIELD_SIZE = OShortSerializer.SHORT_SIZE + OLongSerializer.LONG_SIZE;
   private static final int clusterId = 5;
   private static final long position = 100500L;
-  private ORecordId OBJECT;
+  private YTRecordId OBJECT;
   private OStreamSerializerRID streamSerializerRID;
 
   @Before
   public void beforeClass() {
-    OBJECT = new ORecordId(clusterId, position);
+    OBJECT = new YTRecordId(clusterId, position);
     streamSerializerRID = new OStreamSerializerRID();
   }
 

@@ -4,10 +4,10 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -38,13 +38,13 @@ public class OAlterPropertyStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    OClass clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
+    YTClass clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
 
     if (clazz == null) {
       throw new OCommandExecutionException("Invalid class name or class not found: " + clazz);
     }
 
-    OProperty property = clazz.getProperty(propertyName.getStringValue());
+    YTProperty property = clazz.getProperty(propertyName.getStringValue());
     if (property == null) {
       throw new OCommandExecutionException(
           "Property " + propertyName.getStringValue() + " not found on class " + clazz);
@@ -57,7 +57,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
     if (customPropertyName != null) {
       String customName = customPropertyName.getStringValue();
       Object oldValue = property.getCustom(customName);
-      Object finalValue = customPropertyValue.execute((OIdentifiable) null, ctx);
+      Object finalValue = customPropertyValue.execute((YTIdentifiable) null, ctx);
       property.setCustom(db, customName, finalValue == null ? null : "" + finalValue);
 
       result.setProperty("operation", "alter property custom");
@@ -67,7 +67,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
     } else {
       String setting = settingName.getStringValue();
       boolean isCollate = setting.equalsIgnoreCase("collate");
-      Object finalValue = settingValue.execute((OIdentifiable) null, ctx);
+      Object finalValue = settingValue.execute((YTIdentifiable) null, ctx);
       if (finalValue == null
           && (setting.equalsIgnoreCase("name")
           || setting.equalsIgnoreCase("shortname")
@@ -82,16 +82,16 @@ public class OAlterPropertyStatement extends ODDLStatement {
           finalValue = stringFinalValue;
         }
       }
-      OProperty.ATTRIBUTES attribute;
+      YTProperty.ATTRIBUTES attribute;
       try {
-        attribute = OProperty.ATTRIBUTES.valueOf(setting.toUpperCase(Locale.ENGLISH));
+        attribute = YTProperty.ATTRIBUTES.valueOf(setting.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw OException.wrapException(
             new OCommandExecutionException(
                 "Unknown property attribute '"
                     + setting
                     + "'. Supported attributes are: "
-                    + Arrays.toString(OProperty.ATTRIBUTES.values())),
+                    + Arrays.toString(YTProperty.ATTRIBUTES.values())),
             e);
       }
       Object oldValue = property.get(attribute);

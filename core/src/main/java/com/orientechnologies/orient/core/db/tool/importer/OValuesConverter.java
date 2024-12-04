@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 /**
  *
  */
 public interface OValuesConverter<T> {
 
-  T convert(ODatabaseSessionInternal db, T value);
+  T convert(YTDatabaseSessionInternal db, T value);
 }

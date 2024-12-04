@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OCluster;
 
@@ -42,7 +42,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       prev.start(context).close(ctx);
     }
 
-    ODatabaseSessionInternal db = context.getDatabase();
+    YTDatabaseSessionInternal db = context.getDatabase();
 
     int clusterId;
     if (clusterName != null) {
@@ -59,7 +59,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       throw new OCommandExecutionException("Cluster not found: " + clusterName);
     }
 
-    OClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(targetClass);
+    YTClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(targetClass);
     if (clazz == null) {
       throw new OCommandExecutionException("Class not found: " + targetClass);
     }

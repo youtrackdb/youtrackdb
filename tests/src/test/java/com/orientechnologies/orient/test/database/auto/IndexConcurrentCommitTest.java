@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.index.OIndexException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -17,23 +17,23 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
   }
 
   public void testConcurrentUpdate() {
-    OClass personClass = database.getMetadata().getSchema().createClass("Person");
-    personClass.createProperty(database, "ssn", OType.STRING)
-        .createIndex(database, OClass.INDEX_TYPE.UNIQUE);
-    personClass.createProperty(database, "name", OType.STRING)
-        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass personClass = database.getMetadata().getSchema().createClass("Person");
+    personClass.createProperty(database, "ssn", YTType.STRING)
+        .createIndex(database, YTClass.INDEX_TYPE.UNIQUE);
+    personClass.createProperty(database, "name", YTType.STRING)
+        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     try {
       // Transaction 1
       database.begin();
 
       // Insert two people in a transaction
-      ODocument person1 = new ODocument("Person");
+      YTDocument person1 = new YTDocument("Person");
       person1.field("name", "John Doe");
       person1.field("ssn", "111-11-1111");
       person1.save();
 
-      ODocument person2 = new ODocument("Person");
+      YTDocument person2 = new YTDocument("Person");
       person2.field("name", "Jane Doe");
       person2.field("ssn", "222-22-2222");
       person2.save();

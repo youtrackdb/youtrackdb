@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.spatial4j.shape.Point;
@@ -39,18 +39,18 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   }
 
   @Override
-  public void initClazz(ODatabaseSessionInternal db) {
+  public void initClazz(YTDatabaseSessionInternal db) {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass rectangle = schema.createAbstractClass(NAME, superClass(db));
-    OProperty coordinates = rectangle.createProperty(db, COORDINATES, OType.EMBEDDEDLIST,
-        OType.DOUBLE);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass rectangle = schema.createAbstractClass(NAME, superClass(db));
+    YTProperty coordinates = rectangle.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST,
+        YTType.DOUBLE);
     coordinates.setMin(db, "4");
     coordinates.setMin(db, "4");
   }
 
   @Override
-  public Rectangle fromDoc(ODocument document) {
+  public Rectangle fromDoc(YTDocument document) {
     validate(document);
     List<Number> coordinates = document.field(COORDINATES);
 
@@ -65,9 +65,9 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   }
 
   @Override
-  public ODocument toDoc(final Rectangle shape) {
+  public YTDocument toDoc(final Rectangle shape) {
 
-    ODocument doc = new ODocument(NAME);
+    YTDocument doc = new YTDocument(NAME);
 
     doc.field(
         COORDINATES,

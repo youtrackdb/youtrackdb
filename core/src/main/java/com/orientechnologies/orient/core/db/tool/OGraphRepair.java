@@ -2,23 +2,23 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadata;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.OVertexInternal;
+import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.storage.impl.local.OStorageRecoverEventListener;
 import java.util.Collection;
 import java.util.Iterator;
@@ -44,7 +44,7 @@ public class OGraphRepair {
   private OStorageRecoverEventListener eventListener;
 
   public void repair(
-      final ODatabaseSession graph,
+      final YTDatabaseSession graph,
       final OCommandOutputListener outputListener,
       final Map<String, List<String>> options) {
     message(outputListener, "Repair of graph '" + graph.getURL() + "' is started ...\n");
@@ -76,7 +76,7 @@ public class OGraphRepair {
   }
 
   public void check(
-      final ODatabaseSession graph,
+      final YTDatabaseSession graph,
       final OCommandOutputListener outputListener,
       final Map<String, List<String>> options) {
     message(outputListener, "Check of graph '" + graph.getURL() + "' is started...\n");
@@ -108,21 +108,21 @@ public class OGraphRepair {
   }
 
   protected void repairEdges(
-      final ODatabaseSession graph,
+      final YTDatabaseSession graph,
       final ORepairStats stats,
       final OCommandOutputListener outputListener,
       final Map<String, List<String>> options,
       final boolean checkOnly) {
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) graph;
+    final YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) graph;
     db.executeInTx(
         () -> {
           final OMetadata metadata = db.getMetadata();
-          final OSchema schema = metadata.getSchema();
+          final YTSchema schema = metadata.getSchema();
           //    final OrientConfigurableGraph.Settings settings = graph.settings;
 
           final boolean useVertexFieldsForEdgeLabels = true; // db.isUseVertexFieldsForEdgeLabels();
 
-          final OClass edgeClass = schema.getClass(OClass.EDGE_CLASS_NAME);
+          final YTClass edgeClass = schema.getClass(YTClass.EDGE_CLASS_NAME);
           if (edgeClass != null) {
             final long countEdges = db.countClass(edgeClass.getName());
 
@@ -138,11 +138,11 @@ public class OGraphRepair {
             long parsedEdges = 0L;
             final long beginTime = System.currentTimeMillis();
 
-            for (ODocument edge : db.browseClass(edgeClass.getName())) {
+            for (YTDocument edge : db.browseClass(edgeClass.getName())) {
               if (!edge.isEdge()) {
                 continue;
               }
-              final ORID edgeId = edge.getIdentity();
+              final YTRID edgeId = edge.getIdentity();
 
               parsedEdges++;
               if (skipEdges > 0 && parsedEdges <= skipEdges) {
@@ -178,11 +178,11 @@ public class OGraphRepair {
 
               String removalReason = "";
 
-              final OIdentifiable out = edge.asEdge().get().getFrom();
+              final YTIdentifiable out = edge.asEdge().get().getFrom();
               if (out == null) {
                 outVertexMissing = true;
               } else {
-                ODocument outVertex;
+                YTDocument outVertex;
                 try {
                   outVertex = out.getRecord();
                 } catch (ORecordNotFoundException e) {
@@ -193,7 +193,7 @@ public class OGraphRepair {
                   outVertexMissing = true;
                 } else {
                   final String outFieldName =
-                      OVertexInternal.getEdgeLinkFieldName(
+                      YTVertexInternal.getEdgeLinkFieldName(
                           ODirection.OUT, edge.getClassName(), useVertexFieldsForEdgeLabels);
 
                   final Object outEdges = outVertex.field(outFieldName);
@@ -207,8 +207,8 @@ public class OGraphRepair {
                     if (!((Collection) outEdges).contains(edgeId)) {
                       outVertexMissing = true;
                     }
-                  } else if (outEdges instanceof OIdentifiable) {
-                    if (((OIdentifiable) outEdges).getIdentity().equals(edgeId)) {
+                  } else if (outEdges instanceof YTIdentifiable) {
+                    if (((YTIdentifiable) outEdges).getIdentity().equals(edgeId)) {
                       outVertexMissing = true;
                     }
                   }
@@ -221,12 +221,12 @@ public class OGraphRepair {
 
               boolean inVertexMissing = false;
 
-              final OIdentifiable in = edge.asEdge().get().getTo();
+              final YTIdentifiable in = edge.asEdge().get().getTo();
               if (in == null) {
                 inVertexMissing = true;
               } else {
 
-                ODocument inVertex;
+                YTDocument inVertex;
                 try {
                   inVertex = in.getRecord();
                 } catch (ORecordNotFoundException e) {
@@ -237,7 +237,7 @@ public class OGraphRepair {
                   inVertexMissing = true;
                 } else {
                   final String inFieldName =
-                      OVertexInternal.getEdgeLinkFieldName(
+                      YTVertexInternal.getEdgeLinkFieldName(
                           ODirection.IN, edge.getClassName(), useVertexFieldsForEdgeLabels);
 
                   final Object inEdges = inVertex.field(inFieldName);
@@ -251,8 +251,8 @@ public class OGraphRepair {
                     if (!((Collection) inEdges).contains(edgeId)) {
                       inVertexMissing = true;
                     }
-                  } else if (inEdges instanceof OIdentifiable) {
-                    if (((OIdentifiable) inEdges).getIdentity().equals(edgeId)) {
+                  } else if (inEdges instanceof YTIdentifiable) {
+                    if (((YTIdentifiable) inEdges).getIdentity().equals(edgeId)) {
                       inVertexMissing = true;
                     }
                   }
@@ -298,16 +298,16 @@ public class OGraphRepair {
   }
 
   protected void repairVertices(
-      final ODatabaseSession graph,
+      final YTDatabaseSession graph,
       final ORepairStats stats,
       final OCommandOutputListener outputListener,
       final Map<String, List<String>> options,
       final boolean checkOnly) {
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) graph;
+    final YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) graph;
     final OMetadata metadata = db.getMetadata();
-    final OSchema schema = metadata.getSchema();
+    final YTSchema schema = metadata.getSchema();
 
-    final OClass vertexClass = schema.getClass(OClass.VERTEX_CLASS_NAME);
+    final YTClass vertexClass = schema.getClass(YTClass.VERTEX_CLASS_NAME);
     if (vertexClass != null) {
       final long countVertices = db.countClass(vertexClass.getName());
       graph.executeInTx(
@@ -322,7 +322,7 @@ public class OGraphRepair {
             long[] parsedVertices = new long[]{0L};
             final long beginTime = System.currentTimeMillis();
 
-            for (ODocument vertex : db.browseClass(vertexClass.getName())) {
+            for (YTDocument vertex : db.browseClass(vertexClass.getName())) {
               parsedVertices[0]++;
               if (skipVertices > 0 && parsedVertices[0] <= skipVertices) {
                 continue;
@@ -354,14 +354,14 @@ public class OGraphRepair {
                         + " secs)\n");
               }
 
-              final OVertex v = vertex.asVertex().orElse(null);
+              final YTVertex v = vertex.asVertex().orElse(null);
               if (v == null) {
                 return;
               }
 
               for (String fieldName : vertex.fieldNames()) {
                 final OPair<ODirection, String> connection =
-                    OVertexInternal.getConnection(
+                    YTVertexInternal.getConnection(
                         db.getMetadata().getSchema(), ODirection.BOTH, fieldName);
                 if (connection == null) {
                   continue;
@@ -369,13 +369,13 @@ public class OGraphRepair {
 
                 final Object fieldValue = vertex.rawField(fieldName);
                 if (fieldValue != null) {
-                  if (fieldValue instanceof OIdentifiable) {
+                  if (fieldValue instanceof YTIdentifiable) {
 
                     if (isEdgeBroken(
                         vertex,
                         fieldName,
                         connection.getKey(),
-                        (OIdentifiable) fieldValue,
+                        (YTIdentifiable) fieldValue,
                         stats,
                         true)) {
                       vertexCorrupted = true;
@@ -398,7 +398,8 @@ public class OGraphRepair {
                       final Object o = it.next();
 
                       if (isEdgeBroken(
-                          vertex, fieldName, connection.getKey(), (OIdentifiable) o, stats, true)) {
+                          vertex, fieldName, connection.getKey(), (YTIdentifiable) o, stats,
+                          true)) {
                         vertexCorrupted = true;
                         if (!checkOnly) {
                           it.remove();
@@ -420,14 +421,15 @@ public class OGraphRepair {
                       vertex.removeField(fieldName);
                     } else if (!ridbag.isEmbedded()
                         && ridbag.size()
-                        < OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD
+                        < YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD
                         .getValueAsInteger()) {
                       vertex.setDirty();
                     }
                     for (Iterator<?> it = ridbag.iterator(); it.hasNext(); ) {
                       final Object o = it.next();
                       if (isEdgeBroken(
-                          vertex, fieldName, connection.getKey(), (OIdentifiable) o, stats, true)) {
+                          vertex, fieldName, connection.getKey(), (YTIdentifiable) o, stats,
+                          true)) {
                         vertexCorrupted = true;
                         if (!checkOnly) {
                           it.remove();
@@ -467,14 +469,14 @@ public class OGraphRepair {
     }
   }
 
-  private void onScannedLink(final ORepairStats stats, final OIdentifiable fieldValue) {
+  private void onScannedLink(final ORepairStats stats, final YTIdentifiable fieldValue) {
     stats.scannedLinks++;
     if (eventListener != null) {
       eventListener.onScannedLink(fieldValue);
     }
   }
 
-  private void onRemovedLink(final ORepairStats stats, final OIdentifiable fieldValue) {
+  private void onRemovedLink(final ORepairStats stats, final YTIdentifiable fieldValue) {
     stats.removedLinks++;
     if (eventListener != null) {
       eventListener.onRemovedLink(fieldValue);
@@ -497,10 +499,10 @@ public class OGraphRepair {
   }
 
   private boolean isEdgeBroken(
-      final OIdentifiable vertex,
+      final YTIdentifiable vertex,
       final String fieldName,
       final ODirection direction,
-      final OIdentifiable edgeRID,
+      final YTIdentifiable edgeRID,
       final ORepairStats stats,
       final boolean useVertexFieldsForEdgeLabels) {
     onScannedLink(stats, edgeRID);
@@ -512,7 +514,7 @@ public class OGraphRepair {
     {
       broken = true;
     } else {
-      ODocument record = null;
+      YTDocument record = null;
       try {
         record = edgeRID.getIdentity().getRecord();
       } catch (ORecordNotFoundException e) {
@@ -524,7 +526,7 @@ public class OGraphRepair {
       {
         broken = true;
       } else {
-        final OImmutableClass immutableClass = ODocumentInternal.getImmutableSchemaClass(record);
+        final YTImmutableClass immutableClass = ODocumentInternal.getImmutableSchemaClass(record);
         if (immutableClass == null
             || (!immutableClass.isVertexType() && !immutableClass.isEdgeType()))
         // INVALID RECORD TYPE: NULL OR NOT GRAPH TYPE
@@ -544,7 +546,7 @@ public class OGraphRepair {
               broken = true;
             } else {
 
-              if (inverseEdgeContainer instanceof OIdentifiable) {
+              if (inverseEdgeContainer instanceof YTIdentifiable) {
                 if (!inverseEdgeContainer.equals(vertex))
                 // NOT THE SAME
                 {
@@ -567,9 +569,9 @@ public class OGraphRepair {
             }
           } else {
             // EDGE -> REGULAR EDGE, OK
-            OEdge edge = record.asEdge().orElse(null);
+            YTEdge edge = record.asEdge().orElse(null);
             if (edge != null) {
-              final OIdentifiable backRID = edge.getVertex(direction);
+              final YTIdentifiable backRID = edge.getVertex(direction);
               if (backRID == null || !backRID.equals(vertex))
               // BACK RID POINTS TO ANOTHER VERTEX
               {

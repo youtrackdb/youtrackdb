@@ -21,8 +21,8 @@ package com.orientechnologies.lucene.tx;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.exception.OLuceneIndexException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
     super(engine, writer, deletedIdx);
   }
 
-  public void put(final Object key, final OIdentifiable value, final Document doc) {
+  public void put(final Object key, final YTIdentifiable value, final Document doc) {
     try {
       writer.addDocument(doc);
     } catch (IOException e) {
@@ -59,8 +59,8 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
     }
   }
 
-  public void remove(ODatabaseSessionInternal session, final Object key,
-      final OIdentifiable value) {
+  public void remove(YTDatabaseSessionInternal session, final Object key,
+      final YTIdentifiable value) {
     try {
       if (value.getIdentity().isTemporary()) {
         writer.deleteDocuments(engine.deleteQuery(key, value));
@@ -88,7 +88,7 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
     return deletedDocs;
   }
 
-  public boolean isDeleted(final Document document, final Object key, final OIdentifiable value) {
+  public boolean isDeleted(final Document document, final Object key, final YTIdentifiable value) {
     boolean match = false;
     final List<String> strings = deleted.get(value.getIdentity().toString());
     if (strings != null) {
@@ -107,7 +107,7 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
   }
 
   // TODO is this valid?
-  public boolean isUpdated(final Document document, final Object key, final OIdentifiable value) {
+  public boolean isUpdated(final Document document, final Object key, final YTIdentifiable value) {
     return false;
   }
 }

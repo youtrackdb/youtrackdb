@@ -25,7 +25,7 @@ import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValu
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
@@ -59,7 +59,7 @@ public class OClientConnectionManager {
   private final OServer server;
 
   public OClientConnectionManager(OServer server) {
-    final int delay = OGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
+    final int delay = YTGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
 
     timerTask =
         YouTrackDBManager.instance()
@@ -459,7 +459,7 @@ public class OClientConnectionManager {
         protocol.join(
             server
                 .getContextConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY));
+                .getValueAsInteger(YTGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY));
         if (protocol.isAlive()) {
           protocol.interrupt();
           protocol.join();

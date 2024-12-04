@@ -30,13 +30,13 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
@@ -184,12 +184,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
 
     // /*** from issue #2743
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     if (!schema.existsClass("alphabet")) {
       schema.createClass("alphabet", 1, null);
     }
 
-    ORecordIteratorClass<ODocument> iter = db.browseClass("alphabet");
+    ORecordIteratorClass<YTDocument> iter = db.browseClass("alphabet");
     while (iter.hasNext()) {
       iter.next().delete();
     }
@@ -201,7 +201,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
       db.begin();
       String l = String.valueOf((char) ('A' + i));
       String json = String.format(rowModel, l, i);
-      ODocument doc = db.newInstance("alphabet");
+      YTDocument doc = db.newInstance("alphabet");
       doc.fromJSON(json);
       doc.save();
       db.commit();
@@ -216,24 +216,24 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
   }
 
-  private static void initCollateOnLinked(ODatabaseSession db) {
+  private static void initCollateOnLinked(YTDatabaseSession db) {
     db.command("CREATE CLASS CollateOnLinked").close();
     db.command("CREATE CLASS CollateOnLinked2").close();
     db.command("CREATE PROPERTY CollateOnLinked.name String").close();
     db.command("ALTER PROPERTY CollateOnLinked.name collate ci").close();
 
     db.begin();
-    ODocument doc = new ODocument("CollateOnLinked");
+    YTDocument doc = new YTDocument("CollateOnLinked");
     doc.field("name", "foo");
     doc.save();
 
-    ODocument doc2 = new ODocument("CollateOnLinked2");
+    YTDocument doc2 = new YTDocument("CollateOnLinked2");
     doc2.field("linked", doc.getIdentity());
     doc2.save();
     db.commit();
   }
 
-  private static void initComplexFilterInSquareBrackets(ODatabaseSession db) {
+  private static void initComplexFilterInSquareBrackets(YTDatabaseSession db) {
     db.command("CREATE CLASS ComplexFilterInSquareBrackets1").close();
     db.command("CREATE CLASS ComplexFilterInSquareBrackets2").close();
 
@@ -252,7 +252,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
   }
 
-  private static void initFilterAndOrderByTest(ODatabaseSession db) {
+  private static void initFilterAndOrderByTest(YTDatabaseSession db) {
     db.command("CREATE CLASS FilterAndOrderByTest").close();
     db.command("CREATE PROPERTY FilterAndOrderByTest.dc DATETIME").close();
     db.command("CREATE PROPERTY FilterAndOrderByTest.active BOOLEAN").close();
@@ -279,7 +279,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
   }
 
-  private static void initMaxLongNumber(ODatabaseSession db) {
+  private static void initMaxLongNumber(YTDatabaseSession db) {
     db.command("CREATE class MaxLongNumberTest").close();
 
     db.begin();
@@ -290,7 +290,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
   }
 
-  private static void initLinkListSequence(ODatabaseSession db) {
+  private static void initLinkListSequence(YTDatabaseSession db) {
     db.command("CREATE class LinkListSequence").close();
 
     db.begin();
@@ -318,7 +318,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
   }
 
-  private static void initMatchesWithRegex(ODatabaseSession db) {
+  private static void initMatchesWithRegex(YTDatabaseSession db) {
     db.command("CREATE class matchesstuff").close();
 
     db.begin();
@@ -326,7 +326,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
   }
 
-  private static void initDistinctLimit(ODatabaseSession db) {
+  private static void initDistinctLimit(YTDatabaseSession db) {
     db.command("CREATE class DistinctLimit").close();
 
     db.begin();
@@ -337,7 +337,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
   }
 
-  private static void initDatesSet(ODatabaseSession db) {
+  private static void initDatesSet(YTDatabaseSession db) {
     db.command("create class OCommandExecutorSQLSelectTest_datesSet").close();
     db.command("create property OCommandExecutorSQLSelectTest_datesSet.foo embeddedlist date")
         .close();
@@ -347,14 +347,14 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.commit();
   }
 
-  private static void initMassiveOrderSkipLimit(ODatabaseSessionInternal db) {
+  private static void initMassiveOrderSkipLimit(YTDatabaseSessionInternal db) {
     db.getMetadata().getSchema().createClass("MassiveOrderSkipLimit", 1, null);
     String fieldValue =
         "laskdf lkajsd flaksjdf laksjd flakjsd flkasjd flkajsd flkajsd flkajsd flkajsd flkajsd"
             + " flkjas;lkj a;ldskjf laksdj asdklasdjf lskdaj fladsd";
     for (int i = 0; i < ORDER_SKIP_LIMIT_ITEMS; i++) {
       db.begin();
-      ODocument doc = new ODocument("MassiveOrderSkipLimit");
+      YTDocument doc = new YTDocument("MassiveOrderSkipLimit");
       doc.field("nnum", i);
       doc.field("aaa", fieldValue);
       doc.field("bbb", fieldValue);
@@ -368,15 +368,15 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     }
   }
 
-  private static void initExpandSkipLimit(ODatabaseSession db) {
+  private static void initExpandSkipLimit(YTDatabaseSession db) {
     db.command("create class ExpandSkipLimit clusters 1").close();
 
     for (int i = 0; i < 5; i++) {
       db.begin();
-      ODocument doc = new ODocument("ExpandSkipLimit");
+      YTDocument doc = new YTDocument("ExpandSkipLimit");
       doc.field("nnum", i);
       doc.save();
-      ODocument parent = new ODocument("ExpandSkipLimit");
+      YTDocument parent = new YTDocument("ExpandSkipLimit");
       parent.field("parent", true);
       parent.field("num", i);
       parent.field("linked", doc);
@@ -393,7 +393,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testUseIndexWithOrderBy2() throws Exception {
     long idxUsagesBefore = indexUsages(db);
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         db.command(new OCommandSQL("select * from foo where address.city = 'NY' order by name ASC"))
             .execute(db);
     assertEquals(1, qResult.size());
@@ -403,7 +403,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testUseIndexWithOr() throws Exception {
     long idxUsagesBefore = indexUsages(db);
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         db.command(new OCommandSQL("select * from foo where bar = 2 or name ='a' and bar >= 0"))
             .execute(db);
 
@@ -416,7 +416,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
     long idxUsagesBefore = indexUsages(db);
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         db.command(new OCommandSQL("select * from foo where bar = 2 or notIndexed = 3"))
             .execute(db);
 
@@ -427,7 +427,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testCompositeIndex() {
     long idxUsagesBefore = indexUsages(db);
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         db.command(new OCommandSQL("select * from foo where comp = 'a' and osite = 1")).execute(db);
 
     assertEquals(1, qResult.size());
@@ -462,7 +462,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testCompositeIndex2() {
     long idxUsagesBefore = indexUsages(db);
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         db.command(
                 new OCommandSQL("select * from foo where (comp = 'a' and osite = 1) or name = 'a'"))
             .execute(db);
@@ -629,7 +629,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testFlattenOnEmbedded() {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         db.command(new OCommandSQL("select flatten(address) from foo where name = 'a'"))
             .execute(db);
 
@@ -1032,7 +1032,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
                 + "  GROUP BY"
                 + "  source");
     try {
-      List<ODocument> results = db.query(sql);
+      List<YTDocument> results = db.query(sql);
       fail(
           "Invalid query, usage of LET, aggregate functions and GROUP BY together is not"
               + " supported");
@@ -1256,7 +1256,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testSelectFromClusterNumber() {
     initDistinctLimit(db);
-    OClass clazz = db.getMetadata().getSchema().getClass("DistinctLimit");
+    YTClass clazz = db.getMetadata().getSchema().getClass("DistinctLimit");
     int clusterId = clazz.getClusterIds()[0];
     OResultSet results = db.query("select from cluster:" + clusterId + " limit 1");
     assertEquals(1, results.stream().count());
@@ -1268,9 +1268,9 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     OSQLSynchQuery sql =
         new OSQLSynchQuery(
             "select expand(children.children.children) from LinkListSequence where name = 'root'");
-    List<ODocument> results = db.query(sql);
+    List<YTDocument> results = db.query(sql);
     assertEquals(4, results.size());
-    for (ODocument result : results) {
+    for (YTDocument result : results) {
       String value = result.field("name");
       assertEquals(5, value.length());
     }
@@ -1283,9 +1283,9 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
         new OSQLSynchQuery(
             "select expand(children[0].children.children) from LinkListSequence where name ="
                 + " 'root'");
-    List<ODocument> results = db.query(sql);
+    List<YTDocument> results = db.query(sql);
     assertEquals(4, results.size());
-    for (ODocument result : results) {
+    for (YTDocument result : results) {
       String value = result.field("name");
       assertEquals(5, value.length());
     }
@@ -1419,15 +1419,15 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
         .close();
     db.commit();
 
-    List<ODocument> results =
+    List<YTDocument> results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from OCommandExecutorSqlSelectTest_collateOnCollections where 'Math' in"
                     + " categories"));
     assertEquals(1, results.size());
     results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from OCommandExecutorSqlSelectTest_collateOnCollections where 'math' in"
                     + " categories"));
     assertEquals(1, results.size());
@@ -1472,14 +1472,14 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testCollateOnLinked() {
     initCollateOnLinked(db);
 
-    List<ODocument> results =
+    List<YTDocument> results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from CollateOnLinked2 where linked.name = 'foo' "));
     assertEquals(1, results.size());
     results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from CollateOnLinked2 where linked.name = 'FOO' "));
     assertEquals(1, results.size());
   }
@@ -1507,15 +1507,15 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("insert into CompositeIndexWithoutNullValues set one = 'foo', two = 'bar'").close();
     db.commit();
 
-    List<ODocument> results =
+    List<YTDocument> results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from CompositeIndexWithoutNullValues where one = ?"),
             "foo");
     assertEquals(2, results.size());
     results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from CompositeIndexWithoutNullValues where one = ? and two = ?"),
             "foo",
             "bar");
@@ -1537,13 +1537,13 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
     results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from CompositeIndexWithoutNullValues2 where one = ?"),
             "foo");
     assertEquals(2, results.size());
     results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from CompositeIndexWithoutNullValues where one = ? and two = ?"),
             "foo",
             "bar");
@@ -1631,7 +1631,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testOrderByRidDescMultiCluster() {
     // issue #6694
 
-    OClass clazz = db.getMetadata().getSchema().createClass("TestOrderByRidDescMultiCluster");
+    YTClass clazz = db.getMetadata().getSchema().createClass("TestOrderByRidDescMultiCluster");
     if (clazz.getClusterIds().length < 2) {
       clazz.addCluster(db, "TestOrderByRidDescMultiCluster_11111");
     }
@@ -1808,15 +1808,15 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("create class " + className).close();
 
     db.begin();
-    db.command("INSERT INTO " + className + " set status = ?", OType.STRING).close();
-    db.command("INSERT INTO " + className + " set status = ?", OType.ANY).close();
-    db.command("INSERT INTO " + className + " set status = ?", OType.BYTE).close();
+    db.command("INSERT INTO " + className + " set status = ?", YTType.STRING).close();
+    db.command("INSERT INTO " + className + " set status = ?", YTType.ANY).close();
+    db.command("INSERT INTO " + className + " set status = ?", YTType.BYTE).close();
     db.commit();
 
     Map<String, Object> params = new HashMap<String, Object>();
     List enums = new ArrayList();
-    enums.add(OType.STRING);
-    enums.add(OType.BYTE);
+    enums.add(YTType.STRING);
+    enums.add(YTType.BYTE);
     params.put("status", enums);
     OResultSet results = db.query("select from " + className + " where status in :status", params);
     assertEquals(2, results.stream().count());
@@ -1907,7 +1907,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     results.close();
   }
 
-  private long indexUsages(ODatabaseSession db) {
+  private long indexUsages(YTDatabaseSession db) {
     final long oldIndexUsage;
     try {
       oldIndexUsage = getProfilerInstance().getCounter("db." + db.getName() + ".query.indexUsed");

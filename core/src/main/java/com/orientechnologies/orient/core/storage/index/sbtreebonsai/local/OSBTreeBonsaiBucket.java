@@ -25,7 +25,7 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OSBTreeBonsaiLocalException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import java.util.Objects;
 public final class OSBTreeBonsaiBucket<K, V> extends OBonsaiBucketAbstract {
 
   public static final int MAX_BUCKET_SIZE_BYTES =
-      OGlobalConfiguration.SBTREEBONSAI_BUCKET_SIZE.getValueAsInteger() * 1024;
+      YTGlobalConfiguration.SBTREEBONSAI_BUCKET_SIZE.getValueAsInteger() * 1024;
 
   /**
    * Maximum size of key-value pair which can be put in SBTreeBonsai in bytes (24576000 by default)
@@ -386,7 +386,7 @@ public final class OSBTreeBonsaiBucket<K, V> extends OBonsaiBucketAbstract {
             "Entry size ('key + value') is more than is more than allowed "
                 + (freePointer - 2 * OIntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET)
                 + " bytes, either increase page size using '"
-                + OGlobalConfiguration.SBTREEBONSAI_BUCKET_SIZE.getKey()
+                + YTGlobalConfiguration.SBTREEBONSAI_BUCKET_SIZE.getKey()
                 + "' parameter, or decrease 'key + value' size.",
             tree);
       }

@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerCSVAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -56,7 +56,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
     iRequest.getData().commandInfo = "Import records";
 
     try (var db = getProfiledDatabaseInstance(iRequest)) {
-      final OClass cls = db.getMetadata().getSchema().getClass(urlParts[3]);
+      final YTClass cls = db.getMetadata().getSchema().getClass(urlParts[3]);
       if (cls == null) {
         throw new IllegalArgumentException("Class '" + urlParts[3] + " is not defined");
       }
@@ -98,7 +98,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
               break;
             }
 
-            final ODocument doc = new ODocument(cls);
+            final YTDocument doc = new YTDocument(cls);
             final String row = parsedRow.trim();
             final List<String> cells = OStringSerializerHelper.smartSplit(row, CSV_SEPARATOR);
 

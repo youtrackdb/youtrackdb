@@ -2,12 +2,11 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 
 /**
  *
@@ -64,7 +63,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
         .onClose((context) -> finalStream.close());
   }
 
-  private static OResult produceResult(ODatabaseSessionInternal db, OResult[] path) {
+  private static OResult produceResult(YTDatabaseSessionInternal db, OResult[] path) {
 
     OResultInternal nextRecord = new OResultInternal(db);
 

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 
 /**
@@ -37,18 +37,18 @@ public class OServerConfigAuthenticator extends OSecurityAuthenticatorAbstract {
   // OSecurityAuthenticator
   // Returns the actual username if successful, null otherwise.
   public OSecurityUser authenticate(
-      ODatabaseSessionInternal session, final String username, final String password) {
+      YTDatabaseSessionInternal session, final String username, final String password) {
     return getSecurity().authenticateServerUser(session, username, password);
   }
 
   // OSecurityAuthenticator
-  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
+  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
     return getSecurity().getServerUser(session, username);
   }
 
   // OSecurityAuthenticator
   // If not supported by the authenticator, return false.
-  public boolean isAuthorized(ODatabaseSessionInternal session, final String username,
+  public boolean isAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource) {
     return getSecurity().isServerUserAuthorized(session, username, resource);
   }

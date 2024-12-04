@@ -22,15 +22,15 @@ package com.orientechnologies.orient.core.fetch;
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.fetch.json.OJSONFetchContext;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
@@ -65,16 +65,16 @@ public class OFetchHelper {
   }
 
   public static void fetch(
-      final ORecord rootRecord,
+      final YTRecord rootRecord,
       final Object userObject,
       final OFetchPlan fetchPlan,
       final OFetchListener listener,
       final OFetchContext context,
       final String format) {
     try {
-      if (rootRecord instanceof ODocument record) {
+      if (rootRecord instanceof YTDocument record) {
         // SCHEMA AWARE
-        final Object2IntOpenHashMap<ORID> parsedRecords = new Object2IntOpenHashMap<>();
+        final Object2IntOpenHashMap<YTRID> parsedRecords = new Object2IntOpenHashMap<>();
         parsedRecords.defaultReturnValue(-1);
 
         final boolean isEmbedded = record.isEmbedded() || !record.getIdentity().isPersistent();
@@ -121,12 +121,12 @@ public class OFetchHelper {
   }
 
   public static void processRecordRidMap(
-      final ODocument record,
+      final YTDocument record,
       final OFetchPlan iFetchPlan,
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
     if (iFetchPlan == null) {
@@ -153,21 +153,21 @@ public class OFetchHelper {
 
       fieldValue = ODocumentInternal.getRawProperty(record, fieldName);
       if (fieldValue == null
-          || !(fieldValue instanceof OIdentifiable)
+          || !(fieldValue instanceof YTIdentifiable)
           && (!(fieldValue instanceof Iterable<?>)
           || !((Iterable<?>) fieldValue).iterator().hasNext()
           || ((Iterable<?>) fieldValue).iterator().next() == null)
           && (!(fieldValue instanceof Collection<?>)
           || ((Collection<?>) fieldValue).isEmpty()
-          || !(((Collection<?>) fieldValue).iterator().next() instanceof OIdentifiable))
+          || !(((Collection<?>) fieldValue).iterator().next() instanceof YTIdentifiable))
           && (!(fieldValue.getClass().isArray())
           || Array.getLength(fieldValue) == 0
-          || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
+          || !(Array.get(fieldValue, 0) instanceof YTIdentifiable))
           && (!(fieldValue instanceof OMultiCollectionIterator<?>))
           && (!(fieldValue instanceof Map<?, ?>)
           || ((Map<?, ?>) fieldValue).isEmpty()
           || !(((Map<?, ?>) fieldValue).values().iterator().next()
-          instanceof OIdentifiable))) {
+          instanceof YTIdentifiable))) {
         //noinspection UnnecessaryContinue
         continue;
       } else {
@@ -184,8 +184,8 @@ public class OFetchHelper {
 
           final int nextLevel = isEmbedded ? iLevelFromRoot : iLevelFromRoot + 1;
 
-          if (fieldValue instanceof ORecordId) {
-            fieldValue = ((ORecordId) fieldValue).getRecord();
+          if (fieldValue instanceof YTRecordId) {
+            fieldValue = ((YTRecordId) fieldValue).getRecord();
           }
 
           fetchRidMap(
@@ -211,13 +211,13 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
     if (fieldValue == null) {
       //noinspection UnnecessaryReturnStatement
       return;
-    } else if (fieldValue instanceof ODocument) {
+    } else if (fieldValue instanceof YTDocument) {
       fetchDocumentRidMap(
           iFetchPlan,
           fieldValue,
@@ -266,12 +266,12 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
     updateRidMap(
         iFetchPlan,
-        (ODocument) fieldValue,
+        (YTDocument) fieldValue,
         iCurrentLevel,
         iLevelFromRoot,
         iFieldDepthLevel,
@@ -287,18 +287,18 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
-    final Iterable<OIdentifiable> linked = (Iterable<OIdentifiable>) fieldValue;
-    for (OIdentifiable d : linked) {
+    final Iterable<YTIdentifiable> linked = (Iterable<YTIdentifiable>) fieldValue;
+    for (YTIdentifiable d : linked) {
       if (d != null) {
         // GO RECURSIVELY
         d = d.getRecord();
 
         updateRidMap(
             iFetchPlan,
-            (ODocument) d,
+            (YTDocument) d,
             iCurrentLevel,
             iLevelFromRoot,
             iFieldDepthLevel,
@@ -315,11 +315,11 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
-    if (fieldValue instanceof ODocument[] linked) {
-      for (ODocument d : linked)
+    if (fieldValue instanceof YTDocument[] linked) {
+      for (YTDocument d : linked)
       // GO RECURSIVELY
       {
         updateRidMap(
@@ -342,11 +342,11 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
-    final Map<String, ODocument> linked = (Map<String, ODocument>) fieldValue;
-    for (ODocument d : (linked).values())
+    final Map<String, YTDocument> linked = (Map<String, YTDocument>) fieldValue;
+    for (YTDocument d : (linked).values())
     // GO RECURSIVELY
     {
       updateRidMap(
@@ -363,11 +363,11 @@ public class OFetchHelper {
 
   private static void updateRidMap(
       final OFetchPlan iFetchPlan,
-      final ODocument fieldValue,
+      final YTDocument fieldValue,
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
     if (fieldValue == null) {
@@ -402,13 +402,13 @@ public class OFetchHelper {
   }
 
   private static void processRecord(
-      final ODocument record,
+      final YTDocument record,
       final Object userObject,
       final OFetchPlan fetchPlan,
       final int currentLevel,
       final int levelFromRoot,
       final int fieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String fieldPathFromRoot,
       final OFetchListener fetchListener,
       final OFetchContext fetchContext,
@@ -468,7 +468,7 @@ public class OFetchHelper {
   }
 
   private static void processFieldTypes(
-      ODocument record,
+      YTDocument record,
       Object userObject,
       OFetchPlan fetchPlan,
       int currentLevel,
@@ -492,10 +492,10 @@ public class OFetchHelper {
     }
 
     fieldValue = ODocumentInternal.getRawProperty(record, fieldName);
-    final OType fieldType = record.fieldType(fieldName);
+    final YTType fieldType = record.fieldType(fieldName);
     boolean fetch =
         !format.contains("shallow")
-            && (!(fieldValue instanceof OIdentifiable)
+            && (!(fieldValue instanceof YTIdentifiable)
             || depthLevel == -1
             || currentLevel <= depthLevel
             || (fetchPlan != null && fetchPlan.has(fieldPath, currentLevel)));
@@ -508,24 +508,24 @@ public class OFetchHelper {
 
     if (format.contains("shallow")
         || fieldValue == null
-        || (!fetch && fieldValue instanceof OIdentifiable)
-        || !(fieldValue instanceof OIdentifiable)
+        || (!fetch && fieldValue instanceof YTIdentifiable)
+        || !(fieldValue instanceof YTIdentifiable)
         && (!(fieldValue.getClass().isArray())
         || Array.getLength(fieldValue) == 0
-        || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
+        || !(Array.get(fieldValue, 0) instanceof YTIdentifiable))
         && !containsIdentifiers(fieldValue)) {
       fetchContext.onBeforeStandardField(fieldValue, fieldName, userObject, fieldType);
     }
   }
 
   private static void process(
-      final ODocument record,
+      final YTDocument record,
       final Object userObject,
       final OFetchPlan fetchPlan,
       final int currentLevel,
       final int levelFromRoot,
       final int fieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String fieldPathFromRoot,
       final OFetchListener fetchListener,
       final OFetchContext fetchContext,
@@ -549,10 +549,10 @@ public class OFetchHelper {
     }
 
     fieldValue = ODocumentInternal.getRawProperty(record, fieldName);
-    final OType fieldType = record.fieldType(fieldName);
+    final YTType fieldType = record.fieldType(fieldName);
     boolean fetch =
         !format.contains("shallow")
-            && (!(fieldValue instanceof OIdentifiable)
+            && (!(fieldValue instanceof YTIdentifiable)
             || depthLevel == -1
             || currentLevel <= depthLevel
             || (fetchPlan != null && fetchPlan.has(fieldPath, currentLevel)));
@@ -565,14 +565,14 @@ public class OFetchHelper {
 
     if (format.contains("shallow")
         || fieldValue == null
-        || (!fetch && fieldValue instanceof OIdentifiable)
-        || !(fieldValue instanceof OIdentifiable)
+        || (!fetch && fieldValue instanceof YTIdentifiable)
+        || !(fieldValue instanceof YTIdentifiable)
         && (!(fieldValue instanceof Iterable<?>)
         || !((Iterable<?>) fieldValue).iterator().hasNext()
-        || !(((Iterable<?>) fieldValue).iterator().next() instanceof OIdentifiable))
+        || !(((Iterable<?>) fieldValue).iterator().next() instanceof YTIdentifiable))
         && (!(fieldValue.getClass().isArray())
         || Array.getLength(fieldValue) == 0
-        || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
+        || !(Array.get(fieldValue, 0) instanceof YTIdentifiable))
         && !containsIdentifiers(fieldValue)) {
       fetchContext.onBeforeStandardField(fieldValue, fieldName, userObject, fieldType);
       fetchListener.processStandardField(
@@ -609,7 +609,7 @@ public class OFetchHelper {
       return false;
     }
     for (Object item : OMultiValue.getMultiValueIterable(fieldValue)) {
-      if (item instanceof OIdentifiable) {
+      if (item instanceof YTIdentifiable) {
         return true;
       }
       if (containsIdentifiers(item)) {
@@ -621,9 +621,9 @@ public class OFetchHelper {
 
   public static boolean isEmbedded(Object fieldValue) {
     boolean isEmbedded =
-        fieldValue instanceof ODocument
-            && (((ODocument) fieldValue).isEmbedded()
-            || !((ODocument) fieldValue).getIdentity().isPersistent());
+        fieldValue instanceof YTDocument
+            && (((YTDocument) fieldValue).isEmbedded()
+            || !((YTDocument) fieldValue).getIdentity().isPersistent());
 
     // ridbag can contain only edges no embedded documents are allowed.
     if (fieldValue instanceof ORidBag) {
@@ -634,9 +634,9 @@ public class OFetchHelper {
         final Object f = OMultiValue.getFirstValue(fieldValue);
         isEmbedded =
             f != null
-                && (f instanceof ODocument
-                && (((ODocument) f).isEmbedded()
-                || !((ODocument) f).getIdentity().isPersistent()));
+                && (f instanceof YTDocument
+                && (((YTDocument) f).isEmbedded()
+                || !((YTDocument) f).getIdentity().isPersistent()));
       } catch (Exception e) {
         OLogManager.instance().error(OFetchHelper.class, "", e);
         // IGNORE IT
@@ -646,7 +646,7 @@ public class OFetchHelper {
   }
 
   private static void fetch(
-      final ODocument iRootRecord,
+      final YTDocument iRootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       final Object fieldValue,
@@ -654,7 +654,7 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchListener iListener,
       final OFetchContext iContext,
@@ -669,12 +669,12 @@ public class OFetchHelper {
 
     if (fieldValue == null) {
       iListener.processStandardField(iRootRecord, null, fieldName, iContext, iUserObject, "", null);
-    } else if (fieldValue instanceof OIdentifiable) {
+    } else if (fieldValue instanceof YTIdentifiable) {
       fetchDocument(
           iRootRecord,
           iUserObject,
           iFetchPlan,
-          (OIdentifiable) fieldValue,
+          (YTIdentifiable) fieldValue,
           fieldName,
           currentLevel,
           iLevelFromRoot,
@@ -734,7 +734,7 @@ public class OFetchHelper {
 
   @SuppressWarnings("unchecked")
   private static void fetchMap(
-      final ODocument iRootRecord,
+      final YTDocument iRootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       Object fieldValue,
@@ -742,7 +742,7 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchListener iListener,
       final OFetchContext iContext,
@@ -753,14 +753,14 @@ public class OFetchHelper {
     for (Object key : linked.keySet()) {
       final Object o = linked.get(key.toString());
 
-      if (o instanceof OIdentifiable identifiable) {
-        ORecord r = null;
+      if (o instanceof YTIdentifiable identifiable) {
+        YTRecord r = null;
         try {
           r = identifiable.getRecord();
         } catch (ORecordNotFoundException ignore) {
         }
         if (r != null) {
-          if (r instanceof ODocument d) {
+          if (r instanceof YTDocument d) {
             // GO RECURSIVELY
             final int fieldDepthLevel = parsedRecords.getInt(d.getIdentity());
             if (!d.getIdentity().isValid()
@@ -803,7 +803,7 @@ public class OFetchHelper {
   }
 
   private static void fetchArray(
-      final ODocument rootRecord,
+      final YTDocument rootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       Object fieldValue,
@@ -811,14 +811,14 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchListener iListener,
       final OFetchContext context,
       ORecordSerializerJSON.FormatSettings settings) {
-    if (fieldValue instanceof ODocument[] linked) {
+    if (fieldValue instanceof YTDocument[] linked) {
       context.onBeforeArray(rootRecord, fieldName, iUserObject, linked);
-      for (final ODocument document : linked) {
+      for (final YTDocument document : linked) {
         // GO RECURSIVELY
         final int fieldDepthLevel = parsedRecords.getInt(document.getIdentity());
         if (!document.getIdentity().isValid()
@@ -854,7 +854,7 @@ public class OFetchHelper {
 
   @SuppressWarnings("unchecked")
   private static void fetchCollection(
-      final ODocument iRootRecord,
+      final YTDocument iRootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       final Object fieldValue,
@@ -862,7 +862,7 @@ public class OFetchHelper {
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchListener iListener,
       final OFetchContext context,
@@ -870,7 +870,7 @@ public class OFetchHelper {
       throws IOException {
     final Iterable<?> linked;
     if (fieldValue instanceof Iterable<?>) {
-      linked = (Iterable<OIdentifiable>) fieldValue;
+      linked = (Iterable<YTIdentifiable>) fieldValue;
       context.onBeforeCollection(iRootRecord, fieldName, iUserObject, linked);
     } else if (fieldValue.getClass().isArray()) {
       linked = OMultiValue.getMultiValueIterable(fieldValue);
@@ -891,7 +891,7 @@ public class OFetchHelper {
           continue;
         }
 
-        if (recordLazyMultiValue instanceof OIdentifiable identifiable) {
+        if (recordLazyMultiValue instanceof YTIdentifiable identifiable) {
           // GO RECURSIVELY
           final int fieldDepthLevel = parsedRecords.getInt(identifiable.getIdentity());
           if (!identifiable.getIdentity().isPersistent()
@@ -899,17 +899,17 @@ public class OFetchHelper {
             removeParsedFromMap(parsedRecords, identifiable);
             try {
               identifiable = identifiable.getRecord();
-              if (!(identifiable instanceof ODocument)) {
+              if (!(identifiable instanceof YTDocument)) {
                 iListener.processStandardField(
                     null, identifiable, fieldName, context, iUserObject, "", null);
               } else {
                 context.onBeforeDocument(
-                    iRootRecord, (ODocument) identifiable, fieldName, iUserObject);
+                    iRootRecord, (YTDocument) identifiable, fieldName, iUserObject);
                 final Object userObject =
                     iListener.fetchLinkedCollectionValue(
-                        iRootRecord, iUserObject, fieldName, (ODocument) identifiable, context);
+                        iRootRecord, iUserObject, fieldName, (YTDocument) identifiable, context);
                 processRecord(
-                    (ODocument) identifiable,
+                    (YTDocument) identifiable,
                     userObject,
                     iFetchPlan,
                     iCurrentLevel,
@@ -921,7 +921,7 @@ public class OFetchHelper {
                     context,
                     getTypesFormat(settings.keepTypes)); // ""
                 context.onAfterDocument(
-                    iRootRecord, (ODocument) identifiable, fieldName, iUserObject);
+                    iRootRecord, (YTDocument) identifiable, fieldName, iUserObject);
               }
             } catch (ORecordNotFoundException rnf) {
               iListener.processStandardField(
@@ -980,20 +980,20 @@ public class OFetchHelper {
   }
 
   private static void fetchDocument(
-      final ODocument iRootRecord,
+      final YTDocument iRootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
-      final OIdentifiable fieldValue,
+      final YTIdentifiable fieldValue,
       final String fieldName,
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
-      final Object2IntOpenHashMap<ORID> parsedRecords,
+      final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchListener iListener,
       final OFetchContext iContext,
       final ORecordSerializerJSON.FormatSettings settings) {
-    if (fieldValue instanceof ORID && !((ORID) fieldValue).isValid()) {
+    if (fieldValue instanceof YTRID && !((YTRID) fieldValue).isValid()) {
       // RID NULL: TREAT AS "NULL" VALUE
       iContext.onBeforeStandardField(fieldValue, fieldName, iRootRecord, null);
       iListener.parseLinked(iRootRecord, fieldValue, iUserObject, fieldName, iContext);
@@ -1005,7 +1005,7 @@ public class OFetchHelper {
     if (!fieldValue.getIdentity().isValid()
         || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
       removeParsedFromMap(parsedRecords, fieldValue);
-      final ODocument linked;
+      final YTDocument linked;
       try {
         linked = fieldValue.getRecord();
       } catch (ORecordNotFoundException rnf) {
@@ -1044,7 +1044,7 @@ public class OFetchHelper {
   }
 
   protected static void removeParsedFromMap(
-      final Object2IntOpenHashMap<ORID> parsedRecords, OIdentifiable d) {
+      final Object2IntOpenHashMap<YTRID> parsedRecords, YTIdentifiable d) {
     parsedRecords.removeInt(d.getIdentity());
   }
 }

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +35,7 @@ public interface OCommandExecutor {
    *
    * @param iRequest Command request implementation.
    * @return
-   * @see #execute(Map, ODatabaseSessionInternal) <Object, Object>...)
+   * @see #execute(Map, YTDatabaseSessionInternal) <Object, Object>...)
    */
   <RET extends OCommandExecutor> RET parse(OCommandRequest iRequest);
 
@@ -47,7 +47,7 @@ public interface OCommandExecutor {
    * @return
    * @see #parse(OCommandRequest)
    */
-  Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession);
+  Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession);
 
   /**
    * Set the listener invoked while the command is executing.

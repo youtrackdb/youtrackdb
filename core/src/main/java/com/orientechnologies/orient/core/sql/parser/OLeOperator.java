@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.Map;
 
@@ -28,12 +28,12 @@ public class OLeOperator extends SimpleNode implements OBinaryCompareOperator {
     if (iLeft.getClass() != iRight.getClass()
         && iLeft instanceof Number
         && iRight instanceof Number) {
-      Number[] couple = OType.castComparableNumber((Number) iLeft, (Number) iRight);
+      Number[] couple = YTType.castComparableNumber((Number) iLeft, (Number) iRight);
       iLeft = couple[0];
       iRight = couple[1];
     } else {
       try {
-        iRight = OType.convert(null, iRight, iLeft.getClass());
+        iRight = YTType.convert(null, iRight, iLeft.getClass());
       } catch (RuntimeException e) {
         iRight = null;
         // Can't convert to the target value do nothing will return false

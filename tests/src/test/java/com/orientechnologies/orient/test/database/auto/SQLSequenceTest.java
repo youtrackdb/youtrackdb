@@ -3,7 +3,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSequenceException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Locale;
@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 @Test(groups = "SqlSequence")
 public class SQLSequenceTest extends DocumentDBBaseTest {
 
-  private static final long FIRST_START = OSequence.DEFAULT_START;
+  private static final long FIRST_START = YTSequence.DEFAULT_START;
   private static final long SECOND_START = 31;
 
   @Parameters(value = "remote")
@@ -28,11 +28,11 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
 
   @Test
   public void trivialTest() {
-    testSequence("seqSQL1", OSequence.SEQUENCE_TYPE.ORDERED);
-    testSequence("seqSQL2", OSequence.SEQUENCE_TYPE.CACHED);
+    testSequence("seqSQL1", YTSequence.SEQUENCE_TYPE.ORDERED);
+    testSequence("seqSQL2", YTSequence.SEQUENCE_TYPE.CACHED);
   }
 
-  private void testSequence(String sequenceName, OSequence.SEQUENCE_TYPE sequenceType) {
+  private void testSequence(String sequenceName, YTSequence.SEQUENCE_TYPE sequenceType) {
 
     database.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
 
@@ -84,16 +84,16 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
   public void testFree() throws ExecutionException, InterruptedException {
     OSequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
 
-    OSequence seq = null;
+    YTSequence seq = null;
     try {
-      seq = sequenceManager.createSequence("seqSQLOrdered", OSequence.SEQUENCE_TYPE.ORDERED, null);
+      seq = sequenceManager.createSequence("seqSQLOrdered", YTSequence.SEQUENCE_TYPE.ORDERED, null);
     } catch (ODatabaseException exc) {
       Assert.fail("Unable to create sequence");
     }
 
     OSequenceException err = null;
     try {
-      sequenceManager.createSequence("seqSQLOrdered", OSequence.SEQUENCE_TYPE.ORDERED, null);
+      sequenceManager.createSequence("seqSQLOrdered", YTSequence.SEQUENCE_TYPE.ORDERED, null);
     } catch (OSequenceException se) {
       err = se;
     } catch (ODatabaseException exc) {
@@ -104,7 +104,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
         err == null || err.getMessage().toLowerCase(Locale.ENGLISH).contains("already exists"),
         "Creating two ordered sequences with same name doesn't throw an exception");
 
-    OSequence seqSame = sequenceManager.getSequence("seqSQLOrdered");
+    YTSequence seqSame = sequenceManager.getSequence("seqSQLOrdered");
     Assert.assertEquals(seqSame, seq);
 
     testUsage(seq, FIRST_START);
@@ -112,7 +112,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
     //
     try {
       database.begin();
-      seq.updateParams(new OSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+      seq.updateParams(new YTSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
       database.commit();
     } catch (ODatabaseException exc) {
       Assert.fail("Unable to update paramas");
@@ -120,7 +120,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
     testUsage(seq, SECOND_START);
   }
 
-  private void testUsage(OSequence seq, long reset)
+  private void testUsage(YTSequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (int i = 0; i < 2; ++i) {
       Assert.assertEquals(seq.reset(), reset);

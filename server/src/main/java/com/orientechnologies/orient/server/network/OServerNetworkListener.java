@@ -23,7 +23,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OSystemException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.enterprise.channel.OChannel;
 import com.orientechnologies.orient.enterprise.channel.binary.ONetworkProtocolException;
@@ -224,7 +224,7 @@ public class OServerNetworkListener extends Thread {
           final int max =
               server
                   .getContextConfiguration()
-                  .getValueAsInteger(OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS);
+                  .getValueAsInteger(YTGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS);
 
           int conns = server.getClientConnectionManager().getTotal();
           if (conns >= max) {
@@ -436,7 +436,7 @@ public class OServerNetworkListener extends Thread {
     }
 
     socketBufferSize =
-        configuration.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_BUFFER_SIZE);
+        configuration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_BUFFER_SIZE);
   }
 
   public OServerSocketFactory getSocketFactory() {

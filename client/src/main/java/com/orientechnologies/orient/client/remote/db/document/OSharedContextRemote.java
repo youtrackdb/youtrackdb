@@ -3,8 +3,8 @@ package com.orientechnologies.orient.client.remote.db.document;
 import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.client.remote.metadata.security.OSecurityRemote;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OStringCache;
 import com.orientechnologies.orient.core.index.OIndexManagerRemote;
@@ -23,7 +23,7 @@ public class OSharedContextRemote extends OSharedContext {
         new OStringCache(
             orientDBRemote
                 .getContextConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.DB_STRING_CAHCE_SIZE));
+                .getValueAsInteger(YTGlobalConfiguration.DB_STRING_CAHCE_SIZE));
     this.youtrackDB = orientDBRemote;
     this.storage = storage;
     schema = new OSchemaRemote();
@@ -34,7 +34,7 @@ public class OSharedContextRemote extends OSharedContext {
     sequenceLibrary = new OSequenceLibraryImpl();
   }
 
-  public synchronized void load(ODatabaseSessionInternal database) {
+  public synchronized void load(YTDatabaseSessionInternal database) {
     final long timer = PROFILER.startChrono();
 
     try {
@@ -68,7 +68,7 @@ public class OSharedContextRemote extends OSharedContext {
     loaded = false;
   }
 
-  public synchronized void reload(ODatabaseSessionInternal database) {
+  public synchronized void reload(YTDatabaseSessionInternal database) {
     schema.reload(database);
     indexManager.reload(database);
     // The Immutable snapshot should be after index and schema that require and before everything

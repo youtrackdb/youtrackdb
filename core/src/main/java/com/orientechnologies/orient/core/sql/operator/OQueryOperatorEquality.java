@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -57,7 +57,7 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
   }
 
   protected abstract boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -78,8 +78,8 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
 
   @Override
   public Object evaluateRecord(
-      final OIdentifiable iRecord,
-      ODocument iCurrentResult,
+      final YTIdentifiable iRecord,
+      YTDocument iCurrentResult,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,

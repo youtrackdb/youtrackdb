@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.storage.index.versionmap;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -48,9 +48,9 @@ public class VersionPositionMapTestIT {
     }
     OCreateDatabaseUtil.createDatabase(DB_NAME, youTrackDB, OCreateDatabaseUtil.TYPE_PLOCAL);
 
-    ODatabaseSession databaseSession =
+    YTDatabaseSession databaseSession =
         youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    storage = (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseSession).getStorage();
+    storage = (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
   }

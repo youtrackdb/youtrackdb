@@ -3,12 +3,12 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCondition;
@@ -54,10 +54,10 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     }
     long minClusterPosition = calculateMinClusterPosition();
     long maxClusterPosition = calculateMaxClusterPosition();
-    ORecordIteratorCluster<ORecord> iterator =
+    ORecordIteratorCluster<YTRecord> iterator =
         new ORecordIteratorCluster<>(
             ctx.getDatabase(), clusterId, minClusterPosition, maxClusterPosition);
-    Iterator<ORecord> iter;
+    Iterator<YTRecord> iter;
     if (ORDER_DESC.equals(order)) {
       iter = iterator.reversed();
     } else {
@@ -107,7 +107,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
     for (OBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
       if (ridRangeCondition instanceof OBinaryCondition cond) {
-        ORID conditionRid;
+        YTRID conditionRid;
 
         Object obj;
         if (cond.getRight().getRid() != null) {
@@ -120,7 +120,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
           obj = ((OBinaryCondition) ridRangeCondition).getRight().execute((OResult) null, ctx);
         }
 
-        conditionRid = ((OIdentifiable) obj).getIdentity();
+        conditionRid = ((YTIdentifiable) obj).getIdentity();
         OBinaryCompareOperator operator = cond.getOperator();
         if (conditionRid != null) {
           if (conditionRid.getClusterId() != this.clusterId) {
@@ -166,7 +166,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("clusterId", clusterId);
     result.setProperty("order", order);

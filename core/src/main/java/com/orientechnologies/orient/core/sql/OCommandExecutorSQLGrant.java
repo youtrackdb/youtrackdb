@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import java.util.Map;
@@ -106,7 +106,7 @@ public class OCommandExecutorSQLGrant extends OCommandExecutorSQLPermissionAbstr
   /**
    * Execute the GRANT.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (role == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

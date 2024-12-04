@@ -4,9 +4,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
@@ -53,37 +53,37 @@ public class ORid extends SimpleNode {
     }
   }
 
-  public ORecordId toRecordId(OResult target, OCommandContext ctx) {
+  public YTRecordId toRecordId(OResult target, OCommandContext ctx) {
     if (legacy || (expression == null && cluster != null && position != null)) {
-      return new ORecordId(cluster.value.intValue(), position.value.longValue());
+      return new YTRecordId(cluster.value.intValue(), position.value.longValue());
     } else {
       Object result = expression.execute(target, ctx);
       if (result == null) {
         return null;
       }
-      if (result instanceof OIdentifiable) {
-        return (ORecordId) ((OIdentifiable) result).getIdentity();
+      if (result instanceof YTIdentifiable) {
+        return (YTRecordId) ((YTIdentifiable) result).getIdentity();
       }
       if (result instanceof String) {
-        return new ORecordId((String) result);
+        return new YTRecordId((String) result);
       }
       return null;
     }
   }
 
-  public ORecordId toRecordId(OIdentifiable target, OCommandContext ctx) {
+  public YTRecordId toRecordId(YTIdentifiable target, OCommandContext ctx) {
     if (legacy || (expression == null && cluster != null && position != null)) {
-      return new ORecordId(cluster.value.intValue(), position.value.longValue());
+      return new YTRecordId(cluster.value.intValue(), position.value.longValue());
     } else {
       Object result = expression.execute(target, ctx);
       if (result == null) {
         return null;
       }
-      if (result instanceof OIdentifiable) {
-        return (ORecordId) ((OIdentifiable) result).getIdentity();
+      if (result instanceof YTIdentifiable) {
+        return (YTRecordId) ((YTIdentifiable) result).getIdentity();
       }
       if (result instanceof String) {
-        return new ORecordId((String) result);
+        return new YTRecordId((String) result);
       }
       return null;
     }
@@ -143,7 +143,7 @@ public class ORid extends SimpleNode {
 
   public OInteger getCluster() {
     if (expression != null) {
-      ORecordId rid = toRecordId((OResult) null, new OBasicCommandContext());
+      YTRecordId rid = toRecordId((OResult) null, new OBasicCommandContext());
       if (rid != null) {
         OInteger result = new OInteger(-1);
         result.setValue(rid.getClusterId());
@@ -155,7 +155,7 @@ public class ORid extends SimpleNode {
 
   public OInteger getPosition() {
     if (expression != null) {
-      ORecordId rid = toRecordId((OResult) null, new OBasicCommandContext());
+      YTRecordId rid = toRecordId((OResult) null, new OBasicCommandContext());
       if (rid != null) {
         OInteger result = new OInteger(-1);
         result.setValue(rid.getClusterPosition());
@@ -165,7 +165,7 @@ public class ORid extends SimpleNode {
     return position;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (cluster != null) {
       result.setProperty("cluster", cluster.serialize(db));

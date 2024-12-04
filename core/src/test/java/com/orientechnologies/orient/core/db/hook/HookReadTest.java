@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
@@ -21,12 +21,12 @@ public class HookReadTest extends DBTestBase {
           }
 
           @Override
-          public RESULT onTrigger(TYPE iType, ORecord iRecord) {
+          public RESULT onTrigger(TYPE iType, YTRecord iRecord) {
             if (iType == TYPE.AFTER_READ
-                && !((ODocument) iRecord)
+                && !((YTDocument) iRecord)
                 .getClassName()
                 .equalsIgnoreCase(OSecurityPolicy.class.getSimpleName())) {
-              ((ODocument) iRecord).field("read", "test");
+              ((YTDocument) iRecord).field("read", "test");
             }
             return RESULT.RECORD_CHANGED;
           }
@@ -39,7 +39,7 @@ public class HookReadTest extends DBTestBase {
 
     db.getMetadata().getSchema().createClass("TestClass");
     db.begin();
-    db.save(new ODocument("TestClass"));
+    db.save(new YTDocument("TestClass"));
     db.commit();
 
     db.begin();

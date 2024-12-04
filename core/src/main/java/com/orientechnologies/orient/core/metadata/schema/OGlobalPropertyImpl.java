@@ -20,18 +20,18 @@
 
 package com.orientechnologies.orient.core.metadata.schema;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 public class OGlobalPropertyImpl implements OGlobalProperty {
 
   private String name;
-  private OType type;
+  private YTType type;
   private Integer id;
 
   public OGlobalPropertyImpl() {
   }
 
-  public OGlobalPropertyImpl(final String name, final OType type, final Integer id) {
+  public OGlobalPropertyImpl(final String name, final YTType type, final Integer id) {
     this.name = name;
     this.type = type;
     this.id = id;
@@ -45,18 +45,18 @@ public class OGlobalPropertyImpl implements OGlobalProperty {
     return name;
   }
 
-  public OType getType() {
+  public YTType getType() {
     return type;
   }
 
-  public void fromDocument(final ODocument document) {
+  public void fromDocument(final YTDocument document) {
     this.name = document.field("name");
-    this.type = OType.valueOf(document.field("type"));
+    this.type = YTType.valueOf(document.field("type"));
     this.id = document.field("id");
   }
 
-  public ODocument toDocument() {
-    final ODocument doc = new ODocument();
+  public YTDocument toDocument() {
+    final YTDocument doc = new YTDocument();
     doc.field("name", name);
     doc.field("type", type.name());
     doc.field("id", id);

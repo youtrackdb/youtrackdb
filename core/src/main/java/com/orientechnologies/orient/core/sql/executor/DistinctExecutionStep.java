@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,13 +19,13 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   public DistinctExecutionStep(OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
-    ODatabaseSession db = ctx == null ? null : ctx.getDatabase();
+    YTDatabaseSession db = ctx == null ? null : ctx.getDatabase();
 
     maxElementsAllowed =
         db == null
-            ? OGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong()
+            ? YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong()
             : db.getConfiguration()
-                .getValueAsLong(OGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP);
+                .getValueAsLong(YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP);
   }
 
   @Override
@@ -38,7 +38,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     return resultSet.filter((result, context) -> filterMap(result, pastRids, pastItems));
   }
 
-  private OResult filterMap(OResult result, Set<ORID> pastRids, Set<OResult> pastItems) {
+  private OResult filterMap(OResult result, Set<YTRID> pastRids, Set<OResult> pastItems) {
     if (alreadyVisited(result, pastRids, pastItems)) {
       return null;
     } else {
@@ -47,9 +47,9 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  private void markAsVisited(OResult nextValue, Set<ORID> pastRids, Set<OResult> pastItems) {
+  private void markAsVisited(OResult nextValue, Set<YTRID> pastRids, Set<OResult> pastItems) {
     if (nextValue.isElement()) {
-      ORID identity = nextValue.toElement().getIdentity();
+      YTRID identity = nextValue.toElement().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {
@@ -64,14 +64,14 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
           "Limit of allowed elements for in-heap DISTINCT in a single query exceeded ("
               + maxElementsAllowed
               + ") . You can set "
-              + OGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getKey()
+              + YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getKey()
               + " to increase this limit");
     }
   }
 
-  private boolean alreadyVisited(OResult nextValue, Set<ORID> pastRids, Set<OResult> pastItems) {
+  private boolean alreadyVisited(OResult nextValue, Set<YTRID> pastRids, Set<OResult> pastItems) {
     if (nextValue.isElement()) {
-      ORID identity = nextValue.toElement().getIdentity();
+      YTRID identity = nextValue.toElement().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {

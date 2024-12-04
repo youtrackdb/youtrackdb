@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,11 +67,11 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
     return null;
   }
 
-  public Comparable<?> createValue(ODatabaseSessionInternal session, final List<?> params) {
+  public Comparable<?> createValue(YTDatabaseSessionInternal session, final List<?> params) {
     return (Comparable<?>) refreshRid(session, params.get(0));
   }
 
-  public Comparable<?> createValue(ODatabaseSessionInternal session, final Object... params) {
+  public Comparable<?> createValue(YTDatabaseSessionInternal session, final Object... params) {
     return createValue(session, Arrays.asList(params));
   }
 
@@ -79,18 +79,18 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
     return 1;
   }
 
-  public OType[] getTypes() {
-    return new OType[0];
+  public YTType[] getTypes() {
+    return new YTType[0];
   }
 
   @Override
-  public @Nonnull ODocument toStream(@Nonnull ODocument document) {
+  public @Nonnull YTDocument toStream(@Nonnull YTDocument document) {
     serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream(ODocument document) {
+  protected void serializeToStream(YTDocument document) {
     super.serializeToStream(document);
 
     document.setProperty("keySerializerId", serializer.getId());
@@ -98,12 +98,12 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
     document.setProperty("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  public void fromStream(@Nonnull ODocument document) {
+  public void fromStream(@Nonnull YTDocument document) {
     serializeFromStream(document);
   }
 
   @Override
-  protected void serializeFromStream(ODocument document) {
+  protected void serializeFromStream(YTDocument document) {
     super.serializeFromStream(document);
 
     final byte keySerializerId = ((Number) document.field("keySerializerId")).byteValue();
@@ -122,7 +122,7 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
   }
 
   public Object getDocumentValueToIndex(
-      ODatabaseSessionInternal session, final ODocument iDocument) {
+      YTDatabaseSessionInternal session, final YTDocument iDocument) {
     throw new OIndexException("This method is not supported in given index definition.");
   }
 

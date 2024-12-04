@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -28,7 +28,7 @@ public interface OInternalExecutionPlan extends OExecutionPlan {
 
   long getCost();
 
-  default OResult serialize(ODatabaseSessionInternal db) {
+  default OResult serialize(YTDatabaseSessionInternal db) {
     throw new UnsupportedOperationException();
   }
 

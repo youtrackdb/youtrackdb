@@ -3,10 +3,10 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collections;
 import java.util.List;
@@ -27,11 +27,11 @@ public class OIsNotDefinedCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     try {
       Object elem = currentRecord.getRecord();
-      if (elem instanceof OElement) {
-        return !expression.isDefinedFor((OElement) elem);
+      if (elem instanceof YTEntity) {
+        return !expression.isDefinedFor((YTEntity) elem);
       }
     } catch (ORecordNotFoundException rnf) {
       return true;
@@ -114,7 +114,7 @@ public class OIsNotDefinedCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     return expression.isCacheable(session);
   }
 

@@ -21,19 +21,19 @@ package com.orientechnologies.orient.core.serialization.serializer.record;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 
 public class ORecordSerializerRaw implements ORecordSerializer {
 
   public static final String NAME = "ORecordDocumentRaw";
 
-  public ORecord fromStream(final byte[] iSource) {
-    return new ORecordBytes(iSource);
+  public YTRecord fromStream(final byte[] iSource) {
+    return new YTRecordBytes(iSource);
   }
 
   @Override
@@ -47,7 +47,8 @@ public class ORecordSerializerRaw implements ORecordSerializer {
   }
 
   @Override
-  public String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference, byte[] iSource) {
+  public String[] getFieldNames(YTDatabaseSessionInternal db, YTDocument reference,
+      byte[] iSource) {
     return null;
   }
 
@@ -57,8 +58,8 @@ public class ORecordSerializerRaw implements ORecordSerializer {
   }
 
   @Override
-  public ORecordAbstract fromStream(
-      ODatabaseSessionInternal db, final byte[] iSource, final ORecordAbstract iRecord,
+  public YTRecordAbstract fromStream(
+      YTDatabaseSessionInternal db, final byte[] iSource, final YTRecordAbstract iRecord,
       String[] iFields) {
     iRecord.reset();
     iRecord.fromStream(iSource);
@@ -67,7 +68,7 @@ public class ORecordSerializerRaw implements ORecordSerializer {
   }
 
   @Override
-  public byte[] toStream(ODatabaseSessionInternal session, final ORecordAbstract iSource) {
+  public byte[] toStream(YTDatabaseSessionInternal session, final YTRecordAbstract iSource) {
     try {
       return iSource.toStream();
     } catch (Exception e) {

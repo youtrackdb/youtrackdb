@@ -4,8 +4,8 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
@@ -32,8 +32,8 @@ public class OMixedIndexRIDContainerSerializer
             + OIntegerSerializer.INT_SIZE; // total size + fileId + embedded Size
     size += OIntegerSerializer.INT_SIZE + OLongSerializer.LONG_SIZE; // root offset and page index
 
-    final Set<ORID> embedded = object.getEmbeddedSet();
-    for (ORID orid : embedded) {
+    final Set<YTRID> embedded = object.getEmbeddedSet();
+    for (YTRID orid : embedded) {
       size += OCompactedLinkSerializer.INSTANCE.getObjectSize(orid);
     }
 
@@ -54,8 +54,8 @@ public class OMixedIndexRIDContainerSerializer
             + OIntegerSerializer.INT_SIZE; // total size + fileId + embedded Size
     size += OIntegerSerializer.INT_SIZE + OLongSerializer.LONG_SIZE; // root offset and page index
 
-    final Set<ORID> embedded = object.getEmbeddedSet();
-    for (ORID orid : embedded) {
+    final Set<YTRID> embedded = object.getEmbeddedSet();
+    for (YTRID orid : embedded) {
       size += OCompactedLinkSerializer.INSTANCE.getObjectSize(orid);
     }
 
@@ -68,7 +68,7 @@ public class OMixedIndexRIDContainerSerializer
     OIntegerSerializer.INSTANCE.serialize(embedded.size(), stream, startPosition);
     startPosition += OIntegerSerializer.INT_SIZE;
 
-    for (ORID orid : embedded) {
+    for (YTRID orid : embedded) {
       OCompactedLinkSerializer.INSTANCE.serialize(orid, stream, startPosition);
       startPosition += OCompactedLinkSerializer.INSTANCE.getObjectSize(stream, startPosition);
     }
@@ -98,9 +98,9 @@ public class OMixedIndexRIDContainerSerializer
     final int embeddedSize = OIntegerSerializer.INSTANCE.deserialize(stream, startPosition);
     startPosition += OIntegerSerializer.INT_SIZE;
 
-    final Set<ORID> hashSet = new HashSet<>();
+    final Set<YTRID> hashSet = new HashSet<>();
     for (int i = 0; i < embeddedSize; i++) {
-      final ORID orid =
+      final YTRID orid =
           OCompactedLinkSerializer.INSTANCE.deserialize(stream, startPosition).getIdentity();
       startPosition += OCompactedLinkSerializer.INSTANCE.getObjectSize(stream, startPosition);
       hashSet.add(orid);
@@ -115,7 +115,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,
@@ -150,8 +150,8 @@ public class OMixedIndexRIDContainerSerializer
             + OIntegerSerializer.INT_SIZE; // total size + fileId + embedded Size
     size += OIntegerSerializer.INT_SIZE + OLongSerializer.LONG_SIZE; // root offset and page index
 
-    final Set<ORID> embedded = object.getEmbeddedSet();
-    for (ORID orid : embedded) {
+    final Set<YTRID> embedded = object.getEmbeddedSet();
+    for (YTRID orid : embedded) {
       size += OCompactedLinkSerializer.INSTANCE.getObjectSize(orid);
     }
 
@@ -164,7 +164,7 @@ public class OMixedIndexRIDContainerSerializer
     OIntegerSerializer.INSTANCE.serializeNative(embedded.size(), stream, startPosition);
     startPosition += OIntegerSerializer.INT_SIZE;
 
-    for (ORID orid : embedded) {
+    for (YTRID orid : embedded) {
       OCompactedLinkSerializer.INSTANCE.serializeNativeObject(orid, stream, startPosition);
       startPosition += OCompactedLinkSerializer.INSTANCE.getObjectSizeNative(stream, startPosition);
     }
@@ -195,9 +195,9 @@ public class OMixedIndexRIDContainerSerializer
     final int embeddedSize = OIntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
     startPosition += OIntegerSerializer.INT_SIZE;
 
-    final Set<ORID> hashSet = new HashSet<>();
+    final Set<YTRID> hashSet = new HashSet<>();
     for (int i = 0; i < embeddedSize; i++) {
-      final ORID orid =
+      final YTRID orid =
           OCompactedLinkSerializer.INSTANCE
               .deserializeNativeObject(stream, startPosition)
               .getIdentity();
@@ -214,7 +214,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,
@@ -244,8 +244,8 @@ public class OMixedIndexRIDContainerSerializer
             + OIntegerSerializer.INT_SIZE; // total size + fileId + embedded Size
     size += OIntegerSerializer.INT_SIZE + OLongSerializer.LONG_SIZE; // root offset and page index
 
-    final Set<ORID> embedded = object.getEmbeddedSet();
-    for (ORID orid : embedded) {
+    final Set<YTRID> embedded = object.getEmbeddedSet();
+    for (YTRID orid : embedded) {
       size += OCompactedLinkSerializer.INSTANCE.getObjectSize(orid);
     }
 
@@ -253,7 +253,7 @@ public class OMixedIndexRIDContainerSerializer
     buffer.putLong(object.getFileId());
     buffer.putInt(embedded.size());
 
-    for (ORID orid : embedded) {
+    for (YTRID orid : embedded) {
       OCompactedLinkSerializer.INSTANCE.serializeInByteBufferObject(orid, buffer);
     }
 
@@ -275,9 +275,9 @@ public class OMixedIndexRIDContainerSerializer
     final long fileId = buffer.getLong();
     final int embeddedSize = buffer.getInt();
 
-    final Set<ORID> hashSet = new HashSet<>();
+    final Set<YTRID> hashSet = new HashSet<>();
     for (int i = 0; i < embeddedSize; i++) {
-      final ORID orid =
+      final YTRID orid =
           OCompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(buffer).getIdentity();
       hashSet.add(orid);
     }
@@ -289,7 +289,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,
@@ -310,11 +310,11 @@ public class OMixedIndexRIDContainerSerializer
     final int embeddedSize = buffer.getInt(currentPosition);
     currentPosition += Integer.BYTES;
 
-    final Set<ORID> hashSet = new HashSet<>();
+    final Set<YTRID> hashSet = new HashSet<>();
     for (int i = 0; i < embeddedSize; i++) {
       var delta =
           OCompactedLinkSerializer.INSTANCE.getObjectSizeInByteBuffer(currentPosition, buffer);
-      final ORID orid =
+      final YTRID orid =
           OCompactedLinkSerializer.INSTANCE
               .deserializeFromByteBufferObject(currentPosition, buffer)
               .getIdentity();
@@ -331,7 +331,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,
@@ -363,9 +363,9 @@ public class OMixedIndexRIDContainerSerializer
     final int embeddedSize = walChanges.getIntValue(buffer, offset);
     offset += OIntegerSerializer.INT_SIZE;
 
-    final Set<ORID> hashSet = new HashSet<>();
+    final Set<YTRID> hashSet = new HashSet<>();
     for (int i = 0; i < embeddedSize; i++) {
-      final ORID orid =
+      final YTRID orid =
           OCompactedLinkSerializer.INSTANCE
               .deserializeFromByteBufferObject(buffer, walChanges, offset)
               .getIdentity();
@@ -383,7 +383,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,

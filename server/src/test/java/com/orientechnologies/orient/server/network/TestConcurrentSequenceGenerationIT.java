@@ -4,10 +4,10 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class TestConcurrentSequenceGenerationIT {
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         TestConcurrentSequenceGenerationIT.class.getSimpleName());
-    ODatabaseSession databaseSession =
+    YTDatabaseSession databaseSession =
         youTrackDB.open(TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
         "sql",
@@ -59,10 +59,10 @@ public class TestConcurrentSequenceGenerationIT {
         var future =
             executorService.submit(
                 () -> {
-                  try (ODatabaseSession db = pool.acquire()) {
+                  try (YTDatabaseSession db = pool.acquire()) {
                     for (int j = 0; j < RECORDS; j++) {
                       db.executeInTx(() -> {
-                        OVertex vert = db.newVertex("TestSequence");
+                        YTVertex vert = db.newVertex("TestSequence");
                         assertNotNull(vert.getProperty("id"));
                         db.save(vert);
                       });

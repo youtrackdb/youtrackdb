@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.core.metadata.schema.clusterselection;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Returns always the first cluster configured.
@@ -25,12 +25,12 @@ public class ODefaultClusterSelectionStrategy implements OClusterSelectionStrate
 
   public static final String NAME = "default";
 
-  public int getCluster(final OClass iClass, final ODocument doc) {
+  public int getCluster(final YTClass iClass, final YTDocument doc) {
     return iClass.getDefaultClusterId();
   }
 
   @Override
-  public int getCluster(OClass iClass, int[] selection, ODocument doc) {
+  public int getCluster(YTClass iClass, int[] selection, YTDocument doc) {
     return iClass.getDefaultClusterId();
   }
 

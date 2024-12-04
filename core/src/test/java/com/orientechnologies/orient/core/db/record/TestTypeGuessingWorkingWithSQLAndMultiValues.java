@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Collection;
@@ -46,7 +46,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
       Assert.assertTrue(result.hasNext());
       OResult doc = result.next();
 
-      Collection<ODocument> addresses = doc.getProperty("addresses");
+      Collection<YTDocument> addresses = doc.getProperty("addresses");
       Assert.assertEquals(addresses.size(), 3);
       for (var a : addresses) {
         Assert.assertEquals("Address", a.getProperty("@class"));

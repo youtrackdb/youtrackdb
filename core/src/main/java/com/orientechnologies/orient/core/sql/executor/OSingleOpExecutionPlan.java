@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OSimpleExecStatement;
@@ -84,7 +84,7 @@ public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OResult toResult(ODatabaseSessionInternal db) {
+  public OResult toResult(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty("javaType", getClass().getName());

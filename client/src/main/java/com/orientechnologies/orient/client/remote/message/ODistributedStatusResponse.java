@@ -21,8 +21,8 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -30,29 +30,29 @@ import java.io.IOException;
 
 public class ODistributedStatusResponse implements OBinaryResponse {
 
-  private ODocument clusterConfig;
+  private YTDocument clusterConfig;
 
   public ODistributedStatusResponse() {
   }
 
-  public ODistributedStatusResponse(ODocument clusterConfig) {
+  public ODistributedStatusResponse(YTDocument clusterConfig) {
     this.clusterConfig = clusterConfig;
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
-    clusterConfig = new ODocument(network.readBytes());
+    clusterConfig = new YTDocument(network.readBytes());
   }
 
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     byte[] bytes = serializer.toStream(session, clusterConfig);
     channel.writeBytes(bytes);
   }
 
-  public ODocument getClusterConfig() {
+  public YTDocument getClusterConfig() {
     return clusterConfig;
   }
 }

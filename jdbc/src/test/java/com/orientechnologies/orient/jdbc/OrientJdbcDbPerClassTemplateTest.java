@@ -16,7 +16,7 @@ package com.orientechnologies.orient.jdbc;
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSchemaDB;
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import java.util.Properties;
 import javax.sql.DataSource;
@@ -30,7 +30,7 @@ import org.junit.rules.TestName;
 public abstract class OrientJdbcDbPerClassTemplateTest {
 
   protected static OrientJdbcConnection conn;
-  protected static ODatabaseSessionInternal db;
+  protected static YTDatabaseSessionInternal db;
   protected static YouTrackDB youTrackDB;
   protected static DataSource ds;
 
@@ -55,7 +55,7 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
     conn = (OrientJdbcConnection) ds.getConnection();
     youTrackDB = conn.getOrientDB();
 
-    db = (ODatabaseSessionInternal) ((OrientJdbcConnection) ds.getConnection()).getDatabase();
+    db = (YTDatabaseSessionInternal) ((OrientJdbcConnection) ds.getConnection()).getDatabase();
 
     createSchemaDB(db);
 

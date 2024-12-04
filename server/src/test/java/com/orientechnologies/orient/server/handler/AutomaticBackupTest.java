@@ -3,12 +3,12 @@ package com.orientechnologies.orient.server.handler;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.File;
@@ -40,7 +40,7 @@ public class AutomaticBackupTest {
   private static String URL;
   private static String URL2;
   private final String tempDirectory;
-  private ODatabaseSession database;
+  private YTDatabaseSession database;
   private final OServer server;
 
   public AutomaticBackupTest() throws IllegalArgumentException, SecurityException {
@@ -106,7 +106,7 @@ public class AutomaticBackupTest {
 
     database.createClass("TestBackup");
     database.begin();
-    new ODocument("TestBackup").field("name", DBNAME).save();
+    new YTDocument("TestBackup").field("name", DBNAME).save();
     database.commit();
   }
 
@@ -131,7 +131,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
@@ -161,7 +161,7 @@ public class AutomaticBackupTest {
         .getContext()
         .execute(
             "create database ? plocal users (admin identified by 'admin' role admin)", DBNAME2);
-    ODatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME2);
+    YTDatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME2);
 
     // database2.restore(new FileInputStream(BACKUPDIR + "/testautobackup.zip"), null, null, null);
 
@@ -180,7 +180,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
@@ -238,9 +238,9 @@ public class AutomaticBackupTest {
 
     aBackup.sendShutdown();
 
-    final ODatabaseSessionInternal database2 = new ODatabaseDocumentTx(URL2);
+    final YTDatabaseSessionInternal database2 = new YTDatabaseDocumentTx(URL2);
     if (database2.exists()) {
-      ((ODatabaseSessionInternal) database2.open("admin", "admin")).drop();
+      ((YTDatabaseSessionInternal) database2.open("admin", "admin")).drop();
     }
     database2.create();
 
@@ -263,7 +263,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", false);
@@ -316,7 +316,7 @@ public class AutomaticBackupTest {
   //
   // aBackup.sendShutdown();
   //
-  // final ODatabaseDocumentTx database2 = new ODatabaseDocumentTx(URL2);
+  // final YTDatabaseDocumentTx database2 = new YTDatabaseDocumentTx(URL2);
   // if (database2.exists())
   // database2.open("admin", "admin").drop();
   // database2.create(BACKUPDIR + "/" + DBNAME);
@@ -359,7 +359,7 @@ public class AutomaticBackupTest {
         .execute(
             "create database ? plocal users (admin identified by 'admin' role admin)", DBNAME3);
 
-    ODatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME3);
+    YTDatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME3);
 
     new ODatabaseImport(database2, BACKUPDIR + "/fullExport.json.gz", null).importDatabase();
 

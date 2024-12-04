@@ -2,7 +2,7 @@ package com.orientechnologies.common.collection.closabledictionary;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -862,7 +862,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
               initialSize,
               openLimit,
               closedFiles,
-              OGlobalConfiguration.OPEN_FILES_LIMIT.getKey());
+              YTGlobalConfiguration.OPEN_FILES_LIMIT.getKey());
     }
 
     YouTrackDBManager.instance()

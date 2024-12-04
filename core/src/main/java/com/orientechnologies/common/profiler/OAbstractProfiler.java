@@ -26,7 +26,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.OOrientStartupListener;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -118,7 +118,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
             final long totalDiskCacheUsedMemory =
                 (dk.getUsedMemory() + wk.getExclusiveWriteCachePagesSize()) / OFileUtils.MEGABYTE;
             final long maxDiskCacheUsedMemory =
-                OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong();
+                YTGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong();
 
             // CHECK IF THERE IS MORE THAN 40% HEAP UNUSED AND DISK-CACHE IS 80% OF THE MAXIMUM SIZE
             if ((jvmTotMemory * 140 / 100) < jvmMaxMemory
@@ -126,7 +126,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
 
               final long suggestedMaxHeap = jvmTotMemory * 120 / 100;
               final long suggestedDiskCache =
-                  OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong()
+                  YTGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong()
                       + (jvmMaxMemory - suggestedMaxHeap) / OFileUtils.MEGABYTE;
 
               OLogManager.instance()
@@ -198,7 +198,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
     for (OStorage stg : YouTrackDBManager.instance().getStorages()) {
       if (stg instanceof OLocalPaginatedStorage) {
         diskCacheUsed += ((OLocalPaginatedStorage) stg).getReadCache().getUsedMemory();
-        diskCacheTotal += OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
+        diskCacheTotal += YTGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
         stgs++;
       }
     }
@@ -387,7 +387,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
 
   @Override
   public void onStartup() {
-    if (OGlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean())
+    if (YTGlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean())
     // ACTIVATE RECORDING OF THE PROFILER
     {
       startRecording();
@@ -451,12 +451,12 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
 
   @Override
   public String dump() {
-    return dumpEnvironment(OGlobalConfiguration.PROFILER_AUTODUMP_TYPE.getValueAsString());
+    return dumpEnvironment(YTGlobalConfiguration.PROFILER_AUTODUMP_TYPE.getValueAsString());
   }
 
   @Override
   public void dump(final PrintStream out) {
-    out.println(dumpEnvironment(OGlobalConfiguration.PROFILER_AUTODUMP_TYPE.getValueAsString()));
+    out.println(dumpEnvironment(YTGlobalConfiguration.PROFILER_AUTODUMP_TYPE.getValueAsString()));
   }
 
   @Override
@@ -530,7 +530,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
                     final StringBuilder output = new StringBuilder();
 
                     final String dumpType =
-                        OGlobalConfiguration.PROFILER_AUTODUMP_TYPE.getValueAsString();
+                        YTGlobalConfiguration.PROFILER_AUTODUMP_TYPE.getValueAsString();
 
                     output.append(
                         "\n"
@@ -630,7 +630,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
 
   protected void installMemoryChecker() {
     final long memoryCheckInterval =
-        OGlobalConfiguration.PROFILER_MEMORYCHECK_INTERVAL.getValueAsLong();
+        YTGlobalConfiguration.PROFILER_MEMORYCHECK_INTERVAL.getValueAsLong();
 
     if (memoryCheckInterval > 0) {
       YouTrackDBManager.instance()

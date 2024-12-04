@@ -20,35 +20,35 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.ONullOutputListener;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser.STATUSES;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.security.OGlobalUser;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -145,14 +145,14 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable allowRole(
-      final ODatabaseSession session,
-      final ODocument iDocument,
+  public YTIdentifiable allowRole(
+      final YTDatabaseSession session,
+      final YTDocument iDocument,
       final ORestrictedOperation iOperation,
       final String iRoleName) {
     return session.computeInTx(
         () -> {
-          final ORID role = getRoleRID(session, iRoleName);
+          final YTRID role = getRoleRID(session, iRoleName);
           if (role == null) {
             throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
           }
@@ -162,14 +162,14 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable allowUser(
-      final ODatabaseSession session,
-      final ODocument iDocument,
+  public YTIdentifiable allowUser(
+      final YTDatabaseSession session,
+      final YTDocument iDocument,
       final ORestrictedOperation iOperation,
       final String iUserName) {
     return session.computeInTx(
         () -> {
-          final ORID user = getUserRID(session, iUserName);
+          final YTRID user = getUserRID(session, iUserName);
           if (user == null) {
             throw new IllegalArgumentException("User '" + iUserName + "' not found");
           }
@@ -178,14 +178,14 @@ public class OSecurityShared implements OSecurityInternal {
         });
   }
 
-  public OIdentifiable allowIdentity(
-      final ODatabaseSession session,
-      final ODocument iDocument,
+  public YTIdentifiable allowIdentity(
+      final YTDatabaseSession session,
+      final YTDocument iDocument,
       final String iAllowFieldName,
-      final OIdentifiable iId) {
+      final YTIdentifiable iId) {
     return session.computeInTx(
         () -> {
-          Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
+          Set<YTIdentifiable> field = iDocument.field(iAllowFieldName);
           if (field == null) {
             field = new OTrackedSet<>(iDocument);
             iDocument.field(iAllowFieldName, field);
@@ -197,14 +197,14 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable denyUser(
-      final ODatabaseSessionInternal session,
-      final ODocument iDocument,
+  public YTIdentifiable denyUser(
+      final YTDatabaseSessionInternal session,
+      final YTDocument iDocument,
       final ORestrictedOperation iOperation,
       final String iUserName) {
     return session.computeInTx(
         () -> {
-          final ORID user = getUserRID(session, iUserName);
+          final YTRID user = getUserRID(session, iUserName);
           if (user == null) {
             throw new IllegalArgumentException("User '" + iUserName + "' not found");
           }
@@ -214,14 +214,14 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable denyRole(
-      final ODatabaseSessionInternal session,
-      final ODocument iDocument,
+  public YTIdentifiable denyRole(
+      final YTDatabaseSessionInternal session,
+      final YTDocument iDocument,
       final ORestrictedOperation iOperation,
       final String iRoleName) {
     return session.computeInTx(
         () -> {
-          final ORID role = getRoleRID(session, iRoleName);
+          final YTRID role = getRoleRID(session, iRoleName);
           if (role == null) {
             throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
           }
@@ -230,12 +230,12 @@ public class OSecurityShared implements OSecurityInternal {
         });
   }
 
-  public OIdentifiable disallowIdentity(
-      final ODatabaseSessionInternal session,
-      final ODocument iDocument,
+  public YTIdentifiable disallowIdentity(
+      final YTDatabaseSessionInternal session,
+      final YTDocument iDocument,
       final String iAllowFieldName,
-      final OIdentifiable iId) {
-    Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
+      final YTIdentifiable iId) {
+    Set<YTIdentifiable> field = iDocument.field(iAllowFieldName);
     if (field != null) {
       field.remove(iId);
     }
@@ -244,9 +244,9 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public boolean isAllowed(
-      final ODatabaseSessionInternal session,
-      final Set<OIdentifiable> iAllowAll,
-      final Set<OIdentifiable> iAllowOperation) {
+      final YTDatabaseSessionInternal session,
+      final Set<YTIdentifiable> iAllowAll,
+      final Set<YTIdentifiable> iAllowOperation) {
     if ((iAllowAll == null || iAllowAll.isEmpty())
         && (iAllowOperation == null || iAllowOperation.isEmpty()))
     // NO AUTHORIZATION: CAN'T ACCESS
@@ -297,7 +297,7 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
+      YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     OSecurityUser user = null;
     final String dbName = session.getName();
     assert !session.isRemote();
@@ -324,7 +324,7 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSessionInternal session, String userName, String password) {
+      YTDatabaseSessionInternal session, String userName, String password) {
     OSecurityUser user;
     final String dbName = session.getName();
     assert !session.isRemote();
@@ -352,12 +352,12 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public OUser authenticate(
-      ODatabaseSessionInternal session, final String iUsername, final String iUserPassword) {
+      YTDatabaseSessionInternal session, final String iUsername, final String iUserPassword) {
     return null;
   }
 
   // Token MUST be validated before being passed to this method.
-  public OUser authenticate(final ODatabaseSessionInternal session, final OToken authToken) {
+  public OUser authenticate(final YTDatabaseSessionInternal session, final OToken authToken) {
     final String dbName = session.getName();
     if (!authToken.getIsValid()) {
       throw new OSecurityAccessException(dbName, "Token not valid");
@@ -381,12 +381,12 @@ public class OSecurityShared implements OSecurityInternal {
     return user;
   }
 
-  public OUser getUser(final ODatabaseSession session, final ORID iRecordId) {
+  public OUser getUser(final YTDatabaseSession session, final YTRID iRecordId) {
     if (iRecordId == null) {
       return null;
     }
 
-    ODocument result;
+    YTDocument result;
     result = session.load(iRecordId);
     if (!result.getClassName().equals(OUser.CLASS_NAME)) {
       result = null;
@@ -395,7 +395,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   public OUser createUser(
-      final ODatabaseSessionInternal session,
+      final YTDatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
@@ -411,7 +411,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   public OUser createUser(
-      final ODatabaseSessionInternal session,
+      final YTDatabaseSessionInternal session,
       final String userName,
       final String userPassword,
       final ORole... roles) {
@@ -426,7 +426,7 @@ public class OSecurityShared implements OSecurityInternal {
     return user.save(session);
   }
 
-  public boolean dropUser(final ODatabaseSession session, final String iUserName) {
+  public boolean dropUser(final YTDatabaseSession session, final String iUserName) {
     final Number removed;
     try (OResultSet res = session.command("delete from OUser where name = ?", iUserName)) {
       removed = res.next().getProperty("count");
@@ -435,10 +435,10 @@ public class OSecurityShared implements OSecurityInternal {
     return removed != null && removed.intValue() > 0;
   }
 
-  public ORole getRole(final ODatabaseSession session, final OIdentifiable iRole) {
+  public ORole getRole(final YTDatabaseSession session, final YTIdentifiable iRole) {
     try {
-      final ODocument doc = iRole.getRecord();
-      OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+      final YTDocument doc = iRole.getRecord();
+      YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
 
       if (clazz != null && clazz.isOrole()) {
         return new ORole(session, doc);
@@ -450,7 +450,7 @@ public class OSecurityShared implements OSecurityInternal {
     return null;
   }
 
-  public ORole getRole(final ODatabaseSession session, final String iRoleName) {
+  public ORole getRole(final YTDatabaseSession session, final String iRoleName) {
     if (iRoleName == null) {
       return null;
     }
@@ -459,14 +459,14 @@ public class OSecurityShared implements OSecurityInternal {
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new ORole(session,
-            (ODocument) result.next().getElement().get());
+            (YTDocument) result.next().getElement().get());
       }
     }
 
     return null;
   }
 
-  public static ORID getRoleRID(final ODatabaseSession session, final String iRoleName) {
+  public static YTRID getRoleRID(final YTDatabaseSession session, final String iRoleName) {
     if (iRoleName == null) {
       return null;
     }
@@ -482,13 +482,13 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   public ORole createRole(
-      final ODatabaseSessionInternal session, final String iRoleName,
+      final YTDatabaseSessionInternal session, final String iRoleName,
       final ALLOW_MODES iAllowMode) {
     return createRole(session, iRoleName, null, iAllowMode);
   }
 
   public ORole createRole(
-      final ODatabaseSessionInternal session,
+      final YTDatabaseSessionInternal session,
       final String iRoleName,
       final ORole iParent,
       final ALLOW_MODES iAllowMode) {
@@ -497,7 +497,7 @@ public class OSecurityShared implements OSecurityInternal {
     return role.save(session);
   }
 
-  public boolean dropRole(final ODatabaseSession session, final String iRoleName) {
+  public boolean dropRole(final YTDatabaseSession session, final String iRoleName) {
     final Number removed;
     try (OResultSet result =
         session.command("delete from ORole where name = '" + iRoleName + "'")) {
@@ -507,34 +507,34 @@ public class OSecurityShared implements OSecurityInternal {
     return removed != null && removed.intValue() > 0;
   }
 
-  public List<ODocument> getAllUsers(final ODatabaseSession session) {
+  public List<YTDocument> getAllUsers(final YTDatabaseSession session) {
     try (OResultSet rs = session.query("select from OUser")) {
-      return rs.stream().map((e) -> (ODocument) e.getElement().get()).collect(Collectors.toList());
+      return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
     }
   }
 
-  public List<ODocument> getAllRoles(final ODatabaseSession session) {
+  public List<YTDocument> getAllRoles(final YTDatabaseSession session) {
     try (OResultSet rs = session.query("select from ORole")) {
-      return rs.stream().map((e) -> (ODocument) e.getElement().get()).collect(Collectors.toList());
+      return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
     }
   }
 
   @Override
   public Map<String, OSecurityPolicy> getSecurityPolicies(
-      ODatabaseSession session, OSecurityRole role) {
+      YTDatabaseSession session, OSecurityRole role) {
     Map<String, OSecurityPolicy> result = role.getPolicies(session);
     return result != null ? result : Collections.emptyMap();
   }
 
   @Override
   public OSecurityPolicy getSecurityPolicy(
-      ODatabaseSession session, OSecurityRole role, String resource) {
+      YTDatabaseSession session, OSecurityRole role, String resource) {
     resource = normalizeSecurityResource(session, resource);
     return role.getPolicy(session, resource);
   }
 
   public void setSecurityPolicyWithBitmask(
-      ODatabaseSessionInternal session, OSecurityRole role, String resource, int legacyPolicy) {
+      YTDatabaseSessionInternal session, OSecurityRole role, String resource, int legacyPolicy) {
     String policyName = "default_" + legacyPolicy;
     OSecurityPolicyImpl policy = getSecurityPolicy(session, policyName);
     if (policy == null) {
@@ -557,12 +557,12 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public void setSecurityPolicy(
-      ODatabaseSessionInternal session, OSecurityRole role, String resource,
+      YTDatabaseSessionInternal session, OSecurityRole role, String resource,
       OSecurityPolicyImpl policy) {
     var currentResource = normalizeSecurityResource(session, resource);
-    OElement roleDoc = session.load(role.getIdentity(session).getIdentity());
+    YTEntity roleDoc = session.load(role.getIdentity(session).getIdentity());
     validatePolicyWithIndexes(session, currentResource);
-    Map<String, OIdentifiable> policies = roleDoc.getProperty("policies");
+    Map<String, YTIdentifiable> policies = roleDoc.getProperty("policies");
     if (policies == null) {
       policies = new HashMap<>();
       roleDoc.setProperty("policies", policies);
@@ -578,24 +578,24 @@ public class OSecurityShared implements OSecurityInternal {
     initPredicateSecurityOptimizations(session);
   }
 
-  private static void validatePolicyWithIndexes(ODatabaseSession session, String resource)
+  private static void validatePolicyWithIndexes(YTDatabaseSession session, String resource)
       throws IllegalArgumentException {
     OSecurityResource res = OSecurityResource.getInstance(resource);
     if (res instanceof OSecurityResourceProperty) {
       String clazzName = ((OSecurityResourceProperty) res).getClassName();
-      OClass clazz =
-          ((ODatabaseSessionInternal) session)
+      YTClass clazz =
+          ((YTDatabaseSessionInternal) session)
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(clazzName);
       if (clazz == null) {
         return;
       }
-      Set<OClass> allClasses = new HashSet<>();
+      Set<YTClass> allClasses = new HashSet<>();
       allClasses.add(clazz);
       allClasses.addAll(clazz.getAllSubclasses());
       allClasses.addAll(clazz.getAllSuperClasses());
-      for (OClass c : allClasses) {
+      for (YTClass c : allClasses) {
         for (OIndex index : c.getIndexes(session)) {
           List<String> indexFields = index.getDefinition().getFields();
           if (indexFields.size() > 1
@@ -612,8 +612,8 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OSecurityPolicyImpl createSecurityPolicy(ODatabaseSession session, String name) {
-    OElement elem = session.newElement(OSecurityPolicy.class.getSimpleName());
+  public OSecurityPolicyImpl createSecurityPolicy(YTDatabaseSession session, String name) {
+    YTEntity elem = session.newElement(OSecurityPolicy.class.getSimpleName());
     elem.setProperty("name", name);
     OSecurityPolicyImpl policy = new OSecurityPolicyImpl(elem);
     saveSecurityPolicy(session, policy);
@@ -621,7 +621,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OSecurityPolicyImpl getSecurityPolicy(ODatabaseSession session, String name) {
+  public OSecurityPolicyImpl getSecurityPolicy(YTDatabaseSession session, String name) {
     try (OResultSet rs =
         session.query(
             "SELECT FROM " + OSecurityPolicy.class.getSimpleName() + " WHERE name = ?", name)) {
@@ -634,8 +634,8 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public void saveSecurityPolicy(ODatabaseSession session, OSecurityPolicyImpl policy) {
-    var sessionInternal = (ODatabaseSessionInternal) session;
+  public void saveSecurityPolicy(YTDatabaseSession session, OSecurityPolicyImpl policy) {
+    var sessionInternal = (YTDatabaseSessionInternal) session;
     sessionInternal
         .save(
             policy.getElement(sessionInternal),
@@ -643,18 +643,18 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public void deleteSecurityPolicy(ODatabaseSession session, String name) {
+  public void deleteSecurityPolicy(YTDatabaseSession session, String name) {
     session
         .command("DELETE FROM " + OSecurityPolicy.class.getSimpleName() + " WHERE name = ?", name)
         .close();
   }
 
   @Override
-  public void removeSecurityPolicy(ODatabaseSession session, ORole role, String resource) {
-    var sessionInternal = (ODatabaseSessionInternal) session;
+  public void removeSecurityPolicy(YTDatabaseSession session, ORole role, String resource) {
+    var sessionInternal = (YTDatabaseSessionInternal) session;
     String calculatedResource = normalizeSecurityResource(session, resource);
-    final OElement roleDoc = session.load(role.getIdentity(session).getIdentity());
-    Map<String, OIdentifiable> policies = roleDoc.getProperty("policies");
+    final YTEntity roleDoc = session.load(role.getIdentity(session).getIdentity());
+    Map<String, YTIdentifiable> policies = roleDoc.getProperty("policies");
     if (policies == null) {
       return;
     }
@@ -666,11 +666,11 @@ public class OSecurityShared implements OSecurityInternal {
     initPredicateSecurityOptimizations(sessionInternal);
   }
 
-  private static String normalizeSecurityResource(ODatabaseSession session, String resource) {
+  private static String normalizeSecurityResource(YTDatabaseSession session, String resource) {
     return resource; // TODO
   }
 
-  public OUser create(final ODatabaseSessionInternal session) {
+  public OUser create(final YTDatabaseSessionInternal session) {
     if (!session.getMetadata().getSchema().getClasses().isEmpty()) {
       return null;
     }
@@ -678,7 +678,7 @@ public class OSecurityShared implements OSecurityInternal {
     skipRoleHasPredicateSecurityForClassUpdate = true;
     OUser adminUser = null;
     try {
-      OClass identityClass =
+      YTClass identityClass =
           session.getMetadata().getSchema().getClass(OIdentity.CLASS_NAME); // SINCE 1.2.0
       if (identityClass == null) {
         identityClass = session.getMetadata().getSchema().createAbstractClass(OIdentity.CLASS_NAME);
@@ -686,7 +686,7 @@ public class OSecurityShared implements OSecurityInternal {
 
       createOrUpdateOSecurityPolicyClass(session);
 
-      OClass roleClass = createOrUpdateORoleClass(session, identityClass);
+      YTClass roleClass = createOrUpdateORoleClass(session, identityClass);
 
       createOrUpdateOUserClass(session, identityClass, roleClass);
       createOrUpdateORestrictedClass(session);
@@ -705,7 +705,7 @@ public class OSecurityShared implements OSecurityInternal {
     return adminUser;
   }
 
-  private void createDefaultRoles(final ODatabaseSessionInternal session) {
+  private void createDefaultRoles(final YTDatabaseSessionInternal session) {
     session.executeInTx(
         () -> {
           createDefaultAdminRole(session);
@@ -714,9 +714,9 @@ public class OSecurityShared implements OSecurityInternal {
         });
   }
 
-  private OUser createDefaultUsers(final ODatabaseSessionInternal session) {
+  private OUser createDefaultUsers(final YTDatabaseSessionInternal session) {
     boolean createDefUsers =
-        session.getConfiguration().getValueAsBoolean(OGlobalConfiguration.CREATE_DEFAULT_USERS);
+        session.getConfiguration().getValueAsBoolean(YTGlobalConfiguration.CREATE_DEFAULT_USERS);
 
     OUser adminUser = null;
     // This will return the global value if a local storage context configuration value does not
@@ -734,14 +734,14 @@ public class OSecurityShared implements OSecurityInternal {
     return adminUser;
   }
 
-  private ORole createDefaultWriterRole(final ODatabaseSessionInternal session) {
+  private ORole createDefaultWriterRole(final YTDatabaseSessionInternal session) {
     final ORole writerRole =
         createRole(session, DEFAULT_WRITER_ROLE_NAME, ORole.ALLOW_MODES.DENY_ALL_BUT);
     sedDefaultWriterPermissions(session, writerRole);
     return writerRole;
   }
 
-  private void sedDefaultWriterPermissions(final ODatabaseSessionInternal session,
+  private void sedDefaultWriterPermissions(final YTDatabaseSessionInternal session,
       final ORole writerRole) {
     setSecurityPolicyWithBitmask(session, writerRole, "database.class.*.*", ORole.PERMISSION_ALL);
 
@@ -758,7 +758,8 @@ public class OSecurityShared implements OSecurityInternal {
     writerRole.addRule(session, ResourceGeneric.COMMAND, null, ORole.PERMISSION_ALL);
     writerRole.addRule(session, ResourceGeneric.RECORD_HOOK, null, ORole.PERMISSION_ALL);
     writerRole.addRule(session, ResourceGeneric.FUNCTION, null, ORole.PERMISSION_READ);
-    writerRole.addRule(session, ResourceGeneric.CLASS, OSequence.CLASS_NAME, ORole.PERMISSION_READ);
+    writerRole.addRule(session, ResourceGeneric.CLASS, YTSequence.CLASS_NAME,
+        ORole.PERMISSION_READ);
     writerRole.addRule(session, ResourceGeneric.CLASS, "OTriggered", ORole.PERMISSION_READ);
     writerRole.addRule(session, ResourceGeneric.CLASS, "OSchedule", ORole.PERMISSION_READ);
     writerRole.addRule(session,
@@ -821,7 +822,7 @@ public class OSecurityShared implements OSecurityInternal {
     setSecurityPolicyWithBitmask(
         session,
         writerRole,
-        ORule.ResourceGeneric.CLASS.getLegacyName() + "." + OSequence.CLASS_NAME,
+        ORule.ResourceGeneric.CLASS.getLegacyName() + "." + YTSequence.CLASS_NAME,
         ORole.PERMISSION_READ);
     setSecurityPolicyWithBitmask(
         session,
@@ -840,14 +841,14 @@ public class OSecurityShared implements OSecurityInternal {
         ORole.PERMISSION_NONE);
   }
 
-  private ORole createDefaultReaderRole(final ODatabaseSessionInternal session) {
+  private ORole createDefaultReaderRole(final YTDatabaseSessionInternal session) {
     final ORole readerRole =
         createRole(session, DEFAULT_READER_ROLE_NAME, ORole.ALLOW_MODES.DENY_ALL_BUT);
     setDefaultReaderPermissions(session, readerRole);
     return readerRole;
   }
 
-  private void setDefaultReaderPermissions(final ODatabaseSessionInternal session,
+  private void setDefaultReaderPermissions(final YTDatabaseSessionInternal session,
       final ORole readerRole) {
     setSecurityPolicyWithBitmask(session, readerRole, "database.class.*.*", ORole.PERMISSION_ALL);
 
@@ -923,14 +924,15 @@ public class OSecurityShared implements OSecurityInternal {
         ORole.PERMISSION_NONE);
   }
 
-  private ORole createDefaultAdminRole(final ODatabaseSessionInternal session) {
+  private ORole createDefaultAdminRole(final YTDatabaseSessionInternal session) {
     ORole adminRole;
     adminRole = createRole(session, ORole.ADMIN, ORole.ALLOW_MODES.DENY_ALL_BUT);
     setDefaultAdminPermissions(session, adminRole);
     return adminRole;
   }
 
-  private void setDefaultAdminPermissions(final ODatabaseSessionInternal session, ORole adminRole) {
+  private void setDefaultAdminPermissions(final YTDatabaseSessionInternal session,
+      ORole adminRole) {
     setSecurityPolicyWithBitmask(session, adminRole, "*", ORole.PERMISSION_ALL);
     adminRole.addRule(session, ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_ALL)
         .save(session);
@@ -949,8 +951,8 @@ public class OSecurityShared implements OSecurityInternal {
     adminRole.save(session);
   }
 
-  private void createOrUpdateORestrictedClass(final ODatabaseSessionInternal database) {
-    OClass restrictedClass = database.getMetadata().getSchema().getClass(RESTRICTED_CLASSNAME);
+  private void createOrUpdateORestrictedClass(final YTDatabaseSessionInternal database) {
+    YTClass restrictedClass = database.getMetadata().getSchema().getClass(RESTRICTED_CLASSNAME);
     boolean unsafe = false;
     if (restrictedClass == null) {
       restrictedClass =
@@ -960,33 +962,33 @@ public class OSecurityShared implements OSecurityInternal {
     if (!restrictedClass.existsProperty(ALLOW_ALL_FIELD)) {
       restrictedClass.createProperty(database,
           ALLOW_ALL_FIELD,
-          OType.LINKSET,
+          YTType.LINKSET,
           database.getMetadata().getSchema().getClass(OIdentity.CLASS_NAME), unsafe);
     }
     if (!restrictedClass.existsProperty(ALLOW_READ_FIELD)) {
       restrictedClass.createProperty(database,
           ALLOW_READ_FIELD,
-          OType.LINKSET,
+          YTType.LINKSET,
           database.getMetadata().getSchema().getClass(OIdentity.CLASS_NAME), unsafe);
     }
     if (!restrictedClass.existsProperty(ALLOW_UPDATE_FIELD)) {
       restrictedClass.createProperty(database,
           ALLOW_UPDATE_FIELD,
-          OType.LINKSET,
+          YTType.LINKSET,
           database.getMetadata().getSchema().getClass(OIdentity.CLASS_NAME), unsafe);
     }
     if (!restrictedClass.existsProperty(ALLOW_DELETE_FIELD)) {
       restrictedClass.createProperty(database,
           ALLOW_DELETE_FIELD,
-          OType.LINKSET,
+          YTType.LINKSET,
           database.getMetadata().getSchema().getClass(OIdentity.CLASS_NAME), unsafe);
     }
   }
 
   private void createOrUpdateOUserClass(
-      final ODatabaseSessionInternal database, OClass identityClass, OClass roleClass) {
+      final YTDatabaseSessionInternal database, YTClass identityClass, YTClass roleClass) {
     boolean unsafe = false;
-    OClass userClass = database.getMetadata().getSchema().getClass("OUser");
+    YTClass userClass = database.getMetadata().getSchema().getClass("OUser");
     if (userClass == null) {
       userClass = database.getMetadata().getSchema().createClass("OUser", identityClass);
       unsafe = true;
@@ -998,7 +1000,7 @@ public class OSecurityShared implements OSecurityInternal {
 
     if (!userClass.existsProperty("name")) {
       userClass
-          .createProperty(database, "name", OType.STRING, (OType) null, unsafe)
+          .createProperty(database, "name", YTType.STRING, (YTType) null, unsafe)
           .setMandatory(database, true)
           .setNotNull(database, true)
           .setCollate(database, "ci")
@@ -1007,7 +1009,7 @@ public class OSecurityShared implements OSecurityInternal {
       userClass.createIndex(database, "OUser.name", INDEX_TYPE.UNIQUE, ONullOutputListener.INSTANCE,
           "name");
     } else {
-      final OProperty name = userClass.getProperty("name");
+      final YTProperty name = userClass.getProperty("name");
       if (name.getAllIndexes(database).isEmpty()) {
         userClass.createIndex(database,
             "OUser.name", INDEX_TYPE.UNIQUE, ONullOutputListener.INSTANCE, "name");
@@ -1015,24 +1017,24 @@ public class OSecurityShared implements OSecurityInternal {
     }
     if (!userClass.existsProperty(OUser.PASSWORD_FIELD)) {
       userClass
-          .createProperty(database, OUser.PASSWORD_FIELD, OType.STRING, (OType) null, unsafe)
+          .createProperty(database, OUser.PASSWORD_FIELD, YTType.STRING, (YTType) null, unsafe)
           .setMandatory(database, true)
           .setNotNull(database, true);
     }
     if (!userClass.existsProperty("roles")) {
-      userClass.createProperty(database, "roles", OType.LINKSET, roleClass, unsafe);
+      userClass.createProperty(database, "roles", YTType.LINKSET, roleClass, unsafe);
     }
     if (!userClass.existsProperty("status")) {
       userClass
-          .createProperty(database, "status", OType.STRING, (OType) null, unsafe)
+          .createProperty(database, "status", YTType.STRING, (YTType) null, unsafe)
           .setMandatory(database, true)
           .setNotNull(database, true);
     }
   }
 
-  private static OClass createOrUpdateOSecurityPolicyClass(
-      final ODatabaseSessionInternal database) {
-    OClass policyClass = database.getMetadata().getSchema().getClass("OSecurityPolicy");
+  private static YTClass createOrUpdateOSecurityPolicyClass(
+      final YTDatabaseSessionInternal database) {
+    YTClass policyClass = database.getMetadata().getSchema().getClass("OSecurityPolicy");
     boolean unsafe = false;
     if (policyClass == null) {
       policyClass = database.getMetadata().getSchema().createClass("OSecurityPolicy");
@@ -1041,14 +1043,14 @@ public class OSecurityShared implements OSecurityInternal {
 
     if (!policyClass.existsProperty("name")) {
       policyClass
-          .createProperty(database, "name", OType.STRING, (OType) null, unsafe)
+          .createProperty(database, "name", YTType.STRING, (YTType) null, unsafe)
           .setMandatory(database, true)
           .setNotNull(database, true)
           .setCollate(database, "ci");
       policyClass.createIndex(database,
           "OSecurityPolicy.name", INDEX_TYPE.UNIQUE, ONullOutputListener.INSTANCE, "name");
     } else {
-      final OProperty name = policyClass.getProperty("name");
+      final YTProperty name = policyClass.getProperty("name");
       if (name.getAllIndexes(database).isEmpty()) {
         policyClass.createIndex(database,
             "OSecurityPolicy.name", INDEX_TYPE.UNIQUE, ONullOutputListener.INSTANCE, "name");
@@ -1056,34 +1058,34 @@ public class OSecurityShared implements OSecurityInternal {
     }
 
     if (!policyClass.existsProperty("create")) {
-      policyClass.createProperty(database, "create", OType.STRING, (OType) null, unsafe);
+      policyClass.createProperty(database, "create", YTType.STRING, (YTType) null, unsafe);
     }
     if (!policyClass.existsProperty("read")) {
-      policyClass.createProperty(database, "read", OType.STRING, (OType) null, unsafe);
+      policyClass.createProperty(database, "read", YTType.STRING, (YTType) null, unsafe);
     }
     if (!policyClass.existsProperty("beforeUpdate")) {
-      policyClass.createProperty(database, "beforeUpdate", OType.STRING, (OType) null, unsafe);
+      policyClass.createProperty(database, "beforeUpdate", YTType.STRING, (YTType) null, unsafe);
     }
     if (!policyClass.existsProperty("afterUpdate")) {
-      policyClass.createProperty(database, "afterUpdate", OType.STRING, (OType) null, unsafe);
+      policyClass.createProperty(database, "afterUpdate", YTType.STRING, (YTType) null, unsafe);
     }
     if (!policyClass.existsProperty("delete")) {
-      policyClass.createProperty(database, "delete", OType.STRING, (OType) null, unsafe);
+      policyClass.createProperty(database, "delete", YTType.STRING, (YTType) null, unsafe);
     }
     if (!policyClass.existsProperty("execute")) {
-      policyClass.createProperty(database, "execute", OType.STRING, (OType) null, unsafe);
+      policyClass.createProperty(database, "execute", YTType.STRING, (YTType) null, unsafe);
     }
 
     if (!policyClass.existsProperty("active")) {
-      policyClass.createProperty(database, "active", OType.BOOLEAN, (OType) null, unsafe);
+      policyClass.createProperty(database, "active", YTType.BOOLEAN, (YTType) null, unsafe);
     }
 
     return policyClass;
   }
 
-  private static OClass createOrUpdateORoleClass(final ODatabaseSessionInternal database,
-      OClass identityClass) {
-    OClass roleClass = database.getMetadata().getSchema().getClass("ORole");
+  private static YTClass createOrUpdateORoleClass(final YTDatabaseSessionInternal database,
+      YTClass identityClass) {
+    YTClass roleClass = database.getMetadata().getSchema().getClass("ORole");
     boolean unsafe = false;
     if (roleClass == null) {
       roleClass = database.getMetadata().getSchema().createClass("ORole", identityClass);
@@ -1096,14 +1098,14 @@ public class OSecurityShared implements OSecurityInternal {
 
     if (!roleClass.existsProperty("name")) {
       roleClass
-          .createProperty(database, "name", OType.STRING, (OType) null, unsafe)
+          .createProperty(database, "name", YTType.STRING, (YTType) null, unsafe)
           .setMandatory(database, true)
           .setNotNull(database, true)
           .setCollate(database, "ci");
       roleClass.createIndex(database, "ORole.name", INDEX_TYPE.UNIQUE, ONullOutputListener.INSTANCE,
           "name");
     } else {
-      final OProperty name = roleClass.getProperty("name");
+      final YTProperty name = roleClass.getProperty("name");
       if (name.getAllIndexes(database).isEmpty()) {
         roleClass.createIndex(database,
             "ORole.name", INDEX_TYPE.UNIQUE, ONullOutputListener.INSTANCE, "name");
@@ -1111,38 +1113,38 @@ public class OSecurityShared implements OSecurityInternal {
     }
 
     if (!roleClass.existsProperty("mode")) {
-      roleClass.createProperty(database, "mode", OType.BYTE, (OType) null, unsafe);
+      roleClass.createProperty(database, "mode", YTType.BYTE, (YTType) null, unsafe);
     }
 
     if (!roleClass.existsProperty("rules")) {
-      roleClass.createProperty(database, "rules", OType.EMBEDDEDMAP, OType.BYTE, unsafe);
+      roleClass.createProperty(database, "rules", YTType.EMBEDDEDMAP, YTType.BYTE, unsafe);
     }
     if (!roleClass.existsProperty("inheritedRole")) {
-      roleClass.createProperty(database, "inheritedRole", OType.LINK, roleClass, unsafe);
+      roleClass.createProperty(database, "inheritedRole", YTType.LINK, roleClass, unsafe);
     }
 
     if (!roleClass.existsProperty("policies")) {
       roleClass.createProperty(database,
-          "policies", OType.LINKMAP, database.getClass("OSecurityPolicy"), unsafe);
+          "policies", YTType.LINKMAP, database.getClass("OSecurityPolicy"), unsafe);
     }
 
     return roleClass;
   }
 
-  public void load(ODatabaseSessionInternal session) {
+  public void load(YTDatabaseSessionInternal session) {
     var sessionInternal = session;
-    final OClass userClass = session.getMetadata().getSchema().getClass("OUser");
+    final YTClass userClass = session.getMetadata().getSchema().getClass("OUser");
     if (userClass != null) {
       // @COMPATIBILITY <1.3.0
       if (!userClass.existsProperty("status")) {
-        userClass.createProperty(session, "status", OType.STRING).setMandatory(session, true)
+        userClass.createProperty(session, "status", YTType.STRING).setMandatory(session, true)
             .setNotNull(session, true);
       }
-      OProperty p = userClass.getProperty("name");
+      YTProperty p = userClass.getProperty("name");
       if (p == null) {
         p =
             userClass
-                .createProperty(session, "name", OType.STRING)
+                .createProperty(session, "name", YTType.STRING)
                 .setMandatory(session, true)
                 .setNotNull(session, true)
                 .setMin(session, "1")
@@ -1154,20 +1156,20 @@ public class OSecurityShared implements OSecurityInternal {
       }
 
       // ROLE
-      final OClass roleClass = session.getMetadata().getSchema().getClass("ORole");
+      final YTClass roleClass = session.getMetadata().getSchema().getClass("ORole");
 
-      final OProperty rules = roleClass.getProperty("rules");
-      if (rules != null && !OType.EMBEDDEDMAP.equals(rules.getType())) {
+      final YTProperty rules = roleClass.getProperty("rules");
+      if (rules != null && !YTType.EMBEDDEDMAP.equals(rules.getType())) {
         roleClass.dropProperty(session, "rules");
       }
 
       if (!roleClass.existsProperty("inheritedRole")) {
-        roleClass.createProperty(session, "inheritedRole", OType.LINK, roleClass);
+        roleClass.createProperty(session, "inheritedRole", YTType.LINK, roleClass);
       }
 
       p = roleClass.getProperty("name");
       if (p == null) {
-        p = roleClass.createProperty(session, "name", OType.STRING).
+        p = roleClass.createProperty(session, "name", YTType.STRING).
             setMandatory(session, true)
             .setNotNull(session, true);
       }
@@ -1183,8 +1185,8 @@ public class OSecurityShared implements OSecurityInternal {
     initPredicateSecurityOptimizations(sessionInternal);
   }
 
-  private void setupPredicateSecurity(ODatabaseSessionInternal session) {
-    OClass securityPolicyClass = session.getMetadata().getSchema().getClass(OSecurityPolicy.class);
+  private void setupPredicateSecurity(YTDatabaseSessionInternal session) {
+    YTClass securityPolicyClass = session.getMetadata().getSchema().getClass(OSecurityPolicy.class);
     if (securityPolicyClass == null) {
       createOrUpdateOSecurityPolicyClass(session);
       ORole adminRole = getRole(session, "admin");
@@ -1205,14 +1207,14 @@ public class OSecurityShared implements OSecurityInternal {
     }
   }
 
-  public void createClassTrigger(ODatabaseSessionInternal session) {
-    OClass classTrigger = session.getMetadata().getSchema().getClass(OClassTrigger.CLASSNAME);
+  public void createClassTrigger(YTDatabaseSessionInternal session) {
+    YTClass classTrigger = session.getMetadata().getSchema().getClass(OClassTrigger.CLASSNAME);
     if (classTrigger == null) {
       session.getMetadata().getSchema().createAbstractClass(OClassTrigger.CLASSNAME);
     }
   }
 
-  public static OUser getUserInternal(final ODatabaseSession session, final String iUserName) {
+  public static OUser getUserInternal(final YTDatabaseSession session, final String iUserName) {
     return (OUser)
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
@@ -1220,7 +1222,7 @@ public class OSecurityShared implements OSecurityInternal {
                   session.query("select from OUser where name = ? limit 1", iUserName)) {
                 if (result.hasNext()) {
                   return new OUser(session,
-                      (ODocument) result.next().getElement().get());
+                      (YTDocument) result.next().getElement().get());
                 }
               }
               return null;
@@ -1228,7 +1230,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OUser getUser(ODatabaseSession session, String username) {
+  public OUser getUser(YTDatabaseSession session, String username) {
     return getUserInternal(session, username);
   }
 
@@ -1281,8 +1283,8 @@ public class OSecurityShared implements OSecurityInternal {
     return policies;
   }
 
-  public ORID getUserRID(final ODatabaseSession session, final String userName) {
-    return (ORID)
+  public YTRID getUserRID(final YTDatabaseSession session, final String userName) {
+    return (YTRID)
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
               try (OResultSet result =
@@ -1302,20 +1304,20 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public long getVersion(final ODatabaseSession session) {
+  public long getVersion(final YTDatabaseSession session) {
     return version.get();
   }
 
   @Override
-  public void incrementVersion(final ODatabaseSession session) {
-    var sessionInternal = (ODatabaseSessionInternal) session;
+  public void incrementVersion(final YTDatabaseSession session) {
+    var sessionInternal = (YTDatabaseSessionInternal) session;
     version.incrementAndGet();
     securityPredicateCache.clear();
     updateAllFilteredProperties(sessionInternal);
     initPredicateSecurityOptimizations(sessionInternal);
   }
 
-  protected void initPredicateSecurityOptimizations(ODatabaseSessionInternal session) {
+  protected void initPredicateSecurityOptimizations(YTDatabaseSessionInternal session) {
     if (skipRoleHasPredicateSecurityForClassUpdate) {
       return;
     }
@@ -1334,9 +1336,9 @@ public class OSecurityShared implements OSecurityInternal {
     }
   }
 
-  private void initPredicateSecurityOptimizationsInternal(ODatabaseSessionInternal session) {
+  private void initPredicateSecurityOptimizationsInternal(YTDatabaseSessionInternal session) {
     Map<String, Map<String, Boolean>> result = new HashMap<>();
-    Collection<OClass> allClasses = session.getMetadata().getSchema().getClasses();
+    Collection<YTClass> allClasses = session.getMetadata().getSchema().getClasses();
 
     if (!session
         .getMetadata()
@@ -1353,14 +1355,14 @@ public class OSecurityShared implements OSecurityInternal {
                 OResult item = rs.next();
                 String roleName = item.getProperty("name");
 
-                Map<String, OIdentifiable> policies = item.getProperty("policies");
+                Map<String, YTIdentifiable> policies = item.getProperty("policies");
                 if (policies != null) {
-                  for (Map.Entry<String, OIdentifiable> policyEntry : policies.entrySet()) {
+                  for (Map.Entry<String, YTIdentifiable> policyEntry : policies.entrySet()) {
                     OSecurityResource res = OSecurityResource.getInstance(policyEntry.getKey());
                     try {
-                      OElement policy = policyEntry.getValue().getRecord();
+                      YTEntity policy = policyEntry.getValue().getRecord();
 
-                      for (OClass clazz : allClasses) {
+                      for (YTClass clazz : allClasses) {
                         if (isClassInvolved(clazz, res)
                             && !isAllAllowed(
                             session,
@@ -1383,7 +1385,7 @@ public class OSecurityShared implements OSecurityInternal {
         });
   }
 
-  private boolean isAllAllowed(ODatabaseSessionInternal db, OSecurityPolicy policy) {
+  private boolean isAllAllowed(YTDatabaseSessionInternal db, OSecurityPolicy policy) {
     for (OSecurityPolicy.Scope scope : OSecurityPolicy.Scope.values()) {
       String predicateString = policy.get(scope, db);
       if (predicateString == null) {
@@ -1397,7 +1399,7 @@ public class OSecurityShared implements OSecurityInternal {
     return true;
   }
 
-  private boolean isClassInvolved(OClass clazz, OSecurityResource res) {
+  private boolean isClassInvolved(YTClass clazz, OSecurityResource res) {
 
     if (res instanceof OSecurityResourceAll
         || res.equals(OSecurityResourceClass.ALL_CLASSES)
@@ -1415,11 +1417,11 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public Set<String> getFilteredProperties(ODatabaseSessionInternal session, ODocument document) {
+  public Set<String> getFilteredProperties(YTDatabaseSessionInternal session, YTDocument document) {
     if (session.getUser() == null) {
       return Collections.emptySet();
     }
-    OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
+    YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
     if (clazz == null) {
       return Collections.emptySet();
     }
@@ -1459,7 +1461,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public boolean isAllowedWrite(ODatabaseSessionInternal session, ODocument document,
+  public boolean isAllowedWrite(YTDatabaseSessionInternal session, YTDocument document,
       String propertyName) {
 
     if (session.getUser() == null) {
@@ -1468,8 +1470,8 @@ public class OSecurityShared implements OSecurityInternal {
     }
 
     String className;
-    OClass clazz = null;
-    if (document instanceof ODocument) {
+    YTClass clazz = null;
+    if (document instanceof YTDocument) {
       className = document.getClassName();
     } else {
       clazz = document.getSchemaType().orElse(null);
@@ -1538,18 +1540,18 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public boolean canCreate(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canCreate(YTDatabaseSessionInternal session, YTRecord record) {
     if (session.getUser() == null) {
       // executeNoAuth
       return true;
     }
 
-    if (record instanceof OElement) {
+    if (record instanceof YTEntity) {
       String className;
-      if (record instanceof ODocument) {
-        className = ((ODocument) record).getClassName();
+      if (record instanceof YTDocument) {
+        className = ((YTDocument) record).getClassName();
       } else {
-        className = ((OElement) record).getSchemaType().map(OClass::getName).orElse(null);
+        className = ((YTEntity) record).getSchemaType().map(YTClass::getName).orElse(null);
       }
 
       if (roleHasPredicateSecurityForClass != null) {
@@ -1581,7 +1583,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public boolean canRead(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canRead(YTDatabaseSessionInternal session, YTRecord record) {
     // TODO what about server users?
     if (session.getUser() == null) {
       // executeNoAuth
@@ -1589,8 +1591,8 @@ public class OSecurityShared implements OSecurityInternal {
     }
 
     var sessionInternal = session;
-    if (record instanceof OElement) {
-      OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass((ODocument) record);
+    if (record instanceof YTEntity) {
+      YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass((YTDocument) record);
       if (clazz == null) {
         return true;
       }
@@ -1605,7 +1607,7 @@ public class OSecurityShared implements OSecurityInternal {
           if (roleMap == null) {
             return true; // TODO hierarchy...?
           }
-          Boolean val = roleMap.get(((ODocument) record).getClassName());
+          Boolean val = roleMap.get(((YTDocument) record).getClassName());
           if (!(Boolean.TRUE.equals(val))) {
             return true; // TODO hierarchy...?
           }
@@ -1616,7 +1618,7 @@ public class OSecurityShared implements OSecurityInternal {
           OSecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
-              "database.class.`" + ((ODocument) record).getClassName() + "`",
+              "database.class.`" + ((YTDocument) record).getClassName() + "`",
               OSecurityPolicy.Scope.READ);
       return OSecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, record);
     }
@@ -1624,18 +1626,18 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public boolean canUpdate(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canUpdate(YTDatabaseSessionInternal session, YTRecord record) {
     if (session.getUser() == null) {
       // executeNoAuth
       return true;
     }
-    if (record instanceof OElement) {
+    if (record instanceof YTEntity) {
 
       String className;
-      if (record instanceof ODocument) {
-        className = ((ODocument) record).getClassName();
+      if (record instanceof YTDocument) {
+        className = ((YTDocument) record).getClassName();
       } else {
-        className = ((OElement) record).getSchemaType().map(x -> x.getName()).orElse(null);
+        className = ((YTEntity) record).getSchemaType().map(x -> x.getName()).orElse(null);
       }
 
       if (className != null && roleHasPredicateSecurityForClass != null) {
@@ -1685,11 +1687,12 @@ public class OSecurityShared implements OSecurityInternal {
     return true;
   }
 
-  private OResultInternal calculateOriginalValue(ORecord record, ODatabaseSessionInternal db) {
+  private OResultInternal calculateOriginalValue(YTRecord record, YTDatabaseSessionInternal db) {
     return calculateBefore(record.getRecord(), db);
   }
 
-  public static OResultInternal calculateBefore(ODocument iDocument, ODatabaseSessionInternal db) {
+  public static OResultInternal calculateBefore(YTDocument iDocument,
+      YTDatabaseSessionInternal db) {
     // iDocument = db.load(iDocument.getIdentity(), null, true);
     OResultInternal result = new OResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
@@ -1716,8 +1719,8 @@ public class OSecurityShared implements OSecurityInternal {
   public static Object unboxRidbags(Object value) {
     // TODO move it to some helper class
     if (value instanceof ORidBag) {
-      List<OIdentifiable> result = new ArrayList<>(((ORidBag) value).size());
-      for (OIdentifiable identifiable : (ORidBag) value) {
+      List<YTIdentifiable> result = new ArrayList<>(((ORidBag) value).size());
+      for (YTIdentifiable identifiable : (ORidBag) value) {
         result.add(identifiable);
       }
 
@@ -1727,18 +1730,18 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public boolean canDelete(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canDelete(YTDatabaseSessionInternal session, YTRecord record) {
     if (session.getUser() == null) {
       // executeNoAuth
       return true;
     }
 
-    if (record instanceof OElement) {
+    if (record instanceof YTEntity) {
       String className;
-      if (record instanceof ODocument) {
-        className = ((ODocument) record).getClassName();
+      if (record instanceof YTDocument) {
+        className = ((YTDocument) record).getClassName();
       } else {
-        className = ((OElement) record).getSchemaType().map(OClass::getName).orElse(null);
+        className = ((YTEntity) record).getSchemaType().map(YTClass::getName).orElse(null);
       }
 
       if (roleHasPredicateSecurityForClass != null) {
@@ -1769,7 +1772,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public boolean canExecute(ODatabaseSessionInternal session, OFunction function) {
+  public boolean canExecute(YTDatabaseSessionInternal session, OFunction function) {
     if (session.getUser() == null) {
       // executeNoAuth
       return true;
@@ -1797,7 +1800,7 @@ public class OSecurityShared implements OSecurityInternal {
     return null;
   }
 
-  protected void putPredicateInCache(ODatabaseSessionInternal session, String roleName, String key,
+  protected void putPredicateInCache(YTDatabaseSessionInternal session, String roleName, String key,
       OBooleanExpression predicate) {
     if (predicate.isCacheable(session)) {
       Map<String, OBooleanExpression> roleMap = this.securityPredicateCache.get(roleName);
@@ -1811,13 +1814,13 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public boolean isReadRestrictedBySecurityPolicy(ODatabaseSession session, String resource) {
+  public boolean isReadRestrictedBySecurityPolicy(YTDatabaseSession session, String resource) {
     if (session.getUser() == null) {
       // executeNoAuth
       return false;
     }
 
-    var sessionInternal = (ODatabaseSessionInternal) session;
+    var sessionInternal = (YTDatabaseSessionInternal) session;
     OBooleanExpression predicate =
         OSecurityEngine.getPredicateForSecurityResource(
             sessionInternal, this, resource, OSecurityPolicy.Scope.READ);
@@ -1826,7 +1829,7 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public synchronized Set<OSecurityResourceProperty> getAllFilteredProperties(
-      ODatabaseSessionInternal database) {
+      YTDatabaseSessionInternal database) {
     if (filteredProperties == null) {
       updateAllFilteredProperties(database);
     }
@@ -1836,7 +1839,7 @@ public class OSecurityShared implements OSecurityInternal {
     return new HashSet<>(filteredProperties);
   }
 
-  protected void updateAllFilteredProperties(ODatabaseSessionInternal session) {
+  protected void updateAllFilteredProperties(YTDatabaseSessionInternal session) {
     Set<OSecurityResourceProperty> result;
     if (session.getUser() == null) {
       result = calculateAllFilteredProperties(session);
@@ -1854,7 +1857,7 @@ public class OSecurityShared implements OSecurityInternal {
     }
   }
 
-  protected void updateAllFilteredPropertiesInternal(ODatabaseSessionInternal session) {
+  protected void updateAllFilteredPropertiesInternal(YTDatabaseSessionInternal session) {
     OSecurityUser user = session.getUser();
     try {
       if (user != null) {
@@ -1873,7 +1876,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   protected Set<OSecurityResourceProperty> calculateAllFilteredProperties(
-      ODatabaseSessionInternal session) {
+      YTDatabaseSessionInternal session) {
     Set<OSecurityResourceProperty> result = new HashSet<>();
     if (!session
         .getMetadata()
@@ -1884,13 +1887,13 @@ public class OSecurityShared implements OSecurityInternal {
     try (OResultSet rs = session.query("select policies from ORole")) {
       while (rs.hasNext()) {
         OResult item = rs.next();
-        Map<String, OIdentifiable> policies = item.getProperty("policies");
+        Map<String, YTIdentifiable> policies = item.getProperty("policies");
         if (policies != null) {
-          for (Map.Entry<String, OIdentifiable> policyEntry : policies.entrySet()) {
+          for (Map.Entry<String, YTIdentifiable> policyEntry : policies.entrySet()) {
             try {
               OSecurityResource res = OSecurityResource.getInstance(policyEntry.getKey());
               if (res instanceof OSecurityResourceProperty) {
-                final OElement element = policyEntry.getValue().getRecord();
+                final YTEntity element = policyEntry.getValue().getRecord();
                 final OSecurityPolicy policy =
                     new OImmutableSecurityPolicy(session, new OSecurityPolicyImpl(element));
                 final String readRule = policy.getReadRule(session);
@@ -1910,7 +1913,8 @@ public class OSecurityShared implements OSecurityInternal {
     return result;
   }
 
-  public boolean couldHaveActivePredicateSecurityRoles(ODatabaseSession session, String className) {
+  public boolean couldHaveActivePredicateSecurityRoles(YTDatabaseSession session,
+      String className) {
     if (session.getUser() == null) {
       return false;
     }

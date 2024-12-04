@@ -18,7 +18,7 @@ package com.orientechnologies.lucene;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import java.io.IOException;
 import java.util.Iterator;
@@ -58,7 +58,7 @@ public class OLuceneMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> 
         val = doc.get(OLuceneIndexEngineAbstract.KEY);
       }
       final String finalVal = val;
-      final ORecordId id = new ORecordId(doc.get(OLuceneIndexEngineAbstract.RID));
+      final YTRecordId id = new YTRecordId(doc.get(OLuceneIndexEngineAbstract.RID));
       currentIdx++;
       return new Map.Entry<K, V>() {
         @Override

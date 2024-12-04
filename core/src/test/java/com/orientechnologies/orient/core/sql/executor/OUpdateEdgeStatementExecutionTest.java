@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     // VERTEXES
 
     db.begin();
-    OElement v1;
+    YTEntity v1;
     try (OResultSet res1 = db.command("create vertex")) {
       OResult r = res1.next();
       Assert.assertEquals(r.getProperty("@class"), "V");
@@ -31,7 +31,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    OElement v2;
+    YTEntity v2;
     try (OResultSet res2 = db.command("create vertex V1")) {
       OResult r = res2.next();
       Assert.assertEquals(r.getProperty("@class"), "V1");
@@ -40,7 +40,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    OElement v3;
+    YTEntity v3;
     try (OResultSet res3 = db.command("create vertex set vid = 'v3', brand = 'fiat'")) {
       OResult r = res3.next();
       Assert.assertEquals(r.getProperty("@class"), "V");
@@ -50,7 +50,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    OElement v4;
+    YTEntity v4;
     try (OResultSet res4 =
         db.command("create vertex V1 set vid = 'v4',  brand = 'fiat',name = 'wow'")) {
       OResult r = res4.next();
@@ -69,7 +69,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     Assert.assertTrue(edges.hasNext());
     OResult edge = edges.next();
     Assert.assertFalse(edges.hasNext());
-    Assert.assertEquals(((ODocument) edge.toElement().getRecord()).getClassName(), "E1");
+    Assert.assertEquals(((YTDocument) edge.toElement().getRecord()).getClassName(), "E1");
     edges.close();
 
     db.begin();
@@ -110,11 +110,11 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     // issue #6378
 
     db.begin();
-    OVertex v1 = db.newVertex();
+    YTVertex v1 = db.newVertex();
     db.save(v1);
-    OVertex v2 = db.newVertex();
+    YTVertex v2 = db.newVertex();
     db.save(v2);
-    OVertex v3 = db.newVertex();
+    YTVertex v3 = db.newVertex();
     db.save(v3);
     db.commit();
 

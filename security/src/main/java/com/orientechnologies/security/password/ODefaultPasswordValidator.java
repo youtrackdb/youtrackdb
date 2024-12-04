@@ -14,8 +14,8 @@
 package com.orientechnologies.security.password;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OInvalidPasswordException;
 import com.orientechnologies.orient.core.security.OPasswordValidator;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -42,7 +42,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
   }
 
   // OSecurityComponent
-  public void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final YTDocument jsonConfig,
       OSecuritySystem security) {
     try {
       if (jsonConfig.containsField("enabled")) {

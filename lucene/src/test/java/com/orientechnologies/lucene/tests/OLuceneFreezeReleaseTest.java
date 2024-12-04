@@ -3,10 +3,10 @@ package com.orientechnologies.lucene.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,14 +26,14 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
   @Test
   public void freezeReleaseTest() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass person = schema.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass person = schema.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
     db.begin();
-    db.save(new ODocument("Person").field("name", "John"));
+    db.save(new YTDocument("Person").field("name", "John"));
     db.commit();
 
     OResultSet results = db.query("select from Person where search_class('John')=true");
@@ -49,7 +49,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
 
     db.release();
 
-    ODocument doc = db.newInstance("Person");
+    YTDocument doc = db.newInstance("Person");
     doc.field("name", "John");
 
     db.begin();
@@ -65,14 +65,14 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
   @Test
   public void freezeReleaseMisUsageTest() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass person = schema.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass person = schema.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
     db.begin();
-    db.save(new ODocument("Person").field("name", "John"));
+    db.save(new YTDocument("Person").field("name", "John"));
     db.commit();
 
     OResultSet results = db.command("select from Person where search_class('John')=true");
@@ -93,7 +93,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
     db.release();
 
     db.begin();
-    db.save(new ODocument("Person").field("name", "John"));
+    db.save(new YTDocument("Person").field("name", "John"));
     db.commit();
 
     results = db.command("select from Person where search_class('John')=true");

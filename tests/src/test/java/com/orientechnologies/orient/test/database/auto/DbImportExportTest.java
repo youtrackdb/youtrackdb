@@ -18,8 +18,8 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
@@ -28,12 +28,12 @@ import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -91,7 +91,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final ODatabaseImport dbImport =
             new ODatabaseImport(
-                (ODatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
+                (YTDatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
         // UNREGISTER ALL THE HOOKS
         for (final ORecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
           database.unregisterHook(hook);
@@ -117,7 +117,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
             testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
       try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final ODatabaseCompare databaseCompare =
-            new ODatabaseCompare(database, (ODatabaseSessionInternal) importDB, this);
+            new ODatabaseCompare(database, (YTDatabaseSessionInternal) importDB, this);
         databaseCompare.setCompareEntriesForAutomaticIndexes(true);
         databaseCompare.setCompareIndexMetadata(true);
         Assert.assertTrue(databaseCompare.compare());
@@ -139,45 +139,45 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
     final YouTrackDBConfig config =
         new YouTrackDBConfigBuilder()
-            .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
+            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
     try (final YouTrackDB youTrackDB = new YouTrackDB("embedded:" + localTesPath.getPath(),
         config)) {
       youTrackDB.create("original", ODatabaseType.PLOCAL);
 
-      try (final ODatabaseSessionInternal session = (ODatabaseSessionInternal) youTrackDB.open(
+      try (final YTDatabaseSessionInternal session = (YTDatabaseSessionInternal) youTrackDB.open(
           "original", "admin", "admin")) {
-        final OSchema schema = session.getMetadata().getSchema();
+        final YTSchema schema = session.getMetadata().getSchema();
 
-        final OClass rootCls = schema.createClass("RootClass");
-        rootCls.createProperty(session, "embeddedList", OType.EMBEDDEDLIST);
+        final YTClass rootCls = schema.createClass("RootClass");
+        rootCls.createProperty(session, "embeddedList", YTType.EMBEDDEDLIST);
 
-        final OClass childCls = schema.createClass("ChildClass");
+        final YTClass childCls = schema.createClass("ChildClass");
 
-        final List<ORID> ridsToDelete = new ArrayList<>();
+        final List<YTRID> ridsToDelete = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
           session.begin();
-          final ODocument document = new ODocument(childCls);
+          final YTDocument document = new YTDocument(childCls);
           document.save();
           session.commit();
 
           ridsToDelete.add(document.getIdentity());
         }
 
-        for (final ORID rid : ridsToDelete) {
+        for (final YTRID rid : ridsToDelete) {
           session.begin();
           rid.getRecord().delete();
           session.commit();
         }
 
-        final ODocument rootDocument = new ODocument(rootCls);
-        final ArrayList<ODocument> documents = new ArrayList<>();
+        final YTDocument rootDocument = new YTDocument(rootCls);
+        final ArrayList<YTDocument> documents = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
           session.begin();
-          final ODocument embeddedDocument = new ODocument();
+          final YTDocument embeddedDocument = new YTDocument();
 
-          final ODocument doc = new ODocument(childCls);
+          final YTDocument doc = new YTDocument(childCls);
           doc.save();
           session.commit();
 
@@ -197,21 +197,21 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       }
 
       youTrackDB.create("imported", ODatabaseType.PLOCAL);
-      try (final ODatabaseSessionInternal session =
-          (ODatabaseSessionInternal) youTrackDB.open("imported", "admin", "admin")) {
+      try (final YTDatabaseSessionInternal session =
+          (YTDatabaseSessionInternal) youTrackDB.open("imported", "admin", "admin")) {
         final ODatabaseImport databaseImport =
             new ODatabaseImport(session, exportPath.getPath(), System.out::println);
         databaseImport.run();
 
-        final Iterator<ODocument> classIterator = session.browseClass("RootClass");
-        final ODocument rootDocument = classIterator.next();
+        final Iterator<YTDocument> classIterator = session.browseClass("RootClass");
+        final YTDocument rootDocument = classIterator.next();
 
-        final List<ODocument> documents = rootDocument.field("embeddedList");
+        final List<YTDocument> documents = rootDocument.field("embeddedList");
         for (int i = 0; i < 10; i++) {
-          final ODocument embeddedDocument = documents.get(i);
+          final YTDocument embeddedDocument = documents.get(i);
 
           embeddedDocument.setLazyLoad(false);
-          final ORecordId link = embeddedDocument.getProperty("link");
+          final YTRecordId link = embeddedDocument.getProperty("link");
 
           Assert.assertNotNull(link);
           Assert.assertNotNull(link.getRecord());

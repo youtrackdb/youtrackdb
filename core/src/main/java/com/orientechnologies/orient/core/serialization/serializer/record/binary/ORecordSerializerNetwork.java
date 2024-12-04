@@ -21,13 +21,13 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordFlat;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTRecordFlat;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import java.util.Base64;
 
@@ -60,18 +60,18 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
   }
 
   @Override
-  public ORecordAbstract fromStream(
-      ODatabaseSessionInternal db, final byte[] iSource, ORecordAbstract iRecord,
+  public YTRecordAbstract fromStream(
+      YTDatabaseSessionInternal db, final byte[] iSource, YTRecordAbstract iRecord,
       final String[] iFields) {
     if (iSource == null || iSource.length == 0) {
       return iRecord;
     }
     if (iRecord == null) {
-      iRecord = new ODocument();
-    } else if (iRecord instanceof OBlob) {
+      iRecord = new YTDocument();
+    } else if (iRecord instanceof YTBlob) {
       iRecord.fromStream(iSource);
       return iRecord;
-    } else if (iRecord instanceof ORecordFlat) {
+    } else if (iRecord instanceof YTRecordFlat) {
       iRecord.fromStream(iSource);
       return iRecord;
     }
@@ -81,10 +81,10 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
 
     try {
       if (iFields != null && iFields.length > 0) {
-        serializerByVersion[iSource[0]].deserializePartial(db, (ODocument) iRecord, container,
+        serializerByVersion[iSource[0]].deserializePartial(db, (YTDocument) iRecord, container,
             iFields);
       } else {
-        serializerByVersion[iSource[0]].deserialize(db, (ODocument) iRecord, container);
+        serializerByVersion[iSource[0]].deserialize(db, (YTDocument) iRecord, container);
       }
     } catch (RuntimeException e) {
       OLogManager.instance()
@@ -99,10 +99,10 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
   }
 
   @Override
-  public byte[] toStream(ODatabaseSessionInternal session, ORecordAbstract iSource) {
-    if (iSource instanceof OBlob) {
+  public byte[] toStream(YTDatabaseSessionInternal session, YTRecordAbstract iSource) {
+    if (iSource instanceof YTBlob) {
       return iSource.toStream();
-    } else if (iSource instanceof ORecordFlat) {
+    } else if (iSource instanceof YTRecordFlat) {
       return iSource.toStream();
     } else {
       final BytesContainer container = new BytesContainer();
@@ -111,15 +111,15 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
       int pos = container.alloc(1);
       container.bytes[pos] = CURRENT_RECORD_VERSION;
       // SERIALIZE RECORD
-      serializerByVersion[CURRENT_RECORD_VERSION].serialize(session, (ODocument) iSource,
+      serializerByVersion[CURRENT_RECORD_VERSION].serialize(session, (YTDocument) iSource,
           container);
 
       return container.fitBytes();
     }
   }
 
-  public byte[] serializeValue(ODatabaseSessionInternal db, Object value, OType type) {
-    OImmutableSchema schema = null;
+  public byte[] serializeValue(YTDatabaseSessionInternal db, Object value, YTType type) {
+    YTImmutableSchema schema = null;
     if (db != null) {
       schema = db.getMetadata().getImmutableSchemaSnapshot();
     }
@@ -128,7 +128,7 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
     return bytes.fitBytes();
   }
 
-  public Object deserializeValue(ODatabaseSessionInternal db, byte[] val, OType type) {
+  public Object deserializeValue(YTDatabaseSessionInternal db, byte[] val, YTType type) {
     BytesContainer bytes = new BytesContainer(val);
     return serializerByVersion[0].deserializeValue(db, bytes, type, null);
   }
@@ -144,7 +144,8 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
   }
 
   @Override
-  public String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference, byte[] iSource) {
+  public String[] getFieldNames(YTDatabaseSessionInternal db, YTDocument reference,
+      byte[] iSource) {
     if (iSource == null || iSource.length == 0) {
       return new String[0];
     }

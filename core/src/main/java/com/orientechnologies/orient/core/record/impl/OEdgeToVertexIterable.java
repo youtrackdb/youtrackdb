@@ -2,26 +2,26 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.Collection;
 import java.util.Iterator;
 
 /**
  *
  */
-public class OEdgeToVertexIterable implements Iterable<OVertex>, OSizeable {
+public class OEdgeToVertexIterable implements Iterable<YTVertex>, OSizeable {
 
-  private final Iterable<OEdge> edges;
+  private final Iterable<YTEdge> edges;
   private final ODirection direction;
 
-  public OEdgeToVertexIterable(Iterable<OEdge> edges, ODirection direction) {
+  public OEdgeToVertexIterable(Iterable<YTEdge> edges, ODirection direction) {
     this.edges = edges;
     this.direction = direction;
   }
 
   @Override
-  public Iterator<OVertex> iterator() {
+  public Iterator<YTVertex> iterator() {
     return new OEdgeToVertexIterator(edges.iterator(), direction);
   }
 
@@ -36,7 +36,7 @@ public class OEdgeToVertexIterable implements Iterable<OVertex>, OSizeable {
     if (edges instanceof Collection) {
       return ((Collection) edges).size();
     }
-    Iterator<OEdge> iterator = edges.iterator();
+    Iterator<YTEdge> iterator = edges.iterator();
     int count = 0;
     while (iterator.hasNext()) {
       count++;

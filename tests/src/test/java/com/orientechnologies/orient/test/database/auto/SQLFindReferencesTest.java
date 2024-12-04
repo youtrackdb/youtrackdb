@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +36,13 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
   private static final String WORKER = "Worker";
   private static final String CAR = "Car";
 
-  private ORID carID;
-  private ORID johnDoeID;
-  private ORID janeDoeID;
-  private ORID chuckNorrisID;
-  private ORID jackBauerID;
-  private ORID ctuID;
-  private ORID fbiID;
+  private YTRID carID;
+  private YTRID johnDoeID;
+  private YTRID janeDoeID;
+  private YTRID chuckNorrisID;
+  private YTRID jackBauerID;
+  private YTRID ctuID;
+  private YTRID fbiID;
 
   @Parameters(value = "remote")
   public SQLFindReferencesTest(boolean remote) {
@@ -93,7 +93,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (OResult res : result) {
-      OIdentifiable rid = res.getProperty("referredBy");
+      YTIdentifiable rid = res.getProperty("referredBy");
       Assert.assertTrue(rid.equals(ctuID) || rid.equals(fbiID) || rid.equals(carID));
     }
 
@@ -124,62 +124,62 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
   }
 
   private void createSchema() {
-    OClass worker = database.getMetadata().getSchema().createClass(WORKER);
-    OClass workplace = database.getMetadata().getSchema().createClass(WORKPLACE);
-    OClass car = database.getMetadata().getSchema().createClass(CAR);
+    YTClass worker = database.getMetadata().getSchema().createClass(WORKER);
+    YTClass workplace = database.getMetadata().getSchema().createClass(WORKPLACE);
+    YTClass car = database.getMetadata().getSchema().createClass(CAR);
 
-    worker.createProperty(database, "name", OType.STRING);
-    worker.createProperty(database, "surname", OType.STRING);
-    worker.createProperty(database, "colleagues", OType.LINKLIST, worker);
-    worker.createProperty(database, "car", OType.LINK, car);
+    worker.createProperty(database, "name", YTType.STRING);
+    worker.createProperty(database, "surname", YTType.STRING);
+    worker.createProperty(database, "colleagues", YTType.LINKLIST, worker);
+    worker.createProperty(database, "car", YTType.LINK, car);
 
-    workplace.createProperty(database, "name", OType.STRING);
-    workplace.createProperty(database, "boss", OType.LINK, worker);
-    workplace.createProperty(database, "workers", OType.LINKLIST, worker);
+    workplace.createProperty(database, "name", YTType.STRING);
+    workplace.createProperty(database, "boss", YTType.LINK, worker);
+    workplace.createProperty(database, "workers", YTType.LINKLIST, worker);
 
-    car.createProperty(database, "plate", OType.STRING);
-    car.createProperty(database, "owner", OType.LINK, worker);
+    car.createProperty(database, "plate", YTType.STRING);
+    car.createProperty(database, "owner", YTType.LINK, worker);
   }
 
   private void populateDatabase() {
     database.begin();
-    ODocument car = new ODocument(CAR);
+    YTDocument car = new YTDocument(CAR);
     car.field("plate", "JINF223S");
 
-    ODocument johnDoe = new ODocument(WORKER);
+    YTDocument johnDoe = new YTDocument(WORKER);
     johnDoe.field("name", "John");
     johnDoe.field("surname", "Doe");
     johnDoe.field("car", car);
     johnDoe.save();
 
-    ODocument janeDoe = new ODocument(WORKER);
+    YTDocument janeDoe = new YTDocument(WORKER);
     janeDoe.field("name", "Jane");
     janeDoe.field("surname", "Doe");
     janeDoe.save();
 
-    ODocument chuckNorris = new ODocument(WORKER);
+    YTDocument chuckNorris = new YTDocument(WORKER);
     chuckNorris.field("name", "Chuck");
     chuckNorris.field("surname", "Norris");
     chuckNorris.save();
 
-    ODocument jackBauer = new ODocument(WORKER);
+    YTDocument jackBauer = new YTDocument(WORKER);
     jackBauer.field("name", "Jack");
     jackBauer.field("surname", "Bauer");
     jackBauer.save();
 
-    ODocument ctu = new ODocument(WORKPLACE);
+    YTDocument ctu = new YTDocument(WORKPLACE);
     ctu.field("name", "CTU");
     ctu.field("boss", jackBauer);
-    List<ODocument> workplace1Workers = new ArrayList<ODocument>();
+    List<YTDocument> workplace1Workers = new ArrayList<YTDocument>();
     workplace1Workers.add(chuckNorris);
     workplace1Workers.add(janeDoe);
     ctu.field("workers", workplace1Workers);
     ctu.save();
 
-    ODocument fbi = new ODocument(WORKPLACE);
+    YTDocument fbi = new YTDocument(WORKPLACE);
     fbi.field("name", "FBI");
     fbi.field("boss", chuckNorris);
-    List<ODocument> workplace2Workers = new ArrayList<ODocument>();
+    List<YTDocument> workplace2Workers = new ArrayList<YTDocument>();
     workplace2Workers.add(chuckNorris);
     workplace2Workers.add(jackBauer);
     fbi.field("workers", workplace2Workers);

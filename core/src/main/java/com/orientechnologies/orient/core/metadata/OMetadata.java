@@ -17,7 +17,7 @@
 package com.orientechnologies.orient.core.metadata;
 
 import com.orientechnologies.orient.core.metadata.function.OFunctionLibrary;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
 import com.orientechnologies.orient.core.schedule.OScheduler;
@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.schedule.OScheduler;
  */
 public interface OMetadata {
 
-  OSchema getSchema();
+  YTSchema getSchema();
 
   OSecurity getSecurity();
 

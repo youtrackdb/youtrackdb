@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,8 +33,8 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
   public static final String URL = "plocal:target/testdb/OSBTreeRidBagConcurrencyMultiRidBag";
   private final AtomicInteger positionCounter = new AtomicInteger();
-  private final ConcurrentHashMap<ORID, ConcurrentSkipListSet<ORID>> ridTreePerDocument =
-      new ConcurrentHashMap<ORID, ConcurrentSkipListSet<ORID>>();
+  private final ConcurrentHashMap<YTRID, ConcurrentSkipListSet<YTRID>> ridTreePerDocument =
+      new ConcurrentHashMap<YTRID, ConcurrentSkipListSet<YTRID>>();
   private final AtomicReference<Long> lastClusterPosition = new AtomicReference<Long>();
 
   private final CountDownLatch latch = new CountDownLatch(1);
@@ -52,32 +52,32 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
   @Before
   public void beforeMethod() {
-    linkbagCacheSize = OGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_SIZE.getValueAsInteger();
+    linkbagCacheSize = YTGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_SIZE.getValueAsInteger();
     evictionSize =
-        OGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_EVICTION_SIZE.getValueAsInteger();
+        YTGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_EVICTION_SIZE.getValueAsInteger();
     topThreshold =
-        OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+        YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
     bottomThreshold =
-        OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
+        YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
 
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(30);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(20);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(30);
+    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(20);
 
-    OGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_SIZE.setValue(1000);
-    OGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_EVICTION_SIZE.setValue(100);
+    YTGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_SIZE.setValue(1000);
+    YTGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_EVICTION_SIZE.setValue(100);
   }
 
   @After
   public void afterMethod() {
-    OGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_SIZE.setValue(linkbagCacheSize);
-    OGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_EVICTION_SIZE.setValue(evictionSize);
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
+    YTGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_SIZE.setValue(linkbagCacheSize);
+    YTGlobalConfiguration.SBTREEBONSAI_LINKBAG_CACHE_EVICTION_SIZE.setValue(evictionSize);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
+    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
   }
 
   @Test
   public void testConcurrency() throws Exception {
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -85,13 +85,13 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
     db.create();
     for (int i = 0; i < 100; i++) {
-      ODocument document = new ODocument();
+      YTDocument document = new YTDocument();
       ORidBag ridBag = new ORidBag(db);
       document.field("ridBag", ridBag);
 
       document.save();
 
-      ridTreePerDocument.put(document.getIdentity(), new ConcurrentSkipListSet<ORID>());
+      ridTreePerDocument.put(document.getIdentity(), new ConcurrentSkipListSet<YTRID>());
       lastClusterPosition.set(document.getIdentity().getClusterPosition());
     }
 
@@ -127,15 +127,15 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
     }
 
     long amountOfRids = 0;
-    for (ORID rid : ridTreePerDocument.keySet()) {
-      ODocument document = db.load(rid);
+    for (YTRID rid : ridTreePerDocument.keySet()) {
+      YTDocument document = db.load(rid);
       document.setLazyLoad(false);
 
-      final ConcurrentSkipListSet<ORID> ridTree = ridTreePerDocument.get(rid);
+      final ConcurrentSkipListSet<YTRID> ridTree = ridTreePerDocument.get(rid);
 
       final ORidBag ridBag = document.field("ridBag");
 
-      for (OIdentifiable identifiable : ridBag) {
+      for (YTIdentifiable identifiable : ridBag) {
         Assert.assertTrue(ridTree.remove(identifiable.getIdentity()));
       }
 
@@ -154,16 +154,16 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
     @Override
     public void run() {
-      ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
+      YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
       try {
-        ODocument document = new ODocument();
+        YTDocument document = new YTDocument();
         ORidBag ridBag = new ORidBag(db);
         document.field("ridBag", ridBag);
 
         document.save();
-        ridTreePerDocument.put(document.getIdentity(), new ConcurrentSkipListSet<ORID>());
+        ridTreePerDocument.put(document.getIdentity(), new ConcurrentSkipListSet<YTRID>());
 
         while (true) {
           final long position = lastClusterPosition.get();
@@ -199,27 +199,27 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
       long addedRecords = 0;
       int retries = 0;
 
-      ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
+      YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
       final int defaultClusterId = db.getDefaultClusterId();
       latch.await();
       try {
         while (cont) {
-          List<ORID> ridsToAdd = new ArrayList<ORID>();
+          List<YTRID> ridsToAdd = new ArrayList<YTRID>();
           for (int i = 0; i < 10; i++) {
-            ridsToAdd.add(new ORecordId(0, positionCounter.incrementAndGet()));
+            ridsToAdd.add(new YTRecordId(0, positionCounter.incrementAndGet()));
           }
 
           final long position = random.nextInt(lastClusterPosition.get().intValue());
-          final ORID orid = new ORecordId(defaultClusterId, position);
+          final YTRID orid = new YTRecordId(defaultClusterId, position);
 
           while (true) {
-            ODocument document = db.load(orid);
+            YTDocument document = db.load(orid);
             document.setLazyLoad(false);
 
             ORidBag ridBag = document.field("ridBag");
-            for (ORID rid : ridsToAdd) {
+            for (YTRID rid : ridsToAdd) {
               ridBag.add(rid);
             }
 
@@ -233,7 +233,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
             break;
           }
 
-          final ConcurrentSkipListSet<ORID> ridTree = ridTreePerDocument.get(orid);
+          final ConcurrentSkipListSet<YTRID> ridTree = ridTreePerDocument.get(orid);
           ridTree.addAll(ridsToAdd);
           addedRecords += ridsToAdd.size();
         }
@@ -270,7 +270,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
       long deletedRecords = 0;
       int retries = 0;
 
-      ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
+      YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
       final int defaultClusterId = db.getDefaultClusterId();
@@ -278,18 +278,18 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
       try {
         while (cont) {
           final long position = random.nextInt(lastClusterPosition.get().intValue());
-          final ORID orid = new ORecordId(defaultClusterId, position);
+          final YTRID orid = new YTRecordId(defaultClusterId, position);
 
           while (true) {
-            ODocument document = db.load(orid);
+            YTDocument document = db.load(orid);
             document.setLazyLoad(false);
             ORidBag ridBag = document.field("ridBag");
-            Iterator<OIdentifiable> iterator = ridBag.iterator();
+            Iterator<YTIdentifiable> iterator = ridBag.iterator();
 
-            List<ORID> ridsToDelete = new ArrayList<ORID>();
+            List<YTRID> ridsToDelete = new ArrayList<YTRID>();
             int counter = 0;
             while (iterator.hasNext()) {
-              OIdentifiable identifiable = iterator.next();
+              YTIdentifiable identifiable = iterator.next();
               if (random.nextBoolean()) {
                 iterator.remove();
                 counter++;
@@ -308,7 +308,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
               continue;
             }
 
-            final ConcurrentSkipListSet<ORID> ridTree = ridTreePerDocument.get(orid);
+            final ConcurrentSkipListSet<YTRID> ridTree = ridTreePerDocument.get(orid);
             ridTree.removeAll(ridsToDelete);
 
             deletedRecords += ridsToDelete.size();

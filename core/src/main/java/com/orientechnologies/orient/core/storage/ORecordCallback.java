@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.storage;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 
 /**
  * Callback to handle response against record operations.
  */
 public interface ORecordCallback<T> {
 
-  void call(ORecordId iRID, T iParameter);
+  void call(YTRecordId iRID, T iParameter);
 }

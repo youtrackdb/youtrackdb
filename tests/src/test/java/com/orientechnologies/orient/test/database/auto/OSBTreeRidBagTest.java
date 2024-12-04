@@ -18,12 +18,12 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.client.remote.OEngineRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.cache.local.OWOWCache;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
@@ -66,38 +66,38 @@ public class OSBTreeRidBagTest extends ORidBagTest {
   @BeforeMethod
   public void beforeMethod() throws IOException {
     topThreshold =
-        OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+        YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
     bottomThreshold =
-        OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
+        YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
 
     if (database.isRemote()) {
       OServerAdmin server =
           new OServerAdmin(database.getURL())
               .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
-          OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1);
+          YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1);
       server.setGlobalConfiguration(
-          OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
+          YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
       server.close();
     }
 
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
+    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
   }
 
   @AfterMethod
   public void afterMethod() throws IOException {
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
+    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
 
     if (database.isRemote()) {
       OServerAdmin server =
           new OServerAdmin(database.getURL())
               .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
-          OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);
+          YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);
       server.setGlobalConfiguration(
-          OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, bottomThreshold);
+          YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, bottomThreshold);
       server.close();
     }
   }
@@ -110,7 +110,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     final int clusterIdOne = database.addCluster("clusterOne");
 
-    ODocument docClusterOne = new ODocument();
+    YTDocument docClusterOne = new YTDocument();
     ORidBag ridBagClusterOne = new ORidBag(database);
     docClusterOne.field("ridBag", ridBagClusterOne);
 
@@ -136,16 +136,16 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
   public void testIteratorOverAfterRemove() {
     database.begin();
-    ODocument scuti =
-        new ODocument()
+    YTDocument scuti =
+        new YTDocument()
             .field("name", "UY Scuti");
     scuti.save(database.getClusterNameById(database.getDefaultClusterId()));
-    ODocument cygni =
-        new ODocument()
+    YTDocument cygni =
+        new YTDocument()
             .field("name", "NML Cygni");
     cygni.save(database.getClusterNameById(database.getDefaultClusterId()));
-    ODocument scorpii =
-        new ODocument()
+    YTDocument scorpii =
+        new YTDocument()
             .field("name", "AH Scorpii");
     scorpii.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -154,14 +154,14 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     cygni = database.bindToSession(cygni);
     scorpii = database.bindToSession(scorpii);
 
-    HashSet<ODocument> expectedResult = new HashSet<ODocument>(Arrays.asList(scuti, scorpii));
+    HashSet<YTDocument> expectedResult = new HashSet<YTDocument>(Arrays.asList(scuti, scorpii));
 
     ORidBag bag = new ORidBag(database);
     bag.add(scuti);
     bag.add(cygni);
     bag.add(scorpii);
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("ridBag", bag);
 
     database.begin();
@@ -172,8 +172,8 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     bag = doc.field("ridBag");
     bag.remove(cygni);
 
-    Set<ODocument> result = new HashSet<ODocument>();
-    for (OIdentifiable identifiable : bag) {
+    Set<YTDocument> result = new HashSet<YTDocument>();
+    for (YTIdentifiable identifiable : bag) {
       result.add(identifiable.getRecord());
     }
 
@@ -182,23 +182,23 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
   public void testRidBagConversion() {
     final int oldThreshold =
-        OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(5);
+        YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(5);
 
     database.begin();
-    ODocument doc_1 = new ODocument();
+    YTDocument doc_1 = new YTDocument();
     doc_1.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument doc_2 = new ODocument();
+    YTDocument doc_2 = new YTDocument();
     doc_2.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument doc_3 = new ODocument();
+    YTDocument doc_3 = new YTDocument();
     doc_3.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument doc_4 = new ODocument();
+    YTDocument doc_4 = new YTDocument();
     doc_4.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
 
     ORidBag bag = new ORidBag(database);
     bag.add(doc_1);
@@ -212,10 +212,10 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     database.begin();
     doc = database.bindToSession(doc);
-    ODocument doc_5 = new ODocument();
+    YTDocument doc_5 = new YTDocument();
     doc_5.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument doc_6 = new ODocument();
+    YTDocument doc_6 = new YTDocument();
     doc_6.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     bag = doc.field("ridBag");
@@ -230,7 +230,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     bag = doc.field("ridBag");
     Assert.assertEquals(bag.size(), 6);
 
-    List<OIdentifiable> docs = new ArrayList<OIdentifiable>();
+    List<YTIdentifiable> docs = new ArrayList<YTIdentifiable>();
 
     docs.add(doc_1.getIdentity());
     docs.add(doc_2.getIdentity());
@@ -239,13 +239,13 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     docs.add(doc_5.getIdentity());
     docs.add(doc_6.getIdentity());
 
-    for (OIdentifiable rid : bag) {
+    for (YTIdentifiable rid : bag) {
       Assert.assertTrue(docs.remove(rid));
     }
 
     Assert.assertTrue(docs.isEmpty());
 
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(oldThreshold);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(oldThreshold);
     database.rollback();
   }
 
@@ -256,15 +256,15 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     }
 
     float reuseTrigger =
-        OGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.getValueAsFloat();
-    OGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(Float.MIN_VALUE);
+        YTGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.getValueAsFloat();
+    YTGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(Float.MIN_VALUE);
 
-    ODocument realDoc = new ODocument();
+    YTDocument realDoc = new YTDocument();
     ORidBag realDocRidBag = new ORidBag(database);
     realDoc.field("ridBag", realDocRidBag);
 
     for (int i = 0; i < 10; i++) {
-      ODocument docToAdd = new ODocument();
+      YTDocument docToAdd = new YTDocument();
       realDocRidBag.add(docToAdd);
     }
 
@@ -276,7 +276,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     final int clusterId = database.addCluster("ridBagDeleteTest");
 
-    ODocument testDocument = crateTestDeleteDoc(realDoc);
+    YTDocument testDocument = crateTestDeleteDoc(realDoc);
     database.freeze();
     database.release();
 
@@ -301,7 +301,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     database.freeze();
     database.release();
 
-    OGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(reuseTrigger);
+    YTGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(reuseTrigger);
     testRidBagFile =
         new File(
             directory,
@@ -316,8 +316,8 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     Assert.assertEquals(ridBag.size(), 10);
   }
 
-  private ODocument crateTestDeleteDoc(ODocument realDoc) {
-    ODocument testDocument = new ODocument();
+  private YTDocument crateTestDeleteDoc(YTDocument realDoc) {
+    YTDocument testDocument = new YTDocument();
     ORidBag highLevelRidBag = new ORidBag(database);
     testDocument.field("ridBag", highLevelRidBag);
     realDoc = database.bindToSession(realDoc);

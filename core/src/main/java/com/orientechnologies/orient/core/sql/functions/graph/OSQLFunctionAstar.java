@@ -22,14 +22,14 @@ package com.orientechnologies.orient.core.sql.functions.graph;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Comparator;
@@ -58,17 +58,17 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
 
   private String paramWeightFieldName = "weight";
   private long currentDepth = 0;
-  protected Set<OVertex> closedSet = new HashSet<OVertex>();
-  protected Map<OVertex, OVertex> cameFrom = new HashMap<OVertex, OVertex>();
+  protected Set<YTVertex> closedSet = new HashSet<YTVertex>();
+  protected Map<YTVertex, YTVertex> cameFrom = new HashMap<YTVertex, YTVertex>();
 
-  protected Map<OVertex, Double> gScore = new HashMap<OVertex, Double>();
-  protected Map<OVertex, Double> fScore = new HashMap<OVertex, Double>();
-  protected PriorityQueue<OVertex> open =
-      new PriorityQueue<OVertex>(
+  protected Map<YTVertex, Double> gScore = new HashMap<YTVertex, Double>();
+  protected Map<YTVertex, Double> fScore = new HashMap<YTVertex, Double>();
+  protected PriorityQueue<YTVertex> open =
+      new PriorityQueue<YTVertex>(
           1,
-          new Comparator<OVertex>() {
+          new Comparator<YTVertex>() {
 
-            public int compare(OVertex nodeA, OVertex nodeB) {
+            public int compare(YTVertex nodeA, YTVertex nodeB) {
               return Double.compare(fScore.get(nodeA), fScore.get(nodeB));
             }
           });
@@ -77,16 +77,16 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     super(NAME, 3, 4);
   }
 
-  public LinkedList<OVertex> execute(
+  public LinkedList<YTVertex> execute(
       final Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
       final OCommandContext iContext) {
     context = iContext;
     final OSQLFunctionAstar context = this;
 
-    final ORecord record = iCurrentRecord != null ? iCurrentRecord.getRecord() : null;
+    final YTRecord record = iCurrentRecord != null ? iCurrentRecord.getRecord() : null;
 
     Object source = iParams[0];
     if (OMultiValue.isMultiValue(source)) {
@@ -99,8 +99,8 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
       }
     }
     source = OSQLHelper.getValue(source, record, iContext);
-    if (source instanceof OIdentifiable) {
-      OElement elem = ((OIdentifiable) source).getRecord();
+    if (source instanceof YTIdentifiable) {
+      YTEntity elem = ((YTIdentifiable) source).getRecord();
       if (!elem.isVertex()) {
         throw new IllegalArgumentException("The sourceVertex must be a vertex record");
       }
@@ -120,8 +120,8 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
       }
     }
     dest = OSQLHelper.getValue(dest, record, iContext);
-    if (dest instanceof OIdentifiable) {
-      OElement elem = ((OIdentifiable) dest).getRecord();
+    if (dest instanceof YTIdentifiable) {
+      YTEntity elem = ((YTIdentifiable) dest).getRecord();
       if (!elem.isVertex()) {
         throw new IllegalArgumentException("The destinationVertex must be a vertex record");
       }
@@ -142,11 +142,11 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     return internalExecute(iContext, iContext.getDatabase());
   }
 
-  private LinkedList<OVertex> internalExecute(
-      final OCommandContext iContext, ODatabaseSession graph) {
+  private LinkedList<YTVertex> internalExecute(
+      final OCommandContext iContext, YTDatabaseSession graph) {
 
-    OVertex start = paramSourceVertex;
-    OVertex goal = paramDestinationVertex;
+    YTVertex start = paramSourceVertex;
+    YTVertex goal = paramDestinationVertex;
 
     open.add(start);
 
@@ -156,7 +156,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     fScore.put(start, getHeuristicCost(start, null, goal, iContext));
 
     while (!open.isEmpty()) {
-      OVertex current = open.poll();
+      YTVertex current = open.poll();
 
       // we discussed about this feature in
       // https://github.com/orientechnologies/orientdb/pull/6002#issuecomment-212492687
@@ -175,9 +175,9 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
       }
 
       closedSet.add(current);
-      for (OEdge neighborEdge : getNeighborEdges(current)) {
+      for (YTEdge neighborEdge : getNeighborEdges(current)) {
 
-        OVertex neighbor = getNeighbor(current, neighborEdge, graph);
+        YTVertex neighbor = getNeighbor(current, neighborEdge, graph);
         // Ignore the neighbor which is already evaluated.
         if (closedSet.contains(neighbor)) {
           continue;
@@ -206,30 +206,31 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     return getPath();
   }
 
-  private static OVertex getNeighbor(OVertex current, OEdge neighborEdge, ODatabaseSession graph) {
+  private static YTVertex getNeighbor(YTVertex current, YTEdge neighborEdge,
+      YTDatabaseSession graph) {
     if (neighborEdge.getFrom().equals(current)) {
       return toVertex(neighborEdge.getTo());
     }
     return toVertex(neighborEdge.getFrom());
   }
 
-  private static OVertex toVertex(OIdentifiable outVertex) {
+  private static YTVertex toVertex(YTIdentifiable outVertex) {
     if (outVertex == null) {
       return null;
     }
-    if (!(outVertex instanceof OElement)) {
+    if (!(outVertex instanceof YTEntity)) {
       outVertex = outVertex.getRecord();
     }
-    return ((OElement) outVertex).asVertex().orElse(null);
+    return ((YTEntity) outVertex).asVertex().orElse(null);
   }
 
-  protected Set<OEdge> getNeighborEdges(final OVertex node) {
+  protected Set<YTEdge> getNeighborEdges(final YTVertex node) {
     context.incrementVariable("getNeighbors");
 
-    final Set<OEdge> neighbors = new HashSet<OEdge>();
+    final Set<YTEdge> neighbors = new HashSet<YTEdge>();
     if (node != null) {
-      for (OEdge v : node.getEdges(paramDirection, paramEdgeTypeNames)) {
-        final OEdge ov = v;
+      for (YTEdge v : node.getEdges(paramDirection, paramEdgeTypeNames)) {
+        final YTEdge ov = v;
         if (ov != null) {
           neighbors.add(ov);
         }
@@ -245,8 +246,8 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     Map<String, ?> mapParams = null;
     if (additionalParams instanceof Map) {
       mapParams = (Map) additionalParams;
-    } else if (additionalParams instanceof OIdentifiable) {
-      mapParams = ((ODocument) ((OIdentifiable) additionalParams).getRecord()).toMap();
+    } else if (additionalParams instanceof YTIdentifiable) {
+      mapParams = ((YTDocument) ((YTIdentifiable) additionalParams).getRecord()).toMap();
     }
     if (mapParams != null) {
       ctx.paramEdgeTypeNames = stringArray(mapParams.get(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES));
@@ -291,7 +292,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     }
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "astar(<sourceVertex>, <destinationVertex>, <weightEdgeFieldName>, [<options>]) \n"
         + " // options  : {direction:\"OUT\",edgeTypeNames:[] , vertexAxisNames:[] ,"
         + " parallel : false ,"
@@ -305,11 +306,11 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
   }
 
   @Override
-  protected double getDistance(final OVertex node, final OVertex parent, final OVertex target) {
-    final Iterator<OEdge> edges = node.getEdges(paramDirection).iterator();
-    OEdge e = null;
+  protected double getDistance(final YTVertex node, final YTVertex parent, final YTVertex target) {
+    final Iterator<YTEdge> edges = node.getEdges(paramDirection).iterator();
+    YTEdge e = null;
     while (edges.hasNext()) {
-      OEdge next = edges.next();
+      YTEdge next = edges.next();
       if (next.getFrom().equals(target) || next.getTo().equals(target)) {
         e = next;
         break;
@@ -329,7 +330,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     return MIN;
   }
 
-  protected double getDistance(final OEdge edge) {
+  protected double getDistance(final YTEdge edge) {
     if (edge != null) {
       final Object fieldValue = edge.getProperty(paramWeightFieldName);
       if (fieldValue != null) {
@@ -351,7 +352,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
 
   @Override
   protected double getHeuristicCost(
-      final OVertex node, OVertex parent, final OVertex target, OCommandContext iContext) {
+      final YTVertex node, YTVertex parent, final YTVertex target, OCommandContext iContext) {
     double hresult = 0.0;
 
     if (paramVertexAxisNames.length == 0) {

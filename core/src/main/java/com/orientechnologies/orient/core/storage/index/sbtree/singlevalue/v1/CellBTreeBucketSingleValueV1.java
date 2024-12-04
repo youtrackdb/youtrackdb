@@ -27,8 +27,8 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import java.util.ArrayList;
@@ -229,7 +229,7 @@ public final class CellBTreeBucketSingleValueV1<K> extends ODurablePage {
       final int clusterId = getShortValue(entryPosition);
       final long clusterPosition = getLongValue(entryPosition + OShortSerializer.SHORT_SIZE);
 
-      return new SBTreeEntry<>(-1, -1, key, new ORecordId(clusterId, clusterPosition));
+      return new SBTreeEntry<>(-1, -1, key, new YTRecordId(clusterId, clusterPosition));
     } else {
       final int leftChild = getIntValue(entryPosition);
       entryPosition += OIntegerSerializer.INT_SIZE;
@@ -311,7 +311,7 @@ public final class CellBTreeBucketSingleValueV1<K> extends ODurablePage {
    * @param entryIndex the value entry index.
    * @return the obtained value.
    */
-  public ORID getValue(
+  public YTRID getValue(
       final int entryIndex, OEncryption encryption, OBinarySerializer<K> keySerializer) {
     assert isLeaf();
 
@@ -329,10 +329,10 @@ public final class CellBTreeBucketSingleValueV1<K> extends ODurablePage {
     final int clusterId = getShortValue(entryPosition);
     final long clusterPosition = getLongValue(entryPosition + OShortSerializer.SHORT_SIZE);
 
-    return new ORecordId(clusterId, clusterPosition);
+    return new YTRecordId(clusterId, clusterPosition);
   }
 
-  public ORID getValue(final int entryIndex, final int keyLen) {
+  public YTRID getValue(final int entryIndex, final int keyLen) {
     assert isLeaf();
 
     int entryPosition =
@@ -342,7 +342,7 @@ public final class CellBTreeBucketSingleValueV1<K> extends ODurablePage {
     final int clusterId = getShortValue(entryPosition);
     final long clusterPosition = getLongValue(entryPosition + OShortSerializer.SHORT_SIZE);
 
-    return new ORecordId(clusterId, clusterPosition);
+    return new YTRecordId(clusterId, clusterPosition);
   }
 
   byte[] getRawValue(
@@ -548,9 +548,9 @@ public final class CellBTreeBucketSingleValueV1<K> extends ODurablePage {
     private final int leftChild;
     private final int rightChild;
     public final K key;
-    public final ORID value;
+    public final YTRID value;
 
-    public SBTreeEntry(final int leftChild, final int rightChild, final K key, final ORID value) {
+    public SBTreeEntry(final int leftChild, final int rightChild, final K key, final YTRID value) {
       this.leftChild = leftChild;
       this.rightChild = rightChild;
       this.key = key;

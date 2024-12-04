@@ -5,9 +5,9 @@ import com.orientechnologies.orient.core.command.script.OScriptResultSets;
 import com.orientechnologies.orient.core.command.script.transformer.result.MapTransformer;
 import com.orientechnologies.orient.core.command.script.transformer.result.OResultTransformer;
 import com.orientechnologies.orient.core.command.script.transformer.resultset.OResultSetTransformer;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -30,21 +30,21 @@ public class OScriptTransformerImpl implements OScriptTransformer {
 
   public OScriptTransformerImpl() {
 
-    if (!OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()) {
+    if (!YTGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()) {
       try {
         final Class<?> c = Class.forName("jdk.nashorn.api.scripting.JSObject");
         registerResultTransformer(
             c,
             new OResultTransformer() {
               @Override
-              public OResult transform(ODatabaseSessionInternal db, Object value) {
+              public OResult transform(YTDatabaseSessionInternal db, Object value) {
                 OResultInternal internal = new OResultInternal(db);
 
                 final List res = new ArrayList();
                 internal.setProperty("value", res);
 
                 for (Object v : ((Map) value).values()) {
-                  res.add(new OResultInternal(db, (OIdentifiable) v));
+                  res.add(new OResultInternal(db, (YTIdentifiable) v));
                 }
 
                 return internal;
@@ -58,7 +58,7 @@ public class OScriptTransformerImpl implements OScriptTransformer {
   }
 
   @Override
-  public OResultSet toResultSet(ODatabaseSessionInternal db, Object value) {
+  public OResultSet toResultSet(YTDatabaseSessionInternal db, Object value) {
     if (value instanceof Value v) {
       if (v.isNull()) {
         return null;
@@ -95,12 +95,12 @@ public class OScriptTransformerImpl implements OScriptTransformer {
     return defaultResultSet(db, value);
   }
 
-  private OResultSet defaultResultSet(ODatabaseSessionInternal db, Object value) {
+  private OResultSet defaultResultSet(YTDatabaseSessionInternal db, Object value) {
     return new OScriptResultSet(db, Collections.singletonList(value).iterator(), this);
   }
 
   @Override
-  public OResult toResult(ODatabaseSessionInternal db, Object value) {
+  public OResult toResult(YTDatabaseSessionInternal db, Object value) {
 
     OResultTransformer transformer = getTransformer(value.getClass());
 
@@ -126,7 +126,7 @@ public class OScriptTransformerImpl implements OScriptTransformer {
     return getTransformer(value.getClass()) != null;
   }
 
-  private OResult defaultTransformer(ODatabaseSessionInternal db, Object value) {
+  private OResult defaultTransformer(YTDatabaseSessionInternal db, Object value) {
     OResultInternal internal = new OResultInternal(db);
     internal.setProperty("value", value);
     return internal;

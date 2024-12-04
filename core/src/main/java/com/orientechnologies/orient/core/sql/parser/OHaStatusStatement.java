@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -90,7 +90,7 @@ public class OHaStatusStatement extends OSimpleExecStatement {
     if (outputText) {
       OLogManager.instance().info(this, "HA STATUS with text output is deprecated");
     }
-    final ODatabaseSessionInternal database = ctx.getDatabase();
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
 
     try {
       Map<String, Object> res = database.getHaStatus(servers, this.db, latency, messages);

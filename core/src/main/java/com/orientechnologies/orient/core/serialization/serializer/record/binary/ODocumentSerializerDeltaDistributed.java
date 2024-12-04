@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 
 public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelta {
 
@@ -22,7 +22,7 @@ public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelt
       byte change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.add(link);
           }
@@ -32,7 +32,7 @@ public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelt
           break;
         }
         case REMOVED: {
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.remove(link);
           }
@@ -51,11 +51,11 @@ public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelt
 
   protected void serializeDeltaLinkBag(BytesContainer bytes, ORidBag value) {
     serializeByte(bytes, value.isEmbedded() ? (byte) 0 : 1);
-    OMultiValueChangeTimeLine<OIdentifiable, OIdentifiable> timeline =
+    OMultiValueChangeTimeLine<YTIdentifiable, YTIdentifiable> timeline =
         value.getTransactionTimeLine();
     assert timeline != null : "Cx ollection timeline required for link types serialization";
     OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (OMultiValueChangeEvent<OIdentifiable, OIdentifiable> event :
+    for (OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable> event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:

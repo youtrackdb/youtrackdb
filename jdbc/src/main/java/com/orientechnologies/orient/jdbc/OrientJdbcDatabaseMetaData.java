@@ -14,16 +14,16 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.function.OFunctionLibrary;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.sql.Connection;
@@ -46,10 +46,10 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
   protected static final List<String> TABLE_TYPES = Arrays.asList("TABLE", "SYSTEM TABLE");
   private final OrientJdbcConnection connection;
-  private final ODatabaseSessionInternal database;
+  private final YTDatabaseSessionInternal database;
 
   public OrientJdbcDatabaseMetaData(
-      OrientJdbcConnection iConnection, ODatabaseSessionInternal iDatabase) {
+      OrientJdbcConnection iConnection, YTDatabaseSessionInternal iDatabase) {
     connection = iConnection;
     database = iDatabase;
   }
@@ -707,12 +707,12 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
       String catalog, String schemaPattern, String tableNamePattern, String[] types)
       throws SQLException {
     database.activateOnCurrentThread();
-    final Collection<OClass> classes = database.getMetadata().getSchema().getClasses();
+    final Collection<YTClass> classes = database.getMetadata().getSchema().getClasses();
 
     OInternalResultSet resultSet = new OInternalResultSet();
 
     final List tableTypes = types != null ? Arrays.asList(types) : TABLE_TYPES;
-    for (OClass cls : classes) {
+    for (YTClass cls : classes) {
       final String className = cls.getName();
       final String type;
 
@@ -815,11 +815,11 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
     final OInternalResultSet resultSet = new OInternalResultSet();
 
-    final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
+    final YTSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
 
-    for (OClass clazz : schema.getClasses()) {
+    for (YTClass clazz : schema.getClasses()) {
       if (OrientJdbcUtils.like(clazz.getName(), tableNamePattern)) {
-        for (OProperty prop : clazz.properties(database)) {
+        for (YTProperty prop : clazz.properties(database)) {
           if (columnNamePattern == null) {
             resultSet.add(getPropertyAsDocument(clazz, prop));
           } else {
@@ -909,7 +909,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
     database.activateOnCurrentThread();
 
-    OClass aClass = database.getMetadata().getSchema().getClass(table);
+    YTClass aClass = database.getMetadata().getSchema().getClass(table);
 
     aClass.declaredProperties().stream().forEach(p -> p.getType());
     return getEmptyResultSet();
@@ -948,7 +948,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     final OInternalResultSet resultSet = new OInternalResultSet();
 
     OResultInternal res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.BINARY.toString());
+    res.setProperty("TYPE_NAME", YTType.BINARY.toString());
     res.setProperty("DATA_TYPE", Types.BINARY);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -956,7 +956,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.BOOLEAN.toString());
+    res.setProperty("TYPE_NAME", YTType.BOOLEAN.toString());
     res.setProperty("DATA_TYPE", Types.BOOLEAN);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -964,7 +964,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.BYTE.toString());
+    res.setProperty("TYPE_NAME", YTType.BYTE.toString());
     res.setProperty("DATA_TYPE", Types.TINYINT);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -973,7 +973,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.DATE.toString());
+    res.setProperty("TYPE_NAME", YTType.DATE.toString());
     res.setProperty("DATA_TYPE", Types.DATE);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -981,7 +981,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.DATETIME.toString());
+    res.setProperty("TYPE_NAME", YTType.DATETIME.toString());
     res.setProperty("DATA_TYPE", Types.DATE);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -989,7 +989,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.DECIMAL.toString());
+    res.setProperty("TYPE_NAME", YTType.DECIMAL.toString());
     res.setProperty("DATA_TYPE", Types.DECIMAL);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -998,7 +998,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.FLOAT.toString());
+    res.setProperty("TYPE_NAME", YTType.FLOAT.toString());
     res.setProperty("DATA_TYPE", Types.FLOAT);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1007,7 +1007,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.DOUBLE.toString());
+    res.setProperty("TYPE_NAME", YTType.DOUBLE.toString());
     res.setProperty("DATA_TYPE", Types.DOUBLE);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1016,7 +1016,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.EMBEDDED.toString());
+    res.setProperty("TYPE_NAME", YTType.EMBEDDED.toString());
     res.setProperty("DATA_TYPE", Types.STRUCT);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1024,7 +1024,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.EMBEDDEDLIST.toString());
+    res.setProperty("TYPE_NAME", YTType.EMBEDDEDLIST.toString());
     res.setProperty("DATA_TYPE", Types.ARRAY);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1032,7 +1032,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.INTEGER.toString());
+    res.setProperty("TYPE_NAME", YTType.INTEGER.toString());
     res.setProperty("DATA_TYPE", Types.INTEGER);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1041,7 +1041,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.LINKLIST.toString());
+    res.setProperty("TYPE_NAME", YTType.LINKLIST.toString());
     res.setProperty("DATA_TYPE", Types.ARRAY);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1049,7 +1049,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.LONG.toString());
+    res.setProperty("TYPE_NAME", YTType.LONG.toString());
     res.setProperty("DATA_TYPE", Types.BIGINT);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1058,7 +1058,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.STRING.toString());
+    res.setProperty("TYPE_NAME", YTType.STRING.toString());
     res.setProperty("DATA_TYPE", Types.VARCHAR);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1066,7 +1066,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     resultSet.add(res);
 
     res = new OResultInternal(database);
-    res.setProperty("TYPE_NAME", OType.SHORT.toString());
+    res.setProperty("TYPE_NAME", YTType.SHORT.toString());
     res.setProperty("DATA_TYPE", Types.SMALLINT);
     res.setProperty("NULLABLE", DatabaseMetaData.typeNullable);
     res.setProperty("CASE_SENSITIVE", true);
@@ -1195,10 +1195,10 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
       String catalog, String schemaPattern, String typeNamePattern, int[] types)
       throws SQLException {
     database.activateOnCurrentThread();
-    final Collection<OClass> classes = database.getMetadata().getSchema().getClasses();
+    final Collection<YTClass> classes = database.getMetadata().getSchema().getClasses();
 
     OInternalResultSet resultSet = new OInternalResultSet();
-    for (OClass cls : classes) {
+    for (YTClass cls : classes) {
       final OResultInternal res = new OResultInternal(database);
       res.setProperty("TYPE_CAT", null);
       res.setProperty("TYPE_SCHEM", null);
@@ -1244,7 +1244,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
   public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern)
       throws SQLException {
     database.activateOnCurrentThread();
-    final OClass cls = database.getMetadata().getSchema().getClass(typeNamePattern);
+    final YTClass cls = database.getMetadata().getSchema().getClass(typeNamePattern);
 
     final OInternalResultSet resultSet = new OInternalResultSet();
     if (cls != null && cls.getSuperClass() != null) {
@@ -1270,7 +1270,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
       final String catalog, final String schemaPattern, final String tableNamePattern)
       throws SQLException {
     database.activateOnCurrentThread();
-    final OClass cls = database.getMetadata().getSchema().getClass(tableNamePattern);
+    final YTClass cls = database.getMetadata().getSchema().getClass(tableNamePattern);
     final OInternalResultSet resultSet = new OInternalResultSet();
 
     if (cls != null && cls.getSuperClass() != null) {
@@ -1441,9 +1441,9 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     return false;
   }
 
-  private OResultInternal getPropertyAsDocument(final OClass clazz, final OProperty prop) {
+  private OResultInternal getPropertyAsDocument(final YTClass clazz, final YTProperty prop) {
     database.activateOnCurrentThread();
-    final OType type = prop.getType();
+    final YTType type = prop.getType();
     OResultInternal res = new OResultInternal(database);
     res.setProperty("TABLE_CAT", database.getName());
     res.setProperty("TABLE_SCHEM", database.getName());

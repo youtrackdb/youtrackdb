@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -32,13 +32,13 @@ import java.util.Set;
 public abstract class OIndexAbstractCursor implements OIndexCursor {
 
   protected int prefetchSize = -1;
-  private Map.Entry<Object, OIdentifiable> nextEntry;
+  private Map.Entry<Object, YTIdentifiable> nextEntry;
   private boolean firstTime = true;
 
   @Override
-  public Set<OIdentifiable> toValues() {
-    final HashSet<OIdentifiable> result = new HashSet<OIdentifiable>();
-    Map.Entry<Object, OIdentifiable> entry = nextEntry();
+  public Set<YTIdentifiable> toValues() {
+    final HashSet<YTIdentifiable> result = new HashSet<YTIdentifiable>();
+    Map.Entry<Object, YTIdentifiable> entry = nextEntry();
 
     while (entry != null) {
       result.add(entry.getValue());
@@ -49,11 +49,11 @@ public abstract class OIndexAbstractCursor implements OIndexCursor {
   }
 
   @Override
-  public Set<Map.Entry<Object, OIdentifiable>> toEntries() {
-    final HashSet<Map.Entry<Object, OIdentifiable>> result =
-        new HashSet<Map.Entry<Object, OIdentifiable>>();
+  public Set<Map.Entry<Object, YTIdentifiable>> toEntries() {
+    final HashSet<Map.Entry<Object, YTIdentifiable>> result =
+        new HashSet<Map.Entry<Object, YTIdentifiable>>();
 
-    Map.Entry<Object, OIdentifiable> entry = nextEntry();
+    Map.Entry<Object, YTIdentifiable> entry = nextEntry();
 
     while (entry != null) {
       result.add(entry);
@@ -67,7 +67,7 @@ public abstract class OIndexAbstractCursor implements OIndexCursor {
   public Set<Object> toKeys() {
     final HashSet<Object> result = new HashSet<Object>();
 
-    Map.Entry<Object, OIdentifiable> entry = nextEntry();
+    Map.Entry<Object, YTIdentifiable> entry = nextEntry();
 
     while (entry != null) {
       result.add(entry.getKey());
@@ -88,12 +88,12 @@ public abstract class OIndexAbstractCursor implements OIndexCursor {
   }
 
   @Override
-  public OIdentifiable next() {
+  public YTIdentifiable next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
 
-    final Map.Entry<Object, OIdentifiable> result = nextEntry;
+    final Map.Entry<Object, YTIdentifiable> result = nextEntry;
     nextEntry = nextEntry();
 
     return result.getValue();

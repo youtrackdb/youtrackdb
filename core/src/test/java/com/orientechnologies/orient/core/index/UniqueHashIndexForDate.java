@@ -2,11 +2,11 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.text.ParseException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,13 +15,13 @@ public class UniqueHashIndexForDate extends DBTestBase {
 
   @Test
   public void testSimpleUniqueDateIndex() throws ParseException {
-    OClass clazz = db.getMetadata().getSchema().createClass("test_edge");
-    OProperty prop = clazz.createProperty(db, "date", OType.DATETIME);
+    YTClass clazz = db.getMetadata().getSchema().createClass("test_edge");
+    YTProperty prop = clazz.createProperty(db, "date", YTType.DATETIME);
     prop.createIndex(db, INDEX_TYPE.UNIQUE);
-    ODocument doc = new ODocument("test_edge");
+    YTDocument doc = new YTDocument("test_edge");
     doc.field("date", "2015-03-24 08:54:49");
 
-    ODocument doc1 = new ODocument("test_edge");
+    YTDocument doc1 = new YTDocument("test_edge");
     doc1.field("date", "2015-03-24 08:54:49");
 
     db.save(doc);

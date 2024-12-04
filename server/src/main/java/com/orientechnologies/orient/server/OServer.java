@@ -27,8 +27,8 @@ import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.db.YouTrackDB;
@@ -151,7 +151,7 @@ public class OServer {
 
     YouTrackDBManager.instance().startup();
 
-    if (OGlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean()
+    if (YTGlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean()
         && !YouTrackDBManager.instance().getProfiler().isRecording()) {
       YouTrackDBManager.instance().getProfiler().startRecording();
     }
@@ -374,9 +374,9 @@ public class OServer {
     rejectRequests = false;
 
     if (contextConfiguration.getValueAsBoolean(
-        OGlobalConfiguration.ENVIRONMENT_DUMP_CFG_AT_STARTUP)) {
+        YTGlobalConfiguration.ENVIRONMENT_DUMP_CFG_AT_STARTUP)) {
       System.out.println("Dumping environment after server startup...");
-      OGlobalConfiguration.dumpConfiguration(System.out);
+      YTGlobalConfiguration.dumpConfiguration(System.out);
     }
 
     databaseDirectory =
@@ -404,7 +404,7 @@ public class OServer {
             .build();
 
     if (contextConfiguration.getValueAsBoolean(
-        OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)) {
+        YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)) {
 
       databases =
           ODatabaseDocumentTxInternal.getOrCreateEmbeddedFactory(this.databaseDirectory, config);
@@ -679,7 +679,7 @@ public class OServer {
         }
       }
       if (!contextConfiguration.getValueAsBoolean(
-          OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)
+          YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)
           && databases != null) {
         databases.close();
         databases = null;
@@ -721,7 +721,7 @@ public class OServer {
    */
   protected void loadDatabases() {
     if (!contextConfiguration.getValueAsBoolean(
-        OGlobalConfiguration.SERVER_OPEN_ALL_DATABASES_AT_STARTUP)) {
+        YTGlobalConfiguration.SERVER_OPEN_ALL_DATABASES_AT_STARTUP)) {
       return;
     }
     databases.loadAllDatabases();
@@ -769,7 +769,7 @@ public class OServer {
       if (key != null) {
         key = key.trim();
         if (!key.isEmpty()) {
-          OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(key);
+          YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(key);
           return true;
         }
       }
@@ -918,18 +918,18 @@ public class OServer {
     return this;
   }
 
-  public ODatabaseSessionInternal openDatabase(final String iDbUrl, final OParsedToken iToken) {
+  public YTDatabaseSessionInternal openDatabase(final String iDbUrl, final OParsedToken iToken) {
     return databases.open(new OTokenAuthInfo(iToken), YouTrackDBConfig.defaultConfig());
   }
 
-  public ODatabaseSessionInternal openDatabase(
+  public YTDatabaseSessionInternal openDatabase(
       final String iDbUrl, final String user, final String password) {
     return openDatabase(iDbUrl, user, password, null);
   }
 
-  public ODatabaseSessionInternal openDatabase(
+  public YTDatabaseSessionInternal openDatabase(
       final String iDbUrl, final String user, final String password, ONetworkProtocolData data) {
-    final ODatabaseSessionInternal database;
+    final YTDatabaseSessionInternal database;
     boolean serverAuth = false;
     database = databases.open(iDbUrl, user, password);
     if (OSecurityUser.SERVER_USER_TYPE.equals(database.getUser().getUserType())) {
@@ -945,7 +945,7 @@ public class OServer {
     return database;
   }
 
-  public ODatabaseSessionInternal openDatabase(String database) {
+  public YTDatabaseSessionInternal openDatabase(String database) {
     return databases.openNoAuthorization(database);
   }
 

@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,19 +36,19 @@ public class MapIndexTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().dropClass("Mapper");
     }
 
-    final OClass mapper = database.getMetadata().getSchema().createClass("Mapper");
-    mapper.createProperty(database, "id", OType.STRING);
-    mapper.createProperty(database, "intMap", OType.EMBEDDEDMAP, OType.INTEGER);
+    final YTClass mapper = database.getMetadata().getSchema().createClass("Mapper");
+    mapper.createProperty(database, "id", YTType.STRING);
+    mapper.createProperty(database, "intMap", YTType.EMBEDDEDMAP, YTType.INTEGER);
 
-    mapper.createIndex(database, "mapIndexTestKey", OClass.INDEX_TYPE.NOTUNIQUE, "intMap");
-    mapper.createIndex(database, "mapIndexTestValue", OClass.INDEX_TYPE.NOTUNIQUE,
+    mapper.createIndex(database, "mapIndexTestKey", YTClass.INDEX_TYPE.NOTUNIQUE, "intMap");
+    mapper.createIndex(database, "mapIndexTestValue", YTClass.INDEX_TYPE.NOTUNIQUE,
         "intMap by value");
 
-    final OClass movie = database.getMetadata().getSchema().createClass("MapIndexTestMovie");
-    movie.createProperty(database, "title", OType.STRING);
-    movie.createProperty(database, "thumbs", OType.EMBEDDEDMAP, OType.INTEGER);
+    final YTClass movie = database.getMetadata().getSchema().createClass("MapIndexTestMovie");
+    movie.createProperty(database, "title", YTType.STRING);
+    movie.createProperty(database, "thumbs", YTType.EMBEDDEDMAP, YTType.INTEGER);
 
-    movie.createIndex(database, "indexForMap", OClass.INDEX_TYPE.NOTUNIQUE, "thumbs by key");
+    movie.createIndex(database, "indexForMap", YTClass.INDEX_TYPE.NOTUNIQUE, "thumbs by key");
   }
 
   @AfterClass
@@ -72,7 +72,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMap() {
     checkEmbeddedDB();
 
-    final OElement mapper = database.newElement("Mapper");
+    final YTEntity mapper = database.newElement("Mapper");
     final Map<String, Integer> map = new HashMap<>();
     map.put("key1", 10);
     map.put("key2", 20);
@@ -112,7 +112,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      final OElement mapper = database.newElement("Mapper");
+      final YTEntity mapper = database.newElement("Mapper");
       Map<String, Integer> map = new HashMap<>();
 
       map.put("key1", 10);
@@ -160,7 +160,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapUpdateOne() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
@@ -219,7 +219,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapUpdateOneTx() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
@@ -281,7 +281,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapUpdateOneTxRollback() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
@@ -338,7 +338,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -387,7 +387,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapAddItemTx() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -400,7 +400,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      OElement loadedMapper = database.load(mapper.getIdentity());
+      YTEntity loadedMapper = database.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
       database.save(loadedMapper);
 
@@ -444,7 +444,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapAddItemTxRollback() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -456,7 +456,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    OElement loadedMapper = database.load(mapper.getIdentity());
+    YTEntity loadedMapper = database.load(mapper.getIdentity());
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
     database.save(loadedMapper);
     database.rollback();
@@ -496,7 +496,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapUpdateItem() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -546,7 +546,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapUpdateItemInTx() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -559,7 +559,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      OElement loadedMapper = database.load(mapper.getIdentity());
+      YTEntity loadedMapper = database.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
       database.save(loadedMapper);
       database.commit();
@@ -602,7 +602,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapUpdateItemInTxRollback() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -615,7 +615,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    OElement loadedMapper = database.load(new ORecordId(mapper.getIdentity()));
+    YTEntity loadedMapper = database.load(new YTRecordId(mapper.getIdentity()));
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
     database.save(loadedMapper);
     database.rollback();
@@ -654,7 +654,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapRemoveItem() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -705,7 +705,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapRemoveItemInTx() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -719,7 +719,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      OElement loadedMapper = database.load(mapper.getIdentity());
+      YTEntity loadedMapper = database.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
       database.save(loadedMapper);
       database.commit();
@@ -762,7 +762,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -776,7 +776,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    OElement loadedMapper = database.load(mapper.getIdentity());
+    YTEntity loadedMapper = database.load(mapper.getIdentity());
     loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
     database.save(loadedMapper);
     database.rollback();
@@ -815,7 +815,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapRemove() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -841,7 +841,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapRemoveInTx() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -872,7 +872,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -920,7 +920,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
   }
 
   public void testIndexMapSQL() {
-    OElement mapper = database.newElement("Mapper");
+    YTEntity mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
@@ -932,14 +932,14 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.save(mapper);
     database.commit();
 
-    final List<ODocument> resultByKey =
+    final List<YTDocument> resultByKey =
         executeQuery("select * from Mapper where intMap containskey ?", "key1");
     Assert.assertNotNull(resultByKey);
     Assert.assertEquals(resultByKey.size(), 1);
 
     Assert.assertEquals(map, resultByKey.get(0).<Map<String, Integer>>getProperty("intMap"));
 
-    final List<ODocument> resultByValue =
+    final List<YTDocument> resultByValue =
         executeQuery("select * from Mapper where intMap containsvalue ?", 10);
     Assert.assertNotNull(resultByValue);
     Assert.assertEquals(resultByValue.size(), 1);

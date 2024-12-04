@@ -24,11 +24,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import java.text.ParseException;
@@ -51,10 +51,10 @@ public class ODateConversionTestCase extends DBTestBase {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     Date dateToInsert = format.parse("1975-06-01 01:00:00");
 
-    ODocument document = new ODocument();
-    document.field("date", dateToInsert, OType.DATE);
+    YTDocument document = new YTDocument();
+    document.field("date", dateToInsert, YTType.DATE);
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
+    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
     final String[] fields = extr.fieldNames();
 
     assertNotNull(fields);
@@ -77,7 +77,7 @@ public class ODateConversionTestCase extends DBTestBase {
     try (YouTrackDB ctx = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
+      try (var db = (YTDatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -85,7 +85,7 @@ public class ODateConversionTestCase extends DBTestBase {
 
         db.set(ATTRIBUTES.TIMEZONE, "GMT");
 
-        ODocument doc = new ODocument();
+        YTDocument doc = new YTDocument();
 
         doc.setProperty("dateTime", date);
         String formatted = doc.eval("dateTime.format('yyyy-MM-dd')").toString();

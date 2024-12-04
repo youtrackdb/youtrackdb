@@ -1,12 +1,12 @@
 package com.orientechnologies.lucene.integration;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
 import org.junit.Assert;
@@ -28,14 +28,14 @@ public class LuceneCreateIndexIntegrationTest {
     remote.execute(
         "create database LuceneCreateIndexIntegrationTest plocal users(admin identified by 'admin'"
             + " role admin) ");
-    final ODatabaseSession session =
+    final YTDatabaseSession session =
         remote.open("LuceneCreateIndexIntegrationTest", "admin", "admin");
 
     session.command("create class Person");
     session.command("create property Person.name STRING");
     session.command("create property Person.surname STRING");
 
-    final OElement doc = session.newElement("Person");
+    final YTEntity doc = session.newElement("Person");
     doc.setProperty("name", "Jon");
     doc.setProperty("surname", "Snow");
     session.begin();
@@ -46,19 +46,19 @@ public class LuceneCreateIndexIntegrationTest {
 
   @Test
   public void testCreateIndexJavaAPI() {
-    final ODatabaseSessionInternal session =
-        (ODatabaseSessionInternal) remote.open("LuceneCreateIndexIntegrationTest", "admin",
+    final YTDatabaseSessionInternal session =
+        (YTDatabaseSessionInternal) remote.open("LuceneCreateIndexIntegrationTest", "admin",
             "admin");
-    OClass person = session.getMetadata().getSchema().getClass("Person");
+    YTClass person = session.getMetadata().getSchema().getClass("Person");
 
     if (person == null) {
       person = session.getMetadata().getSchema().createClass("Person");
     }
     if (!person.existsProperty("name")) {
-      person.createProperty(session, "name", OType.STRING);
+      person.createProperty(session, "name", YTType.STRING);
     }
     if (!person.existsProperty("surname")) {
-      person.createProperty(session, "surname", OType.STRING);
+      person.createProperty(session, "surname", YTType.STRING);
     }
 
     person.createIndex(session,

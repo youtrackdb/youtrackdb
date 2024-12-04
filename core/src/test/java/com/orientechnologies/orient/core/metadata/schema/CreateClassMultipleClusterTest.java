@@ -13,10 +13,10 @@ public class CreateClassMultipleClusterTest extends DBTestBase {
     db.command("create class V clusters 16").close();
     db.command("create class X extends V clusters 32").close();
 
-    final OClass clazzV = db.getMetadata().getSchema().getClass("V");
+    final YTClass clazzV = db.getMetadata().getSchema().getClass("V");
     assertEquals(16, clazzV.getClusterIds().length);
 
-    final OClass clazzX = db.getMetadata().getSchema().getClass("X");
+    final YTClass clazzX = db.getMetadata().getSchema().getClass("X");
     assertEquals(32, clazzX.getClusterIds().length);
   }
 
@@ -27,7 +27,7 @@ public class CreateClassMultipleClusterTest extends DBTestBase {
     db.command("drop class V").close();
     db.command("create class V cluster " + s + "," + t).close();
 
-    final OClass clazzV = db.getMetadata().getSchema().getClass("V");
+    final YTClass clazzV = db.getMetadata().getSchema().getClass("V");
     assertEquals(2, clazzV.getClusterIds().length);
 
     assertEquals(s, clazzV.getClusterIds()[0]);

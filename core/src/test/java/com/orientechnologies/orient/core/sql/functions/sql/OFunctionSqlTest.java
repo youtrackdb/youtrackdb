@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.functions.sql;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
@@ -19,10 +19,10 @@ public class OFunctionSqlTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    ODocument doc1 = new ODocument("Test");
+    YTDocument doc1 = new YTDocument("Test");
     doc1.field("name", "Enrico");
     db.save(doc1);
-    doc1 = new ODocument("Test");
+    doc1 = new YTDocument("Test");
     doc1.setClassName("Test");
     doc1.field("name", "Luca");
     db.save(doc1);
@@ -54,10 +54,10 @@ public class OFunctionSqlTest extends DBTestBase {
 
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    ODocument doc1 = new ODocument("Test");
+    YTDocument doc1 = new YTDocument("Test");
     doc1.field("name", "Enrico");
     db.save(doc1);
-    doc1 = new ODocument("Test");
+    doc1 = new YTDocument("Test");
     doc1.setClassName("Test");
     doc1.field("name", "Luca");
     db.save(doc1);

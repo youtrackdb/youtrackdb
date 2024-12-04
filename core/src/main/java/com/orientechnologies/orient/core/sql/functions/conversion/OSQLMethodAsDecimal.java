@@ -17,7 +17,7 @@
 package com.orientechnologies.orient.core.sql.functions.conversion;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -41,7 +41,7 @@ public class OSQLMethodAsDecimal extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {

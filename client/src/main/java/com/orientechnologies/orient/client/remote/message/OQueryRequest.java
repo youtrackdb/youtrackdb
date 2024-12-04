@@ -24,8 +24,8 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -49,7 +49,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
   private boolean namedParams;
 
   public OQueryRequest(
-      ODatabaseSessionInternal session, String language,
+      YTDatabaseSessionInternal session, String language,
       String iCommand,
       Object[] positionalParams,
       byte operationType,
@@ -65,14 +65,14 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
       this.recordsPerPage = 100;
     }
     this.operationType = operationType;
-    ODocument parms = new ODocument();
+    YTDocument parms = new YTDocument();
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);
   }
 
   public OQueryRequest(
-      ODatabaseSessionInternal session, String language,
+      YTDatabaseSessionInternal session, String language,
       String iCommand,
       Map<String, Object> namedParams,
       byte operationType,
@@ -81,7 +81,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    ODocument parms = new ODocument(session);
+    YTDocument parms = new YTDocument(session);
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);
@@ -98,7 +98,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeString(language);
     network.writeString(statement);
@@ -112,7 +112,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     network.writeBoolean(namedParams);
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     this.language = channel.readString();
@@ -151,10 +151,10 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     return statement;
   }
 
-  public Map<String, Object> getParams(ODatabaseSessionInternal db) {
+  public Map<String, Object> getParams(YTDatabaseSessionInternal db) {
     if (params == null && this.paramsBytes != null) {
       // params
-      ODocument paramsDoc = new ODocument();
+      YTDocument paramsDoc = new YTDocument();
       paramsDoc.setTrackingChanges(false);
       serializer.fromStream(db, this.paramsBytes, paramsDoc, null);
       this.params = paramsDoc.field("params");
@@ -170,11 +170,11 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     return namedParams;
   }
 
-  public Map getNamedParameters(ODatabaseSessionInternal db) {
+  public Map getNamedParameters(YTDatabaseSessionInternal db) {
     return getParams(db);
   }
 
-  public Object[] getPositionalParameters(ODatabaseSessionInternal db) {
+  public Object[] getPositionalParameters(YTDatabaseSessionInternal db) {
     Map<String, Object> params = getParams(db);
     if (params == null) {
       return null;

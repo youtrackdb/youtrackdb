@@ -22,10 +22,10 @@ package com.orientechnologies.common.collection;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.common.util.OSupportsContains;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.iterator.OLazyWrapperIterator;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -235,7 +235,7 @@ public class OMultiCollectionIterator<T>
             return true;
           }
         } else if (o instanceof ORidBag) {
-          if (((ORidBag) o).contains((OIdentifiable) value)) {
+          if (((ORidBag) o).contains((YTIdentifiable) value)) {
             return true;
           }
         }
@@ -252,7 +252,7 @@ public class OMultiCollectionIterator<T>
         Object next = sourcesIterator.next();
         if (next != null) {
 
-          if (!(next instanceof ODocument) && next instanceof Iterable<?>) {
+          if (!(next instanceof YTDocument) && next instanceof Iterable<?>) {
             next = ((Iterable) next).iterator();
           }
 

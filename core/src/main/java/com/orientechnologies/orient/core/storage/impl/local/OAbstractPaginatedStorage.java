@@ -48,17 +48,17 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationUpdateListener;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDeleter;
 import com.orientechnologies.orient.core.encryption.OEncryption;
@@ -81,8 +81,8 @@ import com.orientechnologies.orient.core.exception.ORetryQueryException;
 import com.orientechnologies.orient.core.exception.OStorageDoesNotExistException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.exception.OStorageExistsException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexInternal;
@@ -101,17 +101,17 @@ import com.orientechnologies.orient.core.index.engine.OV1IndexEngine;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeMultiValueIndexEngine;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeSingleValueIndexEngine;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
-import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.OQueryAbstract;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -404,7 +404,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public void close(ODatabaseSessionInternal session) {
+  public void close(YTDatabaseSessionInternal session) {
     var sessions = sessionCount.decrementAndGet();
 
     if (sessions < 0) {
@@ -425,12 +425,12 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public boolean dropCluster(ODatabaseSessionInternal session, final String iClusterName) {
+  public boolean dropCluster(YTDatabaseSessionInternal session, final String iClusterName) {
     return dropCluster(session, getClusterIdByName(iClusterName));
   }
 
   @Override
-  public long countRecords(ODatabaseSessionInternal session) {
+  public long countRecords(YTDatabaseSessionInternal session) {
     long tot = 0;
 
     for (OCluster c : getClusterInstances()) {
@@ -489,27 +489,27 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private static void checkPageSizeAndRelatedParametersInGlobalConfiguration() {
-    final int pageSize = OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
-    int maxKeySize = OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+    final int pageSize = YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+    int maxKeySize = YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
     var bTreeMaxKeySize = (int) (pageSize * 0.3);
 
     if (maxKeySize <= 0) {
       maxKeySize = bTreeMaxKeySize;
-      OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.setValue(maxKeySize);
+      YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.setValue(maxKeySize);
     }
 
     if (maxKeySize > bTreeMaxKeySize) {
       throw new OStorageException(
           "Value of parameter "
-              + OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
+              + YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
               + " should be at least 4 times bigger than value of parameter "
-              + OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getKey()
+              + YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getKey()
               + " but real values are :"
-              + OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
+              + YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
               + " = "
               + pageSize
               + " , "
-              + OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getKey()
+              + YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getKey()
               + " = "
               + maxKeySize);
     }
@@ -522,7 +522,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public final void open(
-      ODatabaseSessionInternal remote, final String iUserName,
+      YTDatabaseSessionInternal remote, final String iUserName,
       final String iUserPassword,
       final OContextConfiguration contextConfiguration) {
     open(contextConfiguration);
@@ -591,7 +591,7 @@ public abstract class OAbstractPaginatedStorage
           atomicOperationsTable =
               new AtomicOperationsTable(
                   contextConfiguration.getValueAsInteger(
-                      OGlobalConfiguration.STORAGE_ATOMIC_OPERATIONS_TABLE_COMPACTION_LIMIT),
+                      YTGlobalConfiguration.STORAGE_ATOMIC_OPERATIONS_TABLE_COMPACTION_LIMIT),
                   idGen.getLastId() + 1);
           atomicOperationsManager = new OAtomicOperationsManager(this, atomicOperationsTable);
 
@@ -872,7 +872,7 @@ public abstract class OAbstractPaginatedStorage
 
     boolean fsyncAfterCreate =
         contextConfiguration.getValueAsBoolean(
-            OGlobalConfiguration.STORAGE_MAKE_FULL_CHECKPOINT_AFTER_CREATE);
+            YTGlobalConfiguration.STORAGE_MAKE_FULL_CHECKPOINT_AFTER_CREATE);
     if (fsyncAfterCreate) {
       synch();
     }
@@ -921,7 +921,7 @@ public abstract class OAbstractPaginatedStorage
     atomicOperationsTable =
         new AtomicOperationsTable(
             contextConfiguration.getValueAsInteger(
-                OGlobalConfiguration.STORAGE_ATOMIC_OPERATIONS_TABLE_COMPACTION_LIMIT),
+                YTGlobalConfiguration.STORAGE_ATOMIC_OPERATIONS_TABLE_COMPACTION_LIMIT),
             idGen.getLastId() + 1);
     atomicOperationsManager = new OAtomicOperationsManager(this, atomicOperationsTable);
     transaction = new ThreadLocal<>();
@@ -953,10 +953,10 @@ public abstract class OAbstractPaginatedStorage
           ((OClusterBasedStorageConfiguration) configuration)
               .setPageSize(
                   atomicOperation,
-                  OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024);
+                  YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024);
           ((OClusterBasedStorageConfiguration) configuration)
               .setMaxKeySize(
-                  atomicOperation, OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger());
+                  atomicOperation, YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger());
 
           generateDatabaseInstanceId(atomicOperation);
 
@@ -979,10 +979,10 @@ public abstract class OAbstractPaginatedStorage
           // storage
           doCreateRecord(
               atomicOperation,
-              new ORecordId(0, -1),
+              new YTRecordId(0, -1),
               new byte[]{0, 0, 0, 0},
               0,
-              OBlob.RECORD_TYPE,
+              YTBlob.RECORD_TYPE,
               null,
               doGetAndCheckCluster(0),
               null);
@@ -1023,15 +1023,15 @@ public abstract class OAbstractPaginatedStorage
   protected abstract void initIv() throws IOException;
 
   private void checkPageSizeAndRelatedParameters() {
-    final int pageSize = OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
-    final int maxKeySize = OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+    final int pageSize = YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+    final int maxKeySize = YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
 
     if (configuration.getPageSize() != -1 && configuration.getPageSize() != pageSize) {
       throw new OStorageException(
           "Storage is created with value of "
               + configuration.getPageSize()
               + " parameter equal to "
-              + OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
+              + YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
               + " but current value is "
               + pageSize);
     }
@@ -1041,14 +1041,14 @@ public abstract class OAbstractPaginatedStorage
           "Storage is created with value of "
               + configuration.getMaxKeySize()
               + " parameter equal to "
-              + OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getKey()
+              + YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getKey()
               + " but current value is "
               + maxKeySize);
     }
   }
 
   @Override
-  public final boolean isClosed(ODatabaseSessionInternal database) {
+  public final boolean isClosed(YTDatabaseSessionInternal database) {
     try {
       stateLock.readLock().lock();
       try {
@@ -1070,7 +1070,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final void close(ODatabaseSessionInternal database, final boolean force) {
+  public final void close(YTDatabaseSessionInternal database, final boolean force) {
     try {
       if (!force) {
         close(database);
@@ -1158,7 +1158,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final int addCluster(ODatabaseSessionInternal database, final String clusterName,
+  public final int addCluster(YTDatabaseSessionInternal database, final String clusterName,
       final Object... parameters) {
     try {
       checkBackupRunning();
@@ -1190,7 +1190,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final int addCluster(ODatabaseSessionInternal database, final String clusterName,
+  public final int addCluster(YTDatabaseSessionInternal database, final String clusterName,
       final int requestedId) {
     try {
       checkBackupRunning();
@@ -1235,7 +1235,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final boolean dropCluster(ODatabaseSessionInternal database, final int clusterId) {
+  public final boolean dropCluster(YTDatabaseSessionInternal database, final int clusterId) {
     try {
       checkBackupRunning();
       stateLock.writeLock().lock();
@@ -1518,7 +1518,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public RECORD_STATUS getRecordStatus(ORID rid) {
+  public RECORD_STATUS getRecordStatus(YTRID rid) {
     try {
       stateLock.readLock().lock();
       try {
@@ -1624,12 +1624,12 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final long count(ODatabaseSessionInternal session, final int iClusterId) {
+  public final long count(YTDatabaseSessionInternal session, final int iClusterId) {
     return count(session, iClusterId, false);
   }
 
   @Override
-  public final long count(ODatabaseSessionInternal session, final int clusterId,
+  public final long count(YTDatabaseSessionInternal session, final int clusterId,
       final boolean countTombstones) {
     try {
       if (clusterId == -1) {
@@ -1666,10 +1666,10 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final long[] getClusterDataRange(ODatabaseSessionInternal session, final int iClusterId) {
+  public final long[] getClusterDataRange(YTDatabaseSessionInternal session, final int iClusterId) {
     try {
       if (iClusterId == -1) {
-        return new long[]{ORID.CLUSTER_POS_INVALID, ORID.CLUSTER_POS_INVALID};
+        return new long[]{YTRID.CLUSTER_POS_INVALID, YTRID.CLUSTER_POS_INVALID};
       }
 
       stateLock.readLock().lock();
@@ -1702,7 +1702,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final long count(ODatabaseSessionInternal session, final int[] iClusterIds) {
+  public final long count(YTDatabaseSessionInternal session, final int[] iClusterIds) {
     return count(session, iClusterIds, false);
   }
 
@@ -1737,7 +1737,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final long count(ODatabaseSessionInternal session, final int[] iClusterIds,
+  public final long count(YTDatabaseSessionInternal session, final int[] iClusterIds,
       final boolean countTombstones) {
     try {
       long tot = 0;
@@ -1775,7 +1775,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   public final OStorageOperationResult<OPhysicalPosition> createRecord(
-      final ORecordId rid,
+      final YTRecordId rid,
       final byte[] content,
       final int recordVersion,
       final byte recordType,
@@ -1820,7 +1820,8 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final ORecordMetadata getRecordMetadata(ODatabaseSessionInternal session, final ORID rid) {
+  public final ORecordMetadata getRecordMetadata(YTDatabaseSessionInternal session,
+      final YTRID rid) {
     try {
       if (rid.isNew()) {
         throw new OStorageException(
@@ -1866,7 +1867,7 @@ public abstract class OAbstractPaginatedStorage
 
         final int finalClusterId;
 
-        if (clusterId == ORID.CLUSTER_ID_INVALID) {
+        if (clusterId == YTRID.CLUSTER_ID_INVALID) {
           // GET THE DEFAULT CLUSTER
           finalClusterId = defaultClusterId;
         } else {
@@ -1943,7 +1944,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public @Nonnull ORawBuffer readRecord(
-      ODatabaseSessionInternal session, final ORecordId rid,
+      YTDatabaseSessionInternal session, final YTRecordId rid,
       final boolean iIgnoreCache,
       final boolean prefetchRecords,
       final ORecordCallback<ORawBuffer> iCallback) {
@@ -1959,7 +1960,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   public final void updateRecord(
-      final ORecordId rid,
+      final YTRecordId rid,
       final boolean updateContent,
       final byte[] content,
       final int version,
@@ -2023,7 +2024,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private OStorageOperationResult<Boolean> deleteRecord(
-      final ORecordId rid,
+      final YTRecordId rid,
       final int version,
       final int mode,
       final ORecordCallback<Boolean> callback) {
@@ -2143,12 +2144,12 @@ public abstract class OAbstractPaginatedStorage
               lockClusters(clustersToLock);
 
               for (final ORecordOperation txEntry : newRecords) {
-                final ORecord rec = txEntry.record;
+                final YTRecord rec = txEntry.record;
                 if (!rec.getIdentity().isPersistent()) {
                   if (rec.isDirty()) {
                     // This allocate a position for a new record
-                    final ORecordId rid = (ORecordId) rec.getIdentity().copy();
-                    final ORecordId oldRID = rid.copy();
+                    final YTRecordId rid = (YTRecordId) rec.getIdentity().copy();
+                    final YTRecordId oldRID = rid.copy();
                     final OCluster cluster = doGetAndCheckCluster(rid.getClusterId());
                     final OPhysicalPosition ppos =
                         cluster.allocatePosition(
@@ -2159,7 +2160,7 @@ public abstract class OAbstractPaginatedStorage
                 } else {
                   // This allocate position starting from a valid rid, used in distributed for
                   // allocate the same position on other nodes
-                  final ORecordId rid = (ORecordId) rec.getIdentity();
+                  final YTRecordId rid = (YTRecordId) rec.getIdentity();
                   final OPaginatedCluster cluster =
                       (OPaginatedCluster) doGetAndCheckCluster(rid.getClusterId());
                   RECORD_STATUS recordStatus = cluster.getRecordStatus(rid.getClusterPosition());
@@ -2174,7 +2175,7 @@ public abstract class OAbstractPaginatedStorage
                     }
                     if (ppos.clusterPosition != rid.getClusterPosition()) {
                       throw new OConcurrentCreateException(
-                          rid, new ORecordId(rid.getClusterId(), ppos.clusterPosition));
+                          rid, new YTRecordId(rid.getClusterId(), ppos.clusterPosition));
                     }
                   } else if (recordStatus == RECORD_STATUS.PRESENT
                       || recordStatus == RECORD_STATUS.REMOVED) {
@@ -2182,7 +2183,7 @@ public abstract class OAbstractPaginatedStorage
                         cluster.allocatePosition(
                             ORecordInternal.getRecordType(rec), atomicOperation);
                     throw new OConcurrentCreateException(
-                        rid, new ORecordId(rid.getClusterId(), ppos.clusterPosition));
+                        rid, new YTRecordId(rid.getClusterId(), ppos.clusterPosition));
                   }
                 }
               }
@@ -2251,7 +2252,7 @@ public abstract class OAbstractPaginatedStorage
     try {
       txBegun.increment();
 
-      final ODatabaseSessionInternal database = transaction.getDatabase();
+      final YTDatabaseSessionInternal database = transaction.getDatabase();
       final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
       final TreeMap<String, OTransactionIndexChanges> indexOperations =
           getSortedIndexOperations(transaction);
@@ -2273,8 +2274,8 @@ public abstract class OAbstractPaginatedStorage
 
         if (recordOperation.type == ORecordOperation.CREATED
             || recordOperation.type == ORecordOperation.UPDATED) {
-          if (record instanceof ODocument) {
-            ((ODocument) record).validate();
+          if (record instanceof YTDocument) {
+            ((YTDocument) record).validate();
           }
         }
 
@@ -2285,19 +2286,19 @@ public abstract class OAbstractPaginatedStorage
         } else if (recordOperation.type == ORecordOperation.CREATED) {
           newRecords.add(recordOperation);
 
-          final ORID rid = record.getIdentity();
+          final YTRID rid = record.getIdentity();
 
           int clusterId = rid.getClusterId();
 
           if (record.isDirty()
-              && clusterId == ORID.CLUSTER_ID_INVALID
-              && record instanceof ODocument) {
+              && clusterId == YTRID.CLUSTER_ID_INVALID
+              && record instanceof YTDocument) {
             // TRY TO FIX CLUSTER ID TO THE DEFAULT CLUSTER ID DEFINED IN SCHEMA CLASS
 
-            final OImmutableClass class_ =
-                ODocumentInternal.getImmutableSchemaClass(((ODocument) record));
+            final YTImmutableClass class_ =
+                ODocumentInternal.getImmutableSchemaClass(((YTDocument) record));
             if (class_ != null) {
-              clusterId = class_.getClusterForNewInstance((ODocument) record);
+              clusterId = class_.getClusterForNewInstance((YTDocument) record);
               clusterOverrides.put(recordOperation, clusterId);
             }
           }
@@ -2321,7 +2322,7 @@ public abstract class OAbstractPaginatedStorage
 
             final Map<ORecordOperation, OPhysicalPosition> positions = new IdentityHashMap<>(8);
             for (final ORecordOperation recordOperation : newRecords) {
-              final ORecord rec = recordOperation.record;
+              final YTRecord rec = recordOperation.record;
 
               if (allocated) {
                 if (rec.getIdentity().isPersistent()) {
@@ -2334,8 +2335,8 @@ public abstract class OAbstractPaginatedStorage
                           + " commit");
                 }
               } else if (rec.isDirty() && !rec.getIdentity().isPersistent()) {
-                final ORecordId rid = (ORecordId) rec.getIdentity().copy();
-                final ORecordId oldRID = rid.copy();
+                final YTRecordId rid = (YTRecordId) rec.getIdentity().copy();
+                final YTRecordId oldRID = rid.copy();
 
                 final Integer clusterOverride = clusterOverrides.get(recordOperation);
                 final int clusterId =
@@ -2361,7 +2362,7 @@ public abstract class OAbstractPaginatedStorage
 
                   if (rid.getClusterPosition() != physicalPosition.clusterPosition) {
                     throw new OConcurrentCreateException(
-                        rid, new ORecordId(rid.getClusterId(), physicalPosition.clusterPosition));
+                        rid, new YTRecordId(rid.getClusterId(), physicalPosition.clusterPosition));
                   }
                 }
                 positions.put(recordOperation, physicalPosition);
@@ -2428,7 +2429,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private void commitIndexes(ODatabaseSessionInternal session,
+  private void commitIndexes(YTDatabaseSessionInternal session,
       final Map<String, OTransactionIndexChanges> indexesToCommit) {
     for (final OTransactionIndexChanges changes : indexesToCommit.values()) {
       final OIndexInternal index = changes.getAssociatedIndex();
@@ -2448,10 +2449,10 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private void applyTxChanges(ODatabaseSessionInternal session,
+  private void applyTxChanges(YTDatabaseSessionInternal session,
       OTransactionIndexChangesPerKey changes, OIndexInternal index)
       throws OInvalidIndexEngineIdException {
-    assert !(changes.key instanceof ORID orid) || orid.isPersistent();
+    assert !(changes.key instanceof YTRID orid) || orid.isPersistent();
     for (OTransactionIndexEntry op : index.interpretTxKeyChanges(changes)) {
       switch (op.getOperation()) {
         case PUT:
@@ -2525,7 +2526,7 @@ public abstract class OAbstractPaginatedStorage
           throw new OIndexException("Can not determine key serializer");
         }
         final int keySize = determineKeySize(indexDefinition);
-        final OType[] keyTypes =
+        final YTType[] keyTypes =
             Optional.of(indexDefinition).map(OIndexDefinition::getTypes).orElse(null);
         int generatedId = indexEngines.size();
         final IndexEngineData engineData =
@@ -2579,7 +2580,7 @@ public abstract class OAbstractPaginatedStorage
       if (indexDefinition == null) {
         throw new OIndexException("Index definition has to be provided");
       }
-      final OType[] keyTypes = indexDefinition.getTypes();
+      final YTType[] keyTypes = indexDefinition.getTypes();
       if (keyTypes == null) {
         throw new OIndexException("Types of indexed keys have to be provided");
       }
@@ -2622,7 +2623,7 @@ public abstract class OAbstractPaginatedStorage
                   indexMetadata.getValueSerializerId(binaryFormatVersion);
               final OContextConfiguration ctxCfg = configuration.getContextConfiguration();
               final String cfgEncryptionKey =
-                  ctxCfg.getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
+                  ctxCfg.getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
               int genenrateId = indexEngines.size();
               final IndexEngineData engineData =
                   new IndexEngineData(
@@ -2647,7 +2648,7 @@ public abstract class OAbstractPaginatedStorage
                   .addIndexEngine(atomicOperation, indexMetadata.getName(), engineData);
 
               if (indexMetadata.isMultivalue() && engine.hasRidBagTreesSupport()) {
-                final OSBTreeBonsaiLocal<OIdentifiable, Boolean> tree =
+                final OSBTreeBonsaiLocal<YTIdentifiable, Boolean> tree =
                     new OSBTreeBonsaiLocal<>(
                         indexMetadata.getName(),
                         OIndexRIDContainerSBTree.INDEX_FILE_EXTENSION,
@@ -2717,7 +2718,7 @@ public abstract class OAbstractPaginatedStorage
       throw new OStorageException("Index definition has to be provided");
     }
 
-    final OType[] keyTypes = indexDefinition.getTypes();
+    final YTType[] keyTypes = indexDefinition.getTypes();
     if (keyTypes == null || keyTypes.length == 0) {
       throw new OStorageException("Types of index keys has to be defined");
     }
@@ -2734,9 +2735,9 @@ public abstract class OAbstractPaginatedStorage
     if (indexDefinition.getTypes().length > 1) {
       keySerializer = OCompositeKeySerializer.INSTANCE;
     } else {
-      final OType keyType = indexDefinition.getTypes()[0];
+      final YTType keyType = indexDefinition.getTypes()[0];
 
-      if (keyType == OType.STRING && configuration.getBinaryFormatVersion() >= 13) {
+      if (keyType == YTType.STRING && configuration.getBinaryFormatVersion() >= 13) {
         return OUTF8Serializer.INSTANCE;
       }
 
@@ -2780,7 +2781,7 @@ public abstract class OAbstractPaginatedStorage
                   .deleteIndexEngine(atomicOperation, engineName);
 
               if (engineData.isMultivalue() && engine.hasRidBagTreesSupport()) {
-                final OSBTreeBonsaiLocal<OIdentifiable, Boolean> tree =
+                final OSBTreeBonsaiLocal<YTIdentifiable, Boolean> tree =
                     new OSBTreeBonsaiLocal<>(
                         engineName, OIndexRIDContainerSBTree.INDEX_FILE_EXTENSION, this);
                 tree.deleteComponent(atomicOperation);
@@ -2913,7 +2914,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  public Object getIndexValue(ODatabaseSessionInternal session, int indexId, final Object key)
+  public Object getIndexValue(YTDatabaseSessionInternal session, int indexId, final Object key)
       throws OInvalidIndexEngineIdException {
     indexId = extractInternalId(indexId);
 
@@ -2942,7 +2943,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private Object doGetIndexValue(ODatabaseSessionInternal session, final int indexId,
+  private Object doGetIndexValue(YTDatabaseSessionInternal session, final int indexId,
       final Object key)
       throws OInvalidIndexEngineIdException {
     final int engineAPIVersion = extractEngineAPIVersion(indexId);
@@ -2956,7 +2957,7 @@ public abstract class OAbstractPaginatedStorage
     return ((OIndexEngine) engine).get(session, key);
   }
 
-  public Stream<ORID> getIndexValues(int indexId, final Object key)
+  public Stream<YTRID> getIndexValues(int indexId, final Object key)
       throws OInvalidIndexEngineIdException {
     final int engineAPIVersion = extractEngineAPIVersion(indexId);
     if (engineAPIVersion != 1) {
@@ -2991,7 +2992,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private Stream<ORID> doGetIndexValues(final int indexId, final Object key)
+  private Stream<YTRID> doGetIndexValues(final int indexId, final Object key)
       throws OInvalidIndexEngineIdException {
     checkIndexId(indexId);
 
@@ -3030,7 +3031,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   public void updateIndexEntry(
-      ODatabaseSessionInternal session, int indexId, final Object key,
+      YTDatabaseSessionInternal session, int indexId, final Object key,
       final OIndexKeyUpdater<Object> valueCreator)
       throws OInvalidIndexEngineIdException {
     final int engineAPIVersion = extractEngineAPIVersion(indexId);
@@ -3096,7 +3097,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private void doUpdateIndexEntry(
-      ODatabaseSessionInternal session, final OAtomicOperation atomicOperation,
+      YTDatabaseSessionInternal session, final OAtomicOperation atomicOperation,
       final int indexId,
       final Object key,
       final OIndexKeyUpdater<Object> valueCreator)
@@ -3109,7 +3110,7 @@ public abstract class OAbstractPaginatedStorage
     ((OIndexEngine) engine).update(session, atomicOperation, key, valueCreator);
   }
 
-  public void putRidIndexEntry(int indexId, final Object key, final ORID value)
+  public void putRidIndexEntry(int indexId, final Object key, final YTRID value)
       throws OInvalidIndexEngineIdException {
     final int engineAPIVersion = extractEngineAPIVersion(indexId);
     final int internalIndexId = extractInternalId(indexId);
@@ -3136,7 +3137,8 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private void putRidIndexEntryInternal(
-      final OAtomicOperation atomicOperation, final int indexId, final Object key, final ORID value)
+      final OAtomicOperation atomicOperation, final int indexId, final Object key,
+      final YTRID value)
       throws OInvalidIndexEngineIdException {
     checkIndexId(indexId);
 
@@ -3146,7 +3148,7 @@ public abstract class OAbstractPaginatedStorage
     ((OV1IndexEngine) engine).put(atomicOperation, key, value);
   }
 
-  public boolean removeRidIndexEntry(int indexId, final Object key, final ORID value)
+  public boolean removeRidIndexEntry(int indexId, final Object key, final YTRID value)
       throws OInvalidIndexEngineIdException {
     final int engineAPIVersion = extractEngineAPIVersion(indexId);
     final int internalIndexId = extractInternalId(indexId);
@@ -3174,7 +3176,8 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private boolean removeRidIndexEntryInternal(
-      final OAtomicOperation atomicOperation, final int indexId, final Object key, final ORID value)
+      final OAtomicOperation atomicOperation, final int indexId, final Object key,
+      final YTRID value)
       throws OInvalidIndexEngineIdException {
     checkIndexId(indexId);
 
@@ -3184,7 +3187,7 @@ public abstract class OAbstractPaginatedStorage
     return ((OMultiValueIndexEngine) engine).remove(atomicOperation, key, value);
   }
 
-  public void putIndexValue(ODatabaseSessionInternal session, int indexId, final Object key,
+  public void putIndexValue(YTDatabaseSessionInternal session, int indexId, final Object key,
       final Object value)
       throws OInvalidIndexEngineIdException {
     final int engineAPIVersion = extractEngineAPIVersion(indexId);
@@ -3212,7 +3215,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private void putIndexValueInternal(
-      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, final int indexId,
+      YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, final int indexId,
       final Object key, final Object value)
       throws OInvalidIndexEngineIdException {
     try {
@@ -3245,8 +3248,8 @@ public abstract class OAbstractPaginatedStorage
   public boolean validatedPutIndexValue(
       final int indexId,
       final Object key,
-      final ORID value,
-      final IndexEngineValidator<Object, ORID> validator)
+      final YTRID value,
+      final IndexEngineValidator<Object, YTRID> validator)
       throws OInvalidIndexEngineIdException {
     final int internalIndexId = extractInternalId(indexId);
 
@@ -3270,8 +3273,8 @@ public abstract class OAbstractPaginatedStorage
       OAtomicOperation atomicOperation,
       final int indexId,
       final Object key,
-      final ORID value,
-      final IndexEngineValidator<Object, ORID> validator)
+      final YTRID value,
+      final IndexEngineValidator<Object, YTRID> validator)
       throws OInvalidIndexEngineIdException {
     try {
       checkIndexId(indexId);
@@ -3298,8 +3301,8 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  public Stream<ORawPair<Object, ORID>> iterateIndexEntriesBetween(
-      ODatabaseSessionInternal session, int indexId,
+  public Stream<ORawPair<Object, YTRID>> iterateIndexEntriesBetween(
+      YTDatabaseSessionInternal session, int indexId,
       final Object rangeFrom,
       final boolean fromInclusive,
       final Object rangeTo,
@@ -3336,8 +3339,8 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private Stream<ORawPair<Object, ORID>> doIterateIndexEntriesBetween(
-      ODatabaseSessionInternal session, final int indexId,
+  private Stream<ORawPair<Object, YTRID>> doIterateIndexEntriesBetween(
+      YTDatabaseSessionInternal session, final int indexId,
       final Object rangeFrom,
       final boolean fromInclusive,
       final Object rangeTo,
@@ -3354,7 +3357,7 @@ public abstract class OAbstractPaginatedStorage
         , rangeFrom, fromInclusive, rangeTo, toInclusive, ascSortOrder, transformer);
   }
 
-  public Stream<ORawPair<Object, ORID>> iterateIndexEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateIndexEntriesMajor(
       int indexId,
       final Object fromKey,
       final boolean isInclusive,
@@ -3388,7 +3391,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private Stream<ORawPair<Object, ORID>> doIterateIndexEntriesMajor(
+  private Stream<ORawPair<Object, YTRID>> doIterateIndexEntriesMajor(
       final int indexId,
       final Object fromKey,
       final boolean isInclusive,
@@ -3403,7 +3406,7 @@ public abstract class OAbstractPaginatedStorage
     return engine.iterateEntriesMajor(fromKey, isInclusive, ascSortOrder, transformer);
   }
 
-  public Stream<ORawPair<Object, ORID>> iterateIndexEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateIndexEntriesMinor(
       int indexId,
       final Object toKey,
       final boolean isInclusive,
@@ -3437,7 +3440,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private Stream<ORawPair<Object, ORID>> doIterateIndexEntriesMinor(
+  private Stream<ORawPair<Object, YTRID>> doIterateIndexEntriesMinor(
       final int indexId,
       final Object toKey,
       final boolean isInclusive,
@@ -3452,7 +3455,7 @@ public abstract class OAbstractPaginatedStorage
     return engine.iterateEntriesMinor(toKey, isInclusive, ascSortOrder, transformer);
   }
 
-  public Stream<ORawPair<Object, ORID>> getIndexStream(
+  public Stream<ORawPair<Object, YTRID>> getIndexStream(
       int indexId, final IndexEngineValuesTransformer valuesTransformer)
       throws OInvalidIndexEngineIdException {
     indexId = extractInternalId(indexId);
@@ -3482,7 +3485,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private Stream<ORawPair<Object, ORID>> doGetIndexStream(
+  private Stream<ORawPair<Object, YTRID>> doGetIndexStream(
       final int indexId, final IndexEngineValuesTransformer valuesTransformer)
       throws OInvalidIndexEngineIdException {
     checkIndexId(indexId);
@@ -3493,7 +3496,7 @@ public abstract class OAbstractPaginatedStorage
     return engine.stream(valuesTransformer);
   }
 
-  public Stream<ORawPair<Object, ORID>> getIndexDescStream(
+  public Stream<ORawPair<Object, YTRID>> getIndexDescStream(
       int indexId, final IndexEngineValuesTransformer valuesTransformer)
       throws OInvalidIndexEngineIdException {
     indexId = extractInternalId(indexId);
@@ -3523,7 +3526,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private Stream<ORawPair<Object, ORID>> doGetIndexDescStream(
+  private Stream<ORawPair<Object, YTRID>> doGetIndexDescStream(
       final int indexId, final IndexEngineValuesTransformer valuesTransformer)
       throws OInvalidIndexEngineIdException {
     checkIndexId(indexId);
@@ -3770,13 +3773,13 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public String getClusterName(ODatabaseSessionInternal database, int clusterId) {
+  public String getClusterName(YTDatabaseSessionInternal database, int clusterId) {
     stateLock.readLock().lock();
     try {
 
       checkOpennessAndMigration();
 
-      if (clusterId == ORID.CLUSTER_ID_INVALID) {
+      if (clusterId == YTRID.CLUSTER_ID_INVALID) {
         clusterId = defaultClusterId;
       }
 
@@ -3794,7 +3797,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final long getSize(ODatabaseSessionInternal session) {
+  public final long getSize(YTDatabaseSessionInternal session) {
     try {
       try {
         long size = 0;
@@ -3880,7 +3883,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public final boolean cleanOutRecord(
-      ODatabaseSessionInternal session, final ORecordId recordId,
+      YTDatabaseSessionInternal session, final YTRecordId recordId,
       final int recordVersion,
       final int iMode,
       final ORecordCallback<Boolean> callback) {
@@ -3967,7 +3970,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final void reload(ODatabaseSessionInternal database) {
+  public final void reload(YTDatabaseSessionInternal database) {
     try {
       close(database);
       open(new OContextConfiguration());
@@ -4031,7 +4034,7 @@ public abstract class OAbstractPaginatedStorage
    * Executes the command request and return the result back.
    */
   @Override
-  public final Object command(ODatabaseSessionInternal database,
+  public final Object command(YTDatabaseSessionInternal database,
       final OCommandRequestText command) {
     try {
       var db = database;
@@ -4068,7 +4071,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   public final Object executeCommand(
-      ODatabaseSessionInternal session, final OCommandRequestText iCommand,
+      YTDatabaseSessionInternal session, final OCommandRequestText iCommand,
       final OCommandExecutor executor) {
     try {
       if (iCommand.isIdempotent() && !executor.isIdempotent()) {
@@ -4076,7 +4079,7 @@ public abstract class OAbstractPaginatedStorage
       }
       final long beginTime = YouTrackDBManager.instance().getProfiler().startChrono();
       try {
-        final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+        final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
         // CALL BEFORE COMMAND
         final Iterable<ODatabaseListener> listeners = db.getListeners();
         for (final ODatabaseListener oDatabaseListener : listeners) {
@@ -4105,7 +4108,7 @@ public abstract class OAbstractPaginatedStorage
 
       } finally {
         if (YouTrackDBManager.instance().getProfiler().isRecording()) {
-          final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+          final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
           if (db != null) {
             final OSecurityUser user = db.getUser();
             final String userString = Optional.ofNullable(user).map(Object::toString).orElse(null);
@@ -4135,7 +4138,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public final OPhysicalPosition[] higherPhysicalPositions(
-      ODatabaseSessionInternal session, final int currentClusterId,
+      YTDatabaseSessionInternal session, final int currentClusterId,
       final OPhysicalPosition physicalPosition) {
     try {
       if (currentClusterId == -1) {
@@ -4168,7 +4171,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public final OPhysicalPosition[] ceilingPhysicalPositions(
-      ODatabaseSessionInternal session, final int clusterId,
+      YTDatabaseSessionInternal session, final int clusterId,
       final OPhysicalPosition physicalPosition) {
     try {
       if (clusterId == -1) {
@@ -4201,7 +4204,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public final OPhysicalPosition[] lowerPhysicalPositions(
-      ODatabaseSessionInternal session, final int currentClusterId,
+      YTDatabaseSessionInternal session, final int currentClusterId,
       final OPhysicalPosition physicalPosition) {
     try {
       if (currentClusterId == -1) {
@@ -4235,7 +4238,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public final OPhysicalPosition[] floorPhysicalPositions(
-      ODatabaseSessionInternal session, final int clusterId,
+      YTDatabaseSessionInternal session, final int clusterId,
       final OPhysicalPosition physicalPosition) {
     try {
       if (clusterId == -1) {
@@ -4568,7 +4571,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Nonnull
-  private ORawBuffer readRecord(final ORecordId rid, final boolean prefetchRecords) {
+  private ORawBuffer readRecord(final YTRecordId rid, final boolean prefetchRecords) {
 
     if (!rid.isPersistent()) {
       throw new ORecordNotFoundException(
@@ -4609,7 +4612,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public boolean recordExists(ODatabaseSessionInternal session, ORID rid) {
+  public boolean recordExists(YTDatabaseSessionInternal session, YTRID rid) {
     if (!rid.isPersistent()) {
       throw new ORecordNotFoundException(
           rid,
@@ -4727,7 +4730,7 @@ public abstract class OAbstractPaginatedStorage
 
   private OStorageOperationResult<OPhysicalPosition> doCreateRecord(
       final OAtomicOperation atomicOperation,
-      final ORecordId rid,
+      final YTRecordId rid,
       @Nonnull final byte[] content,
       int recordVersion,
       final byte recordType,
@@ -4776,7 +4779,7 @@ public abstract class OAbstractPaginatedStorage
 
   private OStorageOperationResult<Integer> doUpdateRecord(
       final OAtomicOperation atomicOperation,
-      final ORecordId rid,
+      final YTRecordId rid,
       final boolean updateContent,
       byte[] content,
       final int version,
@@ -4865,7 +4868,7 @@ public abstract class OAbstractPaginatedStorage
 
   private OStorageOperationResult<Boolean> doDeleteRecord(
       final OAtomicOperation atomicOperation,
-      final ORecordId rid,
+      final YTRecordId rid,
       final int version,
       final OCluster cluster) {
     YouTrackDBManager.instance().getProfiler().startChrono();
@@ -4915,7 +4918,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Nonnull
   private ORawBuffer doReadRecord(
-      final OCluster clusterSegment, final ORecordId rid, final boolean prefetchRecords) {
+      final OCluster clusterSegment, final YTRecordId rid, final boolean prefetchRecords) {
     try {
 
       final ORawBuffer buff = clusterSegment.readRecord(rid.getClusterPosition(), prefetchRecords);
@@ -4939,7 +4942,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private static boolean doRecordExists(final OCluster clusterSegment, final ORID rid) {
+  private static boolean doRecordExists(final OCluster clusterSegment, final YTRID rid) {
     try {
       return clusterSegment.exists(rid.getClusterPosition());
     } catch (final IOException e) {
@@ -5040,7 +5043,7 @@ public abstract class OAbstractPaginatedStorage
               configuration.getVersion(),
               configuration
                   .getContextConfiguration()
-                  .getValueAsInteger(OGlobalConfiguration.STORAGE_CLUSTER_VERSION),
+                  .getValueAsInteger(YTGlobalConfiguration.STORAGE_CLUSTER_VERSION),
               this);
       cluster.configure(clusterPos, clusterName);
     } else {
@@ -5325,7 +5328,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private static byte[] checkAndIncrementVersion(
-      final ORecordId rid, final AtomicInteger version, final AtomicInteger iDatabaseVersion) {
+      final YTRecordId rid, final AtomicInteger version, final AtomicInteger iDatabaseVersion) {
     final int v = version.get();
     switch (v) {
       // DOCUMENT UPDATE, NO VERSION CONTROL
@@ -5362,13 +5365,13 @@ public abstract class OAbstractPaginatedStorage
       final ORecordOperation txEntry,
       final OPhysicalPosition allocated,
       final ORecordSerializer serializer) {
-    final ORecordAbstract rec = txEntry.record;
+    final YTRecordAbstract rec = txEntry.record;
     if (txEntry.type != ORecordOperation.DELETED && !rec.isDirty())
     // NO OPERATION
     {
       return;
     }
-    final ORecordId rid = (ORecordId) rec.getIdentity();
+    final YTRecordId rid = (YTRecordId) rec.getIdentity();
 
     if (txEntry.type == ORecordOperation.UPDATED && rid.isNew())
     // OVERWRITE OPERATION AS CREATE
@@ -5459,7 +5462,7 @@ public abstract class OAbstractPaginatedStorage
           break;
         }
         case ORecordOperation.DELETED: {
-          if (rec instanceof ODocument doc) {
+          if (rec instanceof YTDocument doc) {
             doc.incrementLoading();
             try {
               ORidBagDeleter.deleteAllRidBags(doc);
@@ -5478,9 +5481,9 @@ public abstract class OAbstractPaginatedStorage
     }
 
     // RESET TRACKING
-    if (rec instanceof ODocument && ((ODocument) rec).isTrackingChanges()) {
-      ODocumentInternal.clearTrackData(((ODocument) rec));
-      ODocumentInternal.clearTransactionTrackData(((ODocument) rec));
+    if (rec instanceof YTDocument && ((YTDocument) rec).isTrackingChanges()) {
+      ODocumentInternal.clearTrackData(((YTDocument) rec));
+      ODocumentInternal.clearTransactionTrackData(((YTDocument) rec));
     }
     ORecordInternal.unsetDirty(rec);
   }
@@ -5512,7 +5515,7 @@ public abstract class OAbstractPaginatedStorage
 
   @SuppressWarnings("CanBeFinal")
   @Override
-  public String incrementalBackup(ODatabaseSessionInternal session, final String backupDirectory,
+  public String incrementalBackup(YTDatabaseSessionInternal session, final String backupDirectory,
       final OCallable<Void, Void> started)
       throws UnsupportedOperationException {
     throw new UnsupportedOperationException(
@@ -5533,14 +5536,14 @@ public abstract class OAbstractPaginatedStorage
 
   @SuppressWarnings("CanBeFinal")
   @Override
-  public void restoreFromIncrementalBackup(ODatabaseSessionInternal session,
+  public void restoreFromIncrementalBackup(YTDatabaseSessionInternal session,
       final String filePath) {
     throw new UnsupportedOperationException(
         "Incremental backup is supported only in enterprise version");
   }
 
   @Override
-  public void restoreFullIncrementalBackup(ODatabaseSessionInternal session,
+  public void restoreFullIncrementalBackup(YTDatabaseSessionInternal session,
       final InputStream stream)
       throws UnsupportedOperationException {
     throw new UnsupportedOperationException(
@@ -5568,7 +5571,7 @@ public abstract class OAbstractPaginatedStorage
     long recordsProcessed = 0;
 
     final int reportBatchSize =
-        OGlobalConfiguration.WAL_REPORT_AFTER_OPERATIONS_DURING_RESTORE.getValueAsInteger();
+        YTGlobalConfiguration.WAL_REPORT_AFTER_OPERATIONS_DURING_RESTORE.getValueAsInteger();
     final Long2ObjectOpenHashMap<List<OWALRecord>> operationUnits =
         new Long2ObjectOpenHashMap<>(1024);
     final Map<Long, byte[]> operationMetadata = new LinkedHashMap<>(1024);
@@ -5812,11 +5815,11 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  protected static Int2ObjectMap<List<ORecordId>> getRidsGroupedByCluster(
-      final Collection<ORecordId> rids) {
-    final Int2ObjectOpenHashMap<List<ORecordId>> ridsPerCluster = new Int2ObjectOpenHashMap<>(8);
-    for (final ORecordId rid : rids) {
-      final List<ORecordId> group =
+  protected static Int2ObjectMap<List<YTRecordId>> getRidsGroupedByCluster(
+      final Collection<YTRecordId> rids) {
+    final Int2ObjectOpenHashMap<List<YTRecordId>> ridsPerCluster = new Int2ObjectOpenHashMap<>(8);
+    for (final YTRecordId rid : rids) {
+      final List<YTRecordId> group =
           ridsPerCluster.computeIfAbsent(rid.getClusterId(), k -> new ArrayList<>(rids.size()));
       group.add(rid);
     }
@@ -5862,7 +5865,7 @@ public abstract class OAbstractPaginatedStorage
       final TreeMap<Integer, OCluster> clusters,
       final TreeMap<String, OTransactionIndexChanges> indexes,
       final OIndexManagerAbstract manager,
-      ODatabaseSessionInternal db) {
+      YTDatabaseSessionInternal db) {
     final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
     for (final Integer clusterId : clusters.keySet()) {

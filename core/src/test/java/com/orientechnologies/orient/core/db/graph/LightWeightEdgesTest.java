@@ -5,11 +5,11 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.After;
@@ -19,7 +19,7 @@ import org.junit.Test;
 public class LightWeightEdgesTest {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSession session;
+  private YTDatabaseSession session;
 
   @Before
   public void before() {
@@ -35,8 +35,8 @@ public class LightWeightEdgesTest {
   @Test
   public void testSimpleLightWeight() {
     session.begin();
-    OVertex v = session.newVertex("Vertex");
-    OVertex v1 = session.newVertex("Vertex");
+    YTVertex v = session.newVertex("Vertex");
+    YTVertex v1 = session.newVertex("Vertex");
     v.addLightWeightEdge(v1, "Edge");
     v.setProperty("name", "aName");
     v1.setProperty("name", "bName");
@@ -61,19 +61,19 @@ public class LightWeightEdgesTest {
   @Test
   public void testRegularBySchema() {
     String vClazz = "VtestRegularBySchema";
-    OClass vClass = session.createVertexClass(vClazz);
+    YTClass vClass = session.createVertexClass(vClazz);
 
     String eClazz = "EtestRegularBySchema";
-    OClass eClass = session.createEdgeClass(eClazz);
+    YTClass eClass = session.createEdgeClass(eClazz);
 
-    vClass.createProperty(session, "out_" + eClazz, OType.LINKBAG, eClass);
-    vClass.createProperty(session, "in_" + eClazz, OType.LINKBAG, eClass);
+    vClass.createProperty(session, "out_" + eClazz, YTType.LINKBAG, eClass);
+    vClass.createProperty(session, "in_" + eClazz, YTType.LINKBAG, eClass);
 
     session.begin();
-    OVertex v = session.newVertex(vClass);
+    YTVertex v = session.newVertex(vClass);
     v.setProperty("name", "a");
     v.save();
-    OVertex v1 = session.newVertex(vClass);
+    YTVertex v1 = session.newVertex(vClass);
     v1.setProperty("name", "b");
     v1.save();
     session.commit();

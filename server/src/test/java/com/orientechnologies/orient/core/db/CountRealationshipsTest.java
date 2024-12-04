@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -37,12 +37,12 @@ public class CountRealationshipsTest {
 
   @Test
   public void test() throws Exception {
-    ODatabaseSession g =
+    YTDatabaseSession g =
         youTrackDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
     g.begin();
-    OVertex vertex1 = g.newVertex("V");
+    YTVertex vertex1 = g.newVertex("V");
     vertex1.save();
-    OVertex vertex2 = g.newVertex("V");
+    YTVertex vertex2 = g.newVertex("V");
     vertex2.save();
     g.commit();
 
@@ -112,7 +112,7 @@ public class CountRealationshipsTest {
      */
   }
 
-  private int countEdges(OVertex v, ODirection dir) throws Exception {
+  private int countEdges(YTVertex v, ODirection dir) throws Exception {
     int c = 0;
     for (var oEdge : v.getEdges(dir)) {
       c++;

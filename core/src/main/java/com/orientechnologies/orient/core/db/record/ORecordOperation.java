@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import java.util.Locale;
 
 /**
@@ -33,14 +33,14 @@ public final class ORecordOperation implements Comparable<ORecordOperation> {
   public static final byte CREATED = 3;
 
   public byte type;
-  public ORecordAbstract record;
+  public YTRecordAbstract record;
   // used in processing of server transactions
   public boolean callHooksOnServerTx = false;
 
   public ORecordOperation() {
   }
 
-  public ORecordOperation(final ORecordAbstract record, final byte status) {
+  public ORecordOperation(final YTRecordAbstract record, final byte status) {
     // CLONE RECORD AND CONTENT
     this.record = record;
     this.type = status;
@@ -65,7 +65,7 @@ public final class ORecordOperation implements Comparable<ORecordOperation> {
     return "ORecordOperation [record=" + record + ", type=" + getName(type) + "]";
   }
 
-  public ORID getRID() {
+  public YTRID getRID() {
     return record != null ? record.getIdentity() : null;
   }
 

@@ -26,15 +26,15 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -68,7 +68,7 @@ public class OSQLHelper {
   private static final ClassLoader orientClassLoader =
       OSQLFilterItemAbstract.class.getClassLoader();
 
-  public static Object parseDefaultValue(ODatabaseSessionInternal session, ODocument iRecord,
+  public static Object parseDefaultValue(YTDatabaseSessionInternal session, YTDocument iRecord,
       final String iWord) {
     final Object v = OSQLHelper.parseValue(iWord, null);
 
@@ -164,7 +164,7 @@ public class OSQLHelper {
       // IT'S A DOCUMENT
       // TODO: IMPROVE THIS CASE AVOIDING DOUBLE PARSING
       {
-        var document = new ODocument();
+        var document = new YTDocument();
         document.fromJSON(iValue);
         fieldValue = document;
       } else {
@@ -177,10 +177,10 @@ public class OSQLHelper {
       fieldValue = new OCommandSQL(iValue.substring(1, iValue.length() - 1));
       ((OCommandSQL) fieldValue).getContext().setParent(iContext);
 
-    } else if (ORecordId.isA(iValue))
+    } else if (YTRecordId.isA(iValue))
     // RID
     {
-      fieldValue = new ORecordId(iValue.trim());
+      fieldValue = new YTRecordId(iValue.trim());
     } else {
 
       if (iValue.equalsIgnoreCase("null"))
@@ -223,23 +223,23 @@ public class OSQLHelper {
   }
 
   public static Object parseStringNumber(final String iValue) {
-    final OType t = ORecordSerializerCSVAbstract.getType(iValue);
+    final YTType t = ORecordSerializerCSVAbstract.getType(iValue);
 
-    if (t == OType.INTEGER) {
+    if (t == YTType.INTEGER) {
       return Integer.parseInt(iValue);
-    } else if (t == OType.LONG) {
+    } else if (t == YTType.LONG) {
       return Long.parseLong(iValue);
-    } else if (t == OType.FLOAT) {
+    } else if (t == YTType.FLOAT) {
       return Float.parseFloat(iValue);
-    } else if (t == OType.SHORT) {
+    } else if (t == YTType.SHORT) {
       return Short.parseShort(iValue);
-    } else if (t == OType.BYTE) {
+    } else if (t == YTType.BYTE) {
       return Byte.parseByte(iValue);
-    } else if (t == OType.DOUBLE) {
+    } else if (t == YTType.DOUBLE) {
       return Double.parseDouble(iValue);
-    } else if (t == OType.DECIMAL) {
+    } else if (t == YTType.DECIMAL) {
       return new BigDecimal(iValue);
-    } else if (t == OType.DATE || t == OType.DATETIME) {
+    } else if (t == YTType.DATE || t == YTType.DATETIME) {
       return new Date(Long.parseLong(iValue));
     }
 
@@ -301,7 +301,7 @@ public class OSQLHelper {
     return new OSQLFilterItemField(iContext.getDatabase(), iCommand, iWord, null);
   }
 
-  public static OSQLFunctionRuntime getFunction(ODatabaseSessionInternal session,
+  public static OSQLFunctionRuntime getFunction(YTDatabaseSessionInternal session,
       final OBaseParser iCommand, final String iWord) {
     final int separator = iWord.indexOf('.');
     final int beginParenthesis = iWord.indexOf(OStringSerializerHelper.EMBEDDED_BEGIN);
@@ -333,7 +333,7 @@ public class OSQLHelper {
   }
 
   public static Object getValue(
-      final Object iObject, final ORecord iRecord, final OCommandContext iContext) {
+      final Object iObject, final YTRecord iRecord, final OCommandContext iContext) {
     if (iObject == null) {
       return null;
     }
@@ -355,7 +355,7 @@ public class OSQLHelper {
   }
 
   public static Object resolveFieldValue(
-      ODatabaseSession session, final ODocument iDocument,
+      YTDatabaseSession session, final YTDocument iDocument,
       final String iFieldName,
       final Object iFieldValue,
       final OCommandParameters iArguments,
@@ -372,10 +372,10 @@ public class OSQLHelper {
       }
     }
 
-    if (iFieldValue instanceof ODocument && !((ODocument) iFieldValue).getIdentity().isValid())
+    if (iFieldValue instanceof YTDocument && !((YTDocument) iFieldValue).getIdentity().isValid())
     // EMBEDDED DOCUMENT
     {
-      ODocumentInternal.addOwner((ODocument) iFieldValue, iDocument);
+      ODocumentInternal.addOwner((YTDocument) iFieldValue, iDocument);
     }
 
     // can't use existing getValue with iContext
@@ -389,8 +389,8 @@ public class OSQLHelper {
     return iFieldValue;
   }
 
-  public static ODocument bindParameters(
-      final ODocument iDocument,
+  public static YTDocument bindParameters(
+      final YTDocument iDocument,
       final Map<String, Object> iFields,
       final OCommandParameters iArguments,
       final OCommandContext iContext) {
@@ -407,8 +407,8 @@ public class OSQLHelper {
     return bindParameters(iDocument, fields, iArguments, iContext);
   }
 
-  public static ODocument bindParameters(
-      final ODocument iDocument,
+  public static YTDocument bindParameters(
+      final YTDocument iDocument,
       final List<OPair<String, Object>> iFields,
       final OCommandParameters iArguments,
       final OCommandContext iContext) {
@@ -428,11 +428,11 @@ public class OSQLHelper {
               .execute(iContext.getDatabase());
 
           // CHECK FOR CONVERSIONS
-          OImmutableClass immutableClass = ODocumentInternal.getImmutableSchemaClass(iDocument);
+          YTImmutableClass immutableClass = ODocumentInternal.getImmutableSchemaClass(iDocument);
           if (immutableClass != null) {
-            final OProperty prop = immutableClass.getProperty(fieldName);
+            final YTProperty prop = immutableClass.getProperty(fieldName);
             if (prop != null) {
-              if (prop.getType() == OType.LINK) {
+              if (prop.getType() == YTType.LINK) {
                 if (OMultiValue.isMultiValue(fieldValue)) {
                   final int size = OMultiValue.getSize(fieldValue);
                   if (size == 1)
@@ -460,10 +460,11 @@ public class OSQLHelper {
 
             String singleFieldName = null;
             for (Object o : OMultiValue.getMultiValueIterable(fieldValue)) {
-              if (o instanceof OIdentifiable && !((OIdentifiable) o).getIdentity().isPersistent()) {
+              if (o instanceof YTIdentifiable && !((YTIdentifiable) o).getIdentity()
+                  .isPersistent()) {
                 // TEMPORARY / EMBEDDED
-                final ORecord rec = ((OIdentifiable) o).getRecord();
-                if (rec != null && rec instanceof ODocument doc) {
+                final YTRecord rec = ((YTIdentifiable) o).getRecord();
+                if (rec != null && rec instanceof YTDocument doc) {
                   // CHECK FOR ONE FIELD ONLY
                   if (doc.fields() == 1) {
                     singleFieldName = doc.fieldNames()[0];

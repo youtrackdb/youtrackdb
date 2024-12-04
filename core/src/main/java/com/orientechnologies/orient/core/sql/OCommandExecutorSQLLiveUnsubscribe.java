@@ -23,11 +23,11 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Locale;
 import java.util.Map;
 
@@ -48,7 +48,7 @@ public class OCommandExecutorSQLLiveUnsubscribe extends OCommandExecutorSQLAbstr
     try {
 
       OLiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), getDatabase());
-      ODocument result = new ODocument();
+      YTDocument result = new YTDocument();
       result.field("unsubscribed", unsubscribeToken);
       result.field("unsubscribe", true);
       result.field("token", unsubscribeToken);
@@ -64,7 +64,7 @@ public class OCommandExecutorSQLLiveUnsubscribe extends OCommandExecutorSQLAbstr
                   + e.getClass().getName()
                   + " - "
                   + e.getMessage());
-      ODocument result = new ODocument();
+      YTDocument result = new YTDocument();
       result.field("error-unsubscribe", unsubscribeToken);
       result.field("error-description", e.getMessage());
       result.field("error-type", e.getClass().getName());
@@ -77,14 +77,14 @@ public class OCommandExecutorSQLLiveUnsubscribe extends OCommandExecutorSQLAbstr
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (this.unsubscribeToken != null) {
       return executeUnsubscribe();
     }
-    ODocument result = new ODocument();
+    YTDocument result = new YTDocument();
     result.field("error-unsubscribe", "no token");
     return result;
   }

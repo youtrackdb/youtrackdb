@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -91,19 +91,19 @@ public abstract class OShapeBuilder<T extends Shape> {
 
   public abstract OShapeType getType();
 
-  public abstract T fromDoc(ODocument doc);
+  public abstract T fromDoc(YTDocument doc);
 
   public T fromObject(Object obj) {
     throw new UnsupportedOperationException();
   }
 
   public T fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    ODocument doc = new ODocument(getName());
+    YTDocument doc = new YTDocument(getName());
     doc.field(COORDINATES, geoJsonMap.get(COORDINATES));
     return fromDoc(doc);
   }
 
-  public abstract void initClazz(ODatabaseSessionInternal db);
+  public abstract void initClazz(YTDatabaseSessionInternal db);
 
   public String asText(T shape) {
     return SHAPE_FACTORY.getGeometryFrom(shape).toText();
@@ -116,7 +116,7 @@ public abstract class OShapeBuilder<T extends Shape> {
     return writer.write(geom);
   }
 
-  public String asText(ODocument document) {
+  public String asText(YTDocument document) {
     return asText(fromDoc(document));
   }
 
@@ -132,16 +132,16 @@ public abstract class OShapeBuilder<T extends Shape> {
     return SPATIAL_CONTEXT.getFormats().getGeoJsonWriter().toString(shape);
   }
 
-  public String asGeoJson(ODocument document) {
+  public String asGeoJson(YTDocument document) {
     return asGeoJson(fromDoc(document));
   }
 
-  public ODocument fromGeoJson(String geoJson) throws IOException, ParseException {
+  public YTDocument fromGeoJson(String geoJson) throws IOException, ParseException {
     Shape shape = SPATIAL_CONTEXT.getFormats().getGeoJsonReader().read(geoJson);
     return toDoc((T) shape);
   }
 
-  public void validate(ODocument doc) {
+  public void validate(YTDocument doc) {
   }
 
   Geometry toGeometry(Shape shape) {
@@ -152,7 +152,7 @@ public abstract class OShapeBuilder<T extends Shape> {
     return SHAPE_FACTORY.makeShape(geometry);
   }
 
-  protected OClass superClass(ODatabaseSessionInternal db) {
+  protected YTClass superClass(YTDatabaseSessionInternal db) {
     return db.getMetadata().getSchema().getClass(BASE_CLASS);
   }
 
@@ -166,20 +166,21 @@ public abstract class OShapeBuilder<T extends Shape> {
     return (T) entity;
   }
 
-  public abstract ODocument toDoc(T shape);
+  public abstract YTDocument toDoc(T shape);
 
-  protected ODocument toDoc(T parsed, Geometry geometry) {
+  protected YTDocument toDoc(T parsed, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinates()[0].getZ())) {
       return toDoc(parsed);
     }
     throw new IllegalArgumentException("Invalid shape");
   }
 
-  public ODocument toDoc(String wkt) throws ParseException, org.locationtech.jts.io.ParseException {
+  public YTDocument toDoc(String wkt)
+      throws ParseException, org.locationtech.jts.io.ParseException {
     T parsed = fromText(wkt);
     return toDoc(
         parsed,
-        OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()
+        YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()
             ? wktReader.read(wkt)
             : null);
   }

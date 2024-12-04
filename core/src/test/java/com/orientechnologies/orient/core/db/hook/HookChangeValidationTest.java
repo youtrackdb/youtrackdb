@@ -5,10 +5,10 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,15 +17,15 @@ public class HookChangeValidationTest extends DBTestBase {
   @Test
   public void testHookCreateChangeTx() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestClass");
-    classA.createProperty(db, "property1", OType.STRING).setNotNull(db, true);
-    classA.createProperty(db, "property2", OType.STRING).setReadonly(db, true);
-    classA.createProperty(db, "property3", OType.STRING).setMandatory(db, true);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestClass");
+    classA.createProperty(db, "property1", YTType.STRING).setNotNull(db, true);
+    classA.createProperty(db, "property2", YTType.STRING).setReadonly(db, true);
+    classA.createProperty(db, "property3", YTType.STRING).setMandatory(db, true);
     db.registerHook(
         new ODocumentHookAbstract() {
           @Override
-          public RESULT onRecordBeforeCreate(ODocument doc) {
+          public RESULT onRecordBeforeCreate(YTDocument doc) {
             doc.removeField("property1");
             doc.removeField("property2");
             doc.removeField("property3");
@@ -33,7 +33,7 @@ public class HookChangeValidationTest extends DBTestBase {
           }
 
           @Override
-          public RESULT onRecordBeforeUpdate(ODocument doc) {
+          public RESULT onRecordBeforeUpdate(YTDocument doc) {
             return RESULT.RECORD_NOT_CHANGED;
           }
 
@@ -42,7 +42,7 @@ public class HookChangeValidationTest extends DBTestBase {
             return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
           }
         });
-    ODocument doc = new ODocument(classA);
+    YTDocument doc = new YTDocument(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
@@ -59,20 +59,20 @@ public class HookChangeValidationTest extends DBTestBase {
   @Test
   public void testHookUpdateChangeTx() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("TestClass");
-    classA.createProperty(db, "property1", OType.STRING).setNotNull(db, true);
-    classA.createProperty(db, "property2", OType.STRING).setReadonly(db, true);
-    classA.createProperty(db, "property3", OType.STRING).setMandatory(db, true);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TestClass");
+    classA.createProperty(db, "property1", YTType.STRING).setNotNull(db, true);
+    classA.createProperty(db, "property2", YTType.STRING).setReadonly(db, true);
+    classA.createProperty(db, "property3", YTType.STRING).setMandatory(db, true);
     db.registerHook(
         new ODocumentHookAbstract() {
           @Override
-          public RESULT onRecordBeforeCreate(ODocument doc) {
+          public RESULT onRecordBeforeCreate(YTDocument doc) {
             return RESULT.RECORD_NOT_CHANGED;
           }
 
           @Override
-          public RESULT onRecordBeforeUpdate(ODocument doc) {
+          public RESULT onRecordBeforeUpdate(YTDocument doc) {
             doc.removeField("property1");
             doc.removeField("property2");
             doc.removeField("property3");
@@ -86,7 +86,7 @@ public class HookChangeValidationTest extends DBTestBase {
         });
 
     db.begin();
-    ODocument doc = new ODocument(classA);
+    YTDocument doc = new YTDocument(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");

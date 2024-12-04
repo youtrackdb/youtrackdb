@@ -31,9 +31,9 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
@@ -100,7 +100,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     return executionMode;
   }
 
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (context == null) {
       context = new OBasicCommandContext();
     }
@@ -133,7 +133,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     if (strict) {
       parserText = addSemicolons(parserText);
 
-      ODatabaseSessionInternal db = getDatabase();
+      YTDatabaseSessionInternal db = getDatabase();
 
       byte[] bytes;
       try {
@@ -210,7 +210,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
   protected Object executeJsr223Script(
       final String language, final OCommandContext iContext, final Map<Object, Object> iArgs) {
-    ODatabaseSessionInternal db = iContext.getDatabase();
+    YTDatabaseSessionInternal db = iContext.getDatabase();
 
     final OScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
     CompiledScript compiledScript = request.getCompiledScript();
@@ -278,7 +278,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 
-  protected Object executeSQLScript(final String iText, final ODatabaseSessionInternal db)
+  protected Object executeSQLScript(final String iText, final YTDatabaseSessionInternal db)
       throws IOException {
     Object lastResult = null;
     int maxRetry = 1;
@@ -557,9 +557,9 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     }
   }
 
-  private Object executeCommand(final String lastCommand, final ODatabaseSession db) {
+  private Object executeCommand(final String lastCommand, final YTDatabaseSession db) {
     final OCommandSQL command = new OCommandSQL(lastCommand);
-    var database = (ODatabaseSessionInternal) db;
+    var database = (YTDatabaseSessionInternal) db;
     Object result =
         database
             .command(command.setContext(getContext()))
@@ -577,7 +577,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     return parameters;
   }
 
-  private Object getValue(final String iValue, final ODatabaseSessionInternal db) {
+  private Object getValue(final String iValue, final YTDatabaseSessionInternal db) {
     Object lastResult = null;
     boolean recordResultSet = true;
     if (iValue.equalsIgnoreCase("NULL")) {
@@ -655,12 +655,12 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
   }
 
   private void checkIsRecordResultSet(Object result) {
-    if (!(result instanceof OIdentifiable) && !(result instanceof OLegacyResultSet)) {
+    if (!(result instanceof YTIdentifiable) && !(result instanceof OLegacyResultSet)) {
       if (!OMultiValue.isMultiValue(result)) {
         request.setRecordResultSet(false);
       } else {
         for (Object val : OMultiValue.getMultiValueIterable(result)) {
-          if (!(val instanceof OIdentifiable)) {
+          if (!(val instanceof YTIdentifiable)) {
             request.setRecordResultSet(false);
           }
         }
@@ -677,22 +677,22 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     }
   }
 
-  private void executeConsoleLog(final String lastCommand, final ODatabaseSessionInternal db) {
+  private void executeConsoleLog(final String lastCommand, final YTDatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.log ".length()).trim();
     OLogManager.instance().info(this, "%s", getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private void executeConsoleOutput(final String lastCommand, final ODatabaseSessionInternal db) {
+  private void executeConsoleOutput(final String lastCommand, final YTDatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.output ".length()).trim();
     System.out.println(getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private void executeConsoleError(final String lastCommand, final ODatabaseSessionInternal db) {
+  private void executeConsoleError(final String lastCommand, final YTDatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.error ".length()).trim();
     System.err.println(getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private Object executeLet(final String lastCommand, final ODatabaseSessionInternal db) {
+  private Object executeLet(final String lastCommand, final YTDatabaseSessionInternal db) {
     final int equalsPos = lastCommand.indexOf('=');
     final String variable = lastCommand.substring("let ".length(), equalsPos).trim();
     final String cmd = lastCommand.substring(equalsPos + 1).trim();

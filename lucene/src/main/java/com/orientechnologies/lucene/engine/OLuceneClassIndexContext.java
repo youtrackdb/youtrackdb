@@ -2,10 +2,10 @@ package com.orientechnologies.lucene.engine;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,16 +15,16 @@ public class OLuceneClassIndexContext {
   protected final OIndexDefinition definition;
   protected final String name;
   protected final boolean automatic;
-  protected final ODocument metadata;
+  protected final YTDocument metadata;
   protected final Map<String, Boolean> fieldsToStore = new HashMap<String, Boolean>();
-  protected final OClass indexClass;
+  protected final YTClass indexClass;
 
   public OLuceneClassIndexContext(
-      OSchema schema,
+      YTSchema schema,
       OIndexDefinition definition,
       String name,
       boolean automatic,
-      ODocument metadata) {
+      YTDocument metadata) {
     this.definition = definition;
     this.name = name;
     this.automatic = automatic;
@@ -42,7 +42,7 @@ public class OLuceneClassIndexContext {
     List<String> fields = indexDefinition.getFields();
 
     for (String field : fields) {
-      OProperty property = indexClass.getProperty(field);
+      YTProperty property = indexClass.getProperty(field);
 
       if (property.getType().isEmbedded() && property.getLinkedType() != null) {
         fieldsToStore.put(field, true);

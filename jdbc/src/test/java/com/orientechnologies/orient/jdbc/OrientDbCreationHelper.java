@@ -13,17 +13,17 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,14 +38,14 @@ import java.util.TimeZone;
 
 public class OrientDbCreationHelper {
 
-  public static void loadDB(ODatabaseSession db, int documents) throws IOException {
+  public static void loadDB(YTDatabaseSession db, int documents) throws IOException {
 
     db.begin();
     for (int i = 1; i <= documents; i++) {
-      ODocument doc = new ODocument();
+      YTDocument doc = new YTDocument();
       doc.setClassName("Item");
       doc = createItem(i, doc);
-      ((ODatabaseSessionInternal) db).save(doc, "Item");
+      ((YTDatabaseSessionInternal) db).save(doc, "Item");
     }
 
     createAuthorAndArticles(db, 50, 50);
@@ -55,7 +55,7 @@ public class OrientDbCreationHelper {
     db.commit();
   }
 
-  public static ODocument createItem(int id, ODocument doc) {
+  public static YTDocument createItem(int id, YTDocument doc) {
     String itemKey = Integer.valueOf(id).toString();
 
     doc.setClassName("Item");
@@ -77,39 +77,39 @@ public class OrientDbCreationHelper {
     doc.field("text", contents);
     doc.field("title", "youTrackDB");
     doc.field("score", BigDecimal.valueOf(contents.length() / id));
-    doc.field("length", contents.length(), OType.LONG);
+    doc.field("length", contents.length(), YTType.LONG);
     doc.field("published", (id % 2 > 0));
     doc.field("author", "anAuthor" + id);
     // doc.field("tags", asList("java", "orient", "nosql"),
-    // OType.EMBEDDEDLIST);
+    // YTType.EMBEDDEDLIST);
     Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     instance.add(Calendar.HOUR_OF_DAY, -id);
     Date time = instance.getTime();
-    doc.field("date", time, OType.DATE);
-    doc.field("time", time, OType.DATETIME);
+    doc.field("date", time, YTType.DATE);
+    doc.field("time", time, YTType.DATETIME);
 
     return doc;
   }
 
-  public static void createAuthorAndArticles(ODatabaseSession db, int totAuthors, int totArticles)
+  public static void createAuthorAndArticles(YTDatabaseSession db, int totAuthors, int totArticles)
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
-      ODocument author = new ODocument("Author");
-      List<ODocument> articles = new ArrayList<>(totArticles);
+      YTDocument author = new YTDocument("Author");
+      List<YTDocument> articles = new ArrayList<>(totArticles);
       author.field("articles", articles);
 
-      author.field("uuid", a, OType.DOUBLE);
+      author.field("uuid", a, YTType.DOUBLE);
       author.field("name", "Jay");
       author.field("rating", new Random().nextDouble());
 
       for (int i = 1; i <= totArticles; ++i) {
-        ODocument article = new ODocument("Article");
+        YTDocument article = new YTDocument("Article");
 
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Date time = instance.getTime();
-        article.field("date", time, OType.DATE);
+        article.field("date", time, YTType.DATE);
 
         article.field("uuid", articleSerial++);
         article.field("title", "the title for article " + articleSerial);
@@ -123,14 +123,14 @@ public class OrientDbCreationHelper {
     }
   }
 
-  public static ODocument createArticleWithAttachmentSplitted(ODatabaseSession db)
+  public static YTDocument createArticleWithAttachmentSplitted(YTDatabaseSession db)
       throws IOException {
 
-    ODocument article = new ODocument("Article");
+    YTDocument article = new YTDocument("Article");
     Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     Date time = instance.getTime();
-    article.field("date", time, OType.DATE);
+    article.field("date", time, YTType.DATE);
 
     article.field("uuid", 1000000);
     article.field("title", "the title 2");
@@ -144,11 +144,11 @@ public class OrientDbCreationHelper {
     return article;
   }
 
-  public static void createWriterAndPosts(ODatabaseSession db, int totAuthors, int totArticles)
+  public static void createWriterAndPosts(YTDatabaseSession db, int totAuthors, int totArticles)
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
-      OVertex writer = db.newVertex("Writer");
+      YTVertex writer = db.newVertex("Writer");
       writer.setProperty("uuid", a);
       writer.setProperty("name", "happy writer");
       writer.setProperty("is_active", Boolean.TRUE);
@@ -156,11 +156,11 @@ public class OrientDbCreationHelper {
 
       for (int i = 1; i <= totArticles; ++i) {
 
-        OVertex post = db.newVertex("Post");
+        YTVertex post = db.newVertex("Post");
 
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Date time = instance.getTime();
-        post.setProperty("date", time, OType.DATE);
+        post.setProperty("date", time, YTType.DATE);
         post.setProperty("uuid", articleSerial++);
         post.setProperty("title", "the title");
         post.setProperty("content", "the content");
@@ -170,13 +170,13 @@ public class OrientDbCreationHelper {
     }
 
     // additional wrong data
-    OVertex writer = db.newVertex("Writer");
+    YTVertex writer = db.newVertex("Writer");
     writer.setProperty("uuid", totAuthors * 2);
     writer.setProperty("name", "happy writer");
     writer.setProperty("is_active", Boolean.TRUE);
     writer.setProperty("isActive", Boolean.TRUE);
 
-    OVertex post = db.newVertex("Post");
+    YTVertex post = db.newVertex("Post");
 
     // no date!!
 
@@ -187,11 +187,11 @@ public class OrientDbCreationHelper {
     db.newEdge(writer, post, "Writes");
   }
 
-  private static OBlob loadFile(ODatabaseSession database, String filePath) throws IOException {
+  private static YTBlob loadFile(YTDatabaseSession database, String filePath) throws IOException {
     final File f = new File(filePath);
     if (f.exists()) {
       BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(f));
-      OBlob record = new ORecordBytes();
+      YTBlob record = new YTRecordBytes();
       record.fromInputStream(inputStream);
       return record;
     }
@@ -199,7 +199,7 @@ public class OrientDbCreationHelper {
     return null;
   }
 
-  private static List<ORID> loadFile(ODatabaseSession database, String filePath, int bufferSize)
+  private static List<YTRID> loadFile(YTDatabaseSession database, String filePath, int bufferSize)
       throws IOException {
     File binaryFile = new File(filePath);
     long binaryFileLength = binaryFile.length();
@@ -208,7 +208,7 @@ public class OrientDbCreationHelper {
     if (remainder > 0) {
       numberOfRecords++;
     }
-    List<ORID> binaryChuncks = new ArrayList<>(numberOfRecords);
+    List<YTRID> binaryChuncks = new ArrayList<>(numberOfRecords);
     BufferedInputStream binaryStream = new BufferedInputStream(new FileInputStream(binaryFile));
 
     for (int i = 0; i < numberOfRecords; i++) {
@@ -229,7 +229,7 @@ public class OrientDbCreationHelper {
               throw new RuntimeException(e);
             }
 
-            OBlob recordChunk = new ORecordBytes(chunk);
+            YTBlob recordChunk = new YTRecordBytes(chunk);
 
             database.save(recordChunk);
             binaryChuncks.add(recordChunk.getIdentity());
@@ -239,65 +239,65 @@ public class OrientDbCreationHelper {
     return binaryChuncks;
   }
 
-  public static void createSchemaDB(ODatabaseSessionInternal db) {
+  public static void createSchemaDB(YTDatabaseSessionInternal db) {
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     // item
-    OClass item = schema.createClass("Item");
+    YTClass item = schema.createClass("Item");
 
-    item.createProperty(db, "stringKey", OType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
-    item.createProperty(db, "intKey", OType.INTEGER).createIndex(db, INDEX_TYPE.UNIQUE);
-    item.createProperty(db, "date", OType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "time", OType.DATETIME).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "text", OType.STRING);
-    item.createProperty(db, "score", OType.DECIMAL);
-    item.createProperty(db, "length", OType.INTEGER).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "published", OType.BOOLEAN).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "title", OType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "author", OType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "tags", OType.EMBEDDEDLIST);
+    item.createProperty(db, "stringKey", YTType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
+    item.createProperty(db, "intKey", YTType.INTEGER).createIndex(db, INDEX_TYPE.UNIQUE);
+    item.createProperty(db, "date", YTType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "time", YTType.DATETIME).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "text", YTType.STRING);
+    item.createProperty(db, "score", YTType.DECIMAL);
+    item.createProperty(db, "length", YTType.INTEGER).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "published", YTType.BOOLEAN).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "title", YTType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "author", YTType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "tags", YTType.EMBEDDEDLIST);
 
     // class Article
-    OClass article = schema.createClass("Article");
+    YTClass article = schema.createClass("Article");
 
-    article.createProperty(db, "uuid", OType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
-    article.createProperty(db, "date", OType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    article.createProperty(db, "title", OType.STRING);
-    article.createProperty(db, "content", OType.STRING);
-    // article.createProperty("attachment", OType.LINK);
+    article.createProperty(db, "uuid", YTType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    article.createProperty(db, "date", YTType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    article.createProperty(db, "title", YTType.STRING);
+    article.createProperty(db, "content", YTType.STRING);
+    // article.createProperty("attachment", YTType.LINK);
 
     // author
-    OClass author = schema.createClass("Author");
+    YTClass author = schema.createClass("Author");
 
-    author.createProperty(db, "uuid", OType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
-    author.createProperty(db, "name", OType.STRING).setMin(db, "3");
-    author.createProperty(db, "rating", OType.DOUBLE);
-    author.createProperty(db, "articles", OType.LINKLIST, article);
+    author.createProperty(db, "uuid", YTType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    author.createProperty(db, "name", YTType.STRING).setMin(db, "3");
+    author.createProperty(db, "rating", YTType.DOUBLE);
+    author.createProperty(db, "articles", YTType.LINKLIST, article);
 
     // link article-->author
-    article.createProperty(db, "author", OType.LINK, author);
+    article.createProperty(db, "author", YTType.LINK, author);
 
     // Graph
 
-    OClass v = schema.getClass("V");
+    YTClass v = schema.getClass("V");
     if (v == null) {
       schema.createClass("V");
     }
 
-    OClass post = schema.createClass("Post", v);
-    post.createProperty(db, "uuid", OType.LONG);
-    post.createProperty(db, "title", OType.STRING);
-    post.createProperty(db, "date", OType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    post.createProperty(db, "content", OType.STRING);
+    YTClass post = schema.createClass("Post", v);
+    post.createProperty(db, "uuid", YTType.LONG);
+    post.createProperty(db, "title", YTType.STRING);
+    post.createProperty(db, "date", YTType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    post.createProperty(db, "content", YTType.STRING);
 
-    OClass writer = schema.createClass("Writer", v);
-    writer.createProperty(db, "uuid", OType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
-    writer.createProperty(db, "name", OType.STRING);
-    writer.createProperty(db, "is_active", OType.BOOLEAN);
-    writer.createProperty(db, "isActive", OType.BOOLEAN);
+    YTClass writer = schema.createClass("Writer", v);
+    writer.createProperty(db, "uuid", YTType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    writer.createProperty(db, "name", YTType.STRING);
+    writer.createProperty(db, "is_active", YTType.BOOLEAN);
+    writer.createProperty(db, "isActive", YTType.BOOLEAN);
 
-    OClass e = schema.getClass("E");
+    YTClass e = schema.getClass("E");
     if (e == null) {
       schema.createClass("E");
     }

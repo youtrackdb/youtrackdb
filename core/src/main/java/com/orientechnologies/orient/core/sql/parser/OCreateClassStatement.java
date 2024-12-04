@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class OCreateClassStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     if (schema.existsClass(name.getStringValue())) {
       if (ifNotExists) {
         return OExecutionStream.empty();
@@ -65,8 +65,8 @@ public class OCreateClassStatement extends ODDLStatement {
     result.setProperty("operation", "create class");
     result.setProperty("className", name.getStringValue());
 
-    OClass clazz = null;
-    OClass[] superclasses = getSuperClasses(schema);
+    YTClass clazz = null;
+    YTClass[] superclasses = getSuperClasses(schema);
     if (abstractClass) {
       clazz = schema.createAbstractClass(name.getStringValue(), superclasses);
       result.setProperty("abstract", abstractClass);
@@ -88,18 +88,18 @@ public class OCreateClassStatement extends ODDLStatement {
     return OExecutionStream.singleton(result);
   }
 
-  private OClass[] getSuperClasses(OSchema schema) {
+  private YTClass[] getSuperClasses(YTSchema schema) {
     if (superclasses == null) {
-      return new OClass[]{};
+      return new YTClass[]{};
     }
     return superclasses.stream()
         .map(x -> schema.getClass(x.getStringValue()))
         .filter(x -> x != null)
         .collect(Collectors.toList())
-        .toArray(new OClass[]{});
+        .toArray(new YTClass[]{});
   }
 
-  private void checkSuperclasses(OSchema schema, OCommandContext ctx) {
+  private void checkSuperclasses(YTSchema schema, OCommandContext ctx) {
     if (superclasses != null) {
       for (OIdentifier superclass : superclasses) {
         if (!schema.existsClass(superclass.getStringValue())) {

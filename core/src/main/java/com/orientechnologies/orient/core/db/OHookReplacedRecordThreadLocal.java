@@ -21,12 +21,12 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 
 /**
  * Uses Thread Local to store information used by hooks.
  */
-public class OHookReplacedRecordThreadLocal extends ThreadLocal<ORecord> {
+public class OHookReplacedRecordThreadLocal extends ThreadLocal<YTRecord> {
 
   public static volatile OHookReplacedRecordThreadLocal INSTANCE =
       new OHookReplacedRecordThreadLocal();
@@ -49,7 +49,7 @@ public class OHookReplacedRecordThreadLocal extends ThreadLocal<ORecord> {
             });
   }
 
-  public ORecord getIfDefined() {
+  public YTRecord getIfDefined() {
     return super.get();
   }
 

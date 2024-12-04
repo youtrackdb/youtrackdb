@@ -25,12 +25,12 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
@@ -54,7 +54,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
   protected OSQLFilterItemAbstract() {
   }
 
-  public OSQLFilterItemAbstract(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public OSQLFilterItemAbstract(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iText) {
     final List<String> parts =
         OStringSerializerHelper.smartSplit(
@@ -174,10 +174,10 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
     }
   }
 
-  public abstract String getRoot(ODatabaseSession session);
+  public abstract String getRoot(YTDatabaseSession session);
 
   public Object transformValue(
-      final OIdentifiable iRecord, @Nonnull final OCommandContext iContext, Object ioResult) {
+      final YTIdentifiable iRecord, @Nonnull final OCommandContext iContext, Object ioResult) {
     if (ioResult != null && operationsChain != null) {
       // APPLY OPERATIONS FOLLOWING THE STACK ORDER
       OSQLMethodRuntime method = null;
@@ -240,12 +240,12 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
     return super.toString();
   }
 
-  protected abstract void setRoot(ODatabaseSessionInternal session, OBaseParser iQueryToParse,
+  protected abstract void setRoot(YTDatabaseSessionInternal session, OBaseParser iQueryToParse,
       final String iRoot);
 
-  protected OCollate getCollateForField(final OClass iClass, final String iFieldName) {
+  protected OCollate getCollateForField(final YTClass iClass, final String iFieldName) {
     if (iClass != null) {
-      final OProperty p = iClass.getProperty(iFieldName);
+      final YTProperty p = iClass.getProperty(iFieldName);
       if (p != null) {
         return p.getCollate();
       }

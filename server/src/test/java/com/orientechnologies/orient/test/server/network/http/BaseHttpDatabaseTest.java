@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,7 +20,7 @@ public abstract class BaseHttpDatabaseTest extends BaseHttpTest {
             .getCanonicalPath();
 
     super.startServer();
-    ODocument pass = new ODocument();
+    YTDocument pass = new YTDocument();
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         post("database/" + getDatabaseName() + "/memory")

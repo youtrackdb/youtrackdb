@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.security.kerberos;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 import java.net.URI;
@@ -105,21 +105,21 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
 
     // Defaults to the environment variable.
     String config = System.getenv("KRB5_CONFIG");
-    String ckc = OGlobalConfiguration.CLIENT_KRB5_CONFIG.getValueAsString();
+    String ckc = YTGlobalConfiguration.CLIENT_KRB5_CONFIG.getValueAsString();
     if (ckc != null) {
       config = ckc;
     }
 
     // Defaults to the environment variable.
     String ccname = System.getenv("KRB5CCNAME");
-    String ccn = OGlobalConfiguration.CLIENT_KRB5_CCNAME.getValueAsString();
+    String ccn = YTGlobalConfiguration.CLIENT_KRB5_CCNAME.getValueAsString();
     if (ccn != null) {
       ccname = ccn;
     }
 
     // Defaults to the environment variable.
     String ktname = System.getenv("KRB5_CLIENT_KTNAME");
-    String ckn = OGlobalConfiguration.CLIENT_KRB5_KTNAME.getValueAsString();
+    String ckn = YTGlobalConfiguration.CLIENT_KRB5_KTNAME.getValueAsString();
     if (ckn != null) {
       ktname = ckn;
     }

@@ -24,21 +24,21 @@ import com.orientechnologies.common.collection.OLazyIteratorListWrapper;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.record.ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * Lazy implementation of ArrayList. It's bound to a source ORecord object to keep track of changes.
+ * Lazy implementation of ArrayList. It's bound to a source YTRecord object to keep track of changes.
  * This avoid to call the makeDirty() by hand when the list is changed. It handles an internal
  * contentType to speed up some operations like conversion to/from record/links.
  */
 @SuppressWarnings({"serial"})
-public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
+public class OList extends OTrackedList<YTIdentifiable> implements OSizeable {
 
   protected ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE contentType =
       MULTIVALUE_CONTENT_TYPE.EMPTY;
@@ -52,14 +52,14 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
     super(iSourceRecord);
     if (iSourceRecord != null) {
       ORecordElement source = iSourceRecord;
-      while (!(source instanceof ODocument)) {
+      while (!(source instanceof YTDocument)) {
         source = source.getOwner();
       }
     }
   }
 
   public OList(
-      final ORecordElement iSourceRecord, final Collection<? extends OIdentifiable> iOrigin) {
+      final ORecordElement iSourceRecord, final Collection<? extends YTIdentifiable> iOrigin) {
     this(iSourceRecord);
     if (iOrigin != null && !iOrigin.isEmpty()) {
       addAll(iOrigin);
@@ -67,8 +67,8 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
   }
 
   @Override
-  public boolean addAll(Collection<? extends OIdentifiable> c) {
-    for (OIdentifiable o : c) {
+  public boolean addAll(Collection<? extends YTIdentifiable> c) {
+    for (YTIdentifiable o : c) {
       add(o);
     }
 
@@ -83,7 +83,7 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
   /**
    * @return iterator that just returns the elements without conversion.
    */
-  public Iterator<OIdentifiable> rawIterator() {
+  public Iterator<YTIdentifiable> rawIterator() {
 
     return new OLazyIterator<>() {
       private int pos = -1;
@@ -92,7 +92,7 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
         return pos < size() - 1;
       }
 
-      public OIdentifiable next() {
+      public YTIdentifiable next() {
         return OList.this.rawGet(++pos);
       }
 
@@ -100,28 +100,28 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
         OList.this.remove(pos);
       }
 
-      public OIdentifiable update(final OIdentifiable iValue) {
+      public YTIdentifiable update(final YTIdentifiable iValue) {
         return OList.this.set(pos, iValue);
       }
     };
   }
 
-  public OIdentifiable rawGet(final int index) {
+  public YTIdentifiable rawGet(final int index) {
     return super.get(index);
   }
 
   @Override
-  public OLazyIterator<OIdentifiable> iterator() {
+  public OLazyIterator<YTIdentifiable> iterator() {
     return new OLazyIteratorListWrapper<>(super.listIterator());
   }
 
   @Override
-  public ListIterator<OIdentifiable> listIterator() {
+  public ListIterator<YTIdentifiable> listIterator() {
     return super.listIterator();
   }
 
   @Override
-  public ListIterator<OIdentifiable> listIterator(int index) {
+  public ListIterator<YTIdentifiable> listIterator(int index) {
     return super.listIterator(index);
   }
 
@@ -131,29 +131,29 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
   }
 
   @Override
-  public boolean add(OIdentifiable e) {
+  public boolean add(YTIdentifiable e) {
     preAdd(e);
     return super.add(e);
   }
 
   @Override
-  public void add(int index, OIdentifiable e) {
+  public void add(int index, YTIdentifiable e) {
     preAdd(e);
     super.add(index, e);
   }
 
   @Override
-  public boolean addInternal(OIdentifiable e) {
+  public boolean addInternal(YTIdentifiable e) {
     preAdd(e);
     return super.addInternal(e);
   }
 
-  private void preAdd(OIdentifiable e) {
+  private void preAdd(YTIdentifiable e) {
     if (e != null) {
       ORecordInternal.track(sourceRecord, e);
       if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
           && e.getIdentity().isPersistent()
-          && (e instanceof ODocument && !((ODocument) e).isDirty()))
+          && (e instanceof YTDocument && !((YTDocument) e).isDirty()))
       // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
       {
         e = e.getIdentity();
@@ -164,14 +164,14 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
   }
 
   @Override
-  public OIdentifiable set(int index, OIdentifiable e) {
+  public YTIdentifiable set(int index, YTIdentifiable e) {
 
     if (e != null) {
       ORecordInternal.track(sourceRecord, e);
       if (e != null) {
         if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
             && e.getIdentity().isPersistent()
-            && (e instanceof ODocument && !((ODocument) e).isDirty()))
+            && (e instanceof YTDocument && !((YTDocument) e).isDirty()))
         // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
         {
           e = e.getIdentity();
@@ -184,7 +184,7 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
   }
 
   @Override
-  public OIdentifiable get(final int index) {
+  public YTIdentifiable get(final int index) {
     return super.get(index);
   }
 
@@ -199,7 +199,7 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
   }
 
   @Override
-  public OIdentifiable remove(final int iIndex) {
+  public YTIdentifiable remove(final int iIndex) {
     return super.remove(iIndex);
   }
 
@@ -269,7 +269,7 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
     return ORecordMultiValueHelper.toString(this);
   }
 
-  public OList copy(final ODocument iSourceRecord) {
+  public OList copy(final YTDocument iSourceRecord) {
     final OList copy = new OList(iSourceRecord);
     copy.contentType = contentType;
 
@@ -298,10 +298,10 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
       return true;
     }
 
-    final OIdentifiable o = super.get(iIndex);
-    if (o instanceof OIdentifiable && o.getIdentity().isPersistent()) {
+    final YTIdentifiable o = super.get(iIndex);
+    if (o instanceof YTIdentifiable && o.getIdentity().isPersistent()) {
       // ALREADY CONVERTED
-      if (o instanceof ORecord && !((ORecord) o).isDirty()) {
+      if (o instanceof YTRecord && !((YTRecord) o).isDirty()) {
         try {
           super.setInternal(iIndex, o.getIdentity());
           // CONVERTED
@@ -310,7 +310,7 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
           // IGNORE THIS
         }
       } else {
-        return o instanceof ORID;
+        return o instanceof YTRID;
       }
     }
     return false;
@@ -320,9 +320,9 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
     var db = getOwnerRecord().getSession();
 
     boolean removed = false;
-    Iterator<OIdentifiable> it = super.iterator();
+    Iterator<YTIdentifiable> it = super.iterator();
     while (it.hasNext()) {
-      OIdentifiable rec = it.next();
+      YTIdentifiable rec = it.next();
       if (!db.exists(rec.getIdentity())) {
         it.remove();
         removed = true;

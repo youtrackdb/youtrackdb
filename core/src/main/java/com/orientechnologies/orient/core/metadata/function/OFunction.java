@@ -26,12 +26,12 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OScriptExecutor;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORetryQueryException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,7 +50,7 @@ public class OFunction extends ODocumentWrapper {
   /**
    * Creates a new function.
    */
-  public OFunction(ODatabaseSessionInternal session) {
+  public OFunction(YTDatabaseSessionInternal session) {
     super(CLASS_NAME);
     setLanguage(session, "SQL");
   }
@@ -60,7 +60,7 @@ public class OFunction extends ODocumentWrapper {
    *
    * @param iDocument Document to assign
    */
-  public OFunction(final ODocument iDocument) {
+  public OFunction(final YTDocument iDocument) {
     super(iDocument);
   }
 
@@ -69,50 +69,50 @@ public class OFunction extends ODocumentWrapper {
    *
    * @param iRid RID of the function to load
    */
-  public OFunction(final ORecordId iRid) {
+  public OFunction(final YTRecordId iRid) {
     super(iRid.getRecord());
   }
 
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return getDocument(session).field("name");
   }
 
-  public OFunction setName(ODatabaseSession session, final String iName) {
+  public OFunction setName(YTDatabaseSession session, final String iName) {
     getDocument(session).field("name", iName);
     return this;
   }
 
-  public String getCode(ODatabaseSession session) {
+  public String getCode(YTDatabaseSession session) {
     return getDocument(session).field("code");
   }
 
-  public void setCode(ODatabaseSession session, final String iCode) {
+  public void setCode(YTDatabaseSession session, final String iCode) {
     getDocument(session).field("code", iCode);
   }
 
-  public String getLanguage(ODatabaseSession session) {
+  public String getLanguage(YTDatabaseSession session) {
     return getDocument(session).field("language");
   }
 
-  public void setLanguage(ODatabaseSession session, final String iLanguage) {
+  public void setLanguage(YTDatabaseSession session, final String iLanguage) {
     getDocument(session).field("language", iLanguage);
   }
 
-  public List<String> getParameters(ODatabaseSession session) {
+  public List<String> getParameters(YTDatabaseSession session) {
     return getDocument(session).field("parameters");
   }
 
-  public OFunction setParameters(ODatabaseSession session, final List<String> iParameters) {
+  public OFunction setParameters(YTDatabaseSession session, final List<String> iParameters) {
     getDocument(session).field("parameters", iParameters);
     return this;
   }
 
-  public boolean isIdempotent(ODatabaseSession session) {
+  public boolean isIdempotent(YTDatabaseSession session) {
     final Boolean idempotent = getDocument(session).field("idempotent");
     return idempotent != null && idempotent;
   }
 
-  public OFunction setIdempotent(ODatabaseSession session, final boolean iIdempotent) {
+  public OFunction setIdempotent(YTDatabaseSession session, final boolean iIdempotent) {
     getDocument(session).field("idempotent", iIdempotent);
     return this;
   }
@@ -175,7 +175,7 @@ public class OFunction extends ODocumentWrapper {
 
   public Object executeInContext(@Nonnull OCommandContext iContext,
       @Nonnull final Map<String, Object> iArgs) {
-    ODatabaseSessionInternal database = iContext.getDatabase();
+    YTDatabaseSessionInternal database = iContext.getDatabase();
     // CONVERT PARAMETERS IN A MAP
     final Map<Object, Object> args = new LinkedHashMap<Object, Object>();
 
@@ -204,7 +204,7 @@ public class OFunction extends ODocumentWrapper {
   }
 
   @Deprecated
-  public Object execute(ODatabaseSessionInternal session, final Map<Object, Object> iArgs) {
+  public Object execute(YTDatabaseSessionInternal session, final Map<Object, Object> iArgs) {
     final long start = YouTrackDBManager.instance().getProfiler().startChrono();
 
     Object result;
@@ -243,7 +243,7 @@ public class OFunction extends ODocumentWrapper {
     return result;
   }
 
-  public ORID getId(ODatabaseSession session) {
+  public YTRID getId(YTDatabaseSession session) {
     return getDocument(session).getIdentity();
   }
 

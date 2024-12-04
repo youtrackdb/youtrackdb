@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.profiler;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.PROFILER_MAXVALUES;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.PROFILER_MAXVALUES;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import java.util.ArrayList;

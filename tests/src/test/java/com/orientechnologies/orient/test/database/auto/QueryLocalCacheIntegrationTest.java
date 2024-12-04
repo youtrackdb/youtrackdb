@@ -17,9 +17,9 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,51 +47,51 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
         .getMetadata()
         .getSchema()
         .createClass("SecondFetchClass")
-        .createProperty(database, "surname", OType.STRING)
+        .createProperty(database, "surname", YTType.STRING)
         .setMandatory(database, true);
     database.getMetadata().getSchema().createClass("OutInFetchClass");
 
     database.begin();
-    ODocument singleLinked = new ODocument();
+    YTDocument singleLinked = new YTDocument();
     database.save(singleLinked);
-    ODocument doc = new ODocument("FetchClass");
+    YTDocument doc = new YTDocument("FetchClass");
     doc.field("name", "first");
     database.save(doc);
-    ODocument doc1 = new ODocument("FetchClass");
+    YTDocument doc1 = new YTDocument("FetchClass");
     doc1.field("name", "second");
     doc1.field("linked", singleLinked);
     database.save(doc1);
-    ODocument doc2 = new ODocument("FetchClass");
+    YTDocument doc2 = new YTDocument("FetchClass");
     doc2.field("name", "third");
-    List<ODocument> linkList = new ArrayList<ODocument>();
+    List<YTDocument> linkList = new ArrayList<YTDocument>();
     linkList.add(doc);
     linkList.add(doc1);
     doc2.field("linkList", linkList);
     doc2.field("linked", singleLinked);
-    Set<ODocument> linkSet = new HashSet<ODocument>();
+    Set<YTDocument> linkSet = new HashSet<YTDocument>();
     linkSet.add(doc);
     linkSet.add(doc1);
     doc2.field("linkSet", linkSet);
     database.save(doc2);
 
-    ODocument doc3 = new ODocument("FetchClass");
+    YTDocument doc3 = new YTDocument("FetchClass");
     doc3.field("name", "forth");
     doc3.field("ref", doc2);
     doc3.field("linkSet", linkSet);
     doc3.field("linkList", linkList);
     database.save(doc3);
 
-    ODocument doc4 = new ODocument("SecondFetchClass");
+    YTDocument doc4 = new YTDocument("SecondFetchClass");
     doc4.field("name", "fifth");
     doc4.field("surname", "test");
     database.save(doc4);
 
-    ODocument doc5 = new ODocument("SecondFetchClass");
+    YTDocument doc5 = new YTDocument("SecondFetchClass");
     doc5.field("name", "sixth");
     doc5.field("surname", "test");
     database.save(doc5);
 
-    ODocument doc6 = new ODocument("OutInFetchClass");
+    YTDocument doc6 = new YTDocument("OutInFetchClass");
     ORidBag out = new ORidBag(database);
     out.add(doc2);
     out.add(doc3);
@@ -117,14 +117,14 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
   public void queryTest() {
     final long times = YouTrackDBManager.instance().getProfiler().getCounter("Cache.reused");
 
-    List<ODocument> resultset =
-        database.query(new OSQLSynchQuery<ODocument>("select * from FetchClass"));
+    List<YTDocument> resultset =
+        database.query(new OSQLSynchQuery<YTDocument>("select * from FetchClass"));
     Assert.assertEquals(YouTrackDBManager.instance().getProfiler().getCounter("Cache.reused"),
         times);
 
-    ORID linked;
-    for (ODocument d : resultset) {
-      linked = d.field("linked", ORID.class);
+    YTRID linked;
+    for (YTDocument d : resultset) {
+      linked = d.field("linked", YTRID.class);
       if (linked != null) {
         Assert.assertNull(database.getLocalCache().findRecord(linked));
       }

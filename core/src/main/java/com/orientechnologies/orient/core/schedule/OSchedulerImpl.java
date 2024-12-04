@@ -17,17 +17,17 @@
 package com.orientechnologies.orient.core.schedule;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class OSchedulerImpl {
     this.youtrackDB = youtrackDB;
   }
 
-  public void scheduleEvent(ODatabaseSession session, final OScheduledEvent event) {
+  public void scheduleEvent(YTDatabaseSession session, final OScheduledEvent event) {
     if (events.putIfAbsent(event.getName(session), event) == null) {
       String database = session.getName();
       event.schedule(database, "admin", youtrackDB);
@@ -69,7 +69,7 @@ public class OSchedulerImpl {
     return event;
   }
 
-  public void removeEvent(ODatabaseSessionInternal session, final String eventName) {
+  public void removeEvent(YTDatabaseSessionInternal session, final String eventName) {
     OLogManager.instance().debug(this, "Removing scheduled event '%s'...", eventName);
 
     final OScheduledEvent event = removeEventInternal(eventName);
@@ -89,7 +89,7 @@ public class OSchedulerImpl {
     }
   }
 
-  public void updateEvent(ODatabaseSessionInternal session, final OScheduledEvent event) {
+  public void updateEvent(YTDatabaseSessionInternal session, final OScheduledEvent event) {
     final OScheduledEvent oldEvent = events.remove(event.getName(session));
     if (oldEvent != null) {
       oldEvent.interrupt();
@@ -111,10 +111,10 @@ public class OSchedulerImpl {
     return events.get(name);
   }
 
-  public void load(ODatabaseSessionInternal database) {
+  public void load(YTDatabaseSessionInternal database) {
     if (database.getMetadata().getSchema().existsClass(OScheduledEvent.CLASS_NAME)) {
-      final Iterable<ODocument> result = database.browseClass(OScheduledEvent.CLASS_NAME);
-      for (ODocument d : result) {
+      final Iterable<YTDocument> result = database.browseClass(OScheduledEvent.CLASS_NAME);
+      for (YTDocument d : result) {
         scheduleEvent(database, new OScheduledEvent(d, database));
       }
     }
@@ -127,35 +127,36 @@ public class OSchedulerImpl {
     events.clear();
   }
 
-  public static void create(ODatabaseSessionInternal database) {
+  public static void create(YTDatabaseSessionInternal database) {
     if (database
         .getMetadata()
         .getImmutableSchemaSnapshot()
         .existsClass(OScheduledEvent.CLASS_NAME)) {
       return;
     }
-    final OClass f = database.getMetadata().getSchema().createClass(OScheduledEvent.CLASS_NAME);
-    f.createProperty(database, OScheduledEvent.PROP_NAME, OType.STRING, (OType) null, true)
+    final YTClass f = database.getMetadata().getSchema().createClass(OScheduledEvent.CLASS_NAME);
+    f.createProperty(database, OScheduledEvent.PROP_NAME, YTType.STRING, (YTType) null, true)
         .setMandatory(database, true)
         .setNotNull(database, true);
-    f.createIndex(database, OScheduledEvent.PROP_NAME + "Index", OClass.INDEX_TYPE.UNIQUE,
+    f.createIndex(database, OScheduledEvent.PROP_NAME + "Index", YTClass.INDEX_TYPE.UNIQUE,
         OScheduledEvent.PROP_NAME);
-    f.createProperty(database, OScheduledEvent.PROP_RULE, OType.STRING, (OType) null, true)
+    f.createProperty(database, OScheduledEvent.PROP_RULE, YTType.STRING, (YTType) null, true)
         .setMandatory(database, true)
         .setNotNull(database, true);
-    f.createProperty(database, OScheduledEvent.PROP_ARGUMENTS, OType.EMBEDDEDMAP, (OType) null,
+    f.createProperty(database, OScheduledEvent.PROP_ARGUMENTS, YTType.EMBEDDEDMAP, (YTType) null,
         true);
-    f.createProperty(database, OScheduledEvent.PROP_STATUS, OType.STRING, (OType) null, true);
+    f.createProperty(database, OScheduledEvent.PROP_STATUS, YTType.STRING, (YTType) null, true);
     f.createProperty(database,
             OScheduledEvent.PROP_FUNC,
-            OType.LINK,
+            YTType.LINK,
             database.getMetadata().getSchema().getClass(OFunction.CLASS_NAME), true)
         .setMandatory(database, true)
         .setNotNull(database, true);
-    f.createProperty(database, OScheduledEvent.PROP_STARTTIME, OType.DATETIME, (OType) null, true);
+    f.createProperty(database, OScheduledEvent.PROP_STARTTIME, YTType.DATETIME, (YTType) null,
+        true);
   }
 
-  public void initScheduleRecord(ODatabaseSessionInternal session, ODocument doc) {
+  public void initScheduleRecord(YTDatabaseSessionInternal session, YTDocument doc) {
     String name = doc.field(OScheduledEvent.PROP_NAME);
     final OScheduledEvent event = getEvent(name);
     if (event != null && event.getDocument(session) != doc) {
@@ -165,7 +166,7 @@ public class OSchedulerImpl {
     doc.field(OScheduledEvent.PROP_STATUS, OScheduler.STATUS.STOPPED.name());
   }
 
-  public void preHandleUpdateScheduleInTx(ODatabaseSessionInternal session, ODocument doc) {
+  public void preHandleUpdateScheduleInTx(YTDatabaseSessionInternal session, YTDocument doc) {
     try {
       final String schedulerName = doc.field(OScheduledEvent.PROP_NAME);
       OScheduledEvent event = getEvent(schedulerName);
@@ -183,7 +184,7 @@ public class OSchedulerImpl {
           var tx = session.getTransaction();
 
           @SuppressWarnings("unchecked")
-          Set<ORID> rids = (Set<ORID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
+          Set<YTRID> rids = (Set<YTRID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
           if (rids == null) {
             rids = new HashSet<>();
             tx.setCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY, rids);
@@ -197,12 +198,12 @@ public class OSchedulerImpl {
     }
   }
 
-  public void postHandleUpdateScheduleAfterTxCommit(ODatabaseSessionInternal session,
-      ODocument doc) {
+  public void postHandleUpdateScheduleAfterTxCommit(YTDatabaseSessionInternal session,
+      YTDocument doc) {
     try {
       var tx = session.getTransaction();
       @SuppressWarnings("unchecked")
-      Set<ORID> rids = (Set<ORID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
+      Set<YTRID> rids = (Set<YTRID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
 
       if (rids != null && rids.contains(doc.getIdentity())) {
         final String schedulerName = doc.field(OScheduledEvent.PROP_NAME);

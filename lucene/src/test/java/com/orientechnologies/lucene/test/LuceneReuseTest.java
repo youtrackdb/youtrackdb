@@ -1,9 +1,9 @@
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Date;
 import org.junit.Assert;
@@ -17,13 +17,13 @@ public class LuceneReuseTest extends BaseLuceneTest {
   @Test
   public void shouldUseTheRightIndex() {
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass cls = schema.createClass("Reuse");
-    cls.createProperty(db, "name", OType.STRING);
-    cls.createProperty(db, "date", OType.DATETIME);
-    cls.createProperty(db, "surname", OType.STRING);
-    cls.createProperty(db, "age", OType.LONG);
+    YTClass cls = schema.createClass("Reuse");
+    cls.createProperty(db, "name", YTType.STRING);
+    cls.createProperty(db, "date", YTType.DATETIME);
+    cls.createProperty(db, "surname", YTType.STRING);
+    cls.createProperty(db, "age", YTType.LONG);
 
     db.command("create index Reuse.composite on Reuse (name,surname,date,age) UNIQUE").close();
     db.command("create index Reuse.surname on Reuse (surname) FULLTEXT ENGINE LUCENE").close();
@@ -31,7 +31,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new ODocument("Reuse")
+          new YTDocument("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
@@ -51,13 +51,13 @@ public class LuceneReuseTest extends BaseLuceneTest {
   @Test
   public void shouldUseTheRightLuceneIndex() {
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass cls = schema.createClass("Reuse");
-    cls.createProperty(db, "name", OType.STRING);
-    cls.createProperty(db, "date", OType.DATETIME);
-    cls.createProperty(db, "surname", OType.STRING);
-    cls.createProperty(db, "age", OType.LONG);
+    YTClass cls = schema.createClass("Reuse");
+    cls.createProperty(db, "name", YTType.STRING);
+    cls.createProperty(db, "date", YTType.DATETIME);
+    cls.createProperty(db, "surname", YTType.STRING);
+    cls.createProperty(db, "age", YTType.LONG);
 
     db.command("create index Reuse.composite on Reuse (name,surname,date,age) UNIQUE").close();
 
@@ -68,7 +68,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new ODocument("Reuse")
+          new YTDocument("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
@@ -79,7 +79,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     // additional record
     db.begin();
     db.save(
-        new ODocument("Reuse")
+        new YTDocument("Reuse")
             .field("name", "John")
             .field("date", new Date())
             .field("surname", "Franklin")

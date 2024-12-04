@@ -4,17 +4,17 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBEmbedded;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,14 +53,14 @@ public class StorageBackupMTIT {
       youTrackDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-      var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+      var db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-      final OSchema schema = db.getMetadata().getSchema();
-      final OClass backupClass = schema.createClass("BackupClass");
-      backupClass.createProperty(db, "num", OType.INTEGER);
-      backupClass.createProperty(db, "data", OType.BINARY);
+      final YTSchema schema = db.getMetadata().getSchema();
+      final YTClass backupClass = schema.createClass("BackupClass");
+      backupClass.createProperty(db, "num", YTType.INTEGER);
+      backupClass.createProperty(db, "data", YTType.BINARY);
 
-      backupClass.createIndex(db, "backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
+      backupClass.createIndex(db, "backupIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "num");
 
       OFileUtils.deleteRecursively(backupDir);
 
@@ -113,8 +113,8 @@ public class StorageBackupMTIT {
           YouTrackDBConfig.defaultConfig());
       final ODatabaseCompare compare =
           new ODatabaseCompare(
-              (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
-              (ODatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
+              (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
+              (YTDatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
               System.out::println);
 
       System.out.println("compare");
@@ -156,7 +156,7 @@ public class StorageBackupMTIT {
 
     final YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
+            .addConfig(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
 
     try {
@@ -167,14 +167,14 @@ public class StorageBackupMTIT {
       youTrackDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-      var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+      var db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-      final OSchema schema = db.getMetadata().getSchema();
-      final OClass backupClass = schema.createClass("BackupClass");
-      backupClass.createProperty(db, "num", OType.INTEGER);
-      backupClass.createProperty(db, "data", OType.BINARY);
+      final YTSchema schema = db.getMetadata().getSchema();
+      final YTClass backupClass = schema.createClass("BackupClass");
+      backupClass.createProperty(db, "num", YTType.INTEGER);
+      backupClass.createProperty(db, "data", YTType.BINARY);
 
-      backupClass.createIndex(db, "backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
+      backupClass.createIndex(db, "backupIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "num");
 
       OFileUtils.deleteRecursively(backupDir);
 
@@ -215,13 +215,13 @@ public class StorageBackupMTIT {
       embedded.restore(backupDbName, null, null, null, backupDir.getAbsolutePath(), config);
       embedded.close();
 
-      OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
+      YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
       youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
           YouTrackDBConfig.defaultConfig());
       final ODatabaseCompare compare =
           new ODatabaseCompare(
-              (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
-              (ODatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
+              (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
+              (YTDatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
               System.out::println);
       System.out.println("compare");
 
@@ -267,7 +267,7 @@ public class StorageBackupMTIT {
 
             final int num = random.nextInt();
 
-            final ODocument document = new ODocument("BackupClass");
+            final YTDocument document = new YTDocument("BackupClass");
             document.field("num", num);
             document.field("data", data);
 

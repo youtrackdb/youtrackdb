@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.serialization;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 
 /**
  * @since 26.07.12
@@ -43,7 +43,7 @@ public class OBinaryConverterFactory {
   }
 
   public static OBinaryConverter getConverter() {
-    boolean useUnsafe = OGlobalConfiguration.MEMORY_USE_UNSAFE.getValueAsBoolean();
+    boolean useUnsafe = YTGlobalConfiguration.MEMORY_USE_UNSAFE.getValueAsBoolean();
 
     if (useUnsafe && unsafeWasDetected) {
       return OUnsafeBinaryConverter.INSTANCE;

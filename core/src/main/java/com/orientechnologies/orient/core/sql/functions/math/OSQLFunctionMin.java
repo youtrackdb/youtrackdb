@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.sql.functions.math;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -60,7 +60,7 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
         }
       } else {
         if ((item instanceof Number) && (min instanceof Number)) {
-          Number[] converted = OType.castComparableNumber((Number) item, (Number) min);
+          Number[] converted = YTType.castComparableNumber((Number) item, (Number) min);
           item = converted[0];
           min = converted[1];
         }
@@ -79,7 +79,7 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
         context = min;
       } else {
         if (context instanceof Number && min instanceof Number) {
-          final Number[] casted = OType.castComparableNumber((Number) context, (Number) min);
+          final Number[] casted = YTType.castComparableNumber((Number) context, (Number) min);
           context = casted[0];
           min = casted[1];
         }
@@ -104,7 +104,7 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
         && !configuredParameters[0].toString().contains("$current"));
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "min(<field> [,<field>*])";
   }
 

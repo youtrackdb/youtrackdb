@@ -1,12 +1,12 @@
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.File;
@@ -31,13 +31,13 @@ public class LuceneSpatialDropTest {
     // @maggiolo00 set cont to 0 and the test will not fail anymore
     insertcount = 100;
 
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx(dbName);
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(dbName);
 
     db.create();
-    OClass test = db.getMetadata().getSchema().createClass("test");
-    test.createProperty(db, "name", OType.STRING);
-    test.createProperty(db, "latitude", OType.DOUBLE).setMandatory(db, false);
-    test.createProperty(db, "longitude", OType.DOUBLE).setMandatory(db, false);
+    YTClass test = db.getMetadata().getSchema().createClass("test");
+    test.createProperty(db, "name", YTType.STRING);
+    test.createProperty(db, "latitude", YTType.DOUBLE).setMandatory(db, false);
+    test.createProperty(db, "longitude", YTType.DOUBLE).setMandatory(db, false);
     db.command("create index test.name on test (name) FULLTEXT ENGINE LUCENE").close();
     db.command("create index test.ll on test (latitude,longitude) SPATIAL ENGINE LUCENE").close();
     db.close();
@@ -48,31 +48,31 @@ public class LuceneSpatialDropTest {
 
     OPartitionedDatabasePool dbPool = new OPartitionedDatabasePool(dbName, "admin", "admin");
 
-    ODatabaseSessionInternal db = dbPool.acquire();
+    YTDatabaseSessionInternal db = dbPool.acquire();
     fillDb(db, insertcount);
     db.close();
 
     db = dbPool.acquire();
     // @maggiolo00 Remove the next three lines and the test will not fail anymore
-    OSQLSynchQuery<ODocument> query =
-        new OSQLSynchQuery<ODocument>(
+    OSQLSynchQuery<YTDocument> query =
+        new OSQLSynchQuery<YTDocument>(
             "select from test where [latitude,longitude] WITHIN [[50.0,8.0],[51.0,9.0]]");
-    List<ODocument> result = db.command(query).execute(db);
+    List<YTDocument> result = db.command(query).execute(db);
     Assert.assertEquals(insertcount, result.size());
     db.close();
     dbPool.close();
 
     // reopen to drop
-    db = (ODatabaseSessionInternal) new ODatabaseDocumentTx(dbName).open("admin", "admin");
+    db = (YTDatabaseSessionInternal) new YTDatabaseDocumentTx(dbName).open("admin", "admin");
 
     db.drop();
     File dbFolder = new File(dbName);
     Assert.assertFalse(dbFolder.exists());
   }
 
-  private void fillDb(ODatabaseSession db, int count) {
+  private void fillDb(YTDatabaseSession db, int count) {
     for (int i = 0; i < count; i++) {
-      ODocument doc = new ODocument("test");
+      YTDocument doc = new YTDocument("test");
       doc.field("name", "TestInsert" + i);
       doc.field("latitude", 50.0 + (i * 0.000001));
       doc.field("longitude", 8.0 + (i * 0.000001));

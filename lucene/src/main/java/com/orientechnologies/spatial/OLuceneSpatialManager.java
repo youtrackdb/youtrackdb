@@ -15,7 +15,7 @@ package com.orientechnologies.spatial;
 
 import static com.orientechnologies.spatial.shape.OShapeBuilder.BASE_CLASS;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 
 /**
@@ -29,11 +29,11 @@ public class OLuceneSpatialManager {
     this.shapeBuilder = shapeBuilder;
   }
 
-  public void init(ODatabaseSessionInternal db) {
+  public void init(YTDatabaseSessionInternal db) {
     internalInit(db);
   }
 
-  private void internalInit(ODatabaseSessionInternal db) {
+  private void internalInit(YTDatabaseSessionInternal db) {
     if (db.getMetadata().getSchema().getClass(BASE_CLASS) == null) {
       db.getMetadata().getSchema().createAbstractClass(BASE_CLASS);
       shapeBuilder.initClazz(db);

@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.factory;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.bbox.BBoxStrategy;
@@ -37,15 +37,15 @@ public class OSpatialStrategyFactory {
 
   public static SpatialStrategy createStrategy(
       SpatialContext ctx,
-      ODatabaseSessionInternal db,
+      YTDatabaseSessionInternal db,
       OIndexDefinition indexDefinition) {
 
-    OClass aClass =
+    YTClass aClass =
         db.getMetadata().getImmutableSchemaSnapshot().getClass(indexDefinition.getClassName());
 
-    OProperty property = aClass.getProperty(indexDefinition.getFields().get(0));
+    YTProperty property = aClass.getProperty(indexDefinition.getFields().get(0));
 
-    OClass linkedClass = property.getLinkedClass();
+    YTClass linkedClass = property.getLinkedClass();
 
     if ("OPoint".equalsIgnoreCase(linkedClass.getName())) {
       RecursivePrefixTreeStrategy strategy =

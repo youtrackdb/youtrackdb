@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,78 +16,78 @@ import java.util.Set;
 public interface OSecurityInternal {
 
   boolean isAllowed(
-      ODatabaseSessionInternal session, Set<OIdentifiable> iAllowAll,
-      Set<OIdentifiable> iAllowOperation);
+      YTDatabaseSessionInternal session, Set<YTIdentifiable> iAllowAll,
+      Set<YTIdentifiable> iAllowOperation);
 
   @Deprecated
-  OIdentifiable allowUser(
-      ODatabaseSession session,
-      ODocument iDocument,
+  YTIdentifiable allowUser(
+      YTDatabaseSession session,
+      YTDocument iDocument,
       ORestrictedOperation iOperationType,
       String iUserName);
 
   @Deprecated
-  OIdentifiable allowRole(
-      ODatabaseSession session,
-      ODocument iDocument,
+  YTIdentifiable allowRole(
+      YTDatabaseSession session,
+      YTDocument iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName);
 
   @Deprecated
-  OIdentifiable denyUser(
-      ODatabaseSessionInternal session,
-      ODocument iDocument,
+  YTIdentifiable denyUser(
+      YTDatabaseSessionInternal session,
+      YTDocument iDocument,
       ORestrictedOperation iOperationType,
       String iUserName);
 
   @Deprecated
-  OIdentifiable denyRole(
-      ODatabaseSessionInternal session,
-      ODocument iDocument,
+  YTIdentifiable denyRole(
+      YTDatabaseSessionInternal session,
+      YTDocument iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName);
 
   @Deprecated
-  OIdentifiable allowIdentity(
-      ODatabaseSession session, ODocument iDocument, String iAllowFieldName, OIdentifiable iId);
+  YTIdentifiable allowIdentity(
+      YTDatabaseSession session, YTDocument iDocument, String iAllowFieldName, YTIdentifiable iId);
 
   @Deprecated
-  OIdentifiable disallowIdentity(
-      ODatabaseSessionInternal session, ODocument iDocument, String iAllowFieldName,
-      OIdentifiable iId);
+  YTIdentifiable disallowIdentity(
+      YTDatabaseSessionInternal session, YTDocument iDocument, String iAllowFieldName,
+      YTIdentifiable iId);
 
-  OUser authenticate(ODatabaseSessionInternal session, String iUsername, String iUserPassword);
-
-  OUser createUser(
-      ODatabaseSessionInternal session, String iUserName, String iUserPassword, String[] iRoles);
+  OUser authenticate(YTDatabaseSessionInternal session, String iUsername, String iUserPassword);
 
   OUser createUser(
-      ODatabaseSessionInternal session, String iUserName, String iUserPassword, ORole[] iRoles);
+      YTDatabaseSessionInternal session, String iUserName, String iUserPassword, String[] iRoles);
 
-  OUser authenticate(ODatabaseSessionInternal session, OToken authToken);
+  OUser createUser(
+      YTDatabaseSessionInternal session, String iUserName, String iUserPassword, ORole[] iRoles);
+
+  OUser authenticate(YTDatabaseSessionInternal session, OToken authToken);
 
   ORole createRole(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       String iRoleName,
       ORole iParent,
       ALLOW_MODES iAllowMode);
 
   ORole createRole(
-      ODatabaseSessionInternal session, String iRoleName, ALLOW_MODES iAllowMode);
+      YTDatabaseSessionInternal session, String iRoleName, ALLOW_MODES iAllowMode);
 
-  OUser getUser(ODatabaseSession session, String iUserName);
+  OUser getUser(YTDatabaseSession session, String iUserName);
 
-  OUser getUser(ODatabaseSession session, ORID userId);
+  OUser getUser(YTDatabaseSession session, YTRID userId);
 
-  ORole getRole(ODatabaseSession session, String iRoleName);
+  ORole getRole(YTDatabaseSession session, String iRoleName);
 
-  ORole getRole(ODatabaseSession session, OIdentifiable iRoleRid);
+  ORole getRole(YTDatabaseSession session, YTIdentifiable iRoleRid);
 
-  List<ODocument> getAllUsers(ODatabaseSession session);
+  List<YTDocument> getAllUsers(YTDatabaseSession session);
 
-  List<ODocument> getAllRoles(ODatabaseSession session);
+  List<YTDocument> getAllRoles(YTDatabaseSession session);
 
-  Map<String, OSecurityPolicy> getSecurityPolicies(ODatabaseSession session, OSecurityRole role);
+  Map<String, OSecurityPolicy> getSecurityPolicies(YTDatabaseSession session, OSecurityRole role);
 
   /**
    * Returns the security policy policy assigned to a role for a specific resource (not recursive on
@@ -99,7 +99,7 @@ public interface OSecurityInternal {
    *                 "database.class.Person"
    * @return
    */
-  OSecurityPolicy getSecurityPolicy(ODatabaseSession session, OSecurityRole role, String resource);
+  OSecurityPolicy getSecurityPolicy(YTDatabaseSession session, OSecurityRole role, String resource);
 
   /**
    * Sets a security policy for a specific resource on a role
@@ -111,7 +111,7 @@ public interface OSecurityInternal {
    * @param policy   The security policy
    */
   void setSecurityPolicy(
-      ODatabaseSessionInternal session, OSecurityRole role, String resource,
+      YTDatabaseSessionInternal session, OSecurityRole role, String resource,
       OSecurityPolicyImpl policy);
 
   /**
@@ -121,13 +121,13 @@ public interface OSecurityInternal {
    * @param name    the policy name
    * @return
    */
-  OSecurityPolicyImpl createSecurityPolicy(ODatabaseSession session, String name);
+  OSecurityPolicyImpl createSecurityPolicy(YTDatabaseSession session, String name);
 
-  OSecurityPolicyImpl getSecurityPolicy(ODatabaseSession session, String name);
+  OSecurityPolicyImpl getSecurityPolicy(YTDatabaseSession session, String name);
 
-  void saveSecurityPolicy(ODatabaseSession session, OSecurityPolicyImpl policy);
+  void saveSecurityPolicy(YTDatabaseSession session, OSecurityPolicyImpl policy);
 
-  void deleteSecurityPolicy(ODatabaseSession session, String name);
+  void deleteSecurityPolicy(YTDatabaseSession session, String name);
 
   /**
    * Removes security policy bound to a role for a specific resource
@@ -137,21 +137,21 @@ public interface OSecurityInternal {
    * @param resource the string representation of the security resource, eg.
    *                 "database.class.Person"
    */
-  void removeSecurityPolicy(ODatabaseSession session, ORole role, String resource);
+  void removeSecurityPolicy(YTDatabaseSession session, ORole role, String resource);
 
-  boolean dropUser(ODatabaseSession session, String iUserName);
+  boolean dropUser(YTDatabaseSession session, String iUserName);
 
-  boolean dropRole(ODatabaseSession session, String iRoleName);
+  boolean dropRole(YTDatabaseSession session, String iRoleName);
 
-  void createClassTrigger(ODatabaseSessionInternal session);
+  void createClassTrigger(YTDatabaseSessionInternal session);
 
-  long getVersion(ODatabaseSession session);
+  long getVersion(YTDatabaseSession session);
 
-  void incrementVersion(ODatabaseSession session);
+  void incrementVersion(YTDatabaseSession session);
 
-  OUser create(ODatabaseSessionInternal session);
+  OUser create(YTDatabaseSessionInternal session);
 
-  void load(ODatabaseSessionInternal session);
+  void load(YTDatabaseSessionInternal session);
 
   void close();
 
@@ -164,7 +164,7 @@ public interface OSecurityInternal {
    * @return the list of the properties that are hidden (ie. not allowed to be read) on current
    * document for current session
    */
-  Set<String> getFilteredProperties(ODatabaseSessionInternal session, ODocument document);
+  Set<String> getFilteredProperties(YTDatabaseSessionInternal session, YTDocument document);
 
   /**
    * For property-level security
@@ -174,17 +174,18 @@ public interface OSecurityInternal {
    * @param propertyName the property to check for write access
    * @return
    */
-  boolean isAllowedWrite(ODatabaseSessionInternal session, ODocument document, String propertyName);
+  boolean isAllowedWrite(YTDatabaseSessionInternal session, YTDocument document,
+      String propertyName);
 
-  boolean canCreate(ODatabaseSessionInternal session, ORecord record);
+  boolean canCreate(YTDatabaseSessionInternal session, YTRecord record);
 
-  boolean canRead(ODatabaseSessionInternal session, ORecord record);
+  boolean canRead(YTDatabaseSessionInternal session, YTRecord record);
 
-  boolean canUpdate(ODatabaseSessionInternal session, ORecord record);
+  boolean canUpdate(YTDatabaseSessionInternal session, YTRecord record);
 
-  boolean canDelete(ODatabaseSessionInternal session, ORecord record);
+  boolean canDelete(YTDatabaseSessionInternal session, YTRecord record);
 
-  boolean canExecute(ODatabaseSessionInternal session, OFunction function);
+  boolean canExecute(YTDatabaseSessionInternal session, OFunction function);
 
   /**
    * checks if for current session a resource is restricted by security resources (ie. READ policies
@@ -195,7 +196,7 @@ public interface OSecurityInternal {
    * @return true if a restriction of any type exists for this session and this resource. False
    * otherwise
    */
-  boolean isReadRestrictedBySecurityPolicy(ODatabaseSession session, String resource);
+  boolean isReadRestrictedBySecurityPolicy(YTDatabaseSession session, String resource);
 
   /**
    * returns the list of all the filtered properties (for any role defined in the db)
@@ -203,11 +204,11 @@ public interface OSecurityInternal {
    * @param database
    * @return
    */
-  Set<OSecurityResourceProperty> getAllFilteredProperties(ODatabaseSessionInternal database);
+  Set<OSecurityResourceProperty> getAllFilteredProperties(YTDatabaseSessionInternal database);
 
-  OSecurityUser securityAuthenticate(ODatabaseSessionInternal session, String userName,
+  OSecurityUser securityAuthenticate(YTDatabaseSessionInternal session, String userName,
       String password);
 
   OSecurityUser securityAuthenticate(
-      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo);
+      YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo);
 }

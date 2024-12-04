@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
 
   @Test
   public void testBigDecimal() {
-    ODocument newDoc = new ODocument();
+    YTDocument newDoc = new YTDocument();
     newDoc.field("integer", new BigInteger("10"));
     newDoc.field("decimal_integer", new BigDecimal(10));
     newDoc.field("decimal_float", new BigDecimal("10.34"));
@@ -55,12 +55,12 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ORID rid = newDoc.getIdentity();
+    final YTRID rid = newDoc.getIdentity();
 
     database.close();
     database = acquireSession();
 
-    ODocument loadedDoc = database.load(rid);
+    YTDocument loadedDoc = database.load(rid);
     Assert.assertEquals(((Number) loadedDoc.field("integer")).intValue(), 10);
     Assert.assertEquals(loadedDoc.field("decimal_integer"), new BigDecimal(10));
     Assert.assertEquals(loadedDoc.field("decimal_float"), new BigDecimal("10.34"));
@@ -68,101 +68,101 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
 
   @Test
   public void testEmbeddedList() {
-    ODocument newDoc = new ODocument();
+    YTDocument newDoc = new YTDocument();
 
-    final ArrayList<ODocument> list = new ArrayList<ODocument>();
-    newDoc.field("embeddedList", list, OType.EMBEDDEDLIST);
-    list.add(new ODocument().field("name", "Luca"));
-    list.add(new ODocument("Account").field("name", "Marcus"));
+    final ArrayList<YTDocument> list = new ArrayList<YTDocument>();
+    newDoc.field("embeddedList", list, YTType.EMBEDDEDLIST);
+    list.add(new YTDocument().field("name", "Luca"));
+    list.add(new YTDocument("Account").field("name", "Marcus"));
 
     database.begin();
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ORID rid = newDoc.getIdentity();
+    final YTRID rid = newDoc.getIdentity();
 
     database.close();
     database = acquireSession();
 
-    ODocument loadedDoc = database.load(rid);
+    YTDocument loadedDoc = database.load(rid);
     Assert.assertTrue(loadedDoc.containsField("embeddedList"));
     Assert.assertTrue(loadedDoc.field("embeddedList") instanceof List<?>);
     Assert.assertTrue(
-        ((List<ODocument>) loadedDoc.field("embeddedList")).get(0) instanceof ODocument);
+        ((List<YTDocument>) loadedDoc.field("embeddedList")).get(0) instanceof YTDocument);
 
-    ODocument d = ((List<ODocument>) loadedDoc.field("embeddedList")).get(0);
+    YTDocument d = ((List<YTDocument>) loadedDoc.field("embeddedList")).get(0);
     Assert.assertEquals(d.field("name"), "Luca");
-    d = ((List<ODocument>) loadedDoc.field("embeddedList")).get(1);
+    d = ((List<YTDocument>) loadedDoc.field("embeddedList")).get(1);
     Assert.assertEquals(d.getClassName(), "Account");
     Assert.assertEquals(d.field("name"), "Marcus");
   }
 
   @Test
   public void testLinkList() {
-    ODocument newDoc = new ODocument();
+    YTDocument newDoc = new YTDocument();
 
-    final ArrayList<ODocument> list = new ArrayList<ODocument>();
-    newDoc.field("linkedList", list, OType.LINKLIST);
+    final ArrayList<YTDocument> list = new ArrayList<YTDocument>();
+    newDoc.field("linkedList", list, YTType.LINKLIST);
     database.begin();
 
-    var doc = new ODocument();
+    var doc = new YTDocument();
     doc.field("name", "Luca")
         .save(database.getClusterNameById(database.getDefaultClusterId()));
     list.add(doc);
 
-    list.add(new ODocument("Account").field("name", "Marcus"));
+    list.add(new YTDocument("Account").field("name", "Marcus"));
 
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ORID rid = newDoc.getIdentity();
+    final YTRID rid = newDoc.getIdentity();
 
     database.close();
     database = acquireSession();
 
-    ODocument loadedDoc = database.load(rid);
+    YTDocument loadedDoc = database.load(rid);
     Assert.assertTrue(loadedDoc.containsField("linkedList"));
     Assert.assertTrue(loadedDoc.field("linkedList") instanceof List<?>);
     Assert.assertTrue(
-        ((List<OIdentifiable>) loadedDoc.field("linkedList")).get(0) instanceof OIdentifiable);
+        ((List<YTIdentifiable>) loadedDoc.field("linkedList")).get(0) instanceof YTIdentifiable);
 
-    ODocument d = ((List<OIdentifiable>) loadedDoc.field("linkedList")).get(0).getRecord();
+    YTDocument d = ((List<YTIdentifiable>) loadedDoc.field("linkedList")).get(0).getRecord();
     Assert.assertTrue(d.getIdentity().isValid());
     Assert.assertEquals(d.field("name"), "Luca");
-    d = ((List<OIdentifiable>) loadedDoc.field("linkedList")).get(1).getRecord();
+    d = ((List<YTIdentifiable>) loadedDoc.field("linkedList")).get(1).getRecord();
     Assert.assertEquals(d.getClassName(), "Account");
     Assert.assertEquals(d.field("name"), "Marcus");
   }
 
   @Test
   public void testEmbeddedSet() {
-    ODocument newDoc = new ODocument();
+    YTDocument newDoc = new YTDocument();
 
-    final Set<ODocument> set = new HashSet<ODocument>();
-    newDoc.field("embeddedSet", set, OType.EMBEDDEDSET);
-    set.add(new ODocument().field("name", "Luca"));
-    set.add(new ODocument("Account").field("name", "Marcus"));
+    final Set<YTDocument> set = new HashSet<YTDocument>();
+    newDoc.field("embeddedSet", set, YTType.EMBEDDEDSET);
+    set.add(new YTDocument().field("name", "Luca"));
+    set.add(new YTDocument("Account").field("name", "Marcus"));
 
     database.begin();
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ORID rid = newDoc.getIdentity();
+    final YTRID rid = newDoc.getIdentity();
 
     database.close();
     database = acquireSession();
 
-    ODocument loadedDoc = database.load(rid);
+    YTDocument loadedDoc = database.load(rid);
     Assert.assertTrue(loadedDoc.containsField("embeddedSet"));
     Assert.assertTrue(loadedDoc.field("embeddedSet", Set.class) instanceof Set<?>);
 
-    final Iterator<ODocument> it =
-        ((Collection<ODocument>) loadedDoc.field("embeddedSet")).iterator();
+    final Iterator<YTDocument> it =
+        ((Collection<YTDocument>) loadedDoc.field("embeddedSet")).iterator();
 
     int tot = 0;
     while (it.hasNext()) {
-      ODocument d = it.next();
-      Assert.assertTrue(d instanceof ODocument);
+      YTDocument d = it.next();
+      Assert.assertTrue(d instanceof YTDocument);
 
       if (d.field("name").equals("Marcus")) {
         Assert.assertEquals(d.getClassName(), "Account");
@@ -176,32 +176,32 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
 
   @Test
   public void testLinkSet() {
-    ODocument newDoc = new ODocument();
+    YTDocument newDoc = new YTDocument();
 
-    final Set<ODocument> set = new HashSet<ODocument>();
-    newDoc.field("linkedSet", set, OType.LINKSET);
+    final Set<YTDocument> set = new HashSet<YTDocument>();
+    newDoc.field("linkedSet", set, YTType.LINKSET);
     database.begin();
-    var doc = new ODocument();
+    var doc = new YTDocument();
     doc.field("name", "Luca")
         .save(database.getClusterNameById(database.getDefaultClusterId()));
     set.add(doc);
 
-    set.add(new ODocument("Account").field("name", "Marcus"));
+    set.add(new YTDocument("Account").field("name", "Marcus"));
 
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ORID rid = newDoc.getIdentity();
+    final YTRID rid = newDoc.getIdentity();
 
     database.close();
     database = acquireSession();
 
-    ODocument loadedDoc = database.load(rid);
+    YTDocument loadedDoc = database.load(rid);
     Assert.assertTrue(loadedDoc.containsField("linkedSet"));
     Assert.assertTrue(loadedDoc.field("linkedSet", Set.class) instanceof Set<?>);
 
-    final Iterator<OIdentifiable> it =
-        ((Collection<OIdentifiable>) loadedDoc.field("linkedSet")).iterator();
+    final Iterator<YTIdentifiable> it =
+        ((Collection<YTIdentifiable>) loadedDoc.field("linkedSet")).iterator();
 
     int tot = 0;
     while (it.hasNext()) {
@@ -219,109 +219,109 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
 
   @Test
   public void testEmbeddedMap() {
-    ODocument newDoc = new ODocument();
+    YTDocument newDoc = new YTDocument();
 
-    final Map<String, ODocument> map = new HashMap<String, ODocument>();
-    newDoc.field("embeddedMap", map, OType.EMBEDDEDMAP);
-    map.put("Luca", new ODocument().field("name", "Luca"));
-    map.put("Marcus", new ODocument().field("name", "Marcus"));
-    map.put("Cesare", new ODocument("Account").field("name", "Cesare"));
+    final Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    newDoc.field("embeddedMap", map, YTType.EMBEDDEDMAP);
+    map.put("Luca", new YTDocument().field("name", "Luca"));
+    map.put("Marcus", new YTDocument().field("name", "Marcus"));
+    map.put("Cesare", new YTDocument("Account").field("name", "Cesare"));
 
     database.begin();
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ORID rid = newDoc.getIdentity();
+    final YTRID rid = newDoc.getIdentity();
 
     database.close();
     database = acquireSession();
 
-    ODocument loadedDoc = database.load(rid);
+    YTDocument loadedDoc = database.load(rid);
     Assert.assertTrue(loadedDoc.containsField("embeddedMap"));
     Assert.assertTrue(loadedDoc.field("embeddedMap") instanceof Map<?, ?>);
     Assert.assertTrue(
-        ((Map<String, ODocument>) loadedDoc.field("embeddedMap")).values().iterator().next()
-            instanceof ODocument);
+        ((Map<String, YTDocument>) loadedDoc.field("embeddedMap")).values().iterator().next()
+            instanceof YTDocument);
 
-    ODocument d = ((Map<String, ODocument>) loadedDoc.field("embeddedMap")).get("Luca");
+    YTDocument d = ((Map<String, YTDocument>) loadedDoc.field("embeddedMap")).get("Luca");
     Assert.assertEquals(d.field("name"), "Luca");
 
-    d = ((Map<String, ODocument>) loadedDoc.field("embeddedMap")).get("Marcus");
+    d = ((Map<String, YTDocument>) loadedDoc.field("embeddedMap")).get("Marcus");
     Assert.assertEquals(d.field("name"), "Marcus");
 
-    d = ((Map<String, ODocument>) loadedDoc.field("embeddedMap")).get("Cesare");
+    d = ((Map<String, YTDocument>) loadedDoc.field("embeddedMap")).get("Cesare");
     Assert.assertEquals(d.field("name"), "Cesare");
     Assert.assertEquals(d.getClassName(), "Account");
   }
 
   @Test
   public void testEmptyEmbeddedMap() {
-    ODocument newDoc = new ODocument();
+    YTDocument newDoc = new YTDocument();
 
-    final Map<String, ODocument> map = new HashMap<String, ODocument>();
-    newDoc.field("embeddedMap", map, OType.EMBEDDEDMAP);
+    final Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    newDoc.field("embeddedMap", map, YTType.EMBEDDEDMAP);
 
     database.begin();
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ORID rid = newDoc.getIdentity();
+    final YTRID rid = newDoc.getIdentity();
 
     database.close();
     database = acquireSession();
 
-    ODocument loadedDoc = database.load(rid);
+    YTDocument loadedDoc = database.load(rid);
 
     Assert.assertTrue(loadedDoc.containsField("embeddedMap"));
     Assert.assertTrue(loadedDoc.field("embeddedMap") instanceof Map<?, ?>);
 
-    final Map<String, ODocument> loadedMap = loadedDoc.field("embeddedMap");
+    final Map<String, YTDocument> loadedMap = loadedDoc.field("embeddedMap");
     Assert.assertEquals(loadedMap.size(), 0);
   }
 
   @Test
   public void testLinkMap() {
-    ODocument newDoc = new ODocument();
+    YTDocument newDoc = new YTDocument();
 
-    final Map<String, ODocument> map = new HashMap<String, ODocument>();
-    newDoc.field("linkedMap", map, OType.LINKMAP);
+    final Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    newDoc.field("linkedMap", map, YTType.LINKMAP);
     database.begin();
-    var doc1 = new ODocument();
+    var doc1 = new YTDocument();
     doc1.field("name", "Luca")
         .save(database.getClusterNameById(database.getDefaultClusterId()));
     map.put("Luca", doc1);
-    var doc2 = new ODocument();
+    var doc2 = new YTDocument();
     doc2.field("name", "Marcus")
         .save(database.getClusterNameById(database.getDefaultClusterId()));
     map.put("Marcus", doc2);
 
-    var doc3 = new ODocument("Account");
+    var doc3 = new YTDocument("Account");
     doc3.field("name", "Cesare").save();
     map.put("Cesare", doc3);
 
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ORID rid = newDoc.getIdentity();
+    final YTRID rid = newDoc.getIdentity();
 
     database.close();
     database = acquireSession();
 
-    ODocument loadedDoc = database.load(rid);
-    Assert.assertNotNull(loadedDoc.field("linkedMap", OType.LINKMAP));
+    YTDocument loadedDoc = database.load(rid);
+    Assert.assertNotNull(loadedDoc.field("linkedMap", YTType.LINKMAP));
     Assert.assertTrue(loadedDoc.field("linkedMap") instanceof Map<?, ?>);
     Assert.assertTrue(
-        ((Map<String, OIdentifiable>) loadedDoc.field("linkedMap")).values().iterator().next()
-            instanceof OIdentifiable);
+        ((Map<String, YTIdentifiable>) loadedDoc.field("linkedMap")).values().iterator().next()
+            instanceof YTIdentifiable);
 
-    ODocument d =
-        ((Map<String, OIdentifiable>) loadedDoc.field("linkedMap")).get("Luca").getRecord();
+    YTDocument d =
+        ((Map<String, YTIdentifiable>) loadedDoc.field("linkedMap")).get("Luca").getRecord();
     Assert.assertEquals(d.field("name"), "Luca");
 
-    d = ((Map<String, OIdentifiable>) loadedDoc.field("linkedMap")).get("Marcus").getRecord();
+    d = ((Map<String, YTIdentifiable>) loadedDoc.field("linkedMap")).get("Marcus").getRecord();
     Assert.assertEquals(d.field("name"), "Marcus");
 
-    d = ((Map<String, OIdentifiable>) loadedDoc.field("linkedMap")).get("Cesare").getRecord();
+    d = ((Map<String, YTIdentifiable>) loadedDoc.field("linkedMap")).get("Cesare").getRecord();
     Assert.assertEquals(d.field("name"), "Cesare");
     Assert.assertEquals(d.getClassName(), "Account");
   }

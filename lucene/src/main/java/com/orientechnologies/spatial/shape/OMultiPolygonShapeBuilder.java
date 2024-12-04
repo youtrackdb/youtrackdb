@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.jts.geom.Geometry;
@@ -41,15 +41,15 @@ public class OMultiPolygonShapeBuilder extends OPolygonShapeBuilder {
   }
 
   @Override
-  public void initClazz(ODatabaseSessionInternal db) {
+  public void initClazz(YTDatabaseSessionInternal db) {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass polygon = schema.createAbstractClass(getName(), superClass(db));
-    polygon.createProperty(db, "coordinates", OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass polygon = schema.createAbstractClass(getName(), superClass(db));
+    polygon.createProperty(db, "coordinates", YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
   }
 
   @Override
-  public JtsGeometry fromDoc(ODocument document) {
+  public JtsGeometry fromDoc(YTDocument document) {
     validate(document);
     List<List<List<List<Number>>>> coordinates = document.field("coordinates");
 
@@ -63,9 +63,9 @@ public class OMultiPolygonShapeBuilder extends OPolygonShapeBuilder {
   }
 
   @Override
-  public ODocument toDoc(JtsGeometry shape) {
+  public YTDocument toDoc(JtsGeometry shape) {
 
-    ODocument doc = new ODocument(getName());
+    YTDocument doc = new YTDocument(getName());
     MultiPolygon multiPolygon = (MultiPolygon) shape.getGeom();
     List<List<List<List<Double>>>> polyCoordinates = new ArrayList<List<List<List<Double>>>>();
     int n = multiPolygon.getNumGeometries();

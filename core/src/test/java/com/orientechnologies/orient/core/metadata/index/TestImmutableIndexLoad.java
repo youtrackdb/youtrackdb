@@ -4,14 +4,14 @@ import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.Test;
 
@@ -24,14 +24,14 @@ public class TestImmutableIndexLoad {
             TestImmutableIndexLoad.class.getSimpleName(),
             DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL);
-    ODatabaseSession db =
+    YTDatabaseSession db =
         youTrackDB.open(
             TestImmutableIndexLoad.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    OClass one = db.createClass("One");
-    OProperty property = one.createProperty(db, "one", OType.STRING);
-    property.createIndex(db, OClass.INDEX_TYPE.UNIQUE);
+    YTClass one = db.createClass("One");
+    YTProperty property = one.createProperty(db, "one", YTType.STRING);
+    property.createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
     db.close();
     youTrackDB.close();
 
@@ -39,7 +39,7 @@ public class TestImmutableIndexLoad {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     db =
         youTrackDB.open(
@@ -47,13 +47,13 @@ public class TestImmutableIndexLoad {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.begin();
-    ODocument doc = new ODocument("One");
+    YTDocument doc = new YTDocument("One");
     doc.setProperty("one", "a");
     db.save(doc);
     db.commit();
     try {
       db.begin();
-      ODocument doc1 = new ODocument("One");
+      YTDocument doc1 = new YTDocument("One");
       doc1.setProperty("one", "a");
       db.save(doc1);
       db.commit();

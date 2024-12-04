@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor.metadata;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.Collections;
 import java.util.List;
@@ -10,9 +10,9 @@ import java.util.Optional;
 public class ORangeIndexCanditate implements OIndexCandidate {
 
   private final String name;
-  private final OProperty property;
+  private final YTProperty property;
 
-  public ORangeIndexCanditate(String name, OProperty property) {
+  public ORangeIndexCanditate(String name, YTProperty property) {
     this.name = name;
     this.property = property;
   }
@@ -38,7 +38,7 @@ public class ORangeIndexCanditate implements OIndexCandidate {
   }
 
   @Override
-  public List<OProperty> properties() {
+  public List<YTProperty> properties() {
     return Collections.singletonList(this.property);
   }
 }

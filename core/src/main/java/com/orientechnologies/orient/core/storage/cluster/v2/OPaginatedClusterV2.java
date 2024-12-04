@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfigur
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.exception.OPaginatedClusterException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -629,7 +629,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         final OClusterPositionMapBucket.PositionEntry positionEntry =
             clusterPositionMap.get(clusterPosition, atomicOperation);
         if (positionEntry == null) {
-          throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
+          throw new ORecordNotFoundException(new YTRecordId(id, clusterPosition));
         }
         return internalReadRecord(
             clusterPosition,
@@ -668,10 +668,10 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
         if (localPage.isDeleted(recordPosition)) {
           if (recordChunks.isEmpty()) {
-            throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
+            throw new ORecordNotFoundException(new YTRecordId(id, clusterPosition));
           } else {
             throw new OPaginatedClusterException(
-                "Content of record " + new ORecordId(id, clusterPosition) + " was broken", this);
+                "Content of record " + new YTRecordId(id, clusterPosition) + " was broken", this);
           }
         }
 
@@ -683,7 +683,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         if (firstEntry
             && content[content.length - OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE]
             == 0) {
-          throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
+          throw new ORecordNotFoundException(new YTRecordId(id, clusterPosition));
         }
 
         recordChunks.add(content);
@@ -702,7 +702,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     byte[] fullContent = convertRecordChunksToSingleChunk(recordChunks, contentSize);
 
     if (fullContent == null) {
-      throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
+      throw new ORecordNotFoundException(new YTRecordId(id, clusterPosition));
     }
 
     int fullContentPosition = 0;
@@ -754,7 +754,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                     return false;
                   } else {
                     throw new OPaginatedClusterException(
-                        "Content of record " + new ORecordId(id, clusterPosition) + " was broken",
+                        "Content of record " + new YTRecordId(id, clusterPosition) + " was broken",
                         this);
                   }
                 } else if (removedContentSize == 0) {
@@ -866,7 +866,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                         throw OException.wrapException(
                             new OPaginatedClusterException(
                                 "Can not update record with rid "
-                                    + new ORecordId(id, clusterPosition),
+                                    + new YTRecordId(id, clusterPosition),
                                 this),
                             e);
                       }
@@ -898,7 +898,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                           throw OException.wrapException(
                               new OPaginatedClusterException(
                                   "Can not update record with rid "
-                                      + new ORecordId(id, clusterPosition),
+                                      + new YTRecordId(id, clusterPosition),
                                   this),
                               e);
                         }

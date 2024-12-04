@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 
 /**
  *
  */
-public final class OLinkConverter implements OValuesConverter<OIdentifiable> {
+public final class OLinkConverter implements OValuesConverter<YTIdentifiable> {
 
   private final OConverterData converterData;
 
@@ -19,8 +19,8 @@ public final class OLinkConverter implements OValuesConverter<OIdentifiable> {
   }
 
   @Override
-  public OIdentifiable convert(ODatabaseSessionInternal db, OIdentifiable value) {
-    final ORID rid = value.getIdentity();
+  public YTIdentifiable convert(YTDatabaseSessionInternal db, YTIdentifiable value) {
+    final YTRID rid = value.getIdentity();
     if (!rid.isPersistent()) {
       return value;
     }
@@ -34,7 +34,7 @@ public final class OLinkConverter implements OValuesConverter<OIdentifiable> {
             "select value from " + ODatabaseImport.EXPORT_IMPORT_CLASS_NAME + " where key = ?",
             rid.toString())) {
       if (resultSet.hasNext()) {
-        return new ORecordId(resultSet.next().<String>getProperty("value"));
+        return new YTRecordId(resultSet.next().<String>getProperty("value"));
       }
       return value;
     }

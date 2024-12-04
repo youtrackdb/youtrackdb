@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +38,7 @@ import java.util.Set;
  *
  * @since 4/4/14
  */
-public interface OIndexCursor extends Iterator<OIdentifiable> {
+public interface OIndexCursor extends Iterator<YTIdentifiable> {
 
   /**
    * Returns nextEntry element in subset of index data which should be iterated by given cursor.
@@ -46,21 +46,21 @@ public interface OIndexCursor extends Iterator<OIdentifiable> {
    * @return nextEntry element in subset of index data which should be iterated by given cursor or
    * <code>null</code> if all data are iterated.
    */
-  Map.Entry<Object, OIdentifiable> nextEntry();
+  Map.Entry<Object, YTIdentifiable> nextEntry();
 
   /**
    * Accumulates and returns all values of index inside of data subset of cursor.
    *
    * @return all values of index inside of data subset of cursor.
    */
-  Set<OIdentifiable> toValues();
+  Set<YTIdentifiable> toValues();
 
   /**
    * Accumulates and returns all entries of index inside of data subset of cursor.
    *
    * @return all entries of index inside of data subset of cursor.
    */
-  Set<Map.Entry<Object, OIdentifiable>> toEntries();
+  Set<Map.Entry<Object, YTIdentifiable>> toEntries();
 
   /**
    * Accumulates and returns all keys of index inside of data subset of cursor.

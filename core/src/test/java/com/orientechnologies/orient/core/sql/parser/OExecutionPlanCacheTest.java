@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class OExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
     cache = OExecutionPlanCache.instance(db);
     Assert.assertTrue(cache.contains(stm));
 
-    OClass clazz = db.getMetadata().getSchema().createClass(testName);
+    YTClass clazz = db.getMetadata().getSchema().createClass(testName);
     Assert.assertFalse(cache.contains(stm));
 
     Thread.sleep(2);
@@ -40,7 +40,7 @@ public class OExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
     cache = OExecutionPlanCache.instance(db);
     Assert.assertTrue(cache.contains(stm));
 
-    OProperty prop = clazz.createProperty(db, "name", OType.STRING);
+    YTProperty prop = clazz.createProperty(db, "name", YTType.STRING);
     Assert.assertFalse(cache.contains(stm));
 
     Thread.sleep(2);
@@ -50,7 +50,7 @@ public class OExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
     cache = OExecutionPlanCache.instance(db);
     Assert.assertTrue(cache.contains(stm));
 
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
     Assert.assertFalse(cache.contains(stm));
   }
 }

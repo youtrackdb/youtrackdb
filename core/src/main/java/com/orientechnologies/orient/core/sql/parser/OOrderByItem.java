@@ -3,11 +3,11 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -102,13 +102,13 @@ public class OOrderByItem {
       bVal = b.getProperty(recordAttr);
     } else if (alias != null) {
       if (isEdge) {
-        OVertex aElement = (OVertex) a.asElement();
-        Iterator<OVertex> aIter =
+        YTVertex aElement = (YTVertex) a.asElement();
+        Iterator<YTVertex> aIter =
             aElement != null ? aElement.getVertices(ODirection.OUT, alias).iterator() : null;
         aVal = (aIter != null && aIter.hasNext()) ? aIter.next() : null;
 
-        OVertex bElement = (OVertex) b.asElement();
-        Iterator<OVertex> bIter =
+        YTVertex bElement = (YTVertex) b.asElement();
+        Iterator<YTVertex> bIter =
             bElement != null ? bElement.getVertices(ODirection.OUT, alias).iterator() : null;
         bVal = (bIter != null && bIter.hasNext()) ? bIter.next() : null;
       } else {
@@ -161,7 +161,7 @@ public class OOrderByItem {
         result = 1;
       } else if (aVal instanceof String && bVal instanceof String) {
 
-        ODatabaseSessionInternal internal = ctx.getDatabase();
+        YTDatabaseSessionInternal internal = ctx.getDatabase();
         if (stringCollator == null) {
           String language = (String) internal.get(ATTRIBUTES.LOCALELANGUAGE);
           String country = (String) internal.get(ATTRIBUTES.LOCALECOUNTRY);
@@ -230,7 +230,7 @@ public class OOrderByItem {
     this.modifier = modifier;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("alias", alias);
     if (modifier != null) {

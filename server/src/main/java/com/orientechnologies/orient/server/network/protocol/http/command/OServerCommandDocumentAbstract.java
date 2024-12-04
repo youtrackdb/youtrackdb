@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.util.Map;
@@ -27,7 +27,7 @@ import java.util.Map;
 public abstract class OServerCommandDocumentAbstract extends OServerCommandAuthenticatedDbAbstract {
 
   protected String bindToFields(
-      final OHttpRequest iRequest, final Map<String, String> iFields, final ORecordId iRid)
+      final OHttpRequest iRequest, final Map<String, String> iFields, final YTRecordId iRid)
       throws Exception {
     if (iRequest.getContent() == null) {
       throw new IllegalArgumentException("HTTP Request content is empty");

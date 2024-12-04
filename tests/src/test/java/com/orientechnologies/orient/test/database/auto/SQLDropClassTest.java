@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -12,8 +12,8 @@ public class SQLDropClassTest {
 
   @Test
   public void testSimpleDrop() {
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx("memory:" + SQLDropClassTest.class.getName());
+    YTDatabaseSessionInternal db =
+        new YTDatabaseDocumentTx("memory:" + SQLDropClassTest.class.getName());
     db.create();
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testSimpleDrop"));
@@ -28,8 +28,8 @@ public class SQLDropClassTest {
 
   @Test
   public void testIfExists() {
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx("memory:" + SQLDropClassTest.class.getName() + "_ifNotExists");
+    YTDatabaseSessionInternal db =
+        new YTDatabaseDocumentTx("memory:" + SQLDropClassTest.class.getName() + "_ifNotExists");
     db.create();
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfExists"));

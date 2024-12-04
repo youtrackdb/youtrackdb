@@ -20,16 +20,16 @@ import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.shape.OShapeFactory;
@@ -69,7 +69,7 @@ public class OLuceneSpatialIndexEngineDelegator
   @Override
   public void init(OIndexMetadata im) {
     if (delegate == null) {
-      if (OClass.INDEX_TYPE.SPATIAL.name().equalsIgnoreCase(im.getType())) {
+      if (YTClass.INDEX_TYPE.SPATIAL.name().equalsIgnoreCase(im.getType())) {
         if (im.getIndexDefinition().getFields().size() > 1) {
           delegate =
               new OLuceneLegacySpatialIndexEngine(storage, indexName, id, OShapeFactory.INSTANCE);
@@ -125,12 +125,12 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Object get(ODatabaseSessionInternal session, Object key) {
+  public Object get(YTDatabaseSessionInternal session, Object key) {
     return delegate.get(session, key);
   }
 
   @Override
-  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  public void put(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       Object value) {
 
     try {
@@ -144,7 +144,7 @@ public class OLuceneSpatialIndexEngineDelegator
 
   @Override
   public void update(
-      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       OIndexKeyUpdater<Object> updater) {
     try {
       delegate.update(session, atomicOperation, key, updater);
@@ -158,8 +158,8 @@ public class OLuceneSpatialIndexEngineDelegator
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator) {
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator) {
     try {
       return delegate.validatedPut(atomicOperation, key, value, validator);
     } catch (IOException e) {
@@ -170,8 +170,8 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -182,7 +182,7 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -191,7 +191,7 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -200,12 +200,13 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> stream(IndexEngineValuesTransformer valuesTransformer) {
     return delegate.stream(valuesTransformer);
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> descStream(
+      IndexEngineValuesTransformer valuesTransformer) {
     return delegate.descStream(valuesTransformer);
   }
 
@@ -237,14 +238,15 @@ public class OLuceneSpatialIndexEngineDelegator
   @Override
   public void onRecordAddedToResultSet(
       OLuceneQueryContext queryContext,
-      OContextualRecordId recordId,
+      YTContextualRecordId recordId,
       Document ret,
       ScoreDoc score) {
     delegate.onRecordAddedToResultSet(queryContext, recordId, ret, score);
   }
 
   @Override
-  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
+  public Document buildDocument(YTDatabaseSessionInternal session, Object key,
+      YTIdentifiable value) {
     return delegate.buildDocument(session, key, value);
   }
 
@@ -269,7 +271,7 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public boolean remove(Object key, OIdentifiable value) {
+  public boolean remove(Object key, YTIdentifiable value) {
     return delegate.remove(key, value);
   }
 
@@ -294,7 +296,7 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+  public Set<YTIdentifiable> getInTx(YTDatabaseSessionInternal session, Object key,
       OLuceneTxChanges changes) {
     return delegate.getInTx(session, key, changes);
   }
@@ -310,7 +312,7 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Query deleteQuery(Object key, OIdentifiable value) {
+  public Query deleteQuery(Object key, YTIdentifiable value) {
     return delegate.deleteQuery(key, value);
   }
 

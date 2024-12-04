@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.ArrayList;
@@ -83,24 +83,24 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
 
     if (iParams[0] != null) {
-      if (iThis instanceof OIdentifiable) {
+      if (iThis instanceof YTIdentifiable) {
         try {
-          iThis = ((OIdentifiable) iThis).getRecord();
+          iThis = ((YTIdentifiable) iThis).getRecord();
         } catch (ORecordNotFoundException rnf) {
           return null;
         }
       } else if (iThis instanceof OResult result) {
         iThis = result.asElement();
       }
-      if (iThis instanceof ODocument) {
+      if (iThis instanceof YTDocument) {
         // ACT ON SINGLE DOCUMENT
-        return copy((ODocument) iThis, iParams);
+        return copy((YTDocument) iThis, iParams);
       } else if (iThis instanceof Map) {
         // ACT ON MAP
         return copy((Map) iThis, iParams);
@@ -108,10 +108,10 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
         // ACT ON MULTIPLE DOCUMENTS
         final List<Object> result = new ArrayList<Object>(OMultiValue.getSize(iThis));
         for (Object o : OMultiValue.getMultiValueIterable(iThis)) {
-          if (o instanceof OIdentifiable) {
+          if (o instanceof YTIdentifiable) {
             try {
-              var record = ((OIdentifiable) o).getRecord();
-              result.add(copy((ODocument) record, iParams));
+              var record = ((YTIdentifiable) o).getRecord();
+              result.add(copy((YTDocument) record, iParams));
             } catch (ORecordNotFoundException rnf) {
               // IGNORE IT
             }
@@ -125,8 +125,8 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
     return null;
   }
 
-  private Object copy(final ODocument document, final Object[] iFieldNames) {
-    final ODocument doc = new ODocument();
+  private Object copy(final YTDocument document, final Object[] iFieldNames) {
+    final YTDocument doc = new YTDocument();
     for (int i = 0; i < iFieldNames.length; ++i) {
       if (iFieldNames[i] != null) {
 
@@ -154,7 +154,7 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
   }
 
   private Object copy(final Map map, final Object[] iFieldNames) {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     for (int i = 0; i < iFieldNames.length; ++i) {
       if (iFieldNames[i] != null) {
         final String fieldName = iFieldNames[i].toString();

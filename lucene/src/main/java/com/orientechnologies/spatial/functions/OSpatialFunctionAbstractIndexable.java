@@ -16,12 +16,12 @@ package com.orientechnologies.spatial.functions;
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
@@ -54,7 +54,8 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     super(iName, iMinParams, iMaxParams);
   }
 
-  protected OLuceneSpatialIndex searchForIndex(ODatabaseSessionInternal session, OFromClause target,
+  protected OLuceneSpatialIndex searchForIndex(YTDatabaseSessionInternal session,
+      OFromClause target,
       OExpression[] args) {
     OMetadataInternal dbMetadata = getDb().getMetadata();
 
@@ -81,11 +82,11 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     return indices.isEmpty() ? null : indices.get(0);
   }
 
-  protected ODatabaseSessionInternal getDb() {
+  protected YTDatabaseSessionInternal getDb() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  protected Iterable<OIdentifiable> results(
+  protected Iterable<YTIdentifiable> results(
       OFromClause target, OExpression[] args, OCommandContext ctx, Object rightValue) {
     OIndex oIndex = searchForIndex(ctx.getDatabase(), target, args);
 
@@ -97,11 +98,11 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     queryParams.put(SpatialQueryBuilderAbstract.GEO_FILTER, operator());
     Object shape;
     if (args[1].getValue() instanceof OJson json) {
-      ODocument doc = new ODocument();
+      YTDocument doc = new YTDocument();
       doc.fromJSON(json.toString());
       shape = doc.toMap();
     } else {
-      shape = args[1].execute((OIdentifiable) null, ctx);
+      shape = args[1].execute((YTIdentifiable) null, ctx);
     }
 
     if (shape instanceof Collection) {

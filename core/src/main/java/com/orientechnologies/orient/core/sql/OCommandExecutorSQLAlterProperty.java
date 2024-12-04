@@ -23,14 +23,14 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OProperty.ATTRIBUTES;
-import com.orientechnologies.orient.core.metadata.schema.OPropertyImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty.ATTRIBUTES;
+import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
 import com.orientechnologies.orient.core.sql.parser.OAlterPropertyStatement;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -121,14 +121,14 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
       final String attributeAsString = word.toString();
 
       try {
-        attribute = OProperty.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
+        attribute = YTProperty.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw OException.wrapException(
             new OCommandSQLParsingException(
                 "Unknown property attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(OProperty.ATTRIBUTES.values()),
+                    + Arrays.toString(YTProperty.ATTRIBUTES.values()),
                 parserText,
                 oldPos),
             e);
@@ -152,7 +152,7 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
       if (preParsedStatement != null) {
         OExpression settingExp = ((OAlterPropertyStatement) preParsedStatement).settingValue;
         if (settingExp != null) {
-          Object expValue = settingExp.execute((OIdentifiable) null, context);
+          Object expValue = settingExp.execute((YTIdentifiable) null, context);
           if (expValue == null) {
             expValue = settingExp.toString();
           }
@@ -200,7 +200,7 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
   @Override
@@ -211,20 +211,20 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
   /**
    * Execute the ALTER PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (attribute == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
     }
 
     var db = getDatabase();
-    final OClassImpl sourceClass =
-        (OClassImpl) db.getMetadata().getSchema().getClass(className);
+    final YTClassImpl sourceClass =
+        (YTClassImpl) db.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
       throw new OCommandExecutionException("Source class '" + className + "' not found");
     }
 
-    final OPropertyImpl prop = (OPropertyImpl) sourceClass.getProperty(fieldName);
+    final YTPropertyImpl prop = (YTPropertyImpl) sourceClass.getProperty(fieldName);
     if (prop == null) {
       throw new OCommandExecutionException(
           "Property '" + className + "." + fieldName + "' not exists");

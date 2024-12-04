@@ -14,10 +14,10 @@
 package com.orientechnologies.spatial;
 
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.junit.Assert;
@@ -213,12 +213,12 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   @Before
   public void init() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass oClass = schema.createClass("Place");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OMultiLineString"));
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OMultiLineString"));
+    oClass.createProperty(db, "name", YTType.STRING);
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
   }
@@ -248,7 +248,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   protected void testQueryMultiLineString() {
     String query = "select * from Place where location && 'POINT(-157.9159477 21.3433168)' ";
-    List<ODocument> docs = db.query(new OSQLSynchQuery<ODocument>(query));
+    List<YTDocument> docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
     Assert.assertEquals(docs.size(), 1);
   }

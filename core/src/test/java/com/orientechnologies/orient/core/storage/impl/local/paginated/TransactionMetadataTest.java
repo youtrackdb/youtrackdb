@@ -5,13 +5,13 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
@@ -26,7 +26,7 @@ import org.junit.Test;
 public class TransactionMetadataTest {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
@@ -36,7 +36,7 @@ public class TransactionMetadataTest {
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database `" + DB_NAME + "` plocal users(admin identified by 'admin' role admin)");
-    db = (ODatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin");
+    db = (YTDatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin");
   }
 
   @Test
@@ -45,7 +45,7 @@ public class TransactionMetadataTest {
     byte[] metadata = new byte[]{1, 2, 4};
     ((OTransactionInternal) db.getTransaction())
         .setMetadataHolder(new TestMetadataHolder(metadata));
-    OVertex v = db.newVertex("V");
+    YTVertex v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
     db.commit();
@@ -59,9 +59,9 @@ public class TransactionMetadataTest {
             ODatabaseType.PLOCAL,
             "target/backup_metadata",
             YouTrackDBConfig.defaultConfig());
-    ODatabaseSession db1 = youTrackDB.open(DB_NAME + "_re", "admin", "admin");
+    YTDatabaseSession db1 = youTrackDB.open(DB_NAME + "_re", "admin", "admin");
     Optional<byte[]> fromStorage =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db1).getStorage())
+        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) db1).getStorage())
             .getLastMetadata();
     assertTrue(fromStorage.isPresent());
     assertArrayEquals(fromStorage.get(), metadata);

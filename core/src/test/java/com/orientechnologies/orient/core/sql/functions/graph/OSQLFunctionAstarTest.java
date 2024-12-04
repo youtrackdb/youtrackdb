@@ -24,13 +24,13 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,15 +48,15 @@ public class OSQLFunctionAstarTest {
   private static int dbCounter = 0;
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal graph;
+  private YTDatabaseSessionInternal graph;
 
-  private OVertex v0;
-  private OVertex v1;
-  private OVertex v2;
-  private OVertex v3;
-  private OVertex v4;
-  private OVertex v5;
-  private OVertex v6;
+  private YTVertex v0;
+  private YTVertex v1;
+  private YTVertex v2;
+  private YTVertex v3;
+  private YTVertex v4;
+  private YTVertex v5;
+  private YTVertex v6;
   private OSQLFunctionAstar functionAstar;
 
   @Before
@@ -81,7 +81,7 @@ public class OSQLFunctionAstarTest {
             "OSQLFunctionAstarTest", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open("OSQLFunctionAstarTest", "admin",
                 OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
@@ -142,67 +142,67 @@ public class OSQLFunctionAstarTest {
     v6.setProperty("lon", -118.243685f);
     v6.setProperty("alt", 400);
 
-    OEdge e1 = graph.newEdge(v1, v2, "has_path");
+    YTEdge e1 = graph.newEdge(v1, v2, "has_path");
     e1.setProperty("weight", 250.0f);
     e1.setProperty("ptype", "road");
     e1.save();
-    OEdge e2 = graph.newEdge(v2, v3, "has_path");
+    YTEdge e2 = graph.newEdge(v2, v3, "has_path");
     e2.setProperty("weight", 250.0f);
     e2.setProperty("ptype", "road");
     e2.save();
-    OEdge e3 = graph.newEdge(v1, v3, "has_path");
+    YTEdge e3 = graph.newEdge(v1, v3, "has_path");
     e3.setProperty("weight", 1000.0f);
     e3.setProperty("ptype", "road");
     e3.save();
-    OEdge e4 = graph.newEdge(v3, v4, "has_path");
+    YTEdge e4 = graph.newEdge(v3, v4, "has_path");
     e4.setProperty("weight", 250.0f);
     e4.setProperty("ptype", "road");
     e4.save();
-    OEdge e5 = graph.newEdge(v2, v4, "has_path");
+    YTEdge e5 = graph.newEdge(v2, v4, "has_path");
     e5.setProperty("weight", 600.0f);
     e5.setProperty("ptype", "road");
     e5.save();
-    OEdge e6 = graph.newEdge(v4, v5, "has_path");
+    YTEdge e6 = graph.newEdge(v4, v5, "has_path");
     e6.setProperty("weight", 400.0f);
     e6.setProperty("ptype", "road");
     e6.save();
-    OEdge e7 = graph.newEdge(v5, v6, "has_path");
+    YTEdge e7 = graph.newEdge(v5, v6, "has_path");
     e7.setProperty("weight", 300.0f);
     e7.setProperty("ptype", "road");
     e7.save();
-    OEdge e8 = graph.newEdge(v3, v6, "has_path");
+    YTEdge e8 = graph.newEdge(v3, v6, "has_path");
     e8.setProperty("weight", 200.0f);
     e8.setProperty("ptype", "road");
     e8.save();
-    OEdge e9 = graph.newEdge(v4, v6, "has_path");
+    YTEdge e9 = graph.newEdge(v4, v6, "has_path");
     e9.setProperty("weight", 900.0f);
     e9.setProperty("ptype", "road");
     e9.save();
-    OEdge e10 = graph.newEdge(v2, v6, "has_path");
+    YTEdge e10 = graph.newEdge(v2, v6, "has_path");
     e10.setProperty("weight", 2500.0f);
     e10.setProperty("ptype", "road");
     e10.save();
-    OEdge e11 = graph.newEdge(v1, v5, "has_path");
+    YTEdge e11 = graph.newEdge(v1, v5, "has_path");
     e11.setProperty("weight", 100.0f);
     e11.setProperty("ptype", "road");
     e11.save();
-    OEdge e12 = graph.newEdge(v4, v1, "has_path");
+    YTEdge e12 = graph.newEdge(v4, v1, "has_path");
     e12.setProperty("weight", 200.0f);
     e12.setProperty("ptype", "road");
     e12.save();
-    OEdge e13 = graph.newEdge(v5, v3, "has_path");
+    YTEdge e13 = graph.newEdge(v5, v3, "has_path");
     e13.setProperty("weight", 800.0f);
     e13.setProperty("ptype", "road");
     e13.save();
-    OEdge e14 = graph.newEdge(v5, v2, "has_path");
+    YTEdge e14 = graph.newEdge(v5, v2, "has_path");
     e14.setProperty("weight", 500.0f);
     e14.setProperty("ptype", "road");
     e14.save();
-    OEdge e15 = graph.newEdge(v6, v5, "has_path");
+    YTEdge e15 = graph.newEdge(v6, v5, "has_path");
     e15.setProperty("weight", 250.0f);
     e15.setProperty("ptype", "road");
     e15.save();
-    OEdge e16 = graph.newEdge(v3, v1, "has_path");
+    YTEdge e16 = graph.newEdge(v3, v1, "has_path");
     e16.setProperty("weight", 550.0f);
     e16.setProperty("ptype", "road");
     e16.save();
@@ -221,7 +221,7 @@ public class OSQLFunctionAstarTest {
     v4 = graph.bindToSession(v4);
 
     ctx.setDatabase(graph);
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v4, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -246,7 +246,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
     v6 = graph.bindToSession(v6);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -270,7 +270,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
     v6 = graph.bindToSession(v6);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -295,7 +295,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
     v6 = graph.bindToSession(v6);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -320,7 +320,7 @@ public class OSQLFunctionAstarTest {
     v3 = graph.bindToSession(v3);
     v5 = graph.bindToSession(v5);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v3, v5, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -345,7 +345,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -374,7 +374,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -404,7 +404,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -432,7 +432,7 @@ public class OSQLFunctionAstarTest {
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -459,7 +459,7 @@ public class OSQLFunctionAstarTest {
 
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -492,7 +492,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -519,7 +519,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
 
-    final List<OVertex> result =
+    final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
@@ -542,7 +542,7 @@ public class OSQLFunctionAstarTest {
                 + v4.getIdentity()
                 + ", 'weight', {'direction':'out', 'parallel':true, 'edgeTypeNames':'has_path'}))");
 
-    List<ORID> result = new ArrayList<>();
+    List<YTRID> result = new ArrayList<>();
     while (r.hasNext()) {
       result.add(r.next().getIdentity().get());
     }

@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
@@ -54,7 +54,7 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
   @Test
   public void deleteInPool() {
-    ODatabaseSessionInternal db = acquireSession();
+    YTDatabaseSessionInternal db = acquireSession();
 
     final Long total = db.countClass("Profile");
 

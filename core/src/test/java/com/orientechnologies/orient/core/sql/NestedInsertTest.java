@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class NestedInsertTest extends DBTestBase {
 
   @Test
   public void testEmbeddedValueDate() {
-    OSchema schm = db.getMetadata().getSchema();
+    YTSchema schm = db.getMetadata().getSchema();
     schm.createClass("myClass");
 
     db.begin();
@@ -25,8 +25,8 @@ public class NestedInsertTest extends DBTestBase {
                 + " \"date\":\"2013-01-01\",\"@fieldTypes\":\"date=a\"}) return @this");
     db.commit();
 
-    final ODocument res = ((OIdentifiable) result.next().getProperty("@this")).getRecord();
-    final ODocument embedded = res.field("meta");
+    final YTDocument res = ((YTIdentifiable) result.next().getProperty("@this")).getRecord();
+    final YTDocument embedded = res.field("meta");
     Assert.assertNotNull(embedded);
 
     Assert.assertEquals(embedded.fields(), 2);
@@ -36,10 +36,10 @@ public class NestedInsertTest extends DBTestBase {
 
   @Test
   public void testLinkedNested() {
-    OSchema schm = db.getMetadata().getSchema();
-    OClass cl = schm.createClass("myClass");
-    OClass linked = schm.createClass("Linked");
-    cl.createProperty(db, "some", OType.LINK, linked);
+    YTSchema schm = db.getMetadata().getSchema();
+    YTClass cl = schm.createClass("myClass");
+    YTClass linked = schm.createClass("Linked");
+    cl.createProperty(db, "some", YTType.LINK, linked);
 
     db.begin();
     OResultSet result =
@@ -48,8 +48,8 @@ public class NestedInsertTest extends DBTestBase {
                 + " name\"} return @this");
     db.commit();
 
-    final ODocument res = ((OIdentifiable) result.next().getProperty("@this")).getRecord();
-    final ODocument ln = res.field("some");
+    final YTDocument res = ((YTIdentifiable) result.next().getProperty("@this")).getRecord();
+    final YTDocument ln = res.field("some");
     Assert.assertNotNull(ln);
     Assert.assertTrue(ln.getIdentity().isPersistent());
     Assert.assertEquals(ln.fields(), 1);

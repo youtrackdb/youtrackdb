@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.client.remote;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import java.util.ArrayList;
@@ -76,13 +76,13 @@ public class ORemoteURLs {
 
     // REGISTER THE REMOTE SERVER+PORT
     if (!host.contains(":")) {
-      if (clientConfiguration.getValueAsBoolean(OGlobalConfiguration.CLIENT_USE_SSL)) {
+      if (clientConfiguration.getValueAsBoolean(YTGlobalConfiguration.CLIENT_USE_SSL)) {
         host += ":" + DEFAULT_SSL_PORT;
       } else {
         host += ":" + DEFAULT_PORT;
       }
     } else if (host.split(":").length < 2 || host.split(":")[1].trim().length() == 0) {
-      if (clientConfiguration.getValueAsBoolean(OGlobalConfiguration.CLIENT_USE_SSL)) {
+      if (clientConfiguration.getValueAsBoolean(YTGlobalConfiguration.CLIENT_USE_SSL)) {
         host += DEFAULT_SSL_PORT;
       } else {
         host += DEFAULT_PORT;
@@ -137,7 +137,7 @@ public class ORemoteURLs {
 
     if (serverURLs.size() == 1
         && contextConfiguration.getValueAsBoolean(
-        OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED)) {
+        YTGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED)) {
       List<String> toAdd = fetchHostsFromDns(lastHost, contextConfiguration);
       serverURLs.addAll(toAdd);
     }
@@ -158,7 +158,7 @@ public class ORemoteURLs {
             "Retrieving URLs from DNS '%s' (timeout=%d)...",
             primaryServer,
             contextConfiguration.getValueAsInteger(
-                OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_TIMEOUT));
+                YTGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_TIMEOUT));
 
     List<String> toAdd = new ArrayList<>();
     try {
@@ -167,7 +167,7 @@ public class ORemoteURLs {
       env.put(
           "com.sun.jndi.ldap.connect.timeout",
           contextConfiguration.getValueAsString(
-              OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_TIMEOUT));
+              YTGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_TIMEOUT));
 
       final DirContext ictx = new InitialDirContext(env);
       final String hostName =

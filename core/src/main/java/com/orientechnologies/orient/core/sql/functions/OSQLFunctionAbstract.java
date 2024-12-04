@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collection;
@@ -45,7 +45,7 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
   }
 
   @Override
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return name;
   }
 
@@ -55,7 +55,7 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
   }
 
   @Override
-  public int getMaxParams(ODatabaseSession session) {
+  public int getMaxParams(YTDatabaseSession session) {
     return maxParams;
   }
 

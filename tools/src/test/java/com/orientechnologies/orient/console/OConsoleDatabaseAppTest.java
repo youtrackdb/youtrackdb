@@ -3,9 +3,9 @@ package com.orientechnologies.orient.console;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.ByteArrayOutputStream;
@@ -43,11 +43,11 @@ public class OConsoleDatabaseAppTest {
           "create database test memory users (admin identified by 'admin' role admin)");
       app.open("test", "admin", "admin");
 
-      ODatabaseSessionInternal db = (ODatabaseSessionInternal) app.getCurrentDatabase();
+      YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) app.getCurrentDatabase();
       db.addBlobCluster("blobTest");
 
       db.begin();
-      ORecord record = db.save(new ORecordBytes("blobContent".getBytes()), "blobTest");
+      YTRecord record = db.save(new YTRecordBytes("blobContent".getBytes()), "blobTest");
       db.commit();
       builder.setLength(0);
       app.select(" from " + record.getIdentity() + " limit -1 ");

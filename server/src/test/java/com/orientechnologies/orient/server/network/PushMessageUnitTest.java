@@ -8,7 +8,7 @@ import com.orientechnologies.orient.client.remote.OStorageRemotePushThread;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import com.orientechnologies.orient.server.OServer;
@@ -44,7 +44,7 @@ public class PushMessageUnitTest {
   public class MockPushRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
     @Override
-    public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+    public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
         throws IOException {
       requestWritten.countDown();
     }
@@ -55,11 +55,11 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+    public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     }
 
     @Override
-    public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+    public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
         ORemotePushHandler remote) {
       executed.countDown();
       return new MockPushResponse();
@@ -74,7 +74,7 @@ public class PushMessageUnitTest {
   public class MockPushRequestNoResponse implements OBinaryPushRequest<OBinaryPushResponse> {
 
     @Override
-    public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+    public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
         throws IOException {
       requestWritten.countDown();
     }
@@ -85,11 +85,11 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+    public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     }
 
     @Override
-    public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+    public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
         ORemotePushHandler remote) {
       executed.countDown();
       return null;

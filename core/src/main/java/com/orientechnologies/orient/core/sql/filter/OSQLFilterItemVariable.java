@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 /**
  * Represents a context variable as value in the query condition.
@@ -32,13 +32,13 @@ public class OSQLFilterItemVariable extends OSQLFilterItemAbstract {
 
   protected String name;
 
-  public OSQLFilterItemVariable(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public OSQLFilterItemVariable(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iName) {
     super(session, iQueryToParse, iName.substring(1));
   }
 
   public Object getValue(
-      final OIdentifiable iRecord, Object iCurrentResult, final OCommandContext iContext) {
+      final YTIdentifiable iRecord, Object iCurrentResult, final OCommandContext iContext) {
     if (iContext == null) {
       return null;
     }
@@ -46,11 +46,11 @@ public class OSQLFilterItemVariable extends OSQLFilterItemAbstract {
     return transformValue(iRecord, iContext, iContext.getVariable(name));
   }
 
-  public String getRoot(ODatabaseSession session) {
+  public String getRoot(YTDatabaseSession session) {
     return name;
   }
 
-  public void setRoot(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public void setRoot(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iRoot) {
     this.name = iRoot;
   }

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 /**
  * Progress listener for index rebuild.
@@ -95,7 +95,7 @@ public class OIndexRebuildOutputListener implements OProgressListener {
   }
 
   @Override
-  public void onCompletition(ODatabaseSessionInternal session, final Object iTask,
+  public void onCompletition(YTDatabaseSessionInternal session, final Object iTask,
       final boolean iSucceed) {
     final long idxSize = idx.getInternal().size(session);
 

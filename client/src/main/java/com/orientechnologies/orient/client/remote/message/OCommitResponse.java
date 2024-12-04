@@ -21,8 +21,8 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -37,14 +37,14 @@ import java.util.UUID;
 public final class OCommitResponse implements OBinaryResponse {
 
   private Map<UUID, OBonsaiCollectionPointer> collectionChanges;
-  private List<ObjectObjectImmutablePair<ORID, ORID>> updatedRids;
+  private List<ObjectObjectImmutablePair<YTRID, YTRID>> updatedRids;
 
   public OCommitResponse(
-      Map<ORID, ORID> updatedRids, Map<UUID, OBonsaiCollectionPointer> collectionChanges) {
+      Map<YTRID, YTRID> updatedRids, Map<UUID, OBonsaiCollectionPointer> collectionChanges) {
     super();
     this.updatedRids = new ArrayList<>(updatedRids.size());
 
-    for (Map.Entry<ORID, ORID> entry : updatedRids.entrySet()) {
+    for (Map.Entry<YTRID, YTRID> entry : updatedRids.entrySet()) {
       this.updatedRids.add(new ObjectObjectImmutablePair<>(entry.getValue(), entry.getKey()));
     }
     this.collectionChanges = collectionChanges;
@@ -54,7 +54,7 @@ public final class OCommitResponse implements OBinaryResponse {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeInt(updatedRids.size());
@@ -70,7 +70,7 @@ public final class OCommitResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     final int updatedRecordsCount = network.readInt();
     updatedRids = new ArrayList<>(updatedRecordsCount);
@@ -85,7 +85,7 @@ public final class OCommitResponse implements OBinaryResponse {
     collectionChanges = OMessageHelper.readCollectionChanges(network);
   }
 
-  public List<ObjectObjectImmutablePair<ORID, ORID>> getUpdatedRids() {
+  public List<ObjectObjectImmutablePair<YTRID, YTRID>> getUpdatedRids() {
     return updatedRids;
   }
 

@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.multipart;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class OHttpMultipartDatabaseImportContentParser
       final OHttpRequest iRequest,
       final Map<String, String> headers,
       final OHttpMultipartContentInputStream in,
-      ODatabaseSession database)
+      YTDatabaseSession database)
       throws IOException {
     final String fileName = headers.get(OHttpUtils.MULTIPART_CONTENT_FILENAME);
 

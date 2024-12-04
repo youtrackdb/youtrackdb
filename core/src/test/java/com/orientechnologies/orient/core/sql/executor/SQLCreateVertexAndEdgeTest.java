@@ -19,9 +19,9 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,21 +43,21 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
 
     // VERTEXES
     db.begin();
-    OVertex v1 = db.command("create vertex").next().getVertex().get();
+    YTVertex v1 = db.command("create vertex").next().getVertex().get();
     db.commit();
 
     v1 = db.bindToSession(v1);
     Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
 
     db.begin();
-    OVertex v2 = db.command("create vertex V1").next().getVertex().get();
+    YTVertex v2 = db.command("create vertex V1").next().getVertex().get();
     db.commit();
 
     v2 = db.bindToSession(v2);
     Assert.assertEquals(v2.getSchemaType().get().getName(), "V1");
 
     db.begin();
-    OVertex v3 = db.command("create vertex set brand = 'fiat'").next().getVertex().get();
+    YTVertex v3 = db.command("create vertex set brand = 'fiat'").next().getVertex().get();
     db.commit();
 
     v3 = db.bindToSession(v3);
@@ -65,7 +65,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
     Assert.assertEquals(v3.getProperty("brand"), "fiat");
 
     db.begin();
-    OVertex v4 =
+    YTVertex v4 =
         db.command("create vertex V1 set brand = 'fiat',name = 'wow'").next().getVertex().get();
     db.commit();
 
@@ -75,7 +75,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
     Assert.assertEquals(v4.getProperty("name"), "wow");
 
     db.begin();
-    OVertex v5 = db.command("create vertex V1 cluster vdefault").next().getVertex().get();
+    YTVertex v5 = db.command("create vertex V1 cluster vdefault").next().getVertex().get();
     db.commit();
 
     v5 = db.bindToSession(v5);
@@ -100,7 +100,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
             "create edge from " + v1.getIdentity() + " to " + v4.getIdentity() + " set weight = 3");
     db.commit();
 
-    ODocument e3 = edges.next().getIdentity().get().getRecord();
+    YTDocument e3 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e3.getClassName(), "E");
     Assert.assertEquals(e3.field("out"), v1);
     Assert.assertEquals(e3.field("in"), v4);
@@ -115,7 +115,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
                 + v3.getIdentity()
                 + " set weight = 10");
     db.commit();
-    ODocument e4 = edges.next().getIdentity().get().getRecord();
+    YTDocument e4 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e4.getClassName(), "E1");
     Assert.assertEquals(e4.field("out"), v2);
     Assert.assertEquals(e4.field("in"), v3);
@@ -130,7 +130,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
                 + v5.getIdentity()
                 + " set weight = 17");
     db.commit();
-    ODocument e5 = edges.next().getIdentity().get().getRecord();
+    YTDocument e5 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e5.getClassName(), "E1");
     Assert.assertEquals(e5.getIdentity().getClusterId(), eclusterId);
   }
@@ -170,13 +170,13 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
   @Test
   public void testNewParser() {
     db.begin();
-    OVertex v1 = db.command("create vertex").next().getVertex().get();
+    YTVertex v1 = db.command("create vertex").next().getVertex().get();
     db.commit();
 
     v1 = db.bindToSession(v1);
     Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
 
-    ORID vid = v1.getIdentity();
+    YTRID vid = v1.getIdentity();
 
     db.begin();
     db.command("create edge from " + vid + " to " + vid).close();

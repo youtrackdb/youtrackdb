@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.string;
 
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,80 +17,80 @@ public class OFieldTypesString {
    * @param iCharType Char value indicating the type
    * @return The closest type recognized
    */
-  public static OType getType(final String iValue, final char iCharType) {
+  public static YTType getType(final String iValue, final char iCharType) {
     if (iCharType == 'f') {
-      return OType.FLOAT;
+      return YTType.FLOAT;
     } else if (iCharType == 'c') {
-      return OType.DECIMAL;
+      return YTType.DECIMAL;
     } else if (iCharType == 'l') {
-      return OType.LONG;
+      return YTType.LONG;
     } else if (iCharType == 'd') {
-      return OType.DOUBLE;
+      return YTType.DOUBLE;
     } else if (iCharType == 'b') {
       if (iValue.length() >= 1 && iValue.length() <= 3) {
-        return OType.BYTE;
+        return YTType.BYTE;
       } else {
-        return OType.BINARY;
+        return YTType.BINARY;
       }
     } else if (iCharType == 'a') {
-      return OType.DATE;
+      return YTType.DATE;
     } else if (iCharType == 't') {
-      return OType.DATETIME;
+      return YTType.DATETIME;
     } else if (iCharType == 's') {
-      return OType.SHORT;
+      return YTType.SHORT;
     } else if (iCharType == 'e') {
-      return OType.EMBEDDEDSET;
+      return YTType.EMBEDDEDSET;
     } else if (iCharType == 'g') {
-      return OType.LINKBAG;
+      return YTType.LINKBAG;
     } else if (iCharType == 'z') {
-      return OType.LINKLIST;
+      return YTType.LINKLIST;
     } else if (iCharType == 'm') {
-      return OType.LINKMAP;
+      return YTType.LINKMAP;
     } else if (iCharType == 'x') {
-      return OType.LINK;
+      return YTType.LINK;
     } else if (iCharType == 'n') {
-      return OType.LINKSET;
+      return YTType.LINKSET;
     } else if (iCharType == 'u') {
-      return OType.CUSTOM;
+      return YTType.CUSTOM;
     }
 
-    return OType.STRING;
+    return YTType.STRING;
   }
 
-  public static OType getOTypeFromChar(final char iCharType) {
+  public static YTType getOTypeFromChar(final char iCharType) {
     if (iCharType == 'f') {
-      return OType.FLOAT;
+      return YTType.FLOAT;
     } else if (iCharType == 'c') {
-      return OType.DECIMAL;
+      return YTType.DECIMAL;
     } else if (iCharType == 'l') {
-      return OType.LONG;
+      return YTType.LONG;
     } else if (iCharType == 'd') {
-      return OType.DOUBLE;
+      return YTType.DOUBLE;
     } else if (iCharType == 'b') {
-      return OType.BINARY;
+      return YTType.BINARY;
     } else if (iCharType == 'a') {
-      return OType.DATE;
+      return YTType.DATE;
     } else if (iCharType == 't') {
-      return OType.DATETIME;
+      return YTType.DATETIME;
     } else if (iCharType == 's') {
-      return OType.SHORT;
+      return YTType.SHORT;
     } else if (iCharType == 'e') {
-      return OType.EMBEDDEDSET;
+      return YTType.EMBEDDEDSET;
     } else if (iCharType == 'g') {
-      return OType.LINKBAG;
+      return YTType.LINKBAG;
     } else if (iCharType == 'z') {
-      return OType.LINKLIST;
+      return YTType.LINKLIST;
     } else if (iCharType == 'm') {
-      return OType.LINKMAP;
+      return YTType.LINKMAP;
     } else if (iCharType == 'x') {
-      return OType.LINK;
+      return YTType.LINK;
     } else if (iCharType == 'n') {
-      return OType.LINKSET;
+      return YTType.LINKSET;
     } else if (iCharType == 'u') {
-      return OType.CUSTOM;
+      return YTType.CUSTOM;
     }
 
-    return OType.STRING;
+    return YTType.STRING;
   }
 
   public static Map<String, Character> loadFieldTypesV0(

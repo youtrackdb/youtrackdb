@@ -2,12 +2,12 @@ package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.encryption.OEncryptionFactory;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OSHA256HashFunction;
@@ -34,7 +34,7 @@ public class LocalHashTableV2EncryptionTestIT extends LocalHashTableV2Base {
 
     var databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin");
     storage =
-        (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
 
     final OEncryption encryption =
         OEncryptionFactory.INSTANCE.getEncryption("aes/gcm", "T1JJRU5UREJfSVNfQ09PTA==");
@@ -54,7 +54,7 @@ public class LocalHashTableV2EncryptionTestIT extends LocalHashTableV2Base {
                 localHashTable.create(
                     atomicOperation,
                     OIntegerSerializer.INSTANCE,
-                    OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING),
+                    OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING),
                     null,
                     encryption,
                     SHA256HashFunction,

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Immutable Distributed configuration. It uses an ODocument object to store the configuration.
+ * Immutable Distributed configuration. It uses an YTDocument object to store the configuration.
  * Every changes must be done by obtaining a modifiable verson of the object through the method
  * `modify()`.
  */
@@ -64,7 +64,7 @@ public class ODistributedConfiguration {
   protected static final String EXECUTION_MODE = "executionMode";
   protected static final String EXECUTION_MODE_SYNCHRONOUS = "synchronous";
 
-  protected final ODocument configuration;
+  protected final YTDocument configuration;
   protected static final List<String> DEFAULT_CLUSTER_NAME =
       Collections.singletonList(ALL_WILDCARD);
   private static final ThreadLocal<Integer> overwriteWriteQuorum = new ThreadLocal<Integer>();
@@ -79,7 +79,7 @@ public class ODistributedConfiguration {
     STATIC
   }
 
-  public ODistributedConfiguration(final ODocument iConfiguration) {
+  public ODistributedConfiguration(final YTDocument iConfiguration) {
     configuration = iConfiguration;
     configuration.setTrackingChanges(false);
   }
@@ -425,7 +425,7 @@ public class ODistributedConfiguration {
 
       final ROLES defRole = getDefaultServerRole();
 
-      final ODocument servers = configuration.field(SERVERS);
+      final YTDocument servers = configuration.field(SERVERS);
       if (servers != null) {
         for (Iterator<String> it = masters.iterator(); it.hasNext(); ) {
           final String server = it.next();
@@ -506,10 +506,10 @@ public class ODistributedConfiguration {
   public String getClusterOwner(final String iClusterName) {
     String owner;
 
-    final ODocument clusters = getConfiguredClusters();
+    final YTDocument clusters = getConfiguredClusters();
 
     // GET THE CLUSTER CFG
-    final ODocument cfg = iClusterName != null ? (ODocument) clusters.field(iClusterName) : null;
+    final YTDocument cfg = iClusterName != null ? (YTDocument) clusters.field(iClusterName) : null;
 
     if (cfg != null) {
       owner = cfg.field(OWNER);
@@ -545,10 +545,10 @@ public class ODistributedConfiguration {
 
     String owner = null;
 
-    final ODocument clusters = getConfiguredClusters();
+    final YTDocument clusters = getConfiguredClusters();
 
     // GET THE CLUSTER CFG
-    final ODocument cfg = clusters.field(iClusterName);
+    final YTDocument cfg = clusters.field(iClusterName);
     if (cfg != null) {
       owner = cfg.field(OWNER);
     }
@@ -571,7 +571,7 @@ public class ODistributedConfiguration {
    * Returns the array of configured clusters
    */
   public String[] getClusterNames() {
-    final ODocument clusters = configuration.field(CLUSTERS);
+    final YTDocument clusters = configuration.field(CLUSTERS);
     return clusters.fieldNames();
   }
 
@@ -580,7 +580,7 @@ public class ODistributedConfiguration {
    */
   public ROLES getDefaultServerRole() {
 
-    final ODocument servers = configuration.field(SERVERS);
+    final YTDocument servers = configuration.field(SERVERS);
     if (servers == null)
     // DEFAULT: MASTER
     {
@@ -602,7 +602,7 @@ public class ODistributedConfiguration {
    */
   public ROLES getServerRole(final String iServerName) {
 
-    final ODocument servers = configuration.field(SERVERS);
+    final YTDocument servers = configuration.field(SERVERS);
     if (servers == null)
     // DEFAULT: MASTER
     {
@@ -628,7 +628,7 @@ public class ODistributedConfiguration {
    */
   public Set<String> getRegisteredServers() {
 
-    final ODocument servers = configuration.field(SERVERS);
+    final YTDocument servers = configuration.field(SERVERS);
     final Set<String> result = new HashSet<String>();
     if (servers != null) {
       Collections.addAll(result, servers.fieldNames());
@@ -636,7 +636,7 @@ public class ODistributedConfiguration {
     return result;
   }
 
-  public ODocument getDocument() {
+  public YTDocument getDocument() {
     return configuration;
   }
 
@@ -645,7 +645,7 @@ public class ODistributedConfiguration {
    */
   public Set<String> getDataCenters() {
 
-    final ODocument dcs = configuration.field(DCS);
+    final YTDocument dcs = configuration.field(DCS);
     if (dcs == null) {
       return Collections.EMPTY_SET;
     }
@@ -662,7 +662,7 @@ public class ODistributedConfiguration {
    */
   public int getDataCenterWriteQuorum(final String dataCenter) {
 
-    final ODocument dc = getDataCenterConfiguration(dataCenter);
+    final YTDocument dc = getDataCenterConfiguration(dataCenter);
 
     Object wq = dc.field(WRITE_QUORUM);
     if (wq instanceof String) {
@@ -683,7 +683,7 @@ public class ODistributedConfiguration {
    */
   public boolean isSharded() {
 
-    final ODocument allCluster = getClusterConfiguration(ALL_WILDCARD);
+    final YTDocument allCluster = getClusterConfiguration(ALL_WILDCARD);
     if (allCluster != null) {
       final List<String> allServers = allCluster.field(SERVERS);
       if (allServers != null && !allServers.isEmpty()) {
@@ -707,7 +707,7 @@ public class ODistributedConfiguration {
    */
   public List<String> getDataCenterServers(final String dataCenter) {
 
-    final ODocument dc = getDataCenterConfiguration(dataCenter);
+    final YTDocument dc = getDataCenterConfiguration(dataCenter);
 
     final List<String> servers = dc.field(SERVERS);
     if (servers == null || servers.isEmpty()) {
@@ -727,10 +727,10 @@ public class ODistributedConfiguration {
    */
   public String getDataCenterOfServer(final String server) {
 
-    final ODocument dcs = configuration.field(DCS);
+    final YTDocument dcs = configuration.field(DCS);
     if (dcs != null) {
       for (String dc : dcs.fieldNames()) {
-        final ODocument dcConfig = dcs.field(dc);
+        final YTDocument dcConfig = dcs.field(dc);
         if (dcConfig != null) {
           final List<String> dcServers = dcConfig.field("servers");
           if (dcServers != null && !dcServers.isEmpty()) {
@@ -805,8 +805,8 @@ public class ODistributedConfiguration {
     }
   }
 
-  private ODocument getConfiguredClusters() {
-    final ODocument clusters = configuration.field(CLUSTERS);
+  private YTDocument getConfiguredClusters() {
+    final YTDocument clusters = configuration.field(CLUSTERS);
     if (clusters == null) {
       throw new OConfigurationException(
           "Cannot find '" + CLUSTERS + "' in distributed database configuration");
@@ -823,17 +823,17 @@ public class ODistributedConfiguration {
    * Gets the document representing the cluster configuration.
    *
    * @param iClusterName Cluster name, or null for *
-   * @return Always a ODocument
+   * @return Always a YTDocument
    * @throws OConfigurationException in case "clusters" field is not found in configuration
    */
-  protected ODocument getClusterConfiguration(String iClusterName) {
-    final ODocument clusters = getConfiguredClusters();
+  protected YTDocument getClusterConfiguration(String iClusterName) {
+    final YTDocument clusters = getConfiguredClusters();
 
     if (iClusterName == null) {
       iClusterName = ALL_WILDCARD;
     }
 
-    final ODocument cfg;
+    final YTDocument cfg;
     if (!clusters.containsField(iClusterName))
     // NO CLUSTER IN CFG: GET THE DEFAULT ONE
     {
@@ -845,7 +845,7 @@ public class ODistributedConfiguration {
     }
 
     if (cfg == null) {
-      return new ODocument();
+      return new YTDocument();
     }
 
     return cfg;
@@ -855,11 +855,11 @@ public class ODistributedConfiguration {
    * Gets the document representing the dc configuration.
    *
    * @param dataCenter Data center name
-   * @return Always a ODocument
+   * @return Always a YTDocument
    * @throws OConfigurationException if the data center configuration is not found
    */
-  private ODocument getDataCenterConfiguration(final String dataCenter) {
-    final ODocument dcs = configuration.field(DCS);
+  private YTDocument getDataCenterConfiguration(final String dataCenter) {
+    final YTDocument dcs = configuration.field(DCS);
     if (dcs != null) {
       return dcs.field(dataCenter);
     }

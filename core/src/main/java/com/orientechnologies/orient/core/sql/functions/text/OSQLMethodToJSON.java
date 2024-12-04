@@ -18,9 +18,9 @@ package com.orientechnologies.orient.core.sql.functions.text;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
@@ -57,7 +57,7 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
     if (iThis instanceof OResult) {
       iThis = ((OResult) iThis).toElement();
     }
-    if (iThis instanceof ORecord record) {
+    if (iThis instanceof YTRecord record) {
 
       if (record.isUnloaded()) {
         record = iContext.getDatabase().bindToSession(record);
@@ -66,7 +66,7 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
     } else if (iThis instanceof Map) {
 
-      final ODocument doc = new ODocument();
+      final YTDocument doc = new YTDocument();
       //noinspection unchecked
       doc.fromMap((Map<String, Object>) iThis);
       return iParams.length == 1 ? doc.toJSON(format) : doc.toJSON();

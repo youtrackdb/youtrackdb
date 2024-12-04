@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -40,10 +40,10 @@ public class OLuceneInsertUpdateTransactionTest extends OLuceneBaseTest {
 
   @Before
   public void init() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass oClass = schema.createClass("City");
-    oClass.createProperty(db, "name", OType.STRING);
+    YTClass oClass = schema.createClass("City");
+    oClass.createProperty(db, "name", YTType.STRING);
     //noinspection EmptyTryBlock
     try (OResultSet command =
         db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
@@ -53,26 +53,26 @@ public class OLuceneInsertUpdateTransactionTest extends OLuceneBaseTest {
   @Test
   public void testInsertUpdateTransactionWithIndex() {
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     db.begin();
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
     doc.field("name", "Rome");
     db.save(doc);
 
     OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Assert.assertNotNull(idx);
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
     db.rollback();
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
     db.begin();
-    doc = new ODocument("City");
+    doc = new YTDocument("City");
     doc.field("name", "Rome");
     db.save(doc);
 
@@ -80,7 +80,7 @@ public class OLuceneInsertUpdateTransactionTest extends OLuceneBaseTest {
     db.save(user.getDocument(db));
 
     db.commit();
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);

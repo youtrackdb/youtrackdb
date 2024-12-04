@@ -20,15 +20,15 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import java.util.Collection;
@@ -60,13 +60,13 @@ public class OUser extends OIdentity implements OSecurityUser {
   public OUser() {
   }
 
-  public OUser(ODatabaseSessionInternal session, final String iName) {
+  public OUser(YTDatabaseSessionInternal session, final String iName) {
     super(CLASS_NAME);
     getDocument(session).field("name", iName);
     setAccountStatus(session, STATUSES.ACTIVE);
   }
 
-  public OUser(ODatabaseSessionInternal session, String iUserName, final String iUserPassword) {
+  public OUser(YTDatabaseSessionInternal session, String iUserName, final String iUserPassword) {
     super("OUser");
     getDocument(session).field("name", iUserName);
     setPassword(session, iUserPassword);
@@ -76,19 +76,19 @@ public class OUser extends OIdentity implements OSecurityUser {
   /**
    * Create the user by reading the source document.
    */
-  public OUser(ODatabaseSession session, final ODocument iSource) {
-    fromStream((ODatabaseSessionInternal) session, iSource);
+  public OUser(YTDatabaseSession session, final YTDocument iSource) {
+    fromStream((YTDatabaseSessionInternal) session, iSource);
   }
 
   public static final String encryptPassword(final String iPassword) {
     return OSecurityManager.createHash(
         iPassword,
-        OGlobalConfiguration.SECURITY_USER_PASSWORD_DEFAULT_ALGORITHM.getValueAsString(),
+        YTGlobalConfiguration.SECURITY_USER_PASSWORD_DEFAULT_ALGORITHM.getValueAsString(),
         true);
   }
 
   public static boolean encodePassword(
-      ODatabaseSessionInternal session, final ODocument iDocument) {
+      YTDatabaseSessionInternal session, final YTDocument iDocument) {
     final String name = iDocument.field("name");
     if (name == null) {
       throw new OSecurityException("User name not found");
@@ -111,7 +111,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   @Override
-  public void fromStream(ODatabaseSessionInternal session, final ODocument iSource) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iSource) {
     if (getDocument(session) != null) {
       return;
     }
@@ -119,9 +119,9 @@ public class OUser extends OIdentity implements OSecurityUser {
     setDocument(session, iSource);
 
     roles = new HashSet<>();
-    final Collection<OIdentifiable> loadedRoles = iSource.field("roles");
+    final Collection<YTIdentifiable> loadedRoles = iSource.field("roles");
     if (loadedRoles != null) {
-      for (final OIdentifiable d : loadedRoles) {
+      for (final YTIdentifiable d : loadedRoles) {
         if (d != null) {
           ORole role = createRole(session, d.getRecord());
           if (role != null) {
@@ -143,7 +143,7 @@ public class OUser extends OIdentity implements OSecurityUser {
    * Derived classes can override createRole() to return an extended ORole implementation or null if
    * the role should not be added.
    */
-  protected ORole createRole(ODatabaseSessionInternal session, final ODocument roleDoc) {
+  protected ORole createRole(YTDatabaseSessionInternal session, final YTDocument roleDoc) {
     return new ORole(session, roleDoc);
   }
 
@@ -158,15 +158,15 @@ public class OUser extends OIdentity implements OSecurityUser {
    * @throws OSecurityAccessException
    */
   public ORole allow(
-      ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
+      YTDatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific,
       final int iOperation) {
     var sessionInternal = session;
     var document = getDocument(session);
     if (roles == null || roles.isEmpty()) {
       if (document.field("roles") != null
-          && !((Collection<OIdentifiable>) document.field("roles")).isEmpty()) {
-        final ODocument doc = document;
+          && !((Collection<YTIdentifiable>) document.field("roles")).isEmpty()) {
+        final YTDocument doc = document;
         document = null;
         fromStream(sessionInternal, doc);
       } else {
@@ -203,7 +203,7 @@ public class OUser extends OIdentity implements OSecurityUser {
    * @return The role that has granted the permission if any, otherwise null
    */
   public ORole checkIfAllowed(
-      ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
+      YTDatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific,
       final int iOperation) {
     for (ORole r : roles) {
@@ -224,7 +224,7 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   @Override
   @Deprecated
-  public OSecurityRole allow(ODatabaseSessionInternal session, String iResource, int iOperation) {
+  public OSecurityRole allow(YTDatabaseSessionInternal session, String iResource, int iOperation) {
     final String resourceSpecific = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -238,7 +238,7 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   @Override
   @Deprecated
-  public OSecurityRole checkIfAllowed(ODatabaseSessionInternal session, String iResource,
+  public OSecurityRole checkIfAllowed(YTDatabaseSessionInternal session, String iResource,
       int iOperation) {
     final String resourceSpecific = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
@@ -253,7 +253,7 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   @Override
   @Deprecated
-  public boolean isRuleDefined(ODatabaseSessionInternal session, String iResource) {
+  public boolean isRuleDefined(YTDatabaseSessionInternal session, String iResource) {
     final String resourceSpecific = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -271,7 +271,7 @@ public class OUser extends OIdentity implements OSecurityUser {
    * @return True is a rule is defined, otherwise false
    */
   public boolean isRuleDefined(
-      ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
+      YTDatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific) {
     for (ORole r : roles) {
       if (r == null) {
@@ -289,29 +289,29 @@ public class OUser extends OIdentity implements OSecurityUser {
     return false;
   }
 
-  public boolean checkPassword(ODatabaseSessionInternal session, final String iPassword) {
+  public boolean checkPassword(YTDatabaseSessionInternal session, final String iPassword) {
     return OSecurityManager.checkPassword(iPassword, getDocument(session).field(PASSWORD_FIELD));
   }
 
-  public String getName(ODatabaseSessionInternal session) {
+  public String getName(YTDatabaseSessionInternal session) {
     return getDocument(session).field("name");
   }
 
-  public OUser setName(ODatabaseSessionInternal session, final String iName) {
+  public OUser setName(YTDatabaseSessionInternal session, final String iName) {
     getDocument(session).field("name", iName);
     return this;
   }
 
-  public String getPassword(ODatabaseSessionInternal session) {
+  public String getPassword(YTDatabaseSessionInternal session) {
     return getDocument(session).field(PASSWORD_FIELD);
   }
 
-  public OUser setPassword(ODatabaseSessionInternal session, final String iPassword) {
+  public OUser setPassword(YTDatabaseSessionInternal session, final String iPassword) {
     getDocument(session).field(PASSWORD_FIELD, iPassword);
     return this;
   }
 
-  public STATUSES getAccountStatus(ODatabaseSessionInternal session) {
+  public STATUSES getAccountStatus(YTDatabaseSessionInternal session) {
     final String status = getDocument(session).field("status");
     if (status == null) {
       throw new OSecurityException("User '" + getName(session) + "' has no status");
@@ -319,7 +319,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     return STATUSES.valueOf(status);
   }
 
-  public void setAccountStatus(ODatabaseSessionInternal session, STATUSES accountStatus) {
+  public void setAccountStatus(YTDatabaseSessionInternal session, STATUSES accountStatus) {
     getDocument(session).field("status", accountStatus);
   }
 
@@ -327,7 +327,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     return roles;
   }
 
-  public OUser addRole(ODatabaseSessionInternal session, final String iRole) {
+  public OUser addRole(YTDatabaseSessionInternal session, final String iRole) {
     if (iRole != null) {
       addRole(session, session.getMetadata().getSecurity().getRole(iRole));
     }
@@ -335,12 +335,12 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   @Override
-  public OUser addRole(ODatabaseSessionInternal session, final OSecurityRole iRole) {
+  public OUser addRole(YTDatabaseSessionInternal session, final OSecurityRole iRole) {
     if (iRole != null) {
       roles.add((ORole) iRole);
     }
 
-    final HashSet<ODocument> persistentRoles = new HashSet<ODocument>();
+    final HashSet<YTDocument> persistentRoles = new HashSet<YTDocument>();
     for (ORole r : roles) {
       persistentRoles.add(r.toStream(session));
     }
@@ -348,7 +348,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     return this;
   }
 
-  public boolean removeRole(ODatabaseSessionInternal session, final String iRoleName) {
+  public boolean removeRole(YTDatabaseSessionInternal session, final String iRoleName) {
     boolean removed = false;
     var document = getDocument(session);
     for (Iterator<ORole> it = roles.iterator(); it.hasNext(); ) {
@@ -359,7 +359,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     }
 
     if (removed) {
-      final HashSet<ODocument> persistentRoles = new HashSet<ODocument>();
+      final HashSet<YTDocument> persistentRoles = new HashSet<YTDocument>();
       for (ORole r : roles) {
         persistentRoles.add(r.toStream(session));
       }
@@ -369,7 +369,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     return removed;
   }
 
-  public boolean hasRole(ODatabaseSessionInternal session, final String iRoleName,
+  public boolean hasRole(YTDatabaseSessionInternal session, final String iRoleName,
       final boolean iIncludeInherited) {
     for (Iterator<ORole> it = roles.iterator(); it.hasNext(); ) {
       final ORole role = it.next();
@@ -393,7 +393,7 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   @Override
   @SuppressWarnings("unchecked")
-  public OUser save(ODatabaseSessionInternal session) {
+  public OUser save(YTDatabaseSessionInternal session) {
     getDocument(session).save(OUser.class.getSimpleName());
     return this;
   }
@@ -409,7 +409,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   @Override
-  public OIdentifiable getIdentity(ODatabaseSessionInternal session) {
+  public YTIdentifiable getIdentity(YTDatabaseSessionInternal session) {
     return getDocument(session);
   }
 

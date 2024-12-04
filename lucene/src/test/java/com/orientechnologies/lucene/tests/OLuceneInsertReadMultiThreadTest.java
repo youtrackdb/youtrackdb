@@ -21,13 +21,13 @@ package com.orientechnologies.lucene.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -49,10 +49,10 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
   @Before
   public void init() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("City");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "name", YTType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
   }
 
@@ -73,9 +73,9 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
 
     futures.forEach(cf -> cf.join());
 
-    ODatabaseSessionInternal db1 = (ODatabaseSessionInternal) pool.acquire();
+    YTDatabaseSessionInternal db1 = (YTDatabaseSessionInternal) pool.acquire();
     db1.getMetadata().reload();
-    OSchema schema = db1.getMetadata().getSchema();
+    YTSchema schema = db1.getMetadata().getSchema();
 
     OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
 
@@ -100,12 +100,12 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
     @Override
     public void run() {
 
-      final ODatabaseSession db = pool.acquire();
+      final YTDatabaseSession db = pool.acquire();
       db.activateOnCurrentThread();
       db.begin();
       int i = 0;
       for (; i < cycle; i++) {
-        OElement doc = db.newElement("City");
+        YTEntity doc = db.newElement("City");
 
         doc.setProperty("name", "Rome");
 
@@ -133,9 +133,9 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
     @Override
     public void run() {
 
-      final ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
+      final YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
       db.activateOnCurrentThread();
-      OSchema schema = db.getMetadata().getSchema();
+      YTSchema schema = db.getMetadata().getSchema();
       OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
 
       for (int i = 0; i < cycle; i++) {

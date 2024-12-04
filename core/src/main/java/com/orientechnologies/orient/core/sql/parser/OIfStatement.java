@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.EmptyStep;
 import com.orientechnologies.orient.core.sql.executor.IfStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStepInternal;
@@ -65,7 +65,8 @@ public class OIfStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSessionInternal db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
+      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -104,7 +105,7 @@ public class OIfStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
+      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);

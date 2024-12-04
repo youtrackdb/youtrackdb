@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OBasicLegacyResultSet;
@@ -73,7 +73,7 @@ public class OSQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(String script, Bindings n) throws ScriptException {
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       throw new OCommandExecutionException("No database available in threadlocal");
     }
@@ -109,10 +109,10 @@ public class OSQLScriptEngine implements ScriptEngine {
       for (int i = 0; i < iArgs.length; ++i) {
         Object par = iArgs[i];
 
-        if (par instanceof OIdentifiable && ((OIdentifiable) par).getIdentity().isValid())
+        if (par instanceof YTIdentifiable && ((YTIdentifiable) par).getIdentity().isValid())
         // USE THE RID ONLY
         {
-          par = ((OIdentifiable) par).getIdentity();
+          par = ((YTIdentifiable) par).getIdentity();
         }
 
         params.put(i, par);
@@ -123,7 +123,7 @@ public class OSQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(Reader reader, Bindings n) throws ScriptException {
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     final StringBuilder buffer = new StringBuilder();
     try {
       while (reader.ready()) {

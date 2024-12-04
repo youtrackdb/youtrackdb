@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.server.plugin.livequery;
 
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -70,22 +70,22 @@ public class OLiveQueryPlugin extends OServerPluginAbstract implements ODatabase
   }
 
   @Override
-  public void onCreate(ODatabaseSessionInternal iDatabase) {
+  public void onCreate(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onOpen(ODatabaseSessionInternal iDatabase) {
+  public void onOpen(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {
+  public void onClose(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onDrop(ODatabaseSessionInternal iDatabase) {
+  public void onDrop(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
   }
 }

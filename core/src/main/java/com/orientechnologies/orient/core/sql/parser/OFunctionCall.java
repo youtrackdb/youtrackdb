@@ -4,9 +4,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
@@ -37,7 +37,7 @@ public class OFunctionCall extends SimpleNode {
     super(p, id);
   }
 
-  public static ODatabaseSessionInternal getDatabase() {
+  public static YTDatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -107,7 +107,7 @@ public class OFunctionCall extends SimpleNode {
     Object record = null;
 
     if (record == null) {
-      if (targetObjects instanceof OIdentifiable) {
+      if (targetObjects instanceof YTIdentifiable) {
         record = targetObjects;
       } else if (targetObjects instanceof OResult) {
         record = ((OResult) targetObjects).toElement();
@@ -118,7 +118,7 @@ public class OFunctionCall extends SimpleNode {
     if (record == null) {
       Object current = ctx == null ? null : ctx.getVariable("$current");
       if (current != null) {
-        if (current instanceof OIdentifiable) {
+        if (current instanceof YTIdentifiable) {
           record = current;
         } else if (current instanceof OResult) {
           record = ((OResult) current).toElement();
@@ -130,8 +130,8 @@ public class OFunctionCall extends SimpleNode {
     for (OExpression expr : this.params) {
       if (targetObjects instanceof OResult) {
         paramValues.add(expr.execute((OResult) targetObjects, ctx));
-      } else if (record instanceof OIdentifiable) {
-        paramValues.add(expr.execute((OIdentifiable) record, ctx));
+      } else if (record instanceof YTIdentifiable) {
+        paramValues.add(expr.execute((YTIdentifiable) record, ctx));
       } else if (record instanceof OResult) {
         paramValues.add(expr.execute((OResult) record, ctx));
       } else if (record == null) {
@@ -146,9 +146,9 @@ public class OFunctionCall extends SimpleNode {
 
       validateFunctionParams(ctx.getDatabase(), function, paramValues);
 
-      if (record instanceof OIdentifiable) {
+      if (record instanceof YTIdentifiable) {
         return function.execute(
-            targetObjects, (OIdentifiable) record, null, paramValues.toArray(), ctx);
+            targetObjects, (YTIdentifiable) record, null, paramValues.toArray(), ctx);
       } else if (record instanceof OResult) {
         return function.execute(
             targetObjects,
@@ -166,7 +166,7 @@ public class OFunctionCall extends SimpleNode {
     }
   }
 
-  private static void validateFunctionParams(ODatabaseSession session, OSQLFunction function,
+  private static void validateFunctionParams(YTDatabaseSession session, OSQLFunction function,
       List<Object> paramValues) {
     if (function.getMaxParams(session) == -1 || function.getMaxParams(session) > 0) {
       if (paramValues.size() < function.getMinParams()
@@ -189,7 +189,7 @@ public class OFunctionCall extends SimpleNode {
     }
   }
 
-  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
     OSQLFunction function = OSQLEngine.getInstance().getFunction(session, name.getStringValue());
     return (function instanceof OIndexableSQLFunction);
   }
@@ -203,7 +203,7 @@ public class OFunctionCall extends SimpleNode {
    * @param rightValue
    * @return
    */
-  public Iterable<OIdentifiable> executeIndexedFunction(
+  public Iterable<YTIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
     OSQLFunction function = OSQLEngine.getInstance()
         .getFunction(ctx.getDatabase(), name.getStringValue());
@@ -315,7 +315,7 @@ public class OFunctionCall extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     if (isAggregateFunction(session)) {
       return true;
     }
@@ -376,7 +376,7 @@ public class OFunctionCall extends SimpleNode {
     return this;
   }
 
-  private boolean isAggregateFunction(ODatabaseSessionInternal session) {
+  private boolean isAggregateFunction(YTDatabaseSessionInternal session) {
     OSQLFunction function = OSQLEngine.getInstance().getFunction(session, name.getStringValue());
     function.config(this.params.toArray());
     return function.aggregateResults();
@@ -412,7 +412,7 @@ public class OFunctionCall extends SimpleNode {
     return true;
   }
 
-  private boolean isTraverseFunction(ODatabaseSessionInternal session) {
+  private boolean isTraverseFunction(YTDatabaseSessionInternal session) {
     if (name == null) {
       return false;
     }
@@ -483,7 +483,7 @@ public class OFunctionCall extends SimpleNode {
     return result;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
 
     if (name != null) {

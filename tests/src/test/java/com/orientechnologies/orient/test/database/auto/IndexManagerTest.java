@@ -7,15 +7,15 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,17 +40,17 @@ public class IndexManagerTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
 
-    final OClass oClass = schema.createClass(CLASS_NAME);
+    final YTClass oClass = schema.createClass(CLASS_NAME);
 
-    oClass.createProperty(database, "fOne", OType.INTEGER);
-    oClass.createProperty(database, "fTwo", OType.STRING);
-    oClass.createProperty(database, "fThree", OType.BOOLEAN);
-    oClass.createProperty(database, "fFour", OType.INTEGER);
+    oClass.createProperty(database, "fOne", YTType.INTEGER);
+    oClass.createProperty(database, "fTwo", YTType.STRING);
+    oClass.createProperty(database, "fThree", YTType.BOOLEAN);
+    oClass.createProperty(database, "fFour", YTType.INTEGER);
 
-    oClass.createProperty(database, "fSix", OType.STRING);
-    oClass.createProperty(database, "fSeven", OType.STRING);
+    oClass.createProperty(database, "fSix", YTType.STRING);
+    oClass.createProperty(database, "fSeven", YTType.STRING);
   }
 
   @Test
@@ -61,8 +61,8 @@ public class IndexManagerTest extends DocumentDBBaseTest {
         indexManager.createIndex(
             database,
             "propertyone",
-            OClass.INDEX_TYPE.UNIQUE.toString(),
-            new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
+            YTClass.INDEX_TYPE.UNIQUE.toString(),
+            new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER),
             new int[]{database.getClusterIdByName(CLASS_NAME)},
             null,
             null);
@@ -87,12 +87,12 @@ public class IndexManagerTest extends DocumentDBBaseTest {
         indexManager.createIndex(
             database,
             "compositeone",
-            OClass.INDEX_TYPE.NOTUNIQUE.toString(),
+            YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
             new OCompositeIndexDefinition(
                 CLASS_NAME,
                 Arrays.asList(
-                    new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
-                    new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING))),
+                    new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER),
+                    new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING))),
             new int[]{database.getClusterIdByName(CLASS_NAME)},
             null,
             null);
@@ -124,7 +124,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           }
 
           @Override
-          public void onCompletition(ODatabaseSessionInternal session, final Object iTask,
+          public void onCompletition(YTDatabaseSessionInternal session, final Object iTask,
               final boolean iSucceed) {
             atomicInteger.incrementAndGet();
           }
@@ -136,13 +136,13 @@ public class IndexManagerTest extends DocumentDBBaseTest {
         indexManager.createIndex(
             database,
             "compositetwo",
-            OClass.INDEX_TYPE.NOTUNIQUE.toString(),
+            YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
             new OCompositeIndexDefinition(
                 CLASS_NAME,
                 Arrays.asList(
-                    new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
-                    new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING),
-                    new OPropertyIndexDefinition(CLASS_NAME, "fThree", OType.BOOLEAN))),
+                    new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER),
+                    new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING),
+                    new OPropertyIndexDefinition(CLASS_NAME, "fThree", YTType.BOOLEAN))),
             new int[]{database.getClusterIdByName(CLASS_NAME)},
             progressListener,
             null);
@@ -597,18 +597,18 @@ public class IndexManagerTest extends DocumentDBBaseTest {
   public void testGetClassInvolvedIndexesWithNullValues() {
     String className = "GetClassInvolvedIndexesWithNullValues";
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.createClass(className);
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.createClass(className);
 
-    oClass.createProperty(database, "one", OType.STRING);
-    oClass.createProperty(database, "two", OType.STRING);
-    oClass.createProperty(database, "three", OType.STRING);
+    oClass.createProperty(database, "one", YTType.STRING);
+    oClass.createProperty(database, "two", YTType.STRING);
+    oClass.createProperty(database, "three", YTType.STRING);
 
     indexManager.createIndex(
         database,
         className + "_indexOne_notunique",
-        OClass.INDEX_TYPE.NOTUNIQUE.toString(),
-        new OPropertyIndexDefinition(className, "one", OType.STRING),
+        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        new OPropertyIndexDefinition(className, "one", YTType.STRING),
         oClass.getClusterIds(),
         null,
         null);
@@ -616,12 +616,12 @@ public class IndexManagerTest extends DocumentDBBaseTest {
     indexManager.createIndex(
         database,
         className + "_indexOneTwo_notunique",
-        OClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
         new OCompositeIndexDefinition(
             className,
             Arrays.asList(
-                new OPropertyIndexDefinition(className, "one", OType.STRING),
-                new OPropertyIndexDefinition(className, "two", OType.STRING))),
+                new OPropertyIndexDefinition(className, "one", YTType.STRING),
+                new OPropertyIndexDefinition(className, "two", YTType.STRING))),
         oClass.getClusterIds(),
         null,
         null);
@@ -629,13 +629,13 @@ public class IndexManagerTest extends DocumentDBBaseTest {
     indexManager.createIndex(
         database,
         className + "_indexOneTwoThree_notunique",
-        OClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
         new OCompositeIndexDefinition(
             className,
             Arrays.asList(
-                new OPropertyIndexDefinition(className, "one", OType.STRING),
-                new OPropertyIndexDefinition(className, "two", OType.STRING),
-                new OPropertyIndexDefinition(className, "three", OType.STRING))),
+                new OPropertyIndexDefinition(className, "one", YTType.STRING),
+                new OPropertyIndexDefinition(className, "two", YTType.STRING),
+                new OPropertyIndexDefinition(className, "three", YTType.STRING))),
         oClass.getClusterIds(),
         null,
         null);
@@ -674,21 +674,21 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
     final OCompositeIndexDefinition compositeIndexOne = new OCompositeIndexDefinition(CLASS_NAME);
 
-    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER));
-    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING));
+    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER));
+    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING));
     compositeIndexOne.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(compositeIndexOne);
 
     final OCompositeIndexDefinition compositeIndexTwo = new OCompositeIndexDefinition(CLASS_NAME);
 
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER));
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING));
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fThree", OType.BOOLEAN));
+    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER));
+    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING));
+    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fThree", YTType.BOOLEAN));
     compositeIndexTwo.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(compositeIndexTwo);
 
     final OPropertyIndexDefinition propertyIndex =
-        new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER);
+        new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER);
     propertyIndex.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(propertyIndex);
 
@@ -713,21 +713,21 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
     final OCompositeIndexDefinition compositeIndexOne = new OCompositeIndexDefinition(CLASS_NAME);
 
-    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER));
-    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING));
+    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER));
+    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING));
     compositeIndexOne.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(compositeIndexOne);
 
     final OCompositeIndexDefinition compositeIndexTwo = new OCompositeIndexDefinition(CLASS_NAME);
 
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER));
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING));
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fThree", OType.BOOLEAN));
+    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER));
+    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING));
+    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fThree", YTType.BOOLEAN));
     compositeIndexTwo.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(compositeIndexTwo);
 
     final OPropertyIndexDefinition propertyIndex =
-        new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER);
+        new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER);
     propertyIndex.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(propertyIndex);
 
@@ -745,8 +745,8 @@ public class IndexManagerTest extends DocumentDBBaseTest {
     indexManager.createIndex(
         database,
         "anotherproperty",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
-        new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER),
         new int[]{database.getClusterIdByName(CLASS_NAME)},
         null,
         null);
@@ -762,17 +762,17 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test
   public void testDropAllClassIndexes() {
-    final OClass oClass =
+    final YTClass oClass =
         database.getMetadata().getSchema().createClass("indexManagerTestClassTwo");
-    oClass.createProperty(database, "fOne", OType.INTEGER);
+    oClass.createProperty(database, "fOne", YTType.INTEGER);
 
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     indexManager.createIndex(
         database,
         "twoclassproperty",
-        OClass.INDEX_TYPE.UNIQUE.toString(),
-        new OPropertyIndexDefinition("indexManagerTestClassTwo", "fOne", OType.INTEGER),
+        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        new OPropertyIndexDefinition("indexManagerTestClassTwo", "fOne", YTType.INTEGER),
         new int[]{database.getClusterIdByName("indexManagerTestClassTwo")},
         null,
         null);

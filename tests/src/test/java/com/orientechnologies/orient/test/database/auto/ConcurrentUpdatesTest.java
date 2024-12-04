@@ -16,9 +16,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -42,12 +42,12 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
   class OptimisticUpdateField implements Runnable {
 
-    ORID rid1;
-    ORID rid2;
+    YTRID rid1;
+    YTRID rid2;
     String fieldValue = null;
     String threadName;
 
-    public OptimisticUpdateField(ORID iRid1, ORID iRid2, String iThreadName) {
+    public OptimisticUpdateField(YTRID iRid1, YTRID iRid2, String iThreadName) {
       super();
       rid1 = iRid1;
       rid2 = iRid2;
@@ -57,7 +57,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     @Override
     public void run() {
       try {
-        ODatabaseSessionInternal db = acquireSession();
+        YTDatabaseSessionInternal db = acquireSession();
         for (int i = 0; i < OPTIMISTIC_CYCLES; i++) {
           int retries = 0;
           while (true) {
@@ -65,11 +65,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
             try {
               db.begin();
 
-              ODocument vDoc1 = db.load(rid1);
+              YTDocument vDoc1 = db.load(rid1);
               vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
               vDoc1.save();
 
-              ODocument vDoc2 = db.load(rid2);
+              YTDocument vDoc2 = db.load(rid2);
               vDoc2.field(threadName, vDoc2.field(threadName) + ";" + i);
               vDoc2.save();
 
@@ -93,11 +93,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
   class PessimisticUpdate implements Runnable {
 
-    ORID rid;
+    YTRID rid;
     String threadName;
     boolean lock;
 
-    public PessimisticUpdate(ORID iRid, String iThreadName, boolean iLock) {
+    public PessimisticUpdate(YTRID iRid, String iThreadName, boolean iLock) {
       super();
 
       rid = iRid;
@@ -108,7 +108,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     @Override
     public void run() {
       try {
-        ODatabaseSessionInternal db = acquireSession();
+        YTDatabaseSessionInternal db = acquireSession();
 
         for (int i = 0; i < PESSIMISTIC_CYCLES; i++) {
           String cmd = "update " + rid + " set total = total + 1";
@@ -149,24 +149,24 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
   public void concurrentOptimisticUpdates() throws Exception {
     counter.set(0);
 
-    ODatabaseSessionInternal database = acquireSession();
+    YTDatabaseSessionInternal database = acquireSession();
 
-    ODocument doc1 = database.newInstance();
+    YTDocument doc1 = database.newInstance();
     doc1.field("INIT", "ok");
     database.begin();
     database.save(doc1);
     database.commit();
 
-    ORID rid1 = doc1.getIdentity();
+    YTRID rid1 = doc1.getIdentity();
 
-    ODocument doc2 = database.newInstance();
+    YTDocument doc2 = database.newInstance();
     doc2.field("INIT", "ok");
 
     database.begin();
     database.save(doc2);
     database.commit();
 
-    ORID rid2 = doc2.getIdentity();
+    YTRID rid2 = doc2.getIdentity();
 
     OptimisticUpdateField[] ops = new OptimisticUpdateField[THREADS];
     for (int i = 0; i < THREADS; ++i) {
@@ -221,15 +221,15 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
   protected void sqlUpdate(boolean lock) throws InterruptedException {
     counter.set(0);
 
-    ODatabaseSessionInternal database = acquireSession();
-    ODocument doc1 = database.newInstance();
+    YTDatabaseSessionInternal database = acquireSession();
+    YTDocument doc1 = database.newInstance();
     doc1.field("total", 0);
 
     database.begin();
     database.save(doc1);
     database.commit();
 
-    ORID rid1 = doc1.getIdentity();
+    YTRID rid1 = doc1.getIdentity();
 
     PessimisticUpdate[] ops = new PessimisticUpdate[THREADS];
     for (int i = 0; i < THREADS; ++i) {

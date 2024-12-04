@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.serialization;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.security.AccessController;
@@ -39,7 +39,7 @@ public class OUnsafeBinaryConverter implements OBinaryConverter {
   private static final long BYTE_ARRAY_OFFSET;
 
   private static final boolean useOnlyAlignedAccess =
-      OGlobalConfiguration.DIRECT_MEMORY_ONLY_ALIGNED_ACCESS.getValueAsBoolean();
+      YTGlobalConfiguration.DIRECT_MEMORY_ONLY_ALIGNED_ACCESS.getValueAsBoolean();
 
   static {
     theUnsafe =

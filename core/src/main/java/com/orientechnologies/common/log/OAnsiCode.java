@@ -21,7 +21,7 @@ package com.orientechnologies.common.log;
 
 import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.common.parser.OVariableParserListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.util.Locale;
 
 /**
@@ -79,7 +79,7 @@ public enum OAnsiCode {
   }
 
   static {
-    final String ansiSupport = OGlobalConfiguration.LOG_SUPPORTS_ANSI.getValueAsString();
+    final String ansiSupport = YTGlobalConfiguration.LOG_SUPPORTS_ANSI.getValueAsString();
     if ("true".equalsIgnoreCase(ansiSupport))
     // FORCE ANSI SUPPORT
     {

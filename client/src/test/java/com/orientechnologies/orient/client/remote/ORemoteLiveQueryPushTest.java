@@ -7,8 +7,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -33,26 +33,26 @@ public class ORemoteLiveQueryPushTest {
     public boolean end;
 
     @Override
-    public void onCreate(ODatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, OResult data) {
       countCreate++;
     }
 
     @Override
-    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
       countUpdate++;
     }
 
     @Override
-    public void onDelete(ODatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, OResult data) {
       countDelete++;
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, OException exception) {
     }
 
     @Override
-    public void onEnd(ODatabaseSession database) {
+    public void onEnd(YTDatabaseSession database) {
       assertFalse(end);
       end = true;
     }
@@ -64,7 +64,7 @@ public class ORemoteLiveQueryPushTest {
   private ORemoteConnectionManager connectionManager;
 
   @Mock
-  private ODatabaseSessionInternal database;
+  private YTDatabaseSessionInternal database;
 
   @Before
   public void before() throws IOException {

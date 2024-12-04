@@ -23,7 +23,7 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -44,7 +44,7 @@ public final class OCountRequest implements OBinaryRequest<OCountResponse> {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeShort((short) clusterIds.length);
     for (int iClusterId : clusterIds) {
@@ -54,7 +54,7 @@ public final class OCountRequest implements OBinaryRequest<OCountResponse> {
     network.writeByte(countTombstones ? (byte) 1 : (byte) 0);
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     int nclusters = channel.readShort();

@@ -3,8 +3,8 @@ package com.orientechnologies.orient.client.remote.message;
 import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_INDEX_MANAGER;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -13,31 +13,31 @@ import java.io.IOException;
 
 public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  private ODocument indexManager;
+  private YTDocument indexManager;
 
   public OPushIndexManagerRequest() {
   }
 
-  public OPushIndexManagerRequest(ODocument indexManager) {
+  public OPushIndexManagerRequest(YTDocument indexManager) {
     this.indexManager = indexManager;
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
     indexManager.setup(session);
     channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, indexManager));
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
     this.indexManager =
-        (ODocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes, null);
+        (YTDocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes, null);
   }
 
   @Override
-  public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+  public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
       ORemotePushHandler pushHandler) {
     return pushHandler.executeUpdateIndexManager(this);
   }
@@ -52,7 +52,7 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
     return REQUEST_PUSH_INDEX_MANAGER;
   }
 
-  public ODocument getIndexManager() {
+  public YTDocument getIndexManager() {
     return indexManager;
   }
 }

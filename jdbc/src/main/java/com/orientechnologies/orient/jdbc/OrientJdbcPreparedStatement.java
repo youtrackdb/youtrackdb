@@ -16,7 +16,7 @@ package com.orientechnologies.orient.jdbc;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -94,7 +94,7 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
       oResultSet = rs;
     } else {
       try {
-        //        sql = new OSQLSynchQuery<ODocument>(mayCleanForSpark(sql));
+        //        sql = new OSQLSynchQuery<YTDocument>(mayCleanForSpark(sql));
         oResultSet = database.query(sql, params.values().toArray());
 
       } catch (OQueryParsingException e) {
@@ -341,7 +341,7 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
 
   public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
     try {
-      ORecordBytes record = new ORecordBytes();
+      YTRecordBytes record = new YTRecordBytes();
       try {
         record.fromInputStream(x);
       } catch (IOException e) {

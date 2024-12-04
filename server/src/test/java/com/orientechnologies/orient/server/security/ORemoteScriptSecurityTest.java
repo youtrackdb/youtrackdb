@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.security;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -33,7 +33,7 @@ public class ORemoteScriptSecurityTest {
       NotCompliantMBeanException,
       ClassNotFoundException,
       MalformedObjectNameException {
-    OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
 
     YouTrackDB youTrackDB =
@@ -50,7 +50,7 @@ public class ORemoteScriptSecurityTest {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (ODatabaseSession writer =
+      try (YTDatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
         try (OResultSet rs = writer.execute("javascript", "1+1;")) {
         }
@@ -63,7 +63,7 @@ public class ORemoteScriptSecurityTest {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (ODatabaseSession writer =
+      try (YTDatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
 
         try (OResultSet rs = writer.execute("ecmascript", "1+1;")) {

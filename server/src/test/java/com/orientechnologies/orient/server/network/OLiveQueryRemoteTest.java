@@ -3,19 +3,19 @@ package com.orientechnologies.orient.server.network;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -43,11 +43,11 @@ public class OLiveQueryRemoteTest {
 
   private OServer server;
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   @Before
   public void before() throws Exception {
-    OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = new OServer(false);
     server.startup(
         getClass()
@@ -60,7 +60,7 @@ public class OLiveQueryRemoteTest {
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OLiveQueryRemoteTest.class.getSimpleName());
-    db = (ODatabaseSessionInternal) youTrackDB.open(OLiveQueryRemoteTest.class.getSimpleName(),
+    db = (YTDatabaseSessionInternal) youTrackDB.open(OLiveQueryRemoteTest.class.getSimpleName(),
         "admin", "admin");
   }
 
@@ -87,29 +87,29 @@ public class OLiveQueryRemoteTest {
     public List<OResult> ops = new ArrayList<OResult>();
 
     @Override
-    public void onCreate(ODatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, OResult data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(ODatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, OResult data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, OException exception) {
     }
 
     @Override
-    public void onEnd(ODatabaseSession database) {
+    public void onEnd(YTDatabaseSession database) {
       ended.countDown();
     }
   }
@@ -118,7 +118,7 @@ public class OLiveQueryRemoteTest {
   public void testRidSelect() throws InterruptedException {
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(1));
     db.begin();
-    OVertex item = db.newVertex();
+    YTVertex item = db.newVertex();
     item.save();
     db.commit();
 
@@ -164,7 +164,7 @@ public class OLiveQueryRemoteTest {
     for (OResult doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
-      ORID rid = doc.getProperty("@rid");
+      YTRID rid = doc.getProperty("@rid");
       Assert.assertTrue(rid.isPersistent());
     }
   }
@@ -172,15 +172,15 @@ public class OLiveQueryRemoteTest {
   @Test
   @Ignore
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oRestricted = schema.getClass("ORestricted");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oRestricted = schema.getClass("ORestricted");
     schema.createClass("test", oRestricted);
 
     int liveMatch = 1;
     OResultSet query = db.query("select from OUSer where name = 'reader'");
 
-    final OIdentifiable reader = query.next().getIdentity().orElse(null);
-    final OIdentifiable current = db.getUser().getIdentity(db);
+    final YTIdentifiable reader = query.next().getIdentity().orElse(null);
+    final YTIdentifiable current = db.getUser().getIdentity(db);
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -191,7 +191,7 @@ public class OLiveQueryRemoteTest {
             new Callable<Integer>() {
               @Override
               public Integer call() throws Exception {
-                ODatabaseSession db =
+                YTDatabaseSession db =
                     youTrackDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "reader", "reader");
 
                 final AtomicInteger integer = new AtomicInteger(0);
@@ -200,30 +200,30 @@ public class OLiveQueryRemoteTest {
                     new OLiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(ODatabaseSession database, OResult data) {
+                      public void onCreate(YTDatabaseSession database, OResult data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          ODatabaseSession database, OResult before, OResult after) {
+                          YTDatabaseSession database, OResult before, OResult after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(ODatabaseSession database, OResult data) {
+                      public void onDelete(YTDatabaseSession database, OResult data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onError(ODatabaseSession database, OException exception) {
+                      public void onError(YTDatabaseSession database, OException exception) {
                       }
 
                       @Override
-                      public void onEnd(ODatabaseSession database) {
+                      public void onEnd(YTDatabaseSession database) {
                       }
                     });
 
@@ -240,7 +240,7 @@ public class OLiveQueryRemoteTest {
 
     db.command(
         "insert into test set name = 'foo', surname = 'bar', _allow=?",
-        new ArrayList<OIdentifiable>() {
+        new ArrayList<YTIdentifiable>() {
           {
             add(current);
             add(reader);
@@ -266,7 +266,7 @@ public class OLiveQueryRemoteTest {
 
     db.begin();
     for (int i = 0; i < txSize; i++) {
-      OElement elem = db.newElement("test");
+      YTEntity elem = db.newElement("test");
       elem.setProperty("name", "foo");
       elem.setProperty("surname", "bar" + i);
       elem.save();
@@ -279,7 +279,7 @@ public class OLiveQueryRemoteTest {
     for (OResult doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
-      ORID rid = doc.getProperty("@rid");
+      YTRID rid = doc.getProperty("@rid");
       Assert.assertTrue(rid.isPersistent());
     }
   }

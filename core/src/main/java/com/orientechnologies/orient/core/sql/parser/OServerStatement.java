@@ -5,10 +5,10 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -48,7 +48,7 @@ public class OServerStatement extends SimpleNode {
   }
 
   public Object execute(
-      OSQLAsynchQuery<ODocument> request,
+      OSQLAsynchQuery<YTDocument> request,
       OServerCommandContext context,
       OProgressListener progressListener) {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());
@@ -145,7 +145,7 @@ public class OServerStatement extends SimpleNode {
     return null;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;

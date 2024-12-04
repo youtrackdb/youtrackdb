@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.serialization.serializer;
 
 import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.sql.executor.ORidSet;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -475,7 +475,7 @@ public class OJSONReader {
       if (!matches) {
         break;
       }
-      ORID rid = new ORecordId(split[i].substring(1, split[i].length() - 1));
+      YTRID rid = new YTRecordId(split[i].substring(1, split[i].length() - 1));
       ridbagSet.add(rid);
       i++;
     }

@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiableMultiValue;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -40,25 +40,25 @@ import java.util.Set;
  * collections also will be visited.
  *
  * <p>Fields values can be updated/converted too. If method {@link
- * ODocumentFieldVisitor#visitField(com.orientechnologies.orient.core.db.ODatabaseSessionInternal,
- * OType, OType, Object)} will return new value original value will be updated but returned result
+ * ODocumentFieldVisitor#visitField(YTDatabaseSessionInternal,
+ * YTType, YTType, Object)} will return new value original value will be updated but returned result
  * will not be visited by {@link ODocumentFieldVisitor} instance.
  *
  * <p>If currently processed value is collection or map of embedded documents or embedded document
- * itself then method {@link ODocumentFieldVisitor#goDeeper(OType, OType, Object)} is called, if it
+ * itself then method {@link ODocumentFieldVisitor#goDeeper(YTType, YTType, Object)} is called, if it
  * returns false then this collection will not be visited by {@link ODocumentFieldVisitor}
  * instance.
  *
- * <p>Fields will be visited till method {@link ODocumentFieldVisitor#goFurther(OType, OType,
+ * <p>Fields will be visited till method {@link ODocumentFieldVisitor#goFurther(YTType, YTType,
  * Object, Object)} returns true.
  */
 public class ODocumentFieldWalker {
 
-  public ODocument walkDocument(
-      ODatabaseSessionInternal session, ODocument document, ODocumentFieldVisitor fieldWalker) {
-    final Set<ODocument> walked = Collections.newSetFromMap(new IdentityHashMap<>());
+  public YTDocument walkDocument(
+      YTDatabaseSessionInternal session, YTDocument document, ODocumentFieldVisitor fieldWalker) {
+    final Set<YTDocument> walked = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    ODocument doc;
+    YTDocument doc;
     if (document.getIdentity().isValid()) {
       doc = session.bindToSession(document);
     } else {
@@ -71,10 +71,10 @@ public class ODocumentFieldWalker {
   }
 
   private void walkDocument(
-      ODatabaseSessionInternal session,
-      ODocument document,
+      YTDatabaseSessionInternal session,
+      YTDocument document,
       ODocumentFieldVisitor fieldWalker,
-      Set<ODocument> walked) {
+      Set<YTDocument> walked) {
     if (document.isUnloaded()) {
       throw new IllegalStateException("Document is unloaded");
     }
@@ -89,15 +89,15 @@ public class ODocumentFieldWalker {
 
     final boolean updateMode = fieldWalker.updateMode();
 
-    final OClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
+    final YTClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
     for (String fieldName : document.fieldNames()) {
 
-      final OType concreteType = document.fieldType(fieldName);
-      OType fieldType = concreteType;
+      final YTType concreteType = document.fieldType(fieldName);
+      YTType fieldType = concreteType;
 
-      OType linkedType = null;
+      YTType linkedType = null;
       if (fieldType == null && clazz != null) {
-        OProperty property = clazz.getProperty(fieldName);
+        YTProperty property = clazz.getProperty(fieldName);
         if (property != null) {
           fieldType = property.getType();
           linkedType = property.getLinkedType();
@@ -121,17 +121,17 @@ public class ODocumentFieldWalker {
       // 3. document is not not embedded.
       if (!updated
           && fieldValue != null
-          && !(OType.LINK.equals(fieldType)
-          || OType.LINKBAG.equals(fieldType)
-          || OType.LINKLIST.equals(fieldType)
-          || OType.LINKSET.equals(fieldType)
+          && !(YTType.LINK.equals(fieldType)
+          || YTType.LINKBAG.equals(fieldType)
+          || YTType.LINKLIST.equals(fieldType)
+          || YTType.LINKSET.equals(fieldType)
           || (fieldValue instanceof OIdentifiableMultiValue))) {
         if (fieldWalker.goDeeper(fieldType, linkedType, fieldValue)) {
           if (fieldValue instanceof Map) {
             walkMap(session, (Map) fieldValue, fieldType, fieldWalker, walked);
-          } else if (fieldValue instanceof ODocument doc) {
-            if (OType.EMBEDDED.equals(fieldType) || doc.isEmbedded()) {
-              var fdoc = (ODocument) fieldValue;
+          } else if (fieldValue instanceof YTDocument doc) {
+            if (YTType.EMBEDDED.equals(fieldType) || doc.isEmbedded()) {
+              var fdoc = (YTDocument) fieldValue;
               if (fdoc.isUnloaded()) {
                 throw new IllegalStateException("Document is unloaded");
               }
@@ -159,45 +159,45 @@ public class ODocumentFieldWalker {
   }
 
   private void walkMap(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       Map map,
-      OType fieldType,
+      YTType fieldType,
       ODocumentFieldVisitor fieldWalker,
-      Set<ODocument> walked) {
+      Set<YTDocument> walked) {
     for (Object value : map.values()) {
-      if (value instanceof ODocument doc) {
+      if (value instanceof YTDocument doc) {
         // only embedded documents are walked
-        if (OType.EMBEDDEDMAP.equals(fieldType) || doc.isEmbedded()) {
-          walkDocument(session, (ODocument) value, fieldWalker, walked);
+        if (YTType.EMBEDDEDMAP.equals(fieldType) || doc.isEmbedded()) {
+          walkDocument(session, (YTDocument) value, fieldWalker, walked);
         }
       }
     }
   }
 
   private void walkIterable(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       Iterable iterable,
-      OType fieldType,
+      YTType fieldType,
       ODocumentFieldVisitor fieldWalker,
-      Set<ODocument> walked) {
+      Set<YTDocument> walked) {
     for (Object value : iterable) {
-      if (value instanceof ODocument doc) {
+      if (value instanceof YTDocument doc) {
         // only embedded documents are walked
-        if (OType.EMBEDDEDLIST.equals(fieldType)
-            || OType.EMBEDDEDSET.equals(fieldType)
+        if (YTType.EMBEDDEDLIST.equals(fieldType)
+            || YTType.EMBEDDEDSET.equals(fieldType)
             || doc.isEmbedded()) {
-          walkDocument(session, (ODocument) value, fieldWalker, walked);
+          walkDocument(session, (YTDocument) value, fieldWalker, walked);
         }
       }
     }
   }
 
   private static boolean updateFieldValueIfChanged(
-      ODocument document,
+      YTDocument document,
       String fieldName,
       Object fieldValue,
       Object newValue,
-      OType concreteType) {
+      YTType concreteType) {
     if (fieldValue != newValue) {
       document.field(fieldName, newValue, concreteType);
       return true;

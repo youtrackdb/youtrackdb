@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.ORid;
@@ -47,7 +47,7 @@ public class MatchEdgeTraverser {
     }
     String endPointAlias = getEndpointAlias();
     OResult nextR = downstream.next(ctx);
-    OIdentifiable nextElement = nextR.getElement().get();
+    YTIdentifiable nextElement = nextR.getElement().get();
     Object prevValue = sourceRecord.getProperty(endPointAlias);
     if (prevValue != null && !equals(prevValue, nextElement)) {
       return null;
@@ -69,7 +69,7 @@ public class MatchEdgeTraverser {
     return result;
   }
 
-  protected boolean equals(Object prevValue, OIdentifiable nextElement) {
+  protected boolean equals(Object prevValue, YTIdentifiable nextElement) {
     if (prevValue instanceof OResult) {
       prevValue = ((OResult) prevValue).getElement().orElse(null);
     }
@@ -79,7 +79,7 @@ public class MatchEdgeTraverser {
     return prevValue != null && prevValue.equals(nextElement);
   }
 
-  protected static Object toResult(ODatabaseSessionInternal db, OIdentifiable nextElement) {
+  protected static Object toResult(YTDatabaseSessionInternal db, YTIdentifiable nextElement) {
     return new OResultInternal(db, nextElement);
   }
 
@@ -100,16 +100,16 @@ public class MatchEdgeTraverser {
       if (startingElem instanceof OResult) {
         startingElem = ((OResult) startingElem).getElement().orElse(null);
       }
-      downstream = executeTraversal(ctx, this.item, (OIdentifiable) startingElem, 0, null);
+      downstream = executeTraversal(ctx, this.item, (YTIdentifiable) startingElem, 0, null);
     }
   }
 
   protected OExecutionStream executeTraversal(
       OCommandContext iCommandContext,
       OMatchPathItem item,
-      OIdentifiable startingPoint,
+      YTIdentifiable startingPoint,
       int depth,
-      List<OIdentifiable> pathToHere) {
+      List<YTIdentifiable> pathToHere) {
 
     OWhereClause filter = null;
     OWhereClause whileCondition = null;
@@ -176,12 +176,12 @@ public class MatchEdgeTraverser {
           //          }
           // TODO consider break strategies (eg. re-traverse nodes)
 
-          List<OIdentifiable> newPath = new ArrayList<>();
+          List<YTIdentifiable> newPath = new ArrayList<>();
           if (pathToHere != null) {
             newPath.addAll(pathToHere);
           }
 
-          OElement elem = origin.toElement();
+          YTEntity elem = origin.toElement();
           newPath.add(elem.getIdentity());
 
           OExecutionStream subResult =
@@ -211,7 +211,7 @@ public class MatchEdgeTraverser {
       matched.setProperty(
           getStartingPointAlias(), sourceRecord.getProperty(getStartingPointAlias()));
     }
-    OElement elem = next.toElement();
+    YTEntity elem = next.toElement();
     iCommandContext.setVariable("$currentMatch", elem);
     if (matchesFilters(iCommandContext, theFilter, elem)
         && matchesClass(iCommandContext, theClassName, elem)
@@ -242,21 +242,21 @@ public class MatchEdgeTraverser {
   }
 
   private boolean matchesClass(
-      OCommandContext iCommandContext, String className, OIdentifiable origin) {
+      OCommandContext iCommandContext, String className, YTIdentifiable origin) {
     if (className == null) {
       return true;
     }
-    OElement element = null;
-    if (origin instanceof OElement) {
-      element = (OElement) origin;
+    YTEntity element = null;
+    if (origin instanceof YTEntity) {
+      element = (YTEntity) origin;
     } else if (origin != null) {
       Object record = origin.getRecord();
-      if (record instanceof OElement) {
-        element = (OElement) record;
+      if (record instanceof YTEntity) {
+        element = (YTEntity) record;
       }
     }
     if (element != null) {
-      Optional<OClass> clazz = element.getSchemaType();
+      Optional<YTClass> clazz = element.getSchemaType();
       if (!clazz.isPresent()) {
         return false;
       }
@@ -266,7 +266,7 @@ public class MatchEdgeTraverser {
   }
 
   private boolean matchesCluster(
-      OCommandContext iCommandContext, Integer clusterId, OIdentifiable origin) {
+      OCommandContext iCommandContext, Integer clusterId, YTIdentifiable origin) {
     if (clusterId == null) {
       return true;
     }
@@ -280,7 +280,7 @@ public class MatchEdgeTraverser {
     return clusterId.equals(origin.getIdentity().getClusterId());
   }
 
-  private boolean matchesRid(OCommandContext iCommandContext, ORid rid, OIdentifiable origin) {
+  private boolean matchesRid(OCommandContext iCommandContext, ORid rid, YTIdentifiable origin) {
     if (rid == null) {
       return true;
     }
@@ -295,14 +295,14 @@ public class MatchEdgeTraverser {
   }
 
   protected boolean matchesFilters(
-      OCommandContext iCommandContext, OWhereClause filter, OIdentifiable origin) {
+      OCommandContext iCommandContext, OWhereClause filter, YTIdentifiable origin) {
     return filter == null || filter.matchesFilters(origin, iCommandContext);
   }
 
   // TODO refactor this method to receive the item.
 
   protected OExecutionStream traversePatternEdge(
-      OIdentifiable startingPoint, OCommandContext iCommandContext) {
+      YTIdentifiable startingPoint, OCommandContext iCommandContext) {
 
     Object prevCurrent = iCommandContext.getVariable("$current");
     iCommandContext.setVariable("$current", startingPoint);
@@ -316,9 +316,9 @@ public class MatchEdgeTraverser {
     if (qR == null) {
       return OExecutionStream.empty();
     }
-    if (qR instanceof OIdentifiable) {
+    if (qR instanceof YTIdentifiable) {
       return OExecutionStream.singleton(new OResultInternal(
-          iCommandContext.getDatabase(), (OIdentifiable) qR));
+          iCommandContext.getDatabase(), (YTIdentifiable) qR));
     }
     if (qR instanceof Iterable) {
       return OExecutionStream.iterator(((Iterable) qR).iterator());

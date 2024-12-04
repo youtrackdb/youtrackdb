@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.hook;
 
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 
 /**
  * Hook abstract class that calls separate methods for each hook defined.
@@ -41,7 +41,7 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeCreate(final ORecord iRecord) {
+  public RESULT onRecordBeforeCreate(final YTRecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -50,13 +50,13 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord just created
    */
-  public void onRecordAfterCreate(final ORecord iRecord) {
+  public void onRecordAfterCreate(final YTRecord iRecord) {
   }
 
-  public void onRecordCreateFailed(final ORecord iRecord) {
+  public void onRecordCreateFailed(final YTRecord iRecord) {
   }
 
-  public void onRecordCreateReplicated(final ORecord iRecord) {
+  public void onRecordCreateReplicated(final YTRecord iRecord) {
   }
 
   /**
@@ -65,7 +65,7 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    * @param iRecord The iRecord to read
    * @return
    */
-  public RESULT onRecordBeforeRead(final ORecord iRecord) {
+  public RESULT onRecordBeforeRead(final YTRecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -74,13 +74,13 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord just read
    */
-  public void onRecordAfterRead(final ORecord iRecord) {
+  public void onRecordAfterRead(final YTRecord iRecord) {
   }
 
-  public void onRecordReadFailed(final ORecord iRecord) {
+  public void onRecordReadFailed(final YTRecord iRecord) {
   }
 
-  public void onRecordReadReplicated(final ORecord iRecord) {
+  public void onRecordReadReplicated(final YTRecord iRecord) {
   }
 
   /**
@@ -90,7 +90,7 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeUpdate(final ORecord iRecord) {
+  public RESULT onRecordBeforeUpdate(final YTRecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -99,13 +99,13 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord just updated
    */
-  public void onRecordAfterUpdate(final ORecord iRecord) {
+  public void onRecordAfterUpdate(final YTRecord iRecord) {
   }
 
-  public void onRecordUpdateFailed(final ORecord iRecord) {
+  public void onRecordUpdateFailed(final YTRecord iRecord) {
   }
 
-  public void onRecordUpdateReplicated(final ORecord iRecord) {
+  public void onRecordUpdateReplicated(final YTRecord iRecord) {
   }
 
   /**
@@ -115,7 +115,7 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeDelete(final ORecord iRecord) {
+  public RESULT onRecordBeforeDelete(final YTRecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -124,55 +124,55 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord just deleted
    */
-  public void onRecordAfterDelete(final ORecord iRecord) {
+  public void onRecordAfterDelete(final YTRecord iRecord) {
   }
 
-  public void onRecordDeleteFailed(final ORecord iRecord) {
+  public void onRecordDeleteFailed(final YTRecord iRecord) {
   }
 
-  public void onRecordDeleteReplicated(final ORecord iRecord) {
+  public void onRecordDeleteReplicated(final YTRecord iRecord) {
   }
 
-  public RESULT onRecordBeforeReplicaAdd(final ORecord record) {
+  public RESULT onRecordBeforeReplicaAdd(final YTRecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaAdd(final ORecord record) {
+  public void onRecordAfterReplicaAdd(final YTRecord record) {
   }
 
-  public void onRecordReplicaAddFailed(final ORecord record) {
+  public void onRecordReplicaAddFailed(final YTRecord record) {
   }
 
-  public RESULT onRecordBeforeReplicaUpdate(final ORecord record) {
+  public RESULT onRecordBeforeReplicaUpdate(final YTRecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaUpdate(final ORecord record) {
+  public void onRecordAfterReplicaUpdate(final YTRecord record) {
   }
 
-  public void onRecordReplicaUpdateFailed(final ORecord record) {
+  public void onRecordReplicaUpdateFailed(final YTRecord record) {
   }
 
-  public RESULT onRecordBeforeReplicaDelete(final ORecord record) {
+  public RESULT onRecordBeforeReplicaDelete(final YTRecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaDelete(final ORecord record) {
+  public void onRecordAfterReplicaDelete(final YTRecord record) {
   }
 
-  public void onRecordReplicaDeleteFailed(final ORecord record) {
+  public void onRecordReplicaDeleteFailed(final YTRecord record) {
   }
 
-  public void onRecordFinalizeUpdate(final ORecord record) {
+  public void onRecordFinalizeUpdate(final YTRecord record) {
   }
 
-  public void onRecordFinalizeCreation(final ORecord record) {
+  public void onRecordFinalizeCreation(final YTRecord record) {
   }
 
-  public void onRecordFinalizeDeletion(final ORecord record) {
+  public void onRecordFinalizeDeletion(final YTRecord record) {
   }
 
-  public RESULT onTrigger(final TYPE iType, final ORecord record) {
+  public RESULT onTrigger(final TYPE iType, final YTRecord record) {
     switch (iType) {
       case BEFORE_CREATE:
         return onRecordBeforeCreate(record);

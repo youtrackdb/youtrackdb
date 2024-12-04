@@ -20,39 +20,39 @@
 package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecord;
 import java.util.Iterator;
 
 /**
  * Iterator class to browse forward and backward the records of a cluster. Once browsed in a
  * direction, the iterator cannot change it.
  */
-public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIterator<REC> {
+public class ORecordIteratorCluster<REC extends YTRecord> extends OIdentifiableIterator<REC> {
 
-  private ORecord currentRecord;
+  private YTRecord currentRecord;
   private boolean initialized;
 
-  public ORecordIteratorCluster(final ODatabaseSessionInternal iDatabase, final int iClusterId) {
-    this(iDatabase, iClusterId, ORID.CLUSTER_POS_INVALID, ORID.CLUSTER_POS_INVALID);
+  public ORecordIteratorCluster(final YTDatabaseSessionInternal iDatabase, final int iClusterId) {
+    this(iDatabase, iClusterId, YTRID.CLUSTER_POS_INVALID, YTRID.CLUSTER_POS_INVALID);
   }
 
-  protected ORecordIteratorCluster(final ODatabaseSessionInternal database) {
+  protected ORecordIteratorCluster(final YTDatabaseSessionInternal database) {
     //noinspection deprecation
     super(database);
   }
 
   @Deprecated
   public ORecordIteratorCluster(
-      final ODatabaseSessionInternal iDatabase,
+      final YTDatabaseSessionInternal iDatabase,
       final int iClusterId,
       final long firstClusterEntry,
       final long lastClusterEntry) {
     super(iDatabase);
 
-    if (iClusterId == ORID.CLUSTER_ID_INVALID) {
+    if (iClusterId == YTRID.CLUSTER_ID_INVALID) {
       throw new IllegalArgumentException("The clusterId is invalid");
     }
 
@@ -61,13 +61,13 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     current.setClusterId(iClusterId);
     final long[] range = database.getClusterDataRange(current.getClusterId());
 
-    if (firstClusterEntry == ORID.CLUSTER_POS_INVALID) {
+    if (firstClusterEntry == YTRID.CLUSTER_POS_INVALID) {
       this.firstClusterEntry = range[0];
     } else {
       this.firstClusterEntry = Math.max(firstClusterEntry, range[0]);
     }
 
-    if (lastClusterEntry == ORID.CLUSTER_POS_INVALID) {
+    if (lastClusterEntry == YTRID.CLUSTER_POS_INVALID) {
       this.lastClusterEntry = range[1];
     } else {
       this.lastClusterEntry = Math.min(lastClusterEntry, range[1]);
@@ -146,7 +146,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
       return false;
     }
 
-    if (!(current.getClusterPosition() < ORID.CLUSTER_POS_INVALID)
+    if (!(current.getClusterPosition() < YTRID.CLUSTER_POS_INVALID)
         && getCurrentEntry() < lastClusterEntry) {
       try {
         currentRecord = readCurrentRecord(+1);
@@ -212,7 +212,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     initialize();
     checkDirection(true);
 
-    ORecord record;
+    YTRecord record;
 
     // ITERATE UNTIL THE NEXT GOOD RECORD
     while (hasNext()) {

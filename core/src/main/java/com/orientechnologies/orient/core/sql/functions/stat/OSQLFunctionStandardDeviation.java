@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.functions.stat;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import java.util.List;
 
 /**
@@ -44,7 +44,7 @@ public class OSQLFunctionStandardDeviation extends OSQLFunctionVariance {
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return NAME + "(<field>)";
   }
 

@@ -2,8 +2,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -20,14 +20,14 @@ public class RecordMetadataTest extends DocumentDBBaseTest {
     super(remote != null && remote);
   }
 
-  private static void assetORIDEquals(ORID actual, ORID expected) {
+  private static void assetORIDEquals(YTRID actual, YTRID expected) {
     assertEquals(actual.getClusterId(), expected.getClusterId());
     assertEquals(actual.getClusterPosition(), expected.getClusterPosition());
   }
 
   public void testGetRecordMetadata() {
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     for (int i = 0; i < 5; i++) {
       database.begin();
       if (!doc.getIdentity().isNew()) {

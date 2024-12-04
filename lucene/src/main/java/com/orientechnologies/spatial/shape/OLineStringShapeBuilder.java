@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.locationtech.jts.geom.Coordinate;
@@ -39,20 +39,20 @@ public class OLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public void initClazz(ODatabaseSessionInternal db) {
+  public void initClazz(YTDatabaseSessionInternal db) {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass lineString = schema.createAbstractClass(getName(), superClass(db));
-    lineString.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass lineString = schema.createAbstractClass(getName(), superClass(db));
+    lineString.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
 
-    if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      OClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
-      lineStringZ.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    if (YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
+      YTClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
+      lineStringZ.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
     }
   }
 
   @Override
-  public JtsGeometry fromDoc(ODocument document) {
+  public JtsGeometry fromDoc(YTDocument document) {
 
     validate(document);
     List<List<Number>> coordinates = document.field(COORDINATES);
@@ -67,26 +67,26 @@ public class OLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public ODocument toDoc(JtsGeometry shape) {
-    ODocument doc = new ODocument(getName());
+  public YTDocument toDoc(JtsGeometry shape) {
+    YTDocument doc = new YTDocument(getName());
     LineString lineString = (LineString) shape.getGeom();
     doc.field(COORDINATES, coordinatesFromLineString(lineString));
     return doc;
   }
 
   @Override
-  protected ODocument toDoc(JtsGeometry shape, Geometry geometry) {
+  protected YTDocument toDoc(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
       return toDoc(shape);
     }
 
-    ODocument doc = new ODocument(getName() + "Z");
+    YTDocument doc = new YTDocument(getName() + "Z");
     doc.field(COORDINATES, coordinatesFromLineStringZ(geometry));
     return doc;
   }
 
   @Override
-  public String asText(ODocument document) {
+  public String asText(YTDocument document) {
     if (document.getClassName().equals("OLineStringZ")) {
       List<List<Double>> coordinates = document.getProperty("coordinates");
 

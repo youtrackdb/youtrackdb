@@ -2,13 +2,13 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLAbstract;
 import com.orientechnologies.orient.core.sql.parser.OCluster;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
@@ -143,11 +143,11 @@ public class OTraverseExecutionPlanner {
     Object paramValue = inputParam.getValue(ctx.getInputParameters());
     if (paramValue == null) {
       result.chain(new EmptyStep(ctx, profilingEnabled)); // nothing to return
-    } else if (paramValue instanceof OClass) {
+    } else if (paramValue instanceof YTClass) {
       OFromClause from = new OFromClause(-1);
       OFromItem item = new OFromItem(-1);
       from.setItem(item);
-      item.setIdentifier(new OIdentifier(((OClass) paramValue).getName()));
+      item.setIdentifier(new OIdentifier(((YTClass) paramValue).getName()));
       handleClassAsTarget(result, from, ctx, profilingEnabled);
     } else if (paramValue instanceof String) {
       // strings are treated as classes
@@ -156,8 +156,8 @@ public class OTraverseExecutionPlanner {
       from.setItem(item);
       item.setIdentifier(new OIdentifier((String) paramValue));
       handleClassAsTarget(result, from, ctx, profilingEnabled);
-    } else if (paramValue instanceof OIdentifiable) {
-      ORID orid = ((OIdentifiable) paramValue).getIdentity();
+    } else if (paramValue instanceof YTIdentifiable) {
+      YTRID orid = ((YTIdentifiable) paramValue).getIdentity();
 
       ORid rid = new ORid(-1);
       OInteger cluster = new OInteger(-1);
@@ -173,10 +173,10 @@ public class OTraverseExecutionPlanner {
       // try list of RIDs
       List<ORid> rids = new ArrayList<>();
       for (Object x : (Iterable) paramValue) {
-        if (!(x instanceof OIdentifiable)) {
+        if (!(x instanceof YTIdentifiable)) {
           throw new OCommandExecutionException("Cannot use colleciton as target: " + paramValue);
         }
-        ORID orid = ((OIdentifiable) x).getIdentity();
+        YTRID orid = ((YTIdentifiable) x).getIdentity();
 
         ORid rid = new ORid(-1);
         OInteger cluster = new OInteger(-1);
@@ -205,7 +205,7 @@ public class OTraverseExecutionPlanner {
       OCommandContext ctx,
       boolean profilingEnabled) {
     String indexName = indexIdentifier.getIndexName();
-    final ODatabaseSessionInternal database = ctx.getDatabase();
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       throw new OCommandExecutionException("Index not found: " + indexName);
@@ -260,13 +260,13 @@ public class OTraverseExecutionPlanner {
     } else {
       throw new UnsupportedOperationException("Invalid metadata: " + metadata.getName());
     }
-    ORecordId schemaRid = new ORecordId(schemaRecordIdAsString);
+    YTRecordId schemaRid = new YTRecordId(schemaRecordIdAsString);
     plan.chain(new FetchFromRidsStep(Collections.singleton(schemaRid), ctx, profilingEnabled));
   }
 
   private void handleRidsAsTarget(
       OSelectExecutionPlan plan, List<ORid> rids, OCommandContext ctx, boolean profilingEnabled) {
-    List<ORecordId> actualRids = new ArrayList<>();
+    List<YTRecordId> actualRids = new ArrayList<>();
     for (ORid rid : rids) {
       actualRids.add(rid.toRecordId((OResult) null, ctx));
     }

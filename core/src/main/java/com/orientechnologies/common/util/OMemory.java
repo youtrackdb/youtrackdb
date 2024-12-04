@@ -21,7 +21,7 @@ package com.orientechnologies.common.util;
 
 import com.orientechnologies.common.jnr.ONative;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 
 /**
  * Provides various utilities related to memory management and configuration.
@@ -44,7 +44,7 @@ public class OMemory {
    * @return the total maximum size of all YouTrackDB caches in bytes.
    */
   private static long getMaxCacheMemorySize() {
-    return OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
+    return YTGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
   }
 
   /**
@@ -86,17 +86,17 @@ public class OMemory {
    *       <ul/>
    */
   public static void fixCommonConfigurationProblems() {
-    long diskCacheSize = OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong();
+    long diskCacheSize = YTGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong();
 
     final int max32BitCacheSize = 512;
     if (getJavaBitWidth() == 32 && diskCacheSize > max32BitCacheSize) {
       OLogManager.instance()
           .info(
-              OGlobalConfiguration.class,
+              YTGlobalConfiguration.class,
               "32 bit JVM is detected. Lowering disk cache size from %,dMB to %,dMB.",
               diskCacheSize,
               max32BitCacheSize);
-      OGlobalConfiguration.DISK_CACHE_SIZE.setValue(max32BitCacheSize);
+      YTGlobalConfiguration.DISK_CACHE_SIZE.setValue(max32BitCacheSize);
     }
   }
 

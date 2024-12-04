@@ -4,11 +4,11 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class OAlterClassStatement extends ODDLStatement {
   /**
    * the class property to be altered
    */
-  public OClass.ATTRIBUTES property;
+  public YTClass.ATTRIBUTES property;
 
   protected OIdentifier identifierValue;
   protected List<OIdentifier> identifierListValue;
@@ -328,7 +328,7 @@ public class OAlterClassStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
     var database = ctx.getDatabase();
-    OClass oClass = database.getMetadata().getSchema().getClass(name.getStringValue());
+    YTClass oClass = database.getMetadata().getSchema().getClass(name.getStringValue());
     if (oClass == null) {
       throw new OCommandExecutionException("Class not found: " + name);
     }
@@ -427,7 +427,7 @@ public class OAlterClassStatement extends ODDLStatement {
         case CUSTOM:
           Object value = null;
           if (customValue != null) {
-            value = customValue.execute((OIdentifiable) null, ctx);
+            value = customValue.execute((YTIdentifiable) null, ctx);
           }
           if (value != null) {
             value = "" + value;
@@ -449,7 +449,7 @@ public class OAlterClassStatement extends ODDLStatement {
     return OExecutionStream.singleton(result);
   }
 
-  private void checkNotIndexed(ODatabaseSessionInternal session, OClass oClass) {
+  private void checkNotIndexed(YTDatabaseSessionInternal session, YTClass oClass) {
     Set<OIndex> indexes = oClass.getIndexes(session);
     if (indexes != null && indexes.size() > 0) {
       throw new OCommandExecutionException(
@@ -460,7 +460,7 @@ public class OAlterClassStatement extends ODDLStatement {
     }
   }
 
-  private void checkNotEdge(OClass oClass) {
+  private void checkNotEdge(YTClass oClass) {
     if (oClass.isSubClassOf("E")) {
       throw new OCommandExecutionException(
           "Cannot alter class '"
@@ -470,12 +470,12 @@ public class OAlterClassStatement extends ODDLStatement {
     }
   }
 
-  private void doSetSuperclass(OCommandContext ctx, OClass oClass, OIdentifier superclassName) {
+  private void doSetSuperclass(OCommandContext ctx, YTClass oClass, OIdentifier superclassName) {
     if (superclassName == null) {
       throw new OCommandExecutionException("Invalid superclass name: " + this);
     }
     var database = ctx.getDatabase();
-    OClass superclass =
+    YTClass superclass =
         database.getMetadata().getSchema().getClass(superclassName.getStringValue());
     if (superclass == null) {
       throw new OCommandExecutionException("superclass not found: " + this);
@@ -490,14 +490,14 @@ public class OAlterClassStatement extends ODDLStatement {
   }
 
   private void doSetSuperclasses(
-      OCommandContext ctx, OClass oClass, List<OIdentifier> superclassNames) {
+      OCommandContext ctx, YTClass oClass, List<OIdentifier> superclassNames) {
     var database = ctx.getDatabase();
     if (superclassNames == null) {
       throw new OCommandExecutionException("Invalid superclass name: " + this);
     }
-    List<OClass> superclasses = new ArrayList<>();
+    List<YTClass> superclasses = new ArrayList<>();
     for (OIdentifier superclassName : superclassNames) {
-      OClass superclass =
+      YTClass superclass =
           ctx.getDatabase().getMetadata().getSchema().getClass(superclassName.getStringValue());
       if (superclass == null) {
         throw new OCommandExecutionException("superclass not found: " + this);
@@ -505,11 +505,11 @@ public class OAlterClassStatement extends ODDLStatement {
       superclasses.add(superclass);
     }
     if (Boolean.TRUE.equals(add)) {
-      for (OClass superclass : superclasses) {
+      for (YTClass superclass : superclasses) {
         oClass.addSuperClass(database, superclass);
       }
     } else if (Boolean.TRUE.equals(remove)) {
-      for (OClass superclass : superclasses) {
+      for (YTClass superclass : superclasses) {
         oClass.removeSuperClass(database, superclass);
       }
     } else {

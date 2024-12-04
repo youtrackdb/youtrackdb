@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.db;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import java.io.DataInputStream;
@@ -46,7 +46,7 @@ public class JournaledTxStreamingTest {
   private File buildDir;
   private Process serverProcess;
   private YouTrackDB ctx;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
   private DataInputStream stream;
 
   @Before
@@ -72,7 +72,7 @@ public class JournaledTxStreamingTest {
         .close();
 
     db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             ctx.open(JournaledTxStreamingTest.class.getSimpleName(), "root", "root");
 
     final Socket socket = new Socket();
@@ -102,7 +102,7 @@ public class JournaledTxStreamingTest {
     for (int i = 0; i < ITERATIONS; ++i) {
       db.begin();
       txs.addLast(db.getTransaction().getClientTransactionId());
-      OElement rec = db.newInstance();
+      YTEntity rec = db.newInstance();
       db.save(rec, db.getClusterNameById(db.getDefaultClusterId()));
       db.commit();
     }

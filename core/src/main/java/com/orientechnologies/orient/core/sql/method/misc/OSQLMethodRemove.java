@@ -19,7 +19,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 /**
  * Remove the first occurrence of elements from a collection.
@@ -37,7 +37,7 @@ public class OSQLMethodRemove extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {

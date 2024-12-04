@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.operator.OQueryOperatorEquals;
@@ -32,7 +32,7 @@ public class OContainsCondition extends OBooleanExpression {
     super(p, id);
   }
 
-  public boolean execute(ODatabaseSessionInternal session, Object left, Object right) {
+  public boolean execute(YTDatabaseSessionInternal session, Object left, Object right) {
     if (left instanceof Collection) {
       if (right instanceof Collection) {
         if (((Collection) right).size() == 1) {
@@ -50,7 +50,7 @@ public class OContainsCondition extends OBooleanExpression {
           if (item instanceof OResult) {
             item = ((OResult) item).getElement().orElse(null);
           }
-          if (item instanceof OIdentifiable && ((Collection) left).contains(item)) {
+          if (item instanceof YTIdentifiable && ((Collection) left).contains(item)) {
             return true;
           }
         }
@@ -118,7 +118,7 @@ public class OContainsCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean equalsInContainsSpace(ODatabaseSessionInternal session, Object left,
+  private boolean equalsInContainsSpace(YTDatabaseSessionInternal session, Object left,
       Object right) {
     if (left == null && right == null) {
       return true;
@@ -128,7 +128,7 @@ public class OContainsCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
@@ -140,7 +140,7 @@ public class OContainsCondition extends OBooleanExpression {
       Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
-        if (item instanceof OIdentifiable && condition.evaluate((OIdentifiable) item, ctx)) {
+        if (item instanceof YTIdentifiable && condition.evaluate((YTIdentifiable) item, ctx)) {
           return true;
         } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
           return true;
@@ -171,7 +171,7 @@ public class OContainsCondition extends OBooleanExpression {
       Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
-        if (item instanceof OIdentifiable && condition.evaluate((OIdentifiable) item, ctx)) {
+        if (item instanceof YTIdentifiable && condition.evaluate((YTIdentifiable) item, ctx)) {
           return true;
         } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
           return true;
@@ -209,7 +209,7 @@ public class OContainsCondition extends OBooleanExpression {
         Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
         while (iter.hasNext()) {
           Object item = iter.next();
-          if (item instanceof OIdentifiable && condition.evaluate((OIdentifiable) item, ctx)) {
+          if (item instanceof YTIdentifiable && condition.evaluate((YTIdentifiable) item, ctx)) {
             return true;
           } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
             return true;
@@ -249,7 +249,7 @@ public class OContainsCondition extends OBooleanExpression {
         boolean found = false;
         while (iter.hasNext()) {
           Object item = iter.next();
-          if (item instanceof OIdentifiable && condition.evaluate((OIdentifiable) item, ctx)) {
+          if (item instanceof YTIdentifiable && condition.evaluate((YTIdentifiable) item, ctx)) {
             found = true;
             break;
           } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
@@ -434,7 +434,7 @@ public class OContainsCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (left != null && !left.isCacheable(session)) {
       return false;
     }

@@ -19,15 +19,15 @@
  */
 package com.orientechnologies.common.collection;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.parser.OOrderBy;
 import com.orientechnologies.orient.core.sql.parser.OOrderByItem;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class OSortedMultiIterator<T extends OIdentifiable> implements Iterator<T> {
+public class OSortedMultiIterator<T extends YTIdentifiable> implements Iterator<T> {
 
   private static final int STATUS_INIT = 0;
   private static final int STATUS_RUNNING = 1;
@@ -115,10 +115,10 @@ public class OSortedMultiIterator<T extends OIdentifiable> implements Iterator<T
       return false;
     }
 
-    ODocument leftDoc =
-        (left instanceof ODocument) ? (ODocument) left : (ODocument) left.getRecord();
-    ODocument rightDoc =
-        (right instanceof ODocument) ? (ODocument) right : (ODocument) right.getRecord();
+    YTDocument leftDoc =
+        (left instanceof YTDocument) ? (YTDocument) left : (YTDocument) left.getRecord();
+    YTDocument rightDoc =
+        (right instanceof YTDocument) ? (YTDocument) right : (YTDocument) right.getRecord();
 
     for (OOrderByItem orderItem : orderBy.getItems()) {
       Object leftVal = leftDoc.field(orderItem.getRecordAttr());

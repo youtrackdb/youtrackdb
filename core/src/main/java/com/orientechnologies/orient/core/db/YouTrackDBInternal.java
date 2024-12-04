@@ -52,7 +52,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *
    * @param url           the url for the specific factory.
    * @param configuration configuration for the specific factory for the list of option
-   *                      {@see OGlobalConfiguration}.
+   *                      {@see YTGlobalConfiguration}.
    * @return the new Orient Factory.
    */
   static YouTrackDBInternal fromUrl(String url, YouTrackDBConfig configuration) {
@@ -82,7 +82,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *
    * @param hosts         array of hosts
    * @param configuration configuration for the specific factory for the list of option
-   *                      {@see OGlobalConfiguration}.
+   *                      {@see YTGlobalConfiguration}.
    * @return a new remote databases factory
    */
   static YouTrackDBInternal remote(String[] hosts, YouTrackDBConfig configuration) {
@@ -120,7 +120,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *
    * @param directoryPath base path where the database are hosted
    * @param config        configuration for the specific factory for the list of option
-   *                      {@see OGlobalConfiguration}
+   *                      {@see YTGlobalConfiguration}
    * @return a new embedded databases factory
    */
   static YouTrackDBInternal embedded(String directoryPath, YouTrackDBConfig config) {
@@ -173,7 +173,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    * @param password related to the specified username
    * @return the opened database
    */
-  ODatabaseSessionInternal open(String name, String user, String password);
+  YTDatabaseSessionInternal open(String name, String user, String password);
 
   /**
    * Open a database specified by name using the username and password if needed, with specific
@@ -186,7 +186,8 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *                 needed.
    * @return the opened database
    */
-  ODatabaseSessionInternal open(String name, String user, String password, YouTrackDBConfig config);
+  YTDatabaseSessionInternal open(String name, String user, String password,
+      YouTrackDBConfig config);
 
   /**
    * Open a database specified by name using the authentication info provided, with specific
@@ -197,7 +198,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *                           settings where needed.
    * @return the opened database
    */
-  ODatabaseSessionInternal open(OAuthenticationInfo authenticationInfo, YouTrackDBConfig config);
+  YTDatabaseSessionInternal open(OAuthenticationInfo authenticationInfo, YouTrackDBConfig config);
 
   /**
    * Create a new database
@@ -286,7 +287,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * Internal api for request to open a database with a pool
    */
-  ODatabaseSessionInternal poolOpen(
+  YTDatabaseSessionInternal poolOpen(
       String name, String user, String password, ODatabasePoolInternal pool);
 
   void restore(
@@ -338,9 +339,9 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
     return youTrackDB.serverUser;
   }
 
-  ODatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user);
+  YTDatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user);
 
-  ODatabaseSessionInternal openNoAuthorization(String name);
+  YTDatabaseSessionInternal openNoAuthorization(String name);
 
   void initCustomStorage(String name, String baseUrl, String userName, String userPassword);
 
@@ -360,7 +361,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
 
   <X> Future<X> executeNoAuthorizationAsync(String database, ODatabaseTask<X> task);
 
-  <X> X executeNoAuthorizationSync(ODatabaseSessionInternal database, ODatabaseTask<X> task);
+  <X> X executeNoAuthorizationSync(YTDatabaseSessionInternal database, ODatabaseTask<X> task);
 
   default OStorage fullSync(String dbName, InputStream backupStream, YouTrackDBConfig config) {
     throw new UnsupportedOperationException();

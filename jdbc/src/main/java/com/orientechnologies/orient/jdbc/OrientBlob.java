@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.OBlob;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,20 +39,20 @@ public class OrientBlob implements Blob {
 
   private int currentChunkIndex;
 
-  protected OrientBlob(OBlob binaryDataChunk) throws IllegalArgumentException {
+  protected OrientBlob(YTBlob binaryDataChunk) throws IllegalArgumentException {
     this(Collections.singletonList(binaryDataChunk));
   }
 
-  protected OrientBlob(List<OBlob> binaryDataChunks) throws IllegalArgumentException {
+  protected OrientBlob(List<YTBlob> binaryDataChunks) throws IllegalArgumentException {
     this.binaryDataChunks = new ArrayList<>(binaryDataChunks.size());
-    for (OBlob binaryDataChunk : binaryDataChunks) {
+    for (YTBlob binaryDataChunk : binaryDataChunks) {
       if (binaryDataChunk == null) {
         throw new IllegalArgumentException("The binary data chunks list cannot hold null chunks");
-      } else if (((ORecordAbstract) binaryDataChunk).getSize() == 0) {
+      } else if (((YTRecordAbstract) binaryDataChunk).getSize() == 0) {
         throw new IllegalArgumentException("The binary data chunks list cannot hold empty chunks");
       } else {
 
-        this.binaryDataChunks.add(((ORecordAbstract) binaryDataChunk).toStream());
+        this.binaryDataChunks.add(((YTRecordAbstract) binaryDataChunk).toStream());
       }
     }
     this.length = calculateLength();

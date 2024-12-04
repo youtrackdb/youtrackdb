@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.builder.OLuceneDateTools;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.lucene.analysis.Analyzer;
@@ -20,15 +20,15 @@ import org.apache.lucene.search.Query;
  */
 public class OLuceneMultiFieldQueryParser extends MultiFieldQueryParser {
 
-  private final Map<String, OType> types;
+  private final Map<String, YTType> types;
 
   public OLuceneMultiFieldQueryParser(
-      final Map<String, OType> types, final String[] fields, final Analyzer analyzer) {
+      final Map<String, YTType> types, final String[] fields, final Analyzer analyzer) {
     this(types, fields, analyzer, null);
   }
 
   public OLuceneMultiFieldQueryParser(
-      final Map<String, OType> types,
+      final Map<String, YTType> types,
       final String[] fields,
       final Analyzer analyzer,
       final Map<String, Float> boosts) {

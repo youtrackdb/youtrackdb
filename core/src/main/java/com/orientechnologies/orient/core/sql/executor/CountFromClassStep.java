@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
@@ -42,8 +42,8 @@ public class CountFromClassStep extends AbstractExecutionStep {
 
   private OResult produce(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    OImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
-    OClass clazz = schema.getClass(target.getStringValue());
+    YTImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    YTClass clazz = schema.getClass(target.getStringValue());
     if (clazz == null) {
       clazz = schema.getView(target.getStringValue());
     }

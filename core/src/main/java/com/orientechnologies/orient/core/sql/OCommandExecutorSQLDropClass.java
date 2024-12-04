@@ -23,10 +23,10 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.parser.ODropClassStatement;
 import java.util.Map;
 
@@ -108,23 +108,23 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
 
   @Override
   public long getDistributedTimeout() {
-    final OClass cls = getDatabase().getMetadata().getSchema().getClass(className);
+    final YTClass cls = getDatabase().getMetadata().getSchema().getClass(className);
     if (className != null && cls != null) {
       return getDatabase()
           .getConfiguration()
-          .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT)
+          .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT)
           + (2 * cls.count(getDatabase()));
     }
 
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
   /**
    * Execute the DROP CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (className == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -134,7 +134,7 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
     if (ifExists && !database.getMetadata().getSchema().existsClass(className)) {
       return true;
     }
-    final OClass cls = database.getMetadata().getSchema().getClass(className);
+    final YTClass cls = database.getMetadata().getSchema().getClass(className);
     if (cls == null) {
       return null;
     }

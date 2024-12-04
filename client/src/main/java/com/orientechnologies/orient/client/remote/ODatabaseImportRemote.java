@@ -2,9 +2,9 @@ package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
+import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImpExpAbstract;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImportException;
 import com.orientechnologies.orient.core.db.tool.ODatabaseTool;
@@ -20,7 +20,7 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
   private String options;
 
   public ODatabaseImportRemote(
-      ODatabaseSessionInternal iDatabase, String iFileName, OCommandOutputListener iListener) {
+      YTDatabaseSessionInternal iDatabase, String iFileName, OCommandOutputListener iListener) {
     super(iDatabase, iFileName, iListener);
   }
 
@@ -43,7 +43,7 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
     OStorageRemote storage = (OStorageRemote) getDatabase().getStorage();
     File file = new File(getFileName());
     try {
-      storage.importDatabase((ODatabaseSessionRemote) database, options, new FileInputStream(file),
+      storage.importDatabase((YTDatabaseSessionRemote) database, options, new FileInputStream(file),
           file.getName(),
           getListener());
     } catch (FileNotFoundException e) {

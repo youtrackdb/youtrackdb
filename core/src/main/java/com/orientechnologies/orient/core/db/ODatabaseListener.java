@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OView;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 
 /**
@@ -31,25 +31,25 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 public interface ODatabaseListener {
 
   @Deprecated
-  void onCreate(final ODatabaseSession iDatabase);
+  void onCreate(final YTDatabaseSession iDatabase);
 
   @Deprecated
-  void onDelete(final ODatabaseSession iDatabase);
+  void onDelete(final YTDatabaseSession iDatabase);
 
   @Deprecated
-  void onOpen(final ODatabaseSession iDatabase);
+  void onOpen(final YTDatabaseSession iDatabase);
 
-  void onBeforeTxBegin(final ODatabaseSession iDatabase);
+  void onBeforeTxBegin(final YTDatabaseSession iDatabase);
 
-  void onBeforeTxRollback(final ODatabaseSession iDatabase);
+  void onBeforeTxRollback(final YTDatabaseSession iDatabase);
 
-  void onAfterTxRollback(final ODatabaseSession iDatabase);
+  void onAfterTxRollback(final YTDatabaseSession iDatabase);
 
-  void onBeforeTxCommit(final ODatabaseSession iDatabase);
+  void onBeforeTxCommit(final YTDatabaseSession iDatabase);
 
-  void onAfterTxCommit(final ODatabaseSession iDatabase);
+  void onAfterTxCommit(final YTDatabaseSession iDatabase);
 
-  void onClose(final ODatabaseSession iDatabase);
+  void onClose(final YTDatabaseSession iDatabase);
 
   @Deprecated
   void onBeforeCommand(final OCommandRequestText iCommand, final OCommandExecutor executor);
@@ -58,22 +58,22 @@ public interface ODatabaseListener {
   void onAfterCommand(
       final OCommandRequestText iCommand, final OCommandExecutor executor, Object result);
 
-  default void onCreateClass(ODatabaseSession iDatabase, OClass iClass) {
+  default void onCreateClass(YTDatabaseSession iDatabase, YTClass iClass) {
   }
 
-  default void onDropClass(ODatabaseSession iDatabase, OClass iClass) {
+  default void onDropClass(YTDatabaseSession iDatabase, YTClass iClass) {
   }
 
-  default void onCreateView(ODatabaseSession database, OView view) {
+  default void onCreateView(YTDatabaseSession database, YTView view) {
   }
 
-  default void onDropView(ODatabaseSession database, OView view) {
+  default void onDropView(YTDatabaseSession database, YTView view) {
   }
 
-  default void onCommandStart(ODatabaseSession database, OResultSet resultSet) {
+  default void onCommandStart(YTDatabaseSession database, OResultSet resultSet) {
   }
 
-  default void onCommandEnd(ODatabaseSession database, OResultSet resultSet) {
+  default void onCommandEnd(YTDatabaseSession database, OResultSet resultSet) {
   }
 
   /**
@@ -86,7 +86,7 @@ public interface ODatabaseListener {
    */
   @Deprecated
   default boolean onCorruptionRepairDatabase(
-      final ODatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
+      final YTDatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
     return false;
   }
 }

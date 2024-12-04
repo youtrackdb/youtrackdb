@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
@@ -12,8 +12,8 @@ public class OSQLFunctionIndexKeySizeTest extends DBTestBase {
 
   @Test
   public void test() {
-    OClass clazz = db.getMetadata().getSchema().createClass("Test");
-    clazz.createProperty(db, "name", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass("Test");
+    clazz.createProperty(db, "name", YTType.STRING);
     db.command("create index testindex on  Test (name) notunique").close();
 
     db.begin();

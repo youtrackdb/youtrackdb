@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.fetch;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OFetchException;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Listener interface used while fetching records.
@@ -43,58 +43,58 @@ public interface OFetchListener {
    * @return null if the fetching must stop, otherwise the current field value
    */
   Object fetchLinked(
-      final ODocument iRoot,
+      final YTDocument iRoot,
       final Object iUserObject,
       final String iFieldName,
-      final ODocument iLinked,
+      final YTDocument iLinked,
       final OFetchContext iContext)
       throws OFetchException;
 
   void parseLinked(
-      final ODocument iRootRecord,
-      final OIdentifiable iLinked,
+      final YTDocument iRootRecord,
+      final YTIdentifiable iLinked,
       final Object iUserObject,
       final String iFieldName,
       final OFetchContext iContext)
       throws OFetchException;
 
   void parseLinkedCollectionValue(
-      final ODocument iRootRecord,
-      final OIdentifiable iLinked,
+      final YTDocument iRootRecord,
+      final YTIdentifiable iLinked,
       final Object iUserObject,
       final String iFieldName,
       final OFetchContext iContext)
       throws OFetchException;
 
   Object fetchLinkedMapEntry(
-      final ODocument iRoot,
+      final YTDocument iRoot,
       final Object iUserObject,
       final String iFieldName,
       final String iKey,
-      final ODocument iLinked,
+      final YTDocument iLinked,
       final OFetchContext iContext)
       throws OFetchException;
 
   Object fetchLinkedCollectionValue(
-      final ODocument iRoot,
+      final YTDocument iRoot,
       final Object iUserObject,
       final String iFieldName,
-      final ODocument iLinked,
+      final YTDocument iLinked,
       final OFetchContext iContext)
       throws OFetchException;
 
   void processStandardField(
-      final ODocument iRecord,
+      final YTDocument iRecord,
       final Object iFieldValue,
       final String iFieldName,
       final OFetchContext iContext,
       final Object iUserObject,
       String iFormat,
-      OType filedType)
+      YTType filedType)
       throws OFetchException;
 
   void skipStandardField(
-      final ODocument iRecord,
+      final YTDocument iRecord,
       final String iFieldName,
       final OFetchContext iContext,
       final Object iUserObject,

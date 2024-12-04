@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
@@ -20,7 +20,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public abstract class BaseTest<T extends ODatabaseSessionInternal> {
+public abstract class BaseTest<T extends YTDatabaseSessionInternal> {
 
   public static final String SERVER_PASSWORD =
       "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3";
@@ -200,16 +200,16 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
     return createSessionInstance(dbName, user, password);
   }
 
-  protected ODatabaseSessionInternal acquireSession() {
+  protected YTDatabaseSessionInternal acquireSession() {
     return acquireSession(dbName);
   }
 
-  protected ODatabaseSessionInternal acquireSession(String dbName) {
-    return (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+  protected YTDatabaseSessionInternal acquireSession(String dbName) {
+    return (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
   }
 
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "SILENT");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "SILENT");
     return builder.build();
   }
 
@@ -228,7 +228,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   }
 
   protected OIndex getIndex(final String indexName) {
-    final ODatabaseSessionInternal db = database;
+    final YTDatabaseSessionInternal db = database;
 
     return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
   }

@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import java.util.stream.Stream;
@@ -42,27 +42,27 @@ public class OSQLFunctionIndexKeySize extends OSQLFunctionAbstract {
 
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext context) {
     final Object value = iParams[0];
 
     String indexName = String.valueOf(value);
-    final ODatabaseSessionInternal database = context.getDatabase();
+    final YTDatabaseSessionInternal database = context.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       return null;
     }
-    try (Stream<ORawPair<Object, ORID>> stream = index.getInternal()
+    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal()
         .stream(context.getDatabase())) {
-      try (Stream<ORID> rids = index.getInternal().getRids(context.getDatabase(), null)) {
+      try (Stream<YTRID> rids = index.getInternal().getRids(context.getDatabase(), null)) {
         return stream.map((pair) -> pair.first).distinct().count() + rids.count();
       }
     }
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "indexKeySize(<indexName-string>)";
   }
 }

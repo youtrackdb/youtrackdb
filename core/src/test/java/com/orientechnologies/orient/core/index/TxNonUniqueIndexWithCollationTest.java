@@ -23,10 +23,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
 import org.junit.Before;
@@ -43,12 +43,12 @@ public class TxNonUniqueIndexWithCollationTest extends DBTestBase {
     db.getMetadata()
         .getSchema()
         .createClass("user")
-        .createProperty(db, "name", OType.STRING)
+        .createProperty(db, "name", YTType.STRING)
         .setCollate(db, "ci")
-        .createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+        .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    OElement user = db.newElement("user");
+    YTEntity user = db.newElement("user");
     user.setProperty("name", "abc");
     db.save(user);
     user = db.newElement("user");
@@ -102,9 +102,9 @@ public class TxNonUniqueIndexWithCollationTest extends DBTestBase {
 
     db.command("update user set name='abd' where name='Aby'").close();
 
-    final List<ODocument> r =
+    final List<YTDocument> r =
         db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
-            .map(x -> ((ODocument) (x.toElement())))
+            .map(x -> ((YTDocument) (x.toElement())))
             .toList();
     assertEquals(4, r.size());
     assertEquals("abc", r.get(0).field("name"));

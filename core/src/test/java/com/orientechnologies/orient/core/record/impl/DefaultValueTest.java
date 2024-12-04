@@ -5,10 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -20,16 +20,16 @@ public class DefaultValueTest extends DBTestBase {
   @Test
   public void testKeepValueSerialization() {
     // create example schema
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassC");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassC");
 
-    OProperty prop = classA.createProperty(db, "name", OType.STRING);
+    YTProperty prop = classA.createProperty(db, "name", YTType.STRING);
     prop.setDefaultValue(db, "uuid()");
 
-    ODocument doc = new ODocument("ClassC");
+    YTDocument doc = new YTDocument("ClassC");
 
     byte[] val = doc.toStream();
-    ODocument doc1 = new ODocument();
+    YTDocument doc1 = new YTDocument();
     ORecordInternal.unsetDirty(doc1);
     doc1.fromStream(val);
     doc1.deserializeFields();
@@ -38,17 +38,17 @@ public class DefaultValueTest extends DBTestBase {
 
   @Test
   public void testDefaultValueDate() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassA");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty(db, "date", OType.DATE);
+    YTProperty prop = classA.createProperty(db, "date", YTType.DATE);
     prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
-    OProperty some = classA.createProperty(db, "id", OType.STRING);
+    YTProperty some = classA.createProperty(db, "id", YTType.STRING);
     some.setDefaultValue(db, "uuid()");
 
     db.begin();
-    ODocument doc = new ODocument(classA);
-    ODocument saved = db.save(doc);
+    YTDocument doc = new YTDocument(classA);
+    YTDocument saved = db.save(doc);
     db.commit();
 
     saved = db.bindToSession(saved);
@@ -60,7 +60,7 @@ public class DefaultValueTest extends DBTestBase {
     OResult inserted = db.command("insert into ClassA content {}").next();
     db.commit();
 
-    ODocument seved1 = db.load(inserted.getIdentity().get());
+    YTDocument seved1 = db.load(inserted.getIdentity().get());
     assertNotNull(seved1.field("date"));
     assertNotNull(seved1.field("id"));
     assertTrue(seved1.field("date") instanceof Date);
@@ -68,19 +68,19 @@ public class DefaultValueTest extends DBTestBase {
 
   @Test
   public void testDefaultValueDateFromContent() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassA");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty(db, "date", OType.DATE);
+    YTProperty prop = classA.createProperty(db, "date", YTType.DATE);
     prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
-    OProperty some = classA.createProperty(db, "id", OType.STRING);
+    YTProperty some = classA.createProperty(db, "id", YTType.STRING);
     some.setDefaultValue(db, "uuid()");
 
     String value = "2000-01-01 00:00:00";
 
     db.begin();
-    ODocument doc = new ODocument(classA);
-    ODocument saved = db.save(doc);
+    YTDocument doc = new YTDocument(classA);
+    YTDocument saved = db.save(doc);
     db.commit();
 
     saved = db.bindToSession(saved);
@@ -92,7 +92,7 @@ public class DefaultValueTest extends DBTestBase {
     OResult inserted = db.command("insert into ClassA content {\"date\":\"" + value + "\"}").next();
     db.commit();
 
-    ODocument seved1 = db.load(inserted.getIdentity().get());
+    YTDocument seved1 = db.load(inserted.getIdentity().get());
     assertNotNull(seved1.field("date"));
     assertNotNull(seved1.field("id"));
     assertTrue(seved1.field("date") instanceof Date);
@@ -101,16 +101,16 @@ public class DefaultValueTest extends DBTestBase {
 
   @Test
   public void testDefaultValueFromJson() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassA");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty(db, "date", OType.DATE);
+    YTProperty prop = classA.createProperty(db, "date", YTType.DATE);
     prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON("{'@class':'ClassA','other':'other'}");
-    ODocument saved = db.save(doc);
+    YTDocument saved = db.save(doc);
     db.commit();
 
     saved = db.bindToSession(saved);
@@ -121,17 +121,17 @@ public class DefaultValueTest extends DBTestBase {
 
   @Test
   public void testDefaultValueProvidedFromJson() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassA");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty(db, "date", OType.DATETIME);
+    YTProperty prop = classA.createProperty(db, "date", YTType.DATETIME);
     prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     String value1 = ODateHelper.getDateTimeFormatInstance().format(new Date());
     db.begin();
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
-    ODocument saved = db.save(doc);
+    YTDocument saved = db.save(doc);
     db.commit();
 
     saved = db.bindToSession(saved);
@@ -142,18 +142,18 @@ public class DefaultValueTest extends DBTestBase {
 
   @Test
   public void testDefaultValueMandatoryReadonlyFromJson() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassA");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty(db, "date", OType.DATE);
+    YTProperty prop = classA.createProperty(db, "date", YTType.DATE);
     prop.setMandatory(db, true);
     prop.setReadonly(db, true);
     prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON("{'@class':'ClassA','other':'other'}");
-    ODocument saved = db.save(doc);
+    YTDocument saved = db.save(doc);
     db.commit();
 
     saved = db.bindToSession(saved);
@@ -164,19 +164,19 @@ public class DefaultValueTest extends DBTestBase {
 
   @Test
   public void testDefaultValueProvidedMandatoryReadonlyFromJson() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassA");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty(db, "date", OType.DATETIME);
+    YTProperty prop = classA.createProperty(db, "date", YTType.DATETIME);
     prop.setMandatory(db, true);
     prop.setReadonly(db, true);
     prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     String value1 = ODateHelper.getDateTimeFormatInstance().format(new Date());
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     db.begin();
-    ODocument saved = db.save(doc);
+    YTDocument saved = db.save(doc);
     db.commit();
     saved = db.bindToSession(saved);
     assertNotNull(saved.field("date"));
@@ -186,18 +186,18 @@ public class DefaultValueTest extends DBTestBase {
 
   @Test
   public void testDefaultValueUpdateMandatoryReadonlyFromJson() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ClassA");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty(db, "date", OType.DATETIME);
+    YTProperty prop = classA.createProperty(db, "date", YTType.DATETIME);
     prop.setMandatory(db, true);
     prop.setReadonly(db, true);
     prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON("{'@class':'ClassA','other':'other'}");
-    ODocument saved = db.save(doc);
+    YTDocument saved = db.save(doc);
     db.commit();
 
     db.begin();
@@ -208,7 +208,7 @@ public class DefaultValueTest extends DBTestBase {
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
     String val = ODateHelper.getDateTimeFormatInstance().format(doc.field("date"));
-    ODocument doc1 = new ODocument();
+    YTDocument doc1 = new YTDocument();
     doc1.fromJSON("{'@class':'ClassA','date':'" + val + "','other':'other1'}");
     saved.merge(doc1, true, true);
 

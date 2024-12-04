@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.sql.functions.math;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -44,7 +44,7 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
 
   public Object execute(
       Object iThis,
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final Object iCurrentResult,
       final Object[] iParams,
       @Nonnull OCommandContext iContext) {
@@ -55,8 +55,8 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
       predicate = new OSQLPredicate(iContext, String.valueOf(iParams[0]));
     }
 
-    final ODocument currentResult =
-        iCurrentResult instanceof ODocument ? (ODocument) iCurrentResult : null;
+    final YTDocument currentResult =
+        iCurrentResult instanceof YTDocument ? (YTDocument) iCurrentResult : null;
     try {
       return predicate.evaluate(
           iRecord != null ? iRecord.getRecord() : null, currentResult, iContext);
@@ -74,7 +74,7 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
     return false;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "eval(<expression>)";
   }
 

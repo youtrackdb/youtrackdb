@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 
 /**
@@ -17,7 +17,7 @@ public class OLocalLiveResultListener implements OLiveResultListener, OCommandRe
   }
 
   @Override
-  public boolean result(ODatabaseSessionInternal querySession, Object iRecord) {
+  public boolean result(YTDatabaseSessionInternal querySession, Object iRecord) {
     return false;
   }
 

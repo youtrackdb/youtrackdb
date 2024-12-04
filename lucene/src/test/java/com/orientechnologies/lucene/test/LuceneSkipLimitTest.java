@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,14 +34,14 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
   @Test
   public void testContext() {
 
-    List<ORID> docs =
+    List<YTRID> docs =
         db.query("select * from Song where [title] LUCENE \"(title:man)\"").stream()
             .map((r) -> r.getIdentity().get())
             .collect(Collectors.toList());
 
     Assert.assertEquals(docs.size(), 14);
 
-    ORID doc = docs.get(9);
+    YTRID doc = docs.get(9);
     docs =
         db
             .query("select * from Song where [title] LUCENE \"(title:man)\" skip 10 limit 10")

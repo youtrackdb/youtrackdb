@@ -4,10 +4,10 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OSystemException;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.OImmutableRecordId;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTImmutableRecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OTokenException;
@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenSe
 import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 import com.orientechnologies.orient.core.metadata.security.jwt.OrientJwtHeader;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.security.OTokenSign;
 import com.orientechnologies.orient.core.security.OTokenSignImpl;
@@ -46,7 +46,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   public OTokenHandlerImpl(OContextConfiguration config) {
     this(
         new OTokenSignImpl(config),
-        config.getValueAsLong(OGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
+        config.getValueAsLong(YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
   }
 
   protected OTokenHandlerImpl(byte[] key, long sessionLength, String algorithm) {
@@ -54,7 +54,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   public OTokenHandlerImpl(OTokenSign sign, OContextConfiguration config) {
-    this(sign, config.getValueAsLong(OGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
+    this(sign, config.getValueAsLong(YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
   }
 
   protected OTokenHandlerImpl(OTokenSign sign, long sessionLength) {
@@ -177,7 +177,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     return valid;
   }
 
-  public byte[] getSignedWebToken(final ODatabaseSessionInternal db, final OSecurityUser user) {
+  public byte[] getSignedWebToken(final YTDatabaseSessionInternal db, final OSecurityUser user) {
     final ByteArrayOutputStream tokenByteOS = new ByteArrayOutputStream(1024);
     final OrientJwtHeader header = new OrientJwtHeader();
     header.setAlgorithm("HS256");
@@ -250,7 +250,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   public byte[] getSignedBinaryToken(
-      final ODatabaseSessionInternal db,
+      final YTDatabaseSessionInternal db,
       final OSecurityUser user,
       final ONetworkProtocolData data) {
     try {
@@ -383,7 +383,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OrientJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     doc.fromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
     final OrientJwtHeader header = new OrientJwtHeader();
     header.setType(doc.field("typ"));
@@ -396,7 +396,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     if (!"YouTrackDB".equals(type)) {
       throw new OSystemException("Payload class not registered:" + type);
     }
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     doc.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setUserName(doc.field("username"));
@@ -409,7 +409,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     payload.setTokenId(doc.field("jti"));
     final int cluster = doc.field("uidc");
     final long pos = doc.field("uidp");
-    payload.setUserRid(new ORecordId(cluster, pos));
+    payload.setUserRid(new YTRecordId(cluster, pos));
     payload.setDatabaseType(doc.field("bdtyp"));
     return payload;
   }
@@ -419,7 +419,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token header is null");
     }
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("typ", header.getType());
     doc.field("alg", header.getAlgorithm());
     doc.field("kid", header.getKeyId());
@@ -431,7 +431,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token payload is null");
     }
 
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     doc.field("username", payload.getUserName());
     doc.field("iss", payload.getIssuer());
     doc.field("exp", payload.getExpiry());
@@ -454,7 +454,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setAudience("YouTrackDBServer");
     payload.setDatabase("-");
-    payload.setUserRid(OImmutableRecordId.EMPTY_RECORD_ID);
+    payload.setUserRid(YTImmutableRecordId.EMPTY_RECORD_ID);
 
     final long expiryMinutes = sessionInMills;
     final long currTime = System.currentTimeMillis();
@@ -466,7 +466,8 @@ public class OTokenHandlerImpl implements OTokenHandler {
     return payload;
   }
 
-  protected OJwtPayload createPayload(final ODatabaseSessionInternal db, final OSecurityUser user) {
+  protected OJwtPayload createPayload(final YTDatabaseSessionInternal db,
+      final OSecurityUser user) {
     if (user == null) {
       throw new IllegalArgumentException("User is null");
     }

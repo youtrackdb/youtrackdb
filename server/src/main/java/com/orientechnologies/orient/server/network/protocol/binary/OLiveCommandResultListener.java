@@ -24,16 +24,16 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -58,7 +58,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   private final OClientConnection connection;
   private final AtomicBoolean empty = new AtomicBoolean(true);
   private final int sessionId;
-  private final Set<ORID> alreadySent = new HashSet<ORID>();
+  private final Set<YTRID> alreadySent = new HashSet<YTRID>();
   private final OClientSessions session;
 
   public OLiveCommandResultListener(
@@ -72,7 +72,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
+  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
     final ONetworkProtocolBinary protocol = ((ONetworkProtocolBinary) connection.getProtocol());
     if (empty.compareAndSet(true, false)) {
       try {
@@ -97,7 +97,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           iRecord,
           new ORemoteFetchListener() {
             @Override
-            protected void sendRecord(ORecordAbstract iLinked) {
+            protected void sendRecord(YTRecordAbstract iLinked) {
               if (!alreadySent.contains(iLinked.getIdentity())) {
                 alreadySent.add(iLinked.getIdentity());
                 try {
@@ -109,10 +109,10 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
               }
             }
           });
-      alreadySent.add(((OIdentifiable) iRecord).getIdentity());
+      alreadySent.add(((YTIdentifiable) iRecord).getIdentity());
       protocol.channel.writeByte((byte) 1); // ONE MORE RECORD
       ONetworkProtocolBinary.writeIdentifiable(
-          protocol.channel, connection, ((OIdentifiable) iRecord).getRecord());
+          protocol.channel, connection, ((YTIdentifiable) iRecord).getRecord());
       protocol.channel.flush();
     } catch (IOException e) {
       return false;
@@ -130,7 +130,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
       List<OClientConnection> connections = session.getConnections();
       if (connections.size() == 0) {
         try {
-          ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+          YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
           OLogManager.instance()
               .warn(this, "Unsubscribing live query for connection " + connection);
           OLiveQueryHook.unsubscribe(iToken, db);
@@ -156,7 +156,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           out.writeInt(iToken);
           out.writeByte(ORecordInternal.getRecordType(iOp.record));
           writeVersion(out, iOp.record.getVersion());
-          writeRID(out, (ORecordId) iOp.record.getIdentity());
+          writeRID(out, (YTRecordId) iOp.record.getIdentity());
           writeBytes(out, ONetworkProtocolBinary.getRecordBytes(connection, iOp.record));
           channel.writeByte(OChannelBinaryProtocol.PUSH_DATA);
           channel.writeInt(Integer.MIN_VALUE);
@@ -172,7 +172,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
         session.removeConnection(curConnection);
         connections = session.getConnections();
         if (connections.isEmpty()) {
-          ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+          YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
           OLiveQueryHook.unsubscribe(iToken, db);
           break;
         }
@@ -248,7 +248,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
     out.writeInt(v);
   }
 
-  private void writeRID(DataOutputStream out, ORecordId record) throws IOException {
+  private void writeRID(DataOutputStream out, YTRecordId record) throws IOException {
     out.writeShort((short) record.getClusterId());
     out.writeLong(record.getClusterPosition());
   }
@@ -259,6 +259,6 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(ODocument doc) {
+  public void linkdedBySimpleValue(YTDocument doc) {
   }
 }

@@ -4,11 +4,11 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
@@ -104,7 +104,7 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, Object result, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, Object result, OCommandContext ctx) {
     if (ctx.getVariable("$current") == null) {
       ctx.setVariable("$current", iCurrentRecord);
     }
@@ -164,7 +164,7 @@ public class OModifier extends SimpleNode {
       }
       return result;
     }
-    if (iResult instanceof OIdentifiable) {
+    if (iResult instanceof YTIdentifiable) {
       iResult = Collections.singleton(iResult);
     }
     if (iResult instanceof Iterable) {
@@ -351,7 +351,7 @@ public class OModifier extends SimpleNode {
     } else if (arrayRange != null) {
       return arrayRange.execute(currentRecord, target, ctx);
     } else if (condition != null) {
-      if (target instanceof OResult || target instanceof OIdentifiable || target instanceof Map) {
+      if (target instanceof OResult || target instanceof YTIdentifiable || target instanceof Map) {
         if (condition.evaluate(target, ctx)) {
           return target;
         } else {
@@ -401,7 +401,7 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("squareBrackets", squareBrackets);
     if (arrayRange != null) {
@@ -462,7 +462,7 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (arrayRange != null || arraySingleValues != null || rightBinaryCondition != null) {
       return false; // TODO enhance a bit
     }
@@ -478,14 +478,14 @@ public class OModifier extends SimpleNode {
     return next == null || next.isCacheable(session);
   }
 
-  public boolean isIndexChain(OCommandContext ctx, OClass clazz) {
+  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
-      OProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
+      YTProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
       if (prop != null
           && prop.getAllIndexes(ctx.getDatabase()).stream()
           .anyMatch(idx -> idx.getDefinition().getFields().size() == 1)) {
         if (next != null) {
-          OClass linkedClazz = prop.getLinkedClass();
+          YTClass linkedClazz = prop.getLinkedClass();
           return next.isIndexChain(ctx, linkedClazz);
         }
         return true;

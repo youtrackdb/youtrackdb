@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collections;
@@ -37,9 +37,10 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
 
   protected String className;
   protected String field;
-  protected OType keyType;
+  protected YTType keyType;
 
-  public OPropertyIndexDefinition(final String iClassName, final String iField, final OType iType) {
+  public OPropertyIndexDefinition(final String iClassName, final String iField,
+      final YTType iType) {
     super();
     className = iClassName;
     field = iField;
@@ -69,9 +70,9 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public Object getDocumentValueToIndex(
-      ODatabaseSessionInternal session, final ODocument iDocument) {
-    if (OType.LINK.equals(keyType)) {
-      final OIdentifiable identifiable = iDocument.field(field);
+      YTDatabaseSessionInternal session, final YTDocument iDocument) {
+    if (YTType.LINK.equals(keyType)) {
+      final YTIdentifiable identifiable = iDocument.field(field);
       if (identifiable != null) {
         return createValue(session, identifiable.getIdentity());
       } else {
@@ -132,36 +133,36 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
         + '}';
   }
 
-  public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
-    return OType.convert(session, params.get(0), keyType.getDefaultJavaType());
+  public Object createValue(YTDatabaseSessionInternal session, final List<?> params) {
+    return YTType.convert(session, params.get(0), keyType.getDefaultJavaType());
   }
 
   /**
    * {@inheritDoc}
    */
-  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
-    return OType.convert(session, refreshRid(session, params[0]), keyType.getDefaultJavaType());
+  public Object createValue(YTDatabaseSessionInternal session, final Object... params) {
+    return YTType.convert(session, refreshRid(session, params[0]), keyType.getDefaultJavaType());
   }
 
   public int getParamCount() {
     return 1;
   }
 
-  public OType[] getTypes() {
-    return new OType[]{keyType};
+  public YTType[] getTypes() {
+    return new YTType[]{keyType};
   }
 
-  public void fromStream(@Nonnull ODocument document) {
+  public void fromStream(@Nonnull YTDocument document) {
     serializeFromStream(document);
   }
 
   @Override
-  public final @Nonnull ODocument toStream(@Nonnull ODocument document) {
+  public final @Nonnull YTDocument toStream(@Nonnull YTDocument document) {
     serializeToStream(document);
     return document;
   }
 
-  protected void serializeToStream(ODocument document) {
+  protected void serializeToStream(YTDocument document) {
     super.serializeToStream(document);
 
     document.setPropertyInternal("className", className);
@@ -171,14 +172,14 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  protected void serializeFromStream(ODocument document) {
+  protected void serializeFromStream(YTDocument document) {
     super.serializeFromStream(document);
 
     className = document.field("className");
     field = document.field("field");
 
     final String keyTypeStr = document.field("keyType");
-    keyType = OType.valueOf(keyTypeStr);
+    keyType = YTType.valueOf(keyTypeStr);
 
     setCollate((String) document.field("collate"));
     setNullValuesIgnored(!Boolean.FALSE.equals(document.<Boolean>field("nullValuesIgnored")));

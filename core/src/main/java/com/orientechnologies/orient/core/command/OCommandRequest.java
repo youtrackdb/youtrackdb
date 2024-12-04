@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.orient.core.command.OCommandContext.TIMEOUT_STRATEGY;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import javax.annotation.Nonnull;
 
 /**
@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
  */
 public interface OCommandRequest {
 
-  <RET> RET execute(@Nonnull ODatabaseSessionInternal querySession, Object... iArgs);
+  <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, Object... iArgs);
 
   /**
    * This api is deprecated use sql keyword "LIMIT" instead

@@ -22,10 +22,10 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import java.util.Map;
 
 /**
@@ -89,17 +89,17 @@ public class OCommandExecutorSQLDropCluster extends OCommandExecutorSQLAbstract
   /**
    * Execute the DROP CLUSTER.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clusterName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final ODatabaseSessionInternal database = getDatabase();
+    final YTDatabaseSessionInternal database = getDatabase();
 
     // CHECK IF ANY CLASS IS USING IT
     final int clusterId = database.getClusterIdByName(clusterName);
-    for (OClass iClass : database.getMetadata().getSchema().getClasses()) {
+    for (YTClass iClass : database.getMetadata().getSchema().getClasses()) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId)
         // IN USE
@@ -121,7 +121,7 @@ public class OCommandExecutorSQLDropCluster extends OCommandExecutorSQLAbstract
 
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_LONG_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_LONG_TASK_SYNCH_TIMEOUT);
   }
 
   @Override
@@ -131,7 +131,7 @@ public class OCommandExecutorSQLDropCluster extends OCommandExecutorSQLAbstract
 
   protected boolean isClusterDeletable(int clusterId) {
     final var database = getDatabase();
-    for (OClass iClass : database.getMetadata().getSchema().getClasses()) {
+    for (YTClass iClass : database.getMetadata().getSchema().getClasses()) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId) {
           return false;

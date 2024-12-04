@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +40,7 @@ public interface OIndex extends Comparable<OIndex> {
    * elements from which this index consist will be returned, otherwise single element (key type
    * obviously) will be returned.
    */
-  OType[] getKeyTypes();
+  YTType[] getKeyTypes();
 
   /**
    * Gets the set of records associated with the passed key.
@@ -48,21 +48,21 @@ public interface OIndex extends Comparable<OIndex> {
    * @param session
    * @param key     The key to search
    * @return The Record set if found, otherwise an empty Set
-   * @deprecated Use {@link OIndexInternal#getRids(ODatabaseSessionInternal, Object)} instead, but
+   * @deprecated Use {@link OIndexInternal#getRids(YTDatabaseSessionInternal, Object)} instead, but
    * only as internal (not public) API.
    */
   @Deprecated
-  Object get(ODatabaseSessionInternal session, Object key);
+  Object get(YTDatabaseSessionInternal session, Object key);
 
   /**
    * Inserts a new entry in the index. The behaviour depends by the index implementation.
    *
    * @param session
    * @param key     Entry's key
-   * @param value   Entry's value as OIdentifiable instance
+   * @param value   Entry's value as YTIdentifiable instance
    * @return The index instance itself to allow in chain calls
    */
-  OIndex put(ODatabaseSessionInternal session, Object key, OIdentifiable value);
+  OIndex put(YTDatabaseSessionInternal session, Object key, YTIdentifiable value);
 
   /**
    * Removes an entry by its key.
@@ -71,7 +71,7 @@ public interface OIndex extends Comparable<OIndex> {
    * @param key     The entry's key to remove
    * @return True if the entry has been found and removed, otherwise false
    */
-  boolean remove(ODatabaseSessionInternal session, Object key);
+  boolean remove(YTDatabaseSessionInternal session, Object key);
 
   /**
    * Removes an entry by its key and value.
@@ -80,7 +80,7 @@ public interface OIndex extends Comparable<OIndex> {
    * @param key     The entry's key to remove
    * @return True if the entry has been found and removed, otherwise false
    */
-  boolean remove(ODatabaseSessionInternal session, Object key, OIdentifiable rid);
+  boolean remove(YTDatabaseSessionInternal session, Object key, YTIdentifiable rid);
 
   /**
    * Clears the index removing all the entries in one shot.
@@ -89,15 +89,15 @@ public interface OIndex extends Comparable<OIndex> {
    * @deprecated Manual indexes are deprecated and will be removed
    */
   @Deprecated
-  OIndex clear(ODatabaseSessionInternal session);
+  OIndex clear(YTDatabaseSessionInternal session);
 
   /**
    * @return number of entries in the index.
-   * @deprecated Use {@link OIndexInternal#size(ODatabaseSessionInternal)} instead. This API only
+   * @deprecated Use {@link OIndexInternal#size(YTDatabaseSessionInternal)} instead. This API only
    * for internal use !.
    */
   @Deprecated
-  long getSize(ODatabaseSessionInternal session);
+  long getSize(YTDatabaseSessionInternal session);
 
   /**
    * Counts the entries for the key.
@@ -106,7 +106,7 @@ public interface OIndex extends Comparable<OIndex> {
    * for internal use !.
    */
   @Deprecated
-  long count(ODatabaseSessionInternal session, Object iKey);
+  long count(YTDatabaseSessionInternal session, Object iKey);
 
   /**
    * @return Number of keys in index
@@ -144,21 +144,21 @@ public interface OIndex extends Comparable<OIndex> {
    * instead. This API only for internal use !
    */
   @Deprecated
-  Object getLastKey(ODatabaseSessionInternal session);
+  Object getLastKey(YTDatabaseSessionInternal session);
 
   /**
    * @deprecated Use <code>index.getInternal().stream()</code> instead. This API only for internal
    * use !
    */
   @Deprecated
-  OIndexCursor cursor(ODatabaseSessionInternal session);
+  OIndexCursor cursor(YTDatabaseSessionInternal session);
 
   /**
    * @deprecated Use <code>index.getInternal().descStream()</code> instead. This API only for
    * internal use !
    */
   @Deprecated
-  OIndexCursor descCursor(ODatabaseSessionInternal session);
+  OIndexCursor descCursor(YTDatabaseSessionInternal session);
 
   /**
    * @deprecated Use <code>index.getInternal().keyStream()</code> instead. This API only for
@@ -172,7 +172,7 @@ public interface OIndex extends Comparable<OIndex> {
    *
    * @return The index instance itself to allow in chain calls
    */
-  OIndex delete(ODatabaseSessionInternal session);
+  OIndex delete(YTDatabaseSessionInternal session);
 
   /**
    * Returns the index name.
@@ -214,19 +214,19 @@ public interface OIndex extends Comparable<OIndex> {
    *
    * @return The number of entries rebuilt
    */
-  long rebuild(ODatabaseSessionInternal session);
+  long rebuild(YTDatabaseSessionInternal session);
 
   /**
    * Populate the index with all the existent records.
    */
-  long rebuild(ODatabaseSessionInternal session, OProgressListener iProgressListener);
+  long rebuild(YTDatabaseSessionInternal session, OProgressListener iProgressListener);
 
   /**
    * Returns the index configuration.
    *
-   * @return An ODocument object containing all the index properties
+   * @return An YTDocument object containing all the index properties
    */
-  ODocument getConfiguration(ODatabaseSessionInternal session);
+  YTDocument getConfiguration(YTDatabaseSessionInternal session);
 
   /**
    * Returns the internal index used.
@@ -251,11 +251,11 @@ public interface OIndex extends Comparable<OIndex> {
    *                     ascending or descending order.
    * @return cursor which presents data associated with passed in keys.
    * @deprecated Use
-   * {@link OIndexInternal#streamEntries(ODatabaseSessionInternal, Collection, boolean)} instead.
+   * {@link OIndexInternal#streamEntries(YTDatabaseSessionInternal, Collection, boolean)} instead.
    * This API only for internal use !
    */
   @Deprecated
-  OIndexCursor iterateEntries(ODatabaseSessionInternal session, Collection<?> keys,
+  OIndexCursor iterateEntries(YTDatabaseSessionInternal session, Collection<?> keys,
       boolean ascSortOrder);
 
   /**
@@ -270,12 +270,12 @@ public interface OIndex extends Comparable<OIndex> {
    *                      ascending or descending order.
    * @return Cursor which presents subset of index data between passed in keys.
    * @deprecated Use
-   * {@link OIndexInternal#streamEntriesBetween(ODatabaseSessionInternal, Object, boolean, Object,
+   * {@link OIndexInternal#streamEntriesBetween(YTDatabaseSessionInternal, Object, boolean, Object,
    * boolean, boolean)} instead. This API only * for internal use !
    */
   @Deprecated
   OIndexCursor iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder);
 
   /**
@@ -290,11 +290,11 @@ public interface OIndex extends Comparable<OIndex> {
    * @return cursor which presents subset of data which associated with key which is greater than
    * passed in key.
    * @deprecated Use
-   * {@link OIndexInternal#streamEntriesMajor(ODatabaseSessionInternal, Object, boolean, boolean)}
+   * {@link OIndexInternal#streamEntriesMajor(YTDatabaseSessionInternal, Object, boolean, boolean)}
    * instead. This API only for internal use !
    */
   @Deprecated
-  OIndexCursor iterateEntriesMajor(ODatabaseSessionInternal session, Object fromKey,
+  OIndexCursor iterateEntriesMajor(YTDatabaseSessionInternal session, Object fromKey,
       boolean fromInclusive, boolean ascOrder);
 
   /**
@@ -309,11 +309,11 @@ public interface OIndex extends Comparable<OIndex> {
    * @return cursor which presents subset of data which associated with key which is less than
    * passed in key.
    * @deprecated Use
-   * {@link OIndexInternal#streamEntriesMinor(ODatabaseSessionInternal, Object, boolean, boolean)}
+   * {@link OIndexInternal#streamEntriesMinor(YTDatabaseSessionInternal, Object, boolean, boolean)}
    * instead. This API only for internal use !
    */
   @Deprecated
-  OIndexCursor iterateEntriesMinor(ODatabaseSessionInternal session, Object toKey,
+  OIndexCursor iterateEntriesMinor(YTDatabaseSessionInternal session, Object toKey,
       boolean toInclusive, boolean ascOrder);
 
   Map<String, ?> getMetadata();

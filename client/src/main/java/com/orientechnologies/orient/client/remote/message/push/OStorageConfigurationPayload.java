@@ -4,7 +4,7 @@ import com.orientechnologies.orient.client.remote.OStorageClusterConfigurationRe
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
@@ -20,8 +20,8 @@ public class OStorageConfigurationPayload {
   private int version;
   private String directory;
   private List<OStorageEntryConfiguration> properties;
-  private ORecordId schemaRecordId;
-  private ORecordId indexMgrRecordId;
+  private YTRecordId schemaRecordId;
+  private YTRecordId indexMgrRecordId;
   private String clusterSelection;
   private String conflictStrategy;
   private boolean validationEnabled;
@@ -43,8 +43,8 @@ public class OStorageConfigurationPayload {
     this.version = configuration.getVersion();
     this.directory = configuration.getDirectory();
     this.properties = configuration.getProperties();
-    this.schemaRecordId = new ORecordId(configuration.getSchemaRecordId());
-    this.indexMgrRecordId = new ORecordId(configuration.getIndexMgrRecordId());
+    this.schemaRecordId = new YTRecordId(configuration.getSchemaRecordId());
+    this.indexMgrRecordId = new YTRecordId(configuration.getIndexMgrRecordId());
     this.clusterSelection = configuration.getClusterSelection();
     this.conflictStrategy = configuration.getConflictStrategy();
     this.validationEnabled = configuration.isValidationEnabled();
@@ -160,11 +160,11 @@ public class OStorageConfigurationPayload {
     return properties;
   }
 
-  public ORecordId getSchemaRecordId() {
+  public YTRecordId getSchemaRecordId() {
     return schemaRecordId;
   }
 
-  public ORecordId getIndexMgrRecordId() {
+  public YTRecordId getIndexMgrRecordId() {
     return indexMgrRecordId;
   }
 

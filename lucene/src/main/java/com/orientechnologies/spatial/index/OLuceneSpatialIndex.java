@@ -15,11 +15,11 @@
 package com.orientechnologies.spatial.index;
 
 import com.orientechnologies.lucene.index.OLuceneIndexNotUnique;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
@@ -41,8 +41,8 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
   }
 
   @Override
-  public OLuceneIndexNotUnique put(ODatabaseSessionInternal session, Object key,
-      OIdentifiable value) {
+  public OLuceneIndexNotUnique put(YTDatabaseSessionInternal session, Object key,
+      YTIdentifiable value) {
     if (key == null) {
       return this;
     }
@@ -74,8 +74,8 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
   @Override
   protected Object encodeKey(Object key) {
 
-    if (key instanceof ODocument) {
-      Shape shape = shapeFactory.fromDoc((ODocument) key);
+    if (key instanceof YTDocument) {
+      Shape shape = shapeFactory.fromDoc((YTDocument) key);
       return shapeFactory.toGeometry(shape);
     }
     return key;
@@ -95,7 +95,7 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
     // 1. Handle common fast paths.
 
     List<OTransactionIndexChangesPerKey.OTransactionIndexEntry> entries = item.getEntriesAsList();
-    Map<OIdentifiable, Integer> counters = new LinkedHashMap<>();
+    Map<YTIdentifiable, Integer> counters = new LinkedHashMap<>();
 
     for (OTransactionIndexChangesPerKey.OTransactionIndexEntry entry : entries) {
 
@@ -118,8 +118,8 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
 
     OTransactionIndexChangesPerKey changes = new OTransactionIndexChangesPerKey(item.key);
 
-    for (Map.Entry<OIdentifiable, Integer> entry : counters.entrySet()) {
-      OIdentifiable oIdentifiable = entry.getKey();
+    for (Map.Entry<YTIdentifiable, Integer> entry : counters.entrySet()) {
+      YTIdentifiable oIdentifiable = entry.getKey();
       switch (entry.getValue()) {
         case 1:
           changes.add(oIdentifiable, OTransactionIndexChanges.OPERATION.PUT);

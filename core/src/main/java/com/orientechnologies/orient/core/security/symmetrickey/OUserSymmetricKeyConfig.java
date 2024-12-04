@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.security.symmetrickey;
 
 import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Map;
 
 /**
@@ -86,8 +86,8 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
         && !keystoreKeyAlias.isEmpty();
   }
 
-  public OUserSymmetricKeyConfig(final ODocument doc) {
-    ODocument props = doc.field("properties");
+  public OUserSymmetricKeyConfig(final YTDocument doc) {
+    YTDocument props = doc.field("properties");
 
     if (props == null) {
       throw new OSecurityException("OUserSymmetricKeyConfig() OUser properties is null");
@@ -119,7 +119,7 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
       } else {
         Map<String, Object> ksMap = props.field("keyStore");
 
-        ODocument ksDoc = new ODocument();
+        YTDocument ksDoc = new YTDocument();
         ksDoc.fromMap(ksMap);
 
         this.keystoreFile = ksDoc.field("file");

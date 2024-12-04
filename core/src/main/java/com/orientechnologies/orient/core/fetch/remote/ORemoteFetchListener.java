@@ -16,13 +16,13 @@
  */
 package com.orientechnologies.orient.core.fetch.remote;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchListener;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Fetch listener for {@class ONetworkBinaryProtocol} class
@@ -38,22 +38,22 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   public ORemoteFetchListener() {
   }
 
-  protected abstract void sendRecord(ORecordAbstract iLinked);
+  protected abstract void sendRecord(YTRecordAbstract iLinked);
 
   public void processStandardField(
-      ODocument iRecord,
+      YTDocument iRecord,
       Object iFieldValue,
       String iFieldName,
       OFetchContext iContext,
       final Object iusObject,
       final String iFormat,
-      OType filedType)
+      YTType filedType)
       throws OFetchException {
   }
 
   public void parseLinked(
-      ODocument iRootRecord,
-      OIdentifiable iLinked,
+      YTDocument iRootRecord,
+      YTIdentifiable iLinked,
       Object iUserObject,
       String iFieldName,
       OFetchContext iContext)
@@ -61,8 +61,8 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public void parseLinkedCollectionValue(
-      ODocument iRootRecord,
-      OIdentifiable iLinked,
+      YTDocument iRootRecord,
+      YTIdentifiable iLinked,
       Object iUserObject,
       String iFieldName,
       OFetchContext iContext)
@@ -70,11 +70,11 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public Object fetchLinkedMapEntry(
-      ODocument iRoot,
+      YTDocument iRoot,
       Object iUserObject,
       String iFieldName,
       String iKey,
-      ODocument iLinked,
+      YTDocument iLinked,
       OFetchContext iContext)
       throws OFetchException {
     if (iLinked.getIdentity().isValid()) {
@@ -85,10 +85,10 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public Object fetchLinkedCollectionValue(
-      ODocument iRoot,
+      YTDocument iRoot,
       Object iUserObject,
       String iFieldName,
-      ODocument iLinked,
+      YTDocument iLinked,
       OFetchContext iContext)
       throws OFetchException {
     if (iLinked.getIdentity().isValid()) {
@@ -99,10 +99,10 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public Object fetchLinked(
-      ODocument iRoot,
+      YTDocument iRoot,
       Object iUserObject,
       String iFieldName,
-      ODocument iLinked,
+      YTDocument iLinked,
       OFetchContext iContext)
       throws OFetchException {
     sendRecord(iLinked);
@@ -111,7 +111,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
 
   @Override
   public void skipStandardField(
-      ODocument iRecord,
+      YTDocument iRecord,
       String iFieldName,
       OFetchContext iContext,
       Object iUserObject,

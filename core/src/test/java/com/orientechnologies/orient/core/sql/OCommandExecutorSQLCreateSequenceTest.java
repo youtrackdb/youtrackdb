@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,12 +35,12 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
   public void testSimple() {
     db.command("CREATE SEQUENCE Sequence1 TYPE ORDERED").close();
 
-    List<OElement> results =
+    List<YTEntity> results =
         db.query("select sequence('Sequence1').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(1L);
     }
     results =
@@ -48,7 +48,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(2L);
     }
     results =
@@ -56,7 +56,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(3L);
     }
   }
@@ -65,12 +65,12 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
   public void testIncrement() {
     db.command("CREATE SEQUENCE SequenceIncrement TYPE ORDERED INCREMENT 3").close();
 
-    List<OElement> results =
+    List<YTEntity> results =
         db.query("select sequence('SequenceIncrement').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(3L);
     }
     results =
@@ -78,7 +78,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(6L);
     }
     results =
@@ -86,7 +86,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(9L);
     }
   }
@@ -95,12 +95,12 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
   public void testStart() {
     db.command("CREATE SEQUENCE SequenceStart TYPE ORDERED START 3").close();
 
-    List<OElement> results =
+    List<YTEntity> results =
         db.query("select sequence('SequenceStart').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(4L);
     }
     results =
@@ -108,7 +108,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(5L);
     }
     results =
@@ -116,7 +116,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(6L);
     }
   }
@@ -125,12 +125,12 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
   public void testStartIncrement() {
     db.command("CREATE SEQUENCE SequenceStartIncrement TYPE ORDERED START 3 INCREMENT 10").close();
 
-    List<OElement> results =
+    List<YTEntity> results =
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(13L);
     }
     results =
@@ -138,7 +138,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(23L);
     }
     results =
@@ -146,7 +146,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
             .map(OResult::toElement)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
-    for (OElement result : results) {
+    for (YTEntity result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(33L);
     }
   }

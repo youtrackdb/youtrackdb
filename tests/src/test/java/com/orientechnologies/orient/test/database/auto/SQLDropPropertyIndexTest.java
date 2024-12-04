@@ -19,9 +19,9 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -32,8 +32,8 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
 
-  private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
-  private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
+  private static final YTType EXPECTED_PROP1_TYPE = YTType.DOUBLE;
+  private static final YTType EXPECTED_PROP2_TYPE = YTType.INTEGER;
 
   @Parameters(value = "remote")
   public SQLDropPropertyIndexTest(boolean remote) {
@@ -44,8 +44,8 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.createClass("DropPropertyIndexTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.createClass("DropPropertyIndexTestClass");
     oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
   }
@@ -154,7 +154,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
     Assert.assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
     Assert.assertEquals(
-        indexDefinition.getTypes(), new OType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
+        indexDefinition.getTypes(), new YTType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
   }
 
@@ -191,7 +191,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
     Assert.assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
     Assert.assertEquals(
-        indexDefinition.getTypes(), new OType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
+        indexDefinition.getTypes(), new YTType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
   }
 }

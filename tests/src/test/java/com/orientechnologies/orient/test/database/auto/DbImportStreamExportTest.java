@@ -17,8 +17,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -52,7 +52,7 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
 
   @Test
   public void testDbExport() throws IOException {
-    final ODatabaseSessionInternal database = acquireSession();
+    final YTDatabaseSessionInternal database = acquireSession();
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
@@ -74,8 +74,8 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
       importDir.mkdir();
     }
 
-    final ODatabaseSessionInternal database =
-        new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
+    final YTDatabaseSessionInternal database =
+        new YTDatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
     final ODatabaseImport dbImport =
@@ -101,9 +101,9 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
       }
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
-    ODatabaseSessionInternal first = acquireSession();
-    ODatabaseSessionInternal second =
-        new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
+    YTDatabaseSessionInternal first = acquireSession();
+    YTDatabaseSessionInternal second =
+        new YTDatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     second.open("admin", "admin");
 
     final ODatabaseCompare databaseCompare = new ODatabaseCompare(first, second, this);

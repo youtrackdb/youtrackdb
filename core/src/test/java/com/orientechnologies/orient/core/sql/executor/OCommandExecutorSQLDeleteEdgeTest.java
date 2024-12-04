@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -21,22 +21,22 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class OCommandExecutorSQLDeleteEdgeTest extends DBTestBase {
 
-  private static ORID folderId1;
-  private static ORID userId1;
-  private List<OIdentifiable> edges;
+  private static YTRID folderId1;
+  private static YTRID userId1;
+  private List<YTIdentifiable> edges;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final OSchema schema = db.getMetadata().getSchema();
+    final YTSchema schema = db.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));
     schema.createClass("Folder", schema.getClass("V"));
     schema.createClass("CanAccess", schema.getClass("E"));
 
     db.begin();
-    var doc = new ODocument("User").field("username", "gongolo");
+    var doc = new YTDocument("User").field("username", "gongolo");
     doc.save();
     userId1 = doc.getIdentity();
-    doc = new ODocument("Folder").field("keyId", "01234567893");
+    doc = new YTDocument("Folder").field("keyId", "01234567893");
     doc.save();
     folderId1 = doc.getIdentity();
     db.commit();

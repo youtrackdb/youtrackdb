@@ -24,8 +24,8 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -61,7 +61,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     namedParams = false;
     this.serializer = serializer;
     this.operationType = operationType;
-    ODocument parms = new ODocument();
+    YTDocument parms = new YTDocument();
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(null, parms, serializer);
@@ -76,7 +76,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    ODocument parms = new ODocument();
+    YTDocument parms = new YTDocument();
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(null, parms, serializer);
@@ -93,7 +93,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeString(language);
     network.writeString(statement);
@@ -107,7 +107,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     network.writeBoolean(namedParams);
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     this.language = channel.readString();
@@ -149,7 +149,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
   public Map<String, Object> getParams() {
     if (params == null && this.paramsBytes != null) {
       // params
-      ODocument paramsDoc = new ODocument();
+      YTDocument paramsDoc = new YTDocument();
       paramsDoc.setTrackingChanges(false);
       serializer.fromStream(null, this.paramsBytes, paramsDoc, null);
       this.params = paramsDoc.field("params");

@@ -22,9 +22,9 @@ import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdExceptio
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.List;
@@ -42,7 +42,8 @@ public class OAutoShardingClusterSelectionStrategy implements OClusterSelectionS
   private final List<String> indexedFields;
   private final int[] clusters;
 
-  public OAutoShardingClusterSelectionStrategy(final OClass clazz, final OIndex autoShardingIndex) {
+  public OAutoShardingClusterSelectionStrategy(final YTClass clazz,
+      final OIndex autoShardingIndex) {
     index = autoShardingIndex;
     if (index == null) {
       throw new OConfigurationException(
@@ -86,12 +87,12 @@ public class OAutoShardingClusterSelectionStrategy implements OClusterSelectionS
     clusters = clazz.getClusterIds();
   }
 
-  public int getCluster(final OClass iClass, int[] clusters, final ODocument doc) {
+  public int getCluster(final YTClass iClass, int[] clusters, final YTDocument doc) {
     // Ignore the subselection.
     return getCluster(iClass, doc);
   }
 
-  public int getCluster(final OClass clazz, final ODocument doc) {
+  public int getCluster(final YTClass clazz, final YTDocument doc) {
     final Object fieldValue = doc.field(indexedFields.get(0));
 
     return clusters[

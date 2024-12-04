@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.storage.impl.local.OStorageRecoverEventListener;
 import java.util.Objects;
@@ -26,37 +26,37 @@ public class GraphRecoveringTest {
     public long repairedVertices = 0;
 
     @Override
-    public void onScannedEdge(ODocument edge) {
+    public void onScannedEdge(YTDocument edge) {
       scannedEdges++;
     }
 
     @Override
-    public void onRemovedEdge(ODocument edge) {
+    public void onRemovedEdge(YTDocument edge) {
       removedEdges++;
     }
 
     @Override
-    public void onScannedVertex(ODocument vertex) {
+    public void onScannedVertex(YTDocument vertex) {
       scannedVertices++;
     }
 
     @Override
-    public void onScannedLink(OIdentifiable link) {
+    public void onScannedLink(YTIdentifiable link) {
       scannedLinks++;
     }
 
     @Override
-    public void onRemovedLink(OIdentifiable link) {
+    public void onRemovedLink(YTIdentifiable link) {
       removedLinks++;
     }
 
     @Override
-    public void onRepairedVertex(ODocument vertex) {
+    public void onRepairedVertex(YTDocument vertex) {
       repairedVertices++;
     }
   }
 
-  private void init(ODatabaseSession session) {
+  private void init(YTDatabaseSession session) {
     session.createVertexClass("V1");
     session.createVertexClass("V2");
     session.createEdgeClass("E1");
@@ -118,9 +118,9 @@ public class GraphRecoveringTest {
         for (var e :
             session.query("select from E").stream()
                 .map(OResult::toElement)
-                .map(OElement::toEdge)
+                .map(YTEntity::toEdge)
                 .toList()) {
-          e.<ODocument>getRecord().removeField("out");
+          e.<YTDocument>getRecord().removeField("out");
           e.save();
         }
         session.commit();
@@ -157,11 +157,11 @@ public class GraphRecoveringTest {
             session.query("select from V").stream()
                 .map(OResult::toElement)
                 .filter(Objects::nonNull)
-                .map(OElement::toVertex)
+                .map(YTEntity::toVertex)
                 .toList()) {
-          for (String f : v.<ODocument>getRecord().fieldNames()) {
-            if (f.startsWith(OVertex.DIRECTION_OUT_PREFIX)) {
-              v.<ODocument>getRecord().removeField(f);
+          for (String f : v.<YTDocument>getRecord().fieldNames()) {
+            if (f.startsWith(YTVertex.DIRECTION_OUT_PREFIX)) {
+              v.<YTDocument>getRecord().removeField(f);
               v.save();
             }
           }

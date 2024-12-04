@@ -6,16 +6,16 @@ import com.orientechnologies.lucene.exception.OLuceneIndexException;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
@@ -57,14 +57,14 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
   }
 
   @Override
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return OLuceneSearchMoreLikeThisFunction.NAME;
   }
 
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] params,
       OCommandContext ctx) {
@@ -73,12 +73,12 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "SEARCH_MORE( [rids], [ metdatada {} ] )";
   }
 
   @Override
-  public Iterable<OIdentifiable> searchFromTarget(
+  public Iterable<YTIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -99,17 +99,17 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
     List<String> ridsAsString = parseRids(ctx, expression);
 
-    List<ORecord> others =
+    List<YTRecord> others =
         ridsAsString.stream()
             .map(
                 rid -> {
-                  ORecordId recordId = new ChangeableRecordId();
+                  YTRecordId recordId = new ChangeableRecordId();
 
                   recordId.fromString(rid);
                   recordId = recordId.copy();
                   return recordId;
                 })
-            .<ORecord>map(ORecordId::getRecord)
+            .<YTRecord>map(YTRecordId::getRecord)
             .toList();
 
     MoreLikeThis mlt = buildMoreLikeThis(index, searcher, metadata);
@@ -122,8 +122,8 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
     Query mltQuery = queryBuilder.build();
 
-    Set<OIdentifiable> luceneResultSet;
-    try (Stream<ORID> rids =
+    Set<YTIdentifiable> luceneResultSet;
+    try (Stream<YTRID> rids =
         index
             .getInternal()
             .getRids(ctx.getDatabase(),
@@ -139,11 +139,11 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
   private List<String> parseRids(OCommandContext ctx, OExpression expression) {
 
-    Object expResult = expression.execute((OIdentifiable) null, ctx);
+    Object expResult = expression.execute((YTIdentifiable) null, ctx);
 
     // single rind
-    if (expResult instanceof OIdentifiable) {
-      return Collections.singletonList(((OIdentifiable) expResult).getIdentity().toString());
+    if (expResult instanceof YTIdentifiable) {
+      return Collections.singletonList(((YTIdentifiable) expResult).getIdentity().toString());
     }
 
     Iterator iter;
@@ -165,20 +165,20 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
           var properties = ((OResult) item).getPropertyNames();
           if (properties.size() == 1) {
             Object val = ((OResult) item).getProperty(properties.iterator().next());
-            if (val instanceof OIdentifiable) {
-              rids.add(((OIdentifiable) val).getIdentity().toString());
+            if (val instanceof YTIdentifiable) {
+              rids.add(((YTIdentifiable) val).getIdentity().toString());
             }
           }
         }
-      } else if (item instanceof OIdentifiable) {
-        rids.add(((OIdentifiable) item).getIdentity().toString());
+      } else if (item instanceof YTIdentifiable) {
+        rids.add(((YTIdentifiable) item).getIdentity().toString());
       }
     }
     return rids;
   }
 
   private static Map<String, ?> parseMetadata(OExpression[] args) {
-    ODocument metadata = new ODocument();
+    YTDocument metadata = new YTDocument();
     if (args.length == 2) {
       metadata.fromJSON(args[1].toString());
     }
@@ -240,9 +240,9 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     return mlt;
   }
 
-  private void addLikeQueries(List<ORecord> others, MoreLikeThis mlt, Builder queryBuilder) {
+  private void addLikeQueries(List<YTRecord> others, MoreLikeThis mlt, Builder queryBuilder) {
     others.stream()
-        .map(or -> ((ORecordAbstract) or).getSession().<OElement>load(or.getIdentity()))
+        .map(or -> ((YTRecordAbstract) or).getSession().<YTEntity>load(or.getIdentity()))
         .forEach(
             element ->
                 Arrays.stream(mlt.getFieldNames())

@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -252,7 +252,7 @@ public class OCreateSecurityPolicyStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached(ODatabaseSessionInternal session) {
+  public boolean executinPlanCanBeCached(YTDatabaseSessionInternal session) {
     if (create != null && !create.isCacheable(session)) {
       return false;
     }

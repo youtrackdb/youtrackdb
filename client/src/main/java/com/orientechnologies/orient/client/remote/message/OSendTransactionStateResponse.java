@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.Map;
 
 public class OSendTransactionStateResponse extends OBeginTransactionResponse {
@@ -9,7 +9,7 @@ public class OSendTransactionStateResponse extends OBeginTransactionResponse {
   }
 
   public OSendTransactionStateResponse(long txId,
-      Map<ORID, ORID> updatedIds) {
+      Map<YTRID, YTRID> updatedIds) {
     super(txId, updatedIds);
   }
 

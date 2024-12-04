@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -25,8 +25,8 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testShortName() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass(SHORTNAME_CLASS_NAME);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass(SHORTNAME_CLASS_NAME);
     Assert.assertNull(oClass.getShortName());
     Assert.assertNull(queryShortName());
 
@@ -61,18 +61,18 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testShortNameSnapshot() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass(SHORTNAME_CLASS_NAME);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass(SHORTNAME_CLASS_NAME);
     Assert.assertNull(oClass.getShortName());
 
     String shortName = "shortName";
     oClass.setShortName(db, shortName);
     assertEquals(shortName, oClass.getShortName());
-    OClass shorted = schema.getClass(shortName);
+    YTClass shorted = schema.getClass(shortName);
     Assert.assertNotNull(shorted);
     assertEquals(shortName, shorted.getShortName());
     OMetadataInternal intern = db.getMetadata();
-    OImmutableSchema immSchema = intern.getImmutableSchemaSnapshot();
+    YTImmutableSchema immSchema = intern.getImmutableSchemaSnapshot();
     shorted = immSchema.getClass(shortName);
     Assert.assertNotNull(shorted);
     assertEquals(shortName, shorted.getShortName());
@@ -80,8 +80,8 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testRename() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("ClassName");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("ClassName");
 
     final OStorage storage = db.getStorage();
     final OAbstractPaginatedStorage paginatedStorage = (OAbstractPaginatedStorage) storage;
@@ -101,21 +101,21 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testRenameClusterAlreadyExists() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classOne = schema.createClass("ClassOne");
-    OClass classTwo = schema.createClass("ClassTwo");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classOne = schema.createClass("ClassOne");
+    YTClass classTwo = schema.createClass("ClassTwo");
 
     final int clusterId = db.addCluster("classthree");
     classTwo.addClusterId(db, clusterId);
 
     db.begin();
-    ODocument document = new ODocument("ClassTwo");
+    YTDocument document = new YTDocument("ClassTwo");
     document.save("classthree");
 
-    document = new ODocument("ClassTwo");
+    document = new YTDocument("ClassTwo");
     document.save();
 
-    document = new ODocument("ClassOne");
+    document = new YTDocument("ClassOne");
     document.save();
     db.commit();
 
@@ -142,22 +142,22 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testOClassAndOPropertyDescription() {
-    final OSchema oSchema = db.getMetadata().getSchema();
-    OClass oClass = oSchema.createClass("DescriptionTest");
-    OProperty oProperty = oClass.createProperty(db, "property", OType.STRING);
+    final YTSchema oSchema = db.getMetadata().getSchema();
+    YTClass oClass = oSchema.createClass("DescriptionTest");
+    YTProperty property = oClass.createProperty(db, "property", YTType.STRING);
     oClass.setDescription(db, "DescriptionTest-class-description");
-    oProperty.setDescription(db, "DescriptionTest-property-description");
+    property.setDescription(db, "DescriptionTest-property-description");
     assertEquals(oClass.getDescription(), "DescriptionTest-class-description");
-    assertEquals(oProperty.getDescription(), "DescriptionTest-property-description");
+    assertEquals(property.getDescription(), "DescriptionTest-property-description");
     oClass = oSchema.getClass("DescriptionTest");
-    oProperty = oClass.getProperty("property");
+    property = oClass.getProperty("property");
     assertEquals(oClass.getDescription(), "DescriptionTest-class-description");
-    assertEquals(oProperty.getDescription(), "DescriptionTest-property-description");
+    assertEquals(property.getDescription(), "DescriptionTest-property-description");
 
     oClass = db.getMetadata().getImmutableSchemaSnapshot().getClass("DescriptionTest");
-    oProperty = oClass.getProperty("property");
+    property = oClass.getProperty("property");
     assertEquals(oClass.getDescription(), "DescriptionTest-class-description");
-    assertEquals(oProperty.getDescription(), "DescriptionTest-property-description");
+    assertEquals(property.getDescription(), "DescriptionTest-property-description");
   }
 
   private String queryShortName() {

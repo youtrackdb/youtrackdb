@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.sql.functions.sequence;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
 
@@ -23,7 +23,7 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
       OCommandContext iContext) {
@@ -40,7 +40,7 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
       seqName = "" + iParams[0];
     }
 
-    OSequence result =
+    YTSequence result =
         ODatabaseRecordThreadLocal.instance()
             .get()
             .getMetadata()
@@ -58,7 +58,7 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "sequence(<name>)";
   }
 

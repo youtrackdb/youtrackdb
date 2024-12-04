@@ -4,8 +4,8 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                result.add(new OResultInternal(ctx.getDatabase(), new ODocument(className)));
+                result.add(new OResultInternal(ctx.getDatabase(), new YTDocument(className)));
               }
               done = true;
             }
@@ -50,8 +50,8 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
   public void shouldCheckRecordsOfSubclasses() {
     OCommandContext context = new OBasicCommandContext();
     context.setDatabase(db);
-    OClass parentClass = createClassInstance();
-    OClass childClass = createChildClassInstance(parentClass);
+    YTClass parentClass = createClassInstance();
+    YTClass childClass = createChildClassInstance(parentClass);
     CheckRecordTypeStep step = new CheckRecordTypeStep(context, parentClass.getName(), false);
     AbstractExecutionStep previous =
         new AbstractExecutionStep(context, false) {
@@ -64,7 +64,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new OResultInternal(ctx.getDatabase(),
-                        new ODocument(i % 2 == 0 ? parentClass : childClass)));
+                        new YTDocument(i % 2 == 0 ? parentClass : childClass)));
               }
               done = true;
             }
@@ -96,7 +96,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new OResultInternal(ctx.getDatabase(),
-                        new ODocument(i % 2 == 0 ? firstClassName : secondClassName)));
+                        new YTDocument(i % 2 == 0 ? firstClassName : secondClassName)));
               }
               done = true;
             }

@@ -2,8 +2,8 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,14 +30,14 @@ public interface OHttpResponse {
 
   void writeContent(String iContent) throws IOException;
 
-  void writeResult(Object result, ODatabaseSessionInternal databaseDocumentInternal)
+  void writeResult(Object result, YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
       Object iResult,
       String iFormat,
       String iAccept,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
@@ -45,7 +45,7 @@ public interface OHttpResponse {
       String iFormat,
       String iAccept,
       Map<String, Object> iAdditionalProperties,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
@@ -54,14 +54,14 @@ public interface OHttpResponse {
       String iAccept,
       Map<String, Object> iAdditionalProperties,
       String mode,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
-  void writeRecords(Object iRecords, ODatabaseSessionInternal databaseDocumentInternal)
+  void writeRecords(Object iRecords, YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
-      Object iRecords, String iFetchPlan, ODatabaseSessionInternal databaseDocumentInternal)
+      Object iRecords, String iFetchPlan, YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -69,7 +69,7 @@ public interface OHttpResponse {
       String iFetchPlan,
       String iFormat,
       String accept,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -78,7 +78,7 @@ public interface OHttpResponse {
       String iFormat,
       String accept,
       Map<String, Object> iAdditionalProperties,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -88,19 +88,19 @@ public interface OHttpResponse {
       String accept,
       Map<String, Object> iAdditionalProperties,
       String mode,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void formatMultiValue(
       Iterator<?> iIterator,
       Writer buffer,
       String format,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
-  void writeRecord(ORecord iRecord) throws IOException;
+  void writeRecord(YTRecord iRecord) throws IOException;
 
-  void writeRecord(ORecord iRecord, String iFetchPlan, String iFormat) throws IOException;
+  void writeRecord(YTRecord iRecord, String iFetchPlan, String iFormat) throws IOException;
 
   void sendStream(int iCode, String iReason, String iContentType, InputStream iContent, long iSize)
       throws IOException;

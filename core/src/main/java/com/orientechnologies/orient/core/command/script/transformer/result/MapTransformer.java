@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.command.script.transformer.result;
 
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class MapTransformer implements OResultTransformer<Map<Object, Object>> {
   }
 
   @Override
-  public OResult transform(ODatabaseSessionInternal db, Map<Object, Object> element) {
+  public OResult transform(YTDatabaseSessionInternal db, Map<Object, Object> element) {
     OResultInternal internal = new OResultInternal(db);
     element.forEach(
         (key, val) -> {

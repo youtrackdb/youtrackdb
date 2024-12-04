@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.security;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -43,7 +43,7 @@ public class ResourceDerivedTest {
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession db = youTrackDB.open("test", "admin", "admin");
+    YTDatabaseSession db = youTrackDB.open("test", "admin", "admin");
 
     db.begin();
     db.command(
@@ -126,7 +126,7 @@ public class ResourceDerivedTest {
     db.close();
   }
 
-  private OResultSet query(ODatabaseSession db, String sql, Object... params) {
+  private OResultSet query(YTDatabaseSession db, String sql, Object... params) {
     return db.query(sql, params);
   }
 
@@ -139,7 +139,7 @@ public class ResourceDerivedTest {
   // This tests for a result size of three.  The "Customer_u2" record should not be included.
   public void shouldTestFiltering() {
 
-    ODatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer");
@@ -154,7 +154,7 @@ public class ResourceDerivedTest {
   // This should return the record in "Customer_t2" but filter out the "Customer_u2" record.
   public void shouldTestCustomer_t2() {
 
-    ODatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer_t2");
@@ -167,7 +167,7 @@ public class ResourceDerivedTest {
 
   public void shouldTestAccess2() {
 
-    ODatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer_u2");
@@ -179,7 +179,7 @@ public class ResourceDerivedTest {
 
   public void shouldTestCustomer() {
 
-    ODatabaseSession db = youTrackDB.open("test", "tenant2", "password");
+    YTDatabaseSession db = youTrackDB.open("test", "tenant2", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer");
@@ -194,7 +194,7 @@ public class ResourceDerivedTest {
   // included.
   public void shouldTestCustomer_t2Tenant2() {
 
-    ODatabaseSession db = youTrackDB.open("test", "tenant2", "password");
+    YTDatabaseSession db = youTrackDB.open("test", "tenant2", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer_t2");

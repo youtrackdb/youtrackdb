@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.server.query;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
@@ -42,7 +42,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testQuery() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      ODocument doc = new ODocument("Some");
+      YTDocument doc = new YTDocument("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -60,7 +60,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testCommandSelect() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      ODocument doc = new ODocument("Some");
+      YTDocument doc = new YTDocument("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -78,7 +78,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testCommandInsertWithPageOverflow() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      ODocument doc = new ODocument("Some");
+      YTDocument doc = new YTDocument("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -97,7 +97,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test(expected = ODatabaseException.class)
   public void testQueryKilledSession() {
     for (int i = 0; i < 150; i++) {
-      ODocument doc = new ODocument("Some");
+      YTDocument doc = new YTDocument("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
     }
@@ -118,11 +118,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbedded() {
     db.begin();
-    ODocument doc = new ODocument("Some");
+    YTDocument doc = new YTDocument("Some");
     doc.setProperty("prop", "value");
-    ODocument emb = new ODocument();
+    YTDocument emb = new YTDocument();
     emb.setProperty("one", "value");
-    doc.setProperty("emb", emb, OType.EMBEDDED);
+    doc.setProperty("emb", emb, YTType.EMBEDDED);
     db.save(doc);
     db.commit();
 
@@ -136,15 +136,15 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryDoubleEmbedded() {
     db.begin();
-    ODocument doc = new ODocument("Some");
+    YTDocument doc = new YTDocument("Some");
     doc.setProperty("prop", "value");
-    ODocument emb1 = new ODocument();
+    YTDocument emb1 = new YTDocument();
     emb1.setProperty("two", "value");
-    ODocument emb = new ODocument();
+    YTDocument emb = new YTDocument();
     emb.setProperty("one", "value");
-    emb.setProperty("secEmb", emb1, OType.EMBEDDED);
+    emb.setProperty("secEmb", emb1, YTType.EMBEDDED);
 
-    doc.setProperty("emb", emb, OType.EMBEDDED);
+    doc.setProperty("emb", emb, YTType.EMBEDDED);
     db.save(doc);
     db.commit();
 
@@ -160,13 +160,13 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedList() {
     db.begin();
-    ODocument doc = new ODocument("Some");
+    YTDocument doc = new YTDocument("Some");
     doc.setProperty("prop", "value");
-    ODocument emb = new ODocument();
+    YTDocument emb = new YTDocument();
     emb.setProperty("one", "value");
     List<Object> list = new ArrayList<>();
     list.add(emb);
-    doc.setProperty("list", list, OType.EMBEDDEDLIST);
+    doc.setProperty("list", list, YTType.EMBEDDEDLIST);
     db.save(doc);
     db.commit();
 
@@ -181,13 +181,13 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedSet() {
     db.begin();
-    ODocument doc = new ODocument("Some");
+    YTDocument doc = new YTDocument("Some");
     doc.setProperty("prop", "value");
-    ODocument emb = new ODocument();
+    YTDocument emb = new YTDocument();
     emb.setProperty("one", "value");
-    Set<ODocument> set = new HashSet<>();
+    Set<YTDocument> set = new HashSet<>();
     set.add(emb);
-    doc.setProperty("set", set, OType.EMBEDDEDSET);
+    doc.setProperty("set", set, YTType.EMBEDDEDSET);
     db.save(doc);
     db.commit();
 
@@ -203,13 +203,13 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedMap() {
     db.begin();
-    ODocument doc = new ODocument("Some");
+    YTDocument doc = new YTDocument("Some");
     doc.setProperty("prop", "value");
-    ODocument emb = new ODocument();
+    YTDocument emb = new YTDocument();
     emb.setProperty("one", "value");
-    Map<String, ODocument> map = new HashMap<>();
+    Map<String, YTDocument> map = new HashMap<>();
     map.put("key", emb);
-    doc.setProperty("map", map, OType.EMBEDDEDMAP);
+    doc.setProperty("map", map, YTType.EMBEDDEDMAP);
     db.save(doc);
     db.commit();
 
@@ -229,7 +229,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
     db.command("insert into Some set prop = 'value'");
 
-    ORecord record;
+    YTRecord record;
 
     try (OResultSet resultSet = db.command("insert into Some set prop = 'value'")) {
       record = resultSet.next().getRecord().get();
@@ -246,7 +246,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
       db.query("select from Some where prop= ?", new Object()).close();
     } catch (RuntimeException e) {
       // should be possible to run a query after without getting the server stuck
-      db.query("select from Some where prop= ?", new ORecordId(10, 10)).close();
+      db.query("select from Some where prop= ?", new YTRecordId(10, 10)).close();
       throw e;
     }
   }

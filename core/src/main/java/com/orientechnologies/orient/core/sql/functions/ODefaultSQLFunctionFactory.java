@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.core.sql.functions;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.functions.coll.OSQLFunctionDifference;
 import com.orientechnologies.orient.core.sql.functions.coll.OSQLFunctionDistinct;
 import com.orientechnologies.orient.core.sql.functions.coll.OSQLFunctionDocument;
@@ -78,7 +78,7 @@ import com.orientechnologies.orient.core.sql.functions.text.OSQLFunctionFormat;
 public final class ODefaultSQLFunctionFactory extends OSQLFunctionFactoryTemplate {
 
   @Override
-  public void registerDefaultFunctions(ODatabaseSessionInternal db) {
+  public void registerDefaultFunctions(YTDatabaseSessionInternal db) {
     // MISC FUNCTIONS
     register(OSQLFunctionAverage.NAME, OSQLFunctionAverage.class);
     register(OSQLFunctionCoalesce.NAME, new OSQLFunctionCoalesce());

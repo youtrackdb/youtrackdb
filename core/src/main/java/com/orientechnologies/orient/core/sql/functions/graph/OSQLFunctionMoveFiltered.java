@@ -4,8 +4,8 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFiltered;
 
@@ -28,10 +28,10 @@ public abstract class OSQLFunctionMoveFiltered extends OSQLFunctionMove
   @Override
   public Object execute(
       final Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParameters,
-      final Iterable<OIdentifiable> iPossibleResults,
+      final Iterable<YTIdentifiable> iPossibleResults,
       final OCommandContext iContext) {
     final String[] labels;
     if (iParameters != null && iParameters.length > 0 && iParameters[0] != null) {
@@ -51,9 +51,9 @@ public abstract class OSQLFunctionMoveFiltered extends OSQLFunctionMove
     }
 
     return OSQLEngine.foreachRecord(
-        new OCallable<Object, OIdentifiable>() {
+        new OCallable<Object, YTIdentifiable>() {
           @Override
-          public Object call(final OIdentifiable iArgument) {
+          public Object call(final YTIdentifiable iArgument) {
             return move(iContext.getDatabase(), iArgument, labels, iPossibleResults);
           }
         },
@@ -62,8 +62,8 @@ public abstract class OSQLFunctionMoveFiltered extends OSQLFunctionMove
   }
 
   protected abstract Object move(
-      ODatabaseSession graph,
-      OIdentifiable iArgument,
+      YTDatabaseSession graph,
+      YTIdentifiable iArgument,
       String[] labels,
-      Iterable<OIdentifiable> iPossibleResults);
+      Iterable<YTIdentifiable> iPossibleResults);
 }

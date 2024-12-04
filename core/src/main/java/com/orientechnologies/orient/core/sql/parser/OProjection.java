@@ -3,9 +3,9 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -142,8 +142,8 @@ public class OProjection extends SimpleNode {
             .getElement()
             .ifPresent(
                 (e) -> {
-                  if (e.getRecord() instanceof ODocument) {
-                    ((ODocument) e.getRecord()).deserializeFields();
+                  if (e.getRecord() instanceof YTDocument) {
+                    ((YTDocument) e.getRecord()).deserializeFields();
                   }
                 });
         for (String alias : iRecord.getPropertyNames()) {
@@ -157,7 +157,7 @@ public class OProjection extends SimpleNode {
           result.setProperty(alias, val);
         }
         if (iRecord.getElement().isPresent()) {
-          OElement x = iRecord.getElement().get();
+          YTEntity x = iRecord.getElement().get();
           if (!this.excludes.contains("@rid")) {
             result.setProperty("@rid", x.getIdentity());
           }
@@ -279,7 +279,7 @@ public class OProjection extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("distinct", distinct);
     if (items != null) {
@@ -304,7 +304,7 @@ public class OProjection extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (items != null) {
       for (OProjectionItem item : items) {
         if (!item.isCacheable(session)) {

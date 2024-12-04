@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.enterprise.channel.binary;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -23,7 +23,7 @@ public interface OChannelDataInput {
 
   byte[] readBytes() throws IOException;
 
-  ORecordId readRID() throws IOException;
+  YTRecordId readRID() throws IOException;
 
   int readVersion() throws IOException;
 

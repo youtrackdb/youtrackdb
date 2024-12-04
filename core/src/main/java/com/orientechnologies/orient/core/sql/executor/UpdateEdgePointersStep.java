@@ -2,13 +2,13 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.OVertexInternal;
+import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collection;
 
@@ -48,7 +48,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
    *
    * @param record the edge record
    */
-  private void handleUpdateEdge(ODocument record) {
+  private void handleUpdateEdge(YTDocument record) {
     Object currentOut = record.field("out");
     Object currentIn = record.field("in");
 
@@ -66,12 +66,12 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
     validateOutInForEdge(currentOut, currentIn);
 
-    var prevInIdentifiable = (OIdentifiable) prevIn;
-    var currentInIdentifiable = (OIdentifiable) currentIn;
-    var currentOutIdentifiable = (OIdentifiable) currentOut;
-    var prevOutIdentifiable = (OIdentifiable) prevOut;
+    var prevInIdentifiable = (YTIdentifiable) prevIn;
+    var currentInIdentifiable = (YTIdentifiable) currentIn;
+    var currentOutIdentifiable = (YTIdentifiable) currentOut;
+    var prevOutIdentifiable = (YTIdentifiable) prevOut;
 
-    OVertexInternal.changeVertexEdgePointers(
+    YTVertexInternal.changeVertexEdgePointers(
         record,
         prevInIdentifiable,
         currentInIdentifiable,
@@ -99,13 +99,13 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
     if (iRecord == null) {
       return true;
     }
-    if (!(iRecord instanceof OIdentifiable)) {
+    if (!(iRecord instanceof YTIdentifiable)) {
       return true;
     }
     try {
-      ODocument record = ((OIdentifiable) iRecord).getRecord();
+      YTDocument record = ((YTIdentifiable) iRecord).getRecord();
       return (!ODocumentInternal.getImmutableSchemaClass(record)
-          .isSubClassOf(OClass.VERTEX_CLASS_NAME));
+          .isSubClassOf(YTClass.VERTEX_CLASS_NAME));
     } catch (ORecordNotFoundException rnf) {
       return true;
     }

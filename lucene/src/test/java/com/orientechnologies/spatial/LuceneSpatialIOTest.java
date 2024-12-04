@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.spatial.shape.OGeometryCollectionShapeBuilder;
 import com.orientechnologies.spatial.shape.OLineStringShapeBuilder;
 import com.orientechnologies.spatial.shape.OMultiLineStringShapeBuilder;
@@ -52,7 +52,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPointIO() throws ParseException, org.locationtech.jts.io.ParseException {
 
-    ODocument doc = new ODocument("OPoint");
+    YTDocument doc = new YTDocument("OPoint");
     doc.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -72,7 +72,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
 
     Assert.assertEquals(p2, p1);
 
-    ODocument parsed = builder.toDoc(p2);
+    YTDocument parsed = builder.toDoc(p2);
 
     Assert.assertEquals(doc.<OPointShapeBuilder>field("coordinates"), parsed.field("coordinates"));
   }
@@ -81,7 +81,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testMultiPointIO() {
 
-    ODocument doc = new ODocument("OMultiPoint");
+    YTDocument doc = new YTDocument("OMultiPoint");
     doc.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -115,7 +115,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Ignore
   public void testRectangleIO() {
 
-    ODocument doc = rectangle();
+    YTDocument doc = rectangle();
 
     ORectangleShapeBuilder builder = new ORectangleShapeBuilder();
 
@@ -134,7 +134,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testLineStringIO() {
 
-    ODocument doc = new ODocument("OLineString");
+    YTDocument doc = new YTDocument("OLineString");
     doc.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -167,7 +167,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testMultiLineStringIO() {
 
-    ODocument doc = new ODocument("OMultiLineString");
+    YTDocument doc = new YTDocument("OMultiLineString");
     doc.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -210,7 +210,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPolygonNoHolesIO() {
 
-    ODocument doc = new ODocument("OPolygon");
+    YTDocument doc = new YTDocument("OPolygon");
     doc.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -248,7 +248,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   @Test
   public void testPolygonHolesIO() {
 
-    ODocument doc = new ODocument("OPolygon");
+    YTDocument doc = new YTDocument("OPolygon");
     doc.field("coordinates", polygonCoordTestHole());
 
     Polygon polygon1 = polygonTestHole();
@@ -265,7 +265,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
   public void testMultiPolygon() throws IOException {
 
     OMultiPolygonShapeBuilder builder = new OMultiPolygonShapeBuilder();
-    ODocument multiPolygon = loadMultiPolygon();
+    YTDocument multiPolygon = loadMultiPolygon();
     MultiPolygon multiPolygon1 = createMultiPolygon();
 
     String m1 = builder.asText(multiPolygon);
@@ -279,7 +279,7 @@ public class LuceneSpatialIOTest extends BaseSpatialLuceneTest {
 
     OGeometryCollectionShapeBuilder builder =
         new OGeometryCollectionShapeBuilder(OShapeFactory.INSTANCE);
-    ODocument geometryCollection = geometryCollection();
+    YTDocument geometryCollection = geometryCollection();
     GeometryCollection collection = createGeometryCollection();
 
     String m1 = builder.asText(geometryCollection);

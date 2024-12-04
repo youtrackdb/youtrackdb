@@ -30,9 +30,9 @@ public class OSequenceAction {
 
   private final int actionType;
   private final String sequenceName;
-  private final OSequence.CreateParams parameters;
+  private final YTSequence.CreateParams parameters;
   // we need it for create action
-  private final OSequence.SEQUENCE_TYPE sequenceType;
+  private final YTSequence.SEQUENCE_TYPE sequenceType;
   private final Long currentValue;
 
   // to use only for SET_NEXT on CACHED sequences
@@ -41,14 +41,14 @@ public class OSequenceAction {
     this.currentValue = currentvalue;
     this.sequenceName = sequenceName;
     parameters = null;
-    sequenceType = OSequence.SEQUENCE_TYPE.CACHED;
+    sequenceType = YTSequence.SEQUENCE_TYPE.CACHED;
   }
 
   public OSequenceAction(
       int actionType,
       String sequenceName,
-      OSequence.CreateParams params,
-      OSequence.SEQUENCE_TYPE sequenceType) {
+      YTSequence.CreateParams params,
+      YTSequence.SEQUENCE_TYPE sequenceType) {
     this.actionType = actionType;
     this.sequenceName = sequenceName;
     this.parameters = params;
@@ -64,11 +64,11 @@ public class OSequenceAction {
     return sequenceName;
   }
 
-  public OSequence.CreateParams getParameters() {
+  public YTSequence.CreateParams getParameters() {
     return parameters;
   }
 
-  public OSequence.SEQUENCE_TYPE getSequenceType() {
+  public YTSequence.SEQUENCE_TYPE getSequenceType() {
     return sequenceType;
   }
 

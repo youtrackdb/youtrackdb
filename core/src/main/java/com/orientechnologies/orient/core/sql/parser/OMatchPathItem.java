@@ -3,11 +3,11 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.util.Collection;
 import java.util.Collections;
@@ -82,16 +82,16 @@ public class OMatchPathItem extends SimpleNode {
     }
   }
 
-  public Iterable<OIdentifiable> executeTraversal(
+  public Iterable<YTIdentifiable> executeTraversal(
       OMatchStatement.MatchContext matchContext,
       OCommandContext iCommandContext,
-      OIdentifiable startingPoint,
+      YTIdentifiable startingPoint,
       int depth) {
 
     OWhereClause filter = null;
     OWhereClause whileCondition = null;
     Integer maxDepth = null;
-    OClass oClass = null;
+    YTClass oClass = null;
     if (this.filter != null) {
       filter = this.filter.getFilter();
       whileCondition = this.filter.getWhileCondition();
@@ -101,20 +101,20 @@ public class OMatchPathItem extends SimpleNode {
           .getClass(className);
     }
 
-    Set<OIdentifiable> result = new HashSet<OIdentifiable>();
+    Set<YTIdentifiable> result = new HashSet<YTIdentifiable>();
 
     if (whileCondition == null
         && maxDepth
         == null) { // in this case starting point is not returned and only one level depth is
       // evaluated
-      Iterable<OIdentifiable> queryResult =
+      Iterable<YTIdentifiable> queryResult =
           traversePatternEdge(matchContext, startingPoint, iCommandContext);
 
       if (this.filter == null || this.filter.getFilter() == null) {
         return queryResult;
       }
 
-      for (OIdentifiable origin : queryResult) {
+      for (YTIdentifiable origin : queryResult) {
         Object previousMatch = iCommandContext.getVariable("$currentMatch");
         iCommandContext.setVariable("$currentMatch", origin);
         if ((oClass == null || matchesClass(origin, oClass))
@@ -137,17 +137,17 @@ public class OMatchPathItem extends SimpleNode {
           && (whileCondition == null
           || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
 
-        Iterable<OIdentifiable> queryResult =
+        Iterable<YTIdentifiable> queryResult =
             traversePatternEdge(matchContext, startingPoint, iCommandContext);
 
-        for (OIdentifiable origin : queryResult) {
+        for (YTIdentifiable origin : queryResult) {
           // TODO consider break strategies (eg. re-traverse nodes)
-          Iterable<OIdentifiable> subResult =
+          Iterable<YTIdentifiable> subResult =
               executeTraversal(matchContext, iCommandContext, origin, depth + 1);
           if (subResult instanceof Collection) {
-            result.addAll((Collection<? extends OIdentifiable>) subResult);
+            result.addAll((Collection<? extends YTIdentifiable>) subResult);
           } else {
-            for (OIdentifiable i : subResult) {
+            for (YTIdentifiable i : subResult) {
               result.add(i);
             }
           }
@@ -158,14 +158,15 @@ public class OMatchPathItem extends SimpleNode {
     return result;
   }
 
-  private boolean matchesClass(OIdentifiable identifiable, OClass oClass) {
+  private boolean matchesClass(YTIdentifiable identifiable, YTClass oClass) {
     if (identifiable == null) {
       return false;
     }
     try {
-      ORecord record = identifiable.getRecord();
-      if (record instanceof ODocument) {
-        return ODocumentInternal.getImmutableSchemaClass(((ODocument) record)).isSubClassOf(oClass);
+      YTRecord record = identifiable.getRecord();
+      if (record instanceof YTDocument) {
+        return ODocumentInternal.getImmutableSchemaClass(((YTDocument) record))
+            .isSubClassOf(oClass);
       }
     } catch (ORecordNotFoundException rnf) {
       return false;
@@ -173,14 +174,14 @@ public class OMatchPathItem extends SimpleNode {
     return false;
   }
 
-  protected Iterable<OIdentifiable> traversePatternEdge(
+  protected Iterable<YTIdentifiable> traversePatternEdge(
       OMatchStatement.MatchContext matchContext,
-      OIdentifiable startingPoint,
+      YTIdentifiable startingPoint,
       OCommandContext iCommandContext) {
 
     Iterable possibleResults = null;
     if (filter != null) {
-      OIdentifiable matchedNode = matchContext.matched.get(filter.getAlias());
+      YTIdentifiable matchedNode = matchContext.matched.get(filter.getAlias());
       if (matchedNode != null) {
         possibleResults = Collections.singleton(matchedNode);
       } else if (matchContext.matched.containsKey(filter.getAlias())) {
@@ -193,9 +194,9 @@ public class OMatchPathItem extends SimpleNode {
     }
 
     Object qR = this.method.execute(startingPoint, possibleResults, iCommandContext);
-    return (qR instanceof Iterable && !(qR instanceof ODocument))
+    return (qR instanceof Iterable && !(qR instanceof YTDocument))
         ? (Iterable) qR
-        : Collections.singleton((OIdentifiable) qR);
+        : Collections.singleton((YTIdentifiable) qR);
   }
 
   @Override

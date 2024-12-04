@@ -22,16 +22,16 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -59,7 +59,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
   private String sourceClassName;
   private String sourceField;
   private String linkName;
-  private OType linkType;
+  private YTType linkType;
   private boolean inverse = false;
 
   public OCommandExecutorSQLCreateLink parse(final OCommandRequest iRequest) {
@@ -118,7 +118,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
               "Link type missed. Use " + getSyntax(), parserText, oldPos);
         }
 
-        linkType = OType.valueOf(word.toString().toUpperCase(Locale.ENGLISH));
+        linkType = YTType.valueOf(word.toString().toUpperCase(Locale.ENGLISH));
 
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
@@ -192,29 +192,29 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
   /**
    * Execute the CREATE LINK.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (destField == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final ODatabaseSessionInternal database = getDatabase();
+    final YTDatabaseSessionInternal database = getDatabase();
     if (database.getDatabaseOwner() == null) {
       throw new OCommandSQLParsingException(
-          "This command supports only the database type ODatabaseDocumentTx and type '"
+          "This command supports only the database type YTDatabaseDocumentTx and type '"
               + database.getClass()
               + "' was found");
     }
 
     final var db = database.getDatabaseOwner();
 
-    OClass sourceClass =
+    YTClass sourceClass =
         database.getMetadata().getImmutableSchemaSnapshot().getClass(sourceClassName);
     if (sourceClass == null) {
       throw new OCommandExecutionException("Source class '" + sourceClassName + "' not found");
     }
 
-    OClass destClass = database.getMetadata().getImmutableSchemaSnapshot().getClass(destClassName);
+    YTClass destClass = database.getMetadata().getImmutableSchemaSnapshot().getClass(destClassName);
     if (destClass == null) {
       throw new OCommandExecutionException("Destination class '" + destClassName + "' not found");
     }
@@ -226,8 +226,8 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
       cmd = "select from " + destClassName + " where " + destField + " = ";
     }
 
-    List<ODocument> result;
-    ODocument target;
+    List<YTDocument> result;
+    YTDocument target;
     Object oldValue;
     long total = 0;
 
@@ -241,7 +241,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
     if (linkType != null)
     // DETERMINE BASED ON FORCED TYPE
     {
-      multipleRelationship = linkType == OType.LINKSET || linkType == OType.LINKLIST;
+      multipleRelationship = linkType == YTType.LINKSET || linkType == YTType.LINKLIST;
     } else {
       multipleRelationship = false;
     }
@@ -255,11 +255,11 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
 
     try {
       // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-      for (ODocument doc : db.browseClass(sourceClass.getName())) {
+      for (YTDocument doc : db.browseClass(sourceClass.getName())) {
         value = doc.field(sourceField);
 
         if (value != null) {
-          if (value instanceof ODocument || value instanceof ORID) {
+          if (value instanceof YTDocument || value instanceof YTRID) {
             // ALREADY CONVERTED
           } else if (value instanceof Collection<?>) {
             // TODO
@@ -275,7 +275,8 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
               }
             }
 
-            result = database.command(new OSQLSynchQuery<ODocument>(cmd + value)).execute(database);
+            result = database.command(new OSQLSynchQuery<YTDocument>(cmd + value))
+                .execute(database);
 
             if (result == null || result.size() == 0) {
               value = null;
@@ -302,24 +303,24 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
                   multipleRelationship = true;
                 }
 
-                Collection<ODocument> coll;
+                Collection<YTDocument> coll;
                 if (oldValue instanceof Collection) {
                   // ADD IT IN THE EXISTENT COLLECTION
-                  coll = (Collection<ODocument>) oldValue;
+                  coll = (Collection<YTDocument>) oldValue;
                   target.setDirty();
                 } else {
                   // CREATE A NEW COLLECTION FOR BOTH
-                  coll = new ArrayList<ODocument>(2);
+                  coll = new ArrayList<YTDocument>(2);
                   target.field(linkName, coll);
-                  coll.add((ODocument) oldValue);
+                  coll.add((YTDocument) oldValue);
                 }
                 coll.add(doc);
               } else {
                 if (linkType != null) {
-                  if (linkType == OType.LINKSET) {
+                  if (linkType == YTType.LINKSET) {
                     value = new OSet(target);
-                    ((Set<OIdentifiable>) value).add(doc);
-                  } else if (linkType == OType.LINKLIST) {
+                    ((Set<YTIdentifiable>) value).add(doc);
+                  } else if (linkType == YTType.LINKLIST) {
                     value = new OList(target);
                     ((OList) value).add(doc);
                   } else
@@ -354,14 +355,14 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
       if (total > 0) {
         if (inverse) {
           // REMOVE THE OLD PROPERTY IF ANY
-          OProperty prop = destClass.getProperty(linkName);
+          YTProperty prop = destClass.getProperty(linkName);
           destClass = database.getMetadata().getSchema().getClass(destClassName);
           if (prop != null) {
             destClass.dropProperty(database, linkName);
           }
 
           if (linkType == null) {
-            linkType = multipleRelationship ? OType.LINKSET : OType.LINK;
+            linkType = multipleRelationship ? YTType.LINKSET : YTType.LINK;
           }
 
           // CREATE THE PROPERTY
@@ -370,14 +371,14 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
         } else {
 
           // REMOVE THE OLD PROPERTY IF ANY
-          OProperty prop = sourceClass.getProperty(linkName);
+          YTProperty prop = sourceClass.getProperty(linkName);
           sourceClass = database.getMetadata().getSchema().getClass(sourceClassName);
           if (prop != null) {
             sourceClass.dropProperty(database, linkName);
           }
 
           // CREATE THE PROPERTY
-          sourceClass.createProperty(db, linkName, OType.LINK, destClass);
+          sourceClass.createProperty(db, linkName, YTType.LINK, destClass);
         }
       }
 

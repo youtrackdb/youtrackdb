@@ -6,7 +6,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class ODropSequenceStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
     final var database = ctx.getDatabase();
-    OSequence sequence =
+    YTSequence sequence =
         database.getMetadata().getSequenceLibrary().getSequence(this.name.getStringValue());
     if (sequence == null) {
       if (ifExists) {

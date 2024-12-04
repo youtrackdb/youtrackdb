@@ -5,8 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,8 +24,8 @@ public class ODocumentTrackingNestedCollectionsTest extends DBTestBase {
   public void testTrackingNestedSet() {
 
     db.begin();
-    ORID orid;
-    ODocument document = new ODocument();
+    YTRID orid;
+    YTDocument document = new YTDocument();
     Set objects = new HashSet();
 
     document.field("objects", objects);
@@ -45,7 +45,7 @@ public class ODocumentTrackingNestedCollectionsTest extends DBTestBase {
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
 
-    ODocument nestedDoc = new ODocument();
+    YTDocument nestedDoc = new YTDocument();
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -62,14 +62,14 @@ public class ODocumentTrackingNestedCollectionsTest extends DBTestBase {
   public void testChangesValuesNestedTrackingSet() {
 
     db.begin();
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     Set objects = new HashSet();
 
     document.field("objects", objects);
     Set subObjects = new HashSet();
     objects.add(subObjects);
 
-    ODocument nestedDoc = new ODocument();
+    YTDocument nestedDoc = new YTDocument();
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -95,14 +95,14 @@ public class ODocumentTrackingNestedCollectionsTest extends DBTestBase {
   public void testChangesValuesNestedTrackingList() {
 
     db.begin();
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     List objects = new ArrayList();
 
     document.field("objects", objects);
     List subObjects = new ArrayList();
     objects.add(subObjects);
 
-    ODocument nestedDoc = new ODocument();
+    YTDocument nestedDoc = new YTDocument();
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -113,7 +113,7 @@ public class ODocumentTrackingNestedCollectionsTest extends DBTestBase {
     objects = document.field("objects");
     subObjects = (List) objects.iterator().next();
     subObjects.add("one");
-    subObjects.add(new ODocument());
+    subObjects.add(new YTDocument());
 
     assertTrue(document.isDirty());
     List<OMultiValueChangeEvent<Object, Object>> multiValueChangeEvents =
@@ -121,21 +121,21 @@ public class ODocumentTrackingNestedCollectionsTest extends DBTestBase {
     assertEquals(1, multiValueChangeEvents.get(0).getKey());
     assertEquals("one", multiValueChangeEvents.get(0).getValue());
     assertEquals(2, multiValueChangeEvents.get(1).getKey());
-    assertTrue(multiValueChangeEvents.get(1).getValue() instanceof ODocument);
+    assertTrue(multiValueChangeEvents.get(1).getValue() instanceof YTDocument);
     db.commit();
   }
 
   @Test
   public void testChangesValuesNestedTrackingMap() {
     db.begin();
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     Map objects = new HashMap();
 
     document.field("objects", objects);
     Map subObjects = new HashMap();
     objects.put("first", subObjects);
 
-    ODocument nestedDoc = new ODocument();
+    YTDocument nestedDoc = new YTDocument();
     subObjects.put("one", nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -146,7 +146,7 @@ public class ODocumentTrackingNestedCollectionsTest extends DBTestBase {
     objects = document.field("objects");
     subObjects = (Map) objects.values().iterator().next();
     subObjects.put("one", "String");
-    subObjects.put("two", new ODocument());
+    subObjects.put("two", new YTDocument());
 
     assertTrue(document.isDirty());
     List<OMultiValueChangeEvent<Object, Object>> multiValueChangeEvents =
@@ -154,7 +154,7 @@ public class ODocumentTrackingNestedCollectionsTest extends DBTestBase {
     assertEquals("one", multiValueChangeEvents.get(0).getKey());
     assertEquals("String", multiValueChangeEvents.get(0).getValue());
     assertEquals("two", multiValueChangeEvents.get(1).getKey());
-    assertTrue(multiValueChangeEvents.get(1).getValue() instanceof ODocument);
+    assertTrue(multiValueChangeEvents.get(1).getValue() instanceof YTDocument);
     db.commit();
   }
 }

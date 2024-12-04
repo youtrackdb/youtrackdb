@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkDistributed;
 import java.io.DataInput;
@@ -17,12 +17,12 @@ public class OTransactionDataChange {
 
   private byte type;
   private byte recordType;
-  private ORID id;
+  private YTRID id;
   private Optional<byte[]> record;
   private int version;
   private boolean contentChanged;
 
-  public OTransactionDataChange(ODatabaseSessionInternal session, ORecordOperation operation) {
+  public OTransactionDataChange(YTDatabaseSessionInternal session, ORecordOperation operation) {
     this.type = operation.type;
     var rec = operation.record;
     this.recordType = ORecordInternal.getRecordType(rec);
@@ -35,8 +35,9 @@ public class OTransactionDataChange {
         this.contentChanged = ORecordInternal.isContentChanged(rec);
         break;
       case ORecordOperation.UPDATED:
-        if (recordType == ODocument.RECORD_TYPE) {
-          record = Optional.of(ODocumentSerializerDelta.instance().serializeDelta((ODocument) rec));
+        if (recordType == YTDocument.RECORD_TYPE) {
+          record = Optional.of(
+              ODocumentSerializerDelta.instance().serializeDelta((YTDocument) rec));
         } else {
           record = Optional.of(ORecordSerializerNetworkDistributed.INSTANCE.toStream(session, rec));
         }
@@ -54,7 +55,7 @@ public class OTransactionDataChange {
   public OTransactionDataChange(
       byte type,
       byte recordType,
-      ORID id,
+      YTRID id,
       Optional<byte[]> record,
       int version,
       boolean contentChanged) {
@@ -88,7 +89,7 @@ public class OTransactionDataChange {
     change.recordType = input.readByte();
     int cluster = input.readInt();
     long position = input.readLong();
-    change.id = new ORecordId(cluster, position);
+    change.id = new YTRecordId(cluster, position);
     boolean isThereRecord = input.readBoolean();
     if (isThereRecord) {
       int size = input.readInt();
@@ -123,7 +124,7 @@ public class OTransactionDataChange {
     return contentChanged;
   }
 
-  public ORID getId() {
+  public YTRID getId() {
     return id;
   }
 }

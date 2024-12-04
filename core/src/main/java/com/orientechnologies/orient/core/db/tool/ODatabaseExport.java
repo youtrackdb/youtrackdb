@@ -26,20 +26,20 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.ORuntimeKeyIndexDefinition;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -76,7 +76,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
   private final String tempFileName;
 
   public ODatabaseExport(
-      final ODatabaseSessionInternal iDatabase,
+      final YTDatabaseSessionInternal iDatabase,
       final String iFileName,
       final OCommandOutputListener iListener)
       throws IOException {
@@ -106,7 +106,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
   }
 
   public ODatabaseExport(
-      final ODatabaseSessionInternal iDatabase,
+      final YTDatabaseSessionInternal iDatabase,
       final OutputStream iOutputStream,
       final OCommandOutputListener iListener)
       throws IOException {
@@ -163,7 +163,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     int level = 1;
     listener.onMessage("\nExporting records...");
 
-    final Set<ORID> brokenRids = new HashSet<>();
+    final Set<YTRID> brokenRids = new HashSet<>();
 
     writer.beginCollection(level, true, "records");
     int exportedClusters = 0;
@@ -188,13 +188,13 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
       long clusterExportedRecordsCurrent = 0;
       if (clusterName != null) {
-        ORecordAbstract rec = null;
+        YTRecordAbstract rec = null;
         try {
-          ORecordIteratorCluster<ORecord> it = database.browseCluster(clusterName);
+          ORecordIteratorCluster<YTRecord> it = database.browseCluster(clusterName);
 
           while (it.hasNext()) {
-            rec = (ORecordAbstract) it.next();
-            if (rec instanceof ODocument doc) {
+            rec = (YTRecordAbstract) it.next();
+            if (rec instanceof YTDocument doc) {
               // CHECK IF THE CLASS OF THE DOCUMENT IS INCLUDED
               final String className =
                   doc.getClassName() != null
@@ -260,7 +260,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     writer.beginCollection(level, true, "brokenRids");
 
     boolean firsBrokenRid = true;
-    for (final ORID rid : brokenRids) {
+    for (final YTRID rid : brokenRids) {
       if (firsBrokenRid) {
         firsBrokenRid = false;
       } else {
@@ -417,20 +417,20 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         writer.beginObject(4, true, "definition");
 
         writer.writeAttribute(5, true, "defClass", index.getDefinition().getClass().getName());
-        writer.writeAttribute(5, true, "stream", index.getDefinition().toStream(new ODocument()));
+        writer.writeAttribute(5, true, "stream", index.getDefinition().toStream(new YTDocument()));
 
         writer.endObject(4, true);
       }
 
       final var metadata = index.getMetadata();
       if (metadata != null) {
-        var doc = new ODocument();
+        var doc = new YTDocument();
         doc.fromMap(metadata);
 
         writer.writeAttribute(4, true, "metadata", doc);
       }
 
-      final ODocument configuration = index.getConfiguration(database);
+      final YTDocument configuration = index.getConfiguration(database);
       if (configuration.field("blueprintsIndexClass") != null) {
         writer.writeAttribute(
             4, true, "blueprintsIndexClass", configuration.field("blueprintsIndexClass"));
@@ -453,7 +453,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
     final Collection<? extends OIndex> indexes = indexManager.getIndexes(database);
 
-    ODocument exportEntry;
+    YTDocument exportEntry;
 
     int manualIndexes = 0;
     for (OIndex index : indexes) {
@@ -480,7 +480,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
           final OIndexDefinition indexDefinition = index.getDefinition();
 
-          exportEntry = new ODocument();
+          exportEntry = new YTDocument();
           exportEntry.setLazyLoad(false);
 
           if (indexDefinition instanceof ORuntimeKeyIndexDefinition
@@ -522,17 +522,17 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     listener.onMessage("\nExporting schema...");
 
     writer.beginObject(1, true, "schema");
-    final OSchema schema = (database.getMetadata()).getImmutableSchemaSnapshot();
+    final YTSchema schema = (database.getMetadata()).getImmutableSchemaSnapshot();
     //noinspection deprecation
     writer.writeAttribute(2, true, "version", schema.getVersion());
     writer.writeAttribute(2, false, "blob-clusters", database.getBlobClusterIds());
     if (!schema.getClasses().isEmpty()) {
       writer.beginCollection(2, true, "classes");
 
-      final List<OClass> classes = new ArrayList<>(schema.getClasses());
+      final List<YTClass> classes = new ArrayList<>(schema.getClasses());
       Collections.sort(classes);
 
-      for (OClass cls : classes) {
+      for (YTClass cls : classes) {
         // CHECK TO FILTER CLASS
         writer.beginObject(3, true, null);
         writer.writeAttribute(0, false, "name", cls.getName());
@@ -559,10 +559,10 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         if (!cls.properties(database).isEmpty()) {
           writer.beginCollection(4, true, "properties");
 
-          final List<OProperty> properties = new ArrayList<>(cls.declaredProperties());
+          final List<YTProperty> properties = new ArrayList<>(cls.declaredProperties());
           Collections.sort(properties);
 
-          for (OProperty p : properties) {
+          for (YTProperty p : properties) {
             writer.beginObject(5, true, null);
             writer.writeAttribute(0, false, "name", p.getName());
             writer.writeAttribute(0, false, "type", p.getType().toString());
@@ -630,7 +630,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
   }
 
   private boolean exportRecord(
-      long recordTot, long recordNum, ORecordAbstract rec, Set<ORID> brokenRids) {
+      long recordTot, long recordNum, YTRecordAbstract rec, Set<YTRID> brokenRids) {
     if (rec != null) {
       try {
         if (useLineFeedForRecords) {
@@ -640,7 +640,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
           writer.append(",");
         }
 
-        final String format = ORecordAbstract.BASE_FORMAT + ",dateAsLong";
+        final String format = YTRecordAbstract.BASE_FORMAT + ",dateAsLong";
         ORecordSerializerJSON.INSTANCE.toString(rec, writer, format);
 
         recordExported++;
@@ -652,7 +652,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
         return true;
       } catch (final Exception t) {
-        final ORID rid = rec.getIdentity().copy();
+        final YTRID rid = rec.getIdentity().copy();
 
         if (rid != null) {
           brokenRids.add(rid);

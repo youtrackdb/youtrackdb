@@ -2,17 +2,17 @@ package com.orientechnologies.orient.core.storage;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.metadata.OMetadata;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -49,7 +49,7 @@ public class OStorageTestIT {
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
             .addConfig(
-                OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
+                YTGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
@@ -61,14 +61,14 @@ public class OStorageTestIT {
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+        (YTDatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
     OMetadata metadata = session.getMetadata();
-    OSchema schema = metadata.getSchema();
+    YTSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      ODocument document = new ODocument("PageBreak");
+      YTDocument document = new YTDocument("PageBreak");
       document.field("value", "value");
       document.save();
     }
@@ -98,7 +98,7 @@ public class OStorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
+    session = (YTDatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
         "admin", "admin");
     try {
       session.query("select from PageBreak").close();
@@ -115,7 +115,7 @@ public class OStorageTestIT {
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
             .addConfig(
-                OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
+                YTGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
@@ -127,14 +127,14 @@ public class OStorageTestIT {
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+        (YTDatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
     OMetadata metadata = session.getMetadata();
-    OSchema schema = metadata.getSchema();
+    YTSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      ODocument document = new ODocument("PageBreak");
+      YTDocument document = new YTDocument("PageBreak");
       document.field("value", "value");
       document.save();
     }
@@ -161,7 +161,7 @@ public class OStorageTestIT {
     file.write(1);
     file.close();
 
-    session = (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
+    session = (YTDatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
         "admin", "admin");
     try {
       session.query("select from PageBreak").close();
@@ -178,7 +178,7 @@ public class OStorageTestIT {
 
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
+            .addConfig(YTGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
@@ -189,14 +189,14 @@ public class OStorageTestIT {
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+        (YTDatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
     OMetadata metadata = session.getMetadata();
-    OSchema schema = metadata.getSchema();
+    YTSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      ODocument document = new ODocument("PageBreak");
+      YTDocument document = new YTDocument("PageBreak");
       document.field("value", "value");
       document.save();
     }
@@ -223,13 +223,13 @@ public class OStorageTestIT {
     file.write(1);
     file.close();
 
-    session = (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
+    session = (YTDatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
         "admin", "admin");
     session.query("select from PageBreak").close();
 
     Thread.sleep(100); // lets wait till event will be propagated
 
-    ODocument document = new ODocument("PageBreak");
+    YTDocument document = new YTDocument("PageBreak");
     document.field("value", "value");
 
     document.save();
@@ -242,7 +242,7 @@ public class OStorageTestIT {
 
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
+            .addConfig(YTGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
@@ -253,14 +253,14 @@ public class OStorageTestIT {
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+        (YTDatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
     OMetadata metadata = session.getMetadata();
-    OSchema schema = metadata.getSchema();
+    YTSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      ODocument document = new ODocument("PageBreak");
+      YTDocument document = new YTDocument("PageBreak");
       document.field("value", "value");
       document.save();
     }
@@ -290,13 +290,13 @@ public class OStorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
+    session = (YTDatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
         "admin", "admin");
     session.query("select from PageBreak").close();
 
     Thread.sleep(100); // lets wait till event will be propagated
 
-    ODocument document = new ODocument("PageBreak");
+    YTDocument document = new YTDocument("PageBreak");
     document.field("value", "value");
 
     document.save();
@@ -314,7 +314,7 @@ public class OStorageTestIT {
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    final ODatabaseSession session =
+    final YTDatabaseSession session =
         youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     try (OResultSet resultSet = session.query("SELECT FROM metadata:storage")) {
       Assert.assertTrue(resultSet.hasNext());

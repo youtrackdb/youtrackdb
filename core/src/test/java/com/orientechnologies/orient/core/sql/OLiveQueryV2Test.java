@@ -22,17 +22,17 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
@@ -64,35 +64,35 @@ public class OLiveQueryV2Test {
     public List<OResult> ops = new ArrayList<OResult>();
 
     @Override
-    public void onCreate(ODatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, OResult data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(ODatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, OResult data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, OException exception) {
     }
 
     @Override
-    public void onEnd(ODatabaseSession database) {
+    public void onEnd(YTDatabaseSession database) {
     }
   }
 
   @Test
   public void testLiveInsert() throws InterruptedException {
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:OLiveQueryV2Test");
     db.activateOnCurrentThread();
     db.create();
     try {
@@ -123,7 +123,7 @@ public class OLiveQueryV2Test {
       for (OResult doc : listener.ops) {
         Assert.assertEquals("test", doc.getProperty("@class"));
         Assert.assertEquals("foo", doc.getProperty("name"));
-        ORID rid = doc.getProperty("@rid");
+        YTRID rid = doc.getProperty("@rid");
         Assert.assertTrue(rid.isPersistent());
       }
     } finally {
@@ -137,12 +137,12 @@ public class OLiveQueryV2Test {
         OCreateDatabaseUtil.createDatabase(
             "testLiveInsertOnCluster", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
-    try (ODatabaseSessionInternal db =
-        (ODatabaseSessionInternal)
+    try (YTDatabaseSessionInternal db =
+        (YTDatabaseSessionInternal)
             context.open(
                 "testLiveInsertOnCluster", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
 
-      OClass clazz = db.getMetadata().getSchema().createClass("test");
+      YTClass clazz = db.getMetadata().getSchema().createClass("test");
 
       int defaultCluster = clazz.getDefaultClusterId();
       String clusterName = db.getStorage().getClusterNameById(defaultCluster);
@@ -164,7 +164,7 @@ public class OLiveQueryV2Test {
       Assert.assertEquals(1, listener.ops.size());
       for (OResult doc : listener.ops) {
         Assert.assertEquals("foo", doc.getProperty("name"));
-        ORID rid = doc.getProperty("@rid");
+        YTRID rid = doc.getProperty("@rid");
         Assert.assertTrue(rid.isPersistent());
         Assert.assertNotNull(rid);
       }
@@ -177,8 +177,8 @@ public class OLiveQueryV2Test {
         OCreateDatabaseUtil.createDatabase(
             "testLiveWithWhereCondition", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
-    try (ODatabaseSessionInternal db =
-        (ODatabaseSessionInternal)
+    try (YTDatabaseSessionInternal db =
+        (YTDatabaseSessionInternal)
             context.open(
                 "testLiveWithWhereCondition", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
 
@@ -201,7 +201,7 @@ public class OLiveQueryV2Test {
       Assert.assertEquals(1, listener.ops.size());
       for (OResult doc : listener.ops) {
         Assert.assertEquals(doc.getProperty("id"), Integer.valueOf(1));
-        ORID rid = doc.getProperty("@rid");
+        YTRID rid = doc.getProperty("@rid");
         Assert.assertTrue(rid.isPersistent());
         Assert.assertNotNull(rid);
       }
@@ -210,20 +210,20 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:OLiveQueryTest");
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:OLiveQueryTest");
     db.activateOnCurrentThread();
     db.create();
     try {
-      OSchema schema = db.getMetadata().getSchema();
-      OClass oRestricted = schema.getClass("ORestricted");
+      YTSchema schema = db.getMetadata().getSchema();
+      YTClass oRestricted = schema.getClass("ORestricted");
       schema.createClass("test", oRestricted);
 
       int liveMatch = 2;
-      List<ODocument> query =
+      List<YTDocument> query =
           db.query(new OSQLSynchQuery("select from OUSer where name = 'reader'"));
 
-      final OIdentifiable reader = query.iterator().next().getIdentity();
-      final OIdentifiable current = db.getUser().getIdentity(db);
+      final YTIdentifiable reader = query.iterator().next().getIdentity();
+      final YTIdentifiable current = db.getUser().getIdentity(db);
 
       ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -234,7 +234,7 @@ public class OLiveQueryV2Test {
               new Callable<Integer>() {
                 @Override
                 public Integer call() throws Exception {
-                  ODatabaseDocumentTx db = new ODatabaseDocumentTx("memory:OLiveQueryTest");
+                  YTDatabaseDocumentTx db = new YTDatabaseDocumentTx("memory:OLiveQueryTest");
                   db.open("reader", "reader");
 
                   final AtomicInteger integer = new AtomicInteger(0);
@@ -243,30 +243,30 @@ public class OLiveQueryV2Test {
                       new OLiveQueryResultListener() {
 
                         @Override
-                        public void onCreate(ODatabaseSession database, OResult data) {
+                        public void onCreate(YTDatabaseSession database, OResult data) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
 
                         @Override
                         public void onUpdate(
-                            ODatabaseSession database, OResult before, OResult after) {
+                            YTDatabaseSession database, OResult before, OResult after) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
 
                         @Override
-                        public void onDelete(ODatabaseSession database, OResult data) {
+                        public void onDelete(YTDatabaseSession database, OResult data) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
 
                         @Override
-                        public void onError(ODatabaseSession database, OException exception) {
+                        public void onError(YTDatabaseSession database, OException exception) {
                         }
 
                         @Override
-                        public void onEnd(ODatabaseSession database) {
+                        public void onEnd(YTDatabaseSession database) {
                         }
                       });
 
@@ -282,7 +282,7 @@ public class OLiveQueryV2Test {
       db.command("insert into test set name = 'foo', surname = 'bar'").close();
       db.command(
               "insert into test set name = 'foo', surname = 'bar', _allow=?",
-              new ArrayList<OIdentifiable>() {
+              new ArrayList<YTIdentifiable>() {
                 {
                   add(current);
                   add(reader);
@@ -301,7 +301,7 @@ public class OLiveQueryV2Test {
   @Test
   public void testLiveProjections() throws InterruptedException {
 
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:OLiveQueryV2Test");
     db.activateOnCurrentThread();
     db.create();
     try {
@@ -333,7 +333,7 @@ public class OLiveQueryV2Test {
         Assert.assertEquals("test", doc.getProperty("@class"));
         Assert.assertEquals("foo", doc.getProperty("name"));
         Assert.assertNull(doc.getProperty("surname"));
-        ORID rid = doc.getProperty("rid");
+        YTRID rid = doc.getProperty("rid");
         Assert.assertTrue(rid.isPersistent());
       }
     } finally {

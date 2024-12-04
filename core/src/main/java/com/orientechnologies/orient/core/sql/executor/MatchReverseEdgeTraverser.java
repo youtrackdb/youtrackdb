@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.ORid;
@@ -39,7 +39,7 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
 
   @Override
   protected OExecutionStream traversePatternEdge(
-      OIdentifiable startingPoint, OCommandContext iCommandContext) {
+      YTIdentifiable startingPoint, OCommandContext iCommandContext) {
 
     Object qR = this.item.getMethod().executeReverse(startingPoint, iCommandContext);
     if (qR == null) {
@@ -48,9 +48,9 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
     if (qR instanceof OResultInternal) {
       return OExecutionStream.singleton((OResultInternal) qR);
     }
-    if (qR instanceof OIdentifiable) {
+    if (qR instanceof YTIdentifiable) {
       return OExecutionStream.singleton(
-          new OResultInternal(iCommandContext.getDatabase(), (OIdentifiable) qR));
+          new OResultInternal(iCommandContext.getDatabase(), (YTIdentifiable) qR));
     }
     if (qR instanceof Iterable iterable) {
       return OExecutionStream.iterator(iterable.iterator());

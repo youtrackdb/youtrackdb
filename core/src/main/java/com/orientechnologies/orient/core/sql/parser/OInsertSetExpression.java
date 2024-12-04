@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.Map;
 
 /**
@@ -32,7 +32,7 @@ public class OInsertSetExpression {
     return right;
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     return right.isCacheable(session);
   }
 

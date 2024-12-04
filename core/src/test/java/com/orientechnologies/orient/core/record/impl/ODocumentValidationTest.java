@@ -3,12 +3,12 @@ package com.orientechnologies.orient.core.record.impl;
 import static org.junit.Assert.fail;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,45 +28,45 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testRequiredValidation() {
     db.begin();
-    ODocument doc = new ODocument();
-    OIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    YTDocument doc = new YTDocument();
+    YTIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
     db.commit();
 
-    OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    YTClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    embeddedClazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
 
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
-    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
-    clazz.createProperty(db, "float", OType.FLOAT).setMandatory(db, true);
-    clazz.createProperty(db, "boolean", OType.BOOLEAN).setMandatory(db, true);
-    clazz.createProperty(db, "binary", OType.BINARY).setMandatory(db, true);
-    clazz.createProperty(db, "byte", OType.BYTE).setMandatory(db, true);
-    clazz.createProperty(db, "date", OType.DATE).setMandatory(db, true);
-    clazz.createProperty(db, "datetime", OType.DATETIME).setMandatory(db, true);
-    clazz.createProperty(db, "decimal", OType.DECIMAL).setMandatory(db, true);
-    clazz.createProperty(db, "double", OType.DOUBLE).setMandatory(db, true);
-    clazz.createProperty(db, "short", OType.SHORT).setMandatory(db, true);
-    clazz.createProperty(db, "string", OType.STRING).setMandatory(db, true);
-    clazz.createProperty(db, "link", OType.LINK).setMandatory(db, true);
-    clazz.createProperty(db, "embedded", OType.EMBEDDED, embeddedClazz).setMandatory(db, true);
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", YTType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "float", YTType.FLOAT).setMandatory(db, true);
+    clazz.createProperty(db, "boolean", YTType.BOOLEAN).setMandatory(db, true);
+    clazz.createProperty(db, "binary", YTType.BINARY).setMandatory(db, true);
+    clazz.createProperty(db, "byte", YTType.BYTE).setMandatory(db, true);
+    clazz.createProperty(db, "date", YTType.DATE).setMandatory(db, true);
+    clazz.createProperty(db, "datetime", YTType.DATETIME).setMandatory(db, true);
+    clazz.createProperty(db, "decimal", YTType.DECIMAL).setMandatory(db, true);
+    clazz.createProperty(db, "double", YTType.DOUBLE).setMandatory(db, true);
+    clazz.createProperty(db, "short", YTType.SHORT).setMandatory(db, true);
+    clazz.createProperty(db, "string", YTType.STRING).setMandatory(db, true);
+    clazz.createProperty(db, "link", YTType.LINK).setMandatory(db, true);
+    clazz.createProperty(db, "embedded", YTType.EMBEDDED, embeddedClazz).setMandatory(db, true);
 
-    clazz.createProperty(db, "embeddedListNoClass", OType.EMBEDDEDLIST).setMandatory(db, true);
-    clazz.createProperty(db, "embeddedSetNoClass", OType.EMBEDDEDSET).setMandatory(db, true);
-    clazz.createProperty(db, "embeddedMapNoClass", OType.EMBEDDEDMAP).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedListNoClass", YTType.EMBEDDEDLIST).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedSetNoClass", YTType.EMBEDDEDSET).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedMapNoClass", YTType.EMBEDDEDMAP).setMandatory(db, true);
 
-    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST, embeddedClazz)
+    clazz.createProperty(db, "embeddedList", YTType.EMBEDDEDLIST, embeddedClazz)
         .setMandatory(db, true);
-    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET, embeddedClazz)
+    clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET, embeddedClazz)
         .setMandatory(db, true);
-    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP, embeddedClazz)
+    clazz.createProperty(db, "embeddedMap", YTType.EMBEDDEDMAP, embeddedClazz)
         .setMandatory(db, true);
 
-    clazz.createProperty(db, "linkList", OType.LINKLIST).setMandatory(db, true);
-    clazz.createProperty(db, "linkSet", OType.LINKSET).setMandatory(db, true);
-    clazz.createProperty(db, "linkMap", OType.LINKMAP).setMandatory(db, true);
+    clazz.createProperty(db, "linkList", YTType.LINKLIST).setMandatory(db, true);
+    clazz.createProperty(db, "linkSet", YTType.LINKSET).setMandatory(db, true);
+    clazz.createProperty(db, "linkMap", YTType.LINKMAP).setMandatory(db, true);
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("int", 10);
     d.field("long", 10);
     d.field("float", 10);
@@ -80,37 +80,37 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("short", 10);
     d.field("string", "yeah");
     d.field("link", id);
-    d.field("linkList", new ArrayList<ORecordId>());
-    d.field("linkSet", new HashSet<ORecordId>());
-    d.field("linkMap", new HashMap<String, ORecordId>());
+    d.field("linkList", new ArrayList<YTRecordId>());
+    d.field("linkSet", new HashSet<YTRecordId>());
+    d.field("linkMap", new HashMap<String, YTRecordId>());
 
-    d.field("embeddedListNoClass", new ArrayList<ORecordId>());
-    d.field("embeddedSetNoClass", new HashSet<ORecordId>());
-    d.field("embeddedMapNoClass", new HashMap<String, ORecordId>());
+    d.field("embeddedListNoClass", new ArrayList<YTRecordId>());
+    d.field("embeddedSetNoClass", new HashSet<YTRecordId>());
+    d.field("embeddedMapNoClass", new HashMap<String, YTRecordId>());
 
-    ODocument embedded = new ODocument("EmbeddedValidation");
+    YTDocument embedded = new YTDocument("EmbeddedValidation");
     embedded.field("int", 20);
     embedded.field("long", 20);
     d.field("embedded", embedded);
 
-    ODocument embeddedInList = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInList = new YTDocument("EmbeddedValidation");
     embeddedInList.field("int", 30);
     embeddedInList.field("long", 30);
-    final ArrayList<ODocument> embeddedList = new ArrayList<ODocument>();
+    final ArrayList<YTDocument> embeddedList = new ArrayList<YTDocument>();
     embeddedList.add(embeddedInList);
     d.field("embeddedList", embeddedList);
 
-    ODocument embeddedInSet = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInSet = new YTDocument("EmbeddedValidation");
     embeddedInSet.field("int", 30);
     embeddedInSet.field("long", 30);
-    final Set<ODocument> embeddedSet = new HashSet<ODocument>();
+    final Set<YTDocument> embeddedSet = new HashSet<YTDocument>();
     embeddedSet.add(embeddedInSet);
     d.field("embeddedSet", embeddedSet);
 
-    ODocument embeddedInMap = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInMap = new YTDocument("EmbeddedValidation");
     embeddedInMap.field("int", 30);
     embeddedInMap.field("long", 30);
-    final Map<String, ODocument> embeddedMap = new HashMap<String, ODocument>();
+    final Map<String, YTDocument> embeddedMap = new HashMap<String, YTDocument>();
     embeddedMap.put("testEmbedded", embeddedInMap);
     d.field("embeddedMap", embeddedMap);
 
@@ -140,27 +140,27 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidationNotValidEmbedded() {
-    OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    YTClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    embeddedClazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
 
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
-    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
-    clazz.createProperty(db, "embedded", OType.EMBEDDED, embeddedClazz).setMandatory(db, true);
-    OClass clazzNotVertex = db.getMetadata().getSchema().createClass("NotVertex");
-    clazzNotVertex.createProperty(db, "embeddedSimple", OType.EMBEDDED);
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", YTType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "embedded", YTType.EMBEDDED, embeddedClazz).setMandatory(db, true);
+    YTClass clazzNotVertex = db.getMetadata().getSchema().createClass("NotVertex");
+    clazzNotVertex.createProperty(db, "embeddedSimple", YTType.EMBEDDED);
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    d.field("embedded", new ODocument("EmbeddedValidation").field("test", "test"));
+    d.field("embedded", new YTDocument("EmbeddedValidation").field("test", "test"));
     try {
       d.validate();
       fail("Validation doesn't throw exception");
     } catch (OValidationException e) {
       Assert.assertTrue(e.toString().contains("EmbeddedValidation.int"));
     }
-    d = new ODocument(clazzNotVertex);
+    d = new YTDocument(clazzNotVertex);
     checkField(d, "embeddedSimple", db.newVertex());
     db.begin();
     checkField(d, "embeddedSimple", db.newEdge(db.newVertex(), db.newVertex()));
@@ -169,28 +169,28 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidationNotValidEmbeddedSet() {
-    OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
-    embeddedClazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
+    YTClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    embeddedClazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
+    embeddedClazz.createProperty(db, "long", YTType.LONG).setMandatory(db, true);
 
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
-    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
-    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET, embeddedClazz)
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", YTType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET, embeddedClazz)
         .setMandatory(db, true);
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    final Set<ODocument> embeddedSet = new HashSet<ODocument>();
+    final Set<YTDocument> embeddedSet = new HashSet<YTDocument>();
     d.field("embeddedSet", embeddedSet);
 
-    ODocument embeddedInSet = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInSet = new YTDocument("EmbeddedValidation");
     embeddedInSet.field("int", 30);
     embeddedInSet.field("long", 30);
     embeddedSet.add(embeddedInSet);
 
-    ODocument embeddedInSet2 = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInSet2 = new YTDocument("EmbeddedValidation");
     embeddedInSet2.field("int", 30);
     embeddedSet.add(embeddedInSet2);
 
@@ -204,28 +204,28 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidationNotValidEmbeddedList() {
-    OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
-    embeddedClazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
+    YTClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    embeddedClazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
+    embeddedClazz.createProperty(db, "long", YTType.LONG).setMandatory(db, true);
 
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
-    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
-    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST, embeddedClazz)
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", YTType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedList", YTType.EMBEDDEDLIST, embeddedClazz)
         .setMandatory(db, true);
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    final ArrayList<ODocument> embeddedList = new ArrayList<ODocument>();
+    final ArrayList<YTDocument> embeddedList = new ArrayList<YTDocument>();
     d.field("embeddedList", embeddedList);
 
-    ODocument embeddedInList = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInList = new YTDocument("EmbeddedValidation");
     embeddedInList.field("int", 30);
     embeddedInList.field("long", 30);
     embeddedList.add(embeddedInList);
 
-    ODocument embeddedInList2 = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInList2 = new YTDocument("EmbeddedValidation");
     embeddedInList2.field("int", 30);
     embeddedList.add(embeddedInList2);
 
@@ -239,28 +239,28 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testValidationNotValidEmbeddedMap() {
-    OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
-    embeddedClazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
+    YTClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
+    embeddedClazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
+    embeddedClazz.createProperty(db, "long", YTType.LONG).setMandatory(db, true);
 
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
-    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
-    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP, embeddedClazz)
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", YTType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedMap", YTType.EMBEDDEDMAP, embeddedClazz)
         .setMandatory(db, true);
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    final Map<String, ODocument> embeddedMap = new HashMap<String, ODocument>();
+    final Map<String, YTDocument> embeddedMap = new HashMap<String, YTDocument>();
     d.field("embeddedMap", embeddedMap);
 
-    ODocument embeddedInMap = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInMap = new YTDocument("EmbeddedValidation");
     embeddedInMap.field("int", 30);
     embeddedInMap.field("long", 30);
     embeddedMap.put("1", embeddedInMap);
 
-    ODocument embeddedInMap2 = new ODocument("EmbeddedValidation");
+    YTDocument embeddedInMap2 = new YTDocument("EmbeddedValidation");
     embeddedInMap2.field("int", 30);
     embeddedMap.put("2", embeddedInMap2);
 
@@ -272,9 +272,9 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     }
   }
 
-  private void checkRequireField(ODocument toCheck, String fieldName) {
+  private void checkRequireField(YTDocument toCheck, String fieldName) {
     try {
-      ODocument newD = toCheck.copy();
+      YTDocument newD = toCheck.copy();
       newD.removeField(fieldName);
       newD.validate();
       fail();
@@ -284,39 +284,39 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testMaxValidation() {
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setMax(db, "11");
-    clazz.createProperty(db, "long", OType.LONG).setMax(db, "11");
-    clazz.createProperty(db, "float", OType.FLOAT).setMax(db, "11");
-    // clazz.createProperty("boolean", OType.BOOLEAN) no meaning
-    clazz.createProperty(db, "binary", OType.BINARY).setMax(db, "11");
-    clazz.createProperty(db, "byte", OType.BYTE).setMax(db, "11");
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "int", YTType.INTEGER).setMax(db, "11");
+    clazz.createProperty(db, "long", YTType.LONG).setMax(db, "11");
+    clazz.createProperty(db, "float", YTType.FLOAT).setMax(db, "11");
+    // clazz.createProperty("boolean", YTType.BOOLEAN) no meaning
+    clazz.createProperty(db, "binary", YTType.BINARY).setMax(db, "11");
+    clazz.createProperty(db, "byte", YTType.BYTE).setMax(db, "11");
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, cal.get(Calendar.HOUR) == 11 ? 0 : 1);
     SimpleDateFormat format = db.getStorage().getConfiguration().getDateFormatInstance();
-    clazz.createProperty(db, "date", OType.DATE).setMax(db, format.format(cal.getTime()));
+    clazz.createProperty(db, "date", YTType.DATE).setMax(db, format.format(cal.getTime()));
     cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, 1);
     format = db.getStorage().getConfiguration().getDateTimeFormatInstance();
-    clazz.createProperty(db, "datetime", OType.DATETIME).setMax(db, format.format(cal.getTime()));
+    clazz.createProperty(db, "datetime", YTType.DATETIME).setMax(db, format.format(cal.getTime()));
 
-    clazz.createProperty(db, "decimal", OType.DECIMAL).setMax(db, "11");
-    clazz.createProperty(db, "double", OType.DOUBLE).setMax(db, "11");
-    clazz.createProperty(db, "short", OType.SHORT).setMax(db, "11");
-    clazz.createProperty(db, "string", OType.STRING).setMax(db, "11");
-    // clazz.createProperty("link", OType.LINK) no meaning
-    // clazz.createProperty("embedded", OType.EMBEDDED) no meaning
+    clazz.createProperty(db, "decimal", YTType.DECIMAL).setMax(db, "11");
+    clazz.createProperty(db, "double", YTType.DOUBLE).setMax(db, "11");
+    clazz.createProperty(db, "short", YTType.SHORT).setMax(db, "11");
+    clazz.createProperty(db, "string", YTType.STRING).setMax(db, "11");
+    // clazz.createProperty("link", YTType.LINK) no meaning
+    // clazz.createProperty("embedded", YTType.EMBEDDED) no meaning
 
-    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setMax(db, "2");
-    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setMax(db, "2");
-    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setMax(db, "2");
+    clazz.createProperty(db, "embeddedList", YTType.EMBEDDEDLIST).setMax(db, "2");
+    clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET).setMax(db, "2");
+    clazz.createProperty(db, "embeddedMap", YTType.EMBEDDEDMAP).setMax(db, "2");
 
-    clazz.createProperty(db, "linkList", OType.LINKLIST).setMax(db, "2");
-    clazz.createProperty(db, "linkSet", OType.LINKSET).setMax(db, "2");
-    clazz.createProperty(db, "linkMap", OType.LINKMAP).setMax(db, "2");
-    clazz.createProperty(db, "linkBag", OType.LINKBAG).setMax(db, "2");
+    clazz.createProperty(db, "linkList", YTType.LINKLIST).setMax(db, "2");
+    clazz.createProperty(db, "linkSet", YTType.LINKSET).setMax(db, "2");
+    clazz.createProperty(db, "linkMap", YTType.LINKMAP).setMax(db, "2");
+    clazz.createProperty(db, "linkBag", YTType.LINKBAG).setMax(db, "2");
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("int", 11);
     d.field("long", 11);
     d.field("float", 11);
@@ -334,17 +334,17 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     cont.put("one", "one");
     cont.put("two", "one");
     d.field("embeddedMap", cont);
-    d.field("linkList", Arrays.asList(new ORecordId(40, 30), new ORecordId(40, 34)));
+    d.field("linkList", Arrays.asList(new YTRecordId(40, 30), new YTRecordId(40, 34)));
     d.field(
         "linkSet",
-        new HashSet<ORecordId>(Arrays.asList(new ORecordId(40, 30), new ORecordId(40, 31))));
-    HashMap<String, ORecordId> cont1 = new HashMap<String, ORecordId>();
-    cont1.put("one", new ORecordId(30, 30));
-    cont1.put("two", new ORecordId(30, 30));
+        new HashSet<YTRecordId>(Arrays.asList(new YTRecordId(40, 30), new YTRecordId(40, 31))));
+    HashMap<String, YTRecordId> cont1 = new HashMap<String, YTRecordId>();
+    cont1.put("one", new YTRecordId(30, 30));
+    cont1.put("two", new YTRecordId(30, 30));
     d.field("linkMap", cont1);
     ORidBag bag1 = new ORidBag(db);
-    bag1.add(new ORecordId(40, 30));
-    bag1.add(new ORecordId(40, 33));
+    bag1.add(new YTRecordId(40, 30));
+    bag1.add(new YTRecordId(40, 33));
     d.field("linkBag", bag1);
     d.validate();
 
@@ -373,66 +373,66 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(
         d,
         "linkList",
-        Arrays.asList(new ORecordId(40, 30), new ORecordId(40, 33), new ORecordId(40, 31)));
+        Arrays.asList(new YTRecordId(40, 30), new YTRecordId(40, 33), new YTRecordId(40, 31)));
     checkField(
         d,
         "linkSet",
-        new HashSet<ORecordId>(
-            Arrays.asList(new ORecordId(40, 30), new ORecordId(40, 33), new ORecordId(40, 31))));
+        new HashSet<YTRecordId>(
+            Arrays.asList(new YTRecordId(40, 30), new YTRecordId(40, 33), new YTRecordId(40, 31))));
 
-    HashMap<String, ORecordId> cont3 = new HashMap<String, ORecordId>();
-    cont3.put("one", new ORecordId(30, 30));
-    cont3.put("two", new ORecordId(30, 30));
-    cont3.put("three", new ORecordId(30, 30));
+    HashMap<String, YTRecordId> cont3 = new HashMap<String, YTRecordId>();
+    cont3.put("one", new YTRecordId(30, 30));
+    cont3.put("two", new YTRecordId(30, 30));
+    cont3.put("three", new YTRecordId(30, 30));
     checkField(d, "linkMap", cont3);
 
     ORidBag bag2 = new ORidBag(db);
-    bag2.add(new ORecordId(40, 30));
-    bag2.add(new ORecordId(40, 33));
-    bag2.add(new ORecordId(40, 31));
+    bag2.add(new YTRecordId(40, 30));
+    bag2.add(new YTRecordId(40, 33));
+    bag2.add(new YTRecordId(40, 31));
     checkField(d, "linkBag", bag2);
   }
 
   @Test
   public void testMinValidation() {
     db.begin();
-    ODocument doc = new ODocument();
-    OIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    YTDocument doc = new YTDocument();
+    YTIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
     db.commit();
 
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setMin(db, "11");
-    clazz.createProperty(db, "long", OType.LONG).setMin(db, "11");
-    clazz.createProperty(db, "float", OType.FLOAT).setMin(db, "11");
-    // clazz.createProperty("boolean", OType.BOOLEAN) //no meaning
-    clazz.createProperty(db, "binary", OType.BINARY).setMin(db, "11");
-    clazz.createProperty(db, "byte", OType.BYTE).setMin(db, "11");
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "int", YTType.INTEGER).setMin(db, "11");
+    clazz.createProperty(db, "long", YTType.LONG).setMin(db, "11");
+    clazz.createProperty(db, "float", YTType.FLOAT).setMin(db, "11");
+    // clazz.createProperty("boolean", YTType.BOOLEAN) //no meaning
+    clazz.createProperty(db, "binary", YTType.BINARY).setMin(db, "11");
+    clazz.createProperty(db, "byte", YTType.BYTE).setMin(db, "11");
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, cal.get(Calendar.HOUR) == 11 ? 0 : 1);
     SimpleDateFormat format = db.getStorage().getConfiguration().getDateFormatInstance();
-    clazz.createProperty(db, "date", OType.DATE).setMin(db, format.format(cal.getTime()));
+    clazz.createProperty(db, "date", YTType.DATE).setMin(db, format.format(cal.getTime()));
     cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, 1);
     format = db.getStorage().getConfiguration().getDateTimeFormatInstance();
-    clazz.createProperty(db, "datetime", OType.DATETIME).setMin(db, format.format(cal.getTime()));
+    clazz.createProperty(db, "datetime", YTType.DATETIME).setMin(db, format.format(cal.getTime()));
 
-    clazz.createProperty(db, "decimal", OType.DECIMAL).setMin(db, "11");
-    clazz.createProperty(db, "double", OType.DOUBLE).setMin(db, "11");
-    clazz.createProperty(db, "short", OType.SHORT).setMin(db, "11");
-    clazz.createProperty(db, "string", OType.STRING).setMin(db, "11");
-    // clazz.createProperty("link", OType.LINK) no meaning
-    // clazz.createProperty("embedded", OType.EMBEDDED) no meaning
+    clazz.createProperty(db, "decimal", YTType.DECIMAL).setMin(db, "11");
+    clazz.createProperty(db, "double", YTType.DOUBLE).setMin(db, "11");
+    clazz.createProperty(db, "short", YTType.SHORT).setMin(db, "11");
+    clazz.createProperty(db, "string", YTType.STRING).setMin(db, "11");
+    // clazz.createProperty("link", YTType.LINK) no meaning
+    // clazz.createProperty("embedded", YTType.EMBEDDED) no meaning
 
-    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setMin(db, "1");
-    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setMin(db, "1");
-    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setMin(db, "1");
+    clazz.createProperty(db, "embeddedList", YTType.EMBEDDEDLIST).setMin(db, "1");
+    clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET).setMin(db, "1");
+    clazz.createProperty(db, "embeddedMap", YTType.EMBEDDEDMAP).setMin(db, "1");
 
-    clazz.createProperty(db, "linkList", OType.LINKLIST).setMin(db, "1");
-    clazz.createProperty(db, "linkSet", OType.LINKSET).setMin(db, "1");
-    clazz.createProperty(db, "linkMap", OType.LINKMAP).setMin(db, "1");
-    clazz.createProperty(db, "linkBag", OType.LINKBAG).setMin(db, "1");
+    clazz.createProperty(db, "linkList", YTType.LINKLIST).setMin(db, "1");
+    clazz.createProperty(db, "linkSet", YTType.LINKSET).setMin(db, "1");
+    clazz.createProperty(db, "linkMap", YTType.LINKMAP).setMin(db, "1");
+    clazz.createProperty(db, "linkBag", YTType.LINKBAG).setMin(db, "1");
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("int", 11);
     d.field("long", 11);
     d.field("float", 11);
@@ -448,19 +448,19 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("short", 12);
     d.field("string", "yeahyeahyeah");
     d.field("link", id);
-    // d.field("embedded", new ODocument().field("test", "test"));
+    // d.field("embedded", new YTDocument().field("test", "test"));
     d.field("embeddedList", List.of("a"));
     d.field("embeddedSet", new HashSet<String>(List.of("a")));
     Map<String, String> map = new HashMap<String, String>();
     map.put("some", "value");
     d.field("embeddedMap", map);
-    d.field("linkList", List.of(new ORecordId(40, 50)));
-    d.field("linkSet", new HashSet<ORecordId>(List.of(new ORecordId(40, 50))));
-    HashMap<String, ORecordId> map1 = new HashMap<String, ORecordId>();
-    map1.put("some", new ORecordId(40, 50));
+    d.field("linkList", List.of(new YTRecordId(40, 50)));
+    d.field("linkSet", new HashSet<YTRecordId>(List.of(new YTRecordId(40, 50))));
+    HashMap<String, YTRecordId> map1 = new HashMap<String, YTRecordId>();
+    map1.put("some", new YTRecordId(40, 50));
     d.field("linkMap", map1);
     ORidBag bag1 = new ORidBag(db);
-    bag1.add(new ORecordId(40, 50));
+    bag1.add(new YTRecordId(40, 50));
     d.field("linkBag", bag1);
     d.validate();
 
@@ -481,44 +481,44 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "embeddedList", new ArrayList<String>());
     checkField(d, "embeddedSet", new HashSet<String>());
     checkField(d, "embeddedMap", new HashMap<String, String>());
-    checkField(d, "linkList", new ArrayList<ORecordId>());
-    checkField(d, "linkSet", new HashSet<ORecordId>());
-    checkField(d, "linkMap", new HashMap<String, ORecordId>());
+    checkField(d, "linkList", new ArrayList<YTRecordId>());
+    checkField(d, "linkSet", new HashSet<YTRecordId>());
+    checkField(d, "linkMap", new HashMap<String, YTRecordId>());
     checkField(d, "linkBag", new ORidBag(db));
   }
 
   @Test
   public void testNotNullValidation() {
     db.begin();
-    ODocument doc = new ODocument();
-    OIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    YTDocument doc = new YTDocument();
+    YTIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
     db.commit();
 
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setNotNull(db, true);
-    clazz.createProperty(db, "long", OType.LONG).setNotNull(db, true);
-    clazz.createProperty(db, "float", OType.FLOAT).setNotNull(db, true);
-    clazz.createProperty(db, "boolean", OType.BOOLEAN).setNotNull(db, true);
-    clazz.createProperty(db, "binary", OType.BINARY).setNotNull(db, true);
-    clazz.createProperty(db, "byte", OType.BYTE).setNotNull(db, true);
-    clazz.createProperty(db, "date", OType.DATE).setNotNull(db, true);
-    clazz.createProperty(db, "datetime", OType.DATETIME).setNotNull(db, true);
-    clazz.createProperty(db, "decimal", OType.DECIMAL).setNotNull(db, true);
-    clazz.createProperty(db, "double", OType.DOUBLE).setNotNull(db, true);
-    clazz.createProperty(db, "short", OType.SHORT).setNotNull(db, true);
-    clazz.createProperty(db, "string", OType.STRING).setNotNull(db, true);
-    clazz.createProperty(db, "link", OType.LINK).setNotNull(db, true);
-    clazz.createProperty(db, "embedded", OType.EMBEDDED).setNotNull(db, true);
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "int", YTType.INTEGER).setNotNull(db, true);
+    clazz.createProperty(db, "long", YTType.LONG).setNotNull(db, true);
+    clazz.createProperty(db, "float", YTType.FLOAT).setNotNull(db, true);
+    clazz.createProperty(db, "boolean", YTType.BOOLEAN).setNotNull(db, true);
+    clazz.createProperty(db, "binary", YTType.BINARY).setNotNull(db, true);
+    clazz.createProperty(db, "byte", YTType.BYTE).setNotNull(db, true);
+    clazz.createProperty(db, "date", YTType.DATE).setNotNull(db, true);
+    clazz.createProperty(db, "datetime", YTType.DATETIME).setNotNull(db, true);
+    clazz.createProperty(db, "decimal", YTType.DECIMAL).setNotNull(db, true);
+    clazz.createProperty(db, "double", YTType.DOUBLE).setNotNull(db, true);
+    clazz.createProperty(db, "short", YTType.SHORT).setNotNull(db, true);
+    clazz.createProperty(db, "string", YTType.STRING).setNotNull(db, true);
+    clazz.createProperty(db, "link", YTType.LINK).setNotNull(db, true);
+    clazz.createProperty(db, "embedded", YTType.EMBEDDED).setNotNull(db, true);
 
-    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setNotNull(db, true);
-    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setNotNull(db, true);
-    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setNotNull(db, true);
+    clazz.createProperty(db, "embeddedList", YTType.EMBEDDEDLIST).setNotNull(db, true);
+    clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET).setNotNull(db, true);
+    clazz.createProperty(db, "embeddedMap", YTType.EMBEDDEDMAP).setNotNull(db, true);
 
-    clazz.createProperty(db, "linkList", OType.LINKLIST).setNotNull(db, true);
-    clazz.createProperty(db, "linkSet", OType.LINKSET).setNotNull(db, true);
-    clazz.createProperty(db, "linkMap", OType.LINKMAP).setNotNull(db, true);
+    clazz.createProperty(db, "linkList", YTType.LINKLIST).setNotNull(db, true);
+    clazz.createProperty(db, "linkSet", YTType.LINKSET).setNotNull(db, true);
+    clazz.createProperty(db, "linkMap", YTType.LINKMAP).setNotNull(db, true);
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("int", 12);
     d.field("long", 12);
     d.field("float", 12);
@@ -532,13 +532,13 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("short", 12);
     d.field("string", "yeah");
     d.field("link", id);
-    d.field("embedded", new ODocument().field("test", "test"));
+    d.field("embedded", new YTDocument().field("test", "test"));
     d.field("embeddedList", new ArrayList<String>());
     d.field("embeddedSet", new HashSet<String>());
     d.field("embeddedMap", new HashMap<String, String>());
-    d.field("linkList", new ArrayList<ORecordId>());
-    d.field("linkSet", new HashSet<ORecordId>());
-    d.field("linkMap", new HashMap<String, ORecordId>());
+    d.field("linkList", new ArrayList<YTRecordId>());
+    d.field("linkSet", new HashSet<YTRecordId>());
+    d.field("linkMap", new HashMap<String, YTRecordId>());
     d.validate();
 
     checkField(d, "int", null);
@@ -565,10 +565,10 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testRegExpValidation() {
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "string", OType.STRING).setRegexp(db, "[^Z]*");
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "string", YTType.STRING).setRegexp(db, "[^Z]*");
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     d.field("string", "yeah");
     d.validate();
 
@@ -577,12 +577,12 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testLinkedTypeValidation() {
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setLinkedType(db, OType.INTEGER);
-    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setLinkedType(db, OType.INTEGER);
-    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setLinkedType(db, OType.INTEGER);
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    clazz.createProperty(db, "embeddedList", YTType.EMBEDDEDLIST).setLinkedType(db, YTType.INTEGER);
+    clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET).setLinkedType(db, YTType.INTEGER);
+    clazz.createProperty(db, "embeddedMap", YTType.EMBEDDEDMAP).setLinkedType(db, YTType.INTEGER);
 
-    ODocument d = new ODocument(clazz);
+    YTDocument d = new YTDocument(clazz);
     List<Integer> list = Arrays.asList(1, 2);
     d.field("embeddedList", list);
     Set<Integer> set = new HashSet<Integer>(list);
@@ -605,36 +605,36 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testLinkedClassValidation() {
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    OClass clazz1 = db.getMetadata().getSchema().createClass("Validation1");
-    clazz.createProperty(db, "link", OType.LINK).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "embedded", OType.EMBEDDED).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "linkList", OType.LINKLIST).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "linkSet", OType.LINKSET).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "linkMap", OType.LINKMAP).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "linkBag", OType.LINKBAG).setLinkedClass(db, clazz1);
-    ODocument d = new ODocument(clazz);
-    d.field("link", new ODocument(clazz1));
-    d.field("embedded", new ODocument(clazz1));
-    List<ODocument> list = List.of(new ODocument(clazz1));
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    YTClass clazz1 = db.getMetadata().getSchema().createClass("Validation1");
+    clazz.createProperty(db, "link", YTType.LINK).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "embedded", YTType.EMBEDDED).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkList", YTType.LINKLIST).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "embeddedList", YTType.EMBEDDEDLIST).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkSet", YTType.LINKSET).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkMap", YTType.LINKMAP).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkBag", YTType.LINKBAG).setLinkedClass(db, clazz1);
+    YTDocument d = new YTDocument(clazz);
+    d.field("link", new YTDocument(clazz1));
+    d.field("embedded", new YTDocument(clazz1));
+    List<YTDocument> list = List.of(new YTDocument(clazz1));
     d.field("linkList", list);
-    Set<ODocument> set = new HashSet<ODocument>(list);
+    Set<YTDocument> set = new HashSet<YTDocument>(list);
     d.field("linkSet", set);
-    List<ODocument> embeddedList = Arrays.asList(new ODocument(clazz1), null);
+    List<YTDocument> embeddedList = Arrays.asList(new YTDocument(clazz1), null);
     d.field("embeddedList", embeddedList);
-    Set<ODocument> embeddedSet = new HashSet<ODocument>(embeddedList);
+    Set<YTDocument> embeddedSet = new HashSet<YTDocument>(embeddedList);
     d.field("embeddedSet", embeddedSet);
 
-    Map<String, ODocument> map = new HashMap<String, ODocument>();
-    map.put("a", new ODocument(clazz1));
+    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    map.put("a", new YTDocument(clazz1));
     d.field("linkMap", map);
 
     d.validate();
 
-    checkField(d, "link", new ODocument(clazz));
-    checkField(d, "embedded", new ODocument(clazz));
+    checkField(d, "link", new YTDocument(clazz));
+    checkField(d, "embedded", new YTDocument(clazz));
 
     checkField(d, "linkList", Arrays.asList("a", "b"));
     checkField(d, "linkSet", new HashSet<String>(Arrays.asList("a", "b")));
@@ -644,37 +644,37 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     map1.put("b", "a2");
     checkField(d, "linkMap", map1);
 
-    checkField(d, "linkList", List.of(new ODocument(clazz)));
-    checkField(d, "linkSet", new HashSet<ODocument>(List.of(new ODocument(clazz))));
-    checkField(d, "embeddedList", List.of(new ODocument(clazz)));
-    checkField(d, "embeddedSet", List.of(new ODocument(clazz)));
+    checkField(d, "linkList", List.of(new YTDocument(clazz)));
+    checkField(d, "linkSet", new HashSet<YTDocument>(List.of(new YTDocument(clazz))));
+    checkField(d, "embeddedList", List.of(new YTDocument(clazz)));
+    checkField(d, "embeddedSet", List.of(new YTDocument(clazz)));
     ORidBag bag = new ORidBag(db);
-    bag.add(new ODocument(clazz));
+    bag.add(new YTDocument(clazz));
     checkField(d, "linkBag", bag);
-    Map<String, ODocument> map2 = new HashMap<String, ODocument>();
-    map2.put("a", new ODocument(clazz));
+    Map<String, YTDocument> map2 = new HashMap<String, YTDocument>();
+    map2.put("a", new YTDocument(clazz));
     checkField(d, "linkMap", map2);
   }
 
   @Test
   public void testValidLinkCollectionsUpdate() {
-    OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    OClass clazz1 = db.getMetadata().getSchema().createClass("Validation1");
-    clazz.createProperty(db, "linkList", OType.LINKLIST).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "linkSet", OType.LINKSET).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "linkMap", OType.LINKMAP).setLinkedClass(db, clazz1);
-    clazz.createProperty(db, "linkBag", OType.LINKBAG).setLinkedClass(db, clazz1);
-    ODocument d = new ODocument(clazz);
-    d.field("link", new ODocument(clazz1));
-    d.field("embedded", new ODocument(clazz1));
-    List<ODocument> list = List.of(new ODocument(clazz1));
+    YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
+    YTClass clazz1 = db.getMetadata().getSchema().createClass("Validation1");
+    clazz.createProperty(db, "linkList", YTType.LINKLIST).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkSet", YTType.LINKSET).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkMap", YTType.LINKMAP).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkBag", YTType.LINKBAG).setLinkedClass(db, clazz1);
+    YTDocument d = new YTDocument(clazz);
+    d.field("link", new YTDocument(clazz1));
+    d.field("embedded", new YTDocument(clazz1));
+    List<YTDocument> list = List.of(new YTDocument(clazz1));
     d.field("linkList", list);
-    Set<ODocument> set = new HashSet<ODocument>(list);
+    Set<YTDocument> set = new HashSet<YTDocument>(list);
     d.field("linkSet", set);
     d.field("linkBag", new ORidBag(db));
 
-    Map<String, ODocument> map = new HashMap<String, ODocument>();
-    map.put("a", new ODocument(clazz1));
+    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    map.put("a", new YTDocument(clazz1));
 
     db.begin();
     d.field("linkMap", map);
@@ -684,8 +684,8 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      ODocument newD = d.copy();
-      ((Collection) newD.field("linkList")).add(new ODocument(clazz));
+      YTDocument newD = d.copy();
+      ((Collection) newD.field("linkList")).add(new YTDocument(clazz));
       newD.validate();
       fail();
     } catch (OValidationException v) {
@@ -695,8 +695,8 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      ODocument newD = d.copy();
-      ((Collection) newD.field("linkSet")).add(new ODocument(clazz));
+      YTDocument newD = d.copy();
+      ((Collection) newD.field("linkSet")).add(new YTDocument(clazz));
       newD.validate();
       fail();
     } catch (OValidationException v) {
@@ -706,8 +706,8 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      ODocument newD = d.copy();
-      ((ORidBag) newD.field("linkBag")).add(new ODocument(clazz));
+      YTDocument newD = d.copy();
+      ((ORidBag) newD.field("linkBag")).add(new YTDocument(clazz));
       newD.validate();
       fail();
     } catch (OValidationException v) {
@@ -717,8 +717,8 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      ODocument newD = d.copy();
-      ((Map<String, ODocument>) newD.field("linkMap")).put("a", new ODocument(clazz));
+      YTDocument newD = d.copy();
+      ((Map<String, YTDocument>) newD.field("linkMap")).put("a", new YTDocument(clazz));
       newD.validate();
       fail();
     } catch (OValidationException v) {
@@ -726,9 +726,9 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     }
   }
 
-  private void checkField(ODocument toCheck, String field, Object newValue) {
+  private void checkField(YTDocument toCheck, String field, Object newValue) {
     try {
-      ODocument newD = toCheck.copy();
+      YTDocument newD = toCheck.copy();
       newD.field(field, newValue);
       newD.validate();
       fail();

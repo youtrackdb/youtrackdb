@@ -23,13 +23,13 @@ import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -134,8 +134,8 @@ public abstract class OQueryOperator {
   }
 
   public abstract Object evaluateRecord(
-      final OIdentifiable iRecord,
-      ODocument iCurrentResult,
+      final YTIdentifiable iRecord,
+      YTDocument iCurrentResult,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -152,7 +152,7 @@ public abstract class OQueryOperator {
   public abstract OIndexReuseType getIndexReuseType(Object iLeft, Object iRight);
 
   public OIndexSearchResult getOIndexSearchResult(
-      OClass iSchemaClass,
+      YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
       OCommandContext context) {
@@ -181,7 +181,7 @@ public abstract class OQueryOperator {
    * @return Cursor instance if index can be used to evaluate result of execution of given operator
    * and <code>null</code> otherwise.
    */
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, final List<Object> keyParams, boolean ascSortOrder) {
     return Stream.empty();
   }
@@ -205,10 +205,10 @@ public abstract class OQueryOperator {
     return "<left> " + keyword + " <right>";
   }
 
-  public abstract ORID getBeginRidRange(ODatabaseSession session, final Object iLeft,
+  public abstract YTRID getBeginRidRange(YTDatabaseSession session, final Object iLeft,
       final Object iRight);
 
-  public abstract ORID getEndRidRange(ODatabaseSession session, final Object iLeft,
+  public abstract YTRID getEndRidRange(YTDatabaseSession session, final Object iLeft,
       final Object iRight);
 
   public boolean isUnary() {

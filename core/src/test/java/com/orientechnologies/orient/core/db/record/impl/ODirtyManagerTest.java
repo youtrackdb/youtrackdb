@@ -4,13 +4,13 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testBasic() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(1, manager.getNewRecords().size());
@@ -36,31 +36,31 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testEmbeddedDocument() {
-    ODocument doc = new ODocument();
-    ODocument doc1 = new ODocument();
-    doc.setProperty("test", doc1, OType.EMBEDDED);
-    ODocument doc2 = new ODocument();
-    doc1.setProperty("test2", doc2, OType.LINK);
+    YTDocument doc = new YTDocument();
+    YTDocument doc1 = new YTDocument();
+    doc.setProperty("test", doc1, YTType.EMBEDDED);
+    YTDocument doc2 = new YTDocument();
+    doc1.setProperty("test2", doc2, YTType.LINK);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }
 
   @Test
   public void testLink() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
-    ODocument doc2 = new ODocument();
-    doc.setProperty("test1", doc2, OType.LINK);
+    YTDocument doc2 = new YTDocument();
+    doc.setProperty("test1", doc2, YTType.LINK);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }
 
   @Test
   public void testRemoveLink() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
-    ODocument doc2 = new ODocument();
-    doc.setProperty("test1", doc2, OType.LINK);
+    YTDocument doc2 = new YTDocument();
+    doc.setProperty("test1", doc2, YTType.LINK);
     doc.removeProperty("test1");
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
@@ -68,10 +68,10 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testSetToNullLink() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
-    ODocument doc2 = new ODocument();
-    doc.setProperty("test1", doc2, OType.LINK);
+    YTDocument doc2 = new YTDocument();
+    doc.setProperty("test1", doc2, YTType.LINK);
     doc.setProperty("test1", null);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
@@ -79,25 +79,25 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testLinkOther() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
-    ODocument doc1 = new ODocument();
-    doc.setProperty("test1", doc1, OType.LINK);
+    YTDocument doc1 = new YTDocument();
+    doc.setProperty("test1", doc1, YTType.LINK);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc1);
     assertEquals(2, manager.getNewRecords().size());
   }
 
   @Test
   public void testLinkCollection() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    List<ODocument> lst = new ArrayList<ODocument>();
-    ODocument doc1 = new ODocument();
+    List<YTDocument> lst = new ArrayList<YTDocument>();
+    YTDocument doc1 = new YTDocument();
     lst.add(doc1);
     doc.field("list", lst);
 
-    Set<ODocument> set = new HashSet<ODocument>();
-    ODocument doc2 = new ODocument();
+    Set<YTDocument> set = new HashSet<YTDocument>();
+    YTDocument doc2 = new YTDocument();
     set.add(doc2);
     doc.field("set", set);
 
@@ -108,16 +108,16 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testLinkCollectionRemove() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    List<ODocument> lst = new ArrayList<ODocument>();
-    ODocument doc1 = new ODocument();
+    List<YTDocument> lst = new ArrayList<YTDocument>();
+    YTDocument doc1 = new YTDocument();
     lst.add(doc1);
     doc.field("list", lst);
     doc.removeField("list");
 
-    Set<ODocument> set = new HashSet<ODocument>();
-    ODocument doc2 = new ODocument();
+    Set<YTDocument> set = new HashSet<YTDocument>();
+    YTDocument doc2 = new YTDocument();
     set.add(doc2);
     doc.field("set", set);
     doc.removeField("set");
@@ -129,14 +129,14 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testLinkCollectionOther() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    List<ODocument> lst = new ArrayList<ODocument>();
-    ODocument doc1 = new ODocument();
+    List<YTDocument> lst = new ArrayList<YTDocument>();
+    YTDocument doc1 = new YTDocument();
     lst.add(doc1);
     doc.field("list", lst);
-    Set<ODocument> set = new HashSet<ODocument>();
-    ODocument doc2 = new ODocument();
+    Set<YTDocument> set = new HashSet<YTDocument>();
+    YTDocument doc2 = new YTDocument();
     set.add(doc2);
     doc.field("set", set);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
@@ -148,10 +148,10 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testLinkMapOther() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    Map<String, ODocument> map = new HashMap<String, ODocument>();
-    ODocument doc1 = new ODocument();
+    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    YTDocument doc1 = new YTDocument();
     map.put("some", doc1);
     doc.field("list", map);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
@@ -161,15 +161,15 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testEmbeddedMap() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
     Map<String, Object> map = new HashMap<String, Object>();
 
-    ODocument doc1 = new ODocument();
+    YTDocument doc1 = new YTDocument();
     map.put("bla", "bla");
     map.put("some", doc1);
 
-    doc.field("list", map, OType.EMBEDDEDMAP);
+    doc.field("list", map, YTType.EMBEDDEDMAP);
 
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
@@ -178,18 +178,18 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testEmbeddedCollection() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
 
-    List<ODocument> lst = new ArrayList<ODocument>();
-    ODocument doc1 = new ODocument();
+    List<YTDocument> lst = new ArrayList<YTDocument>();
+    YTDocument doc1 = new YTDocument();
     lst.add(doc1);
-    doc.field("list", lst, OType.EMBEDDEDLIST);
+    doc.field("list", lst, YTType.EMBEDDEDLIST);
 
-    Set<ODocument> set = new HashSet<ODocument>();
-    ODocument doc2 = new ODocument();
+    Set<YTDocument> set = new HashSet<YTDocument>();
+    YTDocument doc2 = new YTDocument();
     set.add(doc2);
-    doc.field("set", set, OType.EMBEDDEDSET);
+    doc.field("set", set, YTType.EMBEDDEDSET);
 
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
@@ -198,10 +198,10 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testRidBag() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
     ORidBag bag = new ORidBag(db);
-    ODocument doc1 = new ODocument();
+    YTDocument doc1 = new YTDocument();
     bag.add(doc1);
     doc.field("bag", bag);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
@@ -211,18 +211,18 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testEmbendedWithEmbeddedCollection() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
 
-    ODocument emb = new ODocument();
-    doc.setProperty("emb", emb, OType.EMBEDDED);
+    YTDocument emb = new YTDocument();
+    doc.setProperty("emb", emb, YTType.EMBEDDED);
 
-    ODocument embedInList = new ODocument();
-    List<ODocument> lst = new ArrayList<ODocument>();
+    YTDocument embedInList = new YTDocument();
+    List<YTDocument> lst = new ArrayList<YTDocument>();
     lst.add(embedInList);
-    emb.setProperty("lst", lst, OType.EMBEDDEDLIST);
-    ODocument link = new ODocument();
-    embedInList.setProperty("set", link, OType.LINK);
+    emb.setProperty("lst", lst, YTType.EMBEDDEDLIST);
+    YTDocument link = new YTDocument();
+    embedInList.setProperty("set", link, YTType.LINK);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
 
@@ -231,18 +231,18 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testDoubleLevelEmbeddedCollection() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
-    List<ODocument> lst = new ArrayList<ODocument>();
-    ODocument embeddedInList = new ODocument();
-    ODocument link = new ODocument();
-    embeddedInList.setProperty("link", link, OType.LINK);
+    List<YTDocument> lst = new ArrayList<YTDocument>();
+    YTDocument embeddedInList = new YTDocument();
+    YTDocument link = new YTDocument();
+    embeddedInList.setProperty("link", link, YTType.LINK);
     lst.add(embeddedInList);
-    Set<ODocument> set = new HashSet<ODocument>();
-    ODocument embeddedInSet = new ODocument();
-    embeddedInSet.setProperty("list", lst, OType.EMBEDDEDLIST);
+    Set<YTDocument> set = new HashSet<YTDocument>();
+    YTDocument embeddedInSet = new YTDocument();
+    embeddedInSet.setProperty("list", lst, YTType.EMBEDDEDLIST);
     set.add(embeddedInSet);
-    doc.setProperty("set", set, OType.EMBEDDEDSET);
+    doc.setProperty("set", set, YTType.EMBEDDEDSET);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     ODirtyManager managerNested = ORecordInternal.getDirtyManager(embeddedInSet);
@@ -252,16 +252,16 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testDoubleCollectionEmbedded() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
-    List<ODocument> lst = new ArrayList<ODocument>();
-    ODocument embeddedInList = new ODocument();
-    ODocument link = new ODocument();
-    embeddedInList.setProperty("link", link, OType.LINK);
+    List<YTDocument> lst = new ArrayList<YTDocument>();
+    YTDocument embeddedInList = new YTDocument();
+    YTDocument link = new YTDocument();
+    embeddedInList.setProperty("link", link, YTType.LINK);
     lst.add(embeddedInList);
     Set<Object> set = new HashSet<Object>();
     set.add(lst);
-    doc.setProperty("set", set, OType.EMBEDDEDSET);
+    doc.setProperty("set", set, YTType.EMBEDDEDSET);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
@@ -269,18 +269,18 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testDoubleCollectionDocumentEmbedded() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
-    List<ODocument> lst = new ArrayList<ODocument>();
-    ODocument embeddedInList = new ODocument();
-    ODocument link = new ODocument();
-    ODocument embInDoc = new ODocument();
-    embInDoc.setProperty("link", link, OType.LINK);
-    embeddedInList.setProperty("some", embInDoc, OType.EMBEDDED);
+    List<YTDocument> lst = new ArrayList<YTDocument>();
+    YTDocument embeddedInList = new YTDocument();
+    YTDocument link = new YTDocument();
+    YTDocument embInDoc = new YTDocument();
+    embInDoc.setProperty("link", link, YTType.LINK);
+    embeddedInList.setProperty("some", embInDoc, YTType.EMBEDDED);
     lst.add(embeddedInList);
     Set<Object> set = new HashSet<Object>();
     set.add(lst);
-    doc.setProperty("set", set, OType.EMBEDDEDSET);
+    doc.setProperty("set", set, YTType.EMBEDDEDSET);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
@@ -288,16 +288,16 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testDoubleMapEmbedded() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.setProperty("test", "ddd");
-    List<ODocument> lst = new ArrayList<ODocument>();
-    ODocument embeddedInList = new ODocument();
-    ODocument link = new ODocument();
-    embeddedInList.setProperty("link", link, OType.LINK);
+    List<YTDocument> lst = new ArrayList<YTDocument>();
+    YTDocument embeddedInList = new YTDocument();
+    YTDocument link = new YTDocument();
+    embeddedInList.setProperty("link", link, YTType.LINK);
     lst.add(embeddedInList);
     Map<String, Object> map = new HashMap<String, Object>();
     map.put("some", lst);
-    doc.setProperty("set", map, OType.EMBEDDEDMAP);
+    doc.setProperty("set", map, YTType.EMBEDDEDMAP);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
@@ -305,10 +305,10 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testLinkSet() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    Set<ODocument> set = new HashSet<ODocument>();
-    ODocument link = new ODocument();
+    Set<YTDocument> set = new HashSet<YTDocument>();
+    YTDocument link = new YTDocument();
     set.add(link);
     doc.field("set", set);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
@@ -318,12 +318,12 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testLinkSetNoConvert() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    Set<OIdentifiable> set = new OSet(doc);
-    ODocument link = new ODocument();
+    Set<YTIdentifiable> set = new OSet(doc);
+    YTDocument link = new YTDocument();
     set.add(link);
-    doc.field("set", set, OType.LINKSET);
+    doc.field("set", set, YTType.LINKSET);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }
@@ -331,12 +331,12 @@ public class ODirtyManagerTest extends DBTestBase {
   @Test
   @Ignore
   public void testLinkSetNoConvertRemove() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    Set<OIdentifiable> set = new OSet(doc);
-    ODocument link = new ODocument();
+    Set<YTIdentifiable> set = new OSet(doc);
+    YTDocument link = new YTDocument();
     set.add(link);
-    doc.field("set", set, OType.LINKSET);
+    doc.field("set", set, YTType.LINKSET);
     doc.removeField("set");
 
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
@@ -345,17 +345,17 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testLinkList() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    List<ODocument> list = new ArrayList<ODocument>();
-    ODocument link = new ODocument();
+    List<YTDocument> list = new ArrayList<YTDocument>();
+    YTDocument link = new YTDocument();
     list.add(link);
-    doc.field("list", list, OType.LINKLIST);
-    ODocument[] linkeds =
-        new ODocument[]{
-            new ODocument().field("name", "linked2"), new ODocument().field("name", "linked3")
+    doc.field("list", list, YTType.LINKLIST);
+    YTDocument[] linkeds =
+        new YTDocument[]{
+            new YTDocument().field("name", "linked2"), new YTDocument().field("name", "linked3")
         };
-    doc.field("linkeds", linkeds, OType.LINKLIST);
+    doc.field("linkeds", linkeds, YTType.LINKLIST);
 
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
@@ -364,12 +364,12 @@ public class ODirtyManagerTest extends DBTestBase {
 
   @Test
   public void testLinkMap() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test", "ddd");
-    Map<String, ODocument> map = new HashMap<String, ODocument>();
-    ODocument link = new ODocument();
+    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    YTDocument link = new YTDocument();
     map.put("bla", link);
-    doc.field("map", map, OType.LINKMAP);
+    doc.field("map", map, YTType.LINKMAP);
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
@@ -378,17 +378,17 @@ public class ODirtyManagerTest extends DBTestBase {
   @Test
   public void testNestedMapDocRidBag() {
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
 
-    Map<String, ODocument> embeddedMap = new HashMap<String, ODocument>();
-    ODocument embeddedMapDoc = new ODocument();
+    Map<String, YTDocument> embeddedMap = new HashMap<String, YTDocument>();
+    YTDocument embeddedMapDoc = new YTDocument();
     ORidBag embeddedMapDocRidBag = new ORidBag(db);
-    ODocument link = new ODocument();
+    YTDocument link = new YTDocument();
     embeddedMapDocRidBag.add(link);
     embeddedMapDoc.field("ridBag", embeddedMapDocRidBag);
     embeddedMap.put("k1", embeddedMapDoc);
 
-    doc.field("embeddedMap", embeddedMap, OType.EMBEDDEDMAP);
+    doc.field("embeddedMap", embeddedMap, YTType.EMBEDDEDMAP);
 
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
     ODirtyManager manager = ORecordInternal.getDirtyManager(doc);

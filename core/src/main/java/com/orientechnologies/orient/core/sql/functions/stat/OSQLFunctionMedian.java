@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.functions.stat;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 
 /**
  * Computes the median for a field. Nulls are ignored in the calculation.
@@ -36,7 +36,7 @@ public class OSQLFunctionMedian extends OSQLFunctionPercentile {
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return NAME + "(<field>)";
   }
 }

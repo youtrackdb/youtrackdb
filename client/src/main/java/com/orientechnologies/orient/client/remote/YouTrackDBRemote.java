@@ -17,14 +17,14 @@
 package com.orientechnologies.orient.client.remote;
 
 import static com.orientechnologies.orient.client.remote.OStorageRemote.ADDRESS_SEPARATOR;
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.NETWORK_SOCKET_RETRY;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.NETWORK_SOCKET_RETRY;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
-import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
+import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.client.remote.db.document.OSharedContextRemote;
 import com.orientechnologies.orient.client.remote.message.OConnect37Request;
 import com.orientechnologies.orient.client.remote.message.OConnectResponse;
@@ -55,12 +55,12 @@ import com.orientechnologies.orient.client.remote.message.OSetGlobalConfiguratio
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.OCachedDatabasePoolFactory;
 import com.orientechnologies.orient.core.db.OCachedDatabasePoolFactoryImpl;
 import com.orientechnologies.orient.core.db.ODatabasePoolImpl;
 import com.orientechnologies.orient.core.db.ODatabasePoolInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseTask;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSharedContext;
@@ -69,7 +69,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -128,7 +128,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     int size =
         this.configurations
             .getConfigurations()
-            .getValueAsInteger(OGlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
+            .getValueAsInteger(YTGlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
     if (size == -1) {
       size = Runtime.getRuntime().availableProcessors() / 2;
     }
@@ -143,11 +143,11 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
   protected OCachedDatabasePoolFactory createCachedDatabasePoolFactory(YouTrackDBConfig config) {
     int capacity =
-        config.getConfigurations().getValueAsInteger(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY);
+        config.getConfigurations().getValueAsInteger(YTGlobalConfiguration.DB_CACHED_POOL_CAPACITY);
     long timeout =
         config
             .getConfigurations()
-            .getValueAsInteger(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
+            .getValueAsInteger(YTGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
     return new OCachedDatabasePoolFactoryImpl(this, capacity, timeout);
   }
 
@@ -159,12 +159,12 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     return String.join(ADDRESS_SEPARATOR, hosts) + "/" + name;
   }
 
-  public ODatabaseSessionInternal open(String name, String user, String password) {
+  public YTDatabaseSessionInternal open(String name, String user, String password) {
     return open(name, user, password, null);
   }
 
   @Override
-  public ODatabaseSessionInternal open(
+  public YTDatabaseSessionInternal open(
       String name, String user, String password, YouTrackDBConfig config) {
     checkOpen();
     YouTrackDBConfig resolvedConfig = solveConfig(config);
@@ -177,8 +177,8 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
           storages.put(name, storage);
         }
       }
-      ODatabaseSessionRemote db =
-          new ODatabaseSessionRemote(storage, getOrCreateSharedContext(storage));
+      YTDatabaseSessionRemote db =
+          new YTDatabaseSessionRemote(storage, getOrCreateSharedContext(storage));
       db.internalOpen(user, password, resolvedConfig);
       return db;
     } catch (Exception e) {
@@ -188,7 +188,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   @Override
-  public ODatabaseSessionInternal open(
+  public YTDatabaseSessionInternal open(
       OAuthenticationInfo authenticationInfo, YouTrackDBConfig config) {
     throw new UnsupportedOperationException();
   }
@@ -219,7 +219,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     if (!keys.isEmpty()) {
       List<String> entries = new ArrayList<String>();
       for (String key : keys) {
-        OGlobalConfiguration globalKey = OGlobalConfiguration.findByKey(key);
+        YTGlobalConfiguration globalKey = YTGlobalConfiguration.findByKey(key);
         entries.add(String.format("\"%s\": :%s", key, globalKey.name()));
         parameters.put(globalKey.name(), config.getConfigurations().getValue(globalKey));
       }
@@ -229,7 +229,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     executeServerStatementNamedParams(create, user, password, parameters).close();
   }
 
-  public ODatabaseSessionRemotePooled poolOpen(
+  public YTDatabaseSessionRemotePooled poolOpen(
       String name, String user, String password, ODatabasePoolInternal pool) {
     OStorageRemote storage;
     synchronized (this) {
@@ -246,8 +246,8 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
         }
       }
     }
-    ODatabaseSessionRemotePooled db =
-        new ODatabaseSessionRemotePooled(pool, storage, getOrCreateSharedContext(storage));
+    YTDatabaseSessionRemotePooled db =
+        new YTDatabaseSessionRemotePooled(pool, storage, getOrCreateSharedContext(storage));
     db.internalOpen(user, password, pool.getConfig());
     return db;
   }
@@ -262,16 +262,16 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     remote.shutdown();
   }
 
-  public ODocument getServerInfo(String username, String password) {
+  public YTDocument getServerInfo(String username, String password) {
     OServerInfoRequest request = new OServerInfoRequest();
     OServerInfoResponse response = connectAndSend(null, username, password, request);
-    ODocument res = new ODocument();
+    YTDocument res = new YTDocument();
     res.fromJSON(response.getResult());
 
     return res;
   }
 
-  public ODocument getClusterStatus(String username, String password) {
+  public YTDocument getClusterStatus(String username, String password) {
     ODistributedStatusRequest request = new ODistributedStatusRequest();
     ODistributedStatusResponse response = connectAndSend(null, username, password, request);
 
@@ -281,14 +281,14 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   public String getGlobalConfiguration(
-      String username, String password, OGlobalConfiguration config) {
+      String username, String password, YTGlobalConfiguration config) {
     OGetGlobalConfigurationRequest request = new OGetGlobalConfigurationRequest(config.getKey());
     OGetGlobalConfigurationResponse response = connectAndSend(null, username, password, request);
     return response.getValue();
   }
 
   public void setGlobalConfiguration(
-      String username, String password, OGlobalConfiguration config, String iConfigValue) {
+      String username, String password, YTGlobalConfiguration config, String iConfigValue) {
     String value = iConfigValue != null ? iConfigValue : "";
     OSetGlobalConfigurationRequest request =
         new OSetGlobalConfigurationRequest(config.getKey(), value);
@@ -488,7 +488,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   @Override
-  public ODatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user) {
+  public YTDatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user) {
     throw new UnsupportedOperationException(
         "Open with no authentication is not supported in remote");
   }
@@ -522,7 +522,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   @Override
-  public ODatabaseSessionInternal openNoAuthorization(String name) {
+  public YTDatabaseSessionInternal openNoAuthorization(String name) {
     throw new UnsupportedOperationException(
         "impossible skip authentication and authorization in remote");
   }
@@ -557,7 +557,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   @Override
-  public <X> X executeNoAuthorizationSync(ODatabaseSessionInternal database,
+  public <X> X executeNoAuthorizationSync(YTDatabaseSessionInternal database,
       ODatabaseTask<X> task) {
     throw new UnsupportedOperationException("not available in remote");
   }
@@ -592,7 +592,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       Object... params) {
     int recordsPerPage =
         getContextConfiguration()
-            .getValueAsInteger(OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE);
+            .getValueAsInteger(YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE);
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -619,7 +619,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       Map<String, Object> params) {
     int recordsPerPage =
         getContextConfiguration()
-            .getValueAsInteger(OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE);
+            .getValueAsInteger(YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE);
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }

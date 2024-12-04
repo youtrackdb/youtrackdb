@@ -4,9 +4,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
@@ -25,7 +25,7 @@ public class MetadataOnlyTest {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
+                .addConfig(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .build());
     youTrackDb.execute(
         "create database testMetadataOnly plocal users (admin identified by 'admin' role admin)");
@@ -33,17 +33,17 @@ public class MetadataOnlyTest {
 
   @Test
   public void test() {
-    ODatabaseSession db = youTrackDb.open("testMetadataOnly", "admin", "admin");
+    YTDatabaseSession db = youTrackDb.open("testMetadataOnly", "admin", "admin");
     byte[] blob =
         new byte[]{
             1, 2, 3, 4, 5, 6,
         };
-    ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage()).metadataOnly(blob);
+    ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) db).getStorage()).metadataOnly(blob);
     db.close();
     YouTrackDBInternal.extract(youTrackDb).forceDatabaseClose("testMetadataOnly");
     db = youTrackDb.open("testMetadataOnly", "admin", "admin");
     Optional<byte[]> loaded =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
+        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) db).getStorage())
             .getLastMetadata();
     assertTrue(loaded.isPresent());
     assertArrayEquals(loaded.get(), blob);

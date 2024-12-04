@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadata;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.OVertexInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -23,21 +23,21 @@ import java.util.Set;
  */
 public class OBonsaiTreeRepair {
 
-  public void repairDatabaseRidbags(ODatabaseSessionInternal db,
+  public void repairDatabaseRidbags(YTDatabaseSessionInternal db,
       OCommandOutputListener outputListener) {
     message(outputListener, "Repair of ridbags is started ...\n");
 
     final OMetadata metadata = db.getMetadata();
-    final OSchema schema = metadata.getSchema();
-    final OClass edgeClass = schema.getClass("E");
+    final YTSchema schema = metadata.getSchema();
+    final YTClass edgeClass = schema.getClass("E");
     if (edgeClass != null) {
-      final HashMap<String, Set<ORID>> processedVertexes = new HashMap<String, Set<ORID>>();
+      final HashMap<String, Set<YTRID>> processedVertexes = new HashMap<String, Set<YTRID>>();
       final long countEdges = db.countClass(edgeClass.getName());
 
       message(outputListener, countEdges + " will be processed.");
       long counter = 0;
 
-      for (ODocument edge : db.browseClass(edgeClass.getName())) {
+      for (YTDocument edge : db.browseClass(edgeClass.getName())) {
         try {
           final String label;
           if (edge.field("label") != null) {
@@ -49,26 +49,26 @@ public class OBonsaiTreeRepair {
             continue;
           }
 
-          OIdentifiable inId = edge.field("in");
-          OIdentifiable outId = edge.field("out");
+          YTIdentifiable inId = edge.field("in");
+          YTIdentifiable outId = edge.field("out");
           if (inId == null || outId == null) {
             db.delete(edge);
             continue;
           }
           final String inVertexName =
-              OVertexInternal.getEdgeLinkFieldName(ODirection.IN, label, true);
+              YTVertexInternal.getEdgeLinkFieldName(ODirection.IN, label, true);
           final String outVertexName =
-              OVertexInternal.getEdgeLinkFieldName(ODirection.OUT, label, true);
+              YTVertexInternal.getEdgeLinkFieldName(ODirection.OUT, label, true);
 
-          final ODocument inVertex = inId.getRecord();
-          final ODocument outVertex = outId.getRecord();
+          final YTDocument inVertex = inId.getRecord();
+          final YTDocument outVertex = outId.getRecord();
 
-          Set<ORID> inVertexes = processedVertexes.get(inVertexName);
+          Set<YTRID> inVertexes = processedVertexes.get(inVertexName);
           if (inVertexes == null) {
             inVertexes = new HashSet<>();
             processedVertexes.put(inVertexName, inVertexes);
           }
-          Set<ORID> outVertexes = processedVertexes.get(outVertexName);
+          Set<YTRID> outVertexes = processedVertexes.get(outVertexName);
           if (outVertexes == null) {
             outVertexes = new HashSet<>();
             processedVertexes.put(outVertexName, outVertexes);

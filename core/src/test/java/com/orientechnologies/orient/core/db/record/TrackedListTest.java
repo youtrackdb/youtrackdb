@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,7 +18,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddNotificationOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -36,7 +36,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddNotificationTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -58,7 +58,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddNotificationThree() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -70,7 +70,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddNotificationFour() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -91,7 +91,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddAllNotificationOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -120,7 +120,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddAllNotificationTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -137,7 +137,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddAllNotificationThree() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -161,7 +161,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddIndexNotificationOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -185,7 +185,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddIndexNotificationTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -202,7 +202,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testSetNotificationOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -225,7 +225,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testSetNotificationTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -244,7 +244,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -266,7 +266,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -285,7 +285,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationFour() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -305,7 +305,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testRemoveIndexOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -329,7 +329,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testClearOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -361,7 +361,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testClearTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -380,7 +380,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testReturnOriginalStateOne() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
 
     final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
     trackedList.add("value1");
@@ -414,7 +414,7 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testReturnOriginalStateTwo() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
 
     final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
     trackedList.add("value1");
@@ -449,7 +449,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testSerialization() throws Exception {
 
-    class NotSerializableDocument extends ODocument {
+    class NotSerializableDocument extends YTDocument {
 
       private static final long serialVersionUID = 1L;
 

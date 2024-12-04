@@ -19,26 +19,26 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import javax.annotation.Nonnull;
 
 public abstract class OTransactionAbstract implements OTransaction {
 
   @Nonnull
-  protected ODatabaseSessionInternal database;
+  protected YTDatabaseSessionInternal database;
   protected TXSTATUS status = TXSTATUS.INVALID;
 
   /**
    * Indicates the record deleted in a transaction.
    *
-   * @see #getRecord(ORID)
+   * @see #getRecord(YTRID)
    */
-  public static final ORecordAbstract DELETED_RECORD = new ORecordBytes();
+  public static final YTRecordAbstract DELETED_RECORD = new YTRecordBytes();
 
-  protected OTransactionAbstract(@Nonnull final ODatabaseSessionInternal iDatabase) {
+  protected OTransactionAbstract(@Nonnull final YTDatabaseSessionInternal iDatabase) {
     database = iDatabase;
   }
 
@@ -53,13 +53,13 @@ public abstract class OTransactionAbstract implements OTransaction {
   }
 
   @Nonnull
-  public final ODatabaseSessionInternal getDatabase() {
+  public final YTDatabaseSessionInternal getDatabase() {
     return database;
   }
 
   public abstract void internalRollback();
 
-  public void setDatabase(@Nonnull ODatabaseSessionInternal database) {
+  public void setDatabase(@Nonnull YTDatabaseSessionInternal database) {
     this.database = database;
   }
 }

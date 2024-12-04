@@ -18,13 +18,12 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,10 +42,10 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass oClass = schema.createClass("City");
-    oClass.createProperty(db, "name", OType.STRING);
+    YTClass oClass = schema.createClass("City");
+    oClass.createProperty(db, "name", YTType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
@@ -54,10 +53,10 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
   public void testInsertUpdateTransactionWithIndex() {
     db.close();
     db = openDatabase();
-    OSchema schema = db.getMetadata().getSchema();
-    ODocument doc = new ODocument("City");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTDocument doc = new YTDocument("City");
     doc.field("name", "");
-    ODocument doc1 = new ODocument("City");
+    YTDocument doc1 = new YTDocument("City");
     doc1.field("name", "");
     db.begin();
     doc = db.save(doc);
@@ -78,11 +77,11 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
 
     Collection<?> coll;
 
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(2, coll.size());
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "")) {
       coll = stream.collect(Collectors.toList());
     }
 

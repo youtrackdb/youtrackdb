@@ -20,10 +20,10 @@
 
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -35,20 +35,20 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Persistent Set<OIdentifiable> implementation that uses the SBTree to handle entries in persistent
+ * Persistent Set<YTIdentifiable> implementation that uses the SBTree to handle entries in persistent
  * way.
  */
-public class OIndexRIDContainer implements Set<OIdentifiable> {
+public class OIndexRIDContainer implements Set<YTIdentifiable> {
 
   public static final String INDEX_FILE_EXTENSION = ".irs";
 
   private final long fileId;
-  private Set<OIdentifiable> underlying;
+  private Set<YTIdentifiable> underlying;
   private boolean isEmbedded;
   private int topThreshold =
-      OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+      YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
   private final int bottomThreshold =
-      OGlobalConfiguration.INDEX_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
+      YTGlobalConfiguration.INDEX_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
   private final boolean durableNonTxMode;
 
   /**
@@ -67,7 +67,7 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
     this.durableNonTxMode = durableNonTxMode;
   }
 
-  public OIndexRIDContainer(long fileId, Set<OIdentifiable> underlying, boolean durableNonTxMode) {
+  public OIndexRIDContainer(long fileId, Set<YTIdentifiable> underlying, boolean durableNonTxMode) {
     this.fileId = fileId;
     this.underlying = underlying;
     isEmbedded = !(underlying instanceof OIndexRIDContainerSBTree);
@@ -119,7 +119,7 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return underlying.iterator();
   }
 
@@ -135,7 +135,7 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   @Override
-  public boolean add(OIdentifiable oIdentifiable) {
+  public boolean add(YTIdentifiable oIdentifiable) {
     final boolean res = underlying.add(oIdentifiable);
     checkTopThreshold();
     return res;
@@ -154,7 +154,7 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   @Override
-  public boolean addAll(Collection<? extends OIdentifiable> c) {
+  public boolean addAll(Collection<? extends YTIdentifiable> c) {
     final boolean res = underlying.addAll(c);
     checkTopThreshold();
     return res;
@@ -192,7 +192,7 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
     return durableNonTxMode;
   }
 
-  public Set<OIdentifiable> getUnderlying() {
+  public Set<YTIdentifiable> getUnderlying() {
     return underlying;
   }
 
@@ -211,7 +211,7 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
   private void convertToEmbedded() {
     final OIndexRIDContainerSBTree tree = (OIndexRIDContainerSBTree) underlying;
 
-    final Set<OIdentifiable> set = new HashSet<>(tree);
+    final Set<YTIdentifiable> set = new HashSet<>(tree);
 
     tree.delete();
     underlying = set;
@@ -219,7 +219,7 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   private void convertToSbTree() {
-    final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+    final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
     final OIndexRIDContainerSBTree tree =
         new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
 

@@ -22,15 +22,15 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.common.stream.Streams;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.comparator.AscComparator;
 import com.orientechnologies.orient.core.index.comparator.DescComparator;
 import com.orientechnologies.orient.core.index.iterator.PureTxBetweenIndexBackwardSpliterator;
 import com.orientechnologies.orient.core.index.iterator.PureTxBetweenIndexForwardSpliterator;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
@@ -58,9 +58,9 @@ public abstract class OIndexOneValue extends OIndexAbstract {
 
   @Deprecated
   @Override
-  public Object get(ODatabaseSessionInternal session, Object key) {
-    final Iterator<ORID> iterator;
-    try (Stream<ORID> stream = getRids(session, key)) {
+  public Object get(YTDatabaseSessionInternal session, Object key) {
+    final Iterator<YTRID> iterator;
+    try (Stream<YTRID> stream = getRids(session, key)) {
       iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next();
@@ -71,16 +71,16 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORID> getRidsIgnoreTx(ODatabaseSessionInternal session, Object key) {
+  public Stream<YTRID> getRidsIgnoreTx(YTDatabaseSessionInternal session, Object key) {
     key = getCollatingValue(key);
 
     acquireSharedLock();
-    Stream<ORID> stream;
+    Stream<YTRID> stream;
     try {
       while (true) {
         try {
           if (apiVersion == 0) {
-            final ORID rid = (ORID) storage.getIndexValue(session, indexId, key);
+            final YTRID rid = (YTRID) storage.getIndexValue(session, indexId, key);
             stream = Stream.ofNullable(rid);
           } else if (apiVersion == 1) {
             stream = storage.getIndexValues(indexId, key);
@@ -100,10 +100,10 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORID> getRids(ODatabaseSessionInternal session, Object key) {
+  public Stream<YTRID> getRids(YTDatabaseSessionInternal session, Object key) {
     key = getCollatingValue(key);
 
-    Stream<ORID> stream = getRidsIgnoreTx(session, key);
+    Stream<YTRID> stream = getRidsIgnoreTx(session, key);
 
     final OTransactionIndexChanges indexChanges =
         session.getTransaction().getIndexChangesInternal(getName());
@@ -111,7 +111,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
       return stream;
     }
 
-    ORID rid;
+    YTRID rid;
     if (!indexChanges.cleared) {
       // BEGIN FROM THE UNDERLYING RESULT SET
       //noinspection resource
@@ -120,7 +120,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
       rid = null;
     }
 
-    final ORawPair<Object, ORID> txIndexEntry = calculateTxIndexEntry(key, rid, indexChanges);
+    final ORawPair<Object, YTRID> txIndexEntry = calculateTxIndexEntry(key, rid, indexChanges);
     if (txIndexEntry == null) {
       return Stream.empty();
     }
@@ -129,7 +129,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntries(ODatabaseSessionInternal session,
+  public Stream<ORawPair<Object, YTRID>> streamEntries(YTDatabaseSessionInternal session,
       Collection<?> keys, boolean ascSortOrder) {
     final List<Object> sortedKeys = new ArrayList<>(keys);
     final Comparator<Object> comparator;
@@ -143,7 +143,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     sortedKeys.sort(comparator);
 
     //noinspection resource
-    Stream<ORawPair<Object, ORID>> stream =
+    Stream<ORawPair<Object, YTRID>> stream =
         IndexStreamSecurityDecorator.decorateStream(
             this,
             sortedKeys.stream()
@@ -156,7 +156,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
                         while (true) {
                           try {
                             if (apiVersion == 0) {
-                              final ORID rid = (ORID) storage.getIndexValue(session, indexId,
+                              final YTRID rid = (YTRID) storage.getIndexValue(session, indexId,
                                   collatedKey);
                               if (rid == null) {
                                 return Stream.empty();
@@ -184,14 +184,14 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     if (indexChanges == null) {
       return stream;
     }
-    Comparator<ORawPair<Object, ORID>> keyComparator;
+    Comparator<ORawPair<Object, YTRID>> keyComparator;
     if (ascSortOrder) {
       keyComparator = AscComparator.INSTANCE;
     } else {
       keyComparator = DescComparator.INSTANCE;
     }
 
-    @SuppressWarnings("resource") final Stream<ORawPair<Object, ORID>> txStream =
+    @SuppressWarnings("resource") final Stream<ORawPair<Object, YTRID>> txStream =
         keys.stream()
             .map((key) -> calculateTxIndexEntry(getCollatingValue(key), null, indexChanges))
             .filter(Objects::nonNull)
@@ -206,12 +206,12 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntriesBetween(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+  public Stream<ORawPair<Object, YTRID>> streamEntriesBetween(
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     fromKey = getCollatingValue(fromKey);
     toKey = getCollatingValue(toKey);
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     acquireSharedLock();
     try {
       while (true) {
@@ -236,7 +236,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
       return stream;
     }
 
-    final Stream<ORawPair<Object, ORID>> txStream;
+    final Stream<ORawPair<Object, YTRID>> txStream;
     if (ascOrder) {
       //noinspection resource
       txStream =
@@ -262,10 +262,10 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntriesMajor(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder) {
+  public Stream<ORawPair<Object, YTRID>> streamEntriesMajor(
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder) {
     fromKey = getCollatingValue(fromKey);
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     acquireSharedLock();
     try {
       while (true) {
@@ -292,7 +292,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
 
     fromKey = getCollatingValue(fromKey);
 
-    final Stream<ORawPair<Object, ORID>> txStream;
+    final Stream<ORawPair<Object, YTRID>> txStream;
 
     final Object lastKey = indexChanges.getLastKey();
     if (ascOrder) {
@@ -318,10 +318,10 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntriesMinor(
-      ODatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder) {
+  public Stream<ORawPair<Object, YTRID>> streamEntriesMinor(
+      YTDatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder) {
     toKey = getCollatingValue(toKey);
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     acquireSharedLock();
     try {
       while (true) {
@@ -347,7 +347,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
 
     toKey = getCollatingValue(toKey);
 
-    final Stream<ORawPair<Object, ORID>> txStream;
+    final Stream<ORawPair<Object, YTRID>> txStream;
 
     final Object firstKey = indexChanges.getFirstKey();
     if (ascOrder) {
@@ -372,7 +372,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
         this, mergeTxAndBackedStreams(indexChanges, txStream, stream, ascOrder));
   }
 
-  public long size(ODatabaseSessionInternal session) {
+  public long size(YTDatabaseSessionInternal session) {
     acquireSharedLock();
     try {
       while (true) {
@@ -388,8 +388,8 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(ODatabaseSessionInternal session) {
-    Stream<ORawPair<Object, ORID>> stream;
+  public Stream<ORawPair<Object, YTRID>> stream(YTDatabaseSessionInternal session) {
+    Stream<ORawPair<Object, YTRID>> stream;
     acquireSharedLock();
     try {
       while (true) {
@@ -412,7 +412,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
       return stream;
     }
 
-    final Stream<ORawPair<Object, ORID>> txStream =
+    final Stream<ORawPair<Object, YTRID>> txStream =
         StreamSupport.stream(
             new PureTxBetweenIndexForwardSpliterator(this, null, true, null, true, indexChanges),
             false);
@@ -425,8 +425,8 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(ODatabaseSessionInternal session) {
-    Stream<ORawPair<Object, ORID>> stream;
+  public Stream<ORawPair<Object, YTRID>> descStream(YTDatabaseSessionInternal session) {
+    Stream<ORawPair<Object, YTRID>> stream;
     acquireSharedLock();
     try {
       while (true) {
@@ -449,7 +449,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
       return stream;
     }
 
-    final Stream<ORawPair<Object, ORID>> txStream =
+    final Stream<ORawPair<Object, YTRID>> txStream =
         StreamSupport.stream(
             new PureTxBetweenIndexBackwardSpliterator(this, null, true, null, true, indexChanges),
             false);
@@ -466,10 +466,10 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     return true;
   }
 
-  public ORawPair<Object, ORID> calculateTxIndexEntry(
-      Object key, final ORID backendValue, final OTransactionIndexChanges indexChanges) {
+  public ORawPair<Object, YTRID> calculateTxIndexEntry(
+      Object key, final YTRID backendValue, final OTransactionIndexChanges indexChanges) {
     key = getCollatingValue(key);
-    ORID result = backendValue;
+    YTRID result = backendValue;
     final OTransactionIndexChangesPerKey changesPerKey = indexChanges.getChangesPerKey(key);
     if (changesPerKey.isEmpty()) {
       if (backendValue == null) {
@@ -494,12 +494,12 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     return new ORawPair<>(key, result);
   }
 
-  private Stream<ORawPair<Object, ORID>> mergeTxAndBackedStreams(
+  private Stream<ORawPair<Object, YTRID>> mergeTxAndBackedStreams(
       OTransactionIndexChanges indexChanges,
-      Stream<ORawPair<Object, ORID>> txStream,
-      Stream<ORawPair<Object, ORID>> backedStream,
+      Stream<ORawPair<Object, YTRID>> txStream,
+      Stream<ORawPair<Object, YTRID>> backedStream,
       boolean ascSortOrder) {
-    Comparator<ORawPair<Object, ORID>> comparator;
+    Comparator<ORawPair<Object, YTRID>> comparator;
     if (ascSortOrder) {
       comparator = AscComparator.INSTANCE;
     } else {
@@ -518,14 +518,14 @@ public abstract class OIndexOneValue extends OIndexAbstract {
   }
 
   @Override
-  public OIndexOneValue put(ODatabaseSessionInternal session, Object key,
-      final OIdentifiable value) {
-    final ORID rid = value.getIdentity();
+  public OIndexOneValue put(YTDatabaseSessionInternal session, Object key,
+      final YTIdentifiable value) {
+    final YTRID rid = value.getIdentity();
 
     if (!rid.isValid()) {
-      if (value instanceof ORecord) {
+      if (value instanceof YTRecord) {
         // EARLY SAVE IT
-        ((ORecord) value).save();
+        ((YTRecord) value).save();
       } else {
         throw new IllegalArgumentException(
             "Cannot store non persistent RID as index value for key '" + key + "'");

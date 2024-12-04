@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  *
@@ -35,11 +35,11 @@ public class ORecordCountHandler implements OReturnHandler {
   }
 
   @Override
-  public void beforeUpdate(ODocument result) {
+  public void beforeUpdate(YTDocument result) {
   }
 
   @Override
-  public void afterUpdate(ODocument result) {
+  public void afterUpdate(YTDocument result) {
     count++;
   }
 

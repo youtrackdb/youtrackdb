@@ -23,8 +23,8 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.lang.reflect.Array;
@@ -60,7 +60,7 @@ public class OMultiValue {
         || Map.class.isAssignableFrom(iType)
         || OMultiCollectionIterator.class.isAssignableFrom(iType)
         || (Iterable.class.isAssignableFrom(iType)
-        && !(OIdentifiable.class.isAssignableFrom(iType)))
+        && !(YTIdentifiable.class.isAssignableFrom(iType)))
         || OResultSet.class.isAssignableFrom(iType);
   }
 
@@ -106,7 +106,7 @@ public class OMultiValue {
     if (iObject.getClass().isArray()) {
       return Array.getLength(iObject);
     }
-    if ((iObject instanceof Iterable && !(iObject instanceof ODocument))) {
+    if ((iObject instanceof Iterable && !(iObject instanceof YTDocument))) {
       int i = 0;
       for (Object o : (Iterable) iObject) {
         i++;
@@ -296,7 +296,7 @@ public class OMultiValue {
       return null;
     }
 
-    if (iObject instanceof Iterable<?> && !(iObject instanceof ODocument)) {
+    if (iObject instanceof Iterable<?> && !(iObject instanceof YTDocument)) {
       return (Iterable<Object>) iObject;
     } else if (iObject instanceof Collection<?>) {
       return ((Collection<Object>) iObject);
@@ -837,7 +837,7 @@ public class OMultiValue {
       }
 
       return set;
-    } else if (o instanceof Iterable && !(o instanceof OIdentifiable)) {
+    } else if (o instanceof Iterable && !(o instanceof YTIdentifiable)) {
       Iterator iterator = ((Iterable) o).iterator();
       Set result = new HashSet();
       while (iterator.hasNext()) {

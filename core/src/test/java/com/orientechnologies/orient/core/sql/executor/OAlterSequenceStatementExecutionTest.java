@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class OAlterSequenceStatementExecutionTest extends DBTestBase {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -29,7 +29,7 @@ public class OAlterSequenceStatementExecutionTest extends DBTestBase {
             db.getMetadata()
                 .getSequenceLibrary()
                 .createSequence(
-                    sequenceName, OSequence.SEQUENCE_TYPE.ORDERED, new OSequence.CreateParams());
+                    sequenceName, YTSequence.SEQUENCE_TYPE.ORDERED, new YTSequence.CreateParams());
           } catch (ODatabaseException exc) {
             Assert.fail("Failed to create sequence");
           }
@@ -47,7 +47,7 @@ public class OAlterSequenceStatementExecutionTest extends DBTestBase {
 
     db.executeInTx(
         () -> {
-          OSequence seq = db.getMetadata().getSequenceLibrary().getSequence(sequenceName);
+          YTSequence seq = db.getMetadata().getSequenceLibrary().getSequence(sequenceName);
           Assert.assertNotNull(seq);
           try {
             Assert.assertEquals(20, seq.next());

@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,11 +42,11 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
   @Test(enabled = false)
   public void queryGroupByBasic() {
-    List<ODocument> result = executeQuery("select location from Account group by location");
+    List<YTDocument> result = executeQuery("select location from Account group by location");
 
     Assert.assertTrue(result.size() > 1);
     Set<Object> set = new HashSet<Object>();
-    for (ODocument d : result) {
+    for (YTDocument d : result) {
       set.add(d.field("location"));
     }
     Assert.assertEquals(result.size(), set.size());
@@ -54,7 +54,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
   @Test
   public void queryGroupByLimit() {
-    List<ODocument> result =
+    List<YTDocument> result =
         executeQuery("select location from Account group by location limit 2");
 
     Assert.assertEquals(result.size(), 2);
@@ -62,7 +62,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
   @Test
   public void queryGroupByCount() {
-    List<ODocument> result =
+    List<YTDocument> result =
         executeQuery("select count(*) from Account group by location");
 
     Assert.assertTrue(result.size() > 1);
@@ -71,12 +71,12 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
   @Test
   @Ignore
   public void queryGroupByAndOrderBy() {
-    List<ODocument> result =
+    List<YTDocument> result =
         executeQuery("select location from Account group by location order by location");
 
     Assert.assertTrue(result.size() > 1);
     String last = null;
-    for (ODocument d : result) {
+    for (YTDocument d : result) {
       if (last != null) {
         Assert.assertTrue(last.compareTo(d.field("location")) < 0);
       }
@@ -87,7 +87,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(result.size() > 1);
     last = null;
-    for (ODocument d : result) {
+    for (YTDocument d : result) {
       Object current = d.field("location");
       if (current != null) {
         if (last != null) {
@@ -110,14 +110,14 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
       database.command("insert into GroupByTest set location = 'Austin'").close();
       database.commit();
 
-      final List<ODocument> result =
+      final List<YTDocument> result =
           executeQuery(
               "select location, count(*) from GroupByTest group by location");
 
       Assert.assertEquals(result.size(), 3);
 
       boolean foundNullGroup = false;
-      for (ODocument d : result) {
+      for (YTDocument d : result) {
         if (d.field("location") == null) {
           Assert.assertFalse(foundNullGroup);
           foundNullGroup = true;
@@ -144,12 +144,12 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
       database.command("insert into GroupByTest set location = 'Austin'").close();
       database.commit();
 
-      final List<ODocument> result = executeQuery(
+      final List<YTDocument> result = executeQuery(
           "select location, count(*) from GroupByTest group by location");
 
       Assert.assertEquals(result.size(), 2);
 
-      for (ODocument d : result) {
+      for (YTDocument d : result) {
         Assert.assertNotNull(d.field("location"), "Found null in resultset with groupby");
       }
 

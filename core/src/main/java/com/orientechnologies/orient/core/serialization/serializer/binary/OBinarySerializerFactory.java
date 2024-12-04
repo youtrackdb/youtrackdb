@@ -38,8 +38,8 @@ import com.orientechnologies.common.serialization.types.OShortSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
 import com.orientechnologies.common.serialization.types.OUTF8Serializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
@@ -66,8 +66,8 @@ public class OBinarySerializerFactory {
       new ConcurrentHashMap<Byte, OBinarySerializer<?>>();
   private final ConcurrentMap<Byte, Class<? extends OBinarySerializer>> serializerClassesIdMap =
       new ConcurrentHashMap<Byte, Class<? extends OBinarySerializer>>();
-  private final ConcurrentMap<OType, OBinarySerializer<?>> serializerTypeMap =
-      new ConcurrentHashMap<OType, OBinarySerializer<?>>();
+  private final ConcurrentMap<YTType, OBinarySerializer<?>> serializerTypeMap =
+      new ConcurrentHashMap<YTType, OBinarySerializer<?>>();
 
   private OBinarySerializerFactory() {
   }
@@ -78,23 +78,23 @@ public class OBinarySerializerFactory {
     // STATELESS SERIALIER
     factory.registerSerializer(new ONullSerializer(), null);
 
-    factory.registerSerializer(OBooleanSerializer.INSTANCE, OType.BOOLEAN);
-    factory.registerSerializer(OIntegerSerializer.INSTANCE, OType.INTEGER);
-    factory.registerSerializer(OShortSerializer.INSTANCE, OType.SHORT);
-    factory.registerSerializer(OLongSerializer.INSTANCE, OType.LONG);
-    factory.registerSerializer(OFloatSerializer.INSTANCE, OType.FLOAT);
-    factory.registerSerializer(ODoubleSerializer.INSTANCE, OType.DOUBLE);
-    factory.registerSerializer(ODateTimeSerializer.INSTANCE, OType.DATETIME);
+    factory.registerSerializer(OBooleanSerializer.INSTANCE, YTType.BOOLEAN);
+    factory.registerSerializer(OIntegerSerializer.INSTANCE, YTType.INTEGER);
+    factory.registerSerializer(OShortSerializer.INSTANCE, YTType.SHORT);
+    factory.registerSerializer(OLongSerializer.INSTANCE, YTType.LONG);
+    factory.registerSerializer(OFloatSerializer.INSTANCE, YTType.FLOAT);
+    factory.registerSerializer(ODoubleSerializer.INSTANCE, YTType.DOUBLE);
+    factory.registerSerializer(ODateTimeSerializer.INSTANCE, YTType.DATETIME);
     factory.registerSerializer(OCharSerializer.INSTANCE, null);
-    factory.registerSerializer(OStringSerializer.INSTANCE, OType.STRING);
+    factory.registerSerializer(OStringSerializer.INSTANCE, YTType.STRING);
 
-    factory.registerSerializer(OByteSerializer.INSTANCE, OType.BYTE);
-    factory.registerSerializer(ODateSerializer.INSTANCE, OType.DATE);
-    factory.registerSerializer(OLinkSerializer.INSTANCE, OType.LINK);
+    factory.registerSerializer(OByteSerializer.INSTANCE, YTType.BYTE);
+    factory.registerSerializer(ODateSerializer.INSTANCE, YTType.DATE);
+    factory.registerSerializer(OLinkSerializer.INSTANCE, YTType.LINK);
     factory.registerSerializer(OCompositeKeySerializer.INSTANCE, null);
     factory.registerSerializer(OStreamSerializerRID.INSTANCE, null);
-    factory.registerSerializer(OBinaryTypeSerializer.INSTANCE, OType.BINARY);
-    factory.registerSerializer(ODecimalSerializer.INSTANCE, OType.DECIMAL);
+    factory.registerSerializer(OBinaryTypeSerializer.INSTANCE, YTType.BINARY);
+    factory.registerSerializer(ODecimalSerializer.INSTANCE, YTType.DECIMAL);
 
     factory.registerSerializer(OStreamSerializerSBTreeIndexRIDContainer.INSTANCE, null);
 
@@ -111,7 +111,7 @@ public class OBinarySerializerFactory {
   }
 
   public static OBinarySerializerFactory getInstance() {
-    final ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (database != null) {
       return database.getSerializerFactory();
     } else {
@@ -119,7 +119,7 @@ public class OBinarySerializerFactory {
     }
   }
 
-  public void registerSerializer(final OBinarySerializer<?> iInstance, final OType iType) {
+  public void registerSerializer(final OBinarySerializer<?> iInstance, final YTType iType) {
     if (serializerIdMap.containsKey(iInstance.getId())) {
       throw new IllegalArgumentException(
           "Binary serializer with id " + iInstance.getId() + " has been already registered.");
@@ -168,13 +168,13 @@ public class OBinarySerializerFactory {
   }
 
   /**
-   * Obtain OBinarySerializer realization for the OType
+   * Obtain OBinarySerializer realization for the YTType
    *
-   * @param type is the OType to obtain serializer algorithm for
+   * @param type is the YTType to obtain serializer algorithm for
    * @return OBinarySerializer instance
    */
   @SuppressWarnings("unchecked")
-  public <T> OBinarySerializer<T> getObjectSerializer(final OType type) {
+  public <T> OBinarySerializer<T> getObjectSerializer(final YTType type) {
     return (OBinarySerializer<T>) serializerTypeMap.get(type);
   }
 }

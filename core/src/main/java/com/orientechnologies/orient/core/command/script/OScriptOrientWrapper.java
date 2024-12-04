@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 
 /**
@@ -29,13 +29,13 @@ import com.orientechnologies.orient.core.exception.OConfigurationException;
 @Deprecated
 public class OScriptOrientWrapper {
 
-  protected final ODatabaseSession db;
+  protected final YTDatabaseSession db;
 
   public OScriptOrientWrapper() {
     this.db = null;
   }
 
-  public OScriptOrientWrapper(final ODatabaseSession db) {
+  public OScriptOrientWrapper(final YTDatabaseSession db) {
     this.db = db;
   }
 
@@ -44,8 +44,8 @@ public class OScriptOrientWrapper {
       throw new OConfigurationException("No database instance found in context");
     }
 
-    if (db instanceof ODatabaseSessionInternal) {
-      return new OScriptDocumentDatabaseWrapper((ODatabaseSessionInternal) db);
+    if (db instanceof YTDatabaseSessionInternal) {
+      return new OScriptDocumentDatabaseWrapper((YTDatabaseSessionInternal) db);
     }
 
     throw new OConfigurationException(

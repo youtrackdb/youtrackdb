@@ -24,7 +24,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.util.ORawPairIntegerBoolean;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -58,7 +58,7 @@ public final class OClusterPage extends ODurablePage {
   private static final int MARKED_AS_DELETED_FLAG = 1 << 16;
   private static final int POSITION_MASK = 0xFFFF;
   public static final int PAGE_SIZE =
-      OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+      YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
 
   static final int MAX_ENTRY_SIZE = PAGE_SIZE - PAGE_INDEXES_OFFSET - INDEX_ITEM_SIZE;
 

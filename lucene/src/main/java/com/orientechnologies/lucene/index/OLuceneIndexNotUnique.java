@@ -22,16 +22,16 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.OLuceneIndex;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.IndexStreamSecurityDecorator;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -55,13 +55,13 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public long rebuild(ODatabaseSessionInternal session, OProgressListener iProgressListener) {
+  public long rebuild(YTDatabaseSessionInternal session, OProgressListener iProgressListener) {
     return super.rebuild(session, iProgressListener);
   }
 
   @Override
-  public boolean remove(ODatabaseSessionInternal session, final Object key,
-      final OIdentifiable rid) {
+  public boolean remove(YTDatabaseSessionInternal session, final Object key,
+      final YTIdentifiable rid) {
 
     if (key != null) {
       OTransaction transaction = session.getTransaction();
@@ -76,7 +76,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public boolean remove(ODatabaseSessionInternal session, final Object key) {
+  public boolean remove(YTDatabaseSessionInternal session, final Object key) {
     if (key != null) {
       OTransaction transaction = session.getTransaction();
       transaction.addIndexEntry(
@@ -89,7 +89,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public void removeCluster(ODatabaseSessionInternal session, String clusterName) {
+  public void removeCluster(YTDatabaseSessionInternal session, String clusterName) {
     acquireExclusiveLock();
     try {
       if (clustersToIndex.remove(clusterName)) {
@@ -108,8 +108,9 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public void doPut(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
-      ORID rid) {
+  public void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+      Object key,
+      YTRID rid) {
     while (true) {
       try {
         storage.callIndexEngine(
@@ -157,8 +158,8 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public boolean doRemove(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage,
-      Object key, ORID rid)
+  public boolean doRemove(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+      Object key, YTRID rid)
       throws OInvalidIndexEngineIdException {
     while (true) {
       try {
@@ -183,7 +184,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
     return key;
   }
 
-  public void doDelete(ODatabaseSessionInternal session) {
+  public void doDelete(YTDatabaseSessionInternal session) {
     while (true) {
       try {
         storage.deleteIndexEngine(indexId);
@@ -253,20 +254,20 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
 
   @Deprecated
   @Override
-  public Collection<OIdentifiable> get(ODatabaseSessionInternal session, final Object key) {
-    try (Stream<ORID> stream = getRids(session, key)) {
+  public Collection<YTIdentifiable> get(YTDatabaseSessionInternal session, final Object key) {
+    try (Stream<YTRID> stream = getRids(session, key)) {
       return stream.collect(Collectors.toList());
     }
   }
 
   @Override
-  public Stream<ORID> getRidsIgnoreTx(ODatabaseSessionInternal session, Object key) {
+  public Stream<YTRID> getRidsIgnoreTx(YTDatabaseSessionInternal session, Object key) {
     while (true) {
       try {
         @SuppressWarnings("unchecked")
-        Set<OIdentifiable> result = (Set<OIdentifiable>) storage.getIndexValue(session, indexId,
+        Set<YTIdentifiable> result = (Set<YTIdentifiable>) storage.getIndexValue(session, indexId,
             key);
-        return result.stream().map(OIdentifiable::getIdentity);
+        return result.stream().map(YTIdentifiable::getIdentity);
         // TODO filter these results based on security
         //          return new HashSet(OIndexInternal.securityFilterOnRead(this, result));
       } catch (OInvalidIndexEngineIdException e) {
@@ -276,7 +277,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public Stream<ORID> getRids(ODatabaseSessionInternal session, Object key) {
+  public Stream<YTRID> getRids(YTDatabaseSessionInternal session, Object key) {
     return session.computeInTx(() -> {
       var transaction = session.getTransaction();
       while (true) {
@@ -290,7 +291,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
                     return indexEngine.getInTx(session, key, getTransactionChanges(transaction));
                   })
               .stream()
-              .map(OIdentifiable::getIdentity);
+              .map(YTIdentifiable::getIdentity);
         } catch (OInvalidIndexEngineIdException e) {
           doReloadIndexEngine();
         }
@@ -299,14 +300,14 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public OLuceneIndexNotUnique put(ODatabaseSessionInternal session, final Object key,
-      final OIdentifiable value) {
-    final ORID rid = value.getIdentity();
+  public OLuceneIndexNotUnique put(YTDatabaseSessionInternal session, final Object key,
+      final YTIdentifiable value) {
+    final YTRID rid = value.getIdentity();
 
     if (!rid.isValid()) {
-      if (value instanceof ORecord) {
+      if (value instanceof YTRecord) {
         // EARLY SAVE IT
-        ((ORecord) value).save();
+        ((YTRecord) value).save();
       } else {
         throw new IllegalArgumentException(
             "Cannot store non persistent RID as index value for key '" + key + "'");
@@ -341,7 +342,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public long size(ODatabaseSessionInternal session) {
+  public long size(YTDatabaseSessionInternal session) {
     return session.computeInTx(() -> {
       while (true) {
         try {
@@ -361,7 +362,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntries(ODatabaseSessionInternal session,
+  public Stream<ORawPair<Object, YTRID>> streamEntries(YTDatabaseSessionInternal session,
       Collection<?> keys, boolean ascSortOrder) {
 
     @SuppressWarnings("resource")
@@ -378,8 +379,8 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntriesBetween(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+  public Stream<ORawPair<Object, YTRID>> streamEntriesBetween(
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     while (true) {
       try {
@@ -394,8 +395,8 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntriesMajor(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder) {
+  public Stream<ORawPair<Object, YTRID>> streamEntriesMajor(
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder) {
     while (true) {
       try {
         return IndexStreamSecurityDecorator.decorateStream(
@@ -408,8 +409,8 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntriesMinor(
-      ODatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder) {
+  public Stream<ORawPair<Object, YTRID>> streamEntriesMinor(
+      YTDatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder) {
     while (true) {
       try {
         return IndexStreamSecurityDecorator.decorateStream(
@@ -426,7 +427,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(ODatabaseSessionInternal session) {
+  public Stream<ORawPair<Object, YTRID>> stream(YTDatabaseSessionInternal session) {
     while (true) {
       try {
         return IndexStreamSecurityDecorator.decorateStream(
@@ -438,7 +439,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(ODatabaseSessionInternal session) {
+  public Stream<ORawPair<Object, YTRID>> descStream(YTDatabaseSessionInternal session) {
     while (true) {
       try {
         return IndexStreamSecurityDecorator.decorateStream(

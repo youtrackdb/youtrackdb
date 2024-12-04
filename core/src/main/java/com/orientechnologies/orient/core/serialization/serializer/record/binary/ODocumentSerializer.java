@@ -20,40 +20,40 @@
 
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 public interface ODocumentSerializer {
 
-  void serialize(ODatabaseSessionInternal session, ODocument document, BytesContainer bytes);
+  void serialize(YTDatabaseSessionInternal session, YTDocument document, BytesContainer bytes);
 
   int serializeValue(
-      ODatabaseSessionInternal session, BytesContainer bytes,
+      YTDatabaseSessionInternal session, BytesContainer bytes,
       Object value,
-      OType type,
-      OType linkedType,
-      OImmutableSchema schema,
+      YTType type,
+      YTType linkedType,
+      YTImmutableSchema schema,
       OPropertyEncryption encryption);
 
-  void deserialize(ODatabaseSessionInternal db, ODocument document, BytesContainer bytes);
+  void deserialize(YTDatabaseSessionInternal db, YTDocument document, BytesContainer bytes);
 
-  void deserializePartial(ODatabaseSessionInternal db, ODocument document, BytesContainer bytes,
+  void deserializePartial(YTDatabaseSessionInternal db, YTDocument document, BytesContainer bytes,
       String[] iFields);
 
-  Object deserializeValue(ODatabaseSessionInternal session, BytesContainer bytes, OType type,
+  Object deserializeValue(YTDatabaseSessionInternal session, BytesContainer bytes, YTType type,
       ORecordElement owner);
 
   OBinaryField deserializeField(
       BytesContainer bytes,
-      OClass iClass,
+      YTClass iClass,
       String iFieldName,
       boolean embedded,
-      OImmutableSchema schema,
+      YTImmutableSchema schema,
       OPropertyEncryption encryption);
 
   OBinaryComparator getComparator();
@@ -64,19 +64,19 @@ public interface ODocumentSerializer {
    * @param reference TODO
    * @param embedded
    */
-  String[] getFieldNames(ODocument reference, BytesContainer iBytes, boolean embedded);
+  String[] getFieldNames(YTDocument reference, BytesContainer iBytes, boolean embedded);
 
   boolean isSerializingClassNameByDefault();
 
   <RET> RET deserializeFieldTyped(
-      ODatabaseSessionInternal session, BytesContainer record,
+      YTDatabaseSessionInternal session, BytesContainer record,
       String iFieldName,
       boolean isEmbedded,
-      OImmutableSchema schema,
+      YTImmutableSchema schema,
       OPropertyEncryption encryption);
 
   void deserializeDebug(
-      ODatabaseSessionInternal db, BytesContainer bytes,
+      YTDatabaseSessionInternal db, BytesContainer bytes,
       ORecordSerializationDebug debugInfo,
-      OImmutableSchema schema);
+      YTImmutableSchema schema);
 }

@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.engine;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.File;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
@@ -22,7 +22,7 @@ public class OLuceneIndexWriterFactoryTest {
     OLuceneIndexWriterFactory fc = new OLuceneIndexWriterFactory();
 
     // sample metadata json
-    var meta = new ODocument();
+    var meta = new YTDocument();
     meta.fromJSON(
         OIOUtils.readFileAsString(
             new File("./src/test/resources/index_metadata_new.json")));

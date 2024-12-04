@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -74,7 +74,7 @@ public class OServerCommandPostServer extends OServerCommandAuthenticatedServerA
   private void changeConfiguration(
       final OHttpResponse iResponse, final String settingName, final String settingValue)
       throws IOException {
-    final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(settingName);
+    final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(settingName);
     if (cfg != null) {
       final Object oldValue = cfg.getValue();
 

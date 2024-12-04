@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
@@ -36,9 +36,9 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void querySchemaClasses() {
-    List<ODocument> result =
+    List<YTDocument> result =
         database
-            .command(new OSQLSynchQuery<ODocument>("select expand(classes) from metadata:schema"))
+            .command(new OSQLSynchQuery<YTDocument>("select expand(classes) from metadata:schema"))
             .execute(database);
 
     Assert.assertTrue(result.size() != 0);
@@ -46,10 +46,10 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void querySchemaProperties() {
-    List<ODocument> result =
+    List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select expand(properties) from (select expand(classes) from metadata:schema)"
                         + " where name = 'OUser'"))
             .execute(database);
@@ -59,10 +59,10 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void queryIndexes() {
-    List<ODocument> result =
+    List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>("select expand(indexes) from metadata:indexmanager"))
+                new OSQLSynchQuery<YTDocument>("select expand(indexes) from metadata:indexmanager"))
             .execute(database);
 
     Assert.assertTrue(result.size() != 0);
@@ -72,7 +72,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
   public void queryMetadataNotSupported() {
     try {
       database
-          .command(new OSQLSynchQuery<ODocument>("select expand(indexes) from metadata:blaaa"))
+          .command(new OSQLSynchQuery<YTDocument>("select expand(indexes) from metadata:blaaa"))
           .execute(database);
       Assert.fail();
     } catch (OQueryParsingException e) {

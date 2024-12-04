@@ -23,12 +23,12 @@ package com.orientechnologies.orient.core.db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Random;
@@ -67,7 +67,7 @@ public class FreezeAndRecordInsertAtomicityTest {
   }
 
   private Random random;
-  private ODatabaseDocumentTx db;
+  private YTDatabaseDocumentTx db;
   private ExecutorService executorService;
   private CountDownLatch countDownLatch;
 
@@ -77,7 +77,7 @@ public class FreezeAndRecordInsertAtomicityTest {
     System.out.println(FreezeAndRecordInsertAtomicityTest.class.getSimpleName() + " seed: " + seed);
     random = new Random(seed);
 
-    db = new ODatabaseDocumentTx(URL);
+    db = new YTDatabaseDocumentTx(URL);
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -86,8 +86,8 @@ public class FreezeAndRecordInsertAtomicityTest {
     db.getMetadata()
         .getSchema()
         .createClass("Person")
-        .createProperty(db, "name", OType.STRING)
-        .createIndex(db, OClass.INDEX_TYPE.UNIQUE);
+        .createProperty(db, "name", YTType.STRING)
+        .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
 
     executorService = Executors.newFixedThreadPool(THREADS);
 
@@ -113,7 +113,7 @@ public class FreezeAndRecordInsertAtomicityTest {
           executorService.submit(
               () -> {
                 try {
-                  final ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
+                  final YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
                   db.open("admin", "admin");
                   final OIndex index =
                       db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
@@ -124,7 +124,7 @@ public class FreezeAndRecordInsertAtomicityTest {
                         var val = i1;
                         db.executeInTx(
                             () ->
-                                db.<ODocument>newInstance("Person")
+                                db.<YTDocument>newInstance("Person")
                                     .field("name", "name-" + thread + "-" + val)
                                     .save());
                         break;
@@ -132,8 +132,8 @@ public class FreezeAndRecordInsertAtomicityTest {
                       case 1:
                         db.freeze();
                         try {
-                          for (ODocument document : db.browseClass("Person")) {
-                            try (Stream<ORID> rids =
+                          for (YTDocument document : db.browseClass("Person")) {
+                            try (Stream<YTRID> rids =
                                 index.getInternal().getRids(db, document.field("name"))) {
                               assertEquals(document.getIdentity(), rids.findFirst().orElse(null));
                             }

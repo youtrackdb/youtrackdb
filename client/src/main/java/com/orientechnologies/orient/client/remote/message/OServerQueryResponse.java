@@ -2,8 +2,8 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
@@ -59,7 +59,7 @@ public class OServerQueryResponse implements OBinaryResponse {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeString(queryId);
@@ -77,7 +77,7 @@ public class OServerQueryResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     queryId = network.readString();
     txChanges = network.readBoolean();
@@ -119,12 +119,12 @@ public class OServerQueryResponse implements OBinaryResponse {
   }
 
   private void writeExecutionPlan(
-      ODatabaseSessionInternal session, Optional<OExecutionPlan> executionPlan,
+      YTDatabaseSessionInternal session, Optional<OExecutionPlan> executionPlan,
       OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     if (executionPlan.isPresent()
-        && OGlobalConfiguration.QUERY_REMOTE_SEND_EXECUTION_PLAN.getValueAsBoolean()) {
+        && YTGlobalConfiguration.QUERY_REMOTE_SEND_EXECUTION_PLAN.getValueAsBoolean()) {
       channel.writeBoolean(true);
       OMessageHelper.writeResult(session, executionPlan.get().toResult(session), channel,
           recordSerializer);
@@ -133,7 +133,7 @@ public class OServerQueryResponse implements OBinaryResponse {
     }
   }
 
-  private Optional<OExecutionPlan> readExecutionPlan(ODatabaseSessionInternal db,
+  private Optional<OExecutionPlan> readExecutionPlan(YTDatabaseSessionInternal db,
       OChannelDataInput network) throws IOException {
     boolean present = network.readBoolean();
     if (!present) {

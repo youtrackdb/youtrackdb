@@ -1,12 +1,12 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.File;
 import org.junit.Assert;
@@ -29,18 +29,18 @@ public class LuceneFreezeReleaseTest {
       return;
     }
 
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx("plocal:target/freezeRelease");
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("plocal:target/freezeRelease");
 
     db.create();
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass person = schema.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass person = schema.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     db.begin();
-    db.save(new ODocument("Person").field("name", "John"));
+    db.save(new YTDocument("Person").field("name", "John"));
     db.commit();
 
     try {
@@ -55,7 +55,7 @@ public class LuceneFreezeReleaseTest {
       db.release();
 
       db.begin();
-      db.save(new ODocument("Person").field("name", "John"));
+      db.save(new YTDocument("Person").field("name", "John"));
       db.commit();
 
       results = db.query("select from Person where name lucene 'John'");
@@ -74,18 +74,18 @@ public class LuceneFreezeReleaseTest {
       return;
     }
 
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx("plocal:target/freezeRelease");
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("plocal:target/freezeRelease");
 
     db.create();
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass person = schema.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass person = schema.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     db.begin();
-    db.save(new ODocument("Person").field("name", "John"));
+    db.save(new YTDocument("Person").field("name", "John"));
     db.commit();
 
     try {
@@ -104,7 +104,7 @@ public class LuceneFreezeReleaseTest {
       db.release();
 
       db.begin();
-      db.save(new ODocument("Person").field("name", "John"));
+      db.save(new YTDocument("Person").field("name", "John"));
       db.commit();
 
       results = db.query("select from Person where name lucene 'John'");

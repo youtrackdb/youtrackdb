@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,9 +32,9 @@ import java.util.Map;
 
 /**
  * Index implementation bound to one schema class property that presents
- * {@link com.orientechnologies.orient.core.metadata.schema.OType#EMBEDDEDMAP or
+ * {@link YTType#EMBEDDEDMAP or
  *
- * @link com.orientechnologies.orient.core.metadata.schema.OType#LINKMAP} property.
+ * @link YTType#LINKMAP} property.
  */
 public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
     implements OIndexDefinitionMultiValue {
@@ -53,7 +53,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   public OPropertyMapIndexDefinition(
-      final String iClassName, final String iField, final OType iType, final INDEX_BY indexBy) {
+      final String iClassName, final String iField, final YTType iType, final INDEX_BY indexBy) {
     super(iClassName, iField, iType);
 
     if (indexBy == null) {
@@ -65,12 +65,12 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object getDocumentValueToIndex(ODatabaseSessionInternal session, ODocument iDocument) {
+  public Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTDocument iDocument) {
     return createValue(session, iDocument.<Object>field(field));
   }
 
   @Override
-  public Object createValue(ODatabaseSessionInternal session, List<?> params) {
+  public Object createValue(YTDatabaseSessionInternal session, List<?> params) {
     if (!(params.get(0) instanceof Map)) {
       return null;
     }
@@ -85,7 +85,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object createValue(ODatabaseSessionInternal session, Object... params) {
+  public Object createValue(YTDatabaseSessionInternal session, Object... params) {
     if (!(params[0] instanceof Map)) {
       return null;
     }
@@ -108,13 +108,13 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  protected void serializeToStream(ODocument document) {
+  protected void serializeToStream(YTDocument document) {
     super.serializeToStream(document);
     document.setPropertyInternal("mapIndexBy", indexBy.toString());
   }
 
   @Override
-  protected void serializeFromStream(ODocument document) {
+  protected void serializeFromStream(YTDocument document) {
     super.serializeFromStream(document);
     indexBy = INDEX_BY.valueOf(document.field("mapIndexBy"));
   }
@@ -143,12 +143,12 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
     return indexBy == that.indexBy;
   }
 
-  public Object createSingleValue(ODatabaseSessionInternal session, final Object... param) {
-    return OType.convert(session, refreshRid(session, param[0]), keyType.getDefaultJavaType());
+  public Object createSingleValue(YTDatabaseSessionInternal session, final Object... param) {
+    return YTType.convert(session, refreshRid(session, param[0]), keyType.getDefaultJavaType());
   }
 
   public void processChangeEvent(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
@@ -165,7 +165,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   private boolean processKeyChangeEvent(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
@@ -184,7 +184,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   private boolean processValueChangeEvent(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {

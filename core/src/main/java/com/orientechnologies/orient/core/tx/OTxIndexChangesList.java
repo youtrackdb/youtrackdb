@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -42,7 +42,7 @@ public class OTxIndexChangesList
       }
 
       // update the map
-      ORID rid = entry.getValue() == null ? null : entry.getValue().getIdentity();
+      YTRID rid = entry.getValue() == null ? null : entry.getValue().getIdentity();
       List<Node> ridList = ridToNodes.get(rid);
       Iterator<Node> iter = ridList.iterator();
       while (iter.hasNext()) {
@@ -56,7 +56,7 @@ public class OTxIndexChangesList
       size--;
     }
 
-    public void onRidChange(ORID oldRid, ORID newRid) {
+    public void onRidChange(YTRID oldRid, YTRID newRid) {
       ridToNodes.get(oldRid).remove(this);
       List<Node> newMapList = ridToNodes.get(newRid);
       if (newMapList == null) {
@@ -70,7 +70,7 @@ public class OTxIndexChangesList
   private Node first;
   private Node last;
   private int size = 0;
-  Map<ORID, List<Node>> ridToNodes = new HashMap<>();
+  Map<YTRID, List<Node>> ridToNodes = new HashMap<>();
 
   @Override
   public int size() {
@@ -88,8 +88,8 @@ public class OTxIndexChangesList
       return false;
     }
 
-    OIdentifiable record = ((OTransactionIndexChangesPerKey.OTransactionIndexEntry) o).getValue();
-    ORID rid = record == null ? null : record.getIdentity();
+    YTIdentifiable record = ((OTransactionIndexChangesPerKey.OTransactionIndexEntry) o).getValue();
+    YTRID rid = record == null ? null : record.getIdentity();
     List<Node> items = ridToNodes.get(rid);
     if (items == null) {
       return false;
@@ -185,7 +185,7 @@ public class OTxIndexChangesList
     }
 
     // update the map
-    ORID nodeId = item.getValue() == null ? null : item.getValue().getIdentity();
+    YTRID nodeId = item.getValue() == null ? null : item.getValue().getIdentity();
     List<Node> mapList = ridToNodes.get(nodeId);
     if (mapList == null) {
       mapList = new ArrayList<>();
@@ -202,7 +202,7 @@ public class OTxIndexChangesList
       return false;
     }
 
-    ORID rid = item.getValue() == null ? null : item.getValue().getIdentity();
+    YTRID rid = item.getValue() == null ? null : item.getValue().getIdentity();
     List<Node> list = ridToNodes.get(rid);
     for (Node node : list) {
       if (node.entry.equals(item)) {
@@ -434,7 +434,7 @@ public class OTxIndexChangesList
     throw new UnsupportedOperationException();
   }
 
-  public Optional<Node> getFirstNode(ORID rid, OTransactionIndexChanges.OPERATION op) {
+  public Optional<Node> getFirstNode(YTRID rid, OTransactionIndexChanges.OPERATION op) {
     List<Node> list = ridToNodes.get(rid);
     if (list != null) {
       return list.stream().filter(x -> x.entry.getOperation() == op).findFirst();
@@ -443,7 +443,7 @@ public class OTxIndexChangesList
   }
 
   public Optional<Node> getNode(OTransactionIndexChangesPerKey.OTransactionIndexEntry entry) {
-    ORID rid = entry.getValue() == null ? null : entry.getValue().getIdentity();
+    YTRID rid = entry.getValue() == null ? null : entry.getValue().getIdentity();
     List<Node> list = ridToNodes.get(rid);
     if (list != null) {
       return list.stream().filter(x -> x.entry == entry).findFirst();

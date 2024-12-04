@@ -4,7 +4,7 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +59,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new OResultInternal(db,
-                        new ODocument(i % 2 == 0 ? simpleClassName : className)));
+                        new YTDocument(i % 2 == 0 ? simpleClassName : className)));
               }
               done = true;
             }
@@ -87,7 +87,8 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                result.add(new OResultInternal(db, new ODocument(createClassInstance().getName())));
+                result.add(
+                    new OResultInternal(db, new YTDocument(createClassInstance().getName())));
               }
               done = true;
             }

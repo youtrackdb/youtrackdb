@@ -24,8 +24,8 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -39,13 +39,13 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
   private long txId;
   private boolean usingLong;
   private List<ORecordOperationRequest> operations;
-  private ODocument indexChanges;
+  private YTDocument indexChanges;
 
   public OCommitRequest() {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     ORecordSerializer serializer = database.getSerializer();
     network.writeLong(txId);
@@ -64,7 +64,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     txId = channel.readLong();
@@ -80,7 +80,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
       }
     } while (hasEntry == 1);
 
-    indexChanges = new ODocument(channel.readBytes());
+    indexChanges = new YTDocument(channel.readBytes());
   }
 
   @Override
@@ -93,7 +93,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
     return "Transaction commit";
   }
 
-  public ODocument getIndexChanges() {
+  public YTDocument getIndexChanges() {
     return indexChanges;
   }
 

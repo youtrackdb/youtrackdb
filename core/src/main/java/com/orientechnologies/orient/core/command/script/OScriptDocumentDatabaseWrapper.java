@@ -20,23 +20,23 @@
 package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSession.STATUS;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession.STATUS;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLQuery;
@@ -55,28 +55,28 @@ import java.util.Map.Entry;
 @Deprecated
 public class OScriptDocumentDatabaseWrapper {
 
-  protected ODatabaseSessionInternal database;
+  protected YTDatabaseSessionInternal database;
 
-  public OScriptDocumentDatabaseWrapper(final ODatabaseSessionInternal database) {
+  public OScriptDocumentDatabaseWrapper(final YTDatabaseSessionInternal database) {
     this.database = database;
   }
 
-  public OIdentifiable[] query(final String iText) {
+  public YTIdentifiable[] query(final String iText) {
     return query(iText, (Object[]) null);
   }
 
-  public OIdentifiable[] query(final String iText, final Object... iParameters) {
+  public YTIdentifiable[] query(final String iText, final Object... iParameters) {
     try (OResultSet rs = database.query(iText, iParameters)) {
-      return rs.stream().map(OResult::toElement).toArray(OIdentifiable[]::new);
+      return rs.stream().map(OResult::toElement).toArray(YTIdentifiable[]::new);
     }
   }
 
-  public OIdentifiable[] query(final OSQLQuery iQuery, final Object... iParameters) {
-    final List<OIdentifiable> res = database.query(iQuery, Arrays.asList(iParameters));
+  public YTIdentifiable[] query(final OSQLQuery iQuery, final Object... iParameters) {
+    final List<YTIdentifiable> res = database.query(iQuery, Arrays.asList(iParameters));
     if (res == null) {
       return OCommonConst.EMPTY_IDENTIFIABLE_ARRAY;
     }
-    return res.toArray(new OIdentifiable[0]);
+    return res.toArray(new YTIdentifiable[0]);
   }
 
   /**
@@ -99,7 +99,7 @@ public class OScriptDocumentDatabaseWrapper {
 
   public Object command(final String iText, final Object... iParameters) {
     try (OResultSet rs = database.command(iText, iParameters)) {
-      return rs.stream().map(x -> x.toElement()).toArray(size -> new OIdentifiable[size]);
+      return rs.stream().map(x -> x.toElement()).toArray(size -> new YTIdentifiable[size]);
     }
   }
 
@@ -111,7 +111,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.exists();
   }
 
-  public ODocument newInstance() {
+  public YTDocument newInstance() {
     return database.newInstance();
   }
 
@@ -119,11 +119,11 @@ public class OScriptDocumentDatabaseWrapper {
     database.reload();
   }
 
-  public OElement newInstance(String iClassName) {
+  public YTEntity newInstance(String iClassName) {
     return database.newInstance(iClassName);
   }
 
-  public ORecordIteratorClass<ODocument> browseClass(String iClassName) {
+  public ORecordIteratorClass<YTDocument> browseClass(String iClassName) {
     return database.browseClass(iClassName);
   }
 
@@ -131,11 +131,11 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getStatus();
   }
 
-  public ORecordIteratorClass<ODocument> browseClass(String iClassName, boolean iPolymorphic) {
+  public ORecordIteratorClass<YTDocument> browseClass(String iClassName, boolean iPolymorphic) {
     return database.browseClass(iClassName, iPolymorphic);
   }
 
-  public ODatabaseSession setStatus(STATUS iStatus) {
+  public YTDatabaseSession setStatus(STATUS iStatus) {
     return database.setStatus(iStatus);
   }
 
@@ -151,7 +151,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getURL();
   }
 
-  public ORecordIteratorCluster<ODocument> browseCluster(String iClusterName) {
+  public ORecordIteratorCluster<YTDocument> browseCluster(String iClusterName) {
     return database.browseCluster(iClusterName);
   }
 
@@ -159,20 +159,20 @@ public class OScriptDocumentDatabaseWrapper {
     return database.isClosed();
   }
 
-  public ODatabaseSession open(String iUserName, String iUserPassword) {
+  public YTDatabaseSession open(String iUserName, String iUserPassword) {
     return database.open(iUserName, iUserPassword);
   }
 
-  public ODocument save(final Map<String, Object> iObject) {
-    return database.save(new ODocument().fields(iObject));
+  public YTDocument save(final Map<String, Object> iObject) {
+    return database.save(new YTDocument().fields(iObject));
   }
 
-  public ODocument save(final String iString) {
-    // return database.save((ORecord) new ODocument().fromJSON(iString));
-    return database.save(new ODocument().fromJSON(iString, true));
+  public YTDocument save(final String iString) {
+    // return database.save((YTRecord) new YTDocument().fromJSON(iString));
+    return database.save(new YTDocument().fromJSON(iString, true));
   }
 
-  public ODocument save(ORecord iRecord) {
+  public YTDocument save(YTRecord iRecord) {
     return database.save(iRecord);
   }
 
@@ -180,7 +180,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.dropCluster(iClusterName);
   }
 
-  public ODatabaseSession create() {
+  public YTDatabaseSession create() {
     return database.create();
   }
 
@@ -220,7 +220,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getClusterNameById(iClusterId);
   }
 
-  public ODatabaseSession setMVCC(boolean iValue) {
+  public YTDatabaseSession setMVCC(boolean iValue) {
     return database.setMVCC(iValue);
   }
 
@@ -236,7 +236,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getClusterRecordSizeByName(iClusterName);
   }
 
-  public ODatabaseSession setValidationEnabled(boolean iValue) {
+  public YTDatabaseSession setValidationEnabled(boolean iValue) {
     return database.setValidationEnabled(iValue);
   }
 
@@ -252,7 +252,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getMetadata();
   }
 
-  public ODictionary<ORecord> getDictionary() {
+  public ODictionary<YTRecord> getDictionary() {
     return database.getDictionary();
   }
 
@@ -260,11 +260,11 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getRecordType();
   }
 
-  public void delete(ORID iRid) {
+  public void delete(YTRID iRid) {
     database.delete(iRid);
   }
 
-  public <RET extends ORecord> RET load(ORID iRecordId) {
+  public <RET extends YTRecord> RET load(YTRID iRecordId) {
     return database.load(iRecordId);
   }
 
@@ -273,11 +273,11 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getDefaultClusterId();
   }
 
-  public <RET extends ORecord> RET load(final String iRidAsString) {
-    return database.load(new ORecordId(iRidAsString));
+  public <RET extends YTRecord> RET load(final String iRidAsString) {
+    return database.load(new YTRecordId(iRidAsString));
   }
 
-  public ODatabaseSession setDatabaseOwner(ODatabaseSessionInternal iOwner) {
+  public YTDatabaseSession setDatabaseOwner(YTDatabaseSessionInternal iOwner) {
     return database.setDatabaseOwner(iOwner);
   }
 
@@ -285,7 +285,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.setProperty(iName, iValue);
   }
 
-  public ODocument save(ORecord iRecord, String iClusterName) {
+  public YTDocument save(YTRecord iRecord, String iClusterName) {
     return database.save(iRecord, iClusterName);
   }
 
@@ -313,7 +313,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.isRetainRecords();
   }
 
-  public ODatabaseSession setRetainRecords(boolean iValue) {
+  public YTDatabaseSession setRetainRecords(boolean iValue) {
     return database.setRetainRecords(iValue);
   }
 
@@ -321,7 +321,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getSize();
   }
 
-  public void delete(ODocument iRecord) {
+  public void delete(YTDocument iRecord) {
     database.delete(iRecord);
   }
 

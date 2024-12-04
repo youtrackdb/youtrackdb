@@ -2,8 +2,8 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertNotEquals;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ public class RemoteSequenceTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testSequences() {
-    ODatabaseSessionInternal database = db;
+    YTDatabaseSessionInternal database = db;
     database.command("CREATE CLASS SV extends V").close();
     database.command("CREATE SEQUENCE seqCounter TYPE ORDERED").close();
     database.command("CREATE PROPERTY SV.uniqueID Long").close();
@@ -32,10 +32,10 @@ public class RemoteSequenceTest extends BaseServerMemoryDatabase {
     database.reload();
 
     database.begin();
-    ODocument doc = new ODocument("CV1");
+    YTDocument doc = new YTDocument("CV1");
     doc.field("testID", 1);
     database.save(doc);
-    ODocument doc1 = new ODocument("CV1");
+    YTDocument doc1 = new YTDocument("CV1");
     doc1.field("testID", 1);
     database.save(doc1);
     assertNotEquals(doc1.field("uniqueID"), doc.field("uniqueID"));

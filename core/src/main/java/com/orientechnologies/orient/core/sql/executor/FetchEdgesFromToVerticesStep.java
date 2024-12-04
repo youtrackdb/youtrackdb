@@ -2,13 +2,13 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStreamProducer;
 import com.orientechnologies.orient.core.sql.executor.resultset.OMultipleExecutionStream;
@@ -51,13 +51,13 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
     final Iterator fromIter = loadFrom();
 
-    final Set<ORID> toList = loadTo();
+    final Set<YTRID> toList = loadTo();
 
     var db = ctx.getDatabase();
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {
           private final Iterator iter = fromIter;
-          private final Set<ORID> to = toList;
+          private final Set<YTRID> to = toList;
 
           @Override
           public OExecutionStream next(OCommandContext ctx) {
@@ -77,7 +77,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return new OMultipleExecutionStream(res);
   }
 
-  private OExecutionStream createResultSet(ODatabaseSessionInternal db, Set<ORID> toList,
+  private OExecutionStream createResultSet(YTDatabaseSessionInternal db, Set<YTRID> toList,
       Object val) {
     return OExecutionStream.resultIterator(
         StreamSupport.stream(this.loadNextResults(val).spliterator(), false)
@@ -89,11 +89,11 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
             .iterator());
   }
 
-  private Set<ORID> loadTo() {
+  private Set<YTRID> loadTo() {
     Object toValues = null;
 
     toValues = ctx.getVariable(toAlias);
-    if (toValues instanceof Iterable && !(toValues instanceof OIdentifiable)) {
+    if (toValues instanceof Iterable && !(toValues instanceof YTIdentifiable)) {
       toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator) && toValues != null) {
       toValues = Collections.singleton(toValues).iterator();
@@ -101,19 +101,19 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
     Iterator<?> toIter = (Iterator<?>) toValues;
     if (toIter != null) {
-      final Set<ORID> toList = new HashSet<ORID>();
+      final Set<YTRID> toList = new HashSet<YTRID>();
       while (toIter.hasNext()) {
         Object elem = toIter.next();
         if (elem instanceof OResult) {
           elem = ((OResult) elem).toElement();
         }
-        if (elem instanceof OIdentifiable && !(elem instanceof OElement)) {
-          elem = ((OIdentifiable) elem).getRecord();
+        if (elem instanceof YTIdentifiable && !(elem instanceof YTEntity)) {
+          elem = ((YTIdentifiable) elem).getRecord();
         }
-        if (!(elem instanceof OElement)) {
+        if (!(elem instanceof YTEntity)) {
           throw new OCommandExecutionException("Invalid vertex: " + elem);
         }
-        ((OElement) elem).asVertex().ifPresent(x -> toList.add(x.getIdentity()));
+        ((YTEntity) elem).asVertex().ifPresent(x -> toList.add(x.getIdentity()));
       }
 
       return toList;
@@ -125,7 +125,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     Object fromValues = null;
 
     fromValues = ctx.getVariable(fromAlias);
-    if (fromValues instanceof Iterable && !(fromValues instanceof OIdentifiable)) {
+    if (fromValues instanceof Iterable && !(fromValues instanceof YTIdentifiable)) {
       fromValues = ((Iterable<?>) fromValues).iterator();
     } else if (!(fromValues instanceof Iterator)) {
       fromValues = Collections.singleton(fromValues).iterator();
@@ -133,22 +133,22 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return (Iterator<?>) fromValues;
   }
 
-  private boolean filterResult(OEdge edge, Set<ORID> toList) {
+  private boolean filterResult(YTEdge edge, Set<YTRID> toList) {
     if (toList == null || toList.contains(edge.getTo().getIdentity())) {
       return matchesClass(edge) && matchesCluster(edge);
     }
     return true;
   }
 
-  private Iterable<OEdge> loadNextResults(Object from) {
+  private Iterable<YTEdge> loadNextResults(Object from) {
     if (from instanceof OResult) {
       from = ((OResult) from).toElement();
     }
-    if (from instanceof OIdentifiable && !(from instanceof OElement)) {
-      from = ((OIdentifiable) from).getRecord();
+    if (from instanceof YTIdentifiable && !(from instanceof YTEntity)) {
+      from = ((YTIdentifiable) from).getRecord();
     }
-    if (from instanceof OElement && ((OElement) from).isVertex()) {
-      var vertex = ((OElement) from).toVertex();
+    if (from instanceof YTEntity && ((YTEntity) from).isVertex()) {
+      var vertex = ((YTEntity) from).toVertex();
       assert vertex != null;
       return vertex.getEdges(ODirection.OUT);
     } else {
@@ -156,7 +156,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     }
   }
 
-  private boolean matchesCluster(OEdge edge) {
+  private boolean matchesCluster(YTEdge edge) {
     if (targetCluster == null) {
       return true;
     }
@@ -165,7 +165,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return clusterName.equals(targetCluster.getStringValue());
   }
 
-  private boolean matchesClass(OEdge edge) {
+  private boolean matchesClass(YTEdge edge) {
     if (targetClass == null) {
       return true;
     }

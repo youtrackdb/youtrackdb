@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public final class OImportConvertersFactory {
 
-  public static final ORID BROKEN_LINK = new ORecordId(-1, -42);
+  public static final YTRID BROKEN_LINK = new YTRecordId(-1, -42);
   public static final OImportConvertersFactory INSTANCE = new OImportConvertersFactory();
 
   public OValuesConverter getConverter(Object value, OConverterData converterData) {
@@ -33,7 +33,7 @@ public final class OImportConvertersFactory {
       return new ORidBagConverter(converterData);
     }
 
-    if (value instanceof OIdentifiable) {
+    if (value instanceof YTIdentifiable) {
       return new OLinkConverter(converterData);
     }
 

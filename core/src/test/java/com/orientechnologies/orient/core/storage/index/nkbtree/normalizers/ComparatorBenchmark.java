@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.storage.index.nkbtree.normalizers;
 import com.orientechnologies.common.comparator.OByteArrayComparator;
 import com.orientechnologies.common.comparator.OUnsafeByteArrayComparator;
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.text.Collator;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
@@ -58,9 +58,9 @@ public class ComparatorBenchmark {
   public void setup() {
     keyNormalizer = new KeyNormalizer();
 
-    negative = getNormalizedKeySingle(-62, OType.INTEGER);
-    zero = getNormalizedKeySingle(0, OType.INTEGER);
-    positive = getNormalizedKeySingle(5, OType.INTEGER);
+    negative = getNormalizedKeySingle(-62, YTType.INTEGER);
+    zero = getNormalizedKeySingle(0, YTType.INTEGER);
+    positive = getNormalizedKeySingle(5, YTType.INTEGER);
   }
 
   @Benchmark
@@ -93,12 +93,12 @@ public class ComparatorBenchmark {
     arrayComparator.compare(zero, zero);
   }
 
-  private byte[] getNormalizedKeySingle(final int keyValue, final OType type) {
+  private byte[] getNormalizedKeySingle(final int keyValue, final YTType type) {
     final OCompositeKey compositeKey = new OCompositeKey();
     compositeKey.addKey(keyValue);
     Assert.assertEquals(1, compositeKey.getKeys().size());
 
-    final OType[] types = new OType[1];
+    final YTType[] types = new YTType[1];
     types[0] = type;
 
     return keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);

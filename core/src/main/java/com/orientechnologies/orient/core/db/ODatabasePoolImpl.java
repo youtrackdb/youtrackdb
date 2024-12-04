@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.db;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.DB_POOL_ACQUIRE_TIMEOUT;
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.DB_POOL_MAX;
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.DB_POOL_MIN;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.DB_POOL_ACQUIRE_TIMEOUT;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.DB_POOL_MAX;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.DB_POOL_MIN;
 
 import com.orientechnologies.common.concur.resource.OResourcePool;
 import com.orientechnologies.common.concur.resource.OResourcePoolListener;
@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
  */
 public class ODatabasePoolImpl implements ODatabasePoolInternal {
 
-  private volatile OResourcePool<Void, ODatabaseSessionInternal> pool;
+  private volatile OResourcePool<Void, YTDatabaseSessionInternal> pool;
   private final YouTrackDBInternal factory;
   private final YouTrackDBConfig config;
   private volatile long lastCloseTime = System.currentTimeMillis();
@@ -52,16 +52,16 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
         new OResourcePool(
             min,
             max,
-            new OResourcePoolListener<Void, ODatabaseSessionInternal>() {
+            new OResourcePoolListener<Void, YTDatabaseSessionInternal>() {
               @Override
-              public ODatabaseSessionInternal createNewResource(
+              public YTDatabaseSessionInternal createNewResource(
                   Void iKey, Object... iAdditionalArgs) {
                 return factory.poolOpen(database, user, password, ODatabasePoolImpl.this);
               }
 
               @Override
               public boolean reuseResource(
-                  Void iKey, Object[] iAdditionalArgs, ODatabaseSessionInternal iValue) {
+                  Void iKey, Object[] iAdditionalArgs, YTDatabaseSessionInternal iValue) {
                 if (iValue.getStorage().isClosed(iValue)) {
                   return false;
                 }
@@ -74,8 +74,8 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
   }
 
   @Override
-  public ODatabaseSession acquire() throws OAcquireTimeoutException {
-    OResourcePool<Void, ODatabaseSessionInternal> p;
+  public YTDatabaseSession acquire() throws OAcquireTimeoutException {
+    OResourcePool<Void, YTDatabaseSessionInternal> p;
     synchronized (this) {
       p = pool;
     }
@@ -89,13 +89,13 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
 
   @Override
   public synchronized void close() {
-    OResourcePool<Void, ODatabaseSessionInternal> p;
+    OResourcePool<Void, YTDatabaseSessionInternal> p;
     synchronized (this) {
       p = pool;
       pool = null;
     }
     if (p != null) {
-      for (ODatabaseSessionInternal res : p.getAllResources()) {
+      for (YTDatabaseSessionInternal res : p.getAllResources()) {
         res.realClose();
       }
       p.close();
@@ -103,8 +103,8 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
     }
   }
 
-  public void release(ODatabaseSessionInternal database) {
-    OResourcePool<Void, ODatabaseSessionInternal> p;
+  public void release(YTDatabaseSessionInternal database) {
+    OResourcePool<Void, YTDatabaseSessionInternal> p;
     synchronized (this) {
       p = pool;
     }

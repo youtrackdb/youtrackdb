@@ -17,13 +17,13 @@ public class AlterSuperclassTest extends DBTestBase {
   @Test
   public void testSamePropertyCheck() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ParentClass");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ParentClass");
     classA.setAbstract(db, true);
-    OProperty property = classA.createProperty(db, "RevNumberNine", OType.INTEGER);
-    OClass classChild = schema.createClass("ChildClass1", classA);
+    YTProperty property = classA.createProperty(db, "RevNumberNine", YTType.INTEGER);
+    YTClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), List.of(classA));
-    OClass classChild2 = schema.createClass("ChildClass2", classChild);
+    YTClass classChild2 = schema.createClass("ChildClass2", classChild);
     assertEquals(classChild2.getSuperClasses(), List.of(classChild));
     classChild2.setSuperClasses(db, List.of(classA));
     assertEquals(classChild2.getSuperClasses(), List.of(classA));
@@ -31,31 +31,31 @@ public class AlterSuperclassTest extends DBTestBase {
 
   @Test(expected = OSchemaException.class)
   public void testPropertyNameConflict() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ParentClass");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ParentClass");
     classA.setAbstract(db, true);
-    OProperty property = classA.createProperty(db, "RevNumberNine", OType.INTEGER);
-    OClass classChild = schema.createClass("ChildClass1", classA);
+    YTProperty property = classA.createProperty(db, "RevNumberNine", YTType.INTEGER);
+    YTClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), List.of(classA));
-    OClass classChild2 = schema.createClass("ChildClass2");
-    classChild2.createProperty(db, "RevNumberNine", OType.STRING);
+    YTClass classChild2 = schema.createClass("ChildClass2");
+    classChild2.createProperty(db, "RevNumberNine", YTType.STRING);
     classChild2.setSuperClasses(db, List.of(classChild));
   }
 
   @Test(expected = OSchemaException.class)
   public void testHasAlreadySuperclass() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ParentClass");
-    OClass classChild = schema.createClass("ChildClass1", classA);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ParentClass");
+    YTClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), Collections.singletonList(classA));
     classChild.addSuperClass(db, classA);
   }
 
   @Test(expected = OSchemaException.class)
   public void testSetDuplicateSuperclasses() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("ParentClass");
-    OClass classChild = schema.createClass("ChildClass1", classA);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("ParentClass");
+    YTClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), Collections.singletonList(classA));
     classChild.setSuperClasses(db, Arrays.asList(classA, classA));
   }
@@ -66,10 +66,10 @@ public class AlterSuperclassTest extends DBTestBase {
    */
   @Test
   public void testBrokenDbAlteringSuperClass() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass classA = schema.createClass("BaseClass");
-    OClass classChild = schema.createClass("ChildClass1", classA);
-    OClass classChild2 = schema.createClass("ChildClass2", classA);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass classA = schema.createClass("BaseClass");
+    YTClass classChild = schema.createClass("ChildClass1", classA);
+    YTClass classChild2 = schema.createClass("ChildClass2", classA);
 
     classChild2.setSuperClass(db, classChild);
 

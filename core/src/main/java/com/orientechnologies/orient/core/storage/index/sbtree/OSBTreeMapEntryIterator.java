@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContainer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OMixedIndexRIDContainer;
 import java.util.Collection;
@@ -75,7 +75,7 @@ public class OSBTreeMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> 
             if (value instanceof OIndexRIDContainer || value instanceof OMixedIndexRIDContainer) {
               //noinspection unchecked
               resultValue =
-                  (V) new HashSet<OIdentifiable>((Collection<? extends OIdentifiable>) value);
+                  (V) new HashSet<YTIdentifiable>((Collection<? extends YTIdentifiable>) value);
             } else {
               resultValue = value;
             }

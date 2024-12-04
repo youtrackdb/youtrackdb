@@ -15,9 +15,9 @@ package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OAuditingOperation;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import java.util.concurrent.BlockingQueue;
@@ -28,7 +28,7 @@ import java.util.concurrent.BlockingQueue;
 public class OAuditingLoggingThread extends Thread {
 
   private final String databaseName;
-  private final BlockingQueue<ODocument> auditingQueue;
+  private final BlockingQueue<YTDocument> auditingQueue;
   private volatile boolean running = true;
   private volatile boolean waitForAllLogs = true;
   private final YouTrackDBInternal context;
@@ -63,11 +63,11 @@ public class OAuditingLoggingThread extends Thread {
         .getSystemDatabase()
         .executeInDBScope(
             session -> {
-              OSchema schema = session.getMetadata().getSchema();
+              YTSchema schema = session.getMetadata().getSchema();
               if (!schema.existsClass(className)) {
-                OClass clazz = schema.getClass(ODefaultAuditing.AUDITING_LOG_CLASSNAME);
-                OClass cls = schema.createClass(className, clazz);
-                cls.createIndex(session, className + ".date", OClass.INDEX_TYPE.NOTUNIQUE,
+                YTClass clazz = schema.getClass(ODefaultAuditing.AUDITING_LOG_CLASSNAME);
+                YTClass cls = schema.createClass(className, clazz);
+                cls.createIndex(session, className + ".date", YTClass.INDEX_TYPE.NOTUNIQUE,
                     "date");
               }
               return null;
@@ -83,7 +83,7 @@ public class OAuditingLoggingThread extends Thread {
           break;
         }
 
-        final ODocument log = auditingQueue.take();
+        final YTDocument log = auditingQueue.take();
 
         log.setClassName(className);
 

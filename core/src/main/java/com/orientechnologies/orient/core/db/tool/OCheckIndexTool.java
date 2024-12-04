@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.core.db.tool;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -39,12 +39,12 @@ public class OCheckIndexTool extends ODatabaseTool {
 
   //  class Error {
   //
-  //    ORID    rid;
+  //    YTRID    rid;
   //    String  indexName;
   //    boolean presentInIndex;
   //    boolean presentOnCluster;
   //
-  //    Error(ORID rid, String indexName, boolean presentInIndex, boolean presentOnCluster) {
+  //    Error(YTRID rid, String indexName, boolean presentInIndex, boolean presentOnCluster) {
   //      this.rid = rid;
   //      this.indexName = indexName;
   //      this.presentInIndex = presentInIndex;
@@ -88,10 +88,10 @@ public class OCheckIndexTool extends ODatabaseTool {
     return true;
   }
 
-  private void checkIndex(ODatabaseSessionInternal session, OIndex index) {
+  private void checkIndex(YTDatabaseSessionInternal session, OIndex index) {
     List<String> fields = index.getDefinition().getFields();
     String className = index.getDefinition().getClassName();
-    OClass clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+    YTClass clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
     int[] clusterIds = clazz.getPolymorphicClusterIds();
     for (int clusterId : clusterIds) {
       checkCluster(session, clusterId, index, fields);
@@ -99,13 +99,13 @@ public class OCheckIndexTool extends ODatabaseTool {
   }
 
   private void checkCluster(
-      ODatabaseSessionInternal session, int clusterId, OIndex index, List<String> fields) {
+      YTDatabaseSessionInternal session, int clusterId, OIndex index, List<String> fields) {
     long totRecordsForCluster = database.countClusterElements(clusterId);
     String clusterName = database.getClusterNameById(clusterId);
 
     int totSteps = 5;
     message("Checking cluster " + clusterName + "  for index " + index.getName() + "\n");
-    ORecordIteratorCluster<ORecord> iter = database.browseCluster(clusterName);
+    ORecordIteratorCluster<YTRecord> iter = database.browseCluster(clusterName);
     long count = 0;
     long step = -1;
     while (iter.hasNext()) {
@@ -114,8 +114,8 @@ public class OCheckIndexTool extends ODatabaseTool {
         printProgress(clusterName, clusterId, (int) currentStep, totSteps);
         step = currentStep;
       }
-      ORecord record = iter.next();
-      if (record instanceof ODocument doc) {
+      YTRecord record = iter.next();
+      if (record instanceof YTDocument doc) {
         checkThatRecordIsIndexed(session, doc, index, fields);
       }
       count++;
@@ -141,9 +141,9 @@ public class OCheckIndexTool extends ODatabaseTool {
   }
 
   private void checkThatRecordIsIndexed(
-      ODatabaseSessionInternal session, ODocument doc, OIndex index, List<String> fields) {
+      YTDatabaseSessionInternal session, YTDocument doc, OIndex index, List<String> fields) {
     Object[] vals = new Object[fields.size()];
-    ORID docId = doc.getIdentity();
+    YTRID docId = doc.getIdentity();
     for (int i = 0; i < vals.length; i++) {
       vals[i] = doc.field(fields.get(i));
     }
@@ -162,7 +162,7 @@ public class OCheckIndexTool extends ODatabaseTool {
     }
 
     for (final Object key : indexKeys) {
-      try (final Stream<ORID> stream = index.getInternal().getRids(session, key)) {
+      try (final Stream<YTRID> stream = index.getInternal().getRids(session, key)) {
         if (stream.noneMatch((rid) -> rid.equals(docId))) {
           totalErrors++;
           message(

@@ -21,12 +21,12 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -78,19 +78,19 @@ public abstract class OIndexRemote implements OIndex {
   protected final String databaseName;
   private final String wrappedType;
   private final String algorithm;
-  private final ORID rid;
+  private final YTRID rid;
   protected OIndexDefinition indexDefinition;
   protected String name;
-  protected ODocument configuration;
+  protected YTDocument configuration;
   protected Set<String> clustersToIndex;
 
   public OIndexRemote(
       final String iName,
       final String iWrappedType,
       final String algorithm,
-      final ORID iRid,
+      final YTRID iRid,
       final OIndexDefinition iIndexDefinition,
-      final ODocument iConfiguration,
+      final YTDocument iConfiguration,
       final Set<String> clustersToIndex,
       String database) {
     this.name = iName;
@@ -111,7 +111,7 @@ public abstract class OIndexRemote implements OIndex {
     return this;
   }
 
-  public OIndexRemote delete(ODatabaseSessionInternal session) {
+  public OIndexRemote delete(YTDatabaseSessionInternal session) {
     getDatabase().indexQuery(name, String.format(QUERY_DROP, name)).close();
     return this;
   }
@@ -135,7 +135,7 @@ public abstract class OIndexRemote implements OIndex {
     }
   }
 
-  public long count(ODatabaseSessionInternal session, final Object iKey) {
+  public long count(YTDatabaseSessionInternal session, final Object iKey) {
     try (OResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_COUNT, name), iKey)) {
       if (!result.hasNext()) {
@@ -176,21 +176,21 @@ public abstract class OIndexRemote implements OIndex {
     }
   }
 
-  public OIndexRemote put(ODatabaseSessionInternal session, final Object key,
-      final OIdentifiable value) {
-    final ORID rid = value.getIdentity();
+  public OIndexRemote put(YTDatabaseSessionInternal session, final Object key,
+      final YTIdentifiable value) {
+    final YTRID rid = value.getIdentity();
 
     if (!rid.isValid()) {
-      if (value instanceof ORecord) {
+      if (value instanceof YTRecord) {
         // EARLY SAVE IT
-        ((ORecord) value).save();
+        ((YTRecord) value).save();
       } else {
         throw new IllegalArgumentException(
             "Cannot store non persistent RID as index value for key '" + key + "'");
       }
     }
 
-    ODatabaseSessionInternal database = getDatabase();
+    YTDatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       OTransaction singleTx = database.getTransaction();
       singleTx.addIndexEntry(this, name, OTransactionIndexChanges.OPERATION.PUT, key, value);
@@ -203,8 +203,8 @@ public abstract class OIndexRemote implements OIndex {
     return this;
   }
 
-  public boolean remove(ODatabaseSessionInternal session, final Object key) {
-    ODatabaseSessionInternal database = getDatabase();
+  public boolean remove(YTDatabaseSessionInternal session, final Object key) {
+    YTDatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, name, OPERATION.REMOVE, key, null);
     } else {
@@ -215,10 +215,10 @@ public abstract class OIndexRemote implements OIndex {
     return true;
   }
 
-  public boolean remove(ODatabaseSessionInternal session, final Object key,
-      final OIdentifiable rid) {
+  public boolean remove(YTDatabaseSessionInternal session, final Object key,
+      final YTIdentifiable rid) {
 
-    ODatabaseSessionInternal database = getDatabase();
+    YTDatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, name, OPERATION.REMOVE, key, rid);
     } else {
@@ -247,18 +247,18 @@ public abstract class OIndexRemote implements OIndex {
     throw new UnsupportedOperationException("autoRebuild()");
   }
 
-  public long rebuild(ODatabaseSessionInternal session) {
+  public long rebuild(YTDatabaseSessionInternal session) {
     try (OResultSet rs = getDatabase().command(String.format(QUERY_REBUILD, name))) {
       return rs.next().getProperty("totalIndexed");
     }
   }
 
-  public OIndexRemote clear(ODatabaseSessionInternal session) {
+  public OIndexRemote clear(YTDatabaseSessionInternal session) {
     getDatabase().command(String.format(QUERY_CLEAR, name)).close();
     return this;
   }
 
-  public long getSize(ODatabaseSessionInternal session) {
+  public long getSize(YTDatabaseSessionInternal session) {
     try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_SIZE, name))) {
       if (result.hasNext()) {
         return result.next().getProperty("size");
@@ -301,13 +301,13 @@ public abstract class OIndexRemote implements OIndex {
     return algorithm;
   }
 
-  public ODocument getConfiguration(ODatabaseSessionInternal session) {
+  public YTDocument getConfiguration(YTDatabaseSessionInternal session) {
     return configuration;
   }
 
   @Override
   public Map<String, ?> getMetadata() {
-    var embedded = configuration.<ODocument>field("metadata", OType.EMBEDDED);
+    var embedded = configuration.<YTDocument>field("metadata", YTType.EMBEDDED);
     var map = embedded.toMap();
 
     map.remove("@rid");
@@ -318,7 +318,7 @@ public abstract class OIndexRemote implements OIndex {
     return map;
   }
 
-  public ORID getIdentity() {
+  public YTRID getIdentity() {
     return rid;
   }
 
@@ -326,18 +326,19 @@ public abstract class OIndexRemote implements OIndex {
     return null;
   }
 
-  public long rebuild(ODatabaseSessionInternal session, final OProgressListener iProgressListener) {
+  public long rebuild(YTDatabaseSessionInternal session,
+      final OProgressListener iProgressListener) {
     return rebuild(session);
   }
 
-  public OType[] getKeyTypes() {
+  public YTType[] getKeyTypes() {
     if (indexDefinition != null) {
       return indexDefinition.getTypes();
     }
-    return new OType[0];
+    return new YTType[0];
   }
 
-  public Collection<ODocument> getEntries(final Collection<?> iKeys) {
+  public Collection<YTDocument> getEntries(final Collection<?> iKeys) {
     final StringBuilder params = new StringBuilder(128);
     if (!iKeys.isEmpty()) {
       params.append("?");
@@ -349,7 +350,7 @@ public abstract class OIndexRemote implements OIndex {
     try (OResultSet rs =
         getDatabase()
             .indexQuery(name, String.format(QUERY_GET_ENTRIES, name, params), iKeys.toArray())) {
-      return rs.stream().map((res) -> (ODocument) res.toElement()).collect(Collectors.toList());
+      return rs.stream().map((res) -> (YTDocument) res.toElement()).collect(Collectors.toList());
     }
   }
 
@@ -391,31 +392,31 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   @Override
-  public Object getLastKey(ODatabaseSessionInternal session) {
+  public Object getLastKey(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException("getLastKey");
   }
 
   @Override
   public OIndexCursor iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     throw new UnsupportedOperationException("iterateEntriesBetween");
   }
 
   @Override
-  public OIndexCursor iterateEntriesMajor(ODatabaseSessionInternal session, Object fromKey,
+  public OIndexCursor iterateEntriesMajor(YTDatabaseSessionInternal session, Object fromKey,
       boolean fromInclusive, boolean ascOrder) {
     throw new UnsupportedOperationException("iterateEntriesMajor");
   }
 
   @Override
-  public OIndexCursor iterateEntriesMinor(ODatabaseSessionInternal session, Object toKey,
+  public OIndexCursor iterateEntriesMinor(YTDatabaseSessionInternal session, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     throw new UnsupportedOperationException("iterateEntriesMinor");
   }
 
   @Override
-  public OIndexCursor iterateEntries(ODatabaseSessionInternal session, Collection<?> keys,
+  public OIndexCursor iterateEntries(YTDatabaseSessionInternal session, Collection<?> keys,
       boolean ascSortOrder) {
 
     final StringBuilder params = new StringBuilder(128);
@@ -440,24 +441,24 @@ public abstract class OIndexRemote implements OIndex {
     return new OIndexAbstractCursor() {
 
       @Override
-      public Map.Entry<Object, OIdentifiable> nextEntry() {
+      public Map.Entry<Object, YTIdentifiable> nextEntry() {
         if (!copy.hasNext()) {
           return null;
         }
         final OResult next = copy.next();
-        return new Map.Entry<Object, OIdentifiable>() {
+        return new Map.Entry<Object, YTIdentifiable>() {
           @Override
           public Object getKey() {
             return next.getProperty("key");
           }
 
           @Override
-          public OIdentifiable getValue() {
+          public YTIdentifiable getValue() {
             return next.getProperty("rid");
           }
 
           @Override
-          public OIdentifiable setValue(OIdentifiable value) {
+          public YTIdentifiable setValue(YTIdentifiable value) {
             throw new UnsupportedOperationException("cannot set value of index entry");
           }
         };
@@ -466,7 +467,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   @Override
-  public OIndexCursor cursor(ODatabaseSessionInternal session) {
+  public OIndexCursor cursor(YTDatabaseSessionInternal session) {
     final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
     try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_ENTRIES, name))) {
       result.forEachRemaining(x -> copy.add(x));
@@ -475,26 +476,26 @@ public abstract class OIndexRemote implements OIndex {
     return new OIndexAbstractCursor() {
 
       @Override
-      public Map.Entry<Object, OIdentifiable> nextEntry() {
+      public Map.Entry<Object, YTIdentifiable> nextEntry() {
         if (!copy.hasNext()) {
           return null;
         }
 
         final OResult value = copy.next();
 
-        return new Map.Entry<Object, OIdentifiable>() {
+        return new Map.Entry<Object, YTIdentifiable>() {
           @Override
           public Object getKey() {
             return value.getProperty("key");
           }
 
           @Override
-          public OIdentifiable getValue() {
+          public YTIdentifiable getValue() {
             return value.getProperty("rid");
           }
 
           @Override
-          public OIdentifiable setValue(OIdentifiable value) {
+          public YTIdentifiable setValue(YTIdentifiable value) {
             throw new UnsupportedOperationException("setValue");
           }
         };
@@ -503,7 +504,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   @Override
-  public OIndexCursor descCursor(ODatabaseSessionInternal session) {
+  public OIndexCursor descCursor(YTDatabaseSessionInternal session) {
     final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
     try (OResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_ENTRIES_DESC, name))) {
@@ -513,26 +514,26 @@ public abstract class OIndexRemote implements OIndex {
     return new OIndexAbstractCursor() {
 
       @Override
-      public Map.Entry<Object, OIdentifiable> nextEntry() {
+      public Map.Entry<Object, YTIdentifiable> nextEntry() {
         if (!copy.hasNext()) {
           return null;
         }
 
         final OResult value = copy.next();
 
-        return new Map.Entry<Object, OIdentifiable>() {
+        return new Map.Entry<Object, YTIdentifiable>() {
           @Override
           public Object getKey() {
             return value.getProperty("key");
           }
 
           @Override
-          public OIdentifiable getValue() {
+          public YTIdentifiable getValue() {
             return value.getProperty("rid");
           }
 
           @Override
-          public OIdentifiable setValue(OIdentifiable value) {
+          public YTIdentifiable setValue(YTIdentifiable value) {
             throw new UnsupportedOperationException("setValue");
           }
         };
@@ -568,7 +569,7 @@ public abstract class OIndexRemote implements OIndex {
     return this.name.compareTo(name);
   }
 
-  protected ODatabaseSessionInternal getDatabase() {
+  protected YTDatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 }

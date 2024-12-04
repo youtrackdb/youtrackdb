@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -44,14 +44,14 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     if (this.targetClass.equals(this.parentClass)) {
       return OExecutionStream.empty();
     }
-    ODatabaseSessionInternal db = context.getDatabase();
+    YTDatabaseSessionInternal db = context.getDatabase();
 
-    OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
-    OClass parentClazz = schema.getClass(this.parentClass);
+    YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    YTClass parentClazz = schema.getClass(this.parentClass);
     if (parentClazz == null) {
       throw new OCommandExecutionException("Class not found: " + this.parentClass);
     }
-    OClass targetClazz = schema.getClass(this.targetClass);
+    YTClass targetClazz = schema.getClass(this.targetClass);
     if (targetClazz == null) {
       throw new OCommandExecutionException("Class not found: " + this.targetClass);
     }
@@ -60,7 +60,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     if (parentClazz.equals(targetClazz)) {
       found = true;
     } else {
-      for (OClass sublcass : parentClazz.getAllSubclasses()) {
+      for (YTClass sublcass : parentClazz.getAllSubclasses()) {
         if (sublcass.equals(targetClazz)) {
           found = true;
           break;

@@ -22,14 +22,14 @@ package com.orientechnologies.orient.core.sql.operator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -71,7 +71,7 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
   @Override
   @SuppressWarnings("unchecked")
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition condition,
       final Object left,
       final Object right,
@@ -84,26 +84,26 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
     Object right1 = valueIterator.next();
     valueIterator.next();
     Object right2 = valueIterator.next();
-    final Object right1c = OType.convert(database, right1, left.getClass());
+    final Object right1c = YTType.convert(database, right1, left.getClass());
     if (right1c == null) {
       return false;
     }
 
-    final Object right2c = OType.convert(database, right2, left.getClass());
+    final Object right2c = YTType.convert(database, right2, left.getClass());
     if (right2c == null) {
       return false;
     }
 
     final int leftResult;
     if (left instanceof Number && right1 instanceof Number) {
-      Number[] conv = OType.castComparableNumber((Number) left, (Number) right1);
+      Number[] conv = YTType.castComparableNumber((Number) left, (Number) right1);
       leftResult = ((Comparable) conv[0]).compareTo(conv[1]);
     } else {
       leftResult = ((Comparable<Object>) left).compareTo(right1c);
     }
     final int rightResult;
     if (left instanceof Number && right2 instanceof Number) {
-      Number[] conv = OType.castComparableNumber((Number) left, (Number) right2);
+      Number[] conv = YTType.castComparableNumber((Number) left, (Number) right2);
       rightResult = ((Comparable) conv[0]).compareTo(conv[1]);
     } else {
       rightResult = ((Comparable<Object>) left).compareTo(right2c);
@@ -136,12 +136,12 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     var database = iContext.getDatabase();
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     final OIndexInternal internalIndex = index.getInternal();
     if (!internalIndex.canBeUsedInEqualityOperators() || !internalIndex.hasRangeQuerySupport()) {
       return null;
@@ -218,7 +218,8 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, final Object iLeft,
+      final Object iRight) {
     validate(iRight);
 
     if (iLeft instanceof OSQLFilterItemField
@@ -227,19 +228,19 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
 
       final Object right1 = valueIterator.next();
       if (right1 != null) {
-        return (ORID) right1;
+        return (YTRID) right1;
       }
 
       valueIterator.next();
 
-      return (ORID) valueIterator.next();
+      return (YTRID) valueIterator.next();
     }
 
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, final Object iLeft, final Object iRight) {
     validate(iRight);
 
     validate(iRight);
@@ -255,10 +256,10 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
       final Object right2 = valueIterator.next();
 
       if (right2 == null) {
-        return (ORID) right1;
+        return (YTRID) right1;
       }
 
-      return (ORID) right2;
+      return (YTRID) right2;
     }
 
     return null;

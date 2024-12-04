@@ -1,6 +1,6 @@
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
@@ -23,7 +23,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
 
     final OIndex index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "class_7382_multi");
-    try (Stream<ORID> rids =
+    try (Stream<YTRID> rids =
         index
             .getInternal()
             .getRids(db, "server:206012226875414 AND date:[201703120000 TO  201703120001]")) {
@@ -57,7 +57,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
     }
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.content");
-    try (Stream<ORID> rids = index.getInternal().getRids(db, "'Харько~0.2")) {
+    try (Stream<YTRID> rids = index.getInternal().getRids(db, "'Харько~0.2")) {
       Assertions.assertThat(rids.count() >= 3).isTrue();
     }
   }

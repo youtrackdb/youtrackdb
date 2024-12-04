@@ -22,16 +22,16 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
@@ -64,17 +64,17 @@ public interface OIndexInternal extends OIndex {
    * Loads the index giving the configuration.
    *
    * @param session
-   * @param iConfig ODocument instance containing the configuration
+   * @param iConfig YTDocument instance containing the configuration
    */
-  boolean loadFromConfiguration(ODatabaseSessionInternal session, ODocument iConfig);
+  boolean loadFromConfiguration(YTDatabaseSessionInternal session, YTDocument iConfig);
 
   /**
    * Saves the index configuration to disk.
    *
-   * @return The configuration as ODocument instance
-   * @see OIndex#getConfiguration(ODatabaseSessionInternal)
+   * @return The configuration as YTDocument instance
+   * @see OIndex#getConfiguration(YTDatabaseSessionInternal)
    */
-  ODocument updateConfiguration(ODatabaseSessionInternal session);
+  YTDocument updateConfiguration(YTDatabaseSessionInternal session);
 
   /**
    * Add given cluster to the list of clusters that should be automatically indexed.
@@ -83,7 +83,7 @@ public interface OIndexInternal extends OIndex {
    * @param iClusterName Cluster to add.
    * @return Current index instance.
    */
-  OIndex addCluster(ODatabaseSessionInternal session, final String iClusterName);
+  OIndex addCluster(YTDatabaseSessionInternal session, final String iClusterName);
 
   /**
    * Remove given cluster from the list of clusters that should be automatically indexed.
@@ -91,7 +91,7 @@ public interface OIndexInternal extends OIndex {
    * @param session
    * @param iClusterName Cluster to remove.
    */
-  void removeCluster(ODatabaseSessionInternal session, final String iClusterName);
+  void removeCluster(YTDatabaseSessionInternal session, final String iClusterName);
 
   /**
    * Indicates whether given index can be used to calculate result of
@@ -104,7 +104,7 @@ public interface OIndexInternal extends OIndex {
 
   boolean hasRangeQuerySupport();
 
-  OIndexMetadata loadMetadata(ODocument iConfig);
+  OIndexMetadata loadMetadata(YTDocument iConfig);
 
   void close();
 
@@ -133,13 +133,13 @@ public interface OIndexInternal extends OIndex {
   /**
    * @return number of entries in the index.
    */
-  long size(ODatabaseSessionInternal session);
+  long size(YTDatabaseSessionInternal session);
 
-  Stream<ORID> getRids(ODatabaseSessionInternal session, final Object key);
+  Stream<YTRID> getRids(YTDatabaseSessionInternal session, final Object key);
 
-  Stream<ORawPair<Object, ORID>> stream(ODatabaseSessionInternal session);
+  Stream<ORawPair<Object, YTRID>> stream(YTDatabaseSessionInternal session);
 
-  Stream<ORawPair<Object, ORID>> descStream(ODatabaseSessionInternal session);
+  Stream<ORawPair<Object, YTRID>> descStream(YTDatabaseSessionInternal session);
 
   Stream<Object> keyStream();
 
@@ -155,8 +155,8 @@ public interface OIndexInternal extends OIndex {
    *                      ascending or descending order.
    * @return Cursor which presents subset of index data between passed in keys.
    */
-  Stream<ORawPair<Object, ORID>> streamEntriesBetween(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+  Stream<ORawPair<Object, YTRID>> streamEntriesBetween(
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder);
 
   /**
@@ -168,7 +168,8 @@ public interface OIndexInternal extends OIndex {
    *                     ascending or descending order.
    * @return stream which presents data associated with passed in keys.
    */
-  Stream<ORawPair<Object, ORID>> streamEntries(ODatabaseSessionInternal session, Collection<?> keys,
+  Stream<ORawPair<Object, YTRID>> streamEntries(YTDatabaseSessionInternal session,
+      Collection<?> keys,
       boolean ascSortOrder);
 
   /**
@@ -183,8 +184,8 @@ public interface OIndexInternal extends OIndex {
    * @return stream which presents subset of data which associated with key which is greater than
    * passed in key.
    */
-  Stream<ORawPair<Object, ORID>> streamEntriesMajor(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder);
+  Stream<ORawPair<Object, YTRID>> streamEntriesMajor(
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder);
 
   /**
    * Returns stream which presents subset of data which associated with key which is less than
@@ -198,10 +199,10 @@ public interface OIndexInternal extends OIndex {
    * @return stream which presents subset of data which associated with key which is less than
    * passed in key.
    */
-  Stream<ORawPair<Object, ORID>> streamEntriesMinor(
-      ODatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder);
+  Stream<ORawPair<Object, YTRID>> streamEntriesMinor(
+      YTDatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder);
 
-  static OIdentifiable securityFilterOnRead(OIndex idx, OIdentifiable item) {
+  static YTIdentifiable securityFilterOnRead(OIndex idx, YTIdentifiable item) {
     if (idx.getDefinition() == null) {
       return item;
     }
@@ -209,7 +210,7 @@ public interface OIndexInternal extends OIndex {
     if (indexClass == null) {
       return item;
     }
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return item;
     }
@@ -235,10 +236,10 @@ public interface OIndexInternal extends OIndex {
         if (item == null) {
           return null;
         }
-        if (!(item instanceof ODocument)) {
+        if (!(item instanceof YTDocument)) {
           return item;
         }
-        OPropertyAccess access = ODocumentInternal.getPropertyAccess((ODocument) item);
+        OPropertyAccess access = ODocumentInternal.getPropertyAccess((YTDocument) item);
         if (access != null && !access.isReadable(indexProp)) {
           return null;
         }
@@ -248,13 +249,13 @@ public interface OIndexInternal extends OIndex {
   }
 
   static boolean isLabelSecurityDefined(
-      ODatabaseSessionInternal database,
+      YTDatabaseSessionInternal database,
       OSecurityInternal security,
       String indexClass,
       String propertyName) {
     Set<String> classesToCheck = new HashSet<>();
     classesToCheck.add(indexClass);
-    OClass clazz = database.getClass(indexClass);
+    YTClass clazz = database.getClass(indexClass);
     if (clazz == null) {
       return false;
     }
@@ -278,15 +279,15 @@ public interface OIndexInternal extends OIndex {
   }
 
   static boolean isReadRestrictedBySecurityPolicy(
-      String indexClass, ODatabaseSessionInternal db, OSecurityInternal security) {
+      String indexClass, YTDatabaseSessionInternal db, OSecurityInternal security) {
     if (security.isReadRestrictedBySecurityPolicy(db, "database.class." + indexClass)) {
       return true;
     }
 
-    OClass clazz = db.getClass(indexClass);
+    YTClass clazz = db.getClass(indexClass);
     if (clazz != null) {
-      Collection<OClass> sub = clazz.getSubclasses();
-      for (OClass subClass : sub) {
+      Collection<YTClass> sub = clazz.getSubclasses();
+      for (YTClass subClass : sub) {
         if (isReadRestrictedBySecurityPolicy(subClass.getName(), db, security)) {
           return true;
         }
@@ -301,20 +302,20 @@ public interface OIndexInternal extends OIndex {
   Iterable<OTransactionIndexChangesPerKey.OTransactionIndexEntry> interpretTxKeyChanges(
       OTransactionIndexChangesPerKey changes);
 
-  void doPut(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
-      ORID rid)
+  void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+      YTRID rid)
       throws OInvalidIndexEngineIdException;
 
-  boolean doRemove(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
-      ORID rid)
+  boolean doRemove(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+      YTRID rid)
       throws OInvalidIndexEngineIdException;
 
   boolean doRemove(OAbstractPaginatedStorage storage, Object key)
       throws OInvalidIndexEngineIdException;
 
-  Stream<ORID> getRidsIgnoreTx(ODatabaseSessionInternal session, Object key);
+  Stream<YTRID> getRidsIgnoreTx(YTDatabaseSessionInternal session, Object key);
 
-  OIndex create(ODatabaseSessionInternal session, OIndexMetadata metadata, boolean rebuild,
+  OIndex create(YTDatabaseSessionInternal session, OIndexMetadata metadata, boolean rebuild,
       OProgressListener progressListener);
 
   int getIndexId();

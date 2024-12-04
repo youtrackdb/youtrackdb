@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.serialization.serializer.string;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.util.Base64;
 
@@ -37,7 +37,7 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public Object fromStream(ODatabaseSessionInternal db, final String iStream) {
+  public Object fromStream(YTDatabaseSessionInternal db, final String iStream) {
     if (iStream == null || iStream.length() == 0)
     // NULL VALUE
     {
@@ -49,7 +49,7 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
     int propertyPos = iStream.indexOf(':');
     int pos = iStream.indexOf(OStringSerializerEmbedded.SEPARATOR);
     if (pos < 0 || propertyPos > -1 && pos > propertyPos) {
-      instance = new ODocument();
+      instance = new YTDocument();
       pos = -1;
     } else {
       final String className = iStream.substring(0, pos);

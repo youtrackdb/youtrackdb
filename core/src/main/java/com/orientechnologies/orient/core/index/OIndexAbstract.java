@@ -25,21 +25,21 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.exception.OManualIndexesAreProhibited;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysLessKey;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.index.iterator.OIndexCursorStream;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -94,7 +94,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public static OIndexMetadata loadMetadataFromDoc(final ODocument config) {
+  public static OIndexMetadata loadMetadataFromDoc(final YTDocument config) {
     return loadMetadataInternal(
         config,
         config.field(OIndexInternal.CONFIG_TYPE),
@@ -103,13 +103,13 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   public static OIndexMetadata loadMetadataInternal(
-      final ODocument config,
+      final YTDocument config,
       final String type,
       final String algorithm,
       final String valueContainerAlgorithm) {
     final String indexName = config.field(OIndexInternal.CONFIG_NAME);
 
-    final ODocument indexDefinitionDoc = config.field(OIndexInternal.INDEX_DEFINITION);
+    final YTDocument indexDefinitionDoc = config.field(OIndexInternal.INDEX_DEFINITION);
     OIndexDefinition loadedIndexDefinition = null;
     if (indexDefinitionDoc != null) {
       try {
@@ -146,7 +146,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
           throw new OIndexException(
               "Cannot convert from old index model to new one. " + "Index key type is absent");
         }
-        final OType keyType = OType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
+        final YTType keyType = YTType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
 
         loadedIndexDefinition = new OPropertyIndexDefinition(className, propertyName, keyType);
 
@@ -154,7 +154,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         config.removeField(OIndexInternal.CONFIG_KEYTYPE);
       } else if (config.field(OIndexInternal.CONFIG_KEYTYPE) != null) {
         final String keyTypeStr = config.field(OIndexInternal.CONFIG_KEYTYPE);
-        final OType keyType = OType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
+        final YTType keyType = YTType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
 
         loadedIndexDefinition = new OSimpleKeyIndexDefinition(keyType);
 
@@ -162,7 +162,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
       }
     }
 
-    final Set<String> clusters = new HashSet<>(config.field(CONFIG_CLUSTERS, OType.EMBEDDEDSET));
+    final Set<String> clusters = new HashSet<>(config.field(CONFIG_CLUSTERS, YTType.EMBEDDEDSET));
 
     final int indexVersion =
         config.field(OIndexInternal.INDEX_VERSION) == null
@@ -201,7 +201,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
    * Creates the index.
    */
   public OIndexInternal create(
-      ODatabaseSessionInternal session, final OIndexMetadata indexMetadata,
+      YTDatabaseSessionInternal session, final OIndexMetadata indexMetadata,
       boolean rebuild,
       final OProgressListener progressListener) {
     acquireExclusiveLock();
@@ -259,7 +259,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public boolean loadFromConfiguration(ODatabaseSessionInternal session, final ODocument config) {
+  public boolean loadFromConfiguration(YTDatabaseSessionInternal session, final YTDocument config) {
     acquireExclusiveLock();
     try {
       clustersToIndex.clear();
@@ -320,7 +320,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Override
-  public OIndexMetadata loadMetadata(final ODocument config) {
+  public OIndexMetadata loadMetadata(final YTDocument config) {
     return loadMetadataInternal(
         config, im.getType(), im.getAlgorithm(), im.getValueContainerAlgorithm());
   }
@@ -328,7 +328,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   /**
    * {@inheritDoc}
    */
-  public long rebuild(ODatabaseSessionInternal session) {
+  public long rebuild(YTDatabaseSessionInternal session) {
     return rebuild(session, new OIndexRebuildOutputListener(this));
   }
 
@@ -340,7 +340,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
    * @return number of entries in the index.
    */
   @Deprecated
-  public long getSize(ODatabaseSessionInternal session) {
+  public long getSize(YTDatabaseSessionInternal session) {
     return size(session);
   }
 
@@ -348,8 +348,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
    * Counts the entries for the key.
    */
   @Deprecated
-  public long count(ODatabaseSessionInternal session, Object iKey) {
-    try (Stream<ORawPair<Object, ORID>> stream =
+  public long count(YTDatabaseSessionInternal session, Object iKey) {
+    try (Stream<ORawPair<Object, YTRID>> stream =
         streamEntriesBetween(session, iKey, true, iKey, true, true)) {
       return stream.count();
     }
@@ -400,9 +400,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Deprecated
-  public Object getLastKey(ODatabaseSessionInternal session) {
-    try (final Stream<ORawPair<Object, ORID>> stream = descStream(session)) {
-      final Iterator<ORawPair<Object, ORID>> iterator = stream.iterator();
+  public Object getLastKey(YTDatabaseSessionInternal session) {
+    try (final Stream<ORawPair<Object, YTRID>> stream = descStream(session)) {
+      final Iterator<ORawPair<Object, YTRID>> iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next().first;
       }
@@ -412,13 +412,13 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Deprecated
-  public OIndexCursor cursor(ODatabaseSessionInternal session) {
+  public OIndexCursor cursor(YTDatabaseSessionInternal session) {
     return new OIndexCursorStream(stream(session));
   }
 
   @Deprecated
   @Override
-  public OIndexCursor descCursor(ODatabaseSessionInternal session) {
+  public OIndexCursor descCursor(YTDatabaseSessionInternal session) {
     return new OIndexCursorStream(descStream(session));
   }
 
@@ -441,7 +441,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   @Deprecated
   @Override
-  public OIndexCursor iterateEntries(ODatabaseSessionInternal session, Collection<?> keys,
+  public OIndexCursor iterateEntries(YTDatabaseSessionInternal session, Collection<?> keys,
       boolean ascSortOrder) {
     return new OIndexCursorStream(streamEntries(session, keys, ascSortOrder));
   }
@@ -449,7 +449,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   @Deprecated
   @Override
   public OIndexCursor iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      YTDatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     return new OIndexCursorStream(
         streamEntriesBetween(session, fromKey, fromInclusive, toKey, toInclusive, ascOrder));
@@ -457,14 +457,14 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   @Deprecated
   @Override
-  public OIndexCursor iterateEntriesMajor(ODatabaseSessionInternal session, Object fromKey,
+  public OIndexCursor iterateEntriesMajor(YTDatabaseSessionInternal session, Object fromKey,
       boolean fromInclusive, boolean ascOrder) {
     return new OIndexCursorStream(streamEntriesMajor(session, fromKey, fromInclusive, ascOrder));
   }
 
   @Deprecated
   @Override
-  public OIndexCursor iterateEntriesMinor(ODatabaseSessionInternal session, Object toKey,
+  public OIndexCursor iterateEntriesMinor(YTDatabaseSessionInternal session, Object toKey,
       boolean toInclusive, boolean ascOrder) {
     return new OIndexCursorStream(streamEntriesMajor(session, toKey, toInclusive, ascOrder));
   }
@@ -472,7 +472,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
   /**
    * {@inheritDoc}
    */
-  public long rebuild(ODatabaseSessionInternal session, final OProgressListener iProgressListener) {
+  public long rebuild(YTDatabaseSessionInternal session,
+      final OProgressListener iProgressListener) {
     long documentIndexed;
 
     acquireExclusiveLock();
@@ -532,7 +533,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return documentIndexed;
   }
 
-  private long fillIndex(ODatabaseSessionInternal session,
+  private long fillIndex(YTDatabaseSessionInternal session,
       final OProgressListener iProgressListener, final boolean rebuild) {
     long documentIndexed = 0;
     try {
@@ -569,19 +570,19 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Override
-  public boolean doRemove(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage,
-      Object key, ORID rid)
+  public boolean doRemove(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+      Object key, YTRID rid)
       throws OInvalidIndexEngineIdException {
     return doRemove(storage, key);
   }
 
-  public boolean remove(ODatabaseSessionInternal session, Object key, final OIdentifiable rid) {
+  public boolean remove(YTDatabaseSessionInternal session, Object key, final YTIdentifiable rid) {
     key = getCollatingValue(key);
     session.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, rid);
     return true;
   }
 
-  public boolean remove(ODatabaseSessionInternal session, Object key) {
+  public boolean remove(YTDatabaseSessionInternal session, Object key) {
     key = getCollatingValue(key);
 
     session.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, null);
@@ -601,12 +602,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
    */
   @Override
   @Deprecated
-  public OIndex clear(ODatabaseSessionInternal session) {
+  public OIndex clear(YTDatabaseSessionInternal session) {
     session.getTransaction().addIndexEntry(this, this.getName(), OPERATION.CLEAR, null, null);
     return this;
   }
 
-  public OIndexInternal delete(ODatabaseSessionInternal session) {
+  public OIndexInternal delete(YTDatabaseSessionInternal session) {
     acquireExclusiveLock();
 
     try {
@@ -623,12 +624,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  protected void doDelete(ODatabaseSessionInternal session) {
+  protected void doDelete(YTDatabaseSessionInternal session) {
     while (true) {
       try {
         //noinspection ObjectAllocationInLoop
         try {
-          try (final Stream<ORawPair<Object, ORID>> stream = stream(session)) {
+          try (final Stream<ORawPair<Object, YTRID>> stream = stream(session)) {
             session.executeInTxBatches(stream, (db, entry) -> {
               remove(session, entry.first, entry.second);
             });
@@ -641,7 +642,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         }
 
         try {
-          try (Stream<ORID> stream = getRids(session, null)) {
+          try (Stream<YTRID> stream = getRids(session, null)) {
             stream.forEach((rid) -> remove(session, null, rid));
           }
         } catch (OIndexEngineException e) {
@@ -702,7 +703,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public OIndexAbstract addCluster(ODatabaseSessionInternal session, final String clusterName) {
+  public OIndexAbstract addCluster(YTDatabaseSessionInternal session, final String clusterName) {
     acquireExclusiveLock();
     try {
       if (clustersToIndex.add(clusterName)) {
@@ -716,7 +717,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public void removeCluster(ODatabaseSessionInternal session, String iClusterName) {
+  public void removeCluster(YTDatabaseSessionInternal session, String iClusterName) {
     acquireExclusiveLock();
     try {
       if (clustersToIndex.remove(iClusterName)) {
@@ -733,20 +734,20 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return im.getVersion();
   }
 
-  public ODocument updateConfiguration(ODatabaseSessionInternal session) {
-    ODocument document = new ODocument(session);
+  public YTDocument updateConfiguration(YTDatabaseSessionInternal session) {
+    YTDocument document = new YTDocument(session);
     document.field(OIndexInternal.CONFIG_TYPE, im.getType());
     document.field(OIndexInternal.CONFIG_NAME, im.getName());
     document.field(OIndexInternal.INDEX_VERSION, im.getVersion());
 
     if (im.getIndexDefinition() != null) {
 
-      final ODocument indexDefDocument = im.getIndexDefinition().toStream(new ODocument(session));
+      final YTDocument indexDefDocument = im.getIndexDefinition().toStream(new YTDocument(session));
       if (!indexDefDocument.hasOwners()) {
         ODocumentInternal.addOwner(indexDefDocument, document);
       }
 
-      document.field(OIndexInternal.INDEX_DEFINITION, indexDefDocument, OType.EMBEDDED);
+      document.field(OIndexInternal.INDEX_DEFINITION, indexDefDocument, YTType.EMBEDDED);
       document.field(
           OIndexInternal.INDEX_DEFINITION_CLASS, im.getIndexDefinition().getClass().getName());
     } else {
@@ -754,14 +755,14 @@ public abstract class OIndexAbstract implements OIndexInternal {
       document.removeField(OIndexInternal.INDEX_DEFINITION_CLASS);
     }
 
-    document.field(CONFIG_CLUSTERS, clustersToIndex, OType.EMBEDDEDSET);
+    document.field(CONFIG_CLUSTERS, clustersToIndex, YTType.EMBEDDEDSET);
     document.field(ALGORITHM, im.getAlgorithm());
     document.field(VALUE_CONTAINER_ALGORITHM, im.getValueContainerAlgorithm());
 
     if (im.getMetadata() != null) {
-      var imDoc = new ODocument();
+      var imDoc = new YTDocument();
       imDoc.fromMap(im.getMetadata());
-      document.field(OIndexInternal.METADATA, imDoc, OType.EMBEDDED);
+      document.field(OIndexInternal.METADATA, imDoc, YTType.EMBEDDED);
     }
 
     return document;
@@ -784,7 +785,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return changes.getEntriesAsList();
   }
 
-  public ODocument getConfiguration(ODatabaseSessionInternal session) {
+  public YTDocument getConfiguration(YTDatabaseSessionInternal session) {
     return updateConfiguration(session);
   }
 
@@ -807,7 +808,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public OType[] getKeyTypes() {
+  public YTType[] getKeyTypes() {
     acquireSharedLock();
     try {
       if (im.getIndexDefinition() == null) {
@@ -927,7 +928,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   private long[] indexCluster(
-      ODatabaseSessionInternal session, final String clusterName,
+      YTDatabaseSessionInternal session, final String clusterName,
       final OProgressListener iProgressListener,
       long documentNum,
       long documentIndexed,
@@ -944,12 +945,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
     var stat = new long[]{documentNum, documentIndexed};
 
     var clusterIterator = session.browseCluster(clusterName);
-    session.executeInTxBatches((Iterator<ORecord>) clusterIterator, (db, record) -> {
+    session.executeInTxBatches((Iterator<YTRecord>) clusterIterator, (db, record) -> {
       if (Thread.interrupted()) {
         throw new OCommandExecutionException("The index rebuild has been interrupted");
       }
 
-      if (record instanceof ODocument doc) {
+      if (record instanceof YTDocument doc) {
         OClassIndexManager.reIndex(session, doc, this);
         ++stat[1];
       }
@@ -1032,22 +1033,22 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   public static void manualIndexesWarning() {
-    if (!OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getValueAsBoolean()) {
+    if (!YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getValueAsBoolean()) {
       throw new OManualIndexesAreProhibited(
           "Manual indexes are deprecated, not supported any more and will be removed in next"
               + " versions if you still want to use them, please set global property `"
-              + OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getKey()
+              + YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getKey()
               + "` to `true`");
     }
 
-    if (OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES_WARNING.getValueAsBoolean()) {
+    if (YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES_WARNING.getValueAsBoolean()) {
       OLogManager.instance()
           .warn(
               OIndexAbstract.class,
               "Seems you use manual indexes. Manual indexes are deprecated, not supported any more"
                   + " and will be removed in next versions if you do not want to see warning,"
                   + " please set global property `"
-                  + OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES_WARNING.getKey()
+                  + YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES_WARNING.getKey()
                   + "` to `false`");
     }
   }

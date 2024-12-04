@@ -26,5 +26,5 @@ public interface OGlobalProperty {
 
   String getName();
 
-  OType getType();
+  YTType getType();
 }

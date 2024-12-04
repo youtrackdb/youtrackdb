@@ -22,16 +22,16 @@ package com.orientechnologies.orient.core.sql.query;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.query.OQueryAbstract;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
    */
   @SuppressWarnings("unchecked")
   public List<T> run(final Object... iArgs) {
-    final ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
+    final YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     if (database == null) {
       throw new OQueryParsingException("No database configured");
     }
@@ -88,7 +88,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
   /**
    * Returns only the first record if any.
    */
-  public T runFirst(ODatabaseSessionInternal database, final Object... iArgs) {
+  public T runFirst(YTDatabaseSessionInternal database, final Object... iArgs) {
     setLimit(1);
     final List<T> result = execute(database, iArgs);
     return result != null && !result.isEmpty() ? result.get(0) : null;
@@ -108,7 +108,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     return "sql." + text;
   }
 
-  public OCommandRequestText fromStream(ODatabaseSessionInternal db, final byte[] iStream,
+  public OCommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
       ORecordSerializer serializer)
       throws OSerializationException {
     final OMemoryStream buffer = new OMemoryStream(iStream);
@@ -134,7 +134,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     return buffer;
   }
 
-  protected void queryFromStream(ODatabaseSessionInternal db, final OMemoryStream buffer,
+  protected void queryFromStream(YTDatabaseSessionInternal db, final OMemoryStream buffer,
       ORecordSerializer serializer) {
     text = buffer.getAsString();
     limit = buffer.getAsInteger();
@@ -146,17 +146,17 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
   }
 
   protected Map<Object, Object> deserializeQueryParameters(
-      ODatabaseSessionInternal db, final byte[] paramBuffer, ORecordSerializer serializer) {
+      YTDatabaseSessionInternal db, final byte[] paramBuffer, ORecordSerializer serializer) {
     if (paramBuffer == null || paramBuffer.length == 0) {
       return Collections.emptyMap();
     }
 
-    final ODocument param = new ODocument();
+    final YTDocument param = new YTDocument();
 
-    OImmutableSchema schema =
+    YTImmutableSchema schema =
         ODatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
     serializer.fromStream(db, paramBuffer, param, null);
-    param.setFieldType("params", OType.EMBEDDEDMAP);
+    param.setFieldType("params", YTType.EMBEDDEDMAP);
     final Map<String, Object> params = param.rawField("params");
 
     final Map<Object, Object> result = new HashMap<Object, Object>();
@@ -177,7 +177,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
       return OCommonConst.EMPTY_BYTE_ARRAY;
     }
 
-    final ODocument param = new ODocument();
+    final YTDocument param = new YTDocument();
     param.field("params", convertToRIDsIfPossible(params));
     return param.toStream();
   }
@@ -191,35 +191,35 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
 
       if (value instanceof Set<?>
           && !((Set<?>) value).isEmpty()
-          && ((Set<?>) value).iterator().next() instanceof ORecord) {
+          && ((Set<?>) value).iterator().next() instanceof YTRecord) {
         // CONVERT RECORDS AS RIDS
-        final Set<ORID> newSet = new HashSet<ORID>();
-        for (ORecord rec : (Set<ORecord>) value) {
+        final Set<YTRID> newSet = new HashSet<YTRID>();
+        for (YTRecord rec : (Set<YTRecord>) value) {
           newSet.add(rec.getIdentity());
         }
         newParams.put(entry.getKey(), newSet);
 
       } else if (value instanceof List<?>
           && !((List<?>) value).isEmpty()
-          && ((List<?>) value).get(0) instanceof ORecord) {
+          && ((List<?>) value).get(0) instanceof YTRecord) {
         // CONVERT RECORDS AS RIDS
-        final List<ORID> newList = new ArrayList<ORID>();
-        for (ORecord rec : (List<ORecord>) value) {
+        final List<YTRID> newList = new ArrayList<YTRID>();
+        for (YTRecord rec : (List<YTRecord>) value) {
           newList.add(rec.getIdentity());
         }
         newParams.put(entry.getKey(), newList);
 
       } else if (value instanceof Map<?, ?>
           && !((Map<?, ?>) value).isEmpty()
-          && ((Map<?, ?>) value).values().iterator().next() instanceof ORecord) {
+          && ((Map<?, ?>) value).values().iterator().next() instanceof YTRecord) {
         // CONVERT RECORDS AS RIDS
-        final Map<Object, ORID> newMap = new HashMap<Object, ORID>();
-        for (Entry<?, ORecord> mapEntry : ((Map<?, ORecord>) value).entrySet()) {
+        final Map<Object, YTRID> newMap = new HashMap<Object, YTRID>();
+        for (Entry<?, YTRecord> mapEntry : ((Map<?, YTRecord>) value).entrySet()) {
           newMap.put(mapEntry.getKey(), mapEntry.getValue().getIdentity());
         }
         newParams.put(entry.getKey(), newMap);
-      } else if (value instanceof OIdentifiable) {
-        newParams.put(entry.getKey(), ((OIdentifiable) value).getIdentity());
+      } else if (value instanceof YTIdentifiable) {
+        newParams.put(entry.getKey(), ((YTIdentifiable) value).getIdentity());
       } else {
         newParams.put(entry.getKey(), value);
       }

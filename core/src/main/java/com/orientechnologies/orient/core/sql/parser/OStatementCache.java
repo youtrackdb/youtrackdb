@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import java.io.ByteArrayInputStream;
@@ -39,7 +39,7 @@ public class OStatementCache {
    * @return true if the corresponding executor is present in the cache
    */
   public boolean contains(String statement) {
-    if (OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
+    if (YTGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       return false;
     }
 
@@ -57,7 +57,7 @@ public class OStatementCache {
    *                  created through statement parsing
    * @return a statement executor from the cache
    */
-  public static OStatement get(String statement, ODatabaseSessionInternal db) {
+  public static OStatement get(String statement, YTDatabaseSessionInternal db) {
     if (db == null) {
       return parse(statement);
     }
@@ -85,7 +85,7 @@ public class OStatementCache {
    * @return the corresponding executor, taking it from the internal cache, if it exists
    */
   public OStatement get(String statement) {
-    if (OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
+    if (YTGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       return parse(statement);
     }
 
@@ -115,7 +115,7 @@ public class OStatementCache {
    */
   protected static OStatement parse(String statement) throws OCommandSQLParsingException {
     try {
-      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       InputStream is;
 
       if (db == null) {
@@ -199,7 +199,7 @@ public class OStatementCache {
   }
 
   public void clear() {
-    if (OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
+    if (YTGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       return;
     }
 

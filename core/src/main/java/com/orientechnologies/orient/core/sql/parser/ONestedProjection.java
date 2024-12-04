@@ -3,11 +3,11 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
@@ -46,10 +46,10 @@ public class ONestedProjection extends SimpleNode {
           ctx,
           recursion == null ? 0 : recursion.getValue().intValue());
     }
-    if (input instanceof OIdentifiable) {
+    if (input instanceof YTIdentifiable) {
       return apply(
           expression,
-          (OIdentifiable) input,
+          (YTIdentifiable) input,
           ctx,
           recursion == null ? 0 : recursion.getValue().intValue());
     }
@@ -130,14 +130,14 @@ public class ONestedProjection extends SimpleNode {
   }
 
   private Object apply(
-      OExpression expression, OIdentifiable input, OCommandContext ctx, int recursion) {
-    OElement elem;
-    if (input instanceof OElement) {
-      elem = (OElement) input;
+      OExpression expression, YTIdentifiable input, OCommandContext ctx, int recursion) {
+    YTEntity elem;
+    if (input instanceof YTEntity) {
+      elem = (YTEntity) input;
     } else {
-      ORecord e = input.getRecord();
-      if (e instanceof OElement) {
-        elem = (OElement) e;
+      YTRecord e = input.getRecord();
+      if (e instanceof YTEntity) {
+        elem = (YTEntity) e;
       } else {
         return input;
       }
@@ -316,7 +316,7 @@ public class ONestedProjection extends SimpleNode {
     return value;
   }
 
-  public OResult serialize(ODatabaseSessionInternal database) {
+  public OResult serialize(YTDatabaseSessionInternal database) {
     OResultInternal result = new OResultInternal(database);
     if (includeItems != null) {
       result.setProperty(

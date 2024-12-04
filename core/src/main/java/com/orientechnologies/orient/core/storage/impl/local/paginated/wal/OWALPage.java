@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 
 /**
  * Basic interface for classes which present pages of WAL. Main reason of creation of this interface
@@ -16,7 +16,7 @@ public interface OWALPage {
   /**
    * Size of the current instance of page in direct memory.
    */
-  int PAGE_SIZE = OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+  int PAGE_SIZE = YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
 
   /**
    * Size of the record which will be stored inside of page even if payload of record equals to 0.

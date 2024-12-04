@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.exception;
 import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 /**
  * @since 9/28/2015
@@ -49,7 +49,7 @@ public abstract class OCoreException extends OException {
     this.componentName = componentName;
     final ODatabaseRecordThreadLocal instance = ODatabaseRecordThreadLocal.instance();
 
-    final ODatabaseSessionInternal database = instance.getIfDefined();
+    final YTDatabaseSessionInternal database = instance.getIfDefined();
     if (database != null) {
       dbName = database.getName();
     } else {

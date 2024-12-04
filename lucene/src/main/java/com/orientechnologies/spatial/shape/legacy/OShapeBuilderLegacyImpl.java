@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.shape.legacy;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class OShapeBuilderLegacyImpl implements OShapeBuilderLegacy<Shape> {
   }
 
   @Override
-  public Shape makeShape(ODatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx) {
+  public Shape makeShape(YTDatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx) {
     for (OShapeBuilderLegacy f : builders) {
       if (f.canHandle(key)) {
         return f.makeShape(session, key, ctx);

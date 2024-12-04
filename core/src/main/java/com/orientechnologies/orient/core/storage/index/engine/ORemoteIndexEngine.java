@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.storage.index.engine;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
@@ -103,18 +103,18 @@ public class ORemoteIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Object get(ODatabaseSessionInternal session, Object key) {
+  public Object get(YTDatabaseSessionInternal session, Object key) {
     return null;
   }
 
   @Override
-  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  public void put(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       Object value) {
   }
 
   @Override
   public void update(
-      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       OIndexKeyUpdater<Object> updater) {
   }
 
@@ -122,14 +122,14 @@ public class ORemoteIndexEngine implements OIndexEngine {
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator) {
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator) {
     return false;
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -139,7 +139,7 @@ public class ORemoteIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -148,7 +148,7 @@ public class ORemoteIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -167,12 +167,13 @@ public class ORemoteIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> stream(IndexEngineValuesTransformer valuesTransformer) {
     throw new UnsupportedOperationException("stream");
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> descStream(
+      IndexEngineValuesTransformer valuesTransformer) {
     throw new UnsupportedOperationException();
   }
 

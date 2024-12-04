@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.cache;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  *
  */
-public abstract class OAbstractMapCache<T extends Map<ORID, ?>> implements ORecordCache {
+public abstract class OAbstractMapCache<T extends Map<YTRID, ?>> implements ORecordCache {
 
   protected T cache;
 
@@ -73,7 +73,7 @@ public abstract class OAbstractMapCache<T extends Map<ORID, ?>> implements OReco
   }
 
   @Override
-  public Collection<ORID> keys() {
+  public Collection<YTRID> keys() {
     return new ArrayList<>(cache.keySet());
   }
 }

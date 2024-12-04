@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.YTVertex;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ public class OOptimizeDatabaseExecutionTest extends DBTestBase {
 
   @Test
   public void test() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     String vClass = "testCreateSingleEdgeV";
     schema.createClass(vClass, schema.getClass("V"));
@@ -22,13 +22,13 @@ public class OOptimizeDatabaseExecutionTest extends DBTestBase {
     schema.createClass(eClass, schema.getClass("E"));
 
     db.begin();
-    OVertex v1 = db.newVertex(vClass);
+    YTVertex v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
     db.commit();
 
     db.begin();
-    OVertex v2 = db.newVertex(vClass);
+    YTVertex v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
     db.commit();

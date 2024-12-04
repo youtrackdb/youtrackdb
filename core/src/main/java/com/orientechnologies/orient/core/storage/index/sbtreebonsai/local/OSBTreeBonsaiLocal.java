@@ -27,7 +27,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OSBTreeBonsaiLocalException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -67,7 +67,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
   private static final OLockManager<Long> FILE_LOCK_MANAGER = new OPartitionedLockManager<>();
 
   private static final int PAGE_SIZE =
-      OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+      YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
   private static final OBonsaiBucketPointer SYS_BUCKET = new OBonsaiBucketPointer(0, 0);
 
   private OBonsaiBucketPointer rootBucketPointer;

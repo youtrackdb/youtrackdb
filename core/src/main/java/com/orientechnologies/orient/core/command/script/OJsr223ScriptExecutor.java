@@ -5,7 +5,7 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -36,7 +36,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(ODatabaseSessionInternal database, String script, Object... params) {
+  public OResultSet execute(YTDatabaseSessionInternal database, String script, Object... params) {
 
     preExecute(database, script, params);
 
@@ -49,7 +49,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(ODatabaseSessionInternal database, String script, Map params) {
+  public OResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
 
     preExecute(database, script, params);
 
@@ -101,7 +101,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseSessionInternal db = context.getDatabase();
+    YTDatabaseSessionInternal db = context.getDatabase();
     final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(functionName);
 
     db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName(db));

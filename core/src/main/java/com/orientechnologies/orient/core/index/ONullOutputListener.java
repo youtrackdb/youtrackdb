@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 /**
  * Progress listener with no output.
@@ -39,6 +39,6 @@ public class ONullOutputListener implements OProgressListener {
   }
 
   @Override
-  public void onCompletition(ODatabaseSessionInternal session, Object iTask, boolean iSucceed) {
+  public void onCompletition(YTDatabaseSessionInternal session, Object iTask, boolean iSucceed) {
   }
 }

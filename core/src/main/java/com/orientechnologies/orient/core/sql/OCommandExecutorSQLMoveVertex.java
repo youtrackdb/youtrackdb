@@ -24,16 +24,16 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +52,9 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
   private String source = null;
   private String clusterName;
   private String className;
-  private OClass clazz;
+  private YTClass clazz;
   private List<OPair<String, Object>> fields;
-  private ODocument merge;
+  private YTDocument merge;
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
@@ -125,11 +125,11 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Executes the command and return the ODocument object created.
+   * Executes the command and return the YTDocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
 
-    ODatabaseSessionInternal db = getDatabase();
+    YTDatabaseSessionInternal db = getDatabase();
 
     db.begin();
 
@@ -141,22 +141,22 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
     OModifiableBoolean shutdownGraph = new OModifiableBoolean();
     final boolean txAlreadyBegun = getDatabase().getTransaction().isActive();
 
-    final Set<OIdentifiable> sourceRIDs =
+    final Set<YTIdentifiable> sourceRIDs =
         OSQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
 
     // CREATE EDGES
-    final List<ODocument> result = new ArrayList<ODocument>(sourceRIDs.size());
+    final List<YTDocument> result = new ArrayList<YTDocument>(sourceRIDs.size());
 
-    for (OIdentifiable from : sourceRIDs) {
-      final OVertex fromVertex = toVertex(from);
+    for (YTIdentifiable from : sourceRIDs) {
+      final YTVertex fromVertex = toVertex(from);
       if (fromVertex == null) {
         continue;
       }
 
-      final ORID oldVertex = fromVertex.getIdentity().copy();
-      final ORID newVertex = fromVertex.moveTo(className, clusterName);
+      final YTRID oldVertex = fromVertex.getIdentity().copy();
+      final YTRID newVertex = fromVertex.moveTo(className, clusterName);
 
-      final ODocument newVertexDoc = newVertex.getRecord();
+      final YTDocument newVertexDoc = newVertex.getRecord();
 
       if (fields != null) {
         // EVALUATE FIELDS
@@ -180,10 +180,10 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
 
       // PUT THE MOVE INTO THE RESULT
       result.add(
-          new ODocument()
+          new YTDocument()
               .setTrackingChanges(false)
-              .field("old", oldVertex, OType.LINK)
-              .field("new", newVertex, OType.LINK));
+              .field("old", oldVertex, YTType.LINK)
+              .field("new", newVertex, YTType.LINK));
 
       if (batch > 0 && result.size() % batch == 0) {
         db.commit();
@@ -207,17 +207,17 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
         + " [BATCH <batch-size>]";
   }
 
-  private static OVertex toVertex(OIdentifiable item) {
-    if (item instanceof OElement) {
-      return ((OElement) item).asVertex().orElse(null);
+  private static YTVertex toVertex(YTIdentifiable item) {
+    if (item instanceof YTEntity) {
+      return ((YTEntity) item).asVertex().orElse(null);
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
       } catch (ORecordNotFoundException rnf) {
         return null;
       }
-      if (item instanceof OElement) {
-        return ((OElement) item).asVertex().orElse(null);
+      if (item instanceof YTEntity) {
+        return ((YTEntity) item).asVertex().orElse(null);
       }
     }
     return null;

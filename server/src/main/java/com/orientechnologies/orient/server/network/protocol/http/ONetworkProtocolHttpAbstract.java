@@ -23,8 +23,8 @@ import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
@@ -150,7 +150,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
 
     final boolean installDefaultCommands =
         iConfiguration.getValueAsBoolean(
-            OGlobalConfiguration.NETWORK_HTTP_INSTALL_DEFAULT_COMMANDS);
+            YTGlobalConfiguration.NETWORK_HTTP_INSTALL_DEFAULT_COMMANDS);
     if (installDefaultCommands) {
       registerStatelessCommands(iListener);
     }
@@ -166,16 +166,16 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
 
     server = iServer;
     requestMaxContentLength =
-        iConfiguration.getValueAsInteger(OGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH);
-    socketTimeout = iConfiguration.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
+        iConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH);
+    socketTimeout = iConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
     responseCharSet =
-        iConfiguration.getValueAsString(OGlobalConfiguration.NETWORK_HTTP_CONTENT_CHARSET);
+        iConfiguration.getValueAsString(YTGlobalConfiguration.NETWORK_HTTP_CONTENT_CHARSET);
 
     jsonResponseError =
-        iConfiguration.getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_JSON_RESPONSE_ERROR);
+        iConfiguration.getValueAsBoolean(YTGlobalConfiguration.NETWORK_HTTP_JSON_RESPONSE_ERROR);
     sameSiteCookie =
         iConfiguration.getValueAsBoolean(
-            OGlobalConfiguration.NETWORK_HTTP_SESSION_COOKIE_SAME_SITE);
+            YTGlobalConfiguration.NETWORK_HTTP_SESSION_COOKIE_SAME_SITE);
 
     channel = new OChannelTextServer(iSocket, iConfiguration);
     channel.connected();
@@ -197,7 +197,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     final String callbackF;
     if (server
         .getContextConfiguration()
-        .getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_JSONP_ENABLED)
+        .getValueAsBoolean(YTGlobalConfiguration.NETWORK_HTTP_JSONP_ENABLED)
         && request.getParameters() != null
         && request.getParameters().containsKey(OHttpUtils.CALLBACK_PARAMETER_NAME)) {
       callbackF = request.getParameters().get(OHttpUtils.CALLBACK_PARAMETER_NAME);
@@ -308,7 +308,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     OServerPluginHelper.invokeHandlerCallbackOnAfterClientRequest(server, connection, (byte) -1);
   }
 
-  private List<String> getActiveQueries(ODatabaseSessionInternal database) {
+  private List<String> getActiveQueries(YTDatabaseSessionInternal database) {
     if (database == null) {
       return null;
     }
@@ -549,14 +549,14 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       writeLine(iHeaders);
     }
 
-    ODocument response = new ODocument();
-    ODocument error = new ODocument();
+    YTDocument response = new YTDocument();
+    YTDocument error = new YTDocument();
 
     error.field("code", iCode);
     error.field("reason", iCode);
     error.field("content", iContent);
 
-    List<ODocument> errors = new ArrayList<ODocument>();
+    List<YTDocument> errors = new ArrayList<YTDocument>();
     errors.add(error);
 
     response.field("errors", errors);
@@ -860,10 +860,10 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
         }
         requestContent.append(c);
         // review this number: NETWORK_HTTP_MAX_CONTENT_LENGTH should refer to the body only...
-        if (OGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger() > -1
+        if (YTGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger() > -1
             && requestContent.length()
             >= 10000
-            + OGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger()
+            + YTGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger()
             * 2) {
           while (channel.inStream.available() > 0) {
             channel.read();
@@ -1100,7 +1100,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   @Override
-  public void setDatabase(ODatabaseSessionInternal db) {
+  public void setDatabase(YTDatabaseSessionInternal db) {
     connection.setDatabase(db);
   }
 }

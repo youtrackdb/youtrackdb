@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +45,7 @@ public class OSystemRole extends ORole {
   }
 
   public OSystemRole(
-      ODatabaseSessionInternal session, final String iName,
+      YTDatabaseSessionInternal session, final String iName,
       final ORole iParent,
       final ALLOW_MODES iAllowMode,
       Map<String, OSecurityPolicy> policies) {
@@ -55,19 +55,19 @@ public class OSystemRole extends ORole {
   /**
    * Create the role by reading the source document.
    */
-  public OSystemRole(ODatabaseSessionInternal session, final ODocument iSource) {
+  public OSystemRole(YTDatabaseSessionInternal session, final YTDocument iSource) {
     super(session, iSource);
   }
 
   @Override
-  public void fromStream(ODatabaseSessionInternal session, final ODocument iSource) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iSource) {
     super.fromStream(session, iSource);
 
     var document = getDocument(session);
     if (document != null
         && document.containsField(DB_FILTER)
-        && document.fieldType(DB_FILTER) == OType.EMBEDDEDLIST) {
-      dbFilter = document.field(DB_FILTER, OType.EMBEDDEDLIST);
+        && document.fieldType(DB_FILTER) == YTType.EMBEDDEDLIST) {
+      dbFilter = document.field(DB_FILTER, YTType.EMBEDDEDLIST);
     }
   }
 }

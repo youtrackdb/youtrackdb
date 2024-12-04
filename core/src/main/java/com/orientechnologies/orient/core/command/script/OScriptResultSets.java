@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.Collections;
 
 /**
@@ -17,7 +17,7 @@ public class OScriptResultSets {
    *
    * @return
    */
-  public static OScriptResultSet empty(ODatabaseSessionInternal db) {
+  public static OScriptResultSet empty(YTDatabaseSessionInternal db) {
     return new OScriptResultSet(db, Collections.EMPTY_LIST.iterator(), null);
   }
 
@@ -26,7 +26,7 @@ public class OScriptResultSets {
    *
    * @return
    */
-  public static OScriptResultSet singleton(ODatabaseSessionInternal db, Object entity,
+  public static OScriptResultSet singleton(YTDatabaseSessionInternal db, Object entity,
       OScriptTransformer transformer) {
     return new OScriptResultSet(db, Collections.singletonList(entity).iterator(), transformer);
   }

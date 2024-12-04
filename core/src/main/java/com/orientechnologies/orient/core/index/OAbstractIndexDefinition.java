@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 
 /**
@@ -92,14 +92,14 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
     nullValuesIgnored = value;
   }
 
-  protected void serializeToStream(ODocument document) {
+  protected void serializeToStream(YTDocument document) {
   }
 
-  protected void serializeFromStream(ODocument document) {
+  protected void serializeFromStream(YTDocument document) {
   }
 
-  protected static <T> T refreshRid(ODatabaseSessionInternal session, T value) {
-    if (value instanceof ORID rid) {
+  protected static <T> T refreshRid(YTDatabaseSessionInternal session, T value) {
+    if (value instanceof YTRID rid) {
       if (rid.isNew()) {
         try {
           var record = session.load(rid);

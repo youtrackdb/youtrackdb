@@ -23,10 +23,10 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Locale;
@@ -42,7 +42,7 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
   public static final String KEYWORD_TRUNCATE = "TRUNCATE";
   public static final String KEYWORD_CLASS = "CLASS";
   public static final String KEYWORD_POLYMORPHIC = "POLYMORPHIC";
-  private OClass schemaClass;
+  private YTClass schemaClass;
   private boolean unsafe = false;
   private boolean deep = false;
 
@@ -114,7 +114,7 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
   /**
    * Execute the command.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (schemaClass == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -134,9 +134,9 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
       }
     }
 
-    Collection<OClass> subclasses = schemaClass.getAllSubclasses();
+    Collection<YTClass> subclasses = schemaClass.getAllSubclasses();
     if (deep && !unsafe) { // for multiple inheritance
-      for (OClass subclass : subclasses) {
+      for (YTClass subclass : subclasses) {
         long subclassRecs = schemaClass.count(database);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
@@ -157,7 +157,7 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
     try {
       schemaClass.truncate(database);
       if (deep) {
-        for (OClass subclass : subclasses) {
+        for (YTClass subclass : subclasses) {
           subclass.truncate(database);
         }
       }
@@ -173,7 +173,7 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
   }
 
   @Override

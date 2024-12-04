@@ -4,18 +4,18 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.index.engine.OMultiValueIndexEngine;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -41,7 +41,7 @@ public final class OCellBTreeMultiValueIndexEngine
   private final OCellBTreeMultiValue<Object> mvTree;
 
   private final OCellBTreeSingleValue<OCompositeKey> svTree;
-  private final OCellBTreeSingleValue<OIdentifiable> nullTree;
+  private final OCellBTreeSingleValue<YTIdentifiable> nullTree;
 
   private final String name;
   private final int id;
@@ -111,7 +111,7 @@ public final class OCellBTreeMultiValueIndexEngine
         mvTree.create(
             keySerializer, data.getKeyTypes(), data.getKeySize(), encryption, atomicOperation);
       } else {
-        final OType[] sbTypes = calculateTypes(data.getKeyTypes());
+        final YTType[] sbTypes = calculateTypes(data.getKeyTypes());
         assert svTree != null;
         assert nullTree != null;
 
@@ -122,7 +122,7 @@ public final class OCellBTreeMultiValueIndexEngine
             data.getKeySize() + 1,
             encryption);
         nullTree.create(
-            atomicOperation, OCompactedLinkSerializer.INSTANCE, new OType[]{OType.LINK}, 1, null);
+            atomicOperation, OCompactedLinkSerializer.INSTANCE, new YTType[]{YTType.LINK}, 1, null);
       }
     } catch (IOException e) {
       throw OException.wrapException(
@@ -156,7 +156,7 @@ public final class OCellBTreeMultiValueIndexEngine
     final Object firstKey = mvTree.firstKey();
     final Object lastKey = mvTree.lastKey();
 
-    try (Stream<ORawPair<Object, ORID>> stream =
+    try (Stream<ORawPair<Object, YTRID>> stream =
         mvTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
       stream.forEach(
           (pair) -> {
@@ -169,7 +169,7 @@ public final class OCellBTreeMultiValueIndexEngine
           });
     }
 
-    try (final Stream<ORID> rids = mvTree.get(null)) {
+    try (final Stream<YTRID> rids = mvTree.get(null)) {
       rids.forEach(
           (rid) -> {
             try {
@@ -190,7 +190,7 @@ public final class OCellBTreeMultiValueIndexEngine
       final OCompositeKey firstKey = svTree.firstKey();
       final OCompositeKey lastKey = svTree.lastKey();
 
-      try (Stream<ORawPair<OCompositeKey, ORID>> stream =
+      try (Stream<ORawPair<OCompositeKey, YTRID>> stream =
           svTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
         stream.forEach(
             (pair) -> {
@@ -205,11 +205,11 @@ public final class OCellBTreeMultiValueIndexEngine
     }
 
     {
-      final OIdentifiable firstKey = nullTree.firstKey();
-      final OIdentifiable lastKey = nullTree.lastKey();
+      final YTIdentifiable firstKey = nullTree.firstKey();
+      final YTIdentifiable lastKey = nullTree.lastKey();
 
       if (firstKey != null && lastKey != null) {
-        try (Stream<ORawPair<OIdentifiable, ORID>> stream =
+        try (Stream<ORawPair<YTIdentifiable, YTRID>> stream =
             nullTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
           stream.forEach(
               (pair) -> {
@@ -232,7 +232,7 @@ public final class OCellBTreeMultiValueIndexEngine
 
     String name = data.getName();
     int keySize = data.getKeySize();
-    OType[] keyTypes = data.getKeyTypes();
+    YTType[] keyTypes = data.getKeyTypes();
     OBinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
     if (mvTree != null) {
@@ -242,16 +242,16 @@ public final class OCellBTreeMultiValueIndexEngine
       assert svTree != null;
       assert nullTree != null;
 
-      final OType[] sbTypes = calculateTypes(keyTypes);
+      final YTType[] sbTypes = calculateTypes(keyTypes);
 
       svTree.load(name, keySize + 1, sbTypes, new CompositeKeySerializer(), null);
       nullTree.load(
-          nullTreeName, 1, new OType[]{OType.LINK}, OCompactedLinkSerializer.INSTANCE, null);
+          nullTreeName, 1, new YTType[]{YTType.LINK}, OCompactedLinkSerializer.INSTANCE, null);
     }
   }
 
   @Override
-  public boolean remove(final OAtomicOperation atomicOperation, Object key, ORID value) {
+  public boolean remove(final OAtomicOperation atomicOperation, Object key, YTRID value) {
     try {
       if (mvTree != null) {
         return mvTree.remove(atomicOperation, key, value);
@@ -262,7 +262,7 @@ public final class OCellBTreeMultiValueIndexEngine
           final OCompositeKey compositeKey = createCompositeKey(key, value);
 
           final boolean[] removed = new boolean[1];
-          try (Stream<ORawPair<OCompositeKey, ORID>> stream =
+          try (Stream<ORawPair<OCompositeKey, YTRID>> stream =
               svTree.iterateEntriesBetween(compositeKey, true, compositeKey, true, true)) {
             stream.forEach(
                 (pair) -> {
@@ -320,7 +320,7 @@ public final class OCellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public Stream<ORID> get(Object key) {
+  public Stream<YTRID> get(Object key) {
     if (mvTree != null) {
       return mvTree.get(key);
     } else if (key != null) {
@@ -339,13 +339,14 @@ public final class OCellBTreeMultiValueIndexEngine
       //noinspection resource
       return nullTree
           .iterateEntriesBetween(
-              new ORecordId(0, 0), true, new ORecordId(Short.MAX_VALUE, Long.MAX_VALUE), true, true)
+              new YTRecordId(0, 0), true, new YTRecordId(Short.MAX_VALUE, Long.MAX_VALUE), true,
+              true)
           .map((pair) -> pair.second);
     }
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> stream(IndexEngineValuesTransformer valuesTransformer) {
     if (mvTree != null) {
       final Object firstKey = mvTree.firstKey();
       if (firstKey == null) {
@@ -365,17 +366,18 @@ public final class OCellBTreeMultiValueIndexEngine
     }
   }
 
-  private static Stream<ORawPair<Object, ORID>> mapSVStream(
-      Stream<ORawPair<OCompositeKey, ORID>> stream) {
+  private static Stream<ORawPair<Object, YTRID>> mapSVStream(
+      Stream<ORawPair<OCompositeKey, YTRID>> stream) {
     return stream.map((entry) -> new ORawPair<>(extractKey(entry.first), entry.second));
   }
 
-  private static Stream<ORawPair<Object, ORID>> emptyStream() {
+  private static Stream<ORawPair<Object, YTRID>> emptyStream() {
     return StreamSupport.stream(Spliterators.emptySpliterator(), false);
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> descStream(
+      IndexEngineValuesTransformer valuesTransformer) {
     if (mvTree != null) {
       final Object lastKey = mvTree.lastKey();
       if (lastKey == null) {
@@ -405,7 +407,7 @@ public final class OCellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, Object key, ORID value) {
+  public void put(OAtomicOperation atomicOperation, Object key, YTRID value) {
     if (mvTree != null) {
       try {
         mvTree.put(atomicOperation, key, value);
@@ -439,8 +441,8 @@ public final class OCellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -482,7 +484,7 @@ public final class OCellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -497,7 +499,7 @@ public final class OCellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -533,7 +535,7 @@ public final class OCellBTreeMultiValueIndexEngine
 
       int counter = 0;
 
-      try (Stream<ORID> oridStream = mvTree.get(null)) {
+      try (Stream<YTRID> oridStream = mvTree.get(null)) {
         if (oridStream.iterator().hasNext()) {
           counter++;
         }
@@ -541,7 +543,7 @@ public final class OCellBTreeMultiValueIndexEngine
 
       if (firstKey != null && lastKey != null) {
         final Object[] prevKey = new Object[]{new Object()};
-        try (final Stream<ORawPair<Object, ORID>> stream =
+        try (final Stream<ORawPair<Object, YTRID>> stream =
             mvTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
           counter +=
               stream
@@ -601,19 +603,19 @@ public final class OCellBTreeMultiValueIndexEngine
     return 0; // not implemented
   }
 
-  private static OType[] calculateTypes(final OType[] keyTypes) {
-    final OType[] sbTypes;
+  private static YTType[] calculateTypes(final YTType[] keyTypes) {
+    final YTType[] sbTypes;
     if (keyTypes != null) {
-      sbTypes = new OType[keyTypes.length + 1];
+      sbTypes = new YTType[keyTypes.length + 1];
       System.arraycopy(keyTypes, 0, sbTypes, 0, keyTypes.length);
-      sbTypes[sbTypes.length - 1] = OType.LINK;
+      sbTypes[sbTypes.length - 1] = YTType.LINK;
     } else {
       throw new OIndexException("Types of fields should be provided upon of creation of index");
     }
     return sbTypes;
   }
 
-  private static OCompositeKey createCompositeKey(final Object key, final ORID value) {
+  private static OCompositeKey createCompositeKey(final Object key, final YTRID value) {
     final OCompositeKey compositeKey = new OCompositeKey(key);
     compositeKey.addKey(value);
     return compositeKey;

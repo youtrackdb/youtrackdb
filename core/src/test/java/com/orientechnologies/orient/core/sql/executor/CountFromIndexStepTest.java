@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIndexIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OIndexName;
@@ -43,15 +43,15 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    OClass clazz = createClassInstance();
-    clazz.createProperty(db, PROPERTY_NAME, OType.STRING);
+    YTClass clazz = createClassInstance();
+    clazz.createProperty(db, PROPERTY_NAME, YTType.STRING);
     String className = clazz.getName();
     indexName = className + "." + PROPERTY_NAME;
-    clazz.createIndex(db, indexName, OClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
+    clazz.createIndex(db, indexName, YTClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
 
     for (int i = 0; i < 20; i++) {
       db.begin();
-      ODocument document = new ODocument(className);
+      YTDocument document = new YTDocument(className);
       document.field(PROPERTY_NAME, PROPERTY_VALUE);
       document.save();
       db.commit();

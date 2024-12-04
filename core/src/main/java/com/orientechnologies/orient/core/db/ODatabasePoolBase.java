@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.common.concur.resource.OReentrantResourcePool;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import java.util.Map;
 
@@ -49,8 +49,8 @@ public abstract class ODatabasePoolBase extends Thread {
   public ODatabasePoolBase setup() {
     if (dbPool == null) {
       setup(
-          OGlobalConfiguration.DB_POOL_MIN.getValueAsInteger(),
-          OGlobalConfiguration.DB_POOL_MAX.getValueAsInteger());
+          YTGlobalConfiguration.DB_POOL_MIN.getValueAsInteger(),
+          YTGlobalConfiguration.DB_POOL_MAX.getValueAsInteger());
     }
 
     return this;
@@ -82,7 +82,7 @@ public abstract class ODatabasePoolBase extends Thread {
                   }
                 }
 
-                public ODatabaseSession createNewResource(
+                public YTDatabaseSession createNewResource(
                     final String iDatabaseName, final Object... iAdditionalArgs) {
                   if (iAdditionalArgs.length < 2) {
                     throw new OSecurityAccessException("Username and/or password missed");
@@ -94,8 +94,8 @@ public abstract class ODatabasePoolBase extends Thread {
                 public boolean reuseResource(
                     final String iKey,
                     final Object[] iAdditionalArgs,
-                    final ODatabaseSession iValue) {
-                  var session = (ODatabaseSessionInternal) iValue;
+                    final YTDatabaseSession iValue) {
+                  var session = (YTDatabaseSessionInternal) iValue;
                   if (((ODatabasePooled) iValue).isUnderlyingOpen()) {
                     ((ODatabasePooled) iValue).reuse(owner, iAdditionalArgs);
                     if (session.getStorage().isClosed(session))
@@ -130,7 +130,7 @@ public abstract class ODatabasePoolBase extends Thread {
    *
    * @return A pooled database instance
    */
-  public ODatabaseSession acquire() {
+  public YTDatabaseSession acquire() {
     setup();
     return dbPool.acquire(url, userName, userPassword);
   }
@@ -144,7 +144,7 @@ public abstract class ODatabasePoolBase extends Thread {
    * @param iUserPassword User password
    * @return A pooled database instance
    */
-  public ODatabaseSession acquire(
+  public YTDatabaseSession acquire(
       final String iName, final String iUserName, final String iUserPassword) {
     setup();
     return dbPool.acquire(iName, iUserName, iUserPassword);
@@ -177,7 +177,7 @@ public abstract class ODatabasePoolBase extends Thread {
    * @param iUserPassword User password
    * @return A pooled database instance
    */
-  public ODatabaseSession acquire(
+  public YTDatabaseSession acquire(
       final String iName,
       final String iUserName,
       final String iUserPassword,
@@ -198,7 +198,7 @@ public abstract class ODatabasePoolBase extends Thread {
    *
    * @param iDatabase
    */
-  public void release(final ODatabaseSessionInternal iDatabase) {
+  public void release(final YTDatabaseSessionInternal iDatabase) {
     if (dbPool != null) {
       dbPool.release(iDatabase);
     }
@@ -225,7 +225,7 @@ public abstract class ODatabasePoolBase extends Thread {
   /**
    * Returns all the configured pools.
    */
-  public Map<String, OReentrantResourcePool<String, ODatabaseSession>> getPools() {
+  public Map<String, OReentrantResourcePool<String, YTDatabaseSession>> getPools() {
     return dbPool.getPools();
   }
 
@@ -241,6 +241,6 @@ public abstract class ODatabasePoolBase extends Thread {
     close();
   }
 
-  protected abstract ODatabaseSessionInternal createResource(
+  protected abstract YTDatabaseSessionInternal createResource(
       Object owner, String iDatabaseName, Object... iAdditionalArgs);
 }

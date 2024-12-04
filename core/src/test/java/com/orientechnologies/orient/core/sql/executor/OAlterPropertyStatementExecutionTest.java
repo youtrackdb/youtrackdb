@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,8 +17,8 @@ public class OAlterPropertyStatementExecutionTest extends DBTestBase {
   @Test
   public void testSetProperty() {
     String className = "testSetProperty";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    OProperty prop = clazz.createProperty(db, "name", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    YTProperty prop = clazz.createProperty(db, "name", YTType.STRING);
     prop.setMax(db, "15");
 
     OResultSet result = db.command("alter property " + className + ".name max 30");
@@ -38,8 +38,8 @@ public class OAlterPropertyStatementExecutionTest extends DBTestBase {
   @Test
   public void testSetCustom() {
     String className = "testSetCustom";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    OProperty prop = clazz.createProperty(db, "name", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    YTProperty prop = clazz.createProperty(db, "name", YTType.STRING);
     prop.setCustom(db, "foo", "bar");
 
     OResultSet result = db.command("alter property " + className + ".name custom foo='baz'");

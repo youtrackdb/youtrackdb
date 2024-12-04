@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Base interface that represents a record element.
@@ -51,11 +51,11 @@ public interface ORecordElement {
    */
   ORecordElement getOwner();
 
-  default ODocument getOwnerRecord() {
+  default YTDocument getOwnerRecord() {
     var owner = getOwner();
 
     while (true) {
-      if (owner instanceof ODocument document) {
+      if (owner instanceof YTDocument document) {
         return document;
       }
       if (owner == null) {

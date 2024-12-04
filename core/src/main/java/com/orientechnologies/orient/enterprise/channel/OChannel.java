@@ -26,7 +26,7 @@ import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -90,7 +90,7 @@ public abstract class OChannel {
   }
 
   public OChannel(final Socket iSocket, final OContextConfiguration iConfig) throws IOException {
-    socketBufferSize = iConfig.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_BUFFER_SIZE);
+    socketBufferSize = iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_BUFFER_SIZE);
 
     socket = iSocket;
     socket.setTcpNoDelay(true);
@@ -99,7 +99,7 @@ public abstract class OChannel {
       socket.setReceiveBufferSize(socketBufferSize);
     }
     // THIS TIMEOUT IS CORRECT BUT CREATE SOME PROBLEM ON REMOTE, NEED CHECK BEFORE BE ENABLED
-    // timeout = iConfig.getValueAsLong(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT);
+    // timeout = iConfig.getValueAsLong(YTGlobalConfiguration.NETWORK_REQUEST_TIMEOUT);
   }
 
   public static String getLocalIpAddress(final boolean iFavoriteIp4) throws SocketException {

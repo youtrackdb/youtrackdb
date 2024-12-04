@@ -4,16 +4,16 @@ import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterable;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.functions.math.OSQLFunctionMathAbstract;
@@ -46,25 +46,25 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
 
   private class OShortestPathContext {
 
-    private OVertex sourceVertex;
-    private OVertex destinationVertex;
+    private YTVertex sourceVertex;
+    private YTVertex destinationVertex;
     private ODirection directionLeft = ODirection.BOTH;
     private ODirection directionRight = ODirection.BOTH;
 
     private String edgeType;
     private String[] edgeTypeParam;
 
-    private ArrayDeque<OVertex> queueLeft = new ArrayDeque<>();
-    private ArrayDeque<OVertex> queueRight = new ArrayDeque<>();
+    private ArrayDeque<YTVertex> queueLeft = new ArrayDeque<>();
+    private ArrayDeque<YTVertex> queueRight = new ArrayDeque<>();
 
-    private final Set<ORID> leftVisited = new HashSet<ORID>();
-    private final Set<ORID> rightVisited = new HashSet<ORID>();
+    private final Set<YTRID> leftVisited = new HashSet<YTRID>();
+    private final Set<YTRID> rightVisited = new HashSet<YTRID>();
 
-    private final Map<ORID, ORID> previouses = new HashMap<ORID, ORID>();
-    private final Map<ORID, ORID> nexts = new HashMap<ORID, ORID>();
+    private final Map<YTRID, YTRID> previouses = new HashMap<YTRID, YTRID>();
+    private final Map<YTRID, YTRID> nexts = new HashMap<YTRID, YTRID>();
 
-    private OVertex current;
-    private OVertex currentRight;
+    private YTVertex current;
+    private YTVertex currentRight;
     public Integer maxDepth;
 
     /**
@@ -73,14 +73,14 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
     public Boolean edge;
   }
 
-  public List<ORID> execute(
+  public List<YTRID> execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
       final OCommandContext iContext) {
 
-    final ORecord record = iCurrentRecord != null ? iCurrentRecord.getRecord() : null;
+    final YTRecord record = iCurrentRecord != null ? iCurrentRecord.getRecord() : null;
 
     final OShortestPathContext ctx = new OShortestPathContext();
 
@@ -90,8 +90,8 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
       throw new IllegalArgumentException("Only one sourceVertex is allowed");
     }
     source = OSQLHelper.getValue(source, record, iContext);
-    if (source instanceof OIdentifiable) {
-      OElement elem = ((OIdentifiable) source).getRecord();
+    if (source instanceof YTIdentifiable) {
+      YTEntity elem = ((YTIdentifiable) source).getRecord();
       if (elem == null || !elem.isVertex()) {
         throw new IllegalArgumentException("The sourceVertex must be a vertex record");
       }
@@ -106,8 +106,8 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
       throw new IllegalArgumentException("Only one destinationVertex is allowed");
     }
     dest = OSQLHelper.getValue(dest, record, iContext);
-    if (dest instanceof OIdentifiable) {
-      OElement elem = ((OIdentifiable) dest).getRecord();
+    if (dest instanceof YTIdentifiable) {
+      YTEntity elem = ((YTIdentifiable) dest).getRecord();
       if (elem == null || !elem.isVertex()) {
         throw new IllegalArgumentException("The destinationVertex must be a vertex record");
       }
@@ -117,7 +117,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
     }
 
     if (ctx.sourceVertex.equals(ctx.destinationVertex)) {
-      final List<ORID> result = new ArrayList<ORID>(1);
+      final List<YTRID> result = new ArrayList<YTRID>(1);
       result.add(ctx.destinationVertex.getIdentity());
       return result;
     }
@@ -174,7 +174,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
         break;
       }
 
-      List<ORID> neighborIdentity;
+      List<YTRID> neighborIdentity;
 
       if (ctx.queueLeft.size() <= ctx.queueRight.size()) {
         // START EVALUATING FROM LEFT
@@ -221,7 +221,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
 
       depth++;
     }
-    return new ArrayList<ORID>();
+    return new ArrayList<YTRID>();
   }
 
   private void bindAdditionalParams(Object additionalParams, OShortestPathContext ctx) {
@@ -231,8 +231,8 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
     Map<String, ?> mapParams = null;
     if (additionalParams instanceof Map) {
       mapParams = (Map) additionalParams;
-    } else if (additionalParams instanceof OIdentifiable) {
-      mapParams = ((ODocument) ((OIdentifiable) additionalParams).getRecord()).toMap();
+    } else if (additionalParams instanceof YTIdentifiable) {
+      mapParams = ((YTDocument) ((YTIdentifiable) additionalParams).getRecord()).toMap();
     }
     if (mapParams != null) {
       ctx.maxDepth = integer(mapParams.get("maxDepth"));
@@ -284,14 +284,14 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
    * @param types
    * @return
    */
-  private ORawPair<Iterable<OVertex>, Iterable<OEdge>> getVerticesAndEdges(
-      OVertex srcVertex, ODirection direction, String... types) {
+  private ORawPair<Iterable<YTVertex>, Iterable<YTEdge>> getVerticesAndEdges(
+      YTVertex srcVertex, ODirection direction, String... types) {
     if (direction == ODirection.BOTH) {
-      OMultiCollectionIterator<OVertex> vertexIterator = new OMultiCollectionIterator<>();
-      OMultiCollectionIterator<OEdge> edgeIterator = new OMultiCollectionIterator<>();
-      ORawPair<Iterable<OVertex>, Iterable<OEdge>> pair1 =
+      OMultiCollectionIterator<YTVertex> vertexIterator = new OMultiCollectionIterator<>();
+      OMultiCollectionIterator<YTEdge> edgeIterator = new OMultiCollectionIterator<>();
+      ORawPair<Iterable<YTVertex>, Iterable<YTEdge>> pair1 =
           getVerticesAndEdges(srcVertex, ODirection.OUT, types);
-      ORawPair<Iterable<OVertex>, Iterable<OEdge>> pair2 =
+      ORawPair<Iterable<YTVertex>, Iterable<YTEdge>> pair2 =
           getVerticesAndEdges(srcVertex, ODirection.IN, types);
       vertexIterator.add(pair1.first);
       vertexIterator.add(pair2.first);
@@ -299,8 +299,8 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
       edgeIterator.add(pair2.second);
       return new ORawPair<>(vertexIterator, edgeIterator);
     } else {
-      Iterable<OEdge> edges1 = srcVertex.getEdges(direction, types);
-      Iterable<OEdge> edges2 = srcVertex.getEdges(direction, types);
+      Iterable<YTEdge> edges1 = srcVertex.getEdges(direction, types);
+      Iterable<YTEdge> edges2 = srcVertex.getEdges(direction, types);
       return new ORawPair<>(new OEdgeToVertexIterable(edges1, direction), edges2);
     }
   }
@@ -312,31 +312,31 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
    * @param direction
    * @return
    */
-  private ORawPair<Iterable<OVertex>, Iterable<OEdge>> getVerticesAndEdges(
-      OVertex srcVertex, ODirection direction) {
+  private ORawPair<Iterable<YTVertex>, Iterable<YTEdge>> getVerticesAndEdges(
+      YTVertex srcVertex, ODirection direction) {
     return getVerticesAndEdges(srcVertex, direction, (String[]) null);
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "shortestPath(<sourceVertex>, <destinationVertex>, [<direction>, [ <edgeTypeAsString>"
         + " ]])";
   }
 
-  protected List<ORID> walkLeft(final OSQLFunctionShortestPath.OShortestPathContext ctx) {
-    ArrayDeque<OVertex> nextLevelQueue = new ArrayDeque<>();
+  protected List<YTRID> walkLeft(final OSQLFunctionShortestPath.OShortestPathContext ctx) {
+    ArrayDeque<YTVertex> nextLevelQueue = new ArrayDeque<>();
     if (!Boolean.TRUE.equals(ctx.edge)) {
       while (!ctx.queueLeft.isEmpty()) {
         ctx.current = ctx.queueLeft.poll();
 
-        Iterable<OVertex> neighbors;
+        Iterable<YTVertex> neighbors;
         if (ctx.edgeType == null) {
           neighbors = ctx.current.getVertices(ctx.directionLeft);
         } else {
           neighbors = ctx.current.getVertices(ctx.directionLeft, ctx.edgeTypeParam);
         }
-        for (OVertex neighbor : neighbors) {
-          final OVertex v = neighbor;
-          final ORID neighborIdentity = v.getIdentity();
+        for (YTVertex neighbor : neighbors) {
+          final YTVertex v = neighbor;
+          final YTRID neighborIdentity = v.getIdentity();
 
           if (ctx.rightVisited.contains(neighborIdentity)) {
             ctx.previouses.put(neighborIdentity, ctx.current.getIdentity());
@@ -354,18 +354,18 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
       while (!ctx.queueLeft.isEmpty()) {
         ctx.current = ctx.queueLeft.poll();
 
-        ORawPair<Iterable<OVertex>, Iterable<OEdge>> neighbors;
+        ORawPair<Iterable<YTVertex>, Iterable<YTEdge>> neighbors;
         if (ctx.edgeType == null) {
           neighbors = getVerticesAndEdges(ctx.current, ctx.directionLeft);
         } else {
           neighbors = getVerticesAndEdges(ctx.current, ctx.directionLeft, ctx.edgeTypeParam);
         }
-        Iterator<OVertex> vertexIterator = neighbors.first.iterator();
-        Iterator<OEdge> edgeIterator = neighbors.second.iterator();
+        Iterator<YTVertex> vertexIterator = neighbors.first.iterator();
+        Iterator<YTEdge> edgeIterator = neighbors.second.iterator();
         while (vertexIterator.hasNext() && edgeIterator.hasNext()) {
-          OVertex v = vertexIterator.next();
-          final ORID neighborVertexIdentity = v.getIdentity();
-          final ORID neighborEdgeIdentity = edgeIterator.next().getIdentity();
+          YTVertex v = vertexIterator.next();
+          final YTRID neighborVertexIdentity = v.getIdentity();
+          final YTRID neighborEdgeIdentity = edgeIterator.next().getIdentity();
 
           if (ctx.rightVisited.contains(neighborVertexIdentity)) {
             ctx.previouses.put(neighborVertexIdentity, neighborEdgeIdentity);
@@ -386,21 +386,21 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
     return null;
   }
 
-  protected List<ORID> walkRight(final OSQLFunctionShortestPath.OShortestPathContext ctx) {
-    final ArrayDeque<OVertex> nextLevelQueue = new ArrayDeque<>();
+  protected List<YTRID> walkRight(final OSQLFunctionShortestPath.OShortestPathContext ctx) {
+    final ArrayDeque<YTVertex> nextLevelQueue = new ArrayDeque<>();
     if (!Boolean.TRUE.equals(ctx.edge)) {
       while (!ctx.queueRight.isEmpty()) {
         ctx.currentRight = ctx.queueRight.poll();
 
-        Iterable<OVertex> neighbors;
+        Iterable<YTVertex> neighbors;
         if (ctx.edgeType == null) {
           neighbors = ctx.currentRight.getVertices(ctx.directionRight);
         } else {
           neighbors = ctx.currentRight.getVertices(ctx.directionRight, ctx.edgeTypeParam);
         }
-        for (OVertex neighbor : neighbors) {
-          final OVertex v = neighbor;
-          final ORID neighborIdentity = v.getIdentity();
+        for (YTVertex neighbor : neighbors) {
+          final YTVertex v = neighbor;
+          final YTRID neighborIdentity = v.getIdentity();
 
           if (ctx.leftVisited.contains(neighborIdentity)) {
             ctx.nexts.put(neighborIdentity, ctx.currentRight.getIdentity());
@@ -419,19 +419,19 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
       while (!ctx.queueRight.isEmpty()) {
         ctx.currentRight = ctx.queueRight.poll();
 
-        ORawPair<Iterable<OVertex>, Iterable<OEdge>> neighbors;
+        ORawPair<Iterable<YTVertex>, Iterable<YTEdge>> neighbors;
         if (ctx.edgeType == null) {
           neighbors = getVerticesAndEdges(ctx.currentRight, ctx.directionRight);
         } else {
           neighbors = getVerticesAndEdges(ctx.currentRight, ctx.directionRight, ctx.edgeTypeParam);
         }
 
-        Iterator<OVertex> vertexIterator = neighbors.first.iterator();
-        Iterator<OEdge> edgeIterator = neighbors.second.iterator();
+        Iterator<YTVertex> vertexIterator = neighbors.first.iterator();
+        Iterator<YTEdge> edgeIterator = neighbors.second.iterator();
         while (vertexIterator.hasNext() && edgeIterator.hasNext()) {
-          final OVertex v = vertexIterator.next();
-          final ORID neighborVertexIdentity = v.getIdentity();
-          final ORID neighborEdgeIdentity = edgeIterator.next().getIdentity();
+          final YTVertex v = vertexIterator.next();
+          final YTRID neighborVertexIdentity = v.getIdentity();
+          final YTRID neighborEdgeIdentity = edgeIterator.next().getIdentity();
 
           if (ctx.leftVisited.contains(neighborVertexIdentity)) {
             ctx.nexts.put(neighborVertexIdentity, neighborEdgeIdentity);
@@ -452,13 +452,13 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
     return null;
   }
 
-  private List<ORID> computePath(
-      final Map<ORID, ORID> leftDistances,
-      final Map<ORID, ORID> rightDistances,
-      final ORID neighbor) {
-    final List<ORID> result = new ArrayList<ORID>();
+  private List<YTRID> computePath(
+      final Map<YTRID, YTRID> leftDistances,
+      final Map<YTRID, YTRID> rightDistances,
+      final YTRID neighbor) {
+    final List<YTRID> result = new ArrayList<YTRID>();
 
-    ORID current = neighbor;
+    YTRID current = neighbor;
     while (current != null) {
       result.add(0, current);
       current = leftDistances.get(current);

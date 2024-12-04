@@ -3,15 +3,15 @@ package com.orientechnologies.orient.core.serialization.serializer.record.binary
 import static com.orientechnologies.orient.core.serialization.serializer.record.binary.HelperClasses.readByte;
 import static com.orientechnologies.orient.core.serialization.serializer.record.binary.HelperClasses.readString;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 
 public class ORecordSerializerBinaryDebug extends ORecordSerializerBinaryV0 {
 
   public ORecordSerializationDebug deserializeDebug(
-      final byte[] iSource, ODatabaseSessionInternal db) {
+      final byte[] iSource, YTDatabaseSessionInternal db) {
     ORecordSerializationDebug debugInfo = new ORecordSerializationDebug();
-    OImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    YTImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
     BytesContainer bytes = new BytesContainer(iSource);
     int version = readByte(bytes);
 

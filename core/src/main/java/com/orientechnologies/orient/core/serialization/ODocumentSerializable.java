@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.serialization;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Interface for objects which are hold inside of document as field values and can serialize
@@ -43,7 +43,7 @@ public interface ODocumentSerializable {
 
   String CLASS_NAME = "__orientdb_serilized_class__ ";
 
-  ODocument toDocument();
+  YTDocument toDocument();
 
-  void fromDocument(ODocument document);
+  void fromDocument(YTDocument document);
 }

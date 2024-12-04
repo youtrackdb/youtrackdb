@@ -17,8 +17,8 @@
 package com.orientechnologies.orient.core.sql.method.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 
 /**
  * Returns the value's YouTrackDB Type.
@@ -34,14 +34,14 @@ public class OSQLMethodType extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
     if (ioResult == null) {
       return null;
     }
-    final OType t = OType.getTypeByValue(ioResult);
+    final YTType t = YTType.getTypeByValue(ioResult);
 
     if (t != null) {
       return t.toString();

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class CheckClusterTypeStepTest extends TestUtilsFixture {
 
   @Test
   public void shouldCheckClusterType() {
-    OClass clazz = createClassInstance().addCluster(db, CLASS_CLUSTER_NAME);
+    YTClass clazz = createClassInstance().addCluster(db, CLASS_CLUSTER_NAME);
     OBasicCommandContext context = new OBasicCommandContext();
     context.setDatabase(db);
     CheckClusterTypeStep step =

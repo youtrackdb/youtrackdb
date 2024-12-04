@@ -5,15 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.client.remote.message.MockChannel;
 import com.orientechnologies.orient.client.remote.message.OMessageHelper;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import java.io.ByteArrayInputStream;
@@ -38,26 +38,26 @@ public class OMessageHelperTest {
     youTrackDB.execute(
         "create database testOIdentifiable memory users (admin identified by 'admin' role admin)");
 
-    ODatabaseSessionInternal db =
-        (ODatabaseSessionInternal) youTrackDB.open("testOIdentifiable", "admin", "admin");
+    YTDatabaseSessionInternal db =
+        (YTDatabaseSessionInternal) youTrackDB.open("testOIdentifiable", "admin", "admin");
     int id = db.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
-      ODocument doc = new ODocument();
+      YTDocument doc = new YTDocument();
       ORidBag bags = new ORidBag(db);
-      bags.add(new ORecordId(id, 0));
+      bags.add(new YTRecordId(id, 0));
       doc.field("bag", bags);
 
       ODocumentInternal.fillClassNameIfNeeded(doc, "Test");
-      ORecordInternal.setIdentity(doc, new ORecordId(id, 1));
+      ORecordInternal.setIdentity(doc, new YTRecordId(id, 1));
       ORecordInternal.setVersion(doc, 1);
 
       OMessageHelper.writeIdentifiable(null,
           channel, doc, ORecordSerializerNetworkFactory.INSTANCE.current());
       channel.close();
 
-      ODocument newDoc =
-          (ODocument)
+      YTDocument newDoc =
+          (YTDocument)
               OMessageHelper.readIdentifiable(db,
                   channel, ORecordSerializerNetworkFactory.INSTANCE.current());
 
@@ -79,7 +79,7 @@ public class OMessageHelperTest {
 
     request.setType(ORecordOperation.UPDATED);
     request.setRecordType(ORecordOperation.UPDATED);
-    request.setId(new ORecordId(25, 50));
+    request.setId(new YTRecordId(25, 50));
     request.setRecord(new byte[]{10, 20, 30});
     request.setVersion(100);
     request.setContentChanged(true);

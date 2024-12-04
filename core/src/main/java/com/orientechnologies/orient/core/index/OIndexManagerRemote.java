@@ -23,17 +23,17 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OMultiKey;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -70,7 +70,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     this.storage = storage;
   }
 
-  public void load(ODatabaseSessionInternal database) {
+  public void load(YTDatabaseSessionInternal database) {
     if (!autoRecreateIndexesAfterCrash(database)) {
       acquireExclusiveLock();
       try {
@@ -81,12 +81,12 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
         }
 
         // RELOAD IT
-        ORecordId id =
-            new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
+        YTRecordId id =
+            new YTRecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
 
         database.executeInTx(
             () -> {
-              ODocument document = database.load(id);
+              YTDocument document = database.load(id);
               fromStream(document);
             });
       } finally {
@@ -95,16 +95,16 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public void reload(ODatabaseSessionInternal session) {
+  public void reload(YTDatabaseSessionInternal session) {
     acquireExclusiveLock();
     try {
-      ODatabaseSessionInternal database = getDatabase();
-      ORecordId id =
-          new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
+      YTDatabaseSessionInternal database = getDatabase();
+      YTRecordId id =
+          new YTRecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
 
       database.executeInTx(
           () -> {
-            ODocument document = database.load(id);
+            YTDocument document = database.load(id);
             fromStream(document);
           });
     } finally {
@@ -112,25 +112,25 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public void save(ODatabaseSessionInternal session) {
+  public void save(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
-  public void addClusterToIndex(ODatabaseSessionInternal session, final String clusterName,
+  public void addClusterToIndex(YTDatabaseSessionInternal session, final String clusterName,
       final String indexName) {
     throw new UnsupportedOperationException();
   }
 
-  public void removeClusterFromIndex(ODatabaseSessionInternal session, final String clusterName,
+  public void removeClusterFromIndex(YTDatabaseSessionInternal session, final String clusterName,
       final String indexName) {
     throw new UnsupportedOperationException();
   }
 
-  public void create(ODatabaseSessionInternal database) {
+  public void create(YTDatabaseSessionInternal database) {
     throw new UnsupportedOperationException();
   }
 
-  public Collection<? extends OIndex> getIndexes(ODatabaseSessionInternal database) {
+  public Collection<? extends OIndex> getIndexes(YTDatabaseSessionInternal database) {
     final Collection<OIndex> rawResult = indexes.values();
     final List<OIndex> result = new ArrayList<>(rawResult.size());
     for (final OIndex index : rawResult) {
@@ -144,7 +144,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return index;
   }
 
-  public OIndex getIndex(ODatabaseSessionInternal database, final String iName) {
+  public OIndex getIndex(YTDatabaseSessionInternal database, final String iName) {
     final OIndex index = indexes.get(iName);
     return index;
   }
@@ -163,7 +163,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public void setDefaultClusterName(
-      ODatabaseSessionInternal database, final String defaultClusterName) {
+      YTDatabaseSessionInternal database, final String defaultClusterName) {
     acquireExclusiveLock();
     try {
       this.defaultClusterName = defaultClusterName;
@@ -172,7 +172,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public ODictionary<ORecord> getDictionary(ODatabaseSessionInternal database) {
+  public ODictionary<YTRecord> getDictionary(YTDatabaseSessionInternal database) {
     OIndex idx;
     acquireSharedLock();
     try {
@@ -184,7 +184,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return new ODictionary<>(idx);
   }
 
-  public ODocument getConfiguration(ODatabaseSessionInternal session) {
+  public YTDocument getConfiguration(YTDatabaseSessionInternal session) {
     acquireSharedLock();
 
     try {
@@ -201,7 +201,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public Set<OIndex> getClassInvolvedIndexes(
-      ODatabaseSessionInternal database, final String className, Collection<String> fields) {
+      YTDatabaseSessionInternal database, final String className, Collection<String> fields) {
     final OMultiKey multiKey = new OMultiKey(fields);
 
     final Map<OMultiKey, Set<OIndex>> propertyIndex = getIndexOnProperty(className);
@@ -224,7 +224,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public Set<OIndex> getClassInvolvedIndexes(
-      ODatabaseSessionInternal database, final String className, final String... fields) {
+      YTDatabaseSessionInternal database, final String className, final String... fields) {
     return getClassInvolvedIndexes(database, className, Arrays.asList(fields));
   }
 
@@ -244,14 +244,15 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return areIndexed(className, Arrays.asList(fields));
   }
 
-  public Set<OIndex> getClassIndexes(ODatabaseSessionInternal database, final String className) {
+  public Set<OIndex> getClassIndexes(YTDatabaseSessionInternal database, final String className) {
     final HashSet<OIndex> coll = new HashSet<OIndex>(4);
     getClassIndexes(database, className, coll);
     return coll;
   }
 
   public void getClassIndexes(
-      ODatabaseSessionInternal database, final String className, final Collection<OIndex> indexes) {
+      YTDatabaseSessionInternal database, final String className,
+      final Collection<OIndex> indexes) {
     getClassRawIndexes(className, indexes);
   }
 
@@ -284,7 +285,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public OIndex getClassIndex(
-      ODatabaseSessionInternal database, String className, String indexName) {
+      YTDatabaseSessionInternal database, String className, String indexName) {
     className = className.toLowerCase();
 
     final OIndex index = indexes.get(indexName);
@@ -297,7 +298,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return null;
   }
 
-  public OIndex getClassAutoShardingIndex(ODatabaseSessionInternal database, String className) {
+  public OIndex getClassAutoShardingIndex(YTDatabaseSessionInternal database, String className) {
     className = className.toLowerCase();
 
     // LOOK FOR INDEX
@@ -322,7 +323,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   void internalAcquireExclusiveLock() {
-    final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
+    final YTDatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
       final OMetadataInternal metadata = databaseRecord.getMetadata();
       if (metadata != null) {
@@ -335,7 +336,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   void internalReleaseExclusiveLock() {
     lock.writeLock().unlock();
 
-    final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
+    final YTDatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
       final OMetadata metadata = databaseRecord.getMetadata();
       if (metadata != null) {
@@ -354,11 +355,11 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  protected static ODatabaseSessionInternal getDatabase() {
+  protected static YTDatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  private static ODatabaseSessionInternal getDatabaseIfDefined() {
+  private static YTDatabaseSessionInternal getDatabaseIfDefined() {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
   }
 
@@ -432,13 +433,13 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public OIndex createIndex(
-      ODatabaseSessionInternal database,
+      YTDatabaseSessionInternal database,
       final String iName,
       final String iType,
       final OIndexDefinition iIndexDefinition,
       final int[] iClusterIdsToIndex,
       final OProgressListener progressListener,
-      ODocument metadata,
+      YTDocument metadata,
       String engine) {
 
     String createIndexDDL;
@@ -477,13 +478,13 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
   @Override
   public OIndex createIndex(
-      ODatabaseSessionInternal database,
+      YTDatabaseSessionInternal database,
       String iName,
       String iType,
       OIndexDefinition indexDefinition,
       int[] clusterIdsToIndex,
       OProgressListener progressListener,
-      ODocument metadata) {
+      YTDocument metadata) {
     return createIndex(
         database,
         iName,
@@ -495,7 +496,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
         null);
   }
 
-  public void dropIndex(ODatabaseSessionInternal database, final String iIndexName) {
+  public void dropIndex(YTDatabaseSessionInternal database, final String iIndexName) {
     acquireExclusiveLock();
     try {
       final String text = String.format(QUERY_DROP, iIndexName);
@@ -510,7 +511,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public ODocument toStream(ODatabaseSessionInternal session) {
+  public YTDocument toStream(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Remote index cannot be streamed");
   }
 
@@ -519,15 +520,15 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   @Override
-  public void recreateIndexes(ODatabaseSessionInternal database) {
-    throw new UnsupportedOperationException("recreateIndexes(ODatabaseSessionInternal)");
+  public void recreateIndexes(YTDatabaseSessionInternal database) {
+    throw new UnsupportedOperationException("recreateIndexes(YTDatabaseSessionInternal)");
   }
 
   public void waitTillIndexRestore() {
   }
 
   @Override
-  public boolean autoRecreateIndexesAfterCrash(ODatabaseSessionInternal database) {
+  public boolean autoRecreateIndexesAfterCrash(YTDatabaseSessionInternal database) {
     return false;
   }
 
@@ -535,7 +536,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return false;
   }
 
-  public void removeClassPropertyIndex(ODatabaseSessionInternal session, OIndex idx) {
+  public void removeClassPropertyIndex(YTDatabaseSessionInternal session, OIndex idx) {
   }
 
   protected OIndex getRemoteIndexInstance(
@@ -545,8 +546,8 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       String algorithm,
       Set<String> clustersToIndex,
       OIndexDefinition indexDefinition,
-      ORID identity,
-      ODocument configuration) {
+      YTRID identity,
+      YTDocument configuration) {
     if (isMultiValueIndex) {
       return new OIndexRemoteMultiValue(
           name,
@@ -570,14 +571,14 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
         storage.getName());
   }
 
-  protected void fromStream(ODocument document) {
+  protected void fromStream(YTDocument document) {
     acquireExclusiveLock();
     try {
       clearMetadata();
 
-      final Collection<ODocument> idxs = document.field(CONFIG_INDEXES);
+      final Collection<YTDocument> idxs = document.field(CONFIG_INDEXES);
       if (idxs != null) {
-        for (ODocument d : idxs) {
+        for (YTDocument d : idxs) {
           d.setLazyLoad(false);
           try {
             final boolean isMultiValue =
@@ -621,7 +622,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
   protected void realReleaseExclusiveLock() {
     int val = writeLockNesting.decrementAndGet();
-    ODatabaseSessionInternal database = getDatabaseIfDefined();
+    YTDatabaseSessionInternal database = getDatabaseIfDefined();
     if (database != null) {
       database
           .getSharedContext()
@@ -636,7 +637,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public void update(ODocument indexManager) {
+  public void update(YTDocument indexManager) {
     if (!skipPush.get()) {
       realAcquireExclusiveLock();
       try {
@@ -651,11 +652,11 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return storage;
   }
 
-  public ODocument getDocument(ODatabaseSessionInternal session) {
+  public YTDocument getDocument(YTDatabaseSessionInternal session) {
     return null;
   }
 
-  public OIndex preProcessBeforeReturn(ODatabaseSessionInternal database, OIndex index) {
+  public OIndex preProcessBeforeReturn(YTDatabaseSessionInternal database, OIndex index) {
     return index;
   }
 }

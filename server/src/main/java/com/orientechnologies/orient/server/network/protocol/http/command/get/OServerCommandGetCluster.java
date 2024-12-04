@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -45,7 +45,7 @@ public class OServerCommandGetCluster extends OServerCommandAuthenticatedDbAbstr
     iRequest.getData().commandInfo = "Browse cluster";
     iRequest.getData().commandDetail = urlParts[2];
 
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -53,8 +53,8 @@ public class OServerCommandGetCluster extends OServerCommandAuthenticatedDbAbstr
       if (db.getClusterIdByName(urlParts[2]) > -1) {
         final int limit = urlParts.length > 3 ? Integer.parseInt(urlParts[3]) : 20;
 
-        final List<OIdentifiable> response = new ArrayList<OIdentifiable>();
-        for (ORecord rec : db.browseCluster(urlParts[2])) {
+        final List<YTIdentifiable> response = new ArrayList<YTIdentifiable>();
+        for (YTRecord rec : db.browseCluster(urlParts[2])) {
           if (limit > 0 && response.size() >= limit) {
             break;
           }

@@ -5,12 +5,12 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
@@ -35,21 +35,21 @@ public class TestNetworkSerializerIndipendency {
 
   @Test(expected = OStorageException.class)
   public void createCsvDatabaseConnectBinary() throws IOException {
-    ORecordSerializer prev = ODatabaseSessionAbstract.getDefaultSerializer();
-    ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
+    ORecordSerializer prev = YTDatabaseSessionAbstract.getDefaultSerializer();
+    YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
     createDatabase();
 
-    ODatabaseSessionInternal dbTx = null;
+    YTDatabaseSessionInternal dbTx = null;
     try {
-      ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
-      dbTx = new ODatabaseDocumentTx("remote:localhost/test");
+      YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
+      dbTx = new YTDatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
-      ODocument document = new ODocument();
+      YTDocument document = new YTDocument();
       document.field("name", "something");
       document.field("surname", "something-else");
       document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
       dbTx.commit();
-      ODocument doc = dbTx.load(document.getIdentity());
+      YTDocument doc = dbTx.load(document.getIdentity());
       assertEquals(doc.fields(), document.fields());
       assertEquals(doc.<Object>field("name"), document.field("name"));
       assertEquals(doc.<Object>field("surname"), document.field("surname"));
@@ -60,7 +60,7 @@ public class TestNetworkSerializerIndipendency {
       }
 
       dropDatabase();
-      ODatabaseSessionAbstract.setDefaultSerializer(prev);
+      YTDatabaseSessionAbstract.setDefaultSerializer(prev);
     }
   }
 
@@ -78,17 +78,17 @@ public class TestNetworkSerializerIndipendency {
 
   @Test
   public void createBinaryDatabaseConnectCsv() throws IOException {
-    ORecordSerializer prev = ODatabaseSessionAbstract.getDefaultSerializer();
-    ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
+    ORecordSerializer prev = YTDatabaseSessionAbstract.getDefaultSerializer();
+    YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
     createDatabase();
 
-    ODatabaseSessionInternal dbTx = null;
+    YTDatabaseSessionInternal dbTx = null;
     try {
-      ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
-      dbTx = new ODatabaseDocumentTx("remote:localhost/test");
+      YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
+      dbTx = new YTDatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
       dbTx.begin();
-      ODocument document = new ODocument();
+      YTDocument document = new YTDocument();
       document.field("name", "something");
       document.field("surname", "something-else");
       document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
@@ -97,7 +97,7 @@ public class TestNetworkSerializerIndipendency {
       var surname = document.field("surname");
       dbTx.commit();
 
-      ODocument doc = dbTx.load(document.getIdentity());
+      YTDocument doc = dbTx.load(document.getIdentity());
       assertEquals(doc.fields(), fields);
       assertEquals(doc.field("name"), name);
       assertEquals(doc.field("surname"), surname);
@@ -107,7 +107,7 @@ public class TestNetworkSerializerIndipendency {
       }
 
       dropDatabase();
-      ODatabaseSessionAbstract.setDefaultSerializer(prev);
+      YTDatabaseSessionAbstract.setDefaultSerializer(prev);
     }
   }
 
@@ -118,7 +118,7 @@ public class TestNetworkSerializerIndipendency {
     YouTrackDBManager.instance().shutdown();
     File directory = new File(server.getDatabaseDirectory());
     OFileUtils.deleteRecursively(directory);
-    ODatabaseSessionAbstract.setDefaultSerializer(
+    YTDatabaseSessionAbstract.setDefaultSerializer(
         ORecordSerializerFactory.instance().getFormat(ORecordSerializerBinary.NAME));
     YouTrackDBManager.instance().startup();
   }

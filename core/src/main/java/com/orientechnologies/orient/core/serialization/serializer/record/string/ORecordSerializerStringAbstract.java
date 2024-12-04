@@ -23,14 +23,14 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -56,13 +56,13 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
   private static final int MAX_INTEGER_DIGITS = MAX_INTEGER_AS_STRING.length();
 
   public static Object fieldTypeFromStream(
-      ODatabaseSessionInternal db, final ODocument iDocument, OType iType, final Object iValue) {
+      YTDatabaseSessionInternal db, final YTDocument iDocument, YTType iType, final Object iValue) {
     if (iValue == null) {
       return null;
     }
 
     if (iType == null) {
-      iType = OType.EMBEDDED;
+      iType = YTType.EMBEDDED;
     }
 
     switch (iType) {
@@ -85,8 +85,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         // EMBEDED RECORD
         final Object embeddedObject =
             OStringSerializerEmbedded.INSTANCE.fromStream(db, (String) iValue);
-        if (embeddedObject instanceof ODocument) {
-          ODocumentInternal.addOwner((ODocument) embeddedObject, iDocument);
+        if (embeddedObject instanceof YTDocument) {
+          ODocumentInternal.addOwner((YTDocument) embeddedObject, iDocument);
         }
 
         // EMBEDDED OBJECT
@@ -97,8 +97,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         // RECORD
         final Object result = OStringSerializerAnyStreamable.INSTANCE.fromStream(db,
             (String) iValue);
-        if (result instanceof ODocument) {
-          ODocumentInternal.addOwner((ODocument) result, iDocument);
+        if (result instanceof YTDocument) {
+          ODocumentInternal.addOwner((YTDocument) result, iDocument);
         }
         return result;
 
@@ -120,14 +120,14 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         "Type " + iType + " not supported to convert value: " + iValue);
   }
 
-  public static Object convertValue(ODatabaseSessionInternal db,
-      final String iValue, final OType iExpectedType) {
+  public static Object convertValue(YTDatabaseSessionInternal db,
+      final String iValue, final YTType iExpectedType) {
     final Object v = getTypeValue(db, iValue);
-    return OType.convert(db, v, iExpectedType.getDefaultJavaType());
+    return YTType.convert(db, v, iExpectedType.getDefaultJavaType());
   }
 
   public static void fieldTypeToString(
-      final StringBuilder iBuffer, OType iType, final Object iValue) {
+      final StringBuilder iBuffer, YTType iType, final Object iValue) {
     if (iValue == null) {
       return;
     }
@@ -135,10 +135,10 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
     final long timer = PROFILER.startChrono();
 
     if (iType == null) {
-      if (iValue instanceof ORID) {
-        iType = OType.LINK;
+      if (iValue instanceof YTRID) {
+        iType = YTType.LINK;
       } else {
-        iType = OType.EMBEDDED;
+        iType = YTType.EMBEDDED;
       }
     }
 
@@ -240,10 +240,10 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         break;
 
       case LINK:
-        if (iValue instanceof ORecordId) {
-          ((ORecordId) iValue).toString(iBuffer);
+        if (iValue instanceof YTRecordId) {
+          ((YTRecordId) iValue).toString(iBuffer);
         } else {
-          ((OIdentifiable) iValue).getIdentity().toString(iBuffer);
+          ((YTIdentifiable) iValue).getIdentity().toString(iBuffer);
         }
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.link2string"),
@@ -296,8 +296,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         break;
 
       case EMBEDDED:
-        if (iValue instanceof ODocument) {
-          ORecordSerializerSchemaAware2CSV.INSTANCE.toString((ODocument) iValue, iBuffer, null);
+        if (iValue instanceof YTDocument) {
+          ORecordSerializerSchemaAware2CSV.INSTANCE.toString((YTDocument) iValue, iBuffer, null);
         } else {
           OStringSerializerEmbedded.INSTANCE.toStream(iBuffer, iValue);
         }
@@ -329,36 +329,36 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
    * @param iValue Value to parse
    * @return The closest type recognized
    */
-  public static OType getType(final String iValue) {
+  public static YTType getType(final String iValue) {
     if (iValue.length() == 0) {
       return null;
     }
 
     final char firstChar = iValue.charAt(0);
 
-    if (firstChar == ORID.PREFIX)
+    if (firstChar == YTRID.PREFIX)
     // RID
     {
-      return OType.LINK;
+      return YTType.LINK;
     } else if (firstChar == '\'' || firstChar == '"') {
-      return OType.STRING;
+      return YTType.STRING;
     } else if (firstChar == OStringSerializerHelper.BINARY_BEGINEND) {
-      return OType.BINARY;
+      return YTType.BINARY;
     } else if (firstChar == OStringSerializerHelper.EMBEDDED_BEGIN) {
-      return OType.EMBEDDED;
+      return YTType.EMBEDDED;
     } else if (firstChar == OStringSerializerHelper.LIST_BEGIN) {
-      return OType.EMBEDDEDLIST;
+      return YTType.EMBEDDEDLIST;
     } else if (firstChar == OStringSerializerHelper.SET_BEGIN) {
-      return OType.EMBEDDEDSET;
+      return YTType.EMBEDDEDSET;
     } else if (firstChar == OStringSerializerHelper.MAP_BEGIN) {
-      return OType.EMBEDDEDMAP;
+      return YTType.EMBEDDEDMAP;
     } else if (firstChar == OStringSerializerHelper.CUSTOM_TYPE) {
-      return OType.CUSTOM;
+      return YTType.CUSTOM;
     }
 
     // BOOLEAN?
     if (iValue.equalsIgnoreCase("true") || iValue.equalsIgnoreCase("false")) {
-      return OType.BOOLEAN;
+      return YTType.BOOLEAN;
     }
 
     // NUMBER OR STRING?
@@ -383,32 +383,32 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
                 continue;
               }
             } else if (c == 'f') {
-              return index != (iValue.length() - 1) ? OType.STRING : OType.FLOAT;
+              return index != (iValue.length() - 1) ? YTType.STRING : YTType.FLOAT;
             } else if (c == 'c') {
-              return index != (iValue.length() - 1) ? OType.STRING : OType.DECIMAL;
+              return index != (iValue.length() - 1) ? YTType.STRING : YTType.DECIMAL;
             } else if (c == 'l') {
-              return index != (iValue.length() - 1) ? OType.STRING : OType.LONG;
+              return index != (iValue.length() - 1) ? YTType.STRING : YTType.LONG;
             } else if (c == 'd') {
-              return index != (iValue.length() - 1) ? OType.STRING : OType.DOUBLE;
+              return index != (iValue.length() - 1) ? YTType.STRING : YTType.DOUBLE;
             } else if (c == 'b') {
-              return index != (iValue.length() - 1) ? OType.STRING : OType.BYTE;
+              return index != (iValue.length() - 1) ? YTType.STRING : YTType.BYTE;
             } else if (c == 'a') {
-              return index != (iValue.length() - 1) ? OType.STRING : OType.DATE;
+              return index != (iValue.length() - 1) ? YTType.STRING : YTType.DATE;
             } else if (c == 't') {
-              return index != (iValue.length() - 1) ? OType.STRING : OType.DATETIME;
+              return index != (iValue.length() - 1) ? YTType.STRING : YTType.DATETIME;
             } else if (c == 's') {
-              return index != (iValue.length() - 1) ? OType.STRING : OType.SHORT;
+              return index != (iValue.length() - 1) ? YTType.STRING : YTType.SHORT;
             } else if (c == 'e') { // eg. 1e-06
               try {
                 Double.parseDouble(iValue);
-                return OType.DOUBLE;
+                return YTType.DOUBLE;
               } catch (Exception ignore) {
-                return OType.STRING;
+                return YTType.STRING;
               }
             }
           }
 
-          return OType.STRING;
+          return YTType.STRING;
         }
       }
     }
@@ -418,10 +418,10 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
       final int numberLength = iValue.length();
       if (numberLength > MAX_INTEGER_DIGITS
           || (numberLength == MAX_INTEGER_DIGITS && iValue.compareTo(MAX_INTEGER_AS_STRING) > 0)) {
-        return OType.LONG;
+        return YTType.LONG;
       }
 
-      return OType.INTEGER;
+      return YTType.INTEGER;
     }
 
     // CHECK IF THE DECIMAL NUMBER IS A FLOAT OR DOUBLE
@@ -430,12 +430,12 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         && dou >= Float.MIN_VALUE
         && Double.toString(dou).equals(Float.toString((float) dou))
         && (double) Double.valueOf(dou).floatValue() == dou) {
-      return OType.FLOAT;
+      return YTType.FLOAT;
     } else if (!Double.toString(dou).equals(iValue)) {
-      return OType.DECIMAL;
+      return YTType.DECIMAL;
     }
 
-    return OType.DOUBLE;
+    return YTType.DOUBLE;
   }
 
   /**
@@ -449,7 +449,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
    * @param iValue Value to parse
    * @return The closest type recognized
    */
-  public static Object getTypeValue(ODatabaseSessionInternal db, final String iValue) {
+  public static Object getTypeValue(YTDatabaseSessionInternal db, final String iValue) {
     if (iValue == null || iValue.equalsIgnoreCase("NULL")) {
       return null;
     }
@@ -499,10 +499,10 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
       }
     }
 
-    if (iValue.charAt(0) == ORID.PREFIX)
+    if (iValue.charAt(0) == YTRID.PREFIX)
     // RID
     {
-      return new ORecordId(iValue);
+      return new YTRecordId(iValue);
     }
 
     boolean integer = true;
@@ -573,8 +573,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
     }
   }
 
-  public static Object simpleValueFromStream(ODatabaseSessionInternal db, final Object iValue,
-      final OType iType) {
+  public static Object simpleValueFromStream(YTDatabaseSessionInternal db, final Object iValue,
+      final YTType iType) {
     switch (iType) {
       case STRING:
         if (iValue instanceof String) {
@@ -642,12 +642,12 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         return convertValue(db, (String) iValue, iType);
 
       case LINK:
-        if (iValue instanceof ORID) {
+        if (iValue instanceof YTRID) {
           return iValue.toString();
         } else if (iValue instanceof String) {
-          return new ORecordId((String) iValue);
+          return new YTRecordId((String) iValue);
         } else {
-          return ((ORecord) iValue).getIdentity().toString();
+          return ((YTRecord) iValue).getIdentity().toString();
         }
     }
 
@@ -655,7 +655,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
   }
 
   public static void simpleValueToStream(
-      final StringBuilder iBuffer, final OType iType, final Object iValue) {
+      final StringBuilder iBuffer, final YTType iType, final Object iValue) {
     if (iValue == null || iType == null) {
       return;
     }
@@ -753,26 +753,27 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
     }
   }
 
-  public abstract ORecordAbstract fromString(
-      ODatabaseSessionInternal db, String iContent, ORecordAbstract iRecord, String[] iFields);
+  public abstract YTRecordAbstract fromString(
+      YTDatabaseSessionInternal db, String iContent, YTRecordAbstract iRecord, String[] iFields);
 
   public StringBuilder toString(
-      final ORecord iRecord, final StringBuilder iOutput, final String iFormat) {
+      final YTRecord iRecord, final StringBuilder iOutput, final String iFormat) {
     return toString(iRecord, iOutput, iFormat, true);
   }
 
-  public ORecord fromString(ODatabaseSessionInternal db, final String iSource) {
+  public YTRecord fromString(YTDatabaseSessionInternal db, final String iSource) {
     return fromString(db, iSource, ODatabaseRecordThreadLocal.instance().get().newInstance(), null);
   }
 
   @Override
-  public String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference, byte[] iSource) {
+  public String[] getFieldNames(YTDatabaseSessionInternal db, YTDocument reference,
+      byte[] iSource) {
     return null;
   }
 
   @Override
-  public ORecordAbstract fromStream(
-      ODatabaseSessionInternal db, final byte[] iSource, final ORecordAbstract iRecord,
+  public YTRecordAbstract fromStream(
+      YTDatabaseSessionInternal db, final byte[] iSource, final YTRecordAbstract iRecord,
       final String[] iFields) {
     final long timer = PROFILER.startChrono();
 
@@ -787,7 +788,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
     }
   }
 
-  public byte[] toStream(ODatabaseSessionInternal session, final ORecordAbstract iRecord) {
+  public byte[] toStream(YTDatabaseSessionInternal session, final YTRecordAbstract iRecord) {
     final long timer = PROFILER.startChrono();
 
     try {
@@ -804,7 +805,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
   }
 
   protected abstract StringBuilder toString(
-      final ORecord iRecord,
+      final YTRecord iRecord,
       final StringBuilder iOutput,
       final String iFormat,
       boolean autoDetectCollectionType);

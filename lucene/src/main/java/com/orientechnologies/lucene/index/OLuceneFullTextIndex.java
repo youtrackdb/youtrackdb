@@ -17,7 +17,7 @@
 package com.orientechnologies.lucene.index;
 
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -31,7 +31,7 @@ public class OLuceneFullTextIndex extends OLuceneIndexNotUnique {
     super(im, storage);
   }
 
-  public Document buildDocument(ODatabaseSessionInternal session, final Object key) {
+  public Document buildDocument(YTDatabaseSessionInternal session, final Object key) {
 
     while (true) {
       try {

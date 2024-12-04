@@ -7,9 +7,9 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -27,10 +27,10 @@ public class MetadataPushTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
   private YouTrackDB youTrackDB;
-  private ODatabaseSession database;
+  private YTDatabaseSession database;
 
   private YouTrackDB secondYouTrackDB;
-  private ODatabaseSessionInternal secondDatabase;
+  private YTDatabaseSessionInternal secondDatabase;
 
   @Before
   public void before() throws Exception {
@@ -48,7 +48,7 @@ public class MetadataPushTest {
 
     secondYouTrackDB = new YouTrackDB("remote:localhost", YouTrackDBConfig.defaultConfig());
     secondDatabase =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
   }
 

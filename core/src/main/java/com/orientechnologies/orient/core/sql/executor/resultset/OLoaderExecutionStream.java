@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Iterator;
@@ -12,9 +12,9 @@ import java.util.Iterator;
 public final class OLoaderExecutionStream implements OExecutionStream {
 
   private OResult nextResult = null;
-  private final Iterator<? extends OIdentifiable> iterator;
+  private final Iterator<? extends YTIdentifiable> iterator;
 
-  public OLoaderExecutionStream(Iterator<? extends OIdentifiable> iterator) {
+  public OLoaderExecutionStream(Iterator<? extends YTIdentifiable> iterator) {
     this.iterator = iterator;
   }
 
@@ -48,18 +48,18 @@ public final class OLoaderExecutionStream implements OExecutionStream {
     }
     var db = ctx.getDatabase();
     while (iterator.hasNext()) {
-      OIdentifiable nextRid = iterator.next();
+      YTIdentifiable nextRid = iterator.next();
 
       if (nextRid != null) {
-        if (nextRid instanceof ORecord record) {
+        if (nextRid instanceof YTRecord record) {
           nextResult = new OResultInternal(db, record);
           return;
         } else {
           try {
-            ORecord nextDoc = db.load(nextRid.getIdentity());
+            YTRecord nextDoc = db.load(nextRid.getIdentity());
             OResultInternal res = new OResultInternal(db, nextDoc);
-            if (nextRid instanceof OContextualRecordId) {
-              res.addMetadata(((OContextualRecordId) nextRid).getContext());
+            if (nextRid instanceof YTContextualRecordId) {
+              res.addMetadata(((YTContextualRecordId) nextRid).getContext());
             }
             nextResult = res;
             return;

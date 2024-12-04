@@ -4,15 +4,15 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.index.engine.OSingleValueIndexEngine;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.OCellBTreeSingleValue;
@@ -124,7 +124,7 @@ public final class OCellBTreeSingleValueIndexEngine
 
     String name = data.getName();
     int keySize = data.getKeySize();
-    OType[] keyTypes = data.getKeyTypes();
+    YTType[] keyTypes = data.getKeyTypes();
     OBinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
     sbTree.load(name, keySize, keyTypes, keySerializer, encryption);
     try {
@@ -160,8 +160,8 @@ public final class OCellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public Stream<ORID> get(Object key) {
-    final ORID rid = sbTree.get(key);
+  public Stream<YTRID> get(Object key) {
+    final YTRID rid = sbTree.get(key);
     if (rid == null) {
       return Stream.empty();
     }
@@ -169,7 +169,7 @@ public final class OCellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> stream(IndexEngineValuesTransformer valuesTransformer) {
     final Object firstKey = sbTree.firstKey();
     if (firstKey == null) {
       return Stream.empty();
@@ -178,7 +178,8 @@ public final class OCellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> descStream(
+      IndexEngineValuesTransformer valuesTransformer) {
     final Object lastKey = sbTree.lastKey();
     if (lastKey == null) {
       return Stream.empty();
@@ -192,7 +193,7 @@ public final class OCellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, Object key, ORID value) {
+  public void put(OAtomicOperation atomicOperation, Object key, YTRID value) {
     try {
       sbTree.put(atomicOperation, key, value);
     } catch (IOException e) {
@@ -205,8 +206,8 @@ public final class OCellBTreeSingleValueIndexEngine
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator) {
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator) {
     try {
       return sbTree.validatedPut(atomicOperation, key, value, validator);
     } catch (IOException e) {
@@ -216,8 +217,8 @@ public final class OCellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -228,7 +229,7 @@ public final class OCellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -237,7 +238,7 @@ public final class OCellBTreeSingleValueIndexEngine
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,

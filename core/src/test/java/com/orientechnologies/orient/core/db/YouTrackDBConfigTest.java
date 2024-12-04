@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -33,49 +33,49 @@ public class YouTrackDBConfigTest {
   public void testBuildSettings() {
     YouTrackDBConfig settings =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.DB_POOL_MAX, 20)
+            .addConfig(YTGlobalConfiguration.DB_POOL_MAX, 20)
             .addAttribute(ATTRIBUTES.VALIDATION, true)
             .build();
 
-    assertEquals(settings.getConfigurations().getValue(OGlobalConfiguration.DB_POOL_MAX), 20);
+    assertEquals(settings.getConfigurations().getValue(YTGlobalConfiguration.DB_POOL_MAX), 20);
     assertEquals(settings.getAttributes().get(ATTRIBUTES.VALIDATION), true);
   }
 
   @Test
   public void testBuildSettingsFromMap() {
     Map<String, Object> configs = new HashMap<>();
-    configs.put(OGlobalConfiguration.DB_POOL_MAX.getKey(), 20);
+    configs.put(YTGlobalConfiguration.DB_POOL_MAX.getKey(), 20);
     YouTrackDBConfig settings = YouTrackDBConfig.builder().fromMap(configs).build();
-    assertEquals(settings.getConfigurations().getValue(OGlobalConfiguration.DB_POOL_MAX), 20);
+    assertEquals(settings.getConfigurations().getValue(YTGlobalConfiguration.DB_POOL_MAX), 20);
   }
 
   @Test
   public void testBuildSettingsFromGlobalMap() {
-    Map<OGlobalConfiguration, Object> configs = new HashMap<>();
-    configs.put(OGlobalConfiguration.DB_POOL_MAX, 20);
+    Map<YTGlobalConfiguration, Object> configs = new HashMap<>();
+    configs.put(YTGlobalConfiguration.DB_POOL_MAX, 20);
     YouTrackDBConfig settings = YouTrackDBConfig.builder().fromGlobalMap(configs).build();
-    assertEquals(settings.getConfigurations().getValue(OGlobalConfiguration.DB_POOL_MAX), 20);
+    assertEquals(settings.getConfigurations().getValue(YTGlobalConfiguration.DB_POOL_MAX), 20);
   }
 
   @Test
   public void testParentConfig() {
     YouTrackDBConfig parent =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.DB_POOL_MAX, 20)
+            .addConfig(YTGlobalConfiguration.DB_POOL_MAX, 20)
             .addAttribute(ATTRIBUTES.VALIDATION, true)
             .build();
 
     YouTrackDBConfig settings =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY, "ROUND_ROBIN_CONNECT")
+            .addConfig(YTGlobalConfiguration.CLIENT_CONNECTION_STRATEGY, "ROUND_ROBIN_CONNECT")
             .addAttribute(ATTRIBUTES.VALIDATION, false)
             .build();
 
     settings.setParent(parent);
 
-    assertEquals(settings.getConfigurations().getValue(OGlobalConfiguration.DB_POOL_MAX), 20);
+    assertEquals(settings.getConfigurations().getValue(YTGlobalConfiguration.DB_POOL_MAX), 20);
     assertEquals(
-        settings.getConfigurations().getValue(OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY),
+        settings.getConfigurations().getValue(YTGlobalConfiguration.CLIENT_CONNECTION_STRATEGY),
         "ROUND_ROBIN_CONNECT");
     assertEquals(settings.getAttributes().get(ATTRIBUTES.VALIDATION), false);
   }

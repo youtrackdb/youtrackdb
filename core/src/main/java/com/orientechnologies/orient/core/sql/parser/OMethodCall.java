@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -87,11 +87,11 @@ public class OMethodCall extends SimpleNode {
   }
 
   public Object execute(
-      Object targetObjects, Iterable<OIdentifiable> iPossibleResults, OCommandContext ctx) {
+      Object targetObjects, Iterable<YTIdentifiable> iPossibleResults, OCommandContext ctx) {
     return execute(targetObjects, ctx, methodName.getStringValue(), params, iPossibleResults);
   }
 
-  private void resolveMethod(ODatabaseSessionInternal session) {
+  private void resolveMethod(YTDatabaseSessionInternal session) {
     if (!resolved) {
       String name = methodName.getStringValue();
       for (String graphMethod : graphMethods) {
@@ -111,7 +111,7 @@ public class OMethodCall extends SimpleNode {
     }
   }
 
-  private boolean resolveIsGraphFunction(ODatabaseSessionInternal session) {
+  private boolean resolveIsGraphFunction(YTDatabaseSessionInternal session) {
     resolveMethod(session);
     return isGraph;
   }
@@ -121,7 +121,7 @@ public class OMethodCall extends SimpleNode {
       OCommandContext ctx,
       String name,
       List<OExpression> iParams,
-      Iterable<OIdentifiable> iPossibleResults) {
+      Iterable<YTIdentifiable> iPossibleResults) {
     Object val = ctx.getVariable("$current");
     if (val == null && targetObjects == null) {
       return null;
@@ -148,14 +148,14 @@ public class OMethodCall extends SimpleNode {
       val = ((OResult) val).getElement().orElse(null);
     }
     return method.execute(
-        targetObjects, (OIdentifiable) val, ctx, targetObjects, paramValues.toArray());
+        targetObjects, (YTIdentifiable) val, ctx, targetObjects, paramValues.toArray());
   }
 
   private static Object invokeGraphFunction(
       OSQLFunction graphFunction,
       Object targetObjects,
       OCommandContext ctx,
-      Iterable<OIdentifiable> iPossibleResults,
+      Iterable<YTIdentifiable> iPossibleResults,
       List<Object> paramValues) {
     if (graphFunction instanceof OSQLFunctionFiltered) {
       Object current = ctx.getVariable("$current");
@@ -165,16 +165,16 @@ public class OMethodCall extends SimpleNode {
       return ((OSQLFunctionFiltered) graphFunction)
           .execute(
               targetObjects,
-              (OIdentifiable) current,
+              (YTIdentifiable) current,
               null,
               paramValues.toArray(),
               iPossibleResults,
               ctx);
     } else {
       Object current = ctx.getVariable("$current");
-      if (current instanceof OIdentifiable) {
+      if (current instanceof YTIdentifiable) {
         return graphFunction.execute(
-            targetObjects, (OIdentifiable) current, null, paramValues.toArray(), ctx);
+            targetObjects, (YTIdentifiable) current, null, paramValues.toArray(), ctx);
       } else if (current instanceof OResult) {
         return graphFunction.execute(
             targetObjects,
@@ -193,7 +193,7 @@ public class OMethodCall extends SimpleNode {
       OCommandContext ctx,
       String name,
       List<OExpression> iParams,
-      Iterable<OIdentifiable> iPossibleResults) {
+      Iterable<YTIdentifiable> iPossibleResults) {
     Object val = ctx.getVariable("$current");
     if (val == null && targetObjects == null) {
       return null;
@@ -207,12 +207,12 @@ public class OMethodCall extends SimpleNode {
       Object targetObjects, OCommandContext ctx, List<OExpression> iParams, Object val) {
     List<Object> paramValues = new ArrayList<Object>();
     for (OExpression expr : iParams) {
-      if (val instanceof OIdentifiable) {
-        paramValues.add(expr.execute((OIdentifiable) val, ctx));
+      if (val instanceof YTIdentifiable) {
+        paramValues.add(expr.execute((YTIdentifiable) val, ctx));
       } else if (val instanceof OResult) {
         paramValues.add(expr.execute((OResult) val, ctx));
-      } else if (targetObjects instanceof OIdentifiable) {
-        paramValues.add(expr.execute((OIdentifiable) targetObjects, ctx));
+      } else if (targetObjects instanceof YTIdentifiable) {
+        paramValues.add(expr.execute((YTIdentifiable) targetObjects, ctx));
       } else if (targetObjects instanceof OResult) {
         paramValues.add(expr.execute((OResult) targetObjects, ctx));
       } else {
@@ -266,7 +266,7 @@ public class OMethodCall extends SimpleNode {
     throw new UnsupportedOperationException("Invalid reverse traversal: " + methodName);
   }
 
-  public static ODatabaseSessionInternal getDatabase() {
+  public static YTDatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -329,7 +329,7 @@ public class OMethodCall extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (methodName != null) {
       result.setProperty("methodName", methodName.serialize(db));
@@ -357,7 +357,7 @@ public class OMethodCall extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     return resolveIsGraphFunction(session); // TODO
   }
 

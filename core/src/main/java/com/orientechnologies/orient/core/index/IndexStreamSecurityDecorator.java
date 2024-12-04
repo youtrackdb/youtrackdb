@@ -2,17 +2,17 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import java.util.stream.Stream;
 
 public class IndexStreamSecurityDecorator {
 
-  public static Stream<ORawPair<Object, ORID>> decorateStream(
-      OIndex originalIndex, Stream<ORawPair<Object, ORID>> stream) {
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public static Stream<ORawPair<Object, YTRID>> decorateStream(
+      OIndex originalIndex, Stream<ORawPair<Object, YTRID>> stream) {
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return stream;
     }
@@ -31,8 +31,8 @@ public class IndexStreamSecurityDecorator {
         (pair) -> OIndexInternal.securityFilterOnRead(originalIndex, pair.second) != null);
   }
 
-  public static Stream<ORID> decorateRidStream(OIndex originalIndex, Stream<ORID> stream) {
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public static Stream<YTRID> decorateRidStream(OIndex originalIndex, Stream<YTRID> stream) {
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return stream;
     }

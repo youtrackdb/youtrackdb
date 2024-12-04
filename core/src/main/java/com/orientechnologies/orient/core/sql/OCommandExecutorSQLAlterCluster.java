@@ -23,8 +23,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.storage.OCluster;
@@ -149,7 +149,7 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
   /**
    * Execute the ALTER CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (attribute == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -163,7 +163,7 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
 
     Object result = null;
 
-    final ODatabaseSessionInternal database = getDatabase();
+    final YTDatabaseSessionInternal database = getDatabase();
 
     for (final int clusterId : getClusters()) {
       if (this.clusterId > -1 && clusterName.equals(String.valueOf(this.clusterId))) {
@@ -189,11 +189,11 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
   protected IntArrayList getClusters() {
-    final ODatabaseSessionInternal database = getDatabase();
+    final YTDatabaseSessionInternal database = getDatabase();
 
     final IntArrayList result = new IntArrayList();
 

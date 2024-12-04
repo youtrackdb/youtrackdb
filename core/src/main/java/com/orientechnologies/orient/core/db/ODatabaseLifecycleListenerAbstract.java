@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Abstract Listener Interface to receive callbacks on database usage.
@@ -32,22 +32,22 @@ public abstract class ODatabaseLifecycleListenerAbstract implements ODatabaseLif
   }
 
   @Override
-  public void onCreate(ODatabaseSessionInternal iDatabase) {
+  public void onCreate(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onOpen(ODatabaseSessionInternal iDatabase) {
+  public void onOpen(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {
+  public void onClose(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onDrop(ODatabaseSessionInternal iDatabase) {
+  public void onDrop(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
   }
 }

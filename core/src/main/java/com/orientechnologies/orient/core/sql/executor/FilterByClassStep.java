@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class FilterByClassStep extends AbstractExecutionStep {
 
   private OResult filterMap(OResult result, OCommandContext ctx) {
     if (result.isElement()) {
-      Optional<OClass> clazz = result.toElement().getSchemaType();
+      Optional<YTClass> clazz = result.toElement().getSchemaType();
       if (clazz.isPresent() && clazz.get().isSubClassOf(className)) {
         return result;
       }
@@ -60,7 +60,7 @@ public class FilterByClassStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("identifier", identifier.serialize(db));
 

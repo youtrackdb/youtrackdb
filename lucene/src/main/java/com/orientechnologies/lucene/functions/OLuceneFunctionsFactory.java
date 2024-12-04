@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.lucene.functions;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactoryTemplate;
 
 public class OLuceneFunctionsFactory extends OSQLFunctionFactoryTemplate {
@@ -24,7 +24,7 @@ public class OLuceneFunctionsFactory extends OSQLFunctionFactoryTemplate {
   }
 
   @Override
-  public void registerDefaultFunctions(ODatabaseSessionInternal session) {
+  public void registerDefaultFunctions(YTDatabaseSessionInternal session) {
     register(session, new OLuceneSearchOnIndexFunction());
     register(session, new OLuceneSearchOnFieldsFunction());
     register(session, new OLuceneSearchOnClassFunction());

@@ -5,10 +5,10 @@ import static org.junit.Assert.assertNull;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.UUID;
 import org.junit.Test;
@@ -22,16 +22,16 @@ public class CheckHookCallCountTest extends DBTestBase {
 
   @Test
   public void testMultipleCallHook() {
-    OClass aClass = db.getMetadata().getSchema().createClass(CLASS_NAME);
-    aClass.createProperty(db, FIELD_ID, OType.STRING);
-    aClass.createProperty(db, FIELD_STATUS, OType.STRING);
-    aClass.createIndex(db, "IDX", OClass.INDEX_TYPE.NOTUNIQUE, FIELD_ID);
+    YTClass aClass = db.getMetadata().getSchema().createClass(CLASS_NAME);
+    aClass.createProperty(db, FIELD_ID, YTType.STRING);
+    aClass.createProperty(db, FIELD_STATUS, YTType.STRING);
+    aClass.createIndex(db, "IDX", YTClass.INDEX_TYPE.NOTUNIQUE, FIELD_ID);
     TestHook hook = new TestHook();
     db.registerHook(hook);
 
     String id = UUID.randomUUID().toString();
     db.begin();
-    ODocument first = new ODocument(CLASS_NAME);
+    YTDocument first = new YTDocument(CLASS_NAME);
     first.field(FIELD_ID, id);
     first.field(FIELD_STATUS, STATUS);
     db.save(first);
@@ -50,14 +50,14 @@ public class CheckHookCallCountTest extends DBTestBase {
 
   @Test
   public void testInHook() throws Exception {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("TestInHook");
-    oClass.createProperty(db, "a", OType.INTEGER);
-    oClass.createProperty(db, "b", OType.INTEGER);
-    oClass.createProperty(db, "c", OType.INTEGER);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("TestInHook");
+    oClass.createProperty(db, "a", YTType.INTEGER);
+    oClass.createProperty(db, "b", YTType.INTEGER);
+    oClass.createProperty(db, "c", YTType.INTEGER);
 
     db.begin();
-    ODocument doc = new ODocument(oClass);
+    YTDocument doc = new YTDocument(oClass);
     doc.field("a", 2);
     doc.field("b", 2);
     doc.save();
@@ -78,12 +78,12 @@ public class CheckHookCallCountTest extends DBTestBase {
           }
 
           @Override
-          public void onRecordAfterCreate(ODocument iDocument) {
+          public void onRecordAfterCreate(YTDocument iDocument) {
             onRecordAfterRead(iDocument);
           }
 
           @Override
-          public void onRecordAfterRead(ODocument iDocument) {
+          public void onRecordAfterRead(YTDocument iDocument) {
             String script = "select sum(a, b) as value from " + iDocument.getIdentity();
             try (OResultSet calculated = database.query(script)) {
               if (calculated.hasNext()) {
@@ -106,7 +106,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     db.rollback();
 
     db.begin();
-    doc = new ODocument(oClass);
+    doc = new YTDocument(oClass);
     doc.field("a", 3);
     doc.field("b", 3);
     doc.save();
@@ -130,7 +130,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     }
 
     @Override
-    public void onRecordAfterRead(ODocument iDocument) {
+    public void onRecordAfterRead(YTDocument iDocument) {
       readCount++;
     }
   }

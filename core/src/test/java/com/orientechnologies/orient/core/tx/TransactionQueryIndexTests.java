@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +21,7 @@ import org.junit.Test;
 public class TransactionQueryIndexTests {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal database;
+  private YTDatabaseSessionInternal database;
 
   @Before
   public void before() {
@@ -29,18 +29,18 @@ public class TransactionQueryIndexTests {
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     database =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
   public void test() {
-    OClass clazz = database.createClass("test");
-    OProperty prop = clazz.createProperty(database, "test", OType.STRING);
-    prop.createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz = database.createClass("test");
+    YTProperty prop = clazz.createProperty(database, "test", YTType.STRING);
+    prop.createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     database.begin();
-    ODocument doc = database.newInstance("test");
+    YTDocument doc = database.newInstance("test");
     doc.setProperty("test", "abcdefg");
     database.save(doc);
     OResultSet res = database.query("select from Test where test='abcdefg' ");
@@ -55,13 +55,13 @@ public class TransactionQueryIndexTests {
 
   @Test
   public void test2() {
-    OClass clazz = database.createClass("Test2");
-    clazz.createProperty(database, "foo", OType.STRING);
-    clazz.createProperty(database, "bar", OType.STRING);
-    clazz.createIndex(database, "Test2.foo_bar", OClass.INDEX_TYPE.NOTUNIQUE, "foo", "bar");
+    YTClass clazz = database.createClass("Test2");
+    clazz.createProperty(database, "foo", YTType.STRING);
+    clazz.createProperty(database, "bar", YTType.STRING);
+    clazz.createIndex(database, "Test2.foo_bar", YTClass.INDEX_TYPE.NOTUNIQUE, "foo", "bar");
 
     database.begin();
-    ODocument doc = database.newInstance("Test2");
+    YTDocument doc = database.newInstance("Test2");
     doc.setProperty("foo", "abcdefg");
     doc.setProperty("bar", "abcdefg");
     database.save(doc);

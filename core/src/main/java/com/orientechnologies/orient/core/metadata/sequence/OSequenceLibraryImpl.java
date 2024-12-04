@@ -21,12 +21,12 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.exception.OSequenceException;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Locale;
@@ -40,23 +40,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class OSequenceLibraryImpl {
 
-  private final Map<String, OSequence> sequences = new ConcurrentHashMap<String, OSequence>();
+  private final Map<String, YTSequence> sequences = new ConcurrentHashMap<String, YTSequence>();
   private final AtomicBoolean reloadNeeded = new AtomicBoolean(false);
 
-  public static void create(ODatabaseSessionInternal database) {
+  public static void create(YTDatabaseSessionInternal database) {
     init(database);
   }
 
-  public synchronized void load(final ODatabaseSessionInternal db) {
+  public synchronized void load(final YTDatabaseSessionInternal db) {
     sequences.clear();
 
-    if (db.getMetadata().getImmutableSchemaSnapshot().existsClass(OSequence.CLASS_NAME)) {
-      try (final OResultSet result = db.query("SELECT FROM " + OSequence.CLASS_NAME)) {
+    if (db.getMetadata().getImmutableSchemaSnapshot().existsClass(YTSequence.CLASS_NAME)) {
+      try (final OResultSet result = db.query("SELECT FROM " + YTSequence.CLASS_NAME)) {
         while (result.hasNext()) {
           OResult res = result.next();
 
-          final OSequence sequence =
-              OSequenceHelper.createSequence((ODocument) res.getElement().get());
+          final YTSequence sequence =
+              OSequenceHelper.createSequence((YTDocument) res.getElement().get());
           sequences.put(sequence.getName().toUpperCase(Locale.ENGLISH), sequence);
         }
       }
@@ -67,20 +67,20 @@ public class OSequenceLibraryImpl {
     sequences.clear();
   }
 
-  public synchronized Set<String> getSequenceNames(ODatabaseSessionInternal database) {
+  public synchronized Set<String> getSequenceNames(YTDatabaseSessionInternal database) {
     reloadIfNeeded(database);
     return sequences.keySet();
   }
 
-  public synchronized int getSequenceCount(ODatabaseSessionInternal database) {
+  public synchronized int getSequenceCount(YTDatabaseSessionInternal database) {
     reloadIfNeeded(database);
     return sequences.size();
   }
 
-  public OSequence getSequence(final ODatabaseSessionInternal database, final String iName) {
+  public YTSequence getSequence(final YTDatabaseSessionInternal database, final String iName) {
     final String name = iName.toUpperCase(Locale.ENGLISH);
     reloadIfNeeded(database);
-    OSequence seq;
+    YTSequence seq;
     synchronized (this) {
       seq = sequences.get(name);
       if (seq == null) {
@@ -92,26 +92,26 @@ public class OSequenceLibraryImpl {
     return seq;
   }
 
-  public synchronized OSequence createSequence(
-      final ODatabaseSessionInternal database,
+  public synchronized YTSequence createSequence(
+      final YTDatabaseSessionInternal database,
       final String iName,
       final SEQUENCE_TYPE sequenceType,
-      final OSequence.CreateParams params) {
+      final YTSequence.CreateParams params) {
     init(database);
     reloadIfNeeded(database);
 
     final String key = iName.toUpperCase(Locale.ENGLISH);
     validateSequenceNoExists(key);
 
-    final OSequence sequence = OSequenceHelper.createSequence(sequenceType, params, iName);
+    final YTSequence sequence = OSequenceHelper.createSequence(sequenceType, params, iName);
     sequences.put(key, sequence);
 
     return sequence;
   }
 
   public synchronized void dropSequence(
-      final ODatabaseSessionInternal database, final String iName) {
-    final OSequence seq = getSequence(database, iName);
+      final YTDatabaseSessionInternal database, final String iName) {
+    final YTSequence seq = getSequence(database, iName);
     if (seq != null) {
       try {
         database.delete(seq.docRid);
@@ -124,31 +124,31 @@ public class OSequenceLibraryImpl {
   }
 
   public void onSequenceCreated(
-      final ODatabaseSessionInternal database, final ODocument iDocument) {
+      final YTDatabaseSessionInternal database, final YTDocument iDocument) {
     init(database);
 
-    String name = OSequence.getSequenceName(iDocument);
+    String name = YTSequence.getSequenceName(iDocument);
     if (name == null) {
       return;
     }
 
     name = name.toUpperCase(Locale.ENGLISH);
 
-    final OSequence seq = getSequence(database, name);
+    final YTSequence seq = getSequence(database, name);
 
     if (seq != null) {
       return;
     }
 
-    final OSequence sequence = OSequenceHelper.createSequence(iDocument);
+    final YTSequence sequence = OSequenceHelper.createSequence(iDocument);
 
     sequences.put(name, sequence);
     onSequenceLibraryUpdate(database);
   }
 
   public void onSequenceDropped(
-      final ODatabaseSessionInternal database, final ODocument iDocument) {
-    String name = OSequence.getSequenceName(iDocument);
+      final YTDatabaseSessionInternal database, final YTDocument iDocument) {
+    String name = YTSequence.getSequenceName(iDocument);
     if (name == null) {
       return;
     }
@@ -159,14 +159,14 @@ public class OSequenceLibraryImpl {
     onSequenceLibraryUpdate(database);
   }
 
-  private static void init(final ODatabaseSessionInternal database) {
-    if (database.getMetadata().getSchema().existsClass(OSequence.CLASS_NAME)) {
+  private static void init(final YTDatabaseSessionInternal database) {
+    if (database.getMetadata().getSchema().existsClass(YTSequence.CLASS_NAME)) {
       return;
     }
 
-    final OClassImpl sequenceClass =
-        (OClassImpl) database.getMetadata().getSchema().createClass(OSequence.CLASS_NAME);
-    OSequence.initClass(database, sequenceClass);
+    final YTClassImpl sequenceClass =
+        (YTClassImpl) database.getMetadata().getSchema().createClass(YTSequence.CLASS_NAME);
+    YTSequence.initClass(database, sequenceClass);
   }
 
   private void validateSequenceNoExists(final String iName) {
@@ -175,13 +175,13 @@ public class OSequenceLibraryImpl {
     }
   }
 
-  private static void onSequenceLibraryUpdate(ODatabaseSessionInternal database) {
+  private static void onSequenceLibraryUpdate(YTDatabaseSessionInternal database) {
     for (OMetadataUpdateListener one : database.getSharedContext().browseListeners()) {
       one.onSequenceLibraryUpdate(database, database.getName());
     }
   }
 
-  private void reloadIfNeeded(ODatabaseSessionInternal database) {
+  private void reloadIfNeeded(YTDatabaseSessionInternal database) {
     if (reloadNeeded.get()) {
       load(database);
       reloadNeeded.set(false);

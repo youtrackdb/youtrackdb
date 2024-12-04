@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
@@ -47,13 +47,13 @@ import java.util.concurrent.Executor;
  */
 public class OrientJdbcConnection implements Connection {
 
-  private ODatabaseSession database;
+  private YTDatabaseSession database;
   private String dbUrl;
   private final Properties info;
   private final YouTrackDB youTrackDB;
   private boolean readOnly;
   private boolean autoCommit;
-  private ODatabaseSession.STATUS status;
+  private YTDatabaseSession.STATUS status;
 
   private final boolean youtrackDBisPrivate;
 
@@ -90,15 +90,15 @@ public class OrientJdbcConnection implements Connection {
     database = youTrackDB.open(connUrl.getDbName(), username, password);
 
     youtrackDBisPrivate = true;
-    status = ODatabaseSession.STATUS.OPEN;
+    status = YTDatabaseSession.STATUS.OPEN;
   }
 
-  public OrientJdbcConnection(ODatabaseSession database, YouTrackDB youTrackDB, Properties info) {
+  public OrientJdbcConnection(YTDatabaseSession database, YouTrackDB youTrackDB, Properties info) {
     this.database = database;
     this.youTrackDB = youTrackDB;
     this.info = info;
     youtrackDBisPrivate = false;
-    status = ODatabaseSession.STATUS.OPEN;
+    status = YTDatabaseSession.STATUS.OPEN;
   }
 
   protected YouTrackDB getOrientDB() {
@@ -140,7 +140,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public void close() throws SQLException {
-    status = ODatabaseSession.STATUS.CLOSED;
+    status = YTDatabaseSession.STATUS.CLOSED;
     if (database != null) {
       database.activateOnCurrentThread();
       database.close();
@@ -161,7 +161,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public boolean isClosed() throws SQLException {
-    return status == ODatabaseSession.STATUS.CLOSED;
+    return status == YTDatabaseSession.STATUS.CLOSED;
   }
 
   public boolean isReadOnly() throws SQLException {
@@ -253,7 +253,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public DatabaseMetaData getMetaData() throws SQLException {
-    return new OrientJdbcDatabaseMetaData(this, (ODatabaseSessionInternal) database);
+    return new OrientJdbcDatabaseMetaData(this, (YTDatabaseSessionInternal) database);
   }
 
   public int getTransactionIsolation() throws SQLException {
@@ -331,7 +331,7 @@ public class OrientJdbcConnection implements Connection {
     return null;
   }
 
-  public ODatabaseSession getDatabase() {
+  public YTDatabaseSession getDatabase() {
     return database;
   }
 
@@ -339,7 +339,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public int getNetworkTimeout() throws SQLException {
-    return OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.getValueAsInteger();
+    return YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.getValueAsInteger();
   }
 
   /**
@@ -353,7 +353,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public void setNetworkTimeout(Executor arg0, int arg1) throws SQLException {
-    OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.setValue(arg1);
+    YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.setValue(arg1);
   }
 
   public Properties getInfo() {

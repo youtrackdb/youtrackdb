@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,13 +15,13 @@ import org.junit.Test;
  */
 public class OTraverseTest extends DBTestBase {
 
-  private ODocument rootDocument;
+  private YTDocument rootDocument;
   private OTraverse traverse;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    rootDocument = new ODocument();
+    rootDocument = new YTDocument();
     traverse = new OTraverse(db);
     traverse.target(rootDocument).fields("*");
   }
@@ -29,41 +29,41 @@ public class OTraverseTest extends DBTestBase {
   @Test
   public void testDepthTraverse() {
 
-    final ODocument aa = new ODocument();
-    final ODocument ab = new ODocument();
-    final ODocument ba = new ODocument();
-    final ODocument bb = new ODocument();
-    final ODocument a = new ODocument();
-    a.setProperty("aa", aa, OType.LINK);
-    a.setProperty("ab", ab, OType.LINK);
-    final ODocument b = new ODocument();
-    b.setProperty("ba", ba, OType.LINK);
-    b.setProperty("bb", bb, OType.LINK);
+    final YTDocument aa = new YTDocument();
+    final YTDocument ab = new YTDocument();
+    final YTDocument ba = new YTDocument();
+    final YTDocument bb = new YTDocument();
+    final YTDocument a = new YTDocument();
+    a.setProperty("aa", aa, YTType.LINK);
+    a.setProperty("ab", ab, YTType.LINK);
+    final YTDocument b = new YTDocument();
+    b.setProperty("ba", ba, YTType.LINK);
+    b.setProperty("bb", bb, YTType.LINK);
 
-    rootDocument.setProperty("a", a, OType.LINK);
-    rootDocument.setProperty("b", b, OType.LINK);
+    rootDocument.setProperty("a", a, YTType.LINK);
+    rootDocument.setProperty("b", b, YTType.LINK);
 
-    final ODocument c1 = new ODocument();
-    final ODocument c1a = new ODocument();
-    c1.setProperty("c1a", c1a, OType.LINK);
-    final ODocument c1b = new ODocument();
-    c1.setProperty("c1b", c1b, OType.LINK);
-    final ODocument c2 = new ODocument();
-    final ODocument c2a = new ODocument();
-    c2.setProperty("c2a", c2a, OType.LINK);
-    final ODocument c2b = new ODocument();
-    c2.setProperty("c2b", c2b, OType.LINK);
-    final ODocument c3 = new ODocument();
-    final ODocument c3a = new ODocument();
-    c3.setProperty("c3a", c3a, OType.LINK);
-    final ODocument c3b = new ODocument();
-    c3.setProperty("c3b", c3b, OType.LINK);
-    rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)), OType.LINKLIST);
+    final YTDocument c1 = new YTDocument();
+    final YTDocument c1a = new YTDocument();
+    c1.setProperty("c1a", c1a, YTType.LINK);
+    final YTDocument c1b = new YTDocument();
+    c1.setProperty("c1b", c1b, YTType.LINK);
+    final YTDocument c2 = new YTDocument();
+    final YTDocument c2a = new YTDocument();
+    c2.setProperty("c2a", c2a, YTType.LINK);
+    final YTDocument c2b = new YTDocument();
+    c2.setProperty("c2b", c2b, YTType.LINK);
+    final YTDocument c3 = new YTDocument();
+    final YTDocument c3a = new YTDocument();
+    c3.setProperty("c3a", c3a, YTType.LINK);
+    final YTDocument c3b = new YTDocument();
+    c3.setProperty("c3b", c3b, YTType.LINK);
+    rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)), YTType.LINKLIST);
 
     db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
 
     rootDocument = db.bindToSession(rootDocument);
-    final List<ODocument> expectedResult =
+    final List<YTDocument> expectedResult =
         Arrays.asList(
             rootDocument,
             db.bindToSession(a),
@@ -82,7 +82,7 @@ public class OTraverseTest extends DBTestBase {
             db.bindToSession(c3a),
             db.bindToSession(c3b));
 
-    final List<OIdentifiable> results = traverse.execute(db);
+    final List<YTIdentifiable> results = traverse.execute(db);
 
     compareTraverseResults(expectedResult, results);
   }
@@ -91,41 +91,41 @@ public class OTraverseTest extends DBTestBase {
   public void testBreadthTraverse() throws Exception {
     traverse.setStrategy(OTraverse.STRATEGY.BREADTH_FIRST);
 
-    final ODocument aa = new ODocument();
-    final ODocument ab = new ODocument();
-    final ODocument ba = new ODocument();
-    final ODocument bb = new ODocument();
-    final ODocument a = new ODocument();
-    a.setProperty("aa", aa, OType.LINK);
-    a.setProperty("ab", ab, OType.LINK);
-    final ODocument b = new ODocument();
-    b.setProperty("ba", ba, OType.LINK);
-    b.setProperty("bb", bb, OType.LINK);
+    final YTDocument aa = new YTDocument();
+    final YTDocument ab = new YTDocument();
+    final YTDocument ba = new YTDocument();
+    final YTDocument bb = new YTDocument();
+    final YTDocument a = new YTDocument();
+    a.setProperty("aa", aa, YTType.LINK);
+    a.setProperty("ab", ab, YTType.LINK);
+    final YTDocument b = new YTDocument();
+    b.setProperty("ba", ba, YTType.LINK);
+    b.setProperty("bb", bb, YTType.LINK);
 
-    rootDocument.setProperty("a", a, OType.LINK);
-    rootDocument.setProperty("b", b, OType.LINK);
+    rootDocument.setProperty("a", a, YTType.LINK);
+    rootDocument.setProperty("b", b, YTType.LINK);
 
-    final ODocument c1 = new ODocument();
-    final ODocument c1a = new ODocument();
-    c1.setProperty("c1a", c1a, OType.LINK);
-    final ODocument c1b = new ODocument();
-    c1.setProperty("c1b", c1b, OType.LINK);
-    final ODocument c2 = new ODocument();
-    final ODocument c2a = new ODocument();
-    c2.setProperty("c2a", c2a, OType.LINK);
-    final ODocument c2b = new ODocument();
-    c2.setProperty("c2b", c2b, OType.LINK);
-    final ODocument c3 = new ODocument();
-    final ODocument c3a = new ODocument();
-    c3.setProperty("c3a", c3a, OType.LINK);
-    final ODocument c3b = new ODocument();
-    c3.setProperty("c3b", c3b, OType.LINK);
-    rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)), OType.LINKLIST);
+    final YTDocument c1 = new YTDocument();
+    final YTDocument c1a = new YTDocument();
+    c1.setProperty("c1a", c1a, YTType.LINK);
+    final YTDocument c1b = new YTDocument();
+    c1.setProperty("c1b", c1b, YTType.LINK);
+    final YTDocument c2 = new YTDocument();
+    final YTDocument c2a = new YTDocument();
+    c2.setProperty("c2a", c2a, YTType.LINK);
+    final YTDocument c2b = new YTDocument();
+    c2.setProperty("c2b", c2b, YTType.LINK);
+    final YTDocument c3 = new YTDocument();
+    final YTDocument c3a = new YTDocument();
+    c3.setProperty("c3a", c3a, YTType.LINK);
+    final YTDocument c3b = new YTDocument();
+    c3.setProperty("c3b", c3b, YTType.LINK);
+    rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)), YTType.LINKLIST);
 
     db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
 
     rootDocument = db.bindToSession(rootDocument);
-    final List<ODocument> expectedResult =
+    final List<YTDocument> expectedResult =
         Arrays.asList(
             rootDocument,
             db.bindToSession(a),
@@ -144,12 +144,13 @@ public class OTraverseTest extends DBTestBase {
             db.bindToSession(c3a),
             db.bindToSession(c3b));
 
-    final List<OIdentifiable> results = traverse.execute(db);
+    final List<YTIdentifiable> results = traverse.execute(db);
 
     compareTraverseResults(expectedResult, results);
   }
 
-  private void compareTraverseResults(List<ODocument> expectedResult, List<OIdentifiable> results) {
+  private void compareTraverseResults(List<YTDocument> expectedResult,
+      List<YTIdentifiable> results) {
     boolean equality = results.size() == expectedResult.size();
     for (int i = 0; i < expectedResult.size() && equality; i++) {
       equality &= results.get(i).equals(expectedResult.get(i));

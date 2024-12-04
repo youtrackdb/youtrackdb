@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
@@ -28,7 +28,7 @@ import javax.script.ScriptEngine;
  */
 public interface OScriptInjection {
 
-  void bind(ScriptEngine engine, Bindings binding, ODatabaseSession database);
+  void bind(ScriptEngine engine, Bindings binding, YTDatabaseSession database);
 
   void unbind(ScriptEngine engine, Bindings binding);
 }

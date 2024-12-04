@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -12,10 +12,10 @@ import java.io.IOException;
  */
 public interface OBinaryRequest<T extends OBinaryResponse> {
 
-  void write(ODatabaseSessionInternal database, final OChannelDataOutput network,
+  void write(YTDatabaseSessionInternal database, final OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException;
 
-  void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException;
 

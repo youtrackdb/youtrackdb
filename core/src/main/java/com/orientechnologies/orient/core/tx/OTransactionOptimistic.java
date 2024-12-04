@@ -23,9 +23,9 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -33,24 +33,24 @@ import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook.TYPE;
 import com.orientechnologies.orient.core.id.ChangeableIdentity;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryProxy;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -79,11 +79,11 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   private static final AtomicLong txSerial = new AtomicLong();
 
   // order of updates is critical during synchronization of remote transactions
-  protected LinkedHashMap<ORID, ORID> txGeneratedRealRecordIdMap = new LinkedHashMap<>();
-  protected LinkedHashMap<ORID, ORecordOperation> recordOperations = new LinkedHashMap<>();
+  protected LinkedHashMap<YTRID, YTRID> txGeneratedRealRecordIdMap = new LinkedHashMap<>();
+  protected LinkedHashMap<YTRID, ORecordOperation> recordOperations = new LinkedHashMap<>();
 
   protected LinkedHashMap<String, OTransactionIndexChanges> indexEntries = new LinkedHashMap<>();
-  protected HashMap<ORID, List<OTransactionRecordIndexOperation>> recordIndexOperations =
+  protected HashMap<YTRID, List<OTransactionRecordIndexOperation>> recordIndexOperations =
       new HashMap<>();
 
   protected long id;
@@ -101,12 +101,12 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   protected int txStartCounter;
   private boolean sentToServer = false;
 
-  public OTransactionOptimistic(final ODatabaseSessionInternal iDatabase) {
+  public OTransactionOptimistic(final YTDatabaseSessionInternal iDatabase) {
     super(iDatabase);
     this.id = txSerial.incrementAndGet();
   }
 
-  protected OTransactionOptimistic(final ODatabaseSessionInternal iDatabase, long id) {
+  protected OTransactionOptimistic(final YTDatabaseSessionInternal iDatabase, long id) {
     super(iDatabase);
     this.id = id;
   }
@@ -165,7 +165,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
   }
 
-  public ORecordAbstract getRecord(final ORID rid) {
+  public YTRecordAbstract getRecord(final YTRID rid) {
     final ORecordOperation e = getRecordEntry(rid);
     if (e != null) {
       if (e.type == ORecordOperation.DELETED) {
@@ -182,7 +182,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
    * Called by class iterator.
    */
   public List<ORecordOperation> getNewRecordEntriesByClass(
-      final OClass iClass, final boolean iPolymorphic) {
+      final YTClass iClass, final boolean iPolymorphic) {
     final List<ORecordOperation> result = new ArrayList<>();
 
     if (iClass == null)
@@ -198,14 +198,14 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       for (ORecordOperation entry : recordOperations.values()) {
         if (entry.type == ORecordOperation.CREATED) {
           if (entry.record != null) {
-            if (entry.record instanceof ODocument) {
+            if (entry.record instanceof YTDocument) {
               if (iPolymorphic) {
                 if (iClass.isSuperClassOf(
-                    ODocumentInternal.getImmutableSchemaClass(((ODocument) entry.record)))) {
+                    ODocumentInternal.getImmutableSchemaClass(((YTDocument) entry.record)))) {
                   result.add(entry);
                 }
               } else {
-                if (iClass.getName().equals(((ODocument) entry.record).getClassName())) {
+                if (iClass.getName().equals(((YTDocument) entry.record).getClassName())) {
                   result.add(entry);
                 }
               }
@@ -267,22 +267,23 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     return list;
   }
 
-  public ODocument getIndexChanges() {
+  public YTDocument getIndexChanges() {
 
-    final ODocument result = new ODocument().setAllowChainedAccess(false).setTrackingChanges(false);
+    final YTDocument result = new YTDocument().setAllowChainedAccess(false)
+        .setTrackingChanges(false);
 
     for (Entry<String, OTransactionIndexChanges> indexEntry : indexEntries.entrySet()) {
-      final ODocument indexDoc = new ODocument().setTrackingChanges(false);
+      final YTDocument indexDoc = new YTDocument().setTrackingChanges(false);
       ODocumentInternal.addOwner(indexDoc, result);
 
-      result.field(indexEntry.getKey(), indexDoc, OType.EMBEDDED);
+      result.field(indexEntry.getKey(), indexDoc, YTType.EMBEDDED);
 
       if (indexEntry.getValue().cleared) {
         indexDoc.field("clear", Boolean.TRUE);
       }
 
-      final List<ODocument> entries = new ArrayList<>();
-      indexDoc.field("entries", entries, OType.EMBEDDEDLIST);
+      final List<YTDocument> entries = new ArrayList<>();
+      indexDoc.field("entries", entries, YTType.EMBEDDEDLIST);
 
       // STORE INDEX ENTRIES
       for (OTransactionIndexChangesPerKey entry : indexEntry.getValue().changesPerKey.values()) {
@@ -314,7 +315,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       final String iIndexName,
       final OTransactionIndexChanges.OPERATION iOperation,
       final Object key,
-      final OIdentifiable iValue) {
+      final YTIdentifiable iValue) {
     // index changes are tracked on server in case of client-server deployment
     assert database.getStorage() instanceof OAbstractPaginatedStorage;
 
@@ -387,7 +388,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
   private void invalidateChangesInCache() {
     for (final ORecordOperation v : recordOperations.values()) {
-      final ORecordAbstract rec = v.record;
+      final YTRecordAbstract rec = v.record;
       ORecordInternal.unsetDirty(rec);
       rec.unload();
     }
@@ -420,10 +421,10 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   @Override
-  public boolean exists(ORID rid) {
+  public boolean exists(YTRID rid) {
     checkTransactionValid();
 
-    final ORecord txRecord = getRecord(rid);
+    final YTRecord txRecord = getRecord(rid);
     if (txRecord == OTransactionAbstract.DELETED_RECORD) {
       return false;
     }
@@ -436,11 +437,11 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   @Override
-  public @Nonnull ORecord loadRecord(ORID rid) {
+  public @Nonnull YTRecord loadRecord(YTRID rid) {
 
     checkTransactionValid();
 
-    final ORecordAbstract txRecord = getRecord(rid);
+    final YTRecordAbstract txRecord = getRecord(rid);
     if (txRecord == OTransactionAbstract.DELETED_RECORD) {
       // DELETED IN TX
       throw new ORecordNotFoundException(rid);
@@ -455,10 +456,10 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
 
     // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-    return database.executeReadRecord((ORecordId) rid);
+    return database.executeReadRecord((YTRecordId) rid);
   }
 
-  public void deleteRecord(final ORecordAbstract iRecord) {
+  public void deleteRecord(final YTRecordAbstract iRecord) {
     try {
       var records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
       final var newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
@@ -511,7 +512,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
   }
 
-  public ORecord saveRecord(ORecordAbstract passedRecord, final String clusterName) {
+  public YTRecord saveRecord(YTRecordAbstract passedRecord, final String clusterName) {
     try {
       if (passedRecord == null) {
         return null;
@@ -521,7 +522,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
             "Record "
                 + passedRecord
                 + " is not bound to session, please call "
-                + ODatabaseSession.class.getSimpleName()
+                + YTDatabaseSession.class.getSimpleName()
                 + ".bindToSession(record) before changing it");
       }
       // fetch primary record if the record is a proxy record.
@@ -537,7 +538,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         final var updatedRecord = dirtyManager.getUpdateRecords();
         dirtyManager.clear();
         if (newRecord != null) {
-          for (ORecordAbstract rec : newRecord) {
+          for (YTRecordAbstract rec : newRecord) {
             rec = rec.getRecord();
 
             var prev = recordsMap.put(rec.getIdentity(), rec);
@@ -553,8 +554,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
                       + " was registered in dirty manager, such case may lead to data corruption");
             }
 
-            if (rec instanceof ODocument) {
-              ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
+            if (rec instanceof YTDocument) {
+              ODocumentInternal.convertAllMultiValuesToTrackedVersions((YTDocument) rec);
             }
             if (rec == passedRecord) {
               addRecord(rec, ORecordOperation.CREATED, clusterName);
@@ -581,8 +582,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
                       + " was registered in dirty manager, such case may lead to data corruption");
             }
 
-            if (rec instanceof ODocument) {
-              ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
+            if (rec instanceof YTDocument) {
+              ODocumentInternal.convertAllMultiValuesToTrackedVersions((YTDocument) rec);
             }
             if (rec == passedRecord) {
               final byte operation =
@@ -630,13 +631,13 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     status = iStatus;
   }
 
-  public void addRecord(ORecordAbstract record, byte status, String clusterName) {
+  public void addRecord(YTRecordAbstract record, byte status, String clusterName) {
     if (record.isUnloaded()) {
       throw new ODatabaseException(
           "Record "
               + record
               + " is not bound to session, please call "
-              + ODatabaseSession.class.getSimpleName()
+              + YTDatabaseSession.class.getSimpleName()
               + ".bindToSession(record) before changing it");
     }
     changed = true;
@@ -647,7 +648,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
 
     try {
-      final ORecordId rid = (ORecordId) record.getIdentity();
+      final YTRecordId rid = (YTRecordId) record.getIdentity();
       ORecordOperation txEntry = getRecordEntry(rid);
 
       if (txEntry != null) {
@@ -662,16 +663,16 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       }
       switch (status) {
         case ORecordOperation.CREATED: {
-          OIdentifiable res = database.beforeCreateOperations(record, clusterName);
+          YTIdentifiable res = database.beforeCreateOperations(record, clusterName);
           if (res != null) {
-            record = (ORecordAbstract) res;
+            record = (YTRecordAbstract) res;
           }
         }
         break;
         case ORecordOperation.UPDATED: {
-          OIdentifiable res = database.beforeUpdateOperations(record, clusterName);
+          YTIdentifiable res = database.beforeUpdateOperations(record, clusterName);
           if (res != null) {
-            record = (ORecordAbstract) res;
+            record = (YTRecordAbstract) res;
           }
         }
         break;
@@ -728,8 +729,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         }
 
         // RESET TRACKING
-        if (record instanceof ODocument && ((ODocument) record).isTrackingChanges()) {
-          ODocumentInternal.clearTrackData(((ODocument) record));
+        if (record instanceof YTDocument && ((YTDocument) record).isTrackingChanges()) {
+          ODocumentInternal.clearTrackData(((YTDocument) record));
         }
       } catch (final Exception e) {
         switch (status) {
@@ -806,7 +807,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       var record = txEntry.record;
 
       if (!record.isUnloaded()) {
-        if (record instanceof ODocument document) {
+        if (record instanceof YTDocument document) {
           ODocumentInternal.clearTransactionTrackData(document);
         }
 
@@ -834,7 +835,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     userData.clear();
   }
 
-  public void updateIdentityAfterCommit(final ORID oldRid, final ORID newRid) {
+  public void updateIdentityAfterCommit(final YTRID oldRid, final YTRID newRid) {
     if (oldRid.equals(newRid))
     // NO CHANGE, IGNORE IT
     {
@@ -846,7 +847,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     // the OTransactionIndexChanges.changesPerKey in a consistent state.
 
     final List<KeyChangesUpdateRecord> keyRecordsToReinsert = new ArrayList<>();
-    final ODatabaseSessionInternal database = getDatabase();
+    final YTDatabaseSessionInternal database = getDatabase();
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     for (Entry<String, OTransactionIndexChanges> entry : indexEntries.entrySet()) {
       final OIndex index = indexManager.getIndex(database, entry.getKey());
@@ -885,9 +886,9 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       if (!rec.record.getIdentity().equals(newRid)) {
         ORecordInternal.onBeforeIdentityChanged(rec.record);
 
-        final ORecordId recordId = (ORecordId) rec.record.getIdentity();
+        final YTRecordId recordId = (YTRecordId) rec.record.getIdentity();
         if (recordId == null) {
-          ORecordInternal.setIdentity(rec.record, new ORecordId(newRid));
+          ORecordInternal.setIdentity(rec.record, new YTRecordId(newRid));
         } else {
           recordId.setClusterPosition(newRid.getClusterPosition());
           recordId.setClusterId(newRid.getClusterId());
@@ -927,18 +928,18 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
   }
 
-  private ODocument serializeIndexChangeEntry(
-      OTransactionIndexChangesPerKey entry, final ODocument indexDoc) {
+  private YTDocument serializeIndexChangeEntry(
+      OTransactionIndexChangesPerKey entry, final YTDocument indexDoc) {
     // SERIALIZE KEY
 
-    ODocument keyContainer = new ODocument();
+    YTDocument keyContainer = new YTDocument();
     keyContainer.setTrackingChanges(false);
 
     if (entry.key != null) {
       if (entry.key instanceof OCompositeKey) {
         final List<Object> keys = ((OCompositeKey) entry.key).getKeys();
 
-        keyContainer.field("key", keys, OType.EMBEDDEDLIST);
+        keyContainer.field("key", keys, YTType.EMBEDDEDLIST);
         keyContainer.field("binary", false);
       } else {
         keyContainer.field("key", entry.key);
@@ -949,24 +950,24 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       keyContainer = null;
     }
 
-    final List<ODocument> operations = new ArrayList<>();
+    final List<YTDocument> operations = new ArrayList<>();
 
     // SERIALIZE VALUES
     if (!entry.isEmpty()) {
       for (OTransactionIndexEntry e : entry.getEntriesAsList()) {
 
-        final ODocument changeDoc = new ODocument().setAllowChainedAccess(false);
+        final YTDocument changeDoc = new YTDocument().setAllowChainedAccess(false);
         ODocumentInternal.addOwner(changeDoc, indexDoc);
 
         // SERIALIZE OPERATION
         changeDoc.field("o", e.getOperation().ordinal());
 
-        if (e.getValue() instanceof ORecord && e.getValue().getIdentity().isNew()) {
-          ORecord saved = getRecord(e.getValue().getIdentity());
+        if (e.getValue() instanceof YTRecord && e.getValue().getIdentity().isNew()) {
+          YTRecord saved = getRecord(e.getValue().getIdentity());
           if (saved != null && saved != OTransactionAbstract.DELETED_RECORD) {
             e.setValue(saved);
           } else {
-            ((ORecord) e.getValue()).save();
+            ((YTRecord) e.getValue()).save();
           }
         }
 
@@ -975,16 +976,16 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         operations.add(changeDoc);
       }
     }
-    ODocument res = new ODocument();
+    YTDocument res = new YTDocument();
     res.setTrackingChanges(false);
     ODocumentInternal.addOwner(res, indexDoc);
     return res.setAllowChainedAccess(false)
-        .field("k", keyContainer, OType.EMBEDDED)
-        .field("ops", operations, OType.EMBEDDEDLIST);
+        .field("k", keyContainer, YTType.EMBEDDED)
+        .field("ops", operations, YTType.EMBEDDEDLIST);
   }
 
   private void updateChangesIdentity(
-      ORID oldRid, ORID newRid, OTransactionIndexChangesPerKey changesPerKey) {
+      YTRID oldRid, YTRID newRid, OTransactionIndexChangesPerKey changesPerKey) {
     if (changesPerKey == null) {
       return;
     }
@@ -1013,7 +1014,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       return null;
     }
 
-    final OType[] types = definition.getTypes();
+    final YTType[] types = definition.getTypes();
     final Dependency[] dependencies = new Dependency[types.length];
 
     for (int i = 0; i < types.length; ++i) {
@@ -1042,7 +1043,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   private static boolean isIndexKeyMayDependOnRid(
-      Object key, ORID rid, Dependency[] keyDependencies) {
+      Object key, YTRID rid, Dependency[] keyDependencies) {
     if (key instanceof OCompositeKey) {
       final List<Object> subKeys = ((OCompositeKey) key).getKeys();
       for (int i = 0; i < subKeys.size(); ++i) {
@@ -1057,19 +1058,19 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     return isIndexKeyMayDependOnRid(key, rid, keyDependencies == null ? null : keyDependencies[0]);
   }
 
-  private static boolean isIndexKeyMayDependOnRid(Object key, ORID rid, Dependency dependency) {
+  private static boolean isIndexKeyMayDependOnRid(Object key, YTRID rid, Dependency dependency) {
     if (dependency == Dependency.No) {
       return false;
     }
 
-    if (key instanceof OIdentifiable) {
+    if (key instanceof YTIdentifiable) {
       return key.equals(rid);
     }
 
     return dependency == Dependency.Unknown || dependency == null;
   }
 
-  private static Dependency getTypeRidDependency(OType type) {
+  private static Dependency getTypeRidDependency(YTType type) {
     // fallback to the safest variant, just in case
     return switch (type) {
       case CUSTOM, ANY -> Dependency.Unknown;
@@ -1143,8 +1144,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     return recordOperations.values();
   }
 
-  public ORecordOperation getRecordEntry(ORID ridPar) {
-    ORID rid = ridPar;
+  public ORecordOperation getRecordEntry(YTRID ridPar) {
+    YTRID rid = ridPar;
     ORecordOperation entry;
     do {
       entry = recordOperations.get(rid);
@@ -1155,7 +1156,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     return entry;
   }
 
-  public Map<ORID, ORID> getTxGeneratedRealRecordIdMap() {
+  public Map<YTRID, YTRID> getTxGeneratedRealRecordIdMap() {
     return txGeneratedRealRecordIdMap;
   }
 
@@ -1202,11 +1203,11 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
   @Override
   public void resetAllocatedIds() {
-    for (Map.Entry<ORID, ORecordOperation> op : recordOperations.entrySet()) {
+    for (Map.Entry<YTRID, ORecordOperation> op : recordOperations.entrySet()) {
       if (op.getValue().type == ORecordOperation.CREATED) {
-        ORID lastCreateId = op.getValue().getRID().copy();
-        ORecordId oldNew =
-            new ORecordId(lastCreateId.getClusterId(), op.getKey().getClusterPosition());
+        YTRID lastCreateId = op.getValue().getRID().copy();
+        YTRecordId oldNew =
+            new YTRecordId(lastCreateId.getClusterId(), op.getKey().getClusterPosition());
         updateIdentityAfterCommit(lastCreateId, oldNew);
         txGeneratedRealRecordIdMap.put(oldNew, op.getKey());
       }
@@ -1222,16 +1223,16 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   protected void resolveTracking(final ORecordOperation change) {
-    if (!(change.record instanceof ODocument rec)) {
+    if (!(change.record instanceof YTDocument rec)) {
       return;
     }
 
     switch (change.type) {
       case ORecordOperation.CREATED: {
-        final ODocument doc = (ODocument) change.record;
+        final YTDocument doc = (YTDocument) change.record;
         OLiveQueryHook.addOp(doc, ORecordOperation.CREATED, database);
         OLiveQueryHookV2.addOp(database, doc, ORecordOperation.CREATED);
-        final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+        final YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
         if (clazz != null) {
           OClassIndexManager.processIndexOnCreate(database, rec);
           if (clazz.isFunction()) {
@@ -1250,11 +1251,11 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       }
       break;
       case ORecordOperation.UPDATED: {
-        final OIdentifiable updateRecord = change.record;
-        ODocument updateDoc = (ODocument) updateRecord;
+        final YTIdentifiable updateRecord = change.record;
+        YTDocument updateDoc = (YTDocument) updateRecord;
         OLiveQueryHook.addOp(updateDoc, ORecordOperation.UPDATED, database);
         OLiveQueryHookV2.addOp(database, updateDoc, ORecordOperation.UPDATED);
-        final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(updateDoc);
+        final YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(updateDoc);
         if (clazz != null) {
           OClassIndexManager.processIndexOnUpdate(database, updateDoc);
           if (clazz.isFunction()) {
@@ -1264,8 +1265,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       }
       break;
       case ORecordOperation.DELETED: {
-        final ODocument doc = (ODocument) change.record;
-        final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+        final YTDocument doc = (YTDocument) change.record;
+        final YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
         if (clazz != null) {
           OClassIndexManager.processIndexOnDelete(database, rec);
           if (clazz.isFunction()) {

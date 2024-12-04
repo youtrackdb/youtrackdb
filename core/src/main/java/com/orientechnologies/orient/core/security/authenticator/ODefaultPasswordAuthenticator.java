@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import java.util.List;
@@ -47,15 +47,15 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // OSecurityComponent
-  public void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final YTDocument jsonConfig,
       OSecuritySystem security) {
     super.config(session, jsonConfig, security);
 
     try {
       if (jsonConfig.containsField("users")) {
-        List<ODocument> usersList = jsonConfig.field("users");
+        List<YTDocument> usersList = jsonConfig.field("users");
 
-        for (ODocument userDoc : usersList) {
+        for (YTDocument userDoc : usersList) {
 
           OSecurityUser userCfg = createServerUser(session, userDoc);
 
@@ -76,8 +76,8 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // Derived implementations can override this method to provide new server user implementations.
-  protected OSecurityUser createServerUser(ODatabaseSessionInternal session,
-      final ODocument userDoc) {
+  protected OSecurityUser createServerUser(YTDatabaseSessionInternal session,
+      final YTDocument userDoc) {
     OSecurityUser userCfg = null;
 
     if (userDoc.containsField("username") && userDoc.containsField("resources")) {
@@ -107,7 +107,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   // OSecurityAuthenticator
   // Returns the actual username if successful, null otherwise.
   public OSecurityUser authenticate(
-      ODatabaseSessionInternal session, final String username, final String password) {
+      YTDatabaseSessionInternal session, final String username, final String password) {
 
     try {
       OSecurityUser user = getUser(username, session);
@@ -125,7 +125,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
 
   // OSecurityAuthenticator
   // If not supported by the authenticator, return false.
-  public boolean isAuthorized(ODatabaseSessionInternal session, final String username,
+  public boolean isAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource) {
     if (username == null || resource == null) {
       return false;
@@ -153,7 +153,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // OSecurityAuthenticator
-  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
+  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
     OSecurityUser userCfg = null;
 
     synchronized (usersMap) {

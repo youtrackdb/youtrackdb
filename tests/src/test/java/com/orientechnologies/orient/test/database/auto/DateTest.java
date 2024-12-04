@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -44,12 +44,12 @@ public class DateTest extends DocumentDBBaseTest {
 
     database.createClass("Order");
     database.begin();
-    ODocument doc1 = new ODocument("Order");
+    YTDocument doc1 = new YTDocument("Order");
     doc1.field("context", "test");
     doc1.field("date", new Date());
     doc1.save();
 
-    ODocument doc2 = new ODocument("Order");
+    YTDocument doc2 = new YTDocument("Order");
     doc2.field("context", "test");
     doc2.field("date", System.currentTimeMillis());
     doc2.save();
@@ -57,7 +57,7 @@ public class DateTest extends DocumentDBBaseTest {
 
     database.begin();
     doc2 = database.bindToSession(doc2);
-    Assert.assertTrue(doc2.field("date", OType.DATE) instanceof Date);
+    Assert.assertTrue(doc2.field("date", YTType.DATE) instanceof Date);
     Assert.assertTrue(doc2.field("date", Date.class) instanceof Date);
 
     OResultSet result =
@@ -75,9 +75,9 @@ public class DateTest extends DocumentDBBaseTest {
         database.getStorage().getConfiguration().getDateFormatInstance().format(begin);
 
     database.begin();
-    ODocument doc = new ODocument("Order");
+    YTDocument doc = new YTDocument("Order");
     doc.field("context", "testPrecision");
-    doc.field("date", ODateHelper.now(), OType.DATETIME);
+    doc.field("date", ODateHelper.now(), YTType.DATETIME);
     doc.save();
     database.commit();
 
@@ -93,9 +93,9 @@ public class DateTest extends DocumentDBBaseTest {
 
   @Test
   public void testDateTypes() throws ParseException {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("context", "test");
-    doc.field("date", System.currentTimeMillis(), OType.DATE);
+    doc.field("date", System.currentTimeMillis(), YTType.DATE);
 
     Assert.assertTrue(doc.field("date") instanceof Date);
   }

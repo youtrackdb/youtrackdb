@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OOrderBy;
@@ -56,7 +56,7 @@ public class OrderByStep extends AbstractExecutionStep {
     long timeoutBegin = System.currentTimeMillis();
     List<OResult> cachedResult = new ArrayList<>();
     final long maxElementsAllowed =
-        OGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong();
+        YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong();
     boolean sorted = true;
     OExecutionStream lastBatch = p.start(ctx);
     while (lastBatch.hasNext(ctx)) {
@@ -71,7 +71,7 @@ public class OrderByStep extends AbstractExecutionStep {
             "Limit of allowed elements for in-heap ORDER BY in a single query exceeded ("
                 + maxElementsAllowed
                 + ") . You can set "
-                + OGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getKey()
+                + YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getKey()
                 + " to increase this limit");
       }
       sorted = false;

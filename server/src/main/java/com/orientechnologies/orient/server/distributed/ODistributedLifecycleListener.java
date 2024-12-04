@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.Set;
 
 /**
@@ -41,7 +41,7 @@ public interface ODistributedLifecycleListener {
    * @param session
    * @param iNode   Node name that is joining
    */
-  void onNodeJoined(ODatabaseSessionInternal session, String iNode);
+  void onNodeJoined(YTDatabaseSessionInternal session, String iNode);
 
   /**
    * Called right after a node left the cluster.
@@ -49,7 +49,7 @@ public interface ODistributedLifecycleListener {
    * @param session
    * @param iNode   Node name that left
    */
-  void onNodeLeft(ODatabaseSessionInternal session, String iNode);
+  void onNodeLeft(YTDatabaseSessionInternal session, String iNode);
 
   /**
    * Called upon change of database status on a node. Available statuses are defined in

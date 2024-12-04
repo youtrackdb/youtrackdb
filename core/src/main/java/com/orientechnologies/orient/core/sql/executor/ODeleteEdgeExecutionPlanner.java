@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.parser.OBatch;
 import com.orientechnologies.orient.core.sql.parser.ODeleteEdgeStatement;
@@ -77,7 +77,7 @@ public class ODeleteEdgeExecutionPlanner {
 
   public OInternalExecutionPlan createExecutionPlan(
       OCommandContext ctx, boolean enableProfiling, boolean useCache) {
-    ODatabaseSessionInternal db = ctx.getDatabase();
+    YTDatabaseSessionInternal db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {

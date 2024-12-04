@@ -20,8 +20,8 @@
 package com.orientechnologies.common.util;
 
 import com.orientechnologies.orient.core.config.OStorageFileConfiguration;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.cache.OPageDataVerificationError;
@@ -34,9 +34,9 @@ public final class OCommonConst {
   public static final char[] EMPTY_CHAR_ARRAY = new char[0];
   public static final int[] EMPTY_INT_ARRAY = new int[0];
   public static final OCluster[] EMPTY_CLUSTER_ARRAY = new OCluster[0];
-  public static final OIdentifiable[] EMPTY_IDENTIFIABLE_ARRAY = new OIdentifiable[0];
+  public static final YTIdentifiable[] EMPTY_IDENTIFIABLE_ARRAY = new YTIdentifiable[0];
   public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
-  public static final OType[] EMPTY_TYPES_ARRAY = new OType[0];
+  public static final YTType[] EMPTY_TYPES_ARRAY = new YTType[0];
   public static final OPageDataVerificationError[] EMPTY_PAGE_DATA_VERIFICATION_ARRAY =
       new OPageDataVerificationError[0];
   public static final OHashTable.Entry[] EMPTY_BUCKET_ENTRY_ARRAY = new OHashTable.Entry[0];

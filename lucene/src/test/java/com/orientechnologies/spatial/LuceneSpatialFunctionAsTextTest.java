@@ -16,10 +16,10 @@ package com.orientechnologies.spatial;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.text.ParseException;
@@ -38,12 +38,12 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   @Before
   public void init() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass oClass = schema.createClass("Location");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass oClass = schema.createClass("Location");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "geometry", OType.EMBEDDED, schema.getClass("OShape"));
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "geometry", YTType.EMBEDDED, schema.getClass("OShape"));
+    oClass.createProperty(db, "name", YTType.STRING);
 
     initData();
   }
@@ -60,8 +60,8 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
     createLocation("OGeometryCollection", geometryCollection());
   }
 
-  protected void createLocation(String name, ODocument geometry) {
-    ODocument doc = new ODocument("Location");
+  protected void createLocation(String name, YTDocument geometry) {
+    YTDocument doc = new YTDocument("Location");
     doc.field("name", name);
     doc.field("geometry", geometry);
 

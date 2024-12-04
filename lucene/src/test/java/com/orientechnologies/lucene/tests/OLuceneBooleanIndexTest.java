@@ -20,9 +20,9 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
@@ -38,14 +38,14 @@ public class OLuceneBooleanIndexTest extends OLuceneBaseTest {
   @Before
   public void init() {
 
-    OClass personClass = db.createVertexClass("Person");
-    personClass.createProperty(db, "isDeleted", OType.BOOLEAN);
+    YTClass personClass = db.createVertexClass("Person");
+    personClass.createProperty(db, "isDeleted", YTType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
         .close();
 
     for (int i = 0; i < 1000; i++) {
-      OVertex person = db.newVertex("Person");
+      YTVertex person = db.newVertex("Person");
       person.setProperty("isDeleted", i % 2 == 0);
       db.begin();
       db.save(person);

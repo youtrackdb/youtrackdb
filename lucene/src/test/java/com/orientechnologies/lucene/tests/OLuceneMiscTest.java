@@ -20,11 +20,11 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -135,37 +135,37 @@ public class OLuceneMiscTest extends OLuceneBaseTest {
   @Ignore
   public void dottedNotationTest() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass e = schema.getClass("E");
-    OClass author = schema.createClass("Author", v);
-    author.createProperty(db, "name", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass e = schema.getClass("E");
+    YTClass author = schema.createClass("Author", v);
+    author.createProperty(db, "name", YTType.STRING);
 
-    OClass song = schema.createClass("Song", v);
-    song.createProperty(db, "title", OType.STRING);
+    YTClass song = schema.createClass("Song", v);
+    song.createProperty(db, "title", YTType.STRING);
 
-    OClass authorOf = schema.createClass("AuthorOf", e);
-    authorOf.createProperty(db, "in", OType.LINK, song);
+    YTClass authorOf = schema.createClass("AuthorOf", e);
+    authorOf.createProperty(db, "in", YTType.LINK, song);
     db.commit();
 
     db.command("create index AuthorOf.in on AuthorOf (in) NOTUNIQUE");
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE");
 
-    OVertex authorVertex = db.newVertex("Author");
+    YTVertex authorVertex = db.newVertex("Author");
     authorVertex.setProperty("name", "Bob Dylan");
 
     db.begin();
     db.save(authorVertex);
     db.commit();
 
-    OVertex songVertex = db.newVertex("Song");
+    YTVertex songVertex = db.newVertex("Song");
     songVertex.setProperty("title", "hurricane");
 
     db.begin();
     db.save(songVertex);
     db.commit();
 
-    OEdge edge = authorVertex.addEdge(songVertex, "AuthorOf");
+    YTEdge edge = authorVertex.addEdge(songVertex, "AuthorOf");
     db.begin();
     db.save(edge);
     db.commit();

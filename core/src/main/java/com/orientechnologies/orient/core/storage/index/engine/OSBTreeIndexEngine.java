@@ -24,9 +24,9 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
@@ -201,12 +201,12 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Object get(ODatabaseSessionInternal session, Object key) {
+  public Object get(YTDatabaseSessionInternal session, Object key) {
     return sbTree.get(key);
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> stream(IndexEngineValuesTransformer valuesTransformer) {
     final Object firstKey = sbTree.firstKey();
     if (firstKey == null) {
       return StreamSupport.stream(Spliterators.emptySpliterator(), false);
@@ -215,10 +215,10 @@ public class OSBTreeIndexEngine implements OIndexEngine {
         valuesTransformer, sbTree.iterateEntriesMajor(firstKey, true, true));
   }
 
-  private static Stream<ORawPair<Object, ORID>> convertTreeStreamToIndexStream(
+  private static Stream<ORawPair<Object, YTRID>> convertTreeStreamToIndexStream(
       IndexEngineValuesTransformer valuesTransformer, Stream<ORawPair<Object, Object>> treeStream) {
     if (valuesTransformer == null) {
-      return treeStream.map((entry) -> new ORawPair<>(entry.first, (ORID) entry.second));
+      return treeStream.map((entry) -> new ORawPair<>(entry.first, (YTRID) entry.second));
     } else {
       //noinspection resource
       return treeStream.flatMap(
@@ -229,7 +229,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> descStream(
+      IndexEngineValuesTransformer valuesTransformer) {
     final Object lastKey = sbTree.lastKey();
     if (lastKey == null) {
       return StreamSupport.stream(Spliterators.emptySpliterator(), false);
@@ -245,7 +246,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  public void put(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       Object value) {
     try {
       sbTree.put(atomicOperation, key, value);
@@ -257,7 +258,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
 
   @Override
   public void update(
-      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       OIndexKeyUpdater<Object> updater) {
     try {
       sbTree.update(atomicOperation, key, updater, null);
@@ -272,8 +273,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator) {
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator) {
     try {
       return sbTree.validatedPut(atomicOperation, key, value, (IndexEngineValidator) validator);
     } catch (IOException e) {
@@ -283,8 +284,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -296,7 +297,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -306,7 +307,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,

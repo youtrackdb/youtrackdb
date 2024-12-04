@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.sql.functions.geo;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
@@ -40,7 +40,7 @@ public class OSQLFunctionDistance extends OSQLFunctionAbstract {
 
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -53,7 +53,7 @@ public class OSQLFunctionDistance extends OSQLFunctionAbstract {
         return null;
       }
 
-      values[i] = (Double) OType.convert(iContext.getDatabase(), iParams[i],
+      values[i] = (Double) YTType.convert(iContext.getDatabase(), iParams[i],
           Double.class);
     }
 
@@ -89,7 +89,7 @@ public class OSQLFunctionDistance extends OSQLFunctionAbstract {
     return distance;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "distance(<field-x>,<field-y>,<x-value>,<y-value>[,<unit>])";
   }
 }

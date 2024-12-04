@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -47,7 +47,7 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
   @Override
   @SuppressWarnings("unchecked")
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -71,11 +71,11 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     final OIndexInternal internalIndex = index.getInternal();
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
@@ -141,12 +141,12 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

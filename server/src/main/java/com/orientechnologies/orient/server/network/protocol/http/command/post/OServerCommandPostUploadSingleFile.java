@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -35,18 +35,19 @@ import java.util.HashMap;
 /**
  *
  */
-public class OServerCommandPostUploadSingleFile extends OHttpMultipartRequestCommand<String, ORID> {
+public class OServerCommandPostUploadSingleFile extends
+    OHttpMultipartRequestCommand<String, YTRID> {
 
   private static final String[] NAMES = {"POST|uploadSingleFile/*"};
 
   protected StringWriter buffer;
   protected OJSONWriter writer;
-  protected ORID fileRID;
+  protected YTRID fileRID;
   protected String fileDocument;
   protected String fileName;
   protected String fileType;
   protected long now;
-  protected ODatabaseSessionInternal database;
+  protected YTDatabaseSessionInternal database;
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
@@ -125,7 +126,7 @@ public class OServerCommandPostUploadSingleFile extends OHttpMultipartRequestCom
 
   @Override
   protected void processFileContent(
-      OHttpRequest iRequest, ORID iContentResult, HashMap<String, String> headers)
+      OHttpRequest iRequest, YTRID iContentResult, HashMap<String, String> headers)
       throws Exception {
     if (headers.containsKey(OHttpUtils.MULTIPART_CONTENT_NAME)
         && headers.get(OHttpUtils.MULTIPART_CONTENT_NAME).equals(getFileParamenterName())) {
@@ -170,7 +171,7 @@ public class OServerCommandPostUploadSingleFile extends OHttpMultipartRequestCom
         if (fileDocument.contains("$file")) {
           fileDocument = fileDocument.replace("$file", fileRID.toString());
         }
-        ODocument doc = new ODocument();
+        YTDocument doc = new YTDocument();
         doc.fromJSON(fileDocument);
         doc.save();
         writer.beginObject("updatedDocument");

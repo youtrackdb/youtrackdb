@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
   @Test
   public void testPlain() {
     String className = "testPlain";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
     Assert.assertNotNull(schema.getClass(className));
@@ -33,8 +33,8 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
   public void testUnsafe() {
 
     String className = "testUnsafe";
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
     schema.createClass(className, v);
 
     db.begin();
@@ -59,7 +59,7 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
   @Test
   public void testIfExists() {
     String className = "testIfExists";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
     Assert.assertNotNull(schema.getClass(className));
@@ -80,7 +80,7 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
   @Test
   public void testParam() {
     String className = "testParam";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
     Assert.assertNotNull(schema.getClass(className));

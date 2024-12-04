@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Iterator;
 
@@ -41,10 +41,10 @@ public class ExpandStep extends AbstractExecutionStep {
     if (projValue == null) {
       return OExecutionStream.empty();
     }
-    if (projValue instanceof OIdentifiable) {
-      ORecord rec;
+    if (projValue instanceof YTIdentifiable) {
+      YTRecord rec;
       try {
-        rec = ((OIdentifiable) projValue).getRecord();
+        rec = ((YTIdentifiable) projValue).getRecord();
       } catch (ORecordNotFoundException rnf) {
         return OExecutionStream.empty();
       }

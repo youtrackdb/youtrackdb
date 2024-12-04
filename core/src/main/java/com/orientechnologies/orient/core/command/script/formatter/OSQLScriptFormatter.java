@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command.script.formatter;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 
 /**
@@ -27,12 +27,12 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
  */
 public class OSQLScriptFormatter implements OScriptFormatter {
 
-  public String getFunctionDefinition(ODatabaseSessionInternal session, final OFunction f) {
+  public String getFunctionDefinition(YTDatabaseSessionInternal session, final OFunction f) {
     return null;
   }
 
   @Override
-  public String getFunctionInvoke(ODatabaseSessionInternal session, final OFunction iFunction,
+  public String getFunctionInvoke(YTDatabaseSessionInternal session, final OFunction iFunction,
       final Object[] iArgs) {
     // TODO: BIND ARGS
     return iFunction.getCode(session);

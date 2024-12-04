@@ -29,8 +29,8 @@ import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.OError37Response;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.OSocketFactory;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -71,7 +71,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     try {
 
       serverURL = remoteHost + ":" + remotePort;
-      socketTimeout = iConfig.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
+      socketTimeout = iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
 
       try {
         socket.connect(new InetSocketAddress(remoteHost, remotePort), socketTimeout);
@@ -173,12 +173,12 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     return rootException;
   }
 
-  public byte[] beginResponse(ODatabaseSessionInternal db, final int iRequesterId,
+  public byte[] beginResponse(YTDatabaseSessionInternal db, final int iRequesterId,
       final boolean token) throws IOException {
     return beginResponse(db, iRequesterId, timeout, token);
   }
 
-  public byte[] beginResponse(ODatabaseSessionInternal db, final int iRequesterId,
+  public byte[] beginResponse(YTDatabaseSessionInternal db, final int iRequesterId,
       final long iTimeout, final boolean token)
       throws IOException {
     try {
@@ -309,7 +309,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
   }
 
   public int handleStatus(
-      ODatabaseSessionInternal db, final byte iResult, final int iClientTxId,
+      YTDatabaseSessionInternal db, final byte iResult, final int iClientTxId,
       ExceptionHandler exceptionHandler)
       throws IOException {
     if (iResult == OChannelBinaryProtocol.RESPONSE_STATUS_OK
@@ -346,7 +346,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     return iClientTxId;
   }
 
-  public int handleStatus(ODatabaseSessionInternal db, final byte iResult, final int iClientTxId)
+  public int handleStatus(YTDatabaseSessionInternal db, final byte iResult, final int iClientTxId)
       throws IOException {
     return handleStatus(db, iResult, iClientTxId, this::handleException);
   }

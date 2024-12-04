@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStreamProducer;
 import com.orientechnologies.orient.core.sql.executor.resultset.OMultipleExecutionStream;
@@ -64,7 +64,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     } else if (Boolean.FALSE.equals(ridOrder)) {
       orderByRidDesc = true;
     }
-    OClass clazz = loadClassFromSchema(className, ctx);
+    YTClass clazz = loadClassFromSchema(className, ctx);
     int[] classClusters = clazz.getPolymorphicClusterIds();
     IntArrayList filteredClassClusters = new IntArrayList();
 
@@ -105,8 +105,9 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  protected OClass loadClassFromSchema(String className, OCommandContext ctx) {
-    OClass clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(className);
+  protected YTClass loadClassFromSchema(String className, OCommandContext ctx) {
+    YTClass clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot()
+        .getClass(className);
     if (clazz == null) {
       throw new OCommandExecutionException("Class " + className + " not found");
     }
@@ -204,7 +205,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("className", className);
     result.setProperty("orderByRidAsc", orderByRidAsc);

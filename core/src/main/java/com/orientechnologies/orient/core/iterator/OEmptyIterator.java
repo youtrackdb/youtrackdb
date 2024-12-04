@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.iterator;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.Iterator;
 
 /**
@@ -28,7 +28,7 @@ import java.util.Iterator;
 public class OEmptyIterator<T> implements Iterator<T> {
 
   public static final OEmptyIterator<Object> ANY_INSTANCE = new OEmptyIterator<>();
-  public static final OEmptyIterator<ORID> IDENTIFIABLE_INSTANCE = new OEmptyIterator<>();
+  public static final OEmptyIterator<YTRID> IDENTIFIABLE_INSTANCE = new OEmptyIterator<>();
 
   public boolean hasNext() {
     return false;

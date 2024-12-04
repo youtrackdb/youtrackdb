@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -37,7 +37,7 @@ import java.util.Set;
 public class OTraverseContext extends OBasicCommandContext {
 
   private Memory memory = new StackMemory();
-  private final Set<ORID> history = new HashSet<ORID>();
+  private final Set<YTRID> history = new HashSet<YTRID>();
 
   private OTraverseAbstractProcess<?> currentProcess;
 
@@ -82,9 +82,9 @@ public class OTraverseContext extends OBasicCommandContext {
     }
   }
 
-  public void pop(final OIdentifiable currentRecord) {
+  public void pop(final YTIdentifiable currentRecord) {
     if (currentRecord != null) {
-      final ORID rid = currentRecord.getIdentity();
+      final YTRID rid = currentRecord.getIdentity();
       if (!history.remove(rid)) {
         OLogManager.instance().warn(this, "Element '" + rid + "' not found in traverse history");
       }
@@ -110,7 +110,7 @@ public class OTraverseContext extends OBasicCommandContext {
     memory.clear();
   }
 
-  public boolean isAlreadyTraversed(final OIdentifiable identity, final int iLevel) {
+  public boolean isAlreadyTraversed(final YTIdentifiable identity, final int iLevel) {
     return history.contains(identity.getIdentity());
 
     // final int[] l = history.get(identity.getIdentity());
@@ -122,7 +122,7 @@ public class OTraverseContext extends OBasicCommandContext {
     // return true;
   }
 
-  public void addTraversed(final OIdentifiable identity, final int iLevel) {
+  public void addTraversed(final YTIdentifiable identity, final int iLevel) {
     history.add(identity.getIdentity());
 
     // final int[] l = history.get(identity.getIdentity());

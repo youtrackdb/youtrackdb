@@ -20,15 +20,15 @@
 package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.common.exception.OSystemException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
-import com.orientechnologies.orient.core.record.impl.ORecordFlat;
-import com.orientechnologies.orient.core.record.impl.OVertexDocument;
-import com.orientechnologies.orient.core.record.impl.OViewDocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEdgeDocument;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
+import com.orientechnologies.orient.core.record.impl.YTRecordFlat;
+import com.orientechnologies.orient.core.record.impl.YTVertexDocument;
+import com.orientechnologies.orient.core.record.impl.YTViewDocument;
 
 /**
  * Record factory. To use your own record implementation use the declareRecordType() method. Example
@@ -42,39 +42,39 @@ import com.orientechnologies.orient.core.record.impl.OViewDocument;
 public class ORecordFactoryManager {
 
   protected final String[] recordTypeNames = new String[Byte.MAX_VALUE];
-  protected final Class<? extends ORecord>[] recordTypes = new Class[Byte.MAX_VALUE];
+  protected final Class<? extends YTRecord>[] recordTypes = new Class[Byte.MAX_VALUE];
   protected final ORecordFactory[] recordFactories = new ORecordFactory[Byte.MAX_VALUE];
 
   public interface ORecordFactory {
 
-    ORecord newRecord(ORID rid, ODatabaseSessionInternal database);
+    YTRecord newRecord(YTRID rid, YTDatabaseSessionInternal database);
   }
 
   public ORecordFactoryManager() {
     declareRecordType(
-        ODocument.RECORD_TYPE,
+        YTDocument.RECORD_TYPE,
         "document",
-        ODocument.class,
+        YTDocument.class,
         (rid, database) -> {
           var cluster = rid.getClusterId();
           if (database != null && cluster >= 0) {
             if (database.isClusterVertex(cluster)) {
-              return new OVertexDocument(database, rid);
+              return new YTVertexDocument(database, rid);
             } else if (database.isClusterEdge(cluster)) {
-              return new OEdgeDocument(database, rid);
+              return new YTEdgeDocument(database, rid);
             } else if (database.isClusterView(cluster)) {
-              return new OViewDocument(database, rid);
+              return new YTViewDocument(database, rid);
             }
           }
-          return new ODocument(database, rid);
+          return new YTDocument(database, rid);
         });
     declareRecordType(
-        OBlob.RECORD_TYPE, "bytes", OBlob.class, (rid, database) -> new ORecordBytes(rid));
+        YTBlob.RECORD_TYPE, "bytes", YTBlob.class, (rid, database) -> new YTRecordBytes(rid));
     declareRecordType(
-        ORecordFlat.RECORD_TYPE,
+        YTRecordFlat.RECORD_TYPE,
         "flat",
-        ORecordFlat.class,
-        (rid, database) -> new ORecordFlat(rid));
+        YTRecordFlat.class,
+        (rid, database) -> new YTRecordFlat(rid));
   }
 
   public String getRecordTypeName(final byte iRecordType) {
@@ -85,7 +85,7 @@ public class ORecordFactoryManager {
     return name;
   }
 
-  public ORecord newInstance(ORID rid, ODatabaseSessionInternal database) {
+  public YTRecord newInstance(YTRID rid, YTDatabaseSessionInternal database) {
     try {
       return getFactory(database.getRecordType()).newRecord(rid, database);
     } catch (Exception e) {
@@ -93,17 +93,17 @@ public class ORecordFactoryManager {
     }
   }
 
-  public ORecordAbstract newInstance(
-      final byte iRecordType, ORID rid, ODatabaseSessionInternal database) {
+  public YTRecordAbstract newInstance(
+      final byte iRecordType, YTRID rid, YTDatabaseSessionInternal database) {
     try {
-      return (ORecordAbstract) getFactory(iRecordType).newRecord(rid, database);
+      return (YTRecordAbstract) getFactory(iRecordType).newRecord(rid, database);
     } catch (Exception e) {
       throw new IllegalArgumentException("Unsupported record type: " + iRecordType, e);
     }
   }
 
   public void declareRecordType(
-      byte iByte, String iName, Class<? extends ORecord> iClass, final ORecordFactory iFactory) {
+      byte iByte, String iName, Class<? extends YTRecord> iClass, final ORecordFactory iFactory) {
     if (recordTypes[iByte] != null) {
       throw new OSystemException(
           "Record type byte '" + iByte + "' already in use : " + recordTypes[iByte].getName());

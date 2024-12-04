@@ -31,12 +31,12 @@ import com.orientechnologies.orient.core.collate.OCollateFactory;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
@@ -79,7 +79,7 @@ public class OSQLEngine {
   private static OQueryOperator[] SORTED_OPERATORS = null;
   private static final ClassLoader orientClassLoader = OSQLEngine.class.getClassLoader();
 
-  public static OStatement parse(String query, ODatabaseSessionInternal db) {
+  public static OStatement parse(String query, YTDatabaseSessionInternal db) {
     return OStatementCache.get(query, db);
   }
 
@@ -87,12 +87,12 @@ public class OSQLEngine {
     return OStatementCache.getServerStatement(query, db);
   }
 
-  public static List<OStatement> parseScript(String script, ODatabaseSessionInternal db) {
+  public static List<OStatement> parseScript(String script, YTDatabaseSessionInternal db) {
     final InputStream is = new ByteArrayInputStream(script.getBytes());
     return parseScript(is, db);
   }
 
-  public static List<OStatement> parseScript(InputStream script, ODatabaseSessionInternal db) {
+  public static List<OStatement> parseScript(InputStream script, YTDatabaseSessionInternal db) {
     try {
       final OrientSql osql = new OrientSql(script);
       List<OStatement> result = osql.parseScript();
@@ -168,7 +168,7 @@ public class OSQLEngine {
    * @return Iterator of all function factories
    */
   public static Iterator<OSQLFunctionFactory> getFunctionFactories(
-      ODatabaseSessionInternal session) {
+      YTDatabaseSessionInternal session) {
     if (FUNCTION_FACTORIES == null) {
       synchronized (INSTANCE) {
         if (FUNCTION_FACTORIES == null) {
@@ -293,7 +293,7 @@ public class OSQLEngine {
    *
    * @return Set of all function names.
    */
-  public static Set<String> getFunctionNames(ODatabaseSessionInternal session) {
+  public static Set<String> getFunctionNames(YTDatabaseSessionInternal session) {
     final Set<String> types = new HashSet<String>();
     final Iterator<OSQLFunctionFactory> ite = getFunctionFactories(session);
     while (ite.hasNext()) {
@@ -353,7 +353,7 @@ public class OSQLEngine {
   }
 
   public static Object foreachRecord(
-      final OCallable<Object, OIdentifiable> iCallable,
+      final OCallable<Object, YTIdentifiable> iCallable,
       Object iCurrent,
       final OCommandContext iContext) {
     if (iCurrent == null) {
@@ -364,7 +364,7 @@ public class OSQLEngine {
       return null;
     }
 
-    if (iCurrent instanceof Iterable && !(iCurrent instanceof OIdentifiable)) {
+    if (iCurrent instanceof Iterable && !(iCurrent instanceof YTIdentifiable)) {
       iCurrent = ((Iterable) iCurrent).iterator();
     }
     if (OMultiValue.isMultiValue(iCurrent) || iCurrent instanceof Iterator) {
@@ -376,15 +376,15 @@ public class OSQLEngine {
 
         if (OMultiValue.isMultiValue(o) || o instanceof Iterator) {
           for (Object inner : OMultiValue.getMultiValueIterable(o)) {
-            result.add(iCallable.call((OIdentifiable) inner));
+            result.add(iCallable.call((YTIdentifiable) inner));
           }
         } else {
-          result.add(iCallable.call((OIdentifiable) o));
+          result.add(iCallable.call((YTIdentifiable) o));
         }
       }
       return result;
-    } else if (iCurrent instanceof OIdentifiable) {
-      return iCallable.call((OIdentifiable) iCurrent);
+    } else if (iCurrent instanceof YTIdentifiable) {
+      return iCallable.call((YTIdentifiable) iCurrent);
     } else if (iCurrent instanceof OResult) {
       return iCallable.call(((OResult) iCurrent).toElement());
     }
@@ -498,7 +498,7 @@ public class OSQLEngine {
     ODynamicSQLElementFactory.FUNCTIONS.put(iName.toLowerCase(Locale.ENGLISH), iFunctionClass);
   }
 
-  public OSQLFunction getFunction(ODatabaseSessionInternal session, String iFunctionName) {
+  public OSQLFunction getFunction(YTDatabaseSessionInternal session, String iFunctionName) {
     iFunctionName = iFunctionName.toLowerCase(Locale.ENGLISH);
 
     if (iFunctionName.equalsIgnoreCase("any") || iFunctionName.equalsIgnoreCase("all"))
@@ -570,57 +570,58 @@ public class OSQLEngine {
     return new OSQLTarget(iText, iContext);
   }
 
-  public Set<OIdentifiable> parseRIDTarget(
-      final ODatabaseSession database,
+  public Set<YTIdentifiable> parseRIDTarget(
+      final YTDatabaseSession database,
       String iTarget,
       final OCommandContext iContext,
       Map<Object, Object> iArgs) {
-    final Set<OIdentifiable> ids;
+    final Set<YTIdentifiable> ids;
     if (iTarget.startsWith("(")) {
       // SUB-QUERY
       final OSQLSynchQuery<Object> query =
           new OSQLSynchQuery<Object>(iTarget.substring(1, iTarget.length() - 1));
       query.setContext(iContext);
 
-      final List<OIdentifiable> result = ((ODatabaseSessionInternal) database).query(query, iArgs);
+      final List<YTIdentifiable> result = ((YTDatabaseSessionInternal) database).query(query,
+          iArgs);
       if (result == null || result.isEmpty()) {
         ids = Collections.emptySet();
       } else {
-        ids = new HashSet<OIdentifiable>((int) (result.size() * 1.3));
-        for (OIdentifiable aResult : result) {
+        ids = new HashSet<YTIdentifiable>((int) (result.size() * 1.3));
+        for (YTIdentifiable aResult : result) {
           ids.add(aResult.getIdentity());
         }
       }
     } else if (iTarget.startsWith("[")) {
       // COLLECTION OF RIDS
       final String[] idsAsStrings = iTarget.substring(1, iTarget.length() - 1).split(",");
-      ids = new HashSet<OIdentifiable>((int) (idsAsStrings.length * 1.3));
+      ids = new HashSet<YTIdentifiable>((int) (idsAsStrings.length * 1.3));
       for (String idsAsString : idsAsStrings) {
         if (idsAsString.startsWith("$")) {
           Object r = iContext.getVariable(idsAsString);
-          if (r instanceof OIdentifiable) {
-            ids.add((OIdentifiable) r);
+          if (r instanceof YTIdentifiable) {
+            ids.add((YTIdentifiable) r);
           } else {
             OMultiValue.add(ids, r);
           }
         } else {
-          ids.add(new ORecordId(idsAsString));
+          ids.add(new YTRecordId(idsAsString));
         }
       }
     } else {
       // SINGLE RID
       if (iTarget.startsWith("$")) {
         Object r = iContext.getVariable(iTarget);
-        if (r instanceof OIdentifiable) {
-          ids = Collections.singleton((OIdentifiable) r);
+        if (r instanceof YTIdentifiable) {
+          ids = Collections.singleton((YTIdentifiable) r);
         } else {
           ids =
-              (Set<OIdentifiable>)
-                  OMultiValue.add(new HashSet<OIdentifiable>(OMultiValue.getSize(r)), r);
+              (Set<YTIdentifiable>)
+                  OMultiValue.add(new HashSet<YTIdentifiable>(OMultiValue.getSize(r)), r);
         }
 
       } else {
-        ids = Collections.singleton(new ORecordId(iTarget));
+        ids = Collections.singleton(new YTRecordId(iTarget));
       }
     }
     return ids;

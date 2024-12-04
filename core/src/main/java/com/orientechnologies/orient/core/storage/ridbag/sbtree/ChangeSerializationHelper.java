@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,18 +34,18 @@ public class ChangeSerializationHelper {
     return createChangeInstance(OByteSerializer.INSTANCE.deserializeLiteral(stream, offset), value);
   }
 
-  public Map<OIdentifiable, Change> deserializeChanges(final byte[] stream, int offset) {
+  public Map<YTIdentifiable, Change> deserializeChanges(final byte[] stream, int offset) {
     final int count = OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
     offset += OIntegerSerializer.INT_SIZE;
 
-    final HashMap<OIdentifiable, Change> res = new HashMap<>();
+    final HashMap<YTIdentifiable, Change> res = new HashMap<>();
     for (int i = 0; i < count; i++) {
-      ORecordId rid = OLinkSerializer.INSTANCE.deserialize(stream, offset);
+      YTRecordId rid = OLinkSerializer.INSTANCE.deserialize(stream, offset);
       offset += OLinkSerializer.RID_SIZE;
       Change change = ChangeSerializationHelper.INSTANCE.deserializeChange(stream, offset);
       offset += Change.SIZE;
 
-      OIdentifiable identifiable;
+      YTIdentifiable identifiable;
       try {
         if (rid.isTemporary()) {
           identifiable = rid.getRecord();
@@ -62,7 +62,7 @@ public class ChangeSerializationHelper {
     return res;
   }
 
-  public <K extends OIdentifiable> void serializeChanges(
+  public <K extends YTIdentifiable> void serializeChanges(
       Map<K, Change> changes, OBinarySerializer<K> keySerializer, byte[] stream, int offset) {
     OIntegerSerializer.INSTANCE.serializeLiteral(changes.size(), stream, offset);
     offset += OIntegerSerializer.INT_SIZE;

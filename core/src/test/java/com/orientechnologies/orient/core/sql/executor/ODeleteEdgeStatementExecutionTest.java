@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,10 +18,10 @@ public class ODeleteEdgeStatementExecutionTest extends DBTestBase {
     String edgeClassName = "testDeleteSingleEdgeE";
     db.createEdgeClass(edgeClassName);
 
-    OVertex prev = null;
+    YTVertex prev = null;
     for (int i = 0; i < 10; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vertexClassName);
+      YTVertex v1 = db.newVertex(vertexClassName);
       v1.setProperty("name", "a" + i);
       v1.save();
       if (prev != null) {
@@ -73,10 +73,10 @@ public class ODeleteEdgeStatementExecutionTest extends DBTestBase {
     String edgeClassName = "testDeleteAllE";
     db.createEdgeClass(edgeClassName);
 
-    OVertex prev = null;
+    YTVertex prev = null;
     for (int i = 0; i < 10; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(vertexClassName);
+      YTVertex v1 = db.newVertex(vertexClassName);
       v1.setProperty("name", "a" + i);
       v1.save();
       if (prev != null) {

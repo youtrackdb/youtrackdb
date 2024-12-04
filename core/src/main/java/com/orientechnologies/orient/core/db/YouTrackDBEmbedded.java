@@ -20,9 +20,9 @@
 
 package com.orientechnologies.orient.core.db;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.FILE_DELETE_DELAY;
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.FILE_DELETE_RETRY;
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.WARNING_DEFAULT_USERS;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.FILE_DELETE_DELAY;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.FILE_DELETE_RETRY;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.WARNING_DEFAULT_USERS;
 
 import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
 import com.orientechnologies.common.exception.OException;
@@ -33,8 +33,8 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseSessionEmbedded;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.engine.OEngine;
 import com.orientechnologies.orient.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -183,7 +183,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
     initAutoClose();
 
-    long timeout = getLongConfig(OGlobalConfiguration.COMMAND_TIMEOUT);
+    long timeout = getLongConfig(YTGlobalConfiguration.COMMAND_TIMEOUT);
     timeoutChecker = new OCommandTimeoutChecker(timeout, this);
     systemDatabase = new OSystemDatabase(this);
     securitySystem = new ODefaultSecuritySystem();
@@ -193,21 +193,21 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   private void initAutoClose() {
 
-    boolean autoClose = getBoolConfig(OGlobalConfiguration.AUTO_CLOSE_AFTER_DELAY);
+    boolean autoClose = getBoolConfig(YTGlobalConfiguration.AUTO_CLOSE_AFTER_DELAY);
     if (autoClose) {
-      int autoCloseDelay = getIntConfig(OGlobalConfiguration.AUTO_CLOSE_DELAY);
+      int autoCloseDelay = getIntConfig(YTGlobalConfiguration.AUTO_CLOSE_DELAY);
       final long delay = (long) autoCloseDelay * 60 * 1000;
       initAutoClose(delay);
     }
   }
 
   private ExecutorService newIoExecutor() {
-    if (getBoolConfig(OGlobalConfiguration.EXECUTOR_POOL_IO_ENABLED)) {
-      int ioSize = excutorMaxSize(OGlobalConfiguration.EXECUTOR_POOL_IO_MAX_SIZE);
+    if (getBoolConfig(YTGlobalConfiguration.EXECUTOR_POOL_IO_ENABLED)) {
+      int ioSize = excutorMaxSize(YTGlobalConfiguration.EXECUTOR_POOL_IO_MAX_SIZE);
       ExecutorService exec =
           OThreadPoolExecutors.newScalingThreadPool(
               "YouTrackDB-IO", 1, excutorBaseSize(ioSize), ioSize, 30, TimeUnit.MINUTES);
-      if (getBoolConfig(OGlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
+      if (getBoolConfig(YTGlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
         exec = new OSourceTraceExecutorService(exec);
       }
       return exec;
@@ -217,29 +217,29 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   private ExecutorService newExecutor() {
-    int size = excutorMaxSize(OGlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
+    int size = excutorMaxSize(YTGlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
     ExecutorService exec =
         OThreadPoolExecutors.newScalingThreadPool(
             "YouTrackDBEmbedded", 1, excutorBaseSize(size), size, 30, TimeUnit.MINUTES);
-    if (getBoolConfig(OGlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
+    if (getBoolConfig(YTGlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
       exec = new OSourceTraceExecutorService(exec);
     }
     return exec;
   }
 
-  private boolean getBoolConfig(OGlobalConfiguration config) {
+  private boolean getBoolConfig(YTGlobalConfiguration config) {
     return this.configurations.getConfigurations().getValueAsBoolean(config);
   }
 
-  private int getIntConfig(OGlobalConfiguration config) {
+  private int getIntConfig(YTGlobalConfiguration config) {
     return this.configurations.getConfigurations().getValueAsInteger(config);
   }
 
-  private long getLongConfig(OGlobalConfiguration config) {
+  private long getLongConfig(YTGlobalConfiguration config) {
     return this.configurations.getConfigurations().getValueAsLong(config);
   }
 
-  private int excutorMaxSize(OGlobalConfiguration config) {
+  private int excutorMaxSize(YTGlobalConfiguration config) {
     int size = getIntConfig(config);
     if (size == 0) {
       OLogManager.instance()
@@ -269,8 +269,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   protected OCachedDatabasePoolFactory createCachedDatabasePoolFactory(YouTrackDBConfig config) {
-    int capacity = getIntConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY);
-    long timeout = getIntConfig(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
+    int capacity = getIntConfig(YTGlobalConfiguration.DB_CACHED_POOL_CAPACITY);
+    long timeout = getIntConfig(YTGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
     return new OCachedDatabasePoolFactoryImpl(this, capacity, timeout);
   }
 
@@ -304,7 +304,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   private long calculateInitialMaxWALSegSize() throws IOException {
     String walPath =
-        configurations.getConfigurations().getValueAsString(OGlobalConfiguration.WAL_LOCATION);
+        configurations.getConfigurations().getValueAsString(YTGlobalConfiguration.WAL_LOCATION);
 
     if (walPath == null) {
       walPath = basePath;
@@ -338,10 +338,10 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       filesSize = 0;
     }
 
-    long maxSegSize = getLongConfig(OGlobalConfiguration.WAL_MAX_SEGMENT_SIZE) * 1024 * 1024;
+    long maxSegSize = getLongConfig(YTGlobalConfiguration.WAL_MAX_SEGMENT_SIZE) * 1024 * 1024;
 
     if (maxSegSize <= 0) {
-      int sizePercent = getIntConfig(OGlobalConfiguration.WAL_MAX_SEGMENT_SIZE_PERCENT);
+      int sizePercent = getIntConfig(YTGlobalConfiguration.WAL_MAX_SEGMENT_SIZE_PERCENT);
       if (sizePercent <= 0) {
         throw new ODatabaseException(
             "Invalid configuration settings. Can not set maximum size of WAL segment");
@@ -352,7 +352,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
     final long minSegSizeLimit = (long) (freeSpace * 0.25);
 
-    long minSegSize = getLongConfig(OGlobalConfiguration.WAL_MIN_SEG_SIZE) * 1024 * 1024;
+    long minSegSize = getLongConfig(YTGlobalConfiguration.WAL_MIN_SEG_SIZE) * 1024 * 1024;
 
     if (minSegSize > minSegSizeLimit) {
       minSegSize = minSegSizeLimit;
@@ -395,11 +395,11 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
 
     long maxSegSize =
-        getLongConfig(OGlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE) * 1024 * 1024;
+        getLongConfig(YTGlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE) * 1024 * 1024;
 
     if (maxSegSize <= 0) {
       int sizePercent =
-          getIntConfig(OGlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE_PERCENT);
+          getIntConfig(YTGlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE_PERCENT);
 
       if (sizePercent <= 0) {
         throw new ODatabaseException(
@@ -410,7 +410,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
 
     long minSegSize =
-        getLongConfig(OGlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MIN_SEG_SIZE) * 1024 * 1024;
+        getLongConfig(YTGlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MIN_SEG_SIZE) * 1024 * 1024;
 
     if (minSegSize > 0 && maxSegSize < minSegSize) {
       maxSegSize = minSegSize;
@@ -419,14 +419,14 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   @Override
-  public ODatabaseSessionInternal open(String name, String user, String password) {
+  public YTDatabaseSessionInternal open(String name, String user, String password) {
     return open(name, user, password, null);
   }
 
-  public ODatabaseSessionEmbedded openNoAuthenticate(String name, String user) {
+  public YTDatabaseSessionEmbedded openNoAuthenticate(String name, String user) {
     checkDatabaseName(name);
     try {
-      final ODatabaseSessionEmbedded embedded;
+      final YTDatabaseSessionEmbedded embedded;
       YouTrackDBConfig config = solveConfig(null);
       synchronized (this) {
         checkOpen();
@@ -443,24 +443,24 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
   }
 
-  protected ODatabaseSessionEmbedded newSessionInstance(
+  protected YTDatabaseSessionEmbedded newSessionInstance(
       OAbstractPaginatedStorage storage, YouTrackDBConfig config, OSharedContext sharedContext) {
-    ODatabaseSessionEmbedded embedded = new ODatabaseSessionEmbedded(storage);
+    YTDatabaseSessionEmbedded embedded = new YTDatabaseSessionEmbedded(storage);
     embedded.init(config, getOrCreateSharedContext(storage));
     return embedded;
   }
 
-  protected ODatabaseSessionEmbedded newCreateSessionInstance(
+  protected YTDatabaseSessionEmbedded newCreateSessionInstance(
       OAbstractPaginatedStorage storage, YouTrackDBConfig config, OSharedContext sharedContext) {
-    ODatabaseSessionEmbedded embedded = new ODatabaseSessionEmbedded(storage);
+    YTDatabaseSessionEmbedded embedded = new YTDatabaseSessionEmbedded(storage);
     embedded.internalCreate(config, sharedContext);
     return embedded;
   }
 
-  public ODatabaseSessionEmbedded openNoAuthorization(String name) {
+  public YTDatabaseSessionEmbedded openNoAuthorization(String name) {
     checkDatabaseName(name);
     try {
-      final ODatabaseSessionEmbedded embedded;
+      final YTDatabaseSessionEmbedded embedded;
       YouTrackDBConfig config = solveConfig(null);
       synchronized (this) {
         checkOpen();
@@ -477,12 +477,12 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   @Override
-  public ODatabaseSessionInternal open(
+  public YTDatabaseSessionInternal open(
       String name, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(name);
     checkDefaultPassword(name, user, password);
     try {
-      final ODatabaseSessionEmbedded embedded;
+      final YTDatabaseSessionEmbedded embedded;
       synchronized (this) {
         checkOpen();
         config = solveConfig(config);
@@ -501,10 +501,10 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   @Override
-  public ODatabaseSessionInternal open(
+  public YTDatabaseSessionInternal open(
       OAuthenticationInfo authenticationInfo, YouTrackDBConfig config) {
     try {
-      final ODatabaseSessionEmbedded embedded;
+      final YTDatabaseSessionEmbedded embedded;
       synchronized (this) {
         checkOpen();
         config = solveConfig(config);
@@ -570,9 +570,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
   }
 
-  public ODatabaseSessionInternal poolOpen(
+  public YTDatabaseSessionInternal poolOpen(
       String name, String user, String password, ODatabasePoolInternal pool) {
-    final ODatabaseSessionEmbedded embedded;
+    final YTDatabaseSessionEmbedded embedded;
     synchronized (this) {
       checkOpen();
       OAbstractPaginatedStorage storage = getAndOpenStorage(name, pool.getConfig());
@@ -584,9 +584,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     return embedded;
   }
 
-  protected ODatabaseSessionEmbedded newPooledSessionInstance(
+  protected YTDatabaseSessionEmbedded newPooledSessionInstance(
       ODatabasePoolInternal pool, OAbstractPaginatedStorage storage, OSharedContext sharedContext) {
-    ODatabaseSessionEmbeddedPooled embedded = new ODatabaseSessionEmbeddedPooled(pool, storage);
+    YTDatabaseSessionEmbeddedPooled embedded = new YTDatabaseSessionEmbeddedPooled(pool, storage);
     embedded.init(pool.getConfig(), sharedContext);
     return embedded;
   }
@@ -661,7 +661,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       YouTrackDBConfig config,
       ODatabaseTask<Void> createOps) {
     checkDatabaseName(name);
-    final ODatabaseSessionEmbedded embedded;
+    final YTDatabaseSessionEmbedded embedded;
     synchronized (this) {
       if (!exists(name, user, password)) {
         try {
@@ -760,7 +760,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       YouTrackDBConfig config) {
     checkDatabaseName(name);
     config = solveConfig(config);
-    final ODatabaseSessionEmbedded embedded;
+    final YTDatabaseSessionEmbedded embedded;
     OAbstractPaginatedStorage storage;
     synchronized (this) {
       if (!exists(name, null, null)) {
@@ -823,7 +823,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
   }
 
-  protected ODatabaseSessionEmbedded internalCreate(
+  protected YTDatabaseSessionEmbedded internalCreate(
       YouTrackDBConfig config, OAbstractPaginatedStorage storage) {
     storage.create(config.getConfigurations());
     return newCreateSessionInstance(storage, config, getOrCreateSharedContext(storage));
@@ -868,9 +868,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       checkOpen();
     }
     checkDatabaseName(name);
-    ODatabaseSessionInternal current = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal current = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
-      ODatabaseSessionInternal db = openNoAuthenticate(name, user);
+      YTDatabaseSessionInternal db = openNoAuthenticate(name, user);
       for (Iterator<ODatabaseLifecycleListener> it = youTrack.getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onDrop(db);
@@ -1073,7 +1073,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   public synchronized void initCustomStorage(
       String name, String path, String userName, String userPassword) {
-    ODatabaseSessionEmbedded embedded = null;
+    YTDatabaseSessionEmbedded embedded = null;
     synchronized (this) {
       boolean exists = OLocalPaginatedStorage.exists(Paths.get(path));
       OAbstractPaginatedStorage storage =
@@ -1179,7 +1179,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   @Override
   public <X> X executeNoAuthorizationSync(
-      ODatabaseSessionInternal database, ODatabaseTask<X> task) {
+      YTDatabaseSessionInternal database, ODatabaseTask<X> task) {
     var dbName = database.getName();
     if (open) {
       try (var session = openNoAuthorization(dbName)) {

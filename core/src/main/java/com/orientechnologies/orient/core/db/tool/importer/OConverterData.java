@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.Set;
 
 /**
@@ -9,10 +9,10 @@ import java.util.Set;
  */
 public class OConverterData {
 
-  protected ODatabaseSession session;
-  protected Set<ORID> brokenRids;
+  protected YTDatabaseSession session;
+  protected Set<YTRID> brokenRids;
 
-  public OConverterData(ODatabaseSession session, Set<ORID> brokenRids) {
+  public OConverterData(YTDatabaseSession session, Set<YTRID> brokenRids) {
     this.session = session;
     this.brokenRids = brokenRids;
   }

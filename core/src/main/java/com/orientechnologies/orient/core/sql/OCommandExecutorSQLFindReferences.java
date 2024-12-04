@@ -22,11 +22,11 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.HashSet;
 import java.util.List;
@@ -42,7 +42,7 @@ public class OCommandExecutorSQLFindReferences extends OCommandExecutorSQLEarlyR
   public static final String KEYWORD_FIND = "FIND";
   public static final String KEYWORD_REFERENCES = "REFERENCES";
 
-  private final Set<ORID> recordIds = new HashSet<ORID>();
+  private final Set<YTRID> recordIds = new HashSet<YTRID>();
   private String classList;
   private StringBuilder subQuery;
 
@@ -67,7 +67,7 @@ public class OCommandExecutorSQLFindReferences extends OCommandExecutorSQLEarlyR
                 parserText, parserGetPreviousPosition(), -1, subQuery));
       } else {
         try {
-          final ORecordId rid = new ORecordId(target);
+          final YTRecordId rid = new YTRecordId(target);
           if (!rid.isValid()) {
             throwParsingException("Record ID " + target + " is not valid");
           }
@@ -102,15 +102,16 @@ public class OCommandExecutorSQLFindReferences extends OCommandExecutorSQLEarlyR
   /**
    * Execute the FIND REFERENCES.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (recordIds.isEmpty() && subQuery == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     if (subQuery != null) {
-      final List<OIdentifiable> result = new OCommandSQL(subQuery.toString()).execute(querySession);
-      for (OIdentifiable id : result) {
+      final List<YTIdentifiable> result = new OCommandSQL(subQuery.toString()).execute(
+          querySession);
+      for (YTIdentifiable id : result) {
         recordIds.add(id.getIdentity());
       }
     }

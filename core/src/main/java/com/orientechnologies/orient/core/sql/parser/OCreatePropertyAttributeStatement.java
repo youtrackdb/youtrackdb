@@ -4,9 +4,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OPropertyImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
 import java.util.Map;
 import java.util.Objects;
 
@@ -72,11 +72,11 @@ public class OCreatePropertyAttributeStatement extends SimpleNode {
     return result;
   }
 
-  public Object setOnProperty(OPropertyImpl internalProp, OCommandContext ctx) {
+  public Object setOnProperty(YTPropertyImpl internalProp, OCommandContext ctx) {
     String attrName = settingName.getStringValue();
     var db = ctx.getDatabase();
     Object attrValue =
-        this.settingValue == null ? true : this.settingValue.execute((OIdentifiable) null, ctx);
+        this.settingValue == null ? true : this.settingValue.execute((YTIdentifiable) null, ctx);
     try {
       if (attrName.equalsIgnoreCase("readonly")) {
         internalProp.setReadonly(db, (boolean) attrValue);

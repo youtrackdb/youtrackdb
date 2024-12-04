@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor.metadata;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.List;
 import java.util.Optional;
@@ -10,9 +10,9 @@ public class OIndexCandidateComposite implements OIndexCandidate {
 
   private final String index;
   private final Operation operation;
-  private final List<OProperty> properties;
+  private final List<YTProperty> properties;
 
-  public OIndexCandidateComposite(String index, Operation operation, List<OProperty> properties) {
+  public OIndexCandidateComposite(String index, Operation operation, List<YTProperty> properties) {
     this.index = index;
     this.operation = operation;
     this.properties = properties;
@@ -39,7 +39,7 @@ public class OIndexCandidateComposite implements OIndexCandidate {
   }
 
   @Override
-  public List<OProperty> properties() {
+  public List<YTProperty> properties() {
     return properties;
   }
 }

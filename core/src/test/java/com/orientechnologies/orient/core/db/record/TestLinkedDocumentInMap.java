@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +16,14 @@ public class TestLinkedDocumentInMap extends DBTestBase {
     db.command("delete from PersonTest").close();
 
     db.begin();
-    ODocument jaimeDoc = new ODocument("PersonTest");
+    YTDocument jaimeDoc = new YTDocument("PersonTest");
     jaimeDoc.field("name", "jaime");
     jaimeDoc.save();
     db.commit();
 
     db.begin();
     jaimeDoc = db.bindToSession(jaimeDoc);
-    ODocument tyrionDoc = new ODocument("PersonTest");
+    YTDocument tyrionDoc = new YTDocument("PersonTest");
     tyrionDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
@@ -32,8 +32,8 @@ public class TestLinkedDocumentInMap extends DBTestBase {
     db.commit();
 
     tyrionDoc = db.bindToSession(tyrionDoc);
-    List<Map<String, OIdentifiable>> res = tyrionDoc.field("emergency_contact");
-    Map<String, OIdentifiable> doc = res.get(0);
+    List<Map<String, YTIdentifiable>> res = tyrionDoc.field("emergency_contact");
+    Map<String, YTIdentifiable> doc = res.get(0);
     Assert.assertTrue(doc.get("contact").getIdentity().isValid());
 
     reOpen("admin", "adminpwd");

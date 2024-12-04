@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.cache;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.id.ChangeableIdentity;
 import com.orientechnologies.orient.core.id.IdentityChangeListener;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.AbstractMap;
@@ -17,12 +17,12 @@ import javax.annotation.Nonnull;
 /**
  * Cache implementation that uses Weak References.
  */
-public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
+public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<YTRID, V>
     implements IdentityChangeListener {
 
   private final ReferenceQueue<V> refQueue = new ReferenceQueue<>();
 
-  private final HashMap<ORID, WeakRefValue<V>> hashMap = new HashMap<>();
+  private final HashMap<YTRID, WeakRefValue<V>> hashMap = new HashMap<>();
 
   private boolean stopModification = false;
 
@@ -30,9 +30,9 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
    * Map that is used to keep records between before identity change and after identity change
    * events.
    */
-  private final IdentityHashMap<ORID, V> identityChangeMap = new IdentityHashMap<>();
+  private final IdentityHashMap<YTRID, V> identityChangeMap = new IdentityHashMap<>();
 
-  public V get(ORID key) {
+  public V get(YTRID key) {
     evictStaleEntries();
     V result = null;
     final WeakRefValue<V> soft_ref = hashMap.get(key);
@@ -63,7 +63,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     WeakRefValue<V> sv;
     //noinspection unchecked
     while ((sv = (WeakRefValue<V>) refQueue.poll()) != null) {
-      final ORID key = sv.key;
+      final YTRID key = sv.key;
 
       if (key instanceof ChangeableIdentity changeableIdentity) {
         changeableIdentity.removeIdentityChangeListener(this);
@@ -78,7 +78,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     }
   }
 
-  public V put(final ORID key, final V value) {
+  public V put(final YTRID key, final V value) {
     if (stopModification) {
       throw new IllegalStateException("Modification is not allowed");
     }
@@ -99,7 +99,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     return result.get();
   }
 
-  public V remove(ORID key) {
+  public V remove(YTRID key) {
     if (stopModification) {
       throw new IllegalStateException("Modification is not allowed");
     }
@@ -132,15 +132,15 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     return hashMap.size();
   }
 
-  public @Nonnull Set<Entry<ORID, V>> entrySet() {
+  public @Nonnull Set<Entry<YTRID, V>> entrySet() {
     evictStaleEntries();
-    Set<Entry<ORID, V>> result = new HashSet<>();
-    for (final Entry<ORID, WeakRefValue<V>> entry : hashMap.entrySet()) {
+    Set<Entry<YTRID, V>> result = new HashSet<>();
+    for (final Entry<YTRID, WeakRefValue<V>> entry : hashMap.entrySet()) {
       final V value = entry.getValue().get();
       if (value != null) {
         result.add(
             new Entry<>() {
-              public ORID getKey() {
+              public YTRID getKey() {
                 return entry.getKey();
               }
 
@@ -158,12 +158,12 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
   }
 
   @Override
-  public void forEach(BiConsumer<? super ORID, ? super V> action) {
+  public void forEach(BiConsumer<? super YTRID, ? super V> action) {
     evictStaleEntries();
 
     stopModification = true;
     try {
-      for (final Entry<ORID, WeakRefValue<V>> entry : hashMap.entrySet()) {
+      for (final Entry<YTRID, WeakRefValue<V>> entry : hashMap.entrySet()) {
         final V value = entry.getValue().get();
         if (value != null) {
           action.accept(entry.getKey(), value);
@@ -176,7 +176,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
 
   @Override
   public void onBeforeIdentityChange(Object source) {
-    var rid = (ORID) source;
+    var rid = (YTRID) source;
     if (stopModification) {
       throw new IllegalStateException("Modification is not allowed");
     }
@@ -198,7 +198,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
       throw new IllegalStateException("Modification is not allowed");
     }
 
-    var rid = (ORID) source;
+    var rid = (YTRID) source;
     var record = identityChangeMap.remove(rid);
 
     if (record != null) {
@@ -208,10 +208,10 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
 
   private static final class WeakRefValue<V> extends WeakReference<V> {
 
-    private final @Nonnull ORID key;
+    private final @Nonnull YTRID key;
 
     public WeakRefValue(
-        @Nonnull final ORID key, @Nonnull final V value, final ReferenceQueue<V> queue) {
+        @Nonnull final YTRID key, @Nonnull final V value, final ReferenceQueue<V> queue) {
       super(value, queue);
       this.key = key;
     }

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -38,14 +38,14 @@ import java.util.NavigableMap;
  */
 public class ORidBagUpdateSerializationOperation implements ORecordSerializationOperation {
 
-  private final NavigableMap<OIdentifiable, Change> changedValues;
+  private final NavigableMap<YTIdentifiable, Change> changedValues;
 
   private final OBonsaiCollectionPointer collectionPointer;
 
   private final OSBTreeCollectionManager collectionManager;
 
   public ORidBagUpdateSerializationOperation(
-      final NavigableMap<OIdentifiable, Change> changedValues,
+      final NavigableMap<YTIdentifiable, Change> changedValues,
       OBonsaiCollectionPointer collectionPointer) {
     this.changedValues = changedValues;
     this.collectionPointer = collectionPointer;
@@ -60,9 +60,9 @@ public class ORidBagUpdateSerializationOperation implements ORecordSerialization
       return;
     }
 
-    OSBTreeBonsai<OIdentifiable, Integer> tree = loadTree();
+    OSBTreeBonsai<YTIdentifiable, Integer> tree = loadTree();
     try {
-      for (Map.Entry<OIdentifiable, Change> entry : changedValues.entrySet()) {
+      for (Map.Entry<YTIdentifiable, Change> entry : changedValues.entrySet()) {
         Integer storedCounter = tree.get(entry.getKey());
 
         storedCounter = entry.getValue().applyTo(storedCounter);
@@ -81,7 +81,7 @@ public class ORidBagUpdateSerializationOperation implements ORecordSerialization
     changedValues.clear();
   }
 
-  private OSBTreeBonsai<OIdentifiable, Integer> loadTree() {
+  private OSBTreeBonsai<YTIdentifiable, Integer> loadTree() {
     return collectionManager.loadSBTree(collectionPointer);
   }
 

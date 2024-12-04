@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,20 +44,20 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("City");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "name", YTType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   public void testInsertUpdateWithIndex() {
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     db.begin();
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
     doc.field("name", "Rome");
 
     db.save(doc);
@@ -66,12 +66,12 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     db.begin();
     OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
 
-    OIdentifiable next = (OIdentifiable) coll.iterator().next();
+    YTIdentifiable next = (YTIdentifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
     Assert.assertEquals(doc.field("name"), "Rome");
 
@@ -81,16 +81,16 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
 
-    next = (OIdentifiable) coll.iterator().next();
+    next = (YTIdentifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
     Assert.assertEquals(doc.field("name"), "London");
 
@@ -99,15 +99,15 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);

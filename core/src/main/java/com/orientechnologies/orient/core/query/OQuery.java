@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.query;
 
 import com.orientechnologies.orient.core.command.OCommandRequest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.List;
 
 public interface OQuery<T extends Object> extends OCommandRequest {
@@ -38,7 +38,7 @@ public interface OQuery<T extends Object> extends OCommandRequest {
    *
    * @return Record if found, otherwise null
    */
-  T runFirst(ODatabaseSessionInternal database, Object... iArgs);
+  T runFirst(YTDatabaseSessionInternal database, Object... iArgs);
 
   void reset();
 }

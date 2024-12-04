@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,7 +14,7 @@ public final class OMapConverter extends OAbstractCollectionConverter<Map> {
   }
 
   @Override
-  public Map convert(ODatabaseSessionInternal db, Map value) {
+  public Map convert(YTDatabaseSessionInternal db, Map value) {
     final Map result = new LinkedHashMap();
     boolean updated = false;
     final class MapResultCallback implements ResultCallback {

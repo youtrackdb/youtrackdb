@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "sql-select")
 public class SQLEscapingTest extends DocumentDBBaseTest {
 
-  private ODatabaseSessionInternal database;
+  private YTDatabaseSessionInternal database;
 
   @Parameters(value = "remote")
   public SQLEscapingTest(boolean remote) {
@@ -39,11 +39,11 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   // \"\\u005C\\u005C\" = \"\\u005C\\u005C\"")).execute();
   //    Assert.assertEquals(result.size(), result0.size());
   //
-  //    ODocument document0 = database.command(new OCommandSQL("insert into Thing set value =
+  //    YTDocument document0 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\u005C\\u005C\"")).execute();
   //    Assert.assertEquals("\\", document0.field("value"));
   //
-  //    ODocument document1 = database.command(new OCommandSQL("insert into Thing set value =
+  //    YTDocument document1 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\\\\"")).execute();
   //    Assert.assertEquals("\\", document1.field("value"));
   //
@@ -52,7 +52,7 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   //    Assert.assertEquals(result.size(), list1.size());
   //
   //    try {
-  //      ODocument document2 = database.command(new OCommandSQL("insert into Thing set value =
+  //      YTDocument document2 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\\"")).execute();
   //      Assert.assertTrue(false);
   //    } catch (Exception e) {

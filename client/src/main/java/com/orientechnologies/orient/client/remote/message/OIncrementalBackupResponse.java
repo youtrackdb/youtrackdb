@@ -21,7 +21,7 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -39,12 +39,12 @@ public class OIncrementalBackupResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     fileName = network.readString();
   }
 
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeString(fileName);

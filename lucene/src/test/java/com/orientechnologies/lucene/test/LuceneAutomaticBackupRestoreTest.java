@@ -23,12 +23,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -72,7 +72,7 @@ public class LuceneAutomaticBackupRestoreTest {
   private String BACKUFILE = null;
 
   private OServer server;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   @Before
   public void setUp() throws Exception {
@@ -117,13 +117,13 @@ public class LuceneAutomaticBackupRestoreTest {
     youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin) ", DBNAME);
 
-    db = (ODatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
+    db = (YTDatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
 
     db.command("create class City ");
     db.command("create property City.name string");
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
     doc.field("name", "Rome");
 
     db.begin();
@@ -169,7 +169,7 @@ public class LuceneAutomaticBackupRestoreTest {
         OIOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
@@ -231,18 +231,18 @@ public class LuceneAutomaticBackupRestoreTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
 
     assertThat(index).isNotNull();
-    assertThat(index.getType()).isEqualTo(OClass.INDEX_TYPE.FULLTEXT.name());
+    assertThat(index.getType()).isEqualTo(YTClass.INDEX_TYPE.FULLTEXT.name());
 
     assertThat(db.query("select from City where name lucene 'Rome'")).hasSize(1);
   }
 
-  private ODatabaseSessionInternal createAndOpen() {
+  private YTDatabaseSessionInternal createAndOpen() {
     youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin) ", DBNAME);
     return open();
   }
 
-  private ODatabaseSessionInternal open() {
-    return (ODatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
+  private YTDatabaseSessionInternal open() {
+    return (YTDatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
   }
 }

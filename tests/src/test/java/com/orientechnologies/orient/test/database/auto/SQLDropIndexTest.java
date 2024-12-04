@@ -16,9 +16,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class SQLDropIndexTest extends DocumentDBBaseTest {
 
-  private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
-  private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
+  private static final YTType EXPECTED_PROP1_TYPE = YTType.DOUBLE;
+  private static final YTType EXPECTED_PROP2_TYPE = YTType.INTEGER;
 
   @Parameters(value = "remote")
   public SQLDropIndexTest(boolean remote) {
@@ -40,8 +40,8 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.createClass("SQLDropIndexTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.createClass("SQLDropIndexTestClass");
     oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
   }

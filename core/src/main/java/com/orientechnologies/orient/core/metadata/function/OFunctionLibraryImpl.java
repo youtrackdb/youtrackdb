@@ -23,13 +23,13 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
@@ -54,7 +54,7 @@ public class OFunctionLibraryImpl {
   public OFunctionLibraryImpl() {
   }
 
-  public void create(ODatabaseSessionInternal db) {
+  public void create(YTDatabaseSessionInternal db) {
     init(db);
   }
 
@@ -62,7 +62,7 @@ public class OFunctionLibraryImpl {
     throw new UnsupportedOperationException();
   }
 
-  public void load(ODatabaseSessionInternal db) {
+  public void load(YTDatabaseSessionInternal db) {
     // COPY CALLBACK IN RAM
     final Map<String, OCallable<Object, Map<Object, Object>>> callbacks =
         new HashMap<String, OCallable<Object, Map<Object, Object>>>();
@@ -79,7 +79,7 @@ public class OFunctionLibraryImpl {
       try (OResultSet result = db.query("select from OFunction order by name")) {
         while (result.hasNext()) {
           OResult res = result.next();
-          ODocument d = (ODocument) res.getElement().get();
+          YTDocument d = (YTDocument) res.getElement().get();
           // skip the function records which do not contain real data
           if (d.fields() == 0) {
             continue;
@@ -96,13 +96,13 @@ public class OFunctionLibraryImpl {
     }
   }
 
-  public void droppedFunction(ODocument function) {
+  public void droppedFunction(YTDocument function) {
     functions.remove(function.field("name").toString());
     onFunctionsChanged(ODatabaseRecordThreadLocal.instance().get());
   }
 
-  public void createdFunction(ODocument function) {
-    ODocument metadataCopy = function.copy();
+  public void createdFunction(YTDocument function) {
+    YTDocument metadataCopy = function.copy();
     final OFunction f = new OFunction(metadataCopy);
     functions.put(metadataCopy.field("name").toString().toUpperCase(Locale.ENGLISH), f);
     onFunctionsChanged(ODatabaseRecordThreadLocal.instance().get());
@@ -122,7 +122,7 @@ public class OFunctionLibraryImpl {
   }
 
   public synchronized OFunction createFunction(
-      ODatabaseSessionInternal database, final String iName) {
+      YTDatabaseSessionInternal database, final String iName) {
     init(database);
     reloadIfNeeded(ODatabaseRecordThreadLocal.instance().get());
 
@@ -148,53 +148,53 @@ public class OFunctionLibraryImpl {
     functions.clear();
   }
 
-  protected void init(final ODatabaseSessionInternal db) {
+  protected void init(final YTDatabaseSessionInternal db) {
     if (db.getMetadata().getSchema().existsClass("OFunction")) {
-      final OClass f = db.getMetadata().getSchema().getClass("OFunction");
-      OProperty prop = f.getProperty("name");
+      final YTClass f = db.getMetadata().getSchema().getClass("OFunction");
+      YTProperty prop = f.getProperty("name");
       if (prop.getAllIndexes(db).isEmpty()) {
-        prop.createIndex(db, OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+        prop.createIndex(db, YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
       }
       return;
     }
 
-    final OClass f = db.getMetadata().getSchema().createClass("OFunction");
-    OProperty prop = f.createProperty(db, "name", OType.STRING, (OType) null, true);
-    prop.createIndex(db, OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
-    f.createProperty(db, "code", OType.STRING, (OType) null, true);
-    f.createProperty(db, "language", OType.STRING, (OType) null, true);
-    f.createProperty(db, "idempotent", OType.BOOLEAN, (OType) null, true);
-    f.createProperty(db, "parameters", OType.EMBEDDEDLIST, OType.STRING, true);
+    final YTClass f = db.getMetadata().getSchema().createClass("OFunction");
+    YTProperty prop = f.createProperty(db, "name", YTType.STRING, (YTType) null, true);
+    prop.createIndex(db, YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+    f.createProperty(db, "code", YTType.STRING, (YTType) null, true);
+    f.createProperty(db, "language", YTType.STRING, (YTType) null, true);
+    f.createProperty(db, "idempotent", YTType.BOOLEAN, (YTType) null, true);
+    f.createProperty(db, "parameters", YTType.EMBEDDEDLIST, YTType.STRING, true);
   }
 
-  public synchronized void dropFunction(ODatabaseSessionInternal session, OFunction function) {
+  public synchronized void dropFunction(YTDatabaseSessionInternal session, OFunction function) {
     reloadIfNeeded(session);
     String name = function.getName(session);
-    ODocument doc = function.getDocument(session);
+    YTDocument doc = function.getDocument(session);
     doc.delete();
     functions.remove(name.toUpperCase(Locale.ENGLISH));
   }
 
-  public synchronized void dropFunction(ODatabaseSessionInternal session, String iName) {
+  public synchronized void dropFunction(YTDatabaseSessionInternal session, String iName) {
     reloadIfNeeded(session);
 
     session.executeInTx(
         () -> {
           OFunction function = getFunction(iName);
-          ODocument doc = function.getDocument(session);
+          YTDocument doc = function.getDocument(session);
           doc.delete();
           functions.remove(iName.toUpperCase(Locale.ENGLISH));
         });
   }
 
-  public void updatedFunction(ODocument function) {
-    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
+  public void updatedFunction(YTDocument function) {
+    YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     reloadIfNeeded(database);
     String oldName = (String) function.getOriginalValue("name");
     if (oldName != null) {
       functions.remove(oldName.toUpperCase(Locale.ENGLISH));
     }
-    ODocument metadataCopy = function.copy();
+    YTDocument metadataCopy = function.copy();
     OCallable<Object, Map<Object, Object>> callBack = null;
     OFunction oldFunction = functions.get(metadataCopy.field("name").toString());
     if (oldFunction != null) {
@@ -208,14 +208,14 @@ public class OFunctionLibraryImpl {
     onFunctionsChanged(database);
   }
 
-  private void reloadIfNeeded(ODatabaseSessionInternal database) {
+  private void reloadIfNeeded(YTDatabaseSessionInternal database) {
     if (needReload.get()) {
       load(database);
       needReload.set(false);
     }
   }
 
-  private void onFunctionsChanged(ODatabaseSessionInternal database) {
+  private void onFunctionsChanged(YTDatabaseSessionInternal database) {
     for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
       listener.onFunctionLibraryUpdate(database, database.getName());
     }
@@ -226,7 +226,7 @@ public class OFunctionLibraryImpl {
     needReload.set(true);
   }
 
-  public static void validateFunctionRecord(ODocument doc) throws ODatabaseException {
+  public static void validateFunctionRecord(YTDocument doc) throws ODatabaseException {
     String name = doc.getProperty("name");
     if (!Pattern.compile("[A-Za-z][A-Za-z0-9_]*").matcher(name).matches()) {
       throw new ODatabaseException("Invalid function name: " + name);

@@ -15,7 +15,7 @@ package com.orientechnologies.orient.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -143,7 +143,7 @@ public class YouTrackJdbcResultSetMetaDataTest extends OrientJdbcDbPerClassTempl
     assertThat(metaData.getColumnCount()).isEqualTo(7);
 
     assertThat(metaData.getColumnName(1)).isEqualTo("@rid");
-    assertThat(new ORecordId(rs.getString(1)).isPersistent()).isEqualTo(true);
+    assertThat(new YTRecordId(rs.getString(1)).isPersistent()).isEqualTo(true);
     assertThat(rs.getObject(1)).isInstanceOf(String.class);
 
     assertThat(metaData.getColumnName(2)).isEqualTo("@class");

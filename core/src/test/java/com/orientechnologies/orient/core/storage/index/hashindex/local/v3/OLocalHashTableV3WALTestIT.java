@@ -4,12 +4,12 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -58,11 +58,11 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
   private String actualStorageDir;
   private String expectedStorageDir;
 
-  private ODatabaseSession databaseDocumentTx;
+  private YTDatabaseSession databaseDocumentTx;
 
   private OWriteCache actualWriteCache;
 
-  private ODatabaseSession expectedDatabaseDocumentTx;
+  private YTDatabaseSession expectedDatabaseDocumentTx;
   private OWriteCache expectedWriteCache;
 
   private YouTrackDB youTrackDB;
@@ -80,29 +80,29 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
 
     OCreateDatabaseUtil.createDatabase(ACTUAL_DB_NAME, youTrackDB, OCreateDatabaseUtil.TYPE_PLOCAL);
     // youTrackDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
     databaseDocumentTx =
         youTrackDB.open(ACTUAL_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    ((ODatabaseSessionInternal) databaseDocumentTx).getSharedContext().getViewManager().close();
+    ((YTDatabaseSessionInternal) databaseDocumentTx).getSharedContext().getViewManager().close();
 
     OCreateDatabaseUtil.createDatabase(EXPECTED_DB_NAME, youTrackDB,
         OCreateDatabaseUtil.TYPE_PLOCAL);
     // youTrackDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
     expectedDatabaseDocumentTx =
         youTrackDB.open(EXPECTED_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    ((ODatabaseSessionInternal) expectedDatabaseDocumentTx)
+    ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx)
         .getSharedContext()
         .getViewManager()
         .close();
     expectedStorage =
         ((OLocalPaginatedStorage)
-            ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage());
+            ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage());
     actualStorage =
-        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (OLocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
 
     atomicOperationsManager = actualStorage.getAtomicOperationsManager();
 
@@ -110,11 +110,11 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
     expectedStorageDir = expectedStorage.getStoragePath().toString();
 
     actualWriteCache =
-        ((OLocalPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage())
+        ((OLocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage())
             .getWriteCache();
     expectedWriteCache =
         ((OLocalPaginatedStorage)
-            ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
+            ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
             .getWriteCache();
 
     CASDiskWriteAheadLog diskWriteAheadLog = (CASDiskWriteAheadLog) actualStorage.getWALInstance();
@@ -144,14 +144,14 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
             ".obf",
             ".nbh",
             (OAbstractPaginatedStorage)
-                ((ODatabaseSessionInternal) databaseDocumentTx).getStorage());
+                ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
             localHashTable.create(
                 atomicOperation,
                 OIntegerSerializer.INSTANCE,
-                OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING),
+                OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING),
                 null,
                 null,
                 murmurHash3HashFunction,
@@ -281,7 +281,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
   private void restoreDataFromWAL() throws IOException {
     final OReadCache expectedReadCache =
         ((OAbstractPaginatedStorage)
-            ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
+            ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
             .getReadCache();
 
     CASDiskWriteAheadLog log =

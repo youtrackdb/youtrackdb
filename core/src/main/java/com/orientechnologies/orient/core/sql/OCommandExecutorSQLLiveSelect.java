@@ -24,11 +24,11 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedAccessHook;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryListener;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
 import java.util.Map;
@@ -49,16 +49,16 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     implements OLiveQueryListener {
 
   public static final String KEYWORD_LIVE_SELECT = "LIVE SELECT";
-  private ODatabaseSessionInternal execDb;
+  private YTDatabaseSessionInternal execDb;
   private int token;
   private static final Random random = new Random();
 
   public OCommandExecutorSQLLiveSelect() {
   }
 
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     try {
-      final ODatabaseSessionInternal db = getDatabase();
+      final YTDatabaseSessionInternal db = getDatabase();
       execInSeparateDatabase(
           new OCallable() {
             @Override
@@ -85,7 +85,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
         getContext().beginExecution(timeoutMs, timeoutStrategy);
       }
 
-      ODocument result = new ODocument();
+      YTDocument result = new YTDocument();
       result.field("token", token); // TODO change this name...?
 
       ((OLegacyResultSet) getResult(querySession)).add(result);
@@ -97,17 +97,17 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     }
   }
 
-  private void subscribeToLiveQuery(Integer token, ODatabaseSessionInternal db) {
+  private void subscribeToLiveQuery(Integer token, YTDatabaseSessionInternal db) {
     OLiveQueryHook.subscribe(token, this, db);
   }
 
   public void onLiveResult(final ORecordOperation iOp) {
 
-    ODatabaseSessionInternal oldThreadLocal = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal oldThreadLocal = ODatabaseRecordThreadLocal.instance().getIfDefined();
     execDb.activateOnCurrentThread();
 
     try {
-      final OIdentifiable value = iOp.record;
+      final YTIdentifiable value = iOp.record;
 
       if (!matchesTarget(value)) {
         return;
@@ -140,7 +140,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
   }
 
   protected void execInSeparateDatabase(final OCallable iCallback) {
-    final ODatabaseSessionInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final YTDatabaseSessionInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
     } finally {
@@ -152,13 +152,13 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     }
   }
 
-  private boolean checkSecurity(OIdentifiable value) {
+  private boolean checkSecurity(YTIdentifiable value) {
     try {
       // TODO check this!
       execDb.checkSecurity(
           ORule.ResourceGeneric.CLASS,
           ORole.PERMISSION_READ,
-          ((ODocument) value.getRecord()).getClassName());
+          ((YTDocument) value.getRecord()).getClassName());
     } catch (OSecurityException ignore) {
       return false;
     }
@@ -169,25 +169,26 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
         execDb, value.getRecord(), ORestrictedOperation.ALLOW_READ, false);
   }
 
-  private boolean matchesFilters(OIdentifiable value) {
+  private boolean matchesFilters(YTIdentifiable value) {
     if (this.compiledFilter == null || this.compiledFilter.getRootCondition() == null) {
       return true;
     }
-    if (!(value instanceof ODocument)) {
+    if (!(value instanceof YTDocument)) {
       value = value.getRecord();
     }
-    return !(Boolean.FALSE.equals(compiledFilter.evaluate(value, (ODocument) value, getContext())));
+    return !(Boolean.FALSE.equals(
+        compiledFilter.evaluate(value, (YTDocument) value, getContext())));
   }
 
-  private boolean matchesTarget(OIdentifiable value) {
-    if (!(value instanceof ODocument)) {
+  private boolean matchesTarget(YTIdentifiable value) {
+    if (!(value instanceof YTDocument)) {
       return false;
     }
-    final String className = ((ODocument) value).getClassName();
+    final String className = ((YTDocument) value).getClassName();
     if (className == null) {
       return false;
     }
-    final OClass docClass = execDb.getMetadata().getSchema().getClass(className);
+    final YTClass docClass = execDb.getMetadata().getSchema().getClass(className);
     if (docClass == null) {
       return false;
     }
@@ -200,7 +201,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
       }
     }
     if (this.parsedTarget.getTargetRecords() != null) {
-      for (OIdentifiable r : parsedTarget.getTargetRecords()) {
+      for (YTIdentifiable r : parsedTarget.getTargetRecords()) {
         if (r.getIdentity().equals(value.getIdentity())) {
           return true;
         }
@@ -225,7 +226,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     }
 
     if (execDb != null) {
-      ODatabaseSessionInternal oldThreadDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      YTDatabaseSessionInternal oldThreadDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
       execDb.activateOnCurrentThread();
       execDb.close();
       if (oldThreadDB == null) {

@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
 
@@ -40,7 +40,7 @@ public class OSQLFunctionFirst extends OSQLFunctionConfigurableAbstract {
 
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       final OCommandContext iContext) {
@@ -57,7 +57,7 @@ public class OSQLFunctionFirst extends OSQLFunctionConfigurableAbstract {
     return value;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "first(<field>)";
   }
 }

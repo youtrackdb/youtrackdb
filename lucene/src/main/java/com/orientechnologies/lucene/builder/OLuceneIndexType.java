@@ -19,10 +19,10 @@ package com.orientechnologies.lucene.builder;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
 import com.orientechnologies.lucene.exception.OLuceneIndexException;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -80,16 +80,16 @@ public class OLuceneIndexType {
     }
   }
 
-  public static Field createIdField(final OIdentifiable id, final Object key) {
+  public static Field createIdField(final YTIdentifiable id, final Object key) {
     return new StringField(RID_HASH, genValueId(id, key), Field.Store.YES);
   }
 
-  public static Field createOldIdField(final OIdentifiable id) {
+  public static Field createOldIdField(final YTIdentifiable id) {
     return new StringField(
         OLuceneIndexEngineAbstract.RID, id.getIdentity().toString(), Field.Store.YES);
   }
 
-  public static String genValueId(final OIdentifiable id, final Object key) {
+  public static String genValueId(final YTIdentifiable id, final Object key) {
     String value = id.getIdentity().toString() + "|";
     value += hashKey(key);
     return value;
@@ -155,19 +155,19 @@ public class OLuceneIndexType {
     return query;
   }
 
-  public static Query createQueryId(OIdentifiable value) {
+  public static Query createQueryId(YTIdentifiable value) {
     return new TermQuery(new Term(OLuceneIndexEngineAbstract.RID, value.getIdentity().toString()));
   }
 
-  public static Query createQueryId(OIdentifiable value, Object key) {
+  public static Query createQueryId(YTIdentifiable value, Object key) {
     return new TermQuery(new Term(RID_HASH, genValueId(value, key)));
   }
 
   public static String hashKey(Object key) {
     try {
       String keyString;
-      if (key instanceof ODocument) {
-        keyString = ((ODocument) key).toJSON();
+      if (key instanceof YTDocument) {
+        keyString = ((YTDocument) key).toJSON();
       } else {
         keyString = key.toString();
       }
@@ -180,7 +180,7 @@ public class OLuceneIndexType {
   }
 
   public static Query createDeleteQuery(
-      OIdentifiable value, List<String> fields, Object key) {
+      YTIdentifiable value, List<String> fields, Object key) {
 
     // TODO Implementation of Composite keys with Collection
     final BooleanQuery.Builder filter = new BooleanQuery.Builder();

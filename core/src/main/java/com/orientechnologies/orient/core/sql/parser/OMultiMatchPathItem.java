@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -51,22 +51,22 @@ public class OMultiMatchPathItem extends OMatchPathItem {
     }
   }
 
-  protected Iterable<OIdentifiable> traversePatternEdge(
+  protected Iterable<YTIdentifiable> traversePatternEdge(
       OMatchStatement.MatchContext matchContext,
-      OIdentifiable startingPoint,
+      YTIdentifiable startingPoint,
       OCommandContext iCommandContext) {
-    Set<OIdentifiable> result = new HashSet<OIdentifiable>();
+    Set<YTIdentifiable> result = new HashSet<YTIdentifiable>();
     result.add(startingPoint);
     for (OMatchPathItem subItem : items) {
-      Set<OIdentifiable> startingPoints = result;
-      result = new HashSet<OIdentifiable>();
-      for (OIdentifiable sp : startingPoints) {
-        Iterable<OIdentifiable> subResult =
+      Set<YTIdentifiable> startingPoints = result;
+      result = new HashSet<YTIdentifiable>();
+      for (YTIdentifiable sp : startingPoints) {
+        Iterable<YTIdentifiable> subResult =
             subItem.executeTraversal(matchContext, iCommandContext, sp, 0);
         if (subResult instanceof Collection) {
           result.addAll((Collection) subResult);
         } else {
-          for (OIdentifiable id : subResult) {
+          for (YTIdentifiable id : subResult) {
             result.add(id);
           }
         }

@@ -5,20 +5,20 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import java.lang.reflect.Array;
@@ -144,7 +144,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -169,7 +169,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -177,7 +177,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     }
     OResultSet result = db.query("select from " + className + " ORDER BY @rid ASC");
     printExecutionPlan(result);
-    OIdentifiable lastItem = null;
+    YTIdentifiable lastItem = null;
     for (int i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
       OResult item = result.next();
@@ -200,7 +200,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -209,7 +209,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     OResultSet result = db.query("select from " + className + " ORDER BY @rid DESC");
     printExecutionPlan(result);
-    OIdentifiable lastItem = null;
+    YTIdentifiable lastItem = null;
     for (int i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
       OResult item = result.next();
@@ -232,7 +232,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -257,7 +257,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -282,7 +282,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 30; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -312,7 +312,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 30; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -342,7 +342,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i % 100);
       doc.save();
@@ -368,7 +368,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
@@ -400,7 +400,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
@@ -434,7 +434,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 300; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -462,7 +462,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -488,7 +488,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -519,7 +519,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 7; i++) {
       db.begin();
-      ODocument doc = new ODocument(className);
+      YTDocument doc = new YTDocument(className);
       doc.save();
       db.commit();
     }
@@ -547,7 +547,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = new ODocument(className);
+      YTDocument doc = new YTDocument(className);
       doc.setProperty("name", "name" + (i % 5));
       doc.save();
       db.commit();
@@ -576,7 +576,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OElement elem = db.newElement(className);
+    YTEntity elem = db.newElement(className);
     elem.setProperty("name", "bar");
     elem.save();
     db.commit();
@@ -603,7 +603,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OElement elem = db.newElement(className);
+    YTEntity elem = db.newElement(className);
     elem.setProperty("name", "bar");
     elem.save();
     db.commit();
@@ -697,7 +697,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("val", i);
       doc.save();
@@ -720,7 +720,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -754,7 +754,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -793,7 +793,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -826,7 +826,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "dd1" : "dd2");
       doc.setProperty("val", i);
       doc.save();
@@ -849,14 +849,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClusterNumber() {
     String className = "testFetchFromClusterNumber";
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.createClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.createClass(className);
     int targetCluster = clazz.getClusterIds()[0];
     String targetClusterName = db.getClusterNameById(targetCluster);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
@@ -880,14 +880,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClusterNumberOrderByRidDesc() {
     String className = "testFetchFromClusterNumberOrderByRidDesc";
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.createClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.createClass(className);
     int targetCluster = clazz.getClusterIds()[0];
     String targetClusterName = db.getClusterNameById(targetCluster);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
@@ -910,14 +910,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClusterNumberOrderByRidAsc() {
     String className = "testFetchFromClusterNumberOrderByRidAsc";
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.createClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.createClass(className);
     int targetCluster = clazz.getClusterIds()[0];
     String targetClusterName = db.getClusterNameById(targetCluster);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
@@ -939,8 +939,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClustersNumberOrderByRidAsc() {
     String className = "testFetchFromClustersNumberOrderByRidAsc";
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.createClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.createClass(className);
     if (clazz.getClusterIds().length < 2) {
       clazz.addCluster(db, "testFetchFromClustersNumberOrderByRidAsc_2");
     }
@@ -952,7 +952,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
@@ -960,7 +960,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName2);
       db.commit();
@@ -989,12 +989,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testQueryAsTarget() {
     String className = "testQueryAsTarget";
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save();
       db.commit();
@@ -1104,7 +1104,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testFetchFromSingleRidParam() {
-    OResultSet result = db.query("select from ?", new ORecordId(0, 1));
+    OResultSet result = db.query("select from ?", new YTRecordId(0, 1));
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1115,7 +1115,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromSingleRid3() {
     db.begin();
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     document.save(db.getClusterNameById(0));
     db.commit();
 
@@ -1132,7 +1132,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromSingleRid4() {
     db.begin();
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     document.save(db.getClusterNameById(0));
     db.commit();
 
@@ -1149,13 +1149,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndex() {
     String className = "testFetchFromClassWithIndex";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createIndex(db, className + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -1182,17 +1182,17 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testFetchFromIndex() {
-    boolean oldAllowManual = OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getValueAsBoolean();
-    OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.setValue(true);
+    boolean oldAllowManual = YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getValueAsBoolean();
+    YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.setValue(true);
     String className = "testFetchFromIndex";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
     String indexName = className + ".name";
-    clazz.createIndex(db, indexName, OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, indexName, YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -1214,23 +1214,23 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     OSelectExecutionPlan plan = (OSelectExecutionPlan) p2;
     Assert.assertEquals(FetchFromIndexStep.class, plan.getSteps().get(0).getClass());
     result.close();
-    OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.setValue(oldAllowManual);
+    YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.setValue(oldAllowManual);
   }
 
   @Test
   public void testFetchFromIndexHierarchy() {
     String className = "testFetchFromIndexHierarchy";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createIndex(db, className + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     String classNameExt = "testFetchFromIndexHierarchyExt";
-    OClass clazzExt = db.getMetadata().getSchema().createClass(classNameExt, clazz);
-    clazzExt.createIndex(db, classNameExt + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    YTClass clazzExt = db.getMetadata().getSchema().createClass(classNameExt, clazz);
+    clazzExt.createIndex(db, classNameExt + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 5; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -1238,7 +1238,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 5; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(classNameExt);
+      YTDocument doc = db.newInstance(classNameExt);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -1268,15 +1268,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes() {
     String className = "testFetchFromClassWithIndexes";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    clazz.createIndex(db, className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, className + ".surname", YTClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -1312,15 +1312,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes2() {
     String className = "testFetchFromClassWithIndexes2";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    clazz.createIndex(db, className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, className + ".surname", YTClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -1341,15 +1341,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes3() {
     String className = "testFetchFromClassWithIndexes3";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    clazz.createIndex(db, className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, className + ".surname", YTClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1380,15 +1380,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes4() {
     String className = "testFetchFromClassWithIndexes4";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    clazz.createIndex(db, className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, className + ".surname", YTClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1420,15 +1420,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes5() {
     String className = "testFetchFromClassWithIndexes5";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1454,15 +1454,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes6() {
     String className = "testFetchFromClassWithIndexes6";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1481,15 +1481,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes7() {
     String className = "testFetchFromClassWithIndexes7";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1512,15 +1512,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes8() {
     String className = "testFetchFromClassWithIndexes8";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1539,15 +1539,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes9() {
     String className = "testFetchFromClassWithIndexes9";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1570,15 +1570,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes10() {
     String className = "testFetchFromClassWithIndexes10";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1600,15 +1600,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes11() {
     String className = "testFetchFromClassWithIndexes11";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1629,15 +1629,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes12() {
     String className = "testFetchFromClassWithIndexes12";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1658,15 +1658,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes13() {
     String className = "testFetchFromClassWithIndexes13";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1687,15 +1687,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes14() {
     String className = "testFetchFromClassWithIndexes14";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1720,15 +1720,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithIndexes15() {
     String className = "testFetchFromClassWithIndexes15";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createIndex(db, className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE, "name",
         "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1753,15 +1753,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithHashIndexes1() {
     String className = "testFetchFromClassWithHashIndexes1";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     clazz.createIndex(db,
-        className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name", "surname");
+        className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1788,15 +1788,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromClassWithHashIndexes2() {
     String className = "testFetchFromClassWithHashIndexes2";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     clazz.createIndex(db,
-        className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name", "surname");
+        className + ".name_surname", YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1824,19 +1824,19 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testExpand1() {
     String childClassName = "testExpand1_child";
     String parentClassName = "testExpand1_parent";
-    OClass childClass = db.getMetadata().getSchema().createClass(childClassName);
-    OClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
+    YTClass childClass = db.getMetadata().getSchema().createClass(childClassName);
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
 
     int count = 10;
     for (int i = 0; i < count; i++) {
       db.begin();
-      ODocument doc = db.newInstance(childClassName);
+      YTDocument doc = db.newInstance(childClassName);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
 
-      ODocument parent = new ODocument(parentClassName);
+      YTDocument parent = new YTDocument(parentClassName);
       parent.setProperty("linked", doc);
       parent.save();
       db.commit();
@@ -1858,8 +1858,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testExpand2() {
     String childClassName = "testExpand2_child";
     String parentClassName = "testExpand2_parent";
-    OClass childClass = db.getMetadata().getSchema().createClass(childClassName);
-    OClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
+    YTClass childClass = db.getMetadata().getSchema().createClass(childClassName);
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
 
     db.begin();
     int count = 10;
@@ -1867,13 +1867,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     for (int i = 0; i < count; i++) {
       List coll = new ArrayList<>();
       for (int j = 0; j < collSize; j++) {
-        ODocument doc = db.newInstance(childClassName);
+        YTDocument doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + i);
         doc.save();
         coll.add(doc);
       }
 
-      ODocument parent = new ODocument(parentClassName);
+      YTDocument parent = new YTDocument(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
     }
@@ -1895,8 +1895,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testExpand3() {
     String childClassName = "testExpand3_child";
     String parentClassName = "testExpand3_parent";
-    OClass childClass = db.getMetadata().getSchema().createClass(childClassName);
-    OClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
+    YTClass childClass = db.getMetadata().getSchema().createClass(childClassName);
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
 
     db.begin();
     int count = 30;
@@ -1904,13 +1904,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     for (int i = 0; i < count; i++) {
       List coll = new ArrayList<>();
       for (int j = 0; j < collSize; j++) {
-        ODocument doc = db.newInstance(childClassName);
+        YTDocument doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + j);
         doc.save();
         coll.add(doc);
       }
 
-      ODocument parent = new ODocument(parentClassName);
+      YTDocument parent = new YTDocument(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
     }
@@ -1937,13 +1937,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testDistinct1() {
     String className = "testDistinct1";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
 
     for (int i = 0; i < 30; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
@@ -1965,13 +1965,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testDistinct2() {
     String className = "testDistinct2";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
 
     for (int i = 0; i < 30; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
@@ -2049,7 +2049,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2081,7 +2081,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2113,7 +2113,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2146,7 +2146,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2179,21 +2179,21 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String vertexClassName = "testLetWithTraverseFunction";
     String edgeClassName = "testLetWithTraverseFunctioEdge";
 
-    OClass vertexClass = db.createVertexClass(vertexClassName);
+    YTClass vertexClass = db.createVertexClass(vertexClassName);
 
     db.begin();
-    OVertex doc1 = db.newVertex(vertexClass);
+    YTVertex doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "A");
     doc1.save();
 
-    OVertex doc2 = db.newVertex(vertexClass);
+    YTVertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "B");
     doc2.save();
     db.commit();
 
-    ORID doc2Id = doc2.getIdentity();
+    YTRID doc2Id = doc2.getIdentity();
 
-    OClass edgeClass = db.createEdgeClass(edgeClassName);
+    YTClass edgeClass = db.createEdgeClass(edgeClassName);
 
     db.begin();
     doc1 = db.bindToSession(doc1);
@@ -2209,9 +2209,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     while (resultSet.hasNext()) {
       OResult result = resultSet.next();
       Iterable edge = result.getProperty("$x");
-      Iterator<OIdentifiable> iter = edge.iterator();
+      Iterator<YTIdentifiable> iter = edge.iterator();
       while (iter.hasNext()) {
-        OVertex toVertex = db.load(iter.next().getIdentity());
+        YTVertex toVertex = db.load(iter.next().getIdentity());
         if (doc2Id.equals(toVertex.getIdentity())) {
           ++counter;
         }
@@ -2228,7 +2228,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("i", i);
       doc.setProperty("iSeq", new int[]{i, 2 * i, 4 * i});
       doc.save();
@@ -2267,7 +2267,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("i", i);
       doc.setProperty("iSeq", new int[]{i, 2 * i, 4 * i});
       doc.save();
@@ -2297,7 +2297,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("i", i);
       List<Integer> iSeq = new ArrayList<>();
       iSeq.add(i);
@@ -2329,17 +2329,17 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String parent = "testFetchFromSubclassIndexes1_parent";
     String child1 = "testFetchFromSubclassIndexes1_child1";
     String child2 = "testFetchFromSubclassIndexes1_child2";
-    OClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parent);
+    YTClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    YTClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
-    parentClass.createProperty(db, "name", OType.STRING);
-    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2.createIndex(db, child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", YTType.STRING);
+    childClass1.createIndex(db, child1 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2.createIndex(db, child2 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child1);
+      YTDocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -2347,7 +2347,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child2);
+      YTDocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -2371,17 +2371,17 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String parent = "testFetchFromSubclassIndexes2_parent";
     String child1 = "testFetchFromSubclassIndexes2_child1";
     String child2 = "testFetchFromSubclassIndexes2_child2";
-    OClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parent);
+    YTClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    YTClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
-    parentClass.createProperty(db, "name", OType.STRING);
-    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2.createIndex(db, child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", YTType.STRING);
+    childClass1.createIndex(db, child1 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2.createIndex(db, child2 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child1);
+      YTDocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2390,7 +2390,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child2);
+      YTDocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2416,16 +2416,16 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String parent = "testFetchFromSubclassIndexes3_parent";
     String child1 = "testFetchFromSubclassIndexes3_child1";
     String child2 = "testFetchFromSubclassIndexes3_child2";
-    OClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parent);
+    YTClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    YTClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
-    parentClass.createProperty(db, "name", OType.STRING);
-    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", YTType.STRING);
+    childClass1.createIndex(db, child1 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child1);
+      YTDocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2434,7 +2434,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child2);
+      YTDocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2461,23 +2461,23 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String parent = "testFetchFromSubclassIndexes4_parent";
     String child1 = "testFetchFromSubclassIndexes4_child1";
     String child2 = "testFetchFromSubclassIndexes4_child2";
-    OClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parent);
+    YTClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    YTClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
-    parentClass.createProperty(db, "name", OType.STRING);
-    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2.createIndex(db, child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", YTType.STRING);
+    childClass1.createIndex(db, child1 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2.createIndex(db, child2 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     db.begin();
-    ODocument parentdoc = db.newInstance(parent);
+    YTDocument parentdoc = db.newInstance(parent);
     parentdoc.setProperty("name", "foo");
     parentdoc.save();
     db.commit();
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child1);
+      YTDocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2486,7 +2486,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child2);
+      YTDocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2517,20 +2517,20 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String child2 = "testFetchFromSubSubclassIndexes_child2";
     String child2_1 = "testFetchFromSubSubclassIndexes_child2_1";
     String child2_2 = "testFetchFromSubSubclassIndexes_child2_2";
-    OClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
-    OClass childClass2_1 = db.getMetadata().getSchema().createClass(child2_1, childClass2);
-    OClass childClass2_2 = db.getMetadata().getSchema().createClass(child2_2, childClass2);
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parent);
+    YTClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    YTClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    YTClass childClass2_1 = db.getMetadata().getSchema().createClass(child2_1, childClass2);
+    YTClass childClass2_2 = db.getMetadata().getSchema().createClass(child2_2, childClass2);
 
-    parentClass.createProperty(db, "name", OType.STRING);
-    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2_1.createIndex(db, child2_1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2_2.createIndex(db, child2_2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", YTType.STRING);
+    childClass1.createIndex(db, child1 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2_1.createIndex(db, child2_1 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2_2.createIndex(db, child2_2 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child1);
+      YTDocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2539,7 +2539,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child2_1);
+      YTDocument doc = db.newInstance(child2_1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2548,7 +2548,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child2_2);
+      YTDocument doc = db.newInstance(child2_2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2576,19 +2576,19 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String child2 = "testFetchFromSubSubclassIndexesWithDiamond_child2";
     String child12 = "testFetchFromSubSubclassIndexesWithDiamond_child12";
 
-    OClass parentClass = db.getMetadata().getSchema().createClass(parent);
-    OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
-    OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
-    OClass childClass12 =
+    YTClass parentClass = db.getMetadata().getSchema().createClass(parent);
+    YTClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
+    YTClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
+    YTClass childClass12 =
         db.getMetadata().getSchema().createClass(child12, childClass1, childClass2);
 
-    parentClass.createProperty(db, "name", OType.STRING);
-    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2.createIndex(db, child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", YTType.STRING);
+    childClass1.createIndex(db, child1 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2.createIndex(db, child2 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child1);
+      YTDocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2597,7 +2597,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child2);
+      YTDocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2606,7 +2606,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(child12);
+      YTDocument doc = db.newInstance(child12);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2630,9 +2630,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort1() {
     String className = "testIndexPlusSort1";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -2643,7 +2643,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2678,9 +2678,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort2() {
     String className = "testIndexPlusSort2";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -2691,7 +2691,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2726,9 +2726,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort3() {
     String className = "testIndexPlusSort3";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -2739,7 +2739,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2775,9 +2775,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort4() {
     String className = "testIndexPlusSort4";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -2788,7 +2788,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2824,10 +2824,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort5() {
     String className = "testIndexPlusSort5";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createProperty(db, "address", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createProperty(db, "address", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -2838,7 +2838,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2872,10 +2872,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort6() {
     String className = "testIndexPlusSort6";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createProperty(db, "address", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createProperty(db, "address", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -2886,7 +2886,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2920,10 +2920,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort7() {
     String className = "testIndexPlusSort7";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
-    clazz.createProperty(db, "address", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
+    clazz.createProperty(db, "address", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -2934,7 +2934,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2966,9 +2966,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort8() {
     String className = "testIndexPlusSort8";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -2979,7 +2979,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3012,9 +3012,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort9() {
     String className = "testIndexPlusSort9";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -3025,7 +3025,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3056,9 +3056,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort10() {
     String className = "testIndexPlusSort10";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -3069,7 +3069,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3100,9 +3100,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort11() {
     String className = "testIndexPlusSort11";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -3113,7 +3113,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3144,9 +3144,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testIndexPlusSort12() {
     String className = "testIndexPlusSort12";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
-    clazz.createProperty(db, "surname", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
+    clazz.createProperty(db, "surname", YTType.STRING);
     db.command(
             "create index "
                 + className
@@ -3157,7 +3157,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3197,7 +3197,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -3221,7 +3221,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -3248,7 +3248,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -3273,7 +3273,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    ODocument doc = db.newInstance(className);
+    YTDocument doc = db.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
@@ -3311,7 +3311,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    ODocument doc = db.newInstance(className);
+    YTDocument doc = db.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
@@ -3349,7 +3349,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    ODocument doc = db.newInstance(className);
+    YTDocument doc = db.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
@@ -3390,7 +3390,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    ODocument doc = db.newInstance(className);
+    YTDocument doc = db.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
@@ -3431,8 +3431,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Object rid = item.getProperty("theRid");
-    Assert.assertTrue(rid instanceof OIdentifiable);
-    OIdentifiable id = (OIdentifiable) rid;
+    Assert.assertTrue(rid instanceof YTIdentifiable);
+    YTIdentifiable id = (YTIdentifiable) rid;
     Assert.assertEquals(12, id.getIdentity().getClusterId());
     Assert.assertEquals(0L, id.getIdentity().getClusterPosition());
     Assert.assertFalse(result.hasNext());
@@ -3445,20 +3445,20 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("create class " + className).close();
 
     db.begin();
-    OElement elem1 = db.newElement(className);
+    YTEntity elem1 = db.newElement(className);
     elem1.setProperty("name", "a");
     elem1.save();
 
-    OElement elem2 = db.newElement(className);
+    YTEntity elem2 = db.newElement(className);
     elem2.setProperty("name", "b");
     elem2.setProperty("surname", "lkj");
     elem2.save();
 
-    OElement elem3 = db.newElement(className);
+    YTEntity elem3 = db.newElement(className);
     elem3.setProperty("name", "c");
     elem3.save();
 
-    OElement elem4 = db.newElement(className);
+    YTEntity elem4 = db.newElement(className);
     elem4.setProperty("name", "d");
     elem4.setProperty("elem1", elem1);
     elem4.setProperty("elem2", elem2);
@@ -3487,7 +3487,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("create class " + className).close();
 
     db.begin();
-    OElement elem1 = db.newElement(className);
+    YTEntity elem1 = db.newElement(className);
     List<String> coll = new ArrayList<>();
     coll.add("foo");
     coll.add("bar");
@@ -3533,7 +3533,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("create class " + className).close();
 
     db.begin();
-    OElement elem1 = db.newElement(className);
+    YTEntity elem1 = db.newElement(className);
     List<Long> coll = new ArrayList<>();
     coll.add(1L);
     coll.add(3L);
@@ -3541,7 +3541,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     elem1.setProperty("coll", coll);
     elem1.save();
 
-    OElement elem2 = db.newElement(className);
+    YTEntity elem2 = db.newElement(className);
     coll = new ArrayList<>();
     coll.add(2L);
     coll.add(4L);
@@ -3670,8 +3670,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testContainsWithSubquery() {
     String className = "testContainsWithSubquery";
     db.createClassIfNotExist(className + 1);
-    OClass clazz2 = db.createClassIfNotExist(className + 2);
-    clazz2.createProperty(db, "tags", OType.EMBEDDEDLIST);
+    YTClass clazz2 = db.createClassIfNotExist(className + 2);
+    clazz2.createProperty(db, "tags", YTType.EMBEDDEDLIST);
 
     db.begin();
     db.command("insert into " + className + 1 + "  set name = 'foo'");
@@ -3703,8 +3703,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testInWithSubquery() {
     String className = "testInWithSubquery";
     db.createClassIfNotExist(className + 1);
-    OClass clazz2 = db.createClassIfNotExist(className + 2);
-    clazz2.createProperty(db, "tags", OType.EMBEDDEDLIST);
+    YTClass clazz2 = db.createClassIfNotExist(className + 2);
+    clazz2.createProperty(db, "tags", YTType.EMBEDDEDLIST);
 
     db.begin();
     db.command("insert into " + className + 1 + "  set name = 'foo'");
@@ -3735,8 +3735,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testContainsAny() {
     String className = "testContainsAny";
-    OClass clazz = db.createClassIfNotExist(className);
-    clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
+    YTClass clazz = db.createClassIfNotExist(className);
+    clazz.createProperty(db, "tags", YTType.EMBEDDEDLIST, YTType.STRING);
 
     db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
@@ -3779,9 +3779,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testContainsAnyWithIndex() {
     String className = "testContainsAnyWithIndex";
-    OClass clazz = db.createClassIfNotExist(className);
-    OProperty prop = clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz = db.createClassIfNotExist(className);
+    YTProperty prop = clazz.createProperty(db, "tags", YTType.EMBEDDEDLIST, YTType.STRING);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
@@ -3839,8 +3839,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testContainsAll() {
     String className = "testContainsAll";
-    OClass clazz = db.createClassIfNotExist(className);
-    clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
+    YTClass clazz = db.createClassIfNotExist(className);
+    clazz.createProperty(db, "tags", YTType.EMBEDDEDLIST, YTType.STRING);
 
     db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
@@ -3888,9 +3888,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testInWithIndex() {
     String className = "testInWithIndex";
-    OClass clazz = db.createClassIfNotExist(className);
-    OProperty prop = clazz.createProperty(db, "tag", OType.STRING);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz = db.createClassIfNotExist(className);
+    YTProperty prop = clazz.createProperty(db, "tag", YTType.STRING);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     db.command("insert into " + className + "  set tag = 'foo'");
@@ -3945,28 +3945,28 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String className2 = "testIndexChain2";
     String className3 = "testIndexChain3";
 
-    OClass clazz3 = db.createClassIfNotExist(className3);
-    OProperty prop = clazz3.createProperty(db, "name", OType.STRING);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz3 = db.createClassIfNotExist(className3);
+    YTProperty prop = clazz3.createProperty(db, "name", YTType.STRING);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
-    OClass clazz2 = db.createClassIfNotExist(className2);
-    prop = clazz2.createProperty(db, "next", OType.LINK, clazz3);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz2 = db.createClassIfNotExist(className2);
+    prop = clazz2.createProperty(db, "next", YTType.LINK, clazz3);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
-    OClass clazz1 = db.createClassIfNotExist(className1);
-    prop = clazz1.createProperty(db, "next", OType.LINK, clazz2);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz1 = db.createClassIfNotExist(className1);
+    prop = clazz1.createProperty(db, "next", YTType.LINK, clazz2);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    OElement elem3 = db.newElement(className3);
+    YTEntity elem3 = db.newElement(className3);
     elem3.setProperty("name", "John");
     elem3.save();
 
-    OElement elem2 = db.newElement(className2);
+    YTEntity elem2 = db.newElement(className2);
     elem2.setProperty("next", elem3);
     elem2.save();
 
-    OElement elem1 = db.newElement(className1);
+    YTEntity elem1 = db.newElement(className1);
     elem1.setProperty("next", elem2);
     elem1.setProperty("name", "right");
     elem1.save();
@@ -3994,36 +3994,36 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String className2 = "testIndexChainWithContainsAny2";
     String className3 = "testIndexChainWithContainsAny3";
 
-    OClass clazz3 = db.createClassIfNotExist(className3);
-    OProperty prop = clazz3.createProperty(db, "name", OType.STRING);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz3 = db.createClassIfNotExist(className3);
+    YTProperty prop = clazz3.createProperty(db, "name", YTType.STRING);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
-    OClass clazz2 = db.createClassIfNotExist(className2);
-    prop = clazz2.createProperty(db, "next", OType.LINKSET, clazz3);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz2 = db.createClassIfNotExist(className2);
+    prop = clazz2.createProperty(db, "next", YTType.LINKSET, clazz3);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
-    OClass clazz1 = db.createClassIfNotExist(className1);
-    prop = clazz1.createProperty(db, "next", OType.LINKSET, clazz2);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    YTClass clazz1 = db.createClassIfNotExist(className1);
+    prop = clazz1.createProperty(db, "next", YTType.LINKSET, clazz2);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    OElement elem3 = db.newElement(className3);
+    YTEntity elem3 = db.newElement(className3);
     elem3.setProperty("name", "John");
     elem3.save();
 
-    OElement elemFoo = db.newElement(className3);
+    YTEntity elemFoo = db.newElement(className3);
     elemFoo.setProperty("foo", "bar");
     elemFoo.save();
 
-    OElement elem2 = db.newElement(className2);
-    List<OElement> elems3 = new ArrayList<>();
+    YTEntity elem2 = db.newElement(className2);
+    List<YTEntity> elems3 = new ArrayList<>();
     elems3.add(elem3);
     elems3.add(elemFoo);
     elem2.setProperty("next", elems3);
     elem2.save();
 
-    OElement elem1 = db.newElement(className1);
-    List<OElement> elems2 = new ArrayList<>();
+    YTEntity elem1 = db.newElement(className1);
+    List<YTEntity> elems2 = new ArrayList<>();
     elems2.add(elem2);
     elem1.setProperty("next", elems2);
     elem1.setProperty("name", "right");
@@ -4050,8 +4050,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testMapByKeyIndex() {
     String className = "testMapByKeyIndex";
 
-    OClass clazz1 = db.createClassIfNotExist(className);
-    OProperty prop = clazz1.createProperty(db, "themap", OType.EMBEDDEDMAP);
+    YTClass clazz1 = db.createClassIfNotExist(className);
+    YTProperty prop = clazz1.createProperty(db, "themap", YTType.EMBEDDEDMAP);
 
     db.command(
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by key) NOTUNIQUE");
@@ -4060,7 +4060,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      OElement elem1 = db.newElement(className);
+      YTEntity elem1 = db.newElement(className);
       elem1.setProperty("themap", theMap);
       elem1.save();
       db.commit();
@@ -4083,9 +4083,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testMapByKeyIndexMultiple() {
     String className = "testMapByKeyIndexMultiple";
 
-    OClass clazz1 = db.createClassIfNotExist(className);
-    clazz1.createProperty(db, "themap", OType.EMBEDDEDMAP);
-    clazz1.createProperty(db, "thestring", OType.STRING);
+    YTClass clazz1 = db.createClassIfNotExist(className);
+    clazz1.createProperty(db, "themap", YTType.EMBEDDEDMAP);
+    clazz1.createProperty(db, "thestring", YTType.STRING);
 
     db.command(
         "CREATE INDEX "
@@ -4098,7 +4098,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      OElement elem1 = db.newElement(className);
+      YTEntity elem1 = db.newElement(className);
       elem1.setProperty("themap", theMap);
       elem1.setProperty("thestring", "thestring" + i);
       elem1.save();
@@ -4125,8 +4125,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testMapByValueIndex() {
     String className = "testMapByValueIndex";
 
-    OClass clazz1 = db.createClassIfNotExist(className);
-    OProperty prop = clazz1.createProperty(db, "themap", OType.EMBEDDEDMAP, OType.STRING);
+    YTClass clazz1 = db.createClassIfNotExist(className);
+    YTProperty prop = clazz1.createProperty(db, "themap", YTType.EMBEDDEDMAP, YTType.STRING);
 
     db.command(
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by value) NOTUNIQUE");
@@ -4135,7 +4135,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      OElement elem1 = db.newElement(className);
+      YTEntity elem1 = db.newElement(className);
       elem1.setProperty("themap", theMap);
       elem1.save();
       db.commit();
@@ -4158,8 +4158,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   public void testListOfMapsContains() {
     String className = "testListOfMapsContains";
 
-    OClass clazz1 = db.createClassIfNotExist(className);
-    clazz1.createProperty(db, "thelist", OType.EMBEDDEDLIST, OType.EMBEDDEDMAP);
+    YTClass clazz1 = db.createClassIfNotExist(className);
+    clazz1.createProperty(db, "thelist", YTType.EMBEDDEDLIST, YTType.EMBEDDEDMAP);
 
     db.begin();
     db.command("INSERT INTO " + className + " SET thelist = [{name:\"Jack\"}]").close();
@@ -4276,9 +4276,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testHeapLimitForOrderBy() {
-    Long oldValue = OGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong();
+    Long oldValue = YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong();
     try {
-      OGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.setValue(3);
+      YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.setValue(3);
 
       String className = "testHeapLimitForOrderBy";
 
@@ -4299,7 +4299,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       } catch (OCommandExecutionException ex) {
       }
     } finally {
-      OGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.setValue(oldValue);
+      YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.setValue(oldValue);
     }
   }
 
@@ -4367,7 +4367,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -4398,7 +4398,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               @Override
               public Object execute(
                   Object iThis,
-                  OIdentifiable iCurrentRecord,
+                  YTIdentifiable iCurrentRecord,
                   Object iCurrentResult,
                   Object[] iParams,
                   OCommandContext iContext) {
@@ -4424,7 +4424,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               }
 
               @Override
-              public String getName(ODatabaseSession session) {
+              public String getName(YTDatabaseSession session) {
                 return funcitonName;
               }
 
@@ -4434,12 +4434,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               }
 
               @Override
-              public int getMaxParams(ODatabaseSession session) {
+              public int getMaxParams(YTDatabaseSession session) {
                 return 0;
               }
 
               @Override
-              public String getSyntax(ODatabaseSession session) {
+              public String getSyntax(YTDatabaseSession session) {
                 return "";
               }
 
@@ -4463,7 +4463,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               }
             });
     for (int i = 0; i < 3; i++) {
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -4491,13 +4491,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testSimpleRangeQueryWithIndexGTE() {
     final String className = "testSimpleRangeQueryWithIndexGTE";
-    final OClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final OProperty prop = clazz.createProperty(db, "name", OType.STRING);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    final YTClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
+    final YTProperty prop = clazz.createProperty(db, "name", YTType.STRING);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      final ODocument doc = db.newInstance(className);
+      final YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -4516,13 +4516,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testSimpleRangeQueryWithIndexLTE() {
     final String className = "testSimpleRangeQueryWithIndexLTE";
-    final OClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final OProperty prop = clazz.createProperty(db, "name", OType.STRING);
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    final YTClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
+    final YTProperty prop = clazz.createProperty(db, "name", YTType.STRING);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      final ODocument doc = db.newInstance(className);
+      final YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -4541,14 +4541,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testSimpleRangeQueryWithOutIndex() {
     final String className = "testSimpleRangeQueryWithOutIndex";
-    final OClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final OProperty prop = clazz.createProperty(db, "name", OType.STRING);
+    final YTClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
+    final YTProperty prop = clazz.createProperty(db, "name", YTType.STRING);
     // Hash Index skipped for range query
-    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
+    prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      final ODocument doc = db.newInstance(className);
+      final YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -4572,32 +4572,32 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     //               C.name
 
     String classNamePrefix = "testComplexIndexChain_";
-    OClass a = db.getMetadata().getSchema().createClass(classNamePrefix + "A");
-    OClass b = db.getMetadata().getSchema().createClass(classNamePrefix + "C");
-    OClass c = db.getMetadata().getSchema().createClass(classNamePrefix + "B");
-    OClass d = db.getMetadata().getSchema().createClass(classNamePrefix + "D");
+    YTClass a = db.getMetadata().getSchema().createClass(classNamePrefix + "A");
+    YTClass b = db.getMetadata().getSchema().createClass(classNamePrefix + "C");
+    YTClass c = db.getMetadata().getSchema().createClass(classNamePrefix + "B");
+    YTClass d = db.getMetadata().getSchema().createClass(classNamePrefix + "D");
 
-    a.createProperty(db, "b", OType.LINK, b).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
-    b.createProperty(db, "c", OType.LINK, c).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
-    c.createProperty(db, "d", OType.LINK, d).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
-    c.createProperty(db, "name", OType.STRING).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
-    d.createProperty(db, "name", OType.STRING).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    a.createProperty(db, "b", YTType.LINK, b).createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
+    b.createProperty(db, "c", YTType.LINK, c).createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
+    c.createProperty(db, "d", YTType.LINK, d).createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
+    c.createProperty(db, "name", YTType.STRING).createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
+    d.createProperty(db, "name", YTType.STRING).createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    OElement dDoc = db.newElement(d.getName());
+    YTEntity dDoc = db.newElement(d.getName());
     dDoc.setProperty("name", "foo");
     dDoc.save();
 
-    OElement cDoc = db.newElement(c.getName());
+    YTEntity cDoc = db.newElement(c.getName());
     cDoc.setProperty("name", "foo");
     cDoc.setProperty("d", dDoc);
     cDoc.save();
 
-    OElement bDoc = db.newElement(b.getName());
+    YTEntity bDoc = db.newElement(b.getName());
     bDoc.setProperty("c", cDoc);
     bDoc.save();
 
-    OElement aDoc = db.newElement(a.getName());
+    YTEntity aDoc = db.newElement(a.getName());
     aDoc.setProperty("b", bDoc);
     aDoc.save();
 
@@ -4714,7 +4714,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String className = "TestExclude";
     db.getMetadata().getSchema().createClass(className);
     db.begin();
-    ODocument doc = db.newInstance(className);
+    YTDocument doc = db.newInstance(className);
     doc.setProperty("name", "foo");
     doc.setProperty("surname", "bar");
     doc.save();
@@ -4737,7 +4737,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    ODocument doc = db.newInstance(className);
+    YTDocument doc = db.newInstance(className);
     doc.setProperty("name", "abbb");
     doc.save();
 
@@ -4875,7 +4875,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
         String.join(
             ",",
             Stream.of(coupe1, coupe2, mw1, mw2, hatch1)
-                .map(ORecord::getIdentity)
+                .map(YTRecord::getIdentity)
                 .map(Object::toString)
                 .toList());
     var unionAllEnginesQuery =

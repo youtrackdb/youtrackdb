@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
@@ -81,7 +81,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
     payload.setNotBefore(3L);
     payload.setUserName("the subject");
     payload.setTokenId("aaa");
-    payload.setUserRid(new ORecordId(3, 4));
+    payload.setUserRid(new YTRecordId(3, 4));
 
     OTokenHandlerImpl handler = new OTokenHandlerImpl();
     byte[] payloadbytes = handler.serializeWebPayload(payload);

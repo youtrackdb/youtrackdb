@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -23,17 +23,17 @@ public class OFindReferencesStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(name2);
 
     db.begin();
-    ODocument linked = new ODocument(name);
+    YTDocument linked = new YTDocument(name);
     linked.field("foo", "bar");
     linked.save();
     db.commit();
 
-    Set<ORID> ridsToMatch = new HashSet<>();
+    Set<YTRID> ridsToMatch = new HashSet<>();
 
     for (int i = 0; i < 10; i++) {
       db.begin();
       linked = db.bindToSession(linked);
-      ODocument doc = new ODocument(name2);
+      YTDocument doc = new YTDocument(name2);
       doc.field("counter", i);
       if (i % 2 == 0) {
         doc.field("link", linked);

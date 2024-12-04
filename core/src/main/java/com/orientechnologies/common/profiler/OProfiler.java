@@ -22,7 +22,7 @@ package com.orientechnologies.common.profiler;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.common.util.OService;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
@@ -136,7 +136,7 @@ public interface OProfiler extends OService {
     return false;
   }
 
-  default ODocument getContext() {
-    return new ODocument().field("enterprise", false);
+  default YTDocument getContext() {
+    return new YTDocument().field("enterprise", false);
   }
 }

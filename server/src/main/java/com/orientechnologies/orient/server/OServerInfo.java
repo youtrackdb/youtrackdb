@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
@@ -131,7 +131,7 @@ public class OServerInfo {
       throws IOException {
     json.beginCollection(2, true, "globalProperties");
 
-    for (OGlobalConfiguration c : OGlobalConfiguration.values()) {
+    for (YTGlobalConfiguration c : YTGlobalConfiguration.values()) {
       json.beginObject(3, true, null);
       json.writeAttribute(4, false, "key", c.getKey());
       json.writeAttribute(4, false, "description", c.getDescription());

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.index.multivalue;
 
 import com.orientechnologies.common.types.OModifiableBoolean;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexUpdateAction;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContainerSBTree;
@@ -11,10 +11,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class OMultivalueEntityRemover implements OIndexKeyUpdater<Object> {
 
-  private final OIdentifiable value;
+  private final YTIdentifiable value;
   private final OModifiableBoolean removed;
 
-  public OMultivalueEntityRemover(OIdentifiable value, OModifiableBoolean removed) {
+  public OMultivalueEntityRemover(YTIdentifiable value, OModifiableBoolean removed) {
     this.value = value;
     this.removed = removed;
   }
@@ -22,7 +22,7 @@ public class OMultivalueEntityRemover implements OIndexKeyUpdater<Object> {
   @Override
   public OIndexUpdateAction<Object> update(Object persistentValue, AtomicLong bonsayFileId) {
     @SuppressWarnings("unchecked")
-    Set<OIdentifiable> values = (Set<OIdentifiable>) persistentValue;
+    Set<YTIdentifiable> values = (Set<YTIdentifiable>) persistentValue;
     if (value == null) {
       removed.setValue(true);
 

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed.task;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
 
 /**
@@ -28,7 +28,7 @@ import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
  */
 public class ODistributedRecordLockedException extends ONeedRetryException {
 
-  protected ORID rid;
+  protected YTRID rid;
   protected ODistributedRequestId lockHolder;
   protected String node;
 
@@ -36,7 +36,7 @@ public class ODistributedRecordLockedException extends ONeedRetryException {
     super(exception);
   }
 
-  public ODistributedRecordLockedException(final String localNodeName, final ORID iRid) {
+  public ODistributedRecordLockedException(final String localNodeName, final YTRID iRid) {
     super("Cannot acquire lock on record " + iRid + " on server '" + localNodeName + "'. ");
     this.rid = iRid;
     this.node = localNodeName;
@@ -44,7 +44,7 @@ public class ODistributedRecordLockedException extends ONeedRetryException {
 
   public ODistributedRecordLockedException(
       final String localNodeName,
-      final ORID iRid,
+      final YTRID iRid,
       final ODistributedRequestId iLockingRequestId,
       long timeout) {
     super(
@@ -61,7 +61,7 @@ public class ODistributedRecordLockedException extends ONeedRetryException {
     this.node = localNodeName;
   }
 
-  public ORID getRid() {
+  public YTRID getRid() {
     return rid;
   }
 

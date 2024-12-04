@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 /**
  * Represents a constant value, used to bind parameters.
@@ -37,7 +37,7 @@ public class OSQLFilterItemParameter implements OSQLFilterItem {
   }
 
   public Object getValue(
-      final OIdentifiable iRecord, Object iCurrentResult, OCommandContext iContetx) {
+      final YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContetx) {
     return value;
   }
 

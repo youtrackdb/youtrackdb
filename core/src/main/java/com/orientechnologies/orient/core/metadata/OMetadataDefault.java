@@ -21,15 +21,15 @@ package com.orientechnologies.orient.core.metadata;
 
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.index.OIndexManager;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OIndexManagerProxy;
 import com.orientechnologies.orient.core.metadata.function.OFunctionLibrary;
 import com.orientechnologies.orient.core.metadata.function.OFunctionLibraryProxy;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OSchemaProxy;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTSchemaProxy;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OSecurityProxy;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
@@ -46,7 +46,7 @@ public class OMetadataDefault implements OMetadataInternal {
 
   protected int schemaClusterId;
 
-  protected OSchemaProxy schema;
+  protected YTSchemaProxy schema;
   protected OSecurity security;
   protected OIndexManagerProxy indexManager;
   protected OFunctionLibraryProxy functionLibrary;
@@ -55,14 +55,14 @@ public class OMetadataDefault implements OMetadataInternal {
 
   protected static final OProfiler PROFILER = YouTrackDBManager.instance().getProfiler();
 
-  private OImmutableSchema immutableSchema = null;
+  private YTImmutableSchema immutableSchema = null;
   private int immutableCount = 0;
-  private ODatabaseSessionInternal database;
+  private YTDatabaseSessionInternal database;
 
   public OMetadataDefault() {
   }
 
-  public OMetadataDefault(ODatabaseSessionInternal databaseDocument) {
+  public OMetadataDefault(YTDatabaseSessionInternal databaseDocument) {
     this.database = databaseDocument;
   }
 
@@ -74,7 +74,7 @@ public class OMetadataDefault implements OMetadataInternal {
   public void create() throws IOException {
   }
 
-  public OSchemaProxy getSchema() {
+  public YTSchemaProxy getSchema() {
     return schema;
   }
 
@@ -97,7 +97,7 @@ public class OMetadataDefault implements OMetadataInternal {
   }
 
   @Override
-  public OImmutableSchema getImmutableSchemaSnapshot() {
+  public YTImmutableSchema getImmutableSchemaSnapshot() {
     if (immutableSchema == null) {
       if (schema == null) {
         return null;
@@ -131,7 +131,7 @@ public class OMetadataDefault implements OMetadataInternal {
   public OSharedContext init(OSharedContext shared) {
     schemaClusterId = database.getClusterIdByName(CLUSTER_INTERNAL_NAME);
 
-    schema = new OSchemaProxy(shared.getSchema(), database);
+    schema = new YTSchemaProxy(shared.getSchema(), database);
     indexManager = new OIndexManagerProxy(shared.getIndexManager(), database);
     security = new OSecurityProxy(shared.getSecurity(), database);
     functionLibrary = new OFunctionLibraryProxy(shared.getFunctionLibrary(), database);
@@ -158,7 +158,7 @@ public class OMetadataDefault implements OMetadataInternal {
     // ADD HERE THE CLOSE OF A PROXY OBJECT IF NEEDED
   }
 
-  protected ODatabaseSessionInternal getDatabase() {
+  protected YTDatabaseSessionInternal getDatabase() {
     return database;
   }
 

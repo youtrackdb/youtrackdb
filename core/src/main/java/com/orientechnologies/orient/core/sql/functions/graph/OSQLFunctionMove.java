@@ -5,11 +5,11 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
 import java.util.ArrayList;
@@ -31,20 +31,20 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
   }
 
   protected abstract Object move(
-      final ODatabaseSession db, final OIdentifiable iRecord, final String[] iLabels);
+      final YTDatabaseSession db, final YTIdentifiable iRecord, final String[] iLabels);
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "Syntax error: " + name + "([<labels>])";
   }
 
   public Object execute(
       final Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParameters,
       final OCommandContext iContext) {
 
-    ODatabaseSession db =
+    YTDatabaseSession db =
         iContext != null
             ? iContext.getDatabase()
             : ODatabaseRecordThreadLocal.instance().getIfDefined();
@@ -67,9 +67,9 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
     }
 
     return OSQLEngine.foreachRecord(
-        new OCallable<Object, OIdentifiable>() {
+        new OCallable<Object, YTIdentifiable>() {
           @Override
-          public Object call(final OIdentifiable iArgument) {
+          public Object call(final YTIdentifiable iArgument) {
             return move(db, iArgument, labels);
           }
         },
@@ -78,13 +78,13 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
   }
 
   protected Object v2v(
-      final ODatabaseSession graph,
-      final OIdentifiable iRecord,
+      final YTDatabaseSession graph,
+      final YTIdentifiable iRecord,
       final ODirection iDirection,
       final String[] iLabels) {
     if (iRecord != null) {
       try {
-        OElement rec = iRecord.getRecord();
+        YTEntity rec = iRecord.getRecord();
         if (rec.isVertex()) {
           return rec.asVertex().get().getVertices(iDirection, iLabels);
         } else {
@@ -99,13 +99,13 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
   }
 
   protected Object v2e(
-      final ODatabaseSession graph,
-      final OIdentifiable iRecord,
+      final YTDatabaseSession graph,
+      final YTIdentifiable iRecord,
       final ODirection iDirection,
       final String[] iLabels) {
     if (iRecord != null) {
       try {
-        OElement rec = iRecord.getRecord();
+        YTEntity rec = iRecord.getRecord();
         if (rec.isVertex()) {
           return rec.asVertex().get().getEdges(iDirection, iLabels);
         } else {
@@ -120,14 +120,14 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
   }
 
   protected Object e2v(
-      final ODatabaseSession graph,
-      final OIdentifiable iRecord,
+      final YTDatabaseSession graph,
+      final YTIdentifiable iRecord,
       final ODirection iDirection,
       final String[] iLabels) {
     if (iRecord != null) {
 
       try {
-        OElement rec = iRecord.getRecord();
+        YTEntity rec = iRecord.getRecord();
         if (rec.isEdge()) {
           if (iDirection == ODirection.BOTH) {
             List results = new ArrayList();

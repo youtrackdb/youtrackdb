@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.parser.OBatch;
 import com.orientechnologies.orient.core.sql.parser.OCreateEdgeStatement;
 import com.orientechnologies.orient.core.sql.parser.OExecutionPlanCache;
@@ -55,7 +55,7 @@ public class OCreateEdgeExecutionPlanner {
 
   public OInsertExecutionPlan createExecutionPlan(
       OCommandContext ctx, boolean enableProfiling, boolean useCache) {
-    ODatabaseSessionInternal db = ctx.getDatabase();
+    YTDatabaseSessionInternal db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
@@ -69,7 +69,7 @@ public class OCreateEdgeExecutionPlanner {
       if (targetClusterName == null) {
         targetClass = new OIdentifier("E");
       } else {
-        OClass clazz =
+        YTClass clazz =
             db.getMetadata()
                 .getImmutableSchemaSnapshot()
                 .getClassByClusterId(db.getClusterIdByName(targetClusterName.getStringValue()));
@@ -100,7 +100,7 @@ public class OCreateEdgeExecutionPlanner {
 
     String uniqueIndexName = null;
     if (upsert) {
-      OClass clazz =
+      YTClass clazz =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()

@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Provides an interface for creating security components.
@@ -30,7 +30,7 @@ public interface OSecurityComponent {
   // Called once the Server is running.
   void active();
 
-  void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+  void config(YTDatabaseSessionInternal session, final YTDocument jsonConfig,
       OSecuritySystem security);
 
   // Called on removal of the component.

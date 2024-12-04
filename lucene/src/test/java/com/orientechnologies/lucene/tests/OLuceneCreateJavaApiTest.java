@@ -21,10 +21,10 @@ package com.orientechnologies.lucene.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,23 +36,23 @@ public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
 
   @Before
   public void init() {
-    OClass song = db.createVertexClass("Song");
-    song.createProperty(db, "title", OType.STRING);
-    song.createProperty(db, "author", OType.STRING);
-    song.createProperty(db, "description", OType.STRING);
+    YTClass song = db.createVertexClass("Song");
+    song.createProperty(db, "title", YTType.STRING);
+    song.createProperty(db, "author", YTType.STRING);
+    song.createProperty(db, "description", YTType.STRING);
   }
 
   @Test
   public void testCreateIndex() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass song = schema.getClass("Song");
+    YTClass song = schema.getClass("Song");
 
-    ODocument meta = new ODocument().field("analyzer", StandardAnalyzer.class.getName());
+    YTDocument meta = new YTDocument().field("analyzer", StandardAnalyzer.class.getName());
     OIndex lucene =
         song.createIndex(db,
             "Song.title",
-            OClass.INDEX_TYPE.FULLTEXT.toString(),
+            YTClass.INDEX_TYPE.FULLTEXT.toString(),
             null,
             meta,
             "LUCENE", new String[]{"title"});
@@ -67,14 +67,14 @@ public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
 
   @Test
   public void testCreateIndexCompositeWithDefaultAnalyzer() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass song = schema.getClass("Song");
+    YTClass song = schema.getClass("Song");
 
     OIndex lucene =
         song.createIndex(db,
             "Song.author_description",
-            OClass.INDEX_TYPE.FULLTEXT.toString(),
+            YTClass.INDEX_TYPE.FULLTEXT.toString(),
             null,
             null,
             "LUCENE", new String[]{"author", "description"});

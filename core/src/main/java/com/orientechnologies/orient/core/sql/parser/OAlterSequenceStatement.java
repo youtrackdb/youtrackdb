@@ -4,10 +4,10 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -43,30 +43,30 @@ public class OAlterSequenceStatement extends ODDLStatement {
           "Cannot execute the command because it has not been parsed yet");
     }
     final var database = ctx.getDatabase();
-    OSequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
+    YTSequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
     if (sequence == null) {
       throw new OCommandExecutionException("Sequence not found: " + sequenceName);
     }
 
-    OSequence.CreateParams params = new OSequence.CreateParams();
+    YTSequence.CreateParams params = new YTSequence.CreateParams();
     params.resetNull();
 
     if (start != null) {
-      Object val = start.execute((OIdentifiable) null, ctx);
+      Object val = start.execute((YTIdentifiable) null, ctx);
       if (!(val instanceof Number)) {
         throw new OCommandExecutionException("invalid start value for a sequence: " + val);
       }
       params.setStart(((Number) val).longValue());
     }
     if (increment != null) {
-      Object val = increment.execute((OIdentifiable) null, ctx);
+      Object val = increment.execute((YTIdentifiable) null, ctx);
       if (!(val instanceof Number)) {
         throw new OCommandExecutionException("invalid increment value for a sequence: " + val);
       }
       params.setIncrement(((Number) val).intValue());
     }
     if (cache != null) {
-      Object val = cache.execute((OIdentifiable) null, ctx);
+      Object val = cache.execute((YTIdentifiable) null, ctx);
       if (!(val instanceof Number)) {
         throw new OCommandExecutionException("invalid cache value for a sequence: " + val);
       }
@@ -80,7 +80,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
       params.setRecyclable(cyclic);
     }
     if (limitValue != null) {
-      Object val = limitValue.execute((OIdentifiable) null, ctx);
+      Object val = limitValue.execute((YTIdentifiable) null, ctx);
       if (!(val instanceof Number)) {
         throw new OCommandExecutionException("invalid cache value for a sequence: " + val);
       }

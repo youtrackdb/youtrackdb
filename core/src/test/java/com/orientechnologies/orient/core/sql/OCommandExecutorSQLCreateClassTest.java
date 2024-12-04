@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class OCommandExecutorSQLCreateClassTest extends DBTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final OSchema schema = db.getMetadata().getSchema();
+    final YTSchema schema = db.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));
   }
 
@@ -42,7 +42,7 @@ public class OCommandExecutorSQLCreateClassTest extends DBTestBase {
 
     db.command("create class `UserVertex` extends `V` , `User`").close();
 
-    OClass userVertex = db.getMetadata().getSchema().getClass("UserVertex");
+    YTClass userVertex = db.getMetadata().getSchema().getClass("UserVertex");
 
     Assert.assertNotNull(userVertex);
 

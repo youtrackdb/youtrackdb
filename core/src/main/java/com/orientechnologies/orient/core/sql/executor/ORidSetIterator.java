@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import java.util.Iterator;
 
 /**
  *
  */
-public class ORidSetIterator implements Iterator<ORID> {
+public class ORidSetIterator implements Iterator<YTRID> {
 
-  private final Iterator<ORID> negativesIterator;
+  private final Iterator<YTRID> negativesIterator;
   private final ORidSet set;
   private int currentCluster = -1;
   private long currentId = -1;
@@ -26,14 +26,14 @@ public class ORidSetIterator implements Iterator<ORID> {
   }
 
   @Override
-  public ORID next() {
+  public YTRID next() {
     if (negativesIterator.hasNext()) {
       return negativesIterator.next();
     }
     if (!hasNext()) {
       throw new IllegalStateException();
     }
-    ORecordId result = new ORecordId(currentCluster, currentId);
+    YTRecordId result = new YTRecordId(currentCluster, currentId);
     currentId++;
     fetchNext();
     return result;
@@ -59,7 +59,7 @@ public class ORidSetIterator implements Iterator<ORID> {
             currentArrayPos++;
             continue;
           }
-          if (set.contains(new ORecordId(currentCluster, currentArrayPos * 63 + currentBit))) {
+          if (set.contains(new YTRecordId(currentCluster, currentArrayPos * 63 + currentBit))) {
             currentId = currentArrayPos * 63 + currentBit;
             return;
           } else {

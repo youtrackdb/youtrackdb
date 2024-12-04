@@ -3,10 +3,10 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OChainedIndexProxy;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.Arrays;
@@ -64,9 +64,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where group.curator.name = 'Someone'"));
     assertEquals(result.size(), 1);
     assertEquals(containsDocumentWithFieldValue(result, "name", "John Smith"), 1);
@@ -79,9 +79,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where group.curator.salary = 600"));
     assertEquals(result.size(), 3);
     assertEquals(containsDocumentWithFieldValue(result, "name", "James Bell"), 1);
@@ -96,9 +96,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where group.curator.name = 'Someone else' limit 1"));
     assertEquals(result.size(), 1);
     assertTrue(
@@ -113,9 +113,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where group.curator.salary < 1000"));
     assertEquals(result.size(), 4);
     assertEquals(containsDocumentWithFieldValue(result, "name", "Jane Smith"), 1);
@@ -131,16 +131,16 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where group.curator.salary < 1000 limit 2"));
     assertEquals(result.size(), 2);
 
     final List<String> expectedNames =
         Arrays.asList("Jane Smith", "James Bell", "Roger Connor", "William James");
 
-    for (ODocument aResult : result) {
+    for (YTDocument aResult : result) {
       assertTrue(expectedNames.contains(aResult.field("name")));
     }
 
@@ -152,9 +152,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>("select from lpirtStudent where diploma.GPA <= 4"));
+            new OSQLSynchQuery<YTDocument>("select from lpirtStudent where diploma.GPA <= 4"));
     assertEquals(result.size(), 3);
     assertEquals(containsDocumentWithFieldValue(result, "name", "John Smith"), 1);
     assertEquals(containsDocumentWithFieldValue(result, "name", "James Bell"), 1);
@@ -168,9 +168,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where diploma.GPA <= 4 limit 1"));
     assertEquals(result.size(), 1);
     assertTrue(
@@ -185,9 +185,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where group.curator.salary > 1000"));
     assertEquals(result.size(), 1);
     assertEquals(containsDocumentWithFieldValue(result, "name", "John Smith"), 1);
@@ -200,14 +200,14 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where group.curator.salary > 550 limit 1"));
     assertEquals(result.size(), 1);
     final List<String> expectedNames =
         Arrays.asList("John Smith", "James Bell", "Roger Connor", "William James");
-    for (ODocument aResult : result) {
+    for (YTDocument aResult : result) {
       assertTrue(expectedNames.contains(aResult.field("name")));
     }
 
@@ -219,9 +219,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtGroup where curator.salary between 500 and 1000"));
     assertEquals(result.size(), 2);
     assertEquals(containsDocumentWithFieldValue(result, "name", "PZ-08-2"), 1);
@@ -235,14 +235,14 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtGroup where curator.salary between 500 and 1000 limit 1"));
     assertEquals(result.size(), 1);
 
     final List<String> expectedNames = Arrays.asList("PZ-08-2", "PZ-08-3");
-    for (ODocument aResult : result) {
+    for (YTDocument aResult : result) {
       assertTrue(expectedNames.contains(aResult.field("name")));
     }
 
@@ -254,9 +254,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtGroup where curator.salary in [500, 600]"));
     assertEquals(result.size(), 2);
     assertEquals(containsDocumentWithFieldValue(result, "name", "PZ-08-2"), 1);
@@ -270,14 +270,14 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtGroup where curator.salary in [500, 600] limit 1"));
     assertEquals(result.size(), 1);
 
     final List<String> expectedNames = Arrays.asList("PZ-08-2", "PZ-08-3");
-    for (ODocument aResult : result) {
+    for (YTDocument aResult : result) {
       assertTrue(expectedNames.contains(aResult.field("name")));
     }
 
@@ -292,14 +292,14 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
   public void testUniquePartialSearch() {
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select from lpirtStudent where diploma.name = 'diploma3'"));
 
     assertEquals(result.size(), 2);
     final List<String> expectedNames = Arrays.asList("William James", "James Bell");
-    for (ODocument aResult : result) {
+    for (YTDocument aResult : result) {
       assertTrue(expectedNames.contains(aResult.field("name")));
     }
 
@@ -310,9 +310,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
   public void testHashIndexIsUsedAsBaseIndex() {
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>("select from lpirtStudent where transcript.id = '1'"));
+            new OSQLSynchQuery<YTDocument>("select from lpirtStudent where transcript.id = '1'"));
 
     assertEquals(result.size(), 1);
 
@@ -323,9 +323,9 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
   public void testCompositeHashIndexIgnored() {
     long oldIndexUsage = indexUsages();
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database.query(
-            new OSQLSynchQuery<ODocument>("select from lpirtStudent where skill.name = 'math'"));
+            new OSQLSynchQuery<YTDocument>("select from lpirtStudent where skill.name = 'math'"));
 
     assertEquals(result.size(), 1);
 
@@ -342,16 +342,16 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
    */
   private void fillDataSet() {
     database.begin();
-    ODocument curator1 = database.newInstance("lpirtCurator");
+    YTDocument curator1 = database.newInstance("lpirtCurator");
     curator1.field("name", "Someone");
     curator1.field("salary", 2000);
 
-    final ODocument group1 = database.newInstance("lpirtGroup");
+    final YTDocument group1 = database.newInstance("lpirtGroup");
     group1.field("name", "PZ-08-1");
     group1.field("curator", curator1);
     group1.save();
 
-    final ODocument diploma1 = database.newInstance("lpirtDiploma");
+    final YTDocument diploma1 = database.newInstance("lpirtDiploma");
     diploma1.field("GPA", 3.);
     diploma1.field("name", "diploma1");
     diploma1.field(
@@ -360,13 +360,13 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
             + " because you student be able to experience the campus, meet the professors, and"
             + " truly understand the traditions of the university.");
 
-    final ODocument transcript = database.newInstance("lpirtTranscript");
+    final YTDocument transcript = database.newInstance("lpirtTranscript");
     transcript.field("id", "1");
 
-    final ODocument skill = database.newInstance("lpirtSkill");
+    final YTDocument skill = database.newInstance("lpirtSkill");
     skill.field("name", "math");
 
-    final ODocument student1 = database.newInstance("lpirtStudent");
+    final YTDocument student1 = database.newInstance("lpirtStudent");
     student1.field("name", "John Smith");
     student1.field("group", group1);
     student1.field("diploma", diploma1);
@@ -374,16 +374,16 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
     student1.field("skill", skill);
     student1.save();
 
-    ODocument curator2 = database.newInstance("lpirtCurator");
+    YTDocument curator2 = database.newInstance("lpirtCurator");
     curator2.field("name", "Someone else");
     curator2.field("salary", 500);
 
-    final ODocument group2 = database.newInstance("lpirtGroup");
+    final YTDocument group2 = database.newInstance("lpirtGroup");
     group2.field("name", "PZ-08-2");
     group2.field("curator", curator2);
     group2.save();
 
-    final ODocument diploma2 = database.newInstance("lpirtDiploma");
+    final YTDocument diploma2 = database.newInstance("lpirtDiploma");
     diploma2.field("GPA", 5.);
     diploma2.field("name", "diploma2");
     diploma2.field(
@@ -392,22 +392,22 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
             + " oppression, Northerners focused on the oppression of slaves while Southerners"
             + " defended their own right to self-government.");
 
-    final ODocument student2 = database.newInstance("lpirtStudent");
+    final YTDocument student2 = database.newInstance("lpirtStudent");
     student2.field("name", "Jane Smith");
     student2.field("group", group2);
     student2.field("diploma", diploma2);
     student2.save();
 
-    ODocument curator3 = database.newInstance("lpirtCurator");
+    YTDocument curator3 = database.newInstance("lpirtCurator");
     curator3.field("name", "Someone else");
     curator3.field("salary", 600);
 
-    final ODocument group3 = database.newInstance("lpirtGroup");
+    final YTDocument group3 = database.newInstance("lpirtGroup");
     group3.field("name", "PZ-08-3");
     group3.field("curator", curator3);
     group3.save();
 
-    final ODocument diploma3 = database.newInstance("lpirtDiploma");
+    final YTDocument diploma3 = database.newInstance("lpirtDiploma");
     diploma3.field("GPA", 4.);
     diploma3.field("name", "diploma3");
     diploma3.field(
@@ -415,18 +415,18 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
         "College student shouldn't have to take a required core curriculum, and many core "
             + "courses are graded too stiffly.");
 
-    final ODocument student3 = database.newInstance("lpirtStudent");
+    final YTDocument student3 = database.newInstance("lpirtStudent");
     student3.field("name", "James Bell");
     student3.field("group", group3);
     student3.field("diploma", diploma3);
     student3.save();
 
-    final ODocument student4 = database.newInstance("lpirtStudent");
+    final YTDocument student4 = database.newInstance("lpirtStudent");
     student4.field("name", "Roger Connor");
     student4.field("group", group3);
     student4.save();
 
-    final ODocument student5 = database.newInstance("lpirtStudent");
+    final YTDocument student5 = database.newInstance("lpirtStudent");
     student5.field("name", "William James");
     student5.field("group", group3);
     student5.field("diploma", diploma3);
@@ -435,90 +435,92 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
   }
 
   private void createSchemaForTest() {
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("lpirtStudent")) {
-      final OClass curatorClass = schema.createClass("lpirtCurator");
-      curatorClass.createProperty(database, "name", OType.STRING)
-          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+      final YTClass curatorClass = schema.createClass("lpirtCurator");
+      curatorClass.createProperty(database, "name", YTType.STRING)
+          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
       curatorClass
-          .createProperty(database, "salary", OType.INTEGER)
-          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
-              new ODocument().field("ignoreNullValues", true));
+          .createProperty(database, "salary", YTType.INTEGER)
+          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+              new YTDocument().field("ignoreNullValues", true));
       curatorClass.createIndex(database,
           "curotorCompositeIndex",
-          OClass.INDEX_TYPE.UNIQUE.name(),
+          YTClass.INDEX_TYPE.UNIQUE.name(),
           null,
-          new ODocument().field("ignoreNullValues", true), new String[]{"salary", "name"});
+          new YTDocument().field("ignoreNullValues", true), new String[]{"salary", "name"});
 
-      final OClass groupClass = schema.createClass("lpirtGroup");
+      final YTClass groupClass = schema.createClass("lpirtGroup");
       groupClass
-          .createProperty(database, "name", OType.STRING)
-          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
-              new ODocument().field("ignoreNullValues", true));
+          .createProperty(database, "name", YTType.STRING)
+          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+              new YTDocument().field("ignoreNullValues", true));
       groupClass
-          .createProperty(database, "curator", OType.LINK, curatorClass)
-          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
-              new ODocument().field("ignoreNullValues", true));
+          .createProperty(database, "curator", YTType.LINK, curatorClass)
+          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+              new YTDocument().field("ignoreNullValues", true));
 
-      final OClass diplomaClass = schema.createClass("lpirtDiploma");
-      diplomaClass.createProperty(database, "GPA", OType.DOUBLE)
-          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
-      diplomaClass.createProperty(database, "thesis", OType.STRING);
+      final YTClass diplomaClass = schema.createClass("lpirtDiploma");
+      diplomaClass.createProperty(database, "GPA", YTType.DOUBLE)
+          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+      diplomaClass.createProperty(database, "thesis", YTType.STRING);
       diplomaClass
-          .createProperty(database, "name", OType.STRING)
-          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
-              new ODocument().field("ignoreNullValues", true));
+          .createProperty(database, "name", YTType.STRING)
+          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+              new YTDocument().field("ignoreNullValues", true));
       diplomaClass.createIndex(database,
           "diplomaThesisUnique",
-          OClass.INDEX_TYPE.UNIQUE.name(),
+          YTClass.INDEX_TYPE.UNIQUE.name(),
           null,
-          new ODocument().field("ignoreNullValues", true), new String[]{"thesis"});
+          new YTDocument().field("ignoreNullValues", true), new String[]{"thesis"});
 
-      final OClass transcriptClass = schema.createClass("lpirtTranscript");
+      final YTClass transcriptClass = schema.createClass("lpirtTranscript");
       transcriptClass
-          .createProperty(database, "id", OType.STRING)
+          .createProperty(database, "id", YTType.STRING)
           .createIndex(database,
-              OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, new ODocument().field("ignoreNullValues", true));
+              YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+              new YTDocument().field("ignoreNullValues", true));
 
-      final OClass skillClass = schema.createClass("lpirtSkill");
+      final YTClass skillClass = schema.createClass("lpirtSkill");
       skillClass
-          .createProperty(database, "name", OType.STRING)
-          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
-              new ODocument().field("ignoreNullValues", true));
+          .createProperty(database, "name", YTType.STRING)
+          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+              new YTDocument().field("ignoreNullValues", true));
 
-      final OClass studentClass = schema.createClass("lpirtStudent");
+      final YTClass studentClass = schema.createClass("lpirtStudent");
       studentClass
-          .createProperty(database, "name", OType.STRING)
-          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
-              new ODocument().field("ignoreNullValues", true));
+          .createProperty(database, "name", YTType.STRING)
+          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+              new YTDocument().field("ignoreNullValues", true));
       studentClass
-          .createProperty(database, "group", OType.LINK, groupClass)
-          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
-      studentClass.createProperty(database, "diploma", OType.LINK, diplomaClass);
+          .createProperty(database, "group", YTType.LINK, groupClass)
+          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+      studentClass.createProperty(database, "diploma", YTType.LINK, diplomaClass);
       studentClass
-          .createProperty(database, "transcript", OType.LINK, transcriptClass)
+          .createProperty(database, "transcript", YTType.LINK, transcriptClass)
           .createIndex(database,
-              OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, new ODocument().field("ignoreNullValues", true));
-      studentClass.createProperty(database, "skill", OType.LINK, skillClass);
+              YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+              new YTDocument().field("ignoreNullValues", true));
+      studentClass.createProperty(database, "skill", YTType.LINK, skillClass);
 
-      final ODocument metadata = new ODocument().field("ignoreNullValues", false);
+      final YTDocument metadata = new YTDocument().field("ignoreNullValues", false);
       studentClass.createIndex(database,
           "studentDiplomaAndNameIndex",
-          OClass.INDEX_TYPE.UNIQUE.toString(),
+          YTClass.INDEX_TYPE.UNIQUE.toString(),
           null,
           metadata.copy(), new String[]{"diploma", "name"});
       studentClass.createIndex(database,
           "studentSkillAndGroupIndex",
-          OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString(),
+          YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString(),
           null,
           metadata.copy(), new String[]{"skill", "group"});
     }
   }
 
   private int containsDocumentWithFieldValue(
-      final List<ODocument> docList, final String fieldName, final Object fieldValue) {
+      final List<YTDocument> docList, final String fieldName, final Object fieldValue) {
     int count = 0;
-    for (final ODocument docItem : docList) {
+    for (final YTDocument docItem : docList) {
       if (fieldValue.equals(docItem.field(fieldName))) {
         count++;
       }

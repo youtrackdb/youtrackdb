@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeIndexEngine;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeMultiValueIndexEngine;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeSingleValueIndexEngine;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.index.engine.ORemoteIndexEngine;
@@ -53,10 +53,10 @@ public class ODefaultIndexFactory implements OIndexFactory {
 
   static {
     final Set<String> types = new HashSet<>();
-    types.add(OClass.INDEX_TYPE.UNIQUE.toString());
-    types.add(OClass.INDEX_TYPE.NOTUNIQUE.toString());
-    types.add(OClass.INDEX_TYPE.FULLTEXT.toString());
-    types.add(OClass.INDEX_TYPE.DICTIONARY.toString());
+    types.add(YTClass.INDEX_TYPE.UNIQUE.toString());
+    types.add(YTClass.INDEX_TYPE.NOTUNIQUE.toString());
+    types.add(YTClass.INDEX_TYPE.FULLTEXT.toString());
+    types.add(YTClass.INDEX_TYPE.DICTIONARY.toString());
     TYPES = Collections.unmodifiableSet(types);
   }
 
@@ -69,7 +69,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
   }
 
   static boolean isMultiValueIndex(final String indexType) {
-    switch (OClass.INDEX_TYPE.valueOf(indexType)) {
+    switch (YTClass.INDEX_TYPE.valueOf(indexType)) {
       case UNIQUE:
       case UNIQUE_HASH_INDEX:
       case DICTIONARY:
@@ -109,18 +109,18 @@ public class ODefaultIndexFactory implements OIndexFactory {
       im.setVersion(version);
     }
 
-    if (OClass.INDEX_TYPE.UNIQUE.toString().equals(indexType)) {
+    if (YTClass.INDEX_TYPE.UNIQUE.toString().equals(indexType)) {
       return new OIndexUnique(im, storage);
-    } else if (OClass.INDEX_TYPE.NOTUNIQUE.toString().equals(indexType)) {
+    } else if (YTClass.INDEX_TYPE.NOTUNIQUE.toString().equals(indexType)) {
       return new OIndexNotUnique(im, storage);
-    } else if (OClass.INDEX_TYPE.FULLTEXT.toString().equals(indexType)) {
+    } else if (YTClass.INDEX_TYPE.FULLTEXT.toString().equals(indexType)) {
       OLogManager.instance()
           .warn(
               ODefaultIndexFactory.class,
               "You are creating native full text index instance. That is unsafe because this type"
                   + " of index is deprecated and will be removed in future.");
       return new OIndexFullText(im, storage);
-    } else if (OClass.INDEX_TYPE.DICTIONARY.toString().equals(indexType)) {
+    } else if (YTClass.INDEX_TYPE.DICTIONARY.toString().equals(indexType)) {
       return new OIndexDictionary(im, storage);
     }
 

@@ -3,11 +3,11 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.OFieldTypesString;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -62,13 +62,13 @@ public class OJson extends SimpleNode {
     builder.append("}");
   }
 
-  public ODocument toDocument(OIdentifiable source, OCommandContext ctx) {
+  public YTDocument toDocument(YTIdentifiable source, OCommandContext ctx) {
     String className = getClassNameForDocument(ctx);
-    ODocument doc;
+    YTDocument doc;
     if (className != null) {
-      doc = new ODocument(className);
+      doc = new YTDocument(className);
     } else {
-      doc = new ODocument();
+      doc = new YTDocument();
     }
     for (OJsonItem item : items) {
       String name = item.getLeftValue();
@@ -87,8 +87,8 @@ public class OJson extends SimpleNode {
     return doc;
   }
 
-  private ODocument toDocument(OResult source, OCommandContext ctx, String className) {
-    ODocument retDoc = new ODocument(className);
+  private YTDocument toDocument(OResult source, OCommandContext ctx, String className) {
+    YTDocument retDoc = new YTDocument(className);
     Map<String, Character> types = null;
     for (OJsonItem item : items) {
       String name = item.getLeftValue();
@@ -98,7 +98,7 @@ public class OJson extends SimpleNode {
           Object value = item.right.execute(source, ctx);
           types = OFieldTypesString.loadFieldTypes(value.toString());
           for (Map.Entry<String, Character> entry : types.entrySet()) {
-            OType t = OFieldTypesString.getOTypeFromChar(entry.getValue());
+            YTType t = OFieldTypesString.getOTypeFromChar(entry.getValue());
             retDoc.setFieldType(entry.getKey(), t);
           }
         }
@@ -112,7 +112,7 @@ public class OJson extends SimpleNode {
         charType = null;
       }
       if (charType != null) {
-        OType t = OFieldTypesString.getOTypeFromChar(charType);
+        YTType t = OFieldTypesString.getOTypeFromChar(charType);
         retDoc.setProperty(name, value, t);
       } else {
         retDoc.setPropertyInternal(name, value);
@@ -138,7 +138,7 @@ public class OJson extends SimpleNode {
     }
   }
 
-  public Object toObjectDetermineType(OIdentifiable source, OCommandContext ctx) {
+  public Object toObjectDetermineType(YTIdentifiable source, OCommandContext ctx) {
     var db = ctx.getDatabase();
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
@@ -148,7 +148,7 @@ public class OJson extends SimpleNode {
         var identity = source.getIdentity();
         if (identity.isPersistent()) {
           element = new OUpdatableResult(db, db.load(source.getIdentity()));
-        } else if (identity instanceof OElement el) {
+        } else if (identity instanceof YTEntity el) {
           element = new OUpdatableResult(db, el);
         }
       }
@@ -158,7 +158,7 @@ public class OJson extends SimpleNode {
     }
   }
 
-  public Map<String, Object> toMap(OIdentifiable source, OCommandContext ctx) {
+  public Map<String, Object> toMap(YTIdentifiable source, OCommandContext ctx) {
     Map<String, Object> doc = new LinkedHashMap<String, Object>();
     for (OJsonItem item : items) {
       String name = item.getLeftValue();
@@ -215,7 +215,7 @@ public class OJson extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     for (OJsonItem item : items) {
       if (item.isAggregate(session)) {
         return true;
@@ -276,7 +276,7 @@ public class OJson extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (items != null) {
       result.setProperty(

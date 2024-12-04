@@ -16,8 +16,8 @@
 package com.orientechnologies.orient.core.sql.method;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 /**
  * Methods can be used on various objects with different number of arguments. SQL syntax :
@@ -53,7 +53,7 @@ public interface OSQLMethod extends Comparable<OSQLMethod> {
   /**
    * @return maximum number of arguments requiered by this method
    */
-  int getMaxParams(ODatabaseSession session);
+  int getMaxParams(YTDatabaseSession session);
 
   /**
    * Process a record.
@@ -68,7 +68,7 @@ public interface OSQLMethod extends Comparable<OSQLMethod> {
    */
   Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams);

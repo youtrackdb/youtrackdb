@@ -20,22 +20,23 @@
 
 package com.orientechnologies.orient.core.serialization.serializer.record;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 public interface ORecordSerializer {
 
-  ORecordAbstract fromStream(ODatabaseSessionInternal db, byte[] iSource, ORecordAbstract iRecord,
+  YTRecordAbstract fromStream(YTDatabaseSessionInternal db, byte[] iSource,
+      YTRecordAbstract iRecord,
       String[] iFields);
 
-  byte[] toStream(ODatabaseSessionInternal session, ORecordAbstract iSource);
+  byte[] toStream(YTDatabaseSessionInternal session, YTRecordAbstract iSource);
 
   int getCurrentVersion();
 
   int getMinSupportedVersion();
 
-  String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference, byte[] iSource);
+  String[] getFieldNames(YTDatabaseSessionInternal db, YTDocument reference, byte[] iSource);
 
   boolean getSupportBinaryEvaluate();
 

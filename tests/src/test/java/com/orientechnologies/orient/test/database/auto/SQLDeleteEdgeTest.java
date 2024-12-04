@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
@@ -33,8 +33,8 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("create vertex testFromToV set name = 'Luca'").close();
     database.commit();
 
-    List<OIdentifiable> result =
-        database.query(new OSQLSynchQuery<ODocument>("select from testFromToV"));
+    List<YTIdentifiable> result =
+        database.query(new OSQLSynchQuery<YTDocument>("select from testFromToV"));
 
     database.begin();
     database
@@ -87,8 +87,8 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("create vertex testFromV set name = 'Luca'").close();
     database.commit();
 
-    List<OIdentifiable> result =
-        database.query(new OSQLSynchQuery<ODocument>("select from testFromV"));
+    List<YTIdentifiable> result =
+        database.query(new OSQLSynchQuery<YTDocument>("select from testFromV"));
 
     database.begin();
     database
@@ -142,8 +142,8 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("create vertex testToV set name = 'Luca'").close();
     database.commit();
 
-    List<OIdentifiable> result =
-        database.query(new OSQLSynchQuery<ODocument>("select from testToV"));
+    List<YTIdentifiable> result =
+        database.query(new OSQLSynchQuery<YTDocument>("select from testToV"));
 
     database.begin();
     database
@@ -187,9 +187,9 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS SuperV extends V").close();
 
     database.begin();
-    OIdentifiable v1 =
+    YTIdentifiable v1 =
         database.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
-    OIdentifiable v2 =
+    YTIdentifiable v2 =
         database.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
     database
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
@@ -230,9 +230,9 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS SuperV extends V").close();
 
     database.begin();
-    OIdentifiable v1 =
+    YTIdentifiable v1 =
         database.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
-    OIdentifiable v2 =
+    YTIdentifiable v2 =
         database.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
     database
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
@@ -277,19 +277,19 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS FromInStringV extends V").close();
 
     database.begin();
-    OIdentifiable v1 =
+    YTIdentifiable v1 =
         database
             .command("create vertex FromInStringV set name = ' from '")
             .next()
             .getIdentity()
             .get();
-    OIdentifiable v2 =
+    YTIdentifiable v2 =
         database
             .command("create vertex FromInStringV set name = ' FROM '")
             .next()
             .getIdentity()
             .get();
-    OIdentifiable v3 =
+    YTIdentifiable v3 =
         database
             .command("create vertex FromInStringV set name = ' TO '")
             .next()
@@ -316,10 +316,10 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
 
   public void testDeleteVertexWithReturn() {
     database.begin();
-    OIdentifiable v1 =
+    YTIdentifiable v1 =
         database.command("create vertex V set returning = true").next().getIdentity().get();
 
-    List<OIdentifiable> v2s =
+    List<YTIdentifiable> v2s =
         database.command("delete vertex V return before where returning = true").stream()
             .map((r) -> r.getIdentity().get())
             .collect(Collectors.toList());

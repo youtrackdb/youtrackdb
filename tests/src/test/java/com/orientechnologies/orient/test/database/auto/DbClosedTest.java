@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,10 +29,10 @@ public class DbClosedTest extends DocumentDBBaseTest {
   }
 
   public void testDoubleDb() {
-    ODatabaseSession db = acquireSession();
+    YTDatabaseSession db = acquireSession();
 
     // now I am getting another db instance
-    ODatabaseSession dbAnother = acquireSession();
+    YTDatabaseSession dbAnother = acquireSession();
     dbAnother.close();
 
     db.activateOnCurrentThread();
@@ -40,10 +40,10 @@ public class DbClosedTest extends DocumentDBBaseTest {
   }
 
   public void testDoubleDbWindowsPath() {
-    ODatabaseSession db = acquireSession();
+    YTDatabaseSession db = acquireSession();
 
     // now I am getting another db instance
-    ODatabaseSession dbAnother = acquireSession();
+    YTDatabaseSession dbAnother = acquireSession();
     dbAnother.close();
 
     db.activateOnCurrentThread();
@@ -56,9 +56,9 @@ public class DbClosedTest extends DocumentDBBaseTest {
       return;
     }
 
-    final int max = OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
+    final int max = YTGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
     for (int i = 0; i < max * 2; ++i) {
-      final ODatabaseSession db = acquireSession();
+      final YTDatabaseSession db = acquireSession();
       db.close();
     }
   }

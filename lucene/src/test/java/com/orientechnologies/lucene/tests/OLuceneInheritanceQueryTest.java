@@ -20,9 +20,9 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,16 +34,16 @@ public class OLuceneInheritanceQueryTest extends OLuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    final OClass c1 = db.createVertexClass("C1");
-    c1.createProperty(db, "name", OType.STRING);
+    final YTClass c1 = db.createVertexClass("C1");
+    c1.createProperty(db, "name", YTType.STRING);
     c1.createIndex(db, "C1.name", "FULLTEXT", null, null, "LUCENE", new String[]{"name"});
 
-    final OClass c2 = db.createClass("C2", "C1");
+    final YTClass c2 = db.createClass("C2", "C1");
   }
 
   @Test
   public void testQuery() {
-    ODocument doc = new ODocument("C2");
+    YTDocument doc = new YTDocument("C2");
     doc.field("name", "abc");
 
     db.begin();

@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
 
-  private final ODatabaseSessionInternal database;
+  private final YTDatabaseSessionInternal database;
 
   public BrokenMapHook() {
     this.database = ODatabaseRecordThreadLocal.instance().get();
@@ -28,9 +28,9 @@ public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
     return DISTRIBUTED_EXECUTION_MODE.BOTH;
   }
 
-  public RESULT onRecordBeforeCreate(ORecord record) {
+  public RESULT onRecordBeforeCreate(YTRecord record) {
     Date now = new Date();
-    OElement element = (OElement) record;
+    YTEntity element = (YTEntity) record;
 
     if (element.getProperty("myMap") != null) {
       HashMap<String, Object> myMap = new HashMap<>(element.getProperty("myMap"));
@@ -45,10 +45,10 @@ public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
     return RESULT.RECORD_CHANGED;
   }
 
-  public RESULT onRecordBeforeUpdate(ORecord newRecord) {
-    OElement newElement = (OElement) newRecord;
+  public RESULT onRecordBeforeUpdate(YTRecord newRecord) {
+    YTEntity newElement = (YTEntity) newRecord;
     try {
-      OElement oldElement = database.load(newElement.getIdentity());
+      YTEntity oldElement = database.load(newElement.getIdentity());
 
       var newPropertyNames = newElement.getPropertyNames();
       var oldPropertyNames = oldElement.getPropertyNames();

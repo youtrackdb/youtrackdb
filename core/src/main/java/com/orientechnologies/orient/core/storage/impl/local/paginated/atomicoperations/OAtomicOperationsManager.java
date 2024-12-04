@@ -25,7 +25,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.function.TxConsumer;
 import com.orientechnologies.common.function.TxFunction;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OCoreException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -55,7 +55,7 @@ public class OAtomicOperationsManager {
   private final OWriteAheadLog writeAheadLog;
   private final OOneEntryPerKeyLockManager<String> lockManager =
       new OOneEntryPerKeyLockManager<>(
-          true, -1, OGlobalConfiguration.COMPONENTS_LOCK_CACHE.getValueAsInteger());
+          true, -1, YTGlobalConfiguration.COMPONENTS_LOCK_CACHE.getValueAsInteger());
   private final OReadCache readCache;
   private final OWriteCache writeCache;
 

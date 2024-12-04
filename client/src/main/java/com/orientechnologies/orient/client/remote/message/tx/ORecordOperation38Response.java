@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote.message.tx;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 
 public class ORecordOperation38Response {
 
   private byte type;
   private byte recordType;
-  private ORID id;
-  private ORID oldId;
+  private YTRID id;
+  private YTRID oldId;
   private byte[] record;
   private byte[] original;
   private int version;
@@ -19,8 +19,8 @@ public class ORecordOperation38Response {
   public ORecordOperation38Response(
       byte type,
       byte recordType,
-      ORID id,
-      ORID oldId,
+      YTRID id,
+      YTRID oldId,
       byte[] record,
       int version,
       boolean contentChanged) {
@@ -33,19 +33,19 @@ public class ORecordOperation38Response {
     this.contentChanged = contentChanged;
   }
 
-  public ORID getId() {
+  public YTRID getId() {
     return id;
   }
 
-  public void setId(ORID id) {
+  public void setId(YTRID id) {
     this.id = id;
   }
 
-  public ORID getOldId() {
+  public YTRID getOldId() {
     return oldId;
   }
 
-  public void setOldId(ORID oldId) {
+  public void setOldId(YTRID oldId) {
     this.oldId = oldId;
   }
 

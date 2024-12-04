@@ -4,12 +4,12 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -35,11 +35,11 @@ public class OFetchTransaction38Response implements OBinaryResponse {
   }
 
   public OFetchTransaction38Response(
-      ODatabaseSessionInternal session, long txId,
+      YTDatabaseSessionInternal session, long txId,
       Iterable<ORecordOperation> operations,
       Map<String, OTransactionIndexChanges> indexChanges,
-      Map<ORID, ORID> updatedRids,
-      ODatabaseSessionInternal database) {
+      Map<YTRID, YTRID> updatedRids,
+      YTDatabaseSessionInternal database) {
     // In some cases the reference are update twice is not yet possible to guess what is the id in
     // the client
 
@@ -51,16 +51,16 @@ public class OFetchTransaction38Response implements OBinaryResponse {
       request.setType(txEntry.type);
       request.setVersion(txEntry.record.getVersion());
       request.setId(txEntry.getRID());
-      ORID oldID = updatedRids.get(txEntry.getRID());
+      YTRID oldID = updatedRids.get(txEntry.getRID());
       request.setOldId(oldID != null ? oldID : txEntry.getRID());
       request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
       if (txEntry.type == ORecordOperation.UPDATED
-          && txEntry.record instanceof ODocument doc) {
+          && txEntry.record instanceof YTDocument doc) {
         var result =
             database.getStorage()
-                .readRecord(database, (ORecordId) doc.getIdentity(), false, false, null);
+                .readRecord(database, (YTRecordId) doc.getIdentity(), false, false, null);
 
-        ODocument docFromPersistence = new ODocument(doc.getIdentity());
+        YTDocument docFromPersistence = new YTDocument(doc.getIdentity());
         docFromPersistence.fromStream(result.buffer);
         request.setOriginal(
             ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, docFromPersistence));
@@ -81,7 +81,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeLong(txId);
@@ -129,7 +129,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     txId = network.readLong();

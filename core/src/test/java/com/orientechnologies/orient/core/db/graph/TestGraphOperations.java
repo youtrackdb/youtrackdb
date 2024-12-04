@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.db.graph;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,18 +20,18 @@ public class TestGraphOperations extends DBTestBase {
 
     db.createVertexClass("TestVertex");
 
-    OClass testLabel = db.createEdgeClass("TestLabel");
+    YTClass testLabel = db.createEdgeClass("TestLabel");
 
-    OProperty key = testLabel.createProperty(db, "key", OType.STRING);
+    YTProperty key = testLabel.createProperty(db, "key", YTType.STRING);
 
-    key.createIndex(db, OClass.INDEX_TYPE.UNIQUE);
+    key.createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    OVertex vertex = db.newVertex("TestVertex");
+    YTVertex vertex = db.newVertex("TestVertex");
 
-    OVertex vertex1 = db.newVertex("TestVertex");
+    YTVertex vertex1 = db.newVertex("TestVertex");
 
-    OEdge edge = vertex.addEdge(vertex1, "TestLabel");
+    YTEdge edge = vertex.addEdge(vertex1, "TestLabel");
 
     edge.setProperty("key", "unique");
     db.save(vertex);

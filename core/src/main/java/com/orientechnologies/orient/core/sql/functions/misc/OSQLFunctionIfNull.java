@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
@@ -71,7 +71,7 @@ public class OSQLFunctionIfNull extends OSQLFunctionAbstract {
   @Override
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
       final OCommandContext iContext) {
@@ -88,7 +88,7 @@ public class OSQLFunctionIfNull extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "Syntax error: ifnull(<field|value>, <return_value_if_null>"
         + " [,<return_value_if_not_null>])";
   }

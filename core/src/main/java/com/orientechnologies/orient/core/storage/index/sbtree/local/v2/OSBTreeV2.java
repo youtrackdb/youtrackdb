@@ -24,7 +24,7 @@ import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.index.OIndexUpdateAction;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysLessKey;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -89,16 +89,16 @@ import java.util.stream.StreamSupport;
 public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> {
 
   private static final int SPLITERATOR_CACHE_SIZE =
-      OGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
+      YTGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
   private static final int MAX_KEY_SIZE =
-      OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+      YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
   private static final int MAX_EMBEDDED_VALUE_SIZE =
-      OGlobalConfiguration.SBTREE_MAX_EMBEDDED_VALUE_SIZE.getValueAsInteger();
+      YTGlobalConfiguration.SBTREE_MAX_EMBEDDED_VALUE_SIZE.getValueAsInteger();
   private static final OAlwaysLessKey ALWAYS_LESS_KEY = new OAlwaysLessKey();
   private static final OAlwaysGreaterKey ALWAYS_GREATER_KEY = new OAlwaysGreaterKey();
 
   private static final int MAX_PATH_LENGTH =
-      OGlobalConfiguration.SBTREE_MAX_DEPTH.getValueAsInteger();
+      YTGlobalConfiguration.SBTREE_MAX_DEPTH.getValueAsInteger();
 
   private static final long ROOT_INDEX = 0;
   private final Comparator<? super K> comparator = ODefaultComparator.INSTANCE;
@@ -107,7 +107,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
   private long nullBucketFileId = -1;
   private int keySize;
   private OBinarySerializer<K> keySerializer;
-  private OType[] keyTypes;
+  private YTType[] keyTypes;
   private OBinarySerializer<V> valueSerializer;
   private boolean nullPointerSupport;
   private final AtomicLong bonsayFileId = new AtomicLong(0);
@@ -131,7 +131,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
       final OAtomicOperation atomicOperation,
       final OBinarySerializer<K> keySerializer,
       final OBinarySerializer<V> valueSerializer,
-      final OType[] keyTypes,
+      final YTType[] keyTypes,
       final int keySize,
       final boolean nullPointerSupport,
       final OEncryption encryption)
@@ -497,7 +497,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
       final String name,
       final OBinarySerializer<K> keySerializer,
       final OBinarySerializer<V> valueSerializer,
-      final OType[] keyTypes,
+      final YTType[] keyTypes,
       final int keySize,
       final boolean nullPointerSupport,
       final OEncryption encryption) {

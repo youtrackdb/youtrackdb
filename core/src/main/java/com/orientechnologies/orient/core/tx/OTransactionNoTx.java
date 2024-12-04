@@ -20,20 +20,20 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +49,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
       "Read operation performed in no tx mode. "
           + "Such behavior can lead to inconsistent state of the database. "
           + "Please consider using transaction or set "
-          + OGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey()
+          + YTGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey()
           + " configuration parameter to "
           + NonTxReadMode.SILENT.name()
           + " to avoid this warning, or to "
@@ -59,7 +59,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
       "Read operation performed in no tx mode. "
           + "Such behavior can lead to inconsistent state of the database."
           + " Please consider using transaction or set "
-          + OGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey()
+          + YTGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey()
           + " configuration parameter to "
           + NonTxReadMode.SILENT.name()
           + " to avoid this warning, or to "
@@ -68,7 +68,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
   private final NonTxReadMode nonTxReadMode;
 
-  public OTransactionNoTx(final ODatabaseSessionInternal database) {
+  public OTransactionNoTx(final YTDatabaseSessionInternal database) {
     super(database);
 
     this.nonTxReadMode = database.getNonTxReadMode();
@@ -97,13 +97,13 @@ public class OTransactionNoTx extends OTransactionAbstract {
     throw new UnsupportedOperationException("Rollback is not supported in no tx mode");
   }
 
-  public @Nonnull ORecord loadRecord(final ORID rid) {
+  public @Nonnull YTRecord loadRecord(final YTRID rid) {
     checkNonTXReads();
     if (rid.isNew()) {
       throw new ORecordNotFoundException(rid);
     }
 
-    return database.executeReadRecord((ORecordId) rid);
+    return database.executeReadRecord((YTRecordId) rid);
   }
 
   private void checkNonTXReads() {
@@ -115,7 +115,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   @Override
-  public boolean exists(ORID rid) {
+  public boolean exists(YTRID rid) {
     checkNonTXReads();
     if (rid.isNew()) {
       return false;
@@ -124,14 +124,14 @@ public class OTransactionNoTx extends OTransactionAbstract {
     return database.executeExists(rid);
   }
 
-  public ORecord saveRecord(final ORecordAbstract iRecord, final String iClusterName) {
+  public YTRecord saveRecord(final YTRecordAbstract iRecord, final String iClusterName) {
     throw new ODatabaseException("Cannot save record in no tx mode");
   }
 
   /**
    * Deletes the record.
    */
-  public void deleteRecord(final ORecordAbstract iRecord) {
+  public void deleteRecord(final YTRecordAbstract iRecord) {
     throw new ODatabaseException("Cannot delete record in no tx mode");
   }
 
@@ -144,7 +144,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public List<ORecordOperation> getNewRecordEntriesByClass(
-      final OClass iClass, final boolean iPolymorphic) {
+      final YTClass iClass, final boolean iPolymorphic) {
     return Collections.emptyList();
   }
 
@@ -156,13 +156,13 @@ public class OTransactionNoTx extends OTransactionAbstract {
     throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
-  public ORecordAbstract getRecord(final ORID rid) {
+  public YTRecordAbstract getRecord(final YTRID rid) {
     checkNonTXReads();
 
     return null;
   }
 
-  public ORecordOperation getRecordEntry(final ORID rid) {
+  public ORecordOperation getRecordEntry(final YTRID rid) {
     throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
@@ -176,7 +176,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
-  public ODocument getIndexChanges() {
+  public YTDocument getIndexChanges() {
     return null;
   }
 
@@ -185,7 +185,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
       final String indexName,
       final OPERATION status,
       final Object key,
-      final OIdentifiable value) {
+      final YTIdentifiable value) {
     throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
@@ -209,7 +209,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     return Collections.emptyList();
   }
 
-  public void updateIdentityAfterCommit(ORID oldRid, ORID newRid) {
+  public void updateIdentityAfterCommit(YTRID oldRid, YTRID newRid) {
     throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 

@@ -10,7 +10,7 @@ import java.util.List;
 public class DistributedQueryContext {
 
   private String queryId;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
   private OResultSet resultSet;
 
   public String getQueryId() {
@@ -21,12 +21,12 @@ public class DistributedQueryContext {
     this.queryId = queryId;
   }
 
-  public ODatabaseSession getDb() {
+  public YTDatabaseSession getDb() {
     return db;
   }
 
-  public void setDb(ODatabaseSession db) {
-    this.db = (ODatabaseSessionInternal) db;
+  public void setDb(YTDatabaseSession db) {
+    this.db = (YTDatabaseSessionInternal) db;
   }
 
   public OResultSet getResultSet() {
@@ -38,7 +38,7 @@ public class DistributedQueryContext {
   }
 
   public List<OResult> fetchNextPage() {
-    ODatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();
       resultSet.close();
@@ -54,7 +54,7 @@ public class DistributedQueryContext {
   }
 
   public void close() {
-    ODatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();
       resultSet.close();

@@ -21,17 +21,17 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
@@ -52,7 +52,7 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
   @Override
   @SuppressWarnings("unchecked")
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -74,22 +74,22 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
       if (condition != null) {
         // CHECK AGAINST A CONDITION
         for (final Object o : iterable) {
-          final OIdentifiable id;
-          if (o instanceof OIdentifiable) {
-            id = (OIdentifiable) o;
+          final YTIdentifiable id;
+          if (o instanceof YTIdentifiable) {
+            id = (YTIdentifiable) o;
           } else if (o instanceof Map<?, ?>) {
             final Iterator<Object> iter = ((Map<?, Object>) o).values().iterator();
             final Object v = iter.hasNext() ? iter.next() : null;
-            if (v instanceof OIdentifiable) {
-              id = (OIdentifiable) v;
+            if (v instanceof YTIdentifiable) {
+              id = (YTIdentifiable) v;
             } else
             // TRANSFORM THE ENTIRE MAP IN A DOCUMENT. PROBABLY HAS BEEN IMPORTED FROM JSON
             {
-              id = new ODocument((Map) o);
+              id = new YTDocument((Map) o);
             }
 
           } else if (o instanceof Iterable<?>) {
-            final Iterator<OIdentifiable> iter = ((Iterable<OIdentifiable>) o).iterator();
+            final Iterator<YTIdentifiable> iter = ((Iterable<YTIdentifiable>) o).iterator();
             id = iter.hasNext() ? iter.next() : null;
           } else {
             continue;
@@ -101,7 +101,7 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
         }
       } else {
         // CHECK AGAINST A SINGLE VALUE
-        OType type = null;
+        YTType type = null;
 
         if (iCondition.getLeft() instanceof OSQLFilterItemField
             && ((OSQLFilterItemField) iCondition.getLeft()).isFieldChain()
@@ -110,9 +110,9 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
               ((OSQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemName(0);
           if (fieldName != null) {
             Object record = iRecord.getRecord();
-            if (record instanceof ODocument) {
-              OProperty property =
-                  ODocumentInternal.getImmutableSchemaClass(((ODocument) record))
+            if (record instanceof YTDocument) {
+              YTProperty property =
+                  ODocumentInternal.getImmutableSchemaClass(((YTDocument) record))
                       .getProperty(fieldName);
               if (property != null && property.getType().isMultiValue()) {
                 type = property.getLinkedType();
@@ -129,10 +129,10 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
     } else if (iRight instanceof Iterable<?>) {
 
       // CHECK AGAINST A CONDITION
-      final Iterable<OIdentifiable> iterable = (Iterable<OIdentifiable>) iRight;
+      final Iterable<YTIdentifiable> iterable = (Iterable<YTIdentifiable>) iRight;
 
       if (condition != null) {
-        for (final OIdentifiable o : iterable) {
+        for (final YTIdentifiable o : iterable) {
           if (condition.evaluate(o, null, iContext) == Boolean.TRUE) {
             return true;
           }
@@ -159,12 +159,12 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     var database = iContext.getDatabase();
     final OIndexDefinition indexDefinition = index.getDefinition();
 
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     final OIndexInternal internalIndex = index.getInternal();
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
@@ -218,12 +218,12 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

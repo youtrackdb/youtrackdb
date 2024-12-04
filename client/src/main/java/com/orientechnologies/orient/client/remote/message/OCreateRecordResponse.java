@@ -21,8 +21,8 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -33,7 +33,7 @@ import java.util.UUID;
 
 public class OCreateRecordResponse implements OBinaryResponse {
 
-  private ORecordId identity;
+  private YTRecordId identity;
   private int version;
   private Map<UUID, OBonsaiCollectionPointer> changedIds;
 
@@ -41,13 +41,13 @@ public class OCreateRecordResponse implements OBinaryResponse {
   }
 
   public OCreateRecordResponse(
-      ORecordId identity, int version, Map<UUID, OBonsaiCollectionPointer> changedIds) {
+      YTRecordId identity, int version, Map<UUID, OBonsaiCollectionPointer> changedIds) {
     this.identity = identity;
     this.version = version;
     this.changedIds = changedIds;
   }
 
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) this.identity.getClusterId());
@@ -59,16 +59,16 @@ public class OCreateRecordResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     short clusterId = network.readShort();
     long posistion = network.readLong();
-    identity = new ORecordId(clusterId, posistion);
+    identity = new YTRecordId(clusterId, posistion);
     version = network.readVersion();
     changedIds = OMessageHelper.readCollectionChanges(network);
   }
 
-  public ORecordId getIdentity() {
+  public YTRecordId getIdentity() {
     return identity;
   }
 

@@ -20,8 +20,8 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -146,7 +146,7 @@ public class OOfflineCluster implements OCluster {
   public @Nonnull ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) {
     throw OException.wrapException(
         new ORecordNotFoundException(
-            new ORecordId(id, clusterPosition),
+            new YTRecordId(id, clusterPosition),
             "Record with rid #" + id + ":" + clusterPosition + " was not found in database"),
         new OOfflineClusterException(
             "Cannot read a record from the offline cluster '" + name + "'"));
@@ -169,17 +169,17 @@ public class OOfflineCluster implements OCluster {
 
   @Override
   public long getFirstPosition() throws IOException {
-    return ORID.CLUSTER_POS_INVALID;
+    return YTRID.CLUSTER_POS_INVALID;
   }
 
   @Override
   public long getLastPosition() throws IOException {
-    return ORID.CLUSTER_POS_INVALID;
+    return YTRID.CLUSTER_POS_INVALID;
   }
 
   @Override
   public long getNextPosition() throws IOException {
-    return ORID.CLUSTER_POS_INVALID;
+    return YTRID.CLUSTER_POS_INVALID;
   }
 
   @Override

@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial.functions;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
@@ -37,7 +37,7 @@ public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
       OCommandContext iContext) {
@@ -55,12 +55,12 @@ public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return null;
   }
 
   @Override
-  public Iterable<OIdentifiable> searchFromTarget(
+  public Iterable<YTIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -75,7 +75,7 @@ public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
 
     OExpression number = args[2];
 
-    Number parsedNumber = (Number) number.execute((OIdentifiable) null, ctx);
+    Number parsedNumber = (Number) number.execute((YTIdentifiable) null, ctx);
 
     params.put("distance", parsedNumber.doubleValue());
   }

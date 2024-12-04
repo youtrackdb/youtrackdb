@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OSystemException;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
@@ -56,7 +56,7 @@ public class OClientConnection {
   private final Set<ONetworkProtocol> protocols =
       Collections.newSetFromMap(new WeakHashMap<ONetworkProtocol, Boolean>());
   private volatile ONetworkProtocol protocol;
-  private volatile ODatabaseSessionInternal database;
+  private volatile YTDatabaseSessionInternal database;
   private volatile OSecurityUser serverUser;
   private ONetworkProtocolData data = new ONetworkProtocolData();
   private final OClientConnectionStats stats = new OClientConnectionStats();
@@ -296,7 +296,7 @@ public class OClientConnection {
   }
 
   @Nullable
-  public ODatabaseSessionInternal getDatabase() {
+  public YTDatabaseSessionInternal getDatabase() {
     return database;
   }
 
@@ -327,7 +327,7 @@ public class OClientConnection {
     }
   }
 
-  public void setDatabase(ODatabaseSessionInternal database) {
+  public void setDatabase(YTDatabaseSessionInternal database) {
     this.database = database;
   }
 
@@ -368,7 +368,7 @@ public class OClientConnection {
     stats.lastCommandReceived = System.currentTimeMillis();
   }
 
-  private List<String> getActiveQueries(ODatabaseSessionInternal database) {
+  private List<String> getActiveQueries(YTDatabaseSessionInternal database) {
     try {
       List<String> result = new ArrayList<>();
       Map<String, OQueryDatabaseState> queries = database.getActiveQueries();

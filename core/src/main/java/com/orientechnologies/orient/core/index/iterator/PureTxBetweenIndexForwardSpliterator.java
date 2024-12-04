@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.index.iterator;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexOneValue;
 import com.orientechnologies.orient.core.index.comparator.AscComparator;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPair<Object, ORID>> {
+public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPair<Object, YTRID>> {
 
   /**
    *
@@ -52,12 +52,12 @@ public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPai
   }
 
   @Override
-  public boolean tryAdvance(Consumer<? super ORawPair<Object, ORID>> action) {
+  public boolean tryAdvance(Consumer<? super ORawPair<Object, YTRID>> action) {
     if (nextKey == null) {
       return false;
     }
 
-    ORawPair<Object, ORID> result;
+    ORawPair<Object, YTRID> result;
 
     do {
       result = this.oIndexTxAwareOneValue.calculateTxIndexEntry(nextKey, null, indexChanges);
@@ -78,7 +78,7 @@ public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPai
   }
 
   @Override
-  public Spliterator<ORawPair<Object, ORID>> trySplit() {
+  public Spliterator<ORawPair<Object, YTRID>> trySplit() {
     return null;
   }
 
@@ -93,7 +93,7 @@ public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPai
   }
 
   @Override
-  public Comparator<? super ORawPair<Object, ORID>> getComparator() {
+  public Comparator<? super ORawPair<Object, YTRID>> getComparator() {
     return AscComparator.INSTANCE;
   }
 }

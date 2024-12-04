@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import org.apache.commons.lang.RandomStringUtils;
 
 /**
@@ -10,15 +10,15 @@ import org.apache.commons.lang.RandomStringUtils;
  */
 public class TestUtilsFixture extends DBTestBase {
 
-  protected OClass createClassInstance() {
+  protected YTClass createClassInstance() {
     return getDBSchema().createClass(generateClassName());
   }
 
-  protected OClass createChildClassInstance(OClass superclass) {
+  protected YTClass createChildClassInstance(YTClass superclass) {
     return getDBSchema().createClass(generateClassName(), superclass);
   }
 
-  private OSchema getDBSchema() {
+  private YTSchema getDBSchema() {
     return db.getMetadata().getSchema();
   }
 

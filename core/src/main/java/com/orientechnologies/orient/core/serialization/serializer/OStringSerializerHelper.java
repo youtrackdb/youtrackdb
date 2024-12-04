@@ -24,14 +24,14 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OStringParser;
 import com.orientechnologies.common.types.OBinary;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringSerializerAnyStreamable;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
@@ -53,7 +53,7 @@ public abstract class OStringSerializerHelper {
   public static final char RECORD_SEPARATOR = ',';
 
   public static final String CLASS_SEPARATOR = "@";
-  public static final char LINK = ORID.PREFIX;
+  public static final char LINK = YTRID.PREFIX;
   public static final char EMBEDDED_BEGIN = '(';
   public static final char EMBEDDED_END = ')';
   public static final char LIST_BEGIN = '[';
@@ -78,13 +78,13 @@ public abstract class OStringSerializerHelper {
   public static final String SKIPPED_VALUE = "[SKIPPED VALUE]";
 
   public static Object fieldTypeFromStream(
-      ODatabaseSessionInternal db, final ODocument iDocument, OType iType, final Object iValue) {
+      YTDatabaseSessionInternal db, final YTDocument iDocument, YTType iType, final Object iValue) {
     if (iValue == null) {
       return null;
     }
 
     if (iType == null) {
-      iType = OType.EMBEDDED;
+      iType = YTType.EMBEDDED;
     }
 
     switch (iType) {
@@ -193,12 +193,12 @@ public abstract class OStringSerializerHelper {
         return new Date(Long.parseLong(OIOUtils.getStringContent(iValue)));
 
       case LINK:
-        if (iValue instanceof ORID) {
+        if (iValue instanceof YTRID) {
           return iValue.toString();
         } else if (iValue instanceof String) {
-          return new ORecordId((String) iValue);
+          return new YTRecordId((String) iValue);
         } else {
-          return ((ORecord) iValue).getIdentity().toString();
+          return ((YTRecord) iValue).getIdentity().toString();
         }
 
       case EMBEDDED:
@@ -739,7 +739,7 @@ public abstract class OStringSerializerHelper {
           // FIRST PART OF LINK
           {
             insideLinkPart = 1;
-          } else if (insideLinkPart == 1 && c == ORID.SEPARATOR)
+          } else if (insideLinkPart == 1 && c == YTRID.SEPARATOR)
           // SECOND PART OF LINK
           {
             insideLinkPart = 2;
@@ -784,7 +784,7 @@ public abstract class OStringSerializerHelper {
         if (insideLinkPart > 0
             && c != '-'
             && !Character.isDigit(c)
-            && c != ORID.SEPARATOR
+            && c != YTRID.SEPARATOR
             && c != LINK) {
           insideLinkPart = 0;
         }
@@ -1197,7 +1197,7 @@ public abstract class OStringSerializerHelper {
     return params;
   }
 
-  public static Map<String, String> getMap(ODatabaseSessionInternal db, final String iText) {
+  public static Map<String, String> getMap(YTDatabaseSessionInternal db, final String iText) {
     int openPos = iText.indexOf(MAP_BEGIN);
     if (openPos == -1) {
       return Collections.emptyMap();
@@ -1224,7 +1224,7 @@ public abstract class OStringSerializerHelper {
         final String key = entry.get(0).trim();
         final String value = entry.get(1).trim();
 
-        map.put((String) fieldTypeFromStream(db, null, OType.STRING, key), value);
+        map.put((String) fieldTypeFromStream(db, null, YTType.STRING, key), value);
       }
     }
 
@@ -1325,7 +1325,7 @@ public abstract class OStringSerializerHelper {
     return buffer.toString();
   }
 
-  public static OClass getRecordClassName(final String iValue, OClass iLinkedClass) {
+  public static YTClass getRecordClassName(final String iValue, YTClass iLinkedClass) {
     // EXTRACT THE CLASS NAME
     final int classSeparatorPos =
         OStringParser.indexOfOutsideStrings(

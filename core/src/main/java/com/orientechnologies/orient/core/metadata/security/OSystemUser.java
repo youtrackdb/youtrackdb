@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 
 /**
@@ -42,16 +42,17 @@ public class OSystemUser extends OUser {
   public OSystemUser() {
   }
 
-  public OSystemUser(ODatabaseSessionInternal session, final String iName) {
+  public OSystemUser(YTDatabaseSessionInternal session, final String iName) {
     super(session, iName);
   }
 
-  public OSystemUser(ODatabaseSessionInternal session, String iUserName,
+  public OSystemUser(YTDatabaseSessionInternal session, String iUserName,
       final String iUserPassword) {
     super(session, iUserName, iUserPassword);
   }
 
-  public OSystemUser(ODatabaseSessionInternal session, String iUserName, final String iUserPassword,
+  public OSystemUser(YTDatabaseSessionInternal session, String iUserName,
+      final String iUserPassword,
       String userType) {
     super(session, iUserName, iUserPassword);
     this.userType = userType;
@@ -60,14 +61,14 @@ public class OSystemUser extends OUser {
   /**
    * Create the user by reading the source document.
    */
-  public OSystemUser(ODatabaseSessionInternal session, final ODocument iSource) {
+  public OSystemUser(YTDatabaseSessionInternal session, final YTDocument iSource) {
     super(session, iSource);
   }
 
   /**
    * dbName is the name of the source database and is used for filtering roles.
    */
-  public OSystemUser(ODatabaseSessionInternal session, final ODocument iSource,
+  public OSystemUser(YTDatabaseSessionInternal session, final YTDocument iSource,
       final String dbName) {
     databaseName = dbName;
     fromStream(session, iSource);
@@ -76,16 +77,16 @@ public class OSystemUser extends OUser {
   /**
    * Derived classes can override createRole() to return an extended ORole implementation.
    */
-  protected ORole createRole(ODatabaseSessionInternal session, final ODocument roleDoc) {
+  protected ORole createRole(YTDatabaseSessionInternal session, final YTDocument roleDoc) {
     ORole role = null;
 
     // If databaseName is set, then only allow roles with the same databaseName.
     if (databaseName != null && !databaseName.isEmpty()) {
       if (roleDoc != null
           && roleDoc.containsField(OSystemRole.DB_FILTER)
-          && roleDoc.fieldType(OSystemRole.DB_FILTER) == OType.EMBEDDEDLIST) {
+          && roleDoc.fieldType(OSystemRole.DB_FILTER) == YTType.EMBEDDEDLIST) {
 
-        List<String> dbNames = roleDoc.field(OSystemRole.DB_FILTER, OType.EMBEDDEDLIST);
+        List<String> dbNames = roleDoc.field(OSystemRole.DB_FILTER, YTType.EMBEDDEDLIST);
 
         for (String dbName : dbNames) {
           if (dbName != null
@@ -103,8 +104,8 @@ public class OSystemUser extends OUser {
         if (!roleDoc.containsField(OSystemRole.DB_FILTER)) {
           role = new OSystemRole(session, roleDoc);
         } else { // It does use the dbFilter property.
-          if (roleDoc.fieldType(OSystemRole.DB_FILTER) == OType.EMBEDDEDLIST) {
-            List<String> dbNames = roleDoc.field(OSystemRole.DB_FILTER, OType.EMBEDDEDLIST);
+          if (roleDoc.fieldType(OSystemRole.DB_FILTER) == YTType.EMBEDDEDLIST) {
+            List<String> dbNames = roleDoc.field(OSystemRole.DB_FILTER, YTType.EMBEDDEDLIST);
 
             for (String dbName : dbNames) {
               if (dbName != null && !dbName.isEmpty() && dbName.equals("*")) {

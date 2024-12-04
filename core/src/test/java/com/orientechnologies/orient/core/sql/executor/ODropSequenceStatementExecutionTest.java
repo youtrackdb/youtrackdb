@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
     try {
       db.getMetadata()
           .getSequenceLibrary()
-          .createSequence(name, OSequence.SEQUENCE_TYPE.CACHED, new OSequence.CreateParams());
+          .createSequence(name, YTSequence.SEQUENCE_TYPE.CACHED, new YTSequence.CreateParams());
     } catch (ODatabaseException exc) {
       Assert.fail("Creating sequence failed");
     }
@@ -64,7 +64,7 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
     try {
       db.getMetadata()
           .getSequenceLibrary()
-          .createSequence(name, OSequence.SEQUENCE_TYPE.CACHED, new OSequence.CreateParams());
+          .createSequence(name, YTSequence.SEQUENCE_TYPE.CACHED, new YTSequence.CreateParams());
     } catch (ODatabaseException exc) {
       Assert.fail("Creating sequence failed");
     }

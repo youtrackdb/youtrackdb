@@ -18,12 +18,12 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,11 +39,11 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass song = schema.createClass("City");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass song = schema.createClass("City");
     song.addSuperClass(db, v);
-    song.createProperty(db, "name", OType.STRING);
+    song.createProperty(db, "name", YTType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -53,7 +53,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
 
     int size = 1000;
     for (int i = 0; i < size; i++) {
-      ODocument city = new ODocument("City");
+      YTDocument city = new YTDocument("City");
       city.field("name", "Rome " + i);
 
       db.begin();
@@ -65,7 +65,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     Assert.assertEquals(docs.stream().count(), size);
 
     db.close();
-    db = (ODatabaseSessionInternal) openDatabase();
+    db = (YTDatabaseSessionInternal) openDatabase();
 
     docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), size);
@@ -78,7 +78,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     Assert.assertEquals(docs.stream().count(), 0);
 
     db.close();
-    db = (ODatabaseSessionInternal) openDatabase();
+    db = (YTDatabaseSessionInternal) openDatabase();
     docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), 0);
 

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.metadata.function;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
@@ -32,7 +32,7 @@ import java.util.Set;
 public class ODatabaseFunctionFactory implements OSQLFunctionFactory {
 
   @Override
-  public void registerDefaultFunctions(ODatabaseSessionInternal db) {
+  public void registerDefaultFunctions(YTDatabaseSessionInternal db) {
     // DO NOTHING
   }
 

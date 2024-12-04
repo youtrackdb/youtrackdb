@@ -17,9 +17,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
@@ -36,9 +36,9 @@ import org.testng.annotations.Test;
 public class NewTraverseTest extends DocumentDBBaseTest {
 
   private int totalElements = 0;
-  private OVertex tomCruise;
-  private OVertex megRyan;
-  private OVertex nicoleKidman;
+  private YTVertex tomCruise;
+  private YTVertex megRyan;
+  private YTVertex nicoleKidman;
 
   @Parameters(value = "remote")
   public NewTraverseTest(boolean remote) {
@@ -196,7 +196,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     Assert.assertTrue(result2.hasNext());
     int size2 = 0;
     while (result2.hasNext()) {
-      ODocument d = result2.next().getElement().get().getRecord();
+      YTDocument d = result2.next().getElement().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size2++;
     }
@@ -209,7 +209,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     Assert.assertTrue(result3.hasNext());
     int size3 = 0;
     while (result3.hasNext()) {
-      ODocument d = result3.next().getElement().get().getRecord();
+      YTDocument d = result3.next().getElement().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size3++;
     }
@@ -409,7 +409,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     try {
 
       String q = "traverse in('married')  from " + nicoleKidman.getIdentity();
-      ODatabaseSessionInternal db = database.copy();
+      YTDatabaseSessionInternal db = database.copy();
       ODatabaseRecordThreadLocal.instance().set(db);
       OResultSet result1 = db.query(q);
       Assert.assertTrue(result1.hasNext());

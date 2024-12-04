@@ -35,9 +35,9 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -54,7 +54,7 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
   public OBinaryComparatorV0() {
   }
 
-  public boolean isBinaryComparable(final OType iType) {
+  public boolean isBinaryComparable(final YTType iType) {
     switch (iType) {
       case INTEGER:
       case LONG:
@@ -557,7 +557,7 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                 return value1 == value2;
               }
 
-              final ODatabaseSessionInternal db =
+              final YTDatabaseSessionInternal db =
                   ODatabaseRecordThreadLocal.instance().getIfDefined();
               try {
                 final DateFormat dateFormat;
@@ -1172,7 +1172,7 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                 return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
               }
 
-              final ODatabaseSessionInternal db =
+              final YTDatabaseSessionInternal db =
                   ODatabaseRecordThreadLocal.instance().getIfDefined();
               try {
                 final DateFormat dateFormat;
@@ -1275,7 +1275,7 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
 
             case STRING: {
               return readOptimizedLink(fieldValue1, false)
-                  .compareTo(new ORecordId(readString(fieldValue2)));
+                  .compareTo(new YTRecordId(readString(fieldValue2)));
             }
           }
           break;

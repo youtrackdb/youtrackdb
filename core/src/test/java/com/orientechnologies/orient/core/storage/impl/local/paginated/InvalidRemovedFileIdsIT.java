@@ -3,11 +3,11 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -39,7 +39,7 @@ public class InvalidRemovedFileIdsIT {
     YouTrackDB youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
-    var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    var db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     OStorage storage = db.getStorage();
     OWriteCache writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
@@ -78,9 +78,9 @@ public class InvalidRemovedFileIdsIT {
     fileMap.close();
 
     youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
-    db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-    final OSchema schema = db.getMetadata().getSchema();
+    final YTSchema schema = db.getMetadata().getSchema();
     schema.createClass("c1");
     schema.createClass("c2");
     schema.createClass("c3");

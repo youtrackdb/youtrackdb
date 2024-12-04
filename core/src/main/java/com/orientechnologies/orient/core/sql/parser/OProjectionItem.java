@@ -3,13 +3,13 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterable;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterator;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
@@ -126,7 +126,7 @@ public class OProjectionItem extends SimpleNode {
     }
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     Object result;
     if (all) {
       result = iCurrentRecord;
@@ -149,9 +149,9 @@ public class OProjectionItem extends SimpleNode {
       value = ((OEdgeToVertexIterable) value).iterator();
     }
     if (value instanceof OEdgeToVertexIterator) {
-      List<ORID> result = new ArrayList<>();
+      List<YTRID> result = new ArrayList<>();
       while (((OEdgeToVertexIterator) value).hasNext()) {
-        OVertex v = ((OEdgeToVertexIterator) value).next();
+        YTVertex v = ((OEdgeToVertexIterator) value).next();
         if (v != null) {
           result.add(v.getIdentity());
         }
@@ -165,7 +165,7 @@ public class OProjectionItem extends SimpleNode {
     if (value instanceof OExecutionStream) {
       value = ((OExecutionStream) value).stream(context).collect(Collectors.toList());
     }
-    if (!(value instanceof OIdentifiable)) {
+    if (!(value instanceof YTIdentifiable)) {
       Iterator<?> iter = null;
       if (value instanceof Iterator) {
         iter = (Iterator<?>) value;
@@ -194,7 +194,7 @@ public class OProjectionItem extends SimpleNode {
       result = expression.execute(iCurrentRecord, ctx);
     }
     if (nestedProjection != null) {
-      if (result instanceof ODocument document && document.isEmpty()) {
+      if (result instanceof YTDocument document && document.isEmpty()) {
         result = ctx.getDatabase().bindToSession(document);
       }
       result = nestedProjection.apply(expression, result, ctx);
@@ -235,7 +235,7 @@ public class OProjectionItem extends SimpleNode {
     return result;
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     if (aggregate != null) {
       return aggregate;
     }
@@ -322,7 +322,7 @@ public class OProjectionItem extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("all", all);
     if (alias != null) {
@@ -362,7 +362,7 @@ public class OProjectionItem extends SimpleNode {
     this.nestedProjection = nestedProjection;
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (expression != null) {
       return expression.isCacheable(session);
     }

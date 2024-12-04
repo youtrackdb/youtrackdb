@@ -3,10 +3,10 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.util.OPairLongObject;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
 import com.orientechnologies.orient.core.sql.parser.OCluster;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
@@ -808,10 +808,10 @@ public class OMatchExecutionPlanner {
   }
 
   private String getLowerSubclass(
-      ODatabaseSessionInternal db, String className1, String className2) {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass class1 = schema.getClass(className1);
-    OClass class2 = schema.getClass(className2);
+      YTDatabaseSessionInternal db, String className1, String className2) {
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass class1 = schema.getClass(className1);
+    YTClass class2 = schema.getClass(className2);
     if (class1.isSubClassOf(class2)) {
       return class1.getName();
     }
@@ -857,7 +857,7 @@ public class OMatchExecutionPlanner {
     allAliases.addAll(aliasRids.keySet());
 
     var db = ctx.getDatabase();
-    OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {
@@ -878,7 +878,7 @@ public class OMatchExecutionPlanner {
         if (!schema.existsClass(className)) {
           throw new OCommandExecutionException("class not defined: " + className);
         }
-        OClass oClass = schema.getClass(className);
+        YTClass oClass = schema.getClass(className);
         long upperBound;
         OWhereClause filter = aliasFilters.get(alias);
         if (filter != null) {
@@ -892,7 +892,7 @@ public class OMatchExecutionPlanner {
           throw new OCommandExecutionException("cluster not defined: " + clusterName);
         }
         int clusterId = db.getClusterIdByName(clusterName);
-        OClass oClass = db.getMetadata().getSchema().getClassByClusterId(clusterId);
+        YTClass oClass = db.getMetadata().getSchema().getClassByClusterId(clusterId);
         if (oClass != null) {
           long upperBound;
           OWhereClause filter = aliasFilters.get(alias);

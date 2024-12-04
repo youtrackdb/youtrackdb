@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -99,12 +99,12 @@ public abstract class OServerCommandAbstract implements OServerCommand {
       final Object iContent,
       final String iHeaders)
       throws IOException {
-    ODocument response = new ODocument();
-    ODocument error = new ODocument();
+    YTDocument response = new YTDocument();
+    YTDocument error = new YTDocument();
     error.field("code", iCode);
     error.field("reason", iReason);
     error.field("content", iContent);
-    List<ODocument> errors = new ArrayList<ODocument>();
+    List<YTDocument> errors = new ArrayList<YTDocument>();
     errors.add(error);
     response.field("errors", errors);
     iResponse.send(

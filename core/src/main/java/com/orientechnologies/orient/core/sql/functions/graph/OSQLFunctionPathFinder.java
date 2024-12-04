@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.sql.functions.graph;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.functions.math.OSQLFunctionMathAbstract;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,12 +37,12 @@ import java.util.Set;
  */
 public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
 
-  protected Set<OVertex> unSettledNodes;
-  protected Map<ORID, OVertex> predecessors;
-  protected Map<ORID, Float> distance;
+  protected Set<YTVertex> unSettledNodes;
+  protected Map<YTRID, YTVertex> predecessors;
+  protected Map<YTRID, Float> distance;
 
-  protected OVertex paramSourceVertex;
-  protected OVertex paramDestinationVertex;
+  protected YTVertex paramSourceVertex;
+  protected YTVertex paramDestinationVertex;
   protected ODirection paramDirection = ODirection.OUT;
   protected OCommandContext context;
 
@@ -52,11 +52,11 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     super(iName, iMinParams, iMaxParams);
   }
 
-  protected LinkedList<OVertex> execute(final OCommandContext iContext) {
+  protected LinkedList<YTVertex> execute(final OCommandContext iContext) {
     context = iContext;
-    unSettledNodes = new HashSet<OVertex>();
-    distance = new HashMap<ORID, Float>();
-    predecessors = new HashMap<ORID, OVertex>();
+    unSettledNodes = new HashSet<YTVertex>();
+    distance = new HashMap<YTRID, Float>();
+    predecessors = new HashMap<YTRID, YTVertex>();
     distance.put(paramSourceVertex.getIdentity(), MIN);
     unSettledNodes.add(paramSourceVertex);
 
@@ -66,7 +66,7 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     int maxPredecessors = 0;
 
     while (continueTraversing()) {
-      final OVertex node = getMinimum(unSettledNodes);
+      final YTVertex node = getMinimum(unSettledNodes);
       unSettledNodes.remove(node);
       findMinimalDistances(node);
 
@@ -108,9 +108,9 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
   /*
    * This method returns the path from the source to the selected target and NULL if no path exists
    */
-  public LinkedList<OVertex> getPath() {
-    final LinkedList<OVertex> path = new LinkedList<OVertex>();
-    OVertex step = paramDestinationVertex;
+  public LinkedList<YTVertex> getPath() {
+    final LinkedList<YTVertex> path = new LinkedList<YTVertex>();
+    YTVertex step = paramDestinationVertex;
     // Check if a path exists
     if (predecessors.get(step.getIdentity()) == null) {
       return null;
@@ -135,8 +135,8 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     return getPath();
   }
 
-  protected void findMinimalDistances(final OVertex node) {
-    for (OVertex neighbor : getNeighbors(node)) {
+  protected void findMinimalDistances(final YTVertex node) {
+    for (YTVertex neighbor : getNeighbors(node)) {
       final float d = sumDistances(getShortestDistance(node), getDistance(node, neighbor));
 
       if (getShortestDistance(neighbor) > d) {
@@ -147,13 +147,13 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     }
   }
 
-  protected Set<OVertex> getNeighbors(final OVertex node) {
+  protected Set<YTVertex> getNeighbors(final YTVertex node) {
     context.incrementVariable("getNeighbors");
 
-    final Set<OVertex> neighbors = new HashSet<OVertex>();
+    final Set<YTVertex> neighbors = new HashSet<YTVertex>();
     if (node != null) {
-      for (OVertex v : node.getVertices(paramDirection)) {
-        final OVertex ov = v;
+      for (YTVertex v : node.getVertices(paramDirection)) {
+        final YTVertex ov = v;
         if (ov != null && isNotSettled(ov)) {
           neighbors.add(ov);
         }
@@ -162,10 +162,10 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     return neighbors;
   }
 
-  protected OVertex getMinimum(final Set<OVertex> vertexes) {
-    OVertex minimum = null;
+  protected YTVertex getMinimum(final Set<YTVertex> vertexes) {
+    YTVertex minimum = null;
     Float minimumDistance = null;
-    for (OVertex vertex : vertexes) {
+    for (YTVertex vertex : vertexes) {
       if (minimum == null || getShortestDistance(vertex) < minimumDistance) {
         minimum = vertex;
         minimumDistance = getShortestDistance(minimum);
@@ -174,7 +174,7 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     return minimum;
   }
 
-  protected boolean isNotSettled(final OVertex vertex) {
+  protected boolean isNotSettled(final YTVertex vertex) {
     return unSettledNodes.contains(vertex) || !distance.containsKey(vertex.getIdentity());
   }
 
@@ -182,7 +182,7 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     return unSettledNodes.size() > 0;
   }
 
-  protected float getShortestDistance(final OVertex destination) {
+  protected float getShortestDistance(final YTVertex destination) {
     if (destination == null) {
       return Float.MAX_VALUE;
     }
@@ -195,5 +195,5 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     return iDistance1 + iDistance2;
   }
 
-  protected abstract float getDistance(final OVertex node, final OVertex target);
+  protected abstract float getDistance(final YTVertex node, final YTVertex target);
 }

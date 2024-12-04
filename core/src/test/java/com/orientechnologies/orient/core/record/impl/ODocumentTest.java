@@ -9,15 +9,15 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
+import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import java.util.HashMap;
@@ -35,26 +35,26 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testCopyToCopiesEmptyFieldsTypesAndOwners() throws Exception {
-    ODocument doc1 = new ODocument();
+    YTDocument doc1 = new YTDocument();
 
-    ODocument doc2 =
-        new ODocument()
+    YTDocument doc2 =
+        new YTDocument()
             .field("integer2", 123)
             .field("string", "YouTrackDB")
             .field("a", 123.3)
-            .setFieldType("integer", OType.INTEGER)
-            .setFieldType("string", OType.STRING)
-            .setFieldType("binary", OType.BINARY);
-    var owner = new ODocument();
+            .setFieldType("integer", YTType.INTEGER)
+            .setFieldType("string", YTType.STRING)
+            .setFieldType("binary", YTType.BINARY);
+    var owner = new YTDocument();
     ODocumentInternal.addOwner(doc2, owner);
 
     assertEquals(doc2.<Object>field("integer2"), 123);
     assertEquals(doc2.field("string"), "YouTrackDB");
 
     Assertions.assertThat(doc2.<Double>field("a")).isEqualTo(123.3d);
-    assertEquals(doc2.fieldType("integer"), OType.INTEGER);
-    assertEquals(doc2.fieldType("string"), OType.STRING);
-    assertEquals(doc2.fieldType("binary"), OType.BINARY);
+    assertEquals(doc2.fieldType("integer"), YTType.INTEGER);
+    assertEquals(doc2.fieldType("string"), YTType.STRING);
+    assertEquals(doc2.fieldType("binary"), YTType.BINARY);
 
     assertNotNull(doc2.getOwner());
 
@@ -74,20 +74,20 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testNullConstructor() {
-    new ODocument((String) null);
-    new ODocument((OClass) null);
+    new YTDocument((String) null);
+    new YTDocument((YTClass) null);
   }
 
   @Test
   public void testClearResetsFieldTypes() throws Exception {
-    ODocument doc = new ODocument();
-    doc.setFieldType("integer", OType.INTEGER);
-    doc.setFieldType("string", OType.STRING);
-    doc.setFieldType("binary", OType.BINARY);
+    YTDocument doc = new YTDocument();
+    doc.setFieldType("integer", YTType.INTEGER);
+    doc.setFieldType("string", YTType.STRING);
+    doc.setFieldType("binary", YTType.BINARY);
 
-    assertEquals(doc.fieldType("integer"), OType.INTEGER);
-    assertEquals(doc.fieldType("string"), OType.STRING);
-    assertEquals(doc.fieldType("binary"), OType.BINARY);
+    assertEquals(doc.fieldType("integer"), YTType.INTEGER);
+    assertEquals(doc.fieldType("string"), YTType.STRING);
+    assertEquals(doc.fieldType("binary"), YTType.BINARY);
 
     doc.clear();
 
@@ -98,16 +98,16 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testResetResetsFieldTypes() throws Exception {
-    ODocument doc = new ODocument();
-    doc.setFieldType("integer", OType.INTEGER);
-    doc.setFieldType("string", OType.STRING);
-    doc.setFieldType("binary", OType.BINARY);
+    YTDocument doc = new YTDocument();
+    doc.setFieldType("integer", YTType.INTEGER);
+    doc.setFieldType("string", YTType.STRING);
+    doc.setFieldType("binary", YTType.BINARY);
 
-    assertEquals(doc.fieldType("integer"), OType.INTEGER);
-    assertEquals(doc.fieldType("string"), OType.STRING);
-    assertEquals(doc.fieldType("binary"), OType.BINARY);
+    assertEquals(doc.fieldType("integer"), YTType.INTEGER);
+    assertEquals(doc.fieldType("string"), YTType.STRING);
+    assertEquals(doc.fieldType("binary"), YTType.BINARY);
 
-    doc = new ODocument();
+    doc = new YTDocument();
 
     assertNull(doc.fieldType("integer"));
     assertNull(doc.fieldType("string"));
@@ -116,43 +116,43 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testKeepFieldType() throws Exception {
-    ODocument doc = new ODocument();
-    doc.field("integer", 10, OType.INTEGER);
-    doc.field("string", 20, OType.STRING);
-    doc.field("binary", new byte[]{30}, OType.BINARY);
+    YTDocument doc = new YTDocument();
+    doc.field("integer", 10, YTType.INTEGER);
+    doc.field("string", 20, YTType.STRING);
+    doc.field("binary", new byte[]{30}, YTType.BINARY);
 
-    assertEquals(doc.fieldType("integer"), OType.INTEGER);
-    assertEquals(doc.fieldType("string"), OType.STRING);
-    assertEquals(doc.fieldType("binary"), OType.BINARY);
+    assertEquals(doc.fieldType("integer"), YTType.INTEGER);
+    assertEquals(doc.fieldType("string"), YTType.STRING);
+    assertEquals(doc.fieldType("binary"), YTType.BINARY);
   }
 
   @Test
   public void testKeepFieldTypeSerialization() throws Exception {
-    ODocument doc = new ODocument();
-    doc.field("integer", 10, OType.INTEGER);
-    doc.field("link", new ORecordId(1, 2), OType.LINK);
-    doc.field("string", 20, OType.STRING);
-    doc.field("binary", new byte[]{30}, OType.BINARY);
+    YTDocument doc = new YTDocument();
+    doc.field("integer", 10, YTType.INTEGER);
+    doc.field("link", new YTRecordId(1, 2), YTType.LINK);
+    doc.field("string", 20, YTType.STRING);
+    doc.field("binary", new byte[]{30}, YTType.BINARY);
 
-    assertEquals(doc.fieldType("integer"), OType.INTEGER);
-    assertEquals(doc.fieldType("link"), OType.LINK);
-    assertEquals(doc.fieldType("string"), OType.STRING);
-    assertEquals(doc.fieldType("binary"), OType.BINARY);
-    ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
+    assertEquals(doc.fieldType("integer"), YTType.INTEGER);
+    assertEquals(doc.fieldType("link"), YTType.LINK);
+    assertEquals(doc.fieldType("string"), YTType.STRING);
+    assertEquals(doc.fieldType("binary"), YTType.BINARY);
+    ORecordSerializer ser = YTDatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
-    doc = new ODocument();
+    doc = new YTDocument();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(doc.fieldType("integer"), OType.INTEGER);
-    assertEquals(doc.fieldType("string"), OType.STRING);
-    assertEquals(doc.fieldType("binary"), OType.BINARY);
-    assertEquals(doc.fieldType("link"), OType.LINK);
+    assertEquals(doc.fieldType("integer"), YTType.INTEGER);
+    assertEquals(doc.fieldType("string"), YTType.STRING);
+    assertEquals(doc.fieldType("binary"), YTType.BINARY);
+    assertEquals(doc.fieldType("link"), YTType.LINK);
   }
 
   @Test
   public void testKeepAutoFieldTypeSerialization() throws Exception {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("integer", 10);
-    doc.field("link", new ORecordId(1, 2));
+    doc.field("link", new YTRecordId(1, 2));
     doc.field("string", "string");
     doc.field("binary", new byte[]{30});
 
@@ -161,49 +161,49 @@ public class ODocumentTest extends DBTestBase {
     assertNull(doc.fieldType("link"));
     assertNull(doc.fieldType("string"));
     assertNull(doc.fieldType("binary"));
-    ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
+    ORecordSerializer ser = YTDatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
-    doc = new ODocument();
+    doc = new YTDocument();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(doc.fieldType("integer"), OType.INTEGER);
-    assertEquals(doc.fieldType("string"), OType.STRING);
-    assertEquals(doc.fieldType("binary"), OType.BINARY);
-    assertEquals(doc.fieldType("link"), OType.LINK);
+    assertEquals(doc.fieldType("integer"), YTType.INTEGER);
+    assertEquals(doc.fieldType("string"), YTType.STRING);
+    assertEquals(doc.fieldType("binary"), YTType.BINARY);
+    assertEquals(doc.fieldType("link"), YTType.LINK);
   }
 
   @Test
   public void testKeepSchemafullFieldTypeSerialization() throws Exception {
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
     YouTrackDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
+      db = (YTDatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
           OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-      OClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty(db, "integer", OType.INTEGER);
-      clazz.createProperty(db, "link", OType.LINK);
-      clazz.createProperty(db, "string", OType.STRING);
-      clazz.createProperty(db, "binary", OType.BINARY);
-      ODocument doc = new ODocument(clazz);
+      YTClass clazz = db.getMetadata().getSchema().createClass("Test");
+      clazz.createProperty(db, "integer", YTType.INTEGER);
+      clazz.createProperty(db, "link", YTType.LINK);
+      clazz.createProperty(db, "string", YTType.STRING);
+      clazz.createProperty(db, "binary", YTType.BINARY);
+      YTDocument doc = new YTDocument(clazz);
       doc.field("integer", 10);
-      doc.field("link", new ORecordId(1, 2));
+      doc.field("link", new YTRecordId(1, 2));
       doc.field("string", "string");
       doc.field("binary", new byte[]{30});
 
       // the types are from the schema.
-      assertEquals(doc.fieldType("integer"), OType.INTEGER);
-      assertEquals(doc.fieldType("link"), OType.LINK);
-      assertEquals(doc.fieldType("string"), OType.STRING);
-      assertEquals(doc.fieldType("binary"), OType.BINARY);
-      ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
+      assertEquals(doc.fieldType("integer"), YTType.INTEGER);
+      assertEquals(doc.fieldType("link"), YTType.LINK);
+      assertEquals(doc.fieldType("string"), YTType.STRING);
+      assertEquals(doc.fieldType("binary"), YTType.BINARY);
+      ORecordSerializer ser = YTDatabaseSessionAbstract.getDefaultSerializer();
       byte[] bytes = ser.toStream(db, doc);
-      doc = new ODocument();
+      doc = new YTDocument();
       ser.fromStream(db, bytes, doc, null);
-      assertEquals(doc.fieldType("integer"), OType.INTEGER);
-      assertEquals(doc.fieldType("string"), OType.STRING);
-      assertEquals(doc.fieldType("binary"), OType.BINARY);
-      assertEquals(doc.fieldType("link"), OType.LINK);
+      assertEquals(doc.fieldType("integer"), YTType.INTEGER);
+      assertEquals(doc.fieldType("string"), YTType.STRING);
+      assertEquals(doc.fieldType("binary"), YTType.BINARY);
+      assertEquals(doc.fieldType("link"), YTType.LINK);
     } finally {
       if (db != null) {
         db.close();
@@ -217,33 +217,33 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testChangeTypeOnValueSet() throws Exception {
-    ODocument doc = new ODocument();
-    doc.field("link", new ORecordId(1, 2));
-    ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
+    YTDocument doc = new YTDocument();
+    doc.field("link", new YTRecordId(1, 2));
+    ORecordSerializer ser = YTDatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
-    doc = new ODocument();
+    doc = new YTDocument();
     ser.fromStream(db, bytes, doc, null);
-    assertEquals(doc.fieldType("link"), OType.LINK);
+    assertEquals(doc.fieldType("link"), YTType.LINK);
     doc.field("link", new ORidBag(db));
-    assertNotEquals(doc.fieldType("link"), OType.LINK);
+    assertNotEquals(doc.fieldType("link"), YTType.LINK);
   }
 
   @Test
   public void testRemovingReadonlyField() {
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
     YouTrackDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
+      db = (YTDatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
           OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-      OSchema schema = db.getMetadata().getSchema();
-      OClass classA = schema.createClass("TestRemovingField2");
-      classA.createProperty(db, "name", OType.STRING);
-      OProperty property = classA.createProperty(db, "property", OType.STRING);
+      YTSchema schema = db.getMetadata().getSchema();
+      YTClass classA = schema.createClass("TestRemovingField2");
+      classA.createProperty(db, "name", YTType.STRING);
+      YTProperty property = classA.createProperty(db, "property", YTType.STRING);
       property.setReadonly(db, true);
       db.begin();
-      ODocument doc = new ODocument(classA);
+      YTDocument doc = new YTDocument(classA);
       doc.field("name", "My Name");
       doc.field("property", "value1");
       doc.save();
@@ -271,20 +271,20 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testUndo() {
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
     YouTrackDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
+      db = (YTDatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
           OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-      OSchema schema = db.getMetadata().getSchema();
-      OClass classA = schema.createClass("TestUndo");
-      classA.createProperty(db, "name", OType.STRING);
-      classA.createProperty(db, "property", OType.STRING);
+      YTSchema schema = db.getMetadata().getSchema();
+      YTClass classA = schema.createClass("TestUndo");
+      classA.createProperty(db, "name", YTType.STRING);
+      classA.createProperty(db, "property", YTType.STRING);
 
       db.begin();
-      ODocument doc = new ODocument(classA);
+      YTDocument doc = new YTDocument(classA);
       doc.field("name", "My Name");
       doc.field("property", "value1");
       doc.save();
@@ -336,9 +336,9 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testMergeNull() {
-    ODocument dest = new ODocument();
+    YTDocument dest = new YTDocument();
 
-    ODocument source = new ODocument();
+    YTDocument source = new YTDocument();
     source.field("key", "value");
     source.field("somenull", (Object) null);
 
@@ -351,13 +351,13 @@ public class ODocumentTest extends DBTestBase {
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailNestedSetNull() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("test.nested", "value");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailNullMapKey() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     Map<String, String> map = new HashMap<String, String>();
     map.put(null, "dd");
     doc.field("testMap", map);
@@ -366,7 +366,7 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testGetSetProperty() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     Map<String, String> map = new HashMap<String, String>();
     map.put("foo", "valueInTheMap");
     doc.field("theMap", map);
@@ -391,7 +391,7 @@ public class ODocumentTest extends DBTestBase {
 
   @Test
   public void testNoDirtySameBytes() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
     doc.field("bytes", bytes);
     ODocumentInternal.clearTrackData(doc);

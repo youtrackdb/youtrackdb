@@ -21,17 +21,17 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.lang.reflect.Method;
@@ -73,7 +73,7 @@ public class OClassTrigger {
   public static final String PROP_AFTER_DELETE = ONAFTER_DELETE;
 
   public static ORecordHook.RESULT onRecordBeforeCreate(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_CREATED, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -86,7 +86,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterCreate(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_CREATED, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -98,7 +98,7 @@ public class OClassTrigger {
   }
 
   public static ORecordHook.RESULT onRecordBeforeRead(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_READ, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -111,7 +111,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterRead(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_READ, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -123,7 +123,7 @@ public class OClassTrigger {
   }
 
   public static ORecordHook.RESULT onRecordBeforeUpdate(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_UPDATED, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -136,7 +136,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterUpdate(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_UPDATED, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -148,7 +148,7 @@ public class OClassTrigger {
   }
 
   public static ORecordHook.RESULT onRecordBeforeDelete(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_DELETE, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -161,7 +161,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterDelete(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_DELETE, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -173,12 +173,12 @@ public class OClassTrigger {
   }
 
   private static Object checkClzAttribute(
-      final ODocument iDocument, String attr, ODatabaseSessionInternal database) {
-    final OImmutableClass clz = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
+      final YTDocument iDocument, String attr, YTDatabaseSessionInternal database) {
+    final YTImmutableClass clz = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (clz != null && clz.isTriggered()) {
       OFunction func = null;
       String fieldName = clz.getCustom(attr);
-      OClass superClz = clz.getSuperClass();
+      YTClass superClz = clz.getSuperClass();
       while (fieldName == null || fieldName.length() == 0) {
         if (superClz == null || superClz.getName().equals(CLASSNAME)) {
           break;
@@ -194,10 +194,10 @@ public class OClassTrigger {
         }
         func = database.getMetadata().getFunctionLibrary().getFunction(fieldName);
         if (func == null) { // check if it is rid
-          if (OStringSerializerHelper.contains(fieldName, ORID.SEPARATOR)) {
+          if (OStringSerializerHelper.contains(fieldName, YTRID.SEPARATOR)) {
             try {
               try {
-                ODocument funcDoc = database.load(new ORecordId(fieldName));
+                YTDocument funcDoc = database.load(new YTRecordId(fieldName));
                 func =
                     database.getMetadata().getFunctionLibrary().getFunction(funcDoc.field("name"));
               } catch (ORecordNotFoundException rnf) {
@@ -212,8 +212,8 @@ public class OClassTrigger {
         final Object funcProp = iDocument.field(attr);
         if (funcProp != null) {
           final String funcName;
-          if (funcProp instanceof ODocument) {
-            funcName = ((ODocument) funcProp).field("name");
+          if (funcProp instanceof YTDocument) {
+            funcName = ((YTDocument) funcProp).field("name");
           } else {
             funcName = funcProp.toString();
           }
@@ -237,7 +237,7 @@ public class OClassTrigger {
     }
     try {
       Class clz = ClassLoader.getSystemClassLoader().loadClass(clzName);
-      Method method = clz.getMethod(methodName, ODocument.class);
+      Method method = clz.getMethod(methodName, YTDocument.class);
       return new Object[]{clz, method};
     } catch (Exception ex) {
       OLogManager.instance()
@@ -248,7 +248,7 @@ public class OClassTrigger {
   }
 
   private static ORecordHook.RESULT executeMethod(
-      final ODocument iDocument, final Object[] clzMethod) {
+      final YTDocument iDocument, final Object[] clzMethod) {
     if (clzMethod[0] instanceof Class clz && clzMethod[1] instanceof Method method) {
       String result = null;
       try {
@@ -266,7 +266,7 @@ public class OClassTrigger {
   }
 
   private static ORecordHook.RESULT executeFunction(
-      final ODocument iDocument, final OFunction func, ODatabaseSessionInternal database) {
+      final YTDocument iDocument, final OFunction func, YTDatabaseSessionInternal database) {
     if (func == null) {
       return ORecordHook.RESULT.RECORD_NOT_CHANGED;
     }

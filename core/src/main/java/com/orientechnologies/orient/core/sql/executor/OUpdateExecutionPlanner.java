@@ -86,7 +86,7 @@ public class OUpdateExecutionPlanner {
 
   /**
    * add a step that transforms a normal OResult in a specific object that under setProperty()
-   * updates the actual OIdentifiable
+   * updates the actual YTIdentifiable
    *
    * @param plan the execution plan
    * @param ctx  the executino context

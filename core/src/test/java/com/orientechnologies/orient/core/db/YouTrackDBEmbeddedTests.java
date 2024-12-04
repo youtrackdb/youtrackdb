@@ -11,10 +11,10 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageDoesNotExistException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -62,11 +62,11 @@ public class YouTrackDBEmbeddedTests {
             "createAndUseEmbeddedDatabase", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY)) {
       final var db =
-          (ODatabaseSessionInternal)
+          (YTDatabaseSessionInternal)
               youTrackDb.open(
                   "createAndUseEmbeddedDatabase", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       db.executeInTx(
-          () -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
+          () -> db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId())));
       db.close();
     }
   }
@@ -111,7 +111,7 @@ public class YouTrackDBEmbeddedTests {
       // do a query and assert on other thread
       Runnable acquirer =
           () -> {
-            ODatabaseSession db = pool.acquire();
+            YTDatabaseSession db = pool.acquire();
             try {
               assertThat(db.isActiveOnCurrentThread()).isTrue();
               final OResultSet res = db.query("SELECT * FROM OUser");
@@ -172,14 +172,14 @@ public class YouTrackDBEmbeddedTests {
       youtrackEmbedded.initCustomStorage("database1", DBTestBase.getDirectoryPath(getClass()) +
               "testRegisterDatabase/database1",
           "", "");
-      try (final ODatabaseSession db = youtrackEmbedded.open("database1", "admin", "admin")) {
+      try (final YTDatabaseSession db = youtrackEmbedded.open("database1", "admin", "admin")) {
         assertEquals("database1", db.getName());
       }
       youtrackEmbedded.initCustomStorage("database2", DBTestBase.getDirectoryPath(getClass()) +
               "testRegisterDatabase/database2",
           "", "");
 
-      try (final ODatabaseSession db = youtrackEmbedded.open("database2", "admin", "admin")) {
+      try (final YTDatabaseSession db = youtrackEmbedded.open("database2", "admin", "admin")) {
         assertEquals("database2", db.getName());
       }
       youtrackEmbedded.drop("database1", null, null);
@@ -197,9 +197,9 @@ public class YouTrackDBEmbeddedTests {
         OCreateDatabaseUtil.createDatabase(
             "testCopyOpenedDatabase", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY)) {
-      ODatabaseSession db1;
-      try (ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal)
+      YTDatabaseSession db1;
+      try (YTDatabaseSessionInternal db =
+          (YTDatabaseSessionInternal)
               youTrackDb.open(
                   "testCopyOpenedDatabase", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         db1 = db.copy();
@@ -279,7 +279,7 @@ public class YouTrackDBEmbeddedTests {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     if (!youTrackDb.exists("some")) {
       youTrackDb.execute(
@@ -333,8 +333,8 @@ public class YouTrackDBEmbeddedTests {
   public void testPoolFactory() {
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
-            .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .addConfig(YTGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
+            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
     YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
     if (!youTrackDB.exists("testdb")) {
@@ -357,7 +357,7 @@ public class YouTrackDBEmbeddedTests {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabasePool poolAdmin2 =
         youTrackDB.cachedPool(
@@ -365,7 +365,7 @@ public class YouTrackDBEmbeddedTests {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabasePool poolReader1 =
         youTrackDB.cachedPool("testdb", "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -388,7 +388,7 @@ public class YouTrackDBEmbeddedTests {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     assertNotEquals(poolAdmin1, poolAdmin3);
 
@@ -399,9 +399,9 @@ public class YouTrackDBEmbeddedTests {
   public void testPoolFactoryCleanUp() throws Exception {
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
-            .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 1_000)
-            .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .addConfig(YTGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
+            .addConfig(YTGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 1_000)
+            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
     YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
     if (!youTrackDB.exists("testdb")) {
@@ -431,7 +431,7 @@ public class YouTrackDBEmbeddedTests {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabasePool poolAdmin1 =
         youTrackDB.cachedPool(
@@ -439,7 +439,7 @@ public class YouTrackDBEmbeddedTests {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabasePool poolAdmin2 =
         youTrackDB.cachedPool(
@@ -447,7 +447,7 @@ public class YouTrackDBEmbeddedTests {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     assertFalse(poolAdmin1.isClosed());
     assertEquals(poolAdmin1, poolAdmin2);
@@ -464,7 +464,7 @@ public class YouTrackDBEmbeddedTests {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     assertNotEquals(poolAdmin1, poolAdmin3);
     assertFalse(poolAdmin3.isClosed());
@@ -475,7 +475,7 @@ public class YouTrackDBEmbeddedTests {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     assertNotEquals(poolNotUsed, poolOther);
     assertTrue(poolNotUsed.isClosed());
@@ -487,8 +487,8 @@ public class YouTrackDBEmbeddedTests {
   public void testInvalidatePoolCache() {
     final YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
-            .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .addConfig(YTGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
+            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
     final YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
@@ -520,7 +520,7 @@ public class YouTrackDBEmbeddedTests {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()) + "keepClean",
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
       youTrackDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -539,9 +539,10 @@ public class YouTrackDBEmbeddedTests {
             DBTestBase.embeddedDBUrl(getClass()) + "testYouTrackDBDatabaseOnlyMemory",
             OCreateDatabaseUtil.TYPE_MEMORY);
     final var db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    db.executeInTx(() -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
+    db.executeInTx(
+        () -> db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     youTrackDb.close();
   }
@@ -553,7 +554,7 @@ public class YouTrackDBEmbeddedTests {
             "testCreateForceCloseOpen", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL)) {
       youTrackDB.getInternal().forceDatabaseClose("test");
-      ODatabaseSession db1 =
+      YTDatabaseSession db1 =
           youTrackDB.open(
               "testCreateForceCloseOpen", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       assertFalse(db1.isClosed());
@@ -569,7 +570,7 @@ public class YouTrackDBEmbeddedTests {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     YouTrackDBEmbedded embedded = ((YouTrackDBEmbedded) YouTrackDBInternal.extract(youTrackDB));
     embedded.initAutoClose(3000);
@@ -581,7 +582,8 @@ public class YouTrackDBEmbeddedTests {
             + " users ( admin identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
-    ODatabaseSession db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    YTDatabaseSession db1 = youTrackDB.open("test", "admin",
+        OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertFalse(db1.isClosed());
     db1.close();
     assertNotNull(embedded.getStorage("test"));
@@ -597,7 +599,7 @@ public class YouTrackDBEmbeddedTests {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build())) {
       youTrackDB.open("testOpenNotExistDatabase", "two", "three");
     }
@@ -641,7 +643,7 @@ public class YouTrackDBEmbeddedTests {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     YouTrackDBInternal internal = YouTrackDBInternal.extract(youTrackDb);
     CountDownLatch latch = new CountDownLatch(2);
@@ -675,10 +677,10 @@ public class YouTrackDBEmbeddedTests {
     try (final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             "testUUID", DBTestBase.embeddedDBUrl(getClass()), OCreateDatabaseUtil.TYPE_MEMORY)) {
-      final ODatabaseSession session =
+      final YTDatabaseSession session =
           youTrackDb.open("testUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       assertNotNull(
-          ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage())
+          ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) session).getStorage())
               .getUuid());
       session.close();
     }
@@ -690,10 +692,10 @@ public class YouTrackDBEmbeddedTests {
         OCreateDatabaseUtil.createDatabase(
             "testPersistentUUID", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL);
-    final ODatabaseSession session =
+    final YTDatabaseSession session =
         youTrackDb.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     UUID uuid =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage()).getUuid();
+        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) session).getStorage()).getUuid();
     assertNotNull(uuid);
     session.close();
     youTrackDb.close();
@@ -702,13 +704,13 @@ public class YouTrackDBEmbeddedTests {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    ODatabaseSession session1 =
+    YTDatabaseSession session1 =
         youTrackDb1.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertEquals(
         uuid,
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) session1).getStorage()).getUuid());
+        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) session1).getStorage()).getUuid());
     session1.close();
     youTrackDb1.drop("testPersistentUUID");
     youTrackDb1.close();
@@ -736,11 +738,11 @@ public class YouTrackDBEmbeddedTests {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()) + "testCreateDatabaseViaSQLWithUsers",
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     youTrackDB.execute(
         "create database test memory users(admin identified by 'adminpwd' role admin)");
-    try (ODatabaseSession session = youTrackDB.open("test", "admin", "adminpwd")) {
+    try (YTDatabaseSession session = youTrackDB.open("test", "admin", "adminpwd")) {
     }
 
     youTrackDB.close();
@@ -752,7 +754,7 @@ public class YouTrackDBEmbeddedTests {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()) + "testCreateDatabaseViaSQLIfNotExistsWithUsers",
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     youTrackDB.execute(
         "create database test memory if not exists users(admin identified by 'adminpwd' role"
@@ -762,7 +764,7 @@ public class YouTrackDBEmbeddedTests {
         "create database test memory if not exists users(admin identified by 'adminpwd' role"
             + " admin)");
 
-    try (ODatabaseSession session = youTrackDB.open("test", "admin", "adminpwd")) {
+    try (YTDatabaseSession session = youTrackDB.open("test", "admin", "adminpwd")) {
     }
 
     youTrackDB.close();

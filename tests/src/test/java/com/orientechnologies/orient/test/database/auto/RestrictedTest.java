@@ -15,18 +15,18 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
@@ -41,8 +41,8 @@ import org.testng.annotations.Test;
 @Test
 public class RestrictedTest extends DocumentDBBaseTest {
 
-  private ORID adminRecordId;
-  private ORID writerRecordId;
+  private YTRID adminRecordId;
+  private YTRID writerRecordId;
 
   private ORole readerRole = null;
 
@@ -53,7 +53,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -66,7 +66,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
         .createClass("CMSDocument", database.getMetadata().getSchema().getClass("ORestricted"));
 
     database.begin();
-    var adminRecord = new ODocument("CMSDocument").field("user", "admin");
+    var adminRecord = new YTDocument("CMSDocument").field("user", "admin");
     adminRecord.save();
     this.adminRecordId = adminRecord.getIdentity();
     database.commit();
@@ -91,7 +91,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testCreateAsWriter() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    var writerRecord = new ODocument("CMSDocument").field("user", "writer");
+    var writerRecord = new YTDocument("CMSDocument").field("user", "writer");
     writerRecord.save();
     this.writerRecordId = writerRecord.getIdentity();
     database.commit();
@@ -157,7 +157,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    var adminRecord = database.<ODocument>load(this.adminRecordId);
+    var adminRecord = database.<YTDocument>load(this.adminRecordId);
     Assert.assertEquals(adminRecord.field("user"), "admin");
     database.commit();
   }
@@ -176,7 +176,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    var adminRecord = database.<ODocument>load(this.adminRecordId);
+    var adminRecord = database.<YTDocument>load(this.adminRecordId);
     Assert.assertEquals(adminRecord.field("user"), "admin");
     database.commit();
   }
@@ -187,8 +187,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.begin();
       // FORCE LOADING
-      ODocument adminRecord = database.load(this.adminRecordId);
-      Set<OIdentifiable> allows = adminRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
+      YTDocument adminRecord = database.load(this.adminRecordId);
+      Set<YTIdentifiable> allows = adminRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
       allows.add(
           database.getMetadata().getSecurity().getUser(database.getUser().getName(database))
               .getIdentity(database));
@@ -206,8 +206,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testAddReaderAsRole() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    var writerRecord = database.<ODocument>load(this.writerRecordId);
-    Set<OIdentifiable> allows = writerRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
+    var writerRecord = database.<YTDocument>load(this.writerRecordId);
+    Set<YTIdentifiable> allows = writerRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
     allows.add(readerRole.getIdentity(database));
 
     writerRecord.save();
@@ -226,7 +226,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testWriterRoleCanRemoveReader() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    ODocument writerRecord = database.load(this.writerRecordId);
+    YTDocument writerRecord = database.load(this.writerRecordId);
     Assert.assertEquals(
         ((Collection<?>) writerRecord.field(ORestrictedOperation.ALLOW_ALL.getFieldName())).size(),
         2);
@@ -258,7 +258,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testWriterAddReaderUserOnlyForRead() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    ODocument writerRecord = database.load(this.writerRecordId);
+    YTDocument writerRecord = database.load(this.writerRecordId);
     database
         .getMetadata()
         .getSecurity()
@@ -282,7 +282,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testWriterRemoveReaderUserOnlyForRead() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    ODocument writerRecord = database.load(this.writerRecordId);
+    YTDocument writerRecord = database.load(this.writerRecordId);
     database
         .getMetadata()
         .getSecurity()
@@ -319,7 +319,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testWriterRoleCanSeeWriterDocument() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    ODocument writerRecord = database.load(this.writerRecordId);
+    YTDocument writerRecord = database.load(this.writerRecordId);
     database
         .getMetadata()
         .getSecurity()
@@ -381,7 +381,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
             "TestUpdateRestricted", database.getMetadata().getSchema().getClass("ORestricted"));
 
     database.begin();
-    var adminRecord = new ODocument("TestUpdateRestricted").field("user", "admin");
+    var adminRecord = new YTDocument("TestUpdateRestricted").field("user", "admin");
     adminRecord.save();
     this.adminRecordId = adminRecord.getIdentity();
     database.commit();
@@ -407,7 +407,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     OResult res = result.next();
     Assert.assertFalse(result.hasNext());
 
-    final OElement doc = res.getElement().get();
+    final YTEntity doc = res.getElement().get();
     Assert.assertEquals(doc.getProperty("data"), "My Test");
     doc.setProperty("user", "admin");
 

@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.traverse.OTraverseRecordProcess;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -62,13 +62,13 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
     return true;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return getName(session) + "(<beginIndex> [,<items>])";
   }
 
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       final OCommandContext iContext) {
@@ -92,14 +92,14 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
           "Cannot invoke " + getName(iContext.getDatabase()) + "() against non traverse command");
     }
 
-    final List<OIdentifiable> result = items > 1 ? new ArrayList<OIdentifiable>(items) : null;
+    final List<YTIdentifiable> result = items > 1 ? new ArrayList<YTIdentifiable>(items) : null;
 
     if (beginIndex < 0) {
       int i = -1;
       for (Iterator it = stack.iterator(); it.hasNext(); ) {
         final Object o = it.next();
         if (o instanceof OTraverseRecordProcess) {
-          final OIdentifiable record = ((OTraverseRecordProcess) o).getTarget();
+          final YTIdentifiable record = ((OTraverseRecordProcess) o).getTarget();
 
           if (iClassName == null
               || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
@@ -116,7 +116,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
             }
             i--;
           }
-        } else if (o instanceof OIdentifiable record) {
+        } else if (o instanceof YTIdentifiable record) {
 
           if (iClassName == null
               || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
@@ -141,7 +141,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
       for (int x = listStack.size() - 1; x >= 0; x--) {
         final Object o = listStack.get(x);
         if (o instanceof OTraverseRecordProcess) {
-          final OIdentifiable record = ((OTraverseRecordProcess) o).getTarget();
+          final YTIdentifiable record = ((OTraverseRecordProcess) o).getTarget();
 
           if (iClassName == null
               || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
@@ -158,7 +158,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
             }
             i++;
           }
-        } else if (o instanceof OIdentifiable record) {
+        } else if (o instanceof YTIdentifiable record) {
 
           if (iClassName == null
               || ODocumentInternal.getImmutableSchemaClass(record.getRecord())

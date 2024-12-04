@@ -20,16 +20,16 @@
 package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.orient.core.command.OCommandProcess;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 public abstract class OTraverseAbstractProcess<T>
-    extends OCommandProcess<OTraverse, T, OIdentifiable> {
+    extends OCommandProcess<OTraverse, T, YTIdentifiable> {
 
   public OTraverseAbstractProcess(final OTraverse iCommand, final T iTarget) {
     super(iCommand, iTarget);
   }
 
-  public OIdentifiable pop() {
+  public YTIdentifiable pop() {
     command.getContext().pop(null);
     return null;
   }

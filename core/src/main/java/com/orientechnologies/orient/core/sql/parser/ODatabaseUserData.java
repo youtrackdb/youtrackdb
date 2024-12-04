@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +124,7 @@ public class ODatabaseUserData extends SimpleNode {
     return result;
   }
 
-  public void executeCreate(ODatabaseSessionInternal db, OCommandContext parentCtx) {
+  public void executeCreate(YTDatabaseSessionInternal db, OCommandContext parentCtx) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setInputParameters(parentCtx.getInputParameters());
     ctx.setDatabase(db);

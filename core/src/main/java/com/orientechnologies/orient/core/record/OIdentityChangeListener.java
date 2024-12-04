@@ -11,12 +11,12 @@ public interface OIdentityChangeListener {
    *
    * @param record
    */
-  void onBeforeIdentityChange(ORecord record);
+  void onBeforeIdentityChange(YTRecord record);
 
   /**
    * called afer the change of the identity is made.
    *
    * @param record
    */
-  void onAfterIdentityChange(ORecord record);
+  void onAfterIdentityChange(YTRecord record);
 }

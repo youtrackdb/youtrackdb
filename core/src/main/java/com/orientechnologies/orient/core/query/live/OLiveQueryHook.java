@@ -19,16 +19,16 @@
  */
 package com.orientechnologies.orient.core.query.live;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.QUERY_LIVE_SUPPORT;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.QUERY_LIVE_SUPPORT;
 
 import com.orientechnologies.common.concur.resource.OCloseable;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class OLiveQueryHook {
 
   public static class OLiveQueryOps implements OCloseable {
 
-    protected Map<ODatabaseSession, List<ORecordOperation>> pendingOps = new ConcurrentHashMap<>();
+    protected Map<YTDatabaseSession, List<ORecordOperation>> pendingOps = new ConcurrentHashMap<>();
     private OLiveQueryQueueThread queueThread = new OLiveQueryQueueThread();
     private final Object threadLock = new Object();
 
@@ -61,12 +61,12 @@ public class OLiveQueryHook {
     }
   }
 
-  public static OLiveQueryOps getOpsReference(ODatabaseSessionInternal db) {
+  public static OLiveQueryOps getOpsReference(YTDatabaseSessionInternal db) {
     return db.getSharedContext().getLiveQueryOps();
   }
 
   public static Integer subscribe(
-      Integer token, OLiveQueryListener iListener, ODatabaseSessionInternal db) {
+      Integer token, OLiveQueryListener iListener, YTDatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       OLogManager.instance()
           .warn(
@@ -87,7 +87,7 @@ public class OLiveQueryHook {
     return ops.queueThread.subscribe(token, iListener);
   }
 
-  public static void unsubscribe(Integer id, ODatabaseSessionInternal db) {
+  public static void unsubscribe(Integer id, YTDatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       OLogManager.instance()
           .warn(
@@ -107,9 +107,9 @@ public class OLiveQueryHook {
     }
   }
 
-  public static void notifyForTxChanges(ODatabaseSession iDatabase) {
+  public static void notifyForTxChanges(YTDatabaseSession iDatabase) {
 
-    OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) iDatabase);
+    OLiveQueryOps ops = getOpsReference((YTDatabaseSessionInternal) iDatabase);
     if (ops.pendingOps.isEmpty()) {
       return;
     }
@@ -124,20 +124,20 @@ public class OLiveQueryHook {
     // TODO sync
     if (list != null) {
       for (ORecordOperation item : list) {
-        final ORecordAbstract record = item.record.copy();
+        final YTRecordAbstract record = item.record.copy();
         item.record = record;
         ops.queueThread.enqueue(item);
       }
     }
   }
 
-  public static void removePendingDatabaseOps(ODatabaseSession iDatabase) {
+  public static void removePendingDatabaseOps(YTDatabaseSession iDatabase) {
     try {
       if (iDatabase.isClosed()
           || Boolean.FALSE.equals(iDatabase.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
         return;
       }
-      OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) iDatabase);
+      OLiveQueryOps ops = getOpsReference((YTDatabaseSessionInternal) iDatabase);
       synchronized (ops.pendingOps) {
         ops.pendingOps.remove(iDatabase);
       }
@@ -147,9 +147,9 @@ public class OLiveQueryHook {
     }
   }
 
-  public static void addOp(ODocument iDocument, byte iType, ODatabaseSession database) {
+  public static void addOp(YTDocument iDocument, byte iType, YTDatabaseSession database) {
     var db = database;
-    OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) db);
+    OLiveQueryOps ops = getOpsReference((YTDatabaseSessionInternal) db);
     if (!ops.queueThread.hasListeners()) {
       return;
     }

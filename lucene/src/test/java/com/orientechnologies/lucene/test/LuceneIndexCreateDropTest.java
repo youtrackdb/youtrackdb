@@ -19,8 +19,8 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,8 +33,8 @@ public class LuceneIndexCreateDropTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    final OClass type = db.createVertexClass("City");
-    type.createProperty(db, "name", OType.STRING);
+    final YTClass type = db.createVertexClass("City");
+    type.createProperty(db, "name", YTType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 

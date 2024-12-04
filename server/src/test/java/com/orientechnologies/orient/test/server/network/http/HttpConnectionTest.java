@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.IOException;
 import java.util.Collection;
 import org.junit.Assert;
@@ -25,7 +25,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
     }
 
     final int originalMax =
-        OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
+        YTGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
     try {
 
       int MAX = 10;
@@ -33,7 +33,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
 
       int good = 0;
       int bad = 0;
-      OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.setValue(MAX);
+      YTGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.setValue(MAX);
       for (int i = 0; i < TOTAL; ++i) {
         try {
           final int response =
@@ -51,7 +51,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
       Assert.assertEquals(bad + good, TOTAL);
 
     } finally {
-      OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.setValue(originalMax);
+      YTGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.setValue(originalMax);
     }
   }
 
@@ -72,7 +72,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
       return;
     }
 
-    final int max = OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
+    final int max = YTGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
 
     int TOTAL = max * 3;
 
@@ -87,7 +87,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
 
     System.out.print("\nTest completed");
 
-    Collection<ODocument> conns = null;
+    Collection<YTDocument> conns = null;
     for (int i = 0; i < 20; ++i) {
       Assert.assertEquals(
           get("server")
@@ -98,8 +98,8 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
               .getCode(),
           200);
 
-      final ODocument serverStatus =
-          new ODocument().fromJSON(getResponse().getEntity().getContent());
+      final YTDocument serverStatus =
+          new YTDocument().fromJSON(getResponse().getEntity().getContent());
       conns = serverStatus.field("connections");
 
       final int openConnections = conns.size();

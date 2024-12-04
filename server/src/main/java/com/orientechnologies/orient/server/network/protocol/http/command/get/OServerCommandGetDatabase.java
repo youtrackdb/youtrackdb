@@ -24,18 +24,18 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OPropertyImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -55,7 +55,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   private static final String[] NAMES = {"GET|database/*"};
 
   public static void exportClass(
-      final ODatabaseSessionInternal db, final OJSONWriter json, final OClass cls)
+      final YTDatabaseSessionInternal db, final OJSONWriter json, final YTClass cls)
       throws IOException {
     json.beginObject();
     json.writeAttribute("name", cls.getName());
@@ -64,7 +64,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     json.beginCollection("superClasses");
     int i = 0;
-    for (OClass oClass : cls.getSuperClasses()) {
+    for (YTClass oClass : cls.getSuperClasses()) {
       json.write((i > 0 ? "," : "") + "\"" + oClass.getName() + "\"");
       i++;
     }
@@ -76,8 +76,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
     json.writeAttribute("clusters", cls.getClusterIds());
     json.writeAttribute("defaultCluster", cls.getDefaultClusterId());
     json.writeAttribute("clusterSelection", cls.getClusterSelection().getName());
-    if (cls instanceof OClassImpl) {
-      final Map<String, String> custom = ((OClassImpl) cls).getCustomInternal();
+    if (cls instanceof YTClassImpl) {
+      final Map<String, String> custom = ((YTClassImpl) cls).getCustomInternal();
       if (custom != null && !custom.isEmpty()) {
         json.writeAttribute("custom", custom);
       }
@@ -93,7 +93,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection("properties");
-      for (final OProperty prop : cls.properties(db)) {
+      for (final YTProperty prop : cls.properties(db)) {
         json.beginObject();
         json.writeAttribute("name", prop.getName());
         if (prop.getLinkedClass() != null) {
@@ -113,8 +113,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
             "collate", prop.getCollate() != null ? prop.getCollate().getName() : "default");
         json.writeAttribute("defaultValue", prop.getDefaultValue());
 
-        if (prop instanceof OPropertyImpl) {
-          final Map<String, String> custom = ((OPropertyImpl) prop).getCustomInternal();
+        if (prop instanceof YTPropertyImpl) {
+          final Map<String, String> custom = ((YTPropertyImpl) prop).getCustomInternal();
           if (custom != null && !custom.isEmpty()) {
             json.writeAttribute("custom", custom);
           }
@@ -169,7 +169,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   protected void exec(
       final OHttpRequest iRequest, final OHttpResponse iResponse, final String[] urlParts)
       throws InterruptedException, IOException {
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
     try {
       if (urlParts.length > 2) {
         db = server.openDatabase(urlParts[1], urlParts[2], urlParts[3]);
@@ -224,13 +224,13 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
         json.beginCollection("classes");
         List<String> classNames = new ArrayList<String>();
 
-        for (OClass cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses()) {
+        for (YTClass cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses()) {
           classNames.add(cls.getName());
         }
         Collections.sort(classNames);
 
         for (String className : classNames) {
-          final OClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+          final YTClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(className);
 
           try {
             exportClass(db, json, cls);
@@ -337,10 +337,10 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
     }
   }
 
-  private void exportSecurityInfo(ODatabaseSessionInternal db, OJSONWriter json)
+  private void exportSecurityInfo(YTDatabaseSessionInternal db, OJSONWriter json)
       throws IOException {
     json.beginCollection("users");
-    for (ODocument doc : db.getMetadata().getSecurity().getAllUsers()) {
+    for (YTDocument doc : db.getMetadata().getSecurity().getAllUsers()) {
       OUser user = new OUser(db, doc);
       json.beginObject();
       json.writeAttribute("name", user.getName(db));
@@ -352,7 +352,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     json.beginCollection("roles");
     ORole role;
-    for (ODocument doc : db.getMetadata().getSecurity().getAllRoles()) {
+    for (YTDocument doc : db.getMetadata().getSecurity().getAllRoles()) {
       role = new ORole(db, doc);
       json.beginObject();
       json.writeAttribute("name", role.getName(db));

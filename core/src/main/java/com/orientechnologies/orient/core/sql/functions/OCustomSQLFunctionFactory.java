@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.misc.OSQLStaticReflectiveFunction;
 import java.lang.reflect.Method;
@@ -61,7 +61,7 @@ public class OCustomSQLFunctionFactory implements OSQLFunctionFactory {
 
 
   @Override
-  public void registerDefaultFunctions(ODatabaseSessionInternal db) {
+  public void registerDefaultFunctions(YTDatabaseSessionInternal db) {
     // do nothing
   }
 

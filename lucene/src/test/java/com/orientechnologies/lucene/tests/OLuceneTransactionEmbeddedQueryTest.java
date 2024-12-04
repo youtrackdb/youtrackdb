@@ -20,12 +20,12 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Collection;
 import java.util.Iterator;
@@ -43,14 +43,14 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    final OClass c1 = db.createVertexClass("C1");
-    c1.createProperty(db, "p1", OType.EMBEDDEDLIST, OType.STRING);
+    final YTClass c1 = db.createVertexClass("C1");
+    c1.createProperty(db, "p1", YTType.EMBEDDEDLIST, YTType.STRING);
     c1.createIndex(db, "C1.p1", "FULLTEXT", null, null, "LUCENE", new String[]{"p1"});
   }
 
   @Test
   public void testRollback() {
-    ODocument doc = new ODocument("c1");
+    YTDocument doc = new YTDocument("c1");
     doc.field("p1", new String[]{"abc"});
     db.begin();
     db.save(doc);
@@ -72,7 +72,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
   public void txRemoveTest() {
     db.begin();
 
-    ODocument doc = new ODocument("c1");
+    YTDocument doc = new YTDocument("c1");
     doc.field("p1", new String[]{"abc"});
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
@@ -99,7 +99,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
     try (OResultSet vertices = db.command(query)) {
 
       Collection coll;
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -136,7 +136,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
     db.begin();
 
-    ODocument doc = new ODocument("c1");
+    YTDocument doc = new YTDocument("c1");
     doc.field("p1", new String[]{"update removed", "update fixed"});
 
     db.save(doc);
@@ -150,7 +150,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
     Collection coll;
     try (OResultSet vertices = db.command(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "update")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -166,7 +166,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
     db.save(doc);
 
     try (OResultSet vertices = db.command(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "update")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -176,7 +176,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
     }
 
     try (OResultSet vertices = db.command(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "update")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
       Assert.assertEquals(coll.size(), 1);
@@ -200,10 +200,10 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    ODocument doc = new ODocument("c1");
+    YTDocument doc = new YTDocument("c1");
     doc.field("p1", new String[]{"abc"});
 
-    ODocument doc1 = new ODocument("c1");
+    YTDocument doc1 = new YTDocument("c1");
     doc1.field("p1", new String[]{"abc"});
 
     db.save(doc1);
@@ -221,7 +221,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
     try (OResultSet vertices = db.query(query)) {
       Collection coll;
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -230,9 +230,9 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
       Iterator iterator = coll.iterator();
       int i = 0;
-      ORecordId rid = null;
+      YTRecordId rid = null;
       while (iterator.hasNext()) {
-        rid = (ORecordId) iterator.next();
+        rid = (YTRecordId) iterator.next();
         i++;
       }
 
@@ -245,7 +245,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
     query = "select from C1 where p1 lucene \"removed\" ";
     try (OResultSet vertices = db.query(query)) {
       Collection coll;
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "removed")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 

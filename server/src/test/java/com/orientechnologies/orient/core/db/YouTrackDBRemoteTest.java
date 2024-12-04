@@ -8,9 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -39,7 +39,7 @@ public class YouTrackDBRemoteTest {
   public void before() throws Exception {
     ODatabaseRecordThreadLocal.instance().remove();
 
-    OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = new OServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(
@@ -51,8 +51,8 @@ public class YouTrackDBRemoteTest {
 
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
-            .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 300_000)
+            .addConfig(YTGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
+            .addConfig(YTGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 300_000)
             .build();
 
     factory = new YouTrackDB("remote:localhost", "root", "root", config);
@@ -64,9 +64,10 @@ public class YouTrackDBRemoteTest {
       factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) factory.open("test", "admin", "admin");
+    YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) factory.open("test", "admin",
+        "admin");
     db.begin();
-    db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     db.close();
   }
@@ -94,9 +95,9 @@ public class YouTrackDBRemoteTest {
     }
 
     ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
+    YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
     db.begin();
-    db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     db.close();
     pool.close();
@@ -214,9 +215,9 @@ public class YouTrackDBRemoteTest {
         "noUser",
         ODatabaseType.MEMORY,
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build());
-    try (ODatabaseSession session = factory.open("noUser", "root", "root")) {
+    try (YTDatabaseSession session = factory.open("noUser", "root", "root")) {
       assertEquals(0, session.query("select from OUser").stream().count());
     }
   }
@@ -227,9 +228,9 @@ public class YouTrackDBRemoteTest {
         "noUser",
         ODatabaseType.MEMORY,
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
+            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build());
-    try (ODatabaseSession session = factory.open("noUser", "root", "root")) {
+    try (YTDatabaseSession session = factory.open("noUser", "root", "root")) {
       assertEquals(3, session.query("select from OUser").stream().count());
     }
   }
@@ -237,9 +238,9 @@ public class YouTrackDBRemoteTest {
   @Test
   public void testCopyOpenedDatabase() {
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession db1;
-    try (ODatabaseSessionInternal db =
-        (ODatabaseSessionInternal) factory.open("test", "admin", "admin")) {
+    YTDatabaseSession db1;
+    try (YTDatabaseSessionInternal db =
+        (YTDatabaseSessionInternal) factory.open("test", "admin", "admin")) {
       db1 = db.copy();
     }
     db1.activateOnCurrentThread();

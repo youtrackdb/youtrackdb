@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
@@ -22,7 +22,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final String clusterName = "TruncateCluster";
 
     final int clusterId = database.addCluster(clusterName);
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
 
     database.begin();
     document.save(clusterName);
@@ -42,15 +42,15 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final int clusterId = database.addCluster(clusterName);
 
     final String className = "TruncateClusterClass";
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
 
-    final OClass clazz = schema.createClass(className);
+    final YTClass clazz = schema.createClass(className);
     clazz.addClusterId(database, clusterId);
 
-    clazz.createProperty(database, "value", OType.STRING);
-    clazz.createIndex(database, "TruncateClusterIndex", OClass.INDEX_TYPE.UNIQUE, "value");
+    clazz.createProperty(database, "value", YTType.STRING);
+    clazz.createIndex(database, "TruncateClusterIndex", YTClass.INDEX_TYPE.UNIQUE, "value");
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
     document.field("value", "val");
 
     database.begin();
@@ -77,7 +77,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final String clusterName = "TruncateClusterIsAbsent";
     final int clusterId = database.addCluster(clusterName);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
 
     database.begin();
     document.save(clusterName);
@@ -102,12 +102,12 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final int clusterId = database.addCluster(clusterName);
 
     final String className = "TruncateClusterIsAbsentClass";
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
 
-    final OClass clazz = schema.createClass(className);
+    final YTClass clazz = schema.createClass(className);
     clazz.addClusterId(database, clusterId);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
 
     database.begin();
     document.save(clusterName);

@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 public interface OIndexCallback {
 
-  Object getDocumentValueToIndex(ODatabaseSessionInternal session, ODocument iDocument);
+  Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTDocument iDocument);
 }

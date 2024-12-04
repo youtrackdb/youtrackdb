@@ -16,8 +16,8 @@
 
 package com.orientechnologies.orient.core.schedule;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import java.util.Map;
 
@@ -28,23 +28,24 @@ import java.util.Map;
  */
 public class OSchedulerProxy extends OProxedResource<OSchedulerImpl> implements OScheduler {
 
-  public OSchedulerProxy(final OSchedulerImpl iDelegate, final ODatabaseSessionInternal iDatabase) {
+  public OSchedulerProxy(final OSchedulerImpl iDelegate,
+      final YTDatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 
   @Override
-  public void scheduleEvent(ODatabaseSession session, final OScheduledEvent scheduler) {
+  public void scheduleEvent(YTDatabaseSession session, final OScheduledEvent scheduler) {
     delegate.scheduleEvent(session, scheduler);
   }
 
   @Override
-  public void removeEvent(ODatabaseSession session, final String eventName) {
-    delegate.removeEvent((ODatabaseSessionInternal) session, eventName);
+  public void removeEvent(YTDatabaseSession session, final String eventName) {
+    delegate.removeEvent((YTDatabaseSessionInternal) session, eventName);
   }
 
   @Override
-  public void updateEvent(ODatabaseSession session, final OScheduledEvent event) {
-    delegate.updateEvent((ODatabaseSessionInternal) session, event);
+  public void updateEvent(YTDatabaseSession session, final OScheduledEvent event) {
+    delegate.updateEvent((YTDatabaseSessionInternal) session, event);
   }
 
   @Override

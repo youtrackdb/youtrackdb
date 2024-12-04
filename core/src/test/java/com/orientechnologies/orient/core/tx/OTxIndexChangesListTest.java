@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,13 +32,13 @@ public class OTxIndexChangesListTest {
     OTransactionIndexChangesPerKey temp = new OTransactionIndexChangesPerKey(null);
 
     list.add(
-        temp.createEntryInternal(new ORecordId(12, 0), OTransactionIndexChanges.OPERATION.PUT));
+        temp.createEntryInternal(new YTRecordId(12, 0), OTransactionIndexChanges.OPERATION.PUT));
     list.add(
-        temp.createEntryInternal(new ORecordId(12, 1), OTransactionIndexChanges.OPERATION.PUT));
+        temp.createEntryInternal(new YTRecordId(12, 1), OTransactionIndexChanges.OPERATION.PUT));
     list.add(
-        temp.createEntryInternal(new ORecordId(12, 2), OTransactionIndexChanges.OPERATION.PUT));
+        temp.createEntryInternal(new YTRecordId(12, 2), OTransactionIndexChanges.OPERATION.PUT));
     list.add(
-        temp.createEntryInternal(new ORecordId(12, 3), OTransactionIndexChanges.OPERATION.PUT));
+        temp.createEntryInternal(new YTRecordId(12, 3), OTransactionIndexChanges.OPERATION.PUT));
     Assert.assertEquals(4, list.size());
 
     Assert.assertEquals(2, list.get(2).getValue().getIdentity().getClusterPosition());
@@ -52,7 +52,7 @@ public class OTxIndexChangesListTest {
     Assert.assertEquals(3, list.get(1).getValue().getIdentity().getClusterPosition());
 
     list.add(
-        temp.createEntryInternal(new ORecordId(12, 4), OTransactionIndexChanges.OPERATION.PUT));
+        temp.createEntryInternal(new YTRecordId(12, 4), OTransactionIndexChanges.OPERATION.PUT));
     Assert.assertEquals(3, list.size());
     Assert.assertEquals(4, list.get(2).getValue().getIdentity().getClusterPosition());
   }

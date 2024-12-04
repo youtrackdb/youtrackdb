@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,7 @@ public class OMultiPointShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public JtsGeometry fromDoc(ODocument document) {
+  public JtsGeometry fromDoc(YTDocument document) {
     validate(document);
     List<List<Number>> coordinates = document.field(COORDINATES);
     Coordinate[] coords = new Coordinate[coordinates.size()];
@@ -51,18 +51,18 @@ public class OMultiPointShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public void initClazz(ODatabaseSessionInternal db) {
+  public void initClazz(YTDatabaseSessionInternal db) {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass multiPoint = schema.createAbstractClass(getName(), superClass(db));
-    multiPoint.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass multiPoint = schema.createAbstractClass(getName(), superClass(db));
+    multiPoint.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
   }
 
   @Override
-  public ODocument toDoc(final JtsGeometry shape) {
+  public YTDocument toDoc(final JtsGeometry shape) {
     final MultiPoint geom = (MultiPoint) shape.getGeom();
 
-    ODocument doc = new ODocument(getName());
+    YTDocument doc = new YTDocument(getName());
     doc.field(
         COORDINATES,
         new ArrayList<List<Double>>() {

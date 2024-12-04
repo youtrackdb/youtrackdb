@@ -24,10 +24,10 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategyFactory;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.OImmutableRecordId;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.OBlob;
+import com.orientechnologies.orient.core.id.YTImmutableRecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -71,7 +71,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @SuppressWarnings("serial")
 public class OStorageConfigurationImpl implements OSerializableStream, OStorageConfiguration {
 
-  private static final ORecordId CONFIG_RID = new OImmutableRecordId(0, 0);
+  private static final YTRecordId CONFIG_RID = new YTImmutableRecordId(0, 0);
 
   protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -245,25 +245,25 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
 
     getContextConfiguration()
         .setValue(
-            OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS,
-            OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.getValueAsInteger()); // 0 = AUTOMATIC
+            YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS,
+            YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.getValueAsInteger()); // 0 = AUTOMATIC
 
     autoInitClusters();
 
     recordSerializer = null;
     recordSerializerVersion = 0;
     indexEngines = new ConcurrentHashMap<>();
-    validation = getContextConfiguration().getValueAsBoolean(OGlobalConfiguration.DB_VALIDATION);
+    validation = getContextConfiguration().getValueAsBoolean(YTGlobalConfiguration.DB_VALIDATION);
 
     binaryFormatVersion = CURRENT_BINARY_FORMAT_VERSION;
   }
 
   private void autoInitClusters() {
-    if (getContextConfiguration().getValueAsInteger(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS)
+    if (getContextConfiguration().getValueAsInteger(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS)
         == 0) {
       final int cpus = Runtime.getRuntime().availableProcessors();
       getContextConfiguration()
-          .setValue(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, cpus > 64 ? 64 : cpus);
+          .setValue(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, cpus > 64 ? 64 : cpus);
     }
   }
 
@@ -323,7 +323,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     lock.writeLock().lock();
     try {
       final byte[] record = toStream(streamCharset);
-      storage.updateRecord(CONFIG_RID, true, record, -1, OBlob.RECORD_TYPE, 0, null);
+      storage.updateRecord(CONFIG_RID, true, record, -1, YTBlob.RECORD_TYPE, 0, null);
       if (updateListener != null) {
         updateListener.onUpdate(this);
       }
@@ -524,7 +524,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
                     aa,
                     clusterCompression,
                     clusterEncryption,
-                    configuration.getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY),
+                    configuration.getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY),
                     clusterConflictStrategy,
                     status,
                     clusterBinaryVersion);
@@ -569,10 +569,10 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         final String key = read(values[index++]);
         final Object value = read(values[index++]);
 
-        final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(key);
+        final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(key);
         if (cfg != null) {
           if (value != null) {
-            configuration.setValue(key, OType.convert(null, value, cfg.getType()));
+            configuration.setValue(key, YTType.convert(null, value, cfg.getType()));
           }
         } else {
           OLogManager.instance()
@@ -619,10 +619,10 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
           }
 
           final int typesLength = Integer.parseInt(read(values[index++]));
-          final OType[] types = new OType[typesLength];
+          final YTType[] types = new YTType[typesLength];
 
           for (int n = 0; n < types.length; n++) {
-            final OType type = OType.valueOf(read(values[index++]));
+            final YTType type = YTType.valueOf(read(values[index++]));
             types[n] = type;
           }
 
@@ -804,7 +804,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         // WRITE CONFIGURATION
         write(buffer, configuration.getContextSize());
         for (String k : configuration.getContextKeys()) {
-          final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(k);
+          final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(k);
           write(buffer, k);
           if (cfg != null) {
             write(buffer, cfg.isHidden() ? null : configuration.getValueAsString(cfg));
@@ -840,7 +840,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
 
         if (engineData.getKeyTypes() != null) {
           write(buffer, engineData.getKeyTypes().length);
-          for (OType type : engineData.getKeyTypes()) {
+          for (YTType type : engineData.getKeyTypes()) {
             write(buffer, type.name());
           }
         } else {
@@ -878,7 +878,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
   public void create() throws IOException {
     lock.writeLock().lock();
     try {
-      storage.createRecord(CONFIG_RID, new byte[]{0, 0, 0, 0}, 0, OBlob.RECORD_TYPE, null);
+      storage.createRecord(CONFIG_RID, new byte[]{0, 0, 0, 0}, 0, YTBlob.RECORD_TYPE, null);
     } finally {
       lock.writeLock().unlock();
     }
@@ -1119,11 +1119,11 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     lock.readLock().lock();
     try {
       final int mc =
-          getContextConfiguration().getValueAsInteger(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
+          getContextConfiguration().getValueAsInteger(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
       if (mc == 0) {
         autoInitClusters();
         return (Integer)
-            getContextConfiguration().getValue(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
+            getContextConfiguration().getValue(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
       }
       return mc;
     } finally {
@@ -1135,7 +1135,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     lock.writeLock().lock();
     try {
       getContextConfiguration()
-          .setValue(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, minimumClusters);
+          .setValue(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, minimumClusters);
       autoInitClusters();
     } finally {
       lock.writeLock().unlock();

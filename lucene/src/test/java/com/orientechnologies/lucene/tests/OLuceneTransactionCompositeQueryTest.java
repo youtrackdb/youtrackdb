@@ -20,12 +20,12 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
 import java.util.Collection;
@@ -44,9 +44,9 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
   @Before
   public void init() {
 
-    final OClass c1 = db.createVertexClass("Foo");
-    c1.createProperty(db, "name", OType.STRING);
-    c1.createProperty(db, "bar", OType.STRING);
+    final YTClass c1 = db.createVertexClass("Foo");
+    c1.createProperty(db, "name", YTType.STRING);
+    c1.createProperty(db, "bar", YTType.STRING);
     c1.createIndex(db, "Foo.bar", "FULLTEXT", null, null, "LUCENE", new String[]{"bar"});
     c1.createIndex(db, "Foo.name", "NOTUNIQUE", null, null, "SBTREE", new String[]{"name"});
   }
@@ -54,7 +54,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
   @Test
   public void testRollback() {
 
-    ODocument doc = new ODocument("Foo");
+    YTDocument doc = new YTDocument("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
     db.begin();
@@ -77,7 +77,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
   public void txRemoveTest() {
     db.begin();
 
-    ODocument doc = new ODocument("Foo");
+    YTDocument doc = new YTDocument("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -95,7 +95,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
     try (OResultSet vertices = db.command(query)) {
 
       Collection coll;
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -122,7 +122,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
   public void txUpdateTest() {
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
-    OClass c1 = db.getMetadata().getSchema().getClass("Foo");
+    YTClass c1 = db.getMetadata().getSchema().getClass("Foo");
     try {
       c1.truncate(db);
     } catch (IOException e) {
@@ -132,7 +132,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    ODocument doc = new ODocument("Foo");
+    YTDocument doc = new YTDocument("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -149,7 +149,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
     String query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") =true";
     Collection coll;
     try (OResultSet vertices = db.query(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -168,7 +168,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
     }
     query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"removed\")=true ";
     try (OResultSet vertices = db.query(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "removed")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -190,7 +190,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
   @Test
   public void txUpdateTestComplex() {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
-    OClass c1 = db.getMetadata().getSchema().getClass("Foo");
+    YTClass c1 = db.getMetadata().getSchema().getClass("Foo");
     try {
       c1.truncate(db);
     } catch (IOException e) {
@@ -200,11 +200,11 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    ODocument doc = new ODocument("Foo");
+    YTDocument doc = new YTDocument("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
-    ODocument doc1 = new ODocument("Foo");
+    YTDocument doc1 = new YTDocument("Foo");
     doc1.field("name", "Test");
     doc1.field("bar", "abc");
 
@@ -221,7 +221,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
     String query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\")=true ";
     Collection coll;
     try (OResultSet vertices = db.query(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -230,9 +230,9 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
 
       Iterator iterator = coll.iterator();
       int i = 0;
-      ORecordId rid = null;
+      YTRecordId rid = null;
       while (iterator.hasNext()) {
-        rid = (ORecordId) iterator.next();
+        rid = (YTRecordId) iterator.next();
         i++;
       }
 
@@ -244,7 +244,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
 
     query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"removed\" )=true";
     try (OResultSet vertices = db.query(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids(db, "removed")) {
+      try (Stream<YTRID> stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 

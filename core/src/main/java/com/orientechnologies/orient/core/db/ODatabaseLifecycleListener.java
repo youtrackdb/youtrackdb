@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OView;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTView;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Listener Interface to receive callbacks on database usage.
@@ -40,34 +40,34 @@ public interface ODatabaseLifecycleListener {
     return PRIORITY.LAST;
   }
 
-  void onCreate(ODatabaseSessionInternal iDatabase);
+  void onCreate(YTDatabaseSessionInternal iDatabase);
 
-  void onOpen(ODatabaseSessionInternal iDatabase);
+  void onOpen(YTDatabaseSessionInternal iDatabase);
 
-  void onClose(ODatabaseSessionInternal iDatabase);
+  void onClose(YTDatabaseSessionInternal iDatabase);
 
-  void onDrop(ODatabaseSessionInternal iDatabase);
-
-  @Deprecated
-  default void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
-  }
+  void onDrop(YTDatabaseSessionInternal iDatabase);
 
   @Deprecated
-  default void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  default void onCreateClass(YTDatabaseSessionInternal iDatabase, YTClass iClass) {
   }
 
-  default void onCreateView(ODatabaseSessionInternal database, OView view) {
+  @Deprecated
+  default void onDropClass(YTDatabaseSessionInternal iDatabase, YTClass iClass) {
   }
 
-  default void onDropView(ODatabaseSessionInternal database, OView cls) {
+  default void onCreateView(YTDatabaseSessionInternal database, YTView view) {
+  }
+
+  default void onDropView(YTDatabaseSessionInternal database, YTView cls) {
   }
 
   /**
    * Event called during the retrieving of distributed configuration, usually at startup and when
-   * the cluster shape changes. You can use this event to enrich the ODocument sent to the client
+   * the cluster shape changes. You can use this event to enrich the YTDocument sent to the client
    * with custom properties.
    *
    * @param iConfiguration
    */
-  void onLocalNodeConfigurationRequest(ODocument iConfiguration);
+  void onLocalNodeConfigurationRequest(YTDocument iConfiguration);
 }

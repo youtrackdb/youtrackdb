@@ -26,8 +26,8 @@ import com.orientechnologies.common.serialization.types.OBooleanSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
@@ -121,7 +121,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       INT_SERIALIZER.serializeNative(object.size(), stream, offset + EMBEDDED_SIZE_OFFSET);
 
       int p = offset + EMBEDDED_VALUES_OFFSET;
-      for (OIdentifiable ids : object) {
+      for (YTIdentifiable ids : object) {
         LINK_SERIALIZER.serializeNativeObject(ids, stream, p);
         p += RID_SIZE;
       }
@@ -142,7 +142,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
 
     if (BOOLEAN_SERIALIZER.deserializeNative(stream, offset + EMBEDDED_OFFSET)) {
       final int size = INT_SERIALIZER.deserializeNative(stream, offset + EMBEDDED_SIZE_OFFSET);
-      final Set<OIdentifiable> underlying = new HashSet<>(Math.max((int) (size / .75f) + 1, 16));
+      final Set<YTIdentifiable> underlying = new HashSet<>(Math.max((int) (size / .75f) + 1, 16));
 
       int p = offset + EMBEDDED_VALUES_OFFSET;
       for (int i = 0; i < size; i++) {
@@ -157,7 +157,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final int pageOffset =
           INT_SERIALIZER.deserializeNative(stream, offset + SBTREE_ROOTOFFSET_OFFSET);
       final OBonsaiBucketPointer rootPointer = new OBonsaiBucketPointer(pageIndex, pageOffset);
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
               fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
@@ -199,7 +199,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
     if (embedded) {
       buffer.putInt(object.size());
 
-      for (OIdentifiable ids : object) {
+      for (YTIdentifiable ids : object) {
         LINK_SERIALIZER.serializeInByteBufferObject(ids, buffer);
       }
     } else {
@@ -222,7 +222,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
 
     if (embedded) {
       final int size = buffer.getInt();
-      final Set<OIdentifiable> underlying = new HashSet<>(Math.max((int) (size / .75f) + 1, 16));
+      final Set<YTIdentifiable> underlying = new HashSet<>(Math.max((int) (size / .75f) + 1, 16));
 
       for (int i = 0; i < size; i++) {
         underlying.add(LINK_SERIALIZER.deserializeFromByteBufferObject(buffer));
@@ -234,7 +234,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final int pageOffset = buffer.getInt();
 
       final OBonsaiBucketPointer rootPointer = new OBonsaiBucketPointer(pageIndex, pageOffset);
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
               fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
@@ -257,7 +257,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final int size = buffer.getInt(offset);
       offset += Integer.BYTES;
 
-      final Set<OIdentifiable> underlying = new HashSet<>(Math.max((int) (size / .75f) + 1, 16));
+      final Set<YTIdentifiable> underlying = new HashSet<>(Math.max((int) (size / .75f) + 1, 16));
 
       for (int i = 0; i < size; i++) {
         var delta = LINK_SERIALIZER.getObjectSizeInByteBuffer(offset, buffer);
@@ -273,7 +273,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final int pageOffset = buffer.getInt(offset);
 
       final OBonsaiBucketPointer rootPointer = new OBonsaiBucketPointer(pageIndex, pageOffset);
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
               fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
@@ -315,7 +315,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
 
     if (walChanges.getByteValue(buffer, offset + EMBEDDED_OFFSET) > 0) {
       final int size = walChanges.getIntValue(buffer, offset + EMBEDDED_SIZE_OFFSET);
-      final Set<OIdentifiable> underlying = new HashSet<>(Math.max((int) (size / .75f) + 1, 16));
+      final Set<YTIdentifiable> underlying = new HashSet<>(Math.max((int) (size / .75f) + 1, 16));
 
       int p = offset + EMBEDDED_VALUES_OFFSET;
       for (int i = 0; i < size; i++) {
@@ -328,7 +328,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final long pageIndex = walChanges.getLongValue(buffer, offset + SBTREE_ROOTINDEX_OFFSET);
       final int pageOffset = walChanges.getIntValue(buffer, offset + SBTREE_ROOTOFFSET_OFFSET);
       final OBonsaiBucketPointer rootPointer = new OBonsaiBucketPointer(pageIndex, pageOffset);
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
               fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());

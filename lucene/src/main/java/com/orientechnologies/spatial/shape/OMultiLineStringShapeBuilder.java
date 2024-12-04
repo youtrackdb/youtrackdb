@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public JtsGeometry fromDoc(ODocument document) {
+  public JtsGeometry fromDoc(YTDocument document) {
     validate(document);
     List<List<List<Number>>> coordinates = document.field(COORDINATES);
     LineString[] multiLine = new LineString[coordinates.size()];
@@ -53,23 +53,23 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public void initClazz(ODatabaseSessionInternal db) {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass lineString = schema.createAbstractClass(getName(), superClass(db));
-    lineString.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+  public void initClazz(YTDatabaseSessionInternal db) {
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass lineString = schema.createAbstractClass(getName(), superClass(db));
+    lineString.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
 
-    if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      OClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
-      lineStringZ.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    if (YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
+      YTClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
+      lineStringZ.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
     }
   }
 
   @Override
-  public ODocument toDoc(JtsGeometry shape) {
+  public YTDocument toDoc(JtsGeometry shape) {
     final MultiLineString geom = (MultiLineString) shape.getGeom();
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    ODocument doc = new ODocument(getName());
+    YTDocument doc = new YTDocument(getName());
     for (int i = 0; i < geom.getNumGeometries(); i++) {
       final LineString lineString = (LineString) geom.getGeometryN(i);
       coordinates.add(coordinatesFromLineString(lineString));
@@ -80,13 +80,13 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  protected ODocument toDoc(JtsGeometry shape, Geometry geometry) {
+  protected YTDocument toDoc(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinates()[0].getZ())) {
       return toDoc(shape);
     }
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    ODocument doc = new ODocument(getName() + "Z");
+    YTDocument doc = new YTDocument(getName() + "Z");
     for (int i = 0; i < geometry.getNumGeometries(); i++) {
       final Geometry lineString = geometry.getGeometryN(i);
       coordinates.add(coordinatesFromLineStringZ(lineString));
@@ -97,7 +97,7 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public String asText(ODocument document) {
+  public String asText(YTDocument document) {
     if (document.getClassName().equals("OMultiLineStringZ")) {
       List<List<List<Double>>> coordinates = document.getProperty("coordinates");
 

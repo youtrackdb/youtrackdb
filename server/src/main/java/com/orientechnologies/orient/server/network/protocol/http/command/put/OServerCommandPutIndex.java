@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.put;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -43,7 +43,7 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Index put";
 
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -53,19 +53,19 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
         throw new IllegalArgumentException("Index name '" + urlParts[2] + "' not found");
       }
 
-      final OIdentifiable record;
+      final YTIdentifiable record;
 
       if (urlParts.length > 4)
       // GET THE RECORD ID AS VALUE
       {
-        record = new ORecordId(urlParts[4]);
+        record = new YTRecordId(urlParts[4]);
       } else {
         // GET THE REQUEST CONTENT AS DOCUMENT
         if (iRequest.getContent() == null || iRequest.getContent().isEmpty()) {
           throw new IllegalArgumentException("Index's entry value is null");
         }
 
-        var doc = new ODocument();
+        var doc = new YTDocument();
         doc.fromJSON(iRequest.getContent());
         record = doc;
       }
@@ -84,8 +84,8 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
 
       final boolean existent = record.getIdentity().isPersistent();
 
-      if (existent && record instanceof ORecord) {
-        ((ORecord) record).save();
+      if (existent && record instanceof YTRecord) {
+        ((YTRecord) record).save();
       }
 
       index.put(db, key, record);

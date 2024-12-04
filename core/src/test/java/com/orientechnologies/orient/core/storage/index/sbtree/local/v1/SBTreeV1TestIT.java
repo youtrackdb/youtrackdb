@@ -5,13 +5,13 @@ import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -40,8 +40,8 @@ import org.junit.Test;
 public class SBTreeV1TestIT {
 
   private int keysCount = 1_000_000;
-  OSBTreeV1<Integer, OIdentifiable> sbTree;
-  protected ODatabaseSession databaseDocumentTx;
+  OSBTreeV1<Integer, YTIdentifiable> sbTree;
+  protected YTDatabaseSession databaseDocumentTx;
   protected String buildDirectory;
   protected YouTrackDB youTrackDB;
   protected OAbstractPaginatedStorage storage;
@@ -79,7 +79,7 @@ public class SBTreeV1TestIT {
     databaseDocumentTx = youTrackDB.open(dbName, "admin", "admin");
 
     storage =
-        (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
 
     sbTree = new OSBTreeV1<>("sbTree", ".sbt", ".nbt", storage);
@@ -122,7 +122,7 @@ public class SBTreeV1TestIT {
                   sbTree.put(
                       atomicOperation,
                       key,
-                      new ORecordId(
+                      new YTRecordId(
                           (primaryCounter * rollbackInterval + j) % 32000,
                           primaryCounter * rollbackInterval + j));
 
@@ -159,7 +159,7 @@ public class SBTreeV1TestIT {
     }
 
     for (int i = 0; i < keysCount; i++) {
-      Assert.assertEquals(i + " key is absent", new ORecordId(i % 32000, i), sbTree.get(i));
+      Assert.assertEquals(i + " key is absent", new YTRecordId(i % 32000, i), sbTree.get(i));
       if (i % 100_000 == 0) {
         System.out.printf("%d items tested out of %d%n", i, keysCount);
       }
@@ -187,12 +187,12 @@ public class SBTreeV1TestIT {
               atomicOperation -> {
                 for (int i = 0; i < rollbackRange; i++) {
                   int key = random.nextInt(Integer.MAX_VALUE);
-                  sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key));
+                  sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key));
 
                   if (primaryCounter == 1) {
                     keys.add(key);
                   }
-                  Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+                  Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
                 }
                 if (primaryCounter == 0) {
                   throw new RollbackException();
@@ -212,7 +212,7 @@ public class SBTreeV1TestIT {
     Assert.assertEquals(lastTreeKey, keys.last());
 
     for (Integer key : keys) {
-      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+      Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
     }
   }
 
@@ -241,12 +241,12 @@ public class SBTreeV1TestIT {
                     val = (int) (random.nextGaussian() * Integer.MAX_VALUE / 2 + Integer.MAX_VALUE);
                   } while (val < 0);
 
-                  sbTree.put(atomicOperation, val, new ORecordId(val % 32000, val));
+                  sbTree.put(atomicOperation, val, new YTRecordId(val % 32000, val));
                   if (counter == 1) {
                     keys.add(val);
                   }
 
-                  Assert.assertEquals(sbTree.get(val), new ORecordId(val % 32000, val));
+                  Assert.assertEquals(sbTree.get(val), new YTRecordId(val % 32000, val));
                 }
                 if (counter == 0) {
                   throw new RollbackException();
@@ -267,7 +267,7 @@ public class SBTreeV1TestIT {
     Assert.assertEquals(lastKey, keys.last());
 
     for (int key : keys) {
-      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+      Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
     }
   }
 
@@ -281,7 +281,7 @@ public class SBTreeV1TestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation -> {
-            sbTree.put(atomicOperation, counter, new ORecordId(counter % 32000, counter));
+            sbTree.put(atomicOperation, counter, new YTRecordId(counter % 32000, counter));
             keys.add(counter);
           });
     }
@@ -328,7 +328,7 @@ public class SBTreeV1TestIT {
       if (key % 3 == 0) {
         Assert.assertNull(sbTree.get(key));
       } else {
-        Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+        Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
       }
     }
   }
@@ -351,10 +351,10 @@ public class SBTreeV1TestIT {
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, val, new ORecordId(val % 32000, val)));
+          atomicOperation -> sbTree.put(atomicOperation, val, new YTRecordId(val % 32000, val)));
       keys.add(val);
 
-      Assert.assertEquals(sbTree.get(val), new ORecordId(val % 32000, val));
+      Assert.assertEquals(sbTree.get(val), new YTRecordId(val % 32000, val));
     }
 
     Iterator<Integer> keysIterator = keys.iterator();
@@ -399,7 +399,7 @@ public class SBTreeV1TestIT {
       if (key % 3 == 0) {
         Assert.assertNull(sbTree.get(key));
       } else {
-        Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+        Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
       }
     }
   }
@@ -410,7 +410,7 @@ public class SBTreeV1TestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     final int rollbackInterval = 100;
@@ -427,7 +427,7 @@ public class SBTreeV1TestIT {
                   final int key = primaryCounter * rollbackInterval + j;
                   if (key % 3 == 0) {
                     Assert.assertEquals(
-                        sbTree.remove(atomicOperation, key), new ORecordId(key % 32000, key));
+                        sbTree.remove(atomicOperation, key), new YTRecordId(key % 32000, key));
                   }
                 }
                 if (subCounter == 0) {
@@ -443,7 +443,7 @@ public class SBTreeV1TestIT {
       if (i % 3 == 0) {
         Assert.assertNull(sbTree.get(i));
       } else {
-        Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+        Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
       }
     }
   }
@@ -454,9 +454,9 @@ public class SBTreeV1TestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
 
-      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
     }
 
     final int rollbackInterval = 100;
@@ -475,14 +475,14 @@ public class SBTreeV1TestIT {
 
                   if (key % 3 == 0) {
                     Assert.assertEquals(
-                        sbTree.remove(atomicOperation, key), new ORecordId(key % 32000, key));
+                        sbTree.remove(atomicOperation, key), new YTRecordId(key % 32000, key));
                   }
 
                   if (key % 2 == 0) {
                     sbTree.put(
                         atomicOperation,
                         keysCount + key,
-                        new ORecordId((keysCount + key) % 32000, keysCount + key));
+                        new YTRecordId((keysCount + key) % 32000, keysCount + key));
                   }
                 }
                 if (rollbackCounter == 0) {
@@ -498,19 +498,19 @@ public class SBTreeV1TestIT {
       if (i % 3 == 0) {
         Assert.assertNull(sbTree.get(i));
       } else {
-        Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+        Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
       }
 
       if (i % 2 == 0) {
         Assert.assertEquals(
-            sbTree.get(keysCount + i), new ORecordId((keysCount + i) % 32000, keysCount + i));
+            sbTree.get(keysCount + i), new YTRecordId((keysCount + i) % 32000, keysCount + i));
       }
     }
   }
 
   @Test
   public void testIterateEntriesMajor() throws Exception {
-    NavigableMap<Integer, ORID> keyValues = new TreeMap<>();
+    NavigableMap<Integer, YTRID> keyValues = new TreeMap<>();
     final long seed = System.nanoTime();
 
     System.out.println("testIterateEntriesMajor: " + seed);
@@ -529,9 +529,9 @@ public class SBTreeV1TestIT {
               atomicOperation -> {
                 for (int j = 0; j < rollbackInterval; j++) {
                   int val = random.nextInt(Integer.MAX_VALUE);
-                  sbTree.put(atomicOperation, val, new ORecordId(val % 32000, val));
+                  sbTree.put(atomicOperation, val, new YTRecordId(val % 32000, val));
                   if (rollbackCounter == 1) {
-                    keyValues.put(val, new ORecordId(val % 32000, val));
+                    keyValues.put(val, new YTRecordId(val % 32000, val));
                   }
                 }
 
@@ -561,7 +561,7 @@ public class SBTreeV1TestIT {
 
   @Test
   public void testIterateEntriesMinor() throws Exception {
-    NavigableMap<Integer, ORID> keyValues = new TreeMap<>();
+    NavigableMap<Integer, YTRID> keyValues = new TreeMap<>();
 
     final long seed = System.nanoTime();
 
@@ -581,9 +581,9 @@ public class SBTreeV1TestIT {
               atomicOperation -> {
                 for (int j = 0; j < rollbackInterval; j++) {
                   int val = random.nextInt(Integer.MAX_VALUE);
-                  sbTree.put(atomicOperation, val, new ORecordId(val % 32000, val));
+                  sbTree.put(atomicOperation, val, new YTRecordId(val % 32000, val));
                   if (rollbackCounter == 1) {
-                    keyValues.put(val, new ORecordId(val % 32000, val));
+                    keyValues.put(val, new YTRecordId(val % 32000, val));
                   }
                 }
 
@@ -619,7 +619,7 @@ public class SBTreeV1TestIT {
 
   @Test
   public void testIterateEntriesBetween() throws Exception {
-    NavigableMap<Integer, ORID> keyValues = new TreeMap<>();
+    NavigableMap<Integer, YTRID> keyValues = new TreeMap<>();
     final Random random = new Random();
 
     final int rollbackInterval = 100;
@@ -635,9 +635,9 @@ public class SBTreeV1TestIT {
               atomicOperation -> {
                 for (int j = 0; j < rollbackInterval; j++) {
                   int val = random.nextInt(Integer.MAX_VALUE);
-                  sbTree.put(atomicOperation, val, new ORecordId(val % 32000, val));
+                  sbTree.put(atomicOperation, val, new YTRecordId(val % 32000, val));
                   if (rollbackCounter == 1) {
-                    keyValues.put(val, new ORecordId(val % 32000, val));
+                    keyValues.put(val, new YTRecordId(val % 32000, val));
                   }
                 }
 
@@ -681,7 +681,7 @@ public class SBTreeV1TestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     for (int i = 0; i < 3500; i++) {
@@ -698,7 +698,7 @@ public class SBTreeV1TestIT {
     }
 
     for (int i = 3500; i < 5167; i++) {
-      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
     }
   }
 
@@ -708,7 +708,7 @@ public class SBTreeV1TestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     for (int i = 5166; i > 1700; i--) {
@@ -726,7 +726,7 @@ public class SBTreeV1TestIT {
     }
 
     for (int i = 1700; i >= 0; i--) {
-      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
     }
   }
 
@@ -736,7 +736,7 @@ public class SBTreeV1TestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     for (int i = 0; i < 1730; i++) {
@@ -765,18 +765,18 @@ public class SBTreeV1TestIT {
     Assert.assertNotNull(lastKey);
     Assert.assertEquals((int) lastKey, 8599);
 
-    Set<OIdentifiable> identifiables = new HashSet<>();
+    Set<YTIdentifiable> identifiables = new HashSet<>();
 
-    Stream<ORawPair<Integer, OIdentifiable>> stream = sbTree.iterateEntriesMinor(7200, true, true);
+    Stream<ORawPair<Integer, YTIdentifiable>> stream = sbTree.iterateEntriesMinor(7200, true, true);
     streamToSet(identifiables, stream);
 
     for (int i = 7200; i >= 6900; i--) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 3439; i >= 1730; i--) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -786,12 +786,12 @@ public class SBTreeV1TestIT {
     streamToSet(identifiables, stream);
 
     for (int i = 7200; i >= 6900; i--) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 3439; i >= 1730; i--) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -801,12 +801,12 @@ public class SBTreeV1TestIT {
     streamToSet(identifiables, stream);
 
     for (int i = 1740; i < 3440; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 6900; i < 8600; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -816,12 +816,12 @@ public class SBTreeV1TestIT {
     streamToSet(identifiables, stream);
 
     for (int i = 1740; i < 3440; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 6900; i < 8600; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -831,12 +831,12 @@ public class SBTreeV1TestIT {
     streamToSet(identifiables, stream);
 
     for (int i = 1740; i < 3440; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 6900; i <= 7200; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -846,12 +846,12 @@ public class SBTreeV1TestIT {
     streamToSet(identifiables, stream);
 
     for (int i = 1740; i < 3440; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 6900; i <= 7200; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -860,13 +860,13 @@ public class SBTreeV1TestIT {
 
   @Test
   public void testNullKeysInSBTree() throws Exception {
-    final OSBTreeV1<Integer, OIdentifiable> nullSBTree =
+    final OSBTreeV1<Integer, YTIdentifiable> nullSBTree =
         new OSBTreeV1<>(
             "nullSBTree",
             ".sbt",
             ".nbt",
             (OAbstractPaginatedStorage)
-                ((ODatabaseSessionInternal) databaseDocumentTx).getStorage());
+                ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
@@ -883,7 +883,7 @@ public class SBTreeV1TestIT {
       for (int i = 0; i < 10; i++) {
         final int key = i;
         atomicOperationsManager.executeInsideAtomicOperation(
-            null, atomicOperation -> nullSBTree.put(atomicOperation, key, new ORecordId(3, key)));
+            null, atomicOperation -> nullSBTree.put(atomicOperation, key, new YTRecordId(3, key)));
       }
 
       try {
@@ -923,20 +923,20 @@ public class SBTreeV1TestIT {
   }
 
   private static void doNullTesting(
-      OAtomicOperation atomicOperation, OSBTreeV1<Integer, OIdentifiable> nullSBTree) {
-    OIdentifiable identifiable = nullSBTree.get(null);
+      OAtomicOperation atomicOperation, OSBTreeV1<Integer, YTIdentifiable> nullSBTree) {
+    YTIdentifiable identifiable = nullSBTree.get(null);
     Assert.assertNull(identifiable);
 
-    nullSBTree.put(atomicOperation, null, new ORecordId(10, 1000));
+    nullSBTree.put(atomicOperation, null, new YTRecordId(10, 1000));
 
     identifiable = nullSBTree.get(null);
-    Assert.assertEquals(identifiable, new ORecordId(10, 1000));
+    Assert.assertEquals(identifiable, new YTRecordId(10, 1000));
 
-    OIdentifiable removed = nullSBTree.remove(atomicOperation, 5);
-    Assert.assertEquals(removed, new ORecordId(3, 5));
+    YTIdentifiable removed = nullSBTree.remove(atomicOperation, 5);
+    Assert.assertEquals(removed, new YTRecordId(3, 5));
 
     removed = nullSBTree.remove(atomicOperation, null);
-    Assert.assertEquals(removed, new ORecordId(10, 1000));
+    Assert.assertEquals(removed, new YTRecordId(10, 1000));
 
     removed = nullSBTree.remove(atomicOperation, null);
     Assert.assertNull(removed);
@@ -946,13 +946,13 @@ public class SBTreeV1TestIT {
   }
 
   private static void streamToSet(
-      Set<OIdentifiable> identifiables, Stream<ORawPair<Integer, OIdentifiable>> stream) {
+      Set<YTIdentifiable> identifiables, Stream<ORawPair<Integer, YTIdentifiable>> stream) {
     identifiables.clear();
     identifiables.addAll(stream.map((entry) -> entry.second).collect(Collectors.toSet()));
   }
 
   private void assertIterateMajorEntries(
-      NavigableMap<Integer, ORID> keyValues,
+      NavigableMap<Integer, YTRID> keyValues,
       Random random,
       boolean keyInclusive,
       boolean ascSortOrder) {
@@ -974,9 +974,9 @@ public class SBTreeV1TestIT {
         }
       }
 
-      Iterator<Map.Entry<Integer, ORID>> iterator;
-      final Iterator<ORawPair<Integer, OIdentifiable>> indexIterator;
-      try (Stream<ORawPair<Integer, OIdentifiable>> stream =
+      Iterator<Map.Entry<Integer, YTRID>> iterator;
+      final Iterator<ORawPair<Integer, YTIdentifiable>> indexIterator;
+      try (Stream<ORawPair<Integer, YTIdentifiable>> stream =
           sbTree.iterateEntriesMajor(fromKey, keyInclusive, ascSortOrder)) {
 
         if (ascSortOrder) {
@@ -993,8 +993,8 @@ public class SBTreeV1TestIT {
         indexIterator = stream.iterator();
 
         while (iterator.hasNext()) {
-          final ORawPair<Integer, OIdentifiable> indexEntry = indexIterator.next();
-          final Map.Entry<Integer, ORID> entry = iterator.next();
+          final ORawPair<Integer, YTIdentifiable> indexEntry = indexIterator.next();
+          final Map.Entry<Integer, YTRID> entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
           Assert.assertEquals(indexEntry.second, entry.getValue());
@@ -1006,7 +1006,7 @@ public class SBTreeV1TestIT {
   }
 
   private void assertIterateMinorEntries(
-      NavigableMap<Integer, ORID> keyValues,
+      NavigableMap<Integer, YTRID> keyValues,
       Random random,
       boolean keyInclusive,
       boolean ascSortOrder) {
@@ -1028,12 +1028,12 @@ public class SBTreeV1TestIT {
         }
       }
 
-      final Iterator<ORawPair<Integer, OIdentifiable>> indexIterator;
-      try (Stream<ORawPair<Integer, OIdentifiable>> stream =
+      final Iterator<ORawPair<Integer, YTIdentifiable>> indexIterator;
+      try (Stream<ORawPair<Integer, YTIdentifiable>> stream =
           sbTree.iterateEntriesMinor(toKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
-        Iterator<Map.Entry<Integer, ORID>> iterator;
+        Iterator<Map.Entry<Integer, YTRID>> iterator;
         if (ascSortOrder) {
           iterator = keyValues.headMap(toKey, keyInclusive).entrySet().iterator();
         } else {
@@ -1041,8 +1041,8 @@ public class SBTreeV1TestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPair<Integer, OIdentifiable> indexEntry = indexIterator.next();
-          Map.Entry<Integer, ORID> entry = iterator.next();
+          ORawPair<Integer, YTIdentifiable> indexEntry = indexIterator.next();
+          Map.Entry<Integer, YTRID> entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
           Assert.assertEquals(indexEntry.second, entry.getValue());
@@ -1054,7 +1054,7 @@ public class SBTreeV1TestIT {
   }
 
   private void assertIterateBetweenEntries(
-      NavigableMap<Integer, ORID> keyValues,
+      NavigableMap<Integer, YTRID> keyValues,
       Random random,
       boolean fromInclusive,
       boolean toInclusive,
@@ -1098,12 +1098,12 @@ public class SBTreeV1TestIT {
         toKey = fromKey;
       }
 
-      Iterator<ORawPair<Integer, OIdentifiable>> indexIterator;
-      try (Stream<ORawPair<Integer, OIdentifiable>> stream =
+      Iterator<ORawPair<Integer, YTIdentifiable>> indexIterator;
+      try (Stream<ORawPair<Integer, YTIdentifiable>> stream =
           sbTree.iterateEntriesBetween(fromKey, fromInclusive, toKey, toInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
-        Iterator<Map.Entry<Integer, ORID>> iterator;
+        Iterator<Map.Entry<Integer, YTRID>> iterator;
         if (ascSortOrder) {
           iterator =
               keyValues.subMap(fromKey, fromInclusive, toKey, toInclusive).entrySet().iterator();
@@ -1121,10 +1121,10 @@ public class SBTreeV1TestIT {
         while (iterator.hasNext()) {
           iteration++;
 
-          ORawPair<Integer, OIdentifiable> indexEntry = indexIterator.next();
+          ORawPair<Integer, YTIdentifiable> indexEntry = indexIterator.next();
           Assert.assertNotNull(indexEntry);
 
-          Map.Entry<Integer, ORID> mapEntry = iterator.next();
+          Map.Entry<Integer, YTRID> mapEntry = iterator.next();
           Assert.assertEquals(indexEntry.first, mapEntry.getKey());
           Assert.assertEquals(indexEntry.second, mapEntry.getValue());
         }

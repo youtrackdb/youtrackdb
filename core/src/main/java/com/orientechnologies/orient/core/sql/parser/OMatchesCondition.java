@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class OMatchesCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     String regex = right;
     if (regex != null) {
       regex = regex.substring(1, regex.length() - 1);
@@ -226,7 +226,7 @@ public class OMatchesCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (!expression.isCacheable(session)) {
       return false;
     }

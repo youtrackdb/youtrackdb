@@ -5,9 +5,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -132,7 +132,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className2);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className1);
+      YTDocument doc = db.newInstance(className1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -181,7 +181,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className2);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className1);
+      YTDocument doc = db.newInstance(className1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -363,7 +363,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
       OResult row = result.next();
       Object val = row.getProperty("processingType");
       Assert.assertNotNull(val);
-      Assert.assertTrue(val instanceof OIdentifiable);
+      Assert.assertTrue(val instanceof YTIdentifiable);
     }
     result.close();
   }
@@ -558,7 +558,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     try (OResultSet result = db.query("SELECT FROM index:testInsert ")) {
       OResult item = result.next();
       assertEquals(item.getProperty("key"), "one");
-      assertEquals(item.getProperty("rid"), new ORecordId(5, 0));
+      assertEquals(item.getProperty("rid"), new YTRecordId(5, 0));
       assertFalse(result.hasNext());
     }
   }

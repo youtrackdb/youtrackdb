@@ -21,15 +21,15 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExportException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.schedule.OScheduler.STATUS;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import java.text.ParseException;
@@ -67,7 +67,7 @@ public class OScheduledEvent extends ODocumentWrapper {
   /**
    * Creates a scheduled event object from a configuration.
    */
-  public OScheduledEvent(final ODocument doc, ODatabaseSession session) {
+  public OScheduledEvent(final YTDocument doc, YTDatabaseSession session) {
     super(doc);
     running = new AtomicBoolean(false);
     nextExecutionId = new AtomicLong(getNextExecutionId(session));
@@ -90,7 +90,7 @@ public class OScheduledEvent extends ODocumentWrapper {
     }
   }
 
-  public OFunction getFunction(ODatabaseSession session) {
+  public OFunction getFunction(YTDatabaseSession session) {
     final OFunction fun = getFunctionSafe(session);
     if (fun == null) {
       throw new OCommandScriptException("Function cannot be null");
@@ -98,25 +98,25 @@ public class OScheduledEvent extends ODocumentWrapper {
     return fun;
   }
 
-  public String getRule(ODatabaseSession session) {
+  public String getRule(YTDatabaseSession session) {
     return getDocument(session).field(PROP_RULE);
   }
 
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return getDocument(session).field(PROP_NAME);
   }
 
-  public long getNextExecutionId(ODatabaseSession session) {
+  public long getNextExecutionId(YTDatabaseSession session) {
     Long value = getDocument(session).field(PROP_EXEC_ID);
     return value != null ? value : 0;
   }
 
-  public String getStatus(ODatabaseSession session) {
+  public String getStatus(YTDatabaseSession session) {
     return getDocument(session).field(PROP_STATUS);
   }
 
   @Nonnull
-  public Map<String, Object> getArguments(ODatabaseSession session) {
+  public Map<String, Object> getArguments(YTDatabaseSession session) {
     var value = getDocument(session).<Map<String, Object>>getProperty(PROP_ARGUMENTS);
 
     if (value == null) {
@@ -126,7 +126,7 @@ public class OScheduledEvent extends ODocumentWrapper {
     return value;
   }
 
-  public Date getStartTime(ODatabaseSession session) {
+  public Date getStartTime(YTDatabaseSession session) {
     return getDocument(session).field(PROP_STARTTIME);
   }
 
@@ -171,7 +171,7 @@ public class OScheduledEvent extends ODocumentWrapper {
   }
 
   @Override
-  public void fromStream(ODatabaseSessionInternal session, final ODocument iDocument) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iDocument) {
     super.fromStream(session, iDocument);
     try {
       cron.buildExpression(getRule(session));
@@ -185,7 +185,7 @@ public class OScheduledEvent extends ODocumentWrapper {
     this.running.set(running);
   }
 
-  private OFunction getFunctionSafe(ODatabaseSession session) {
+  private OFunction getFunctionSafe(YTDatabaseSession session) {
     var document = getDocument(session);
     if (function == null) {
       final Object funcDoc = document.field(PROP_FUNC);
@@ -194,10 +194,10 @@ public class OScheduledEvent extends ODocumentWrapper {
           function = (OFunction) funcDoc;
           // OVERWRITE FUNCTION ID
           document.field(PROP_FUNC, function.getId(session));
-        } else if (funcDoc instanceof ODocument) {
-          function = new OFunction((ODocument) funcDoc);
-        } else if (funcDoc instanceof ORecordId) {
-          function = new OFunction((ORecordId) funcDoc);
+        } else if (funcDoc instanceof YTDocument) {
+          function = new OFunction((YTDocument) funcDoc);
+        } else if (funcDoc instanceof YTRecordId) {
+          function = new OFunction((YTRecordId) funcDoc);
         }
       }
     }
@@ -241,7 +241,7 @@ public class OScheduledEvent extends ODocumentWrapper {
           });
     }
 
-    private void runTask(ODatabaseSession db) {
+    private void runTask(YTDatabaseSession db) {
       if (event.running.get()) {
         OLogManager.instance()
             .error(
@@ -294,7 +294,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       }
     }
 
-    private boolean executeEvent(ODatabaseSession db) {
+    private boolean executeEvent(YTDatabaseSession db) {
       for (int retry = 0; retry < 10; ++retry) {
         try {
           if (isEventAlreadyExecuted(db)) {
@@ -354,11 +354,11 @@ public class OScheduledEvent extends ODocumentWrapper {
       return false;
     }
 
-    private void executeEventFunction(ODatabaseSession session) {
+    private void executeEventFunction(YTDatabaseSession session) {
       Object result = null;
       try {
         var context = new OBasicCommandContext();
-        context.setDatabase((ODatabaseSessionInternal) session);
+        context.setDatabase((YTDatabaseSessionInternal) session);
 
         result = session.computeInTx(
             () -> event.function.executeInContext(context, event.getArguments(session)));
@@ -389,15 +389,15 @@ public class OScheduledEvent extends ODocumentWrapper {
       }
     }
 
-    private boolean isEventAlreadyExecuted(@Nonnull ODatabaseSession session) {
-      final ORecord rec;
+    private boolean isEventAlreadyExecuted(@Nonnull YTDatabaseSession session) {
+      final YTRecord rec;
       try {
         rec = event.getDocument(session).getIdentity().getRecord();
       } catch (ORecordNotFoundException e) {
         return true;
       }
 
-      final ODocument updated = session.load(rec.getIdentity());
+      final YTDocument updated = session.load(rec.getIdentity());
       final Long currentExecutionId = updated.field(PROP_EXEC_ID);
       if (currentExecutionId == null) {
         return false;

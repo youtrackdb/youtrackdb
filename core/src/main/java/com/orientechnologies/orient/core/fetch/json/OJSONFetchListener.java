@@ -18,12 +18,12 @@ package com.orientechnologies.orient.core.fetch.json;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchListener;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import java.io.IOException;
 
@@ -37,13 +37,13 @@ public class OJSONFetchListener implements OFetchListener {
   }
 
   public void processStandardField(
-      final ODocument iRecord,
+      final YTDocument iRecord,
       final Object iFieldValue,
       final String iFieldName,
       final OFetchContext iContext,
       final Object iusObject,
       final String iFormat,
-      OType filedType) {
+      YTType filedType) {
     try {
       ((OJSONFetchContext) iContext)
           .getJsonWriter()
@@ -77,29 +77,29 @@ public class OJSONFetchListener implements OFetchListener {
   }
 
   public Object fetchLinked(
-      final ODocument iRecord,
+      final YTDocument iRecord,
       final Object iUserObject,
       final String iFieldName,
-      final ODocument iLinked,
+      final YTDocument iLinked,
       final OFetchContext iContext)
       throws OFetchException {
     return iLinked;
   }
 
   public Object fetchLinkedMapEntry(
-      final ODocument iRecord,
+      final YTDocument iRecord,
       final Object iUserObject,
       final String iFieldName,
       final String iKey,
-      final ODocument iLinked,
+      final YTDocument iLinked,
       final OFetchContext iContext)
       throws OFetchException {
     return iLinked;
   }
 
   public void parseLinked(
-      final ODocument iRootRecord,
-      final OIdentifiable iLinked,
+      final YTDocument iRootRecord,
+      final YTIdentifiable iLinked,
       final Object iUserObject,
       final String iFieldName,
       final OFetchContext iContext)
@@ -120,8 +120,8 @@ public class OJSONFetchListener implements OFetchListener {
   }
 
   public void parseLinkedCollectionValue(
-      ODocument iRootRecord,
-      OIdentifiable iLinked,
+      YTDocument iRootRecord,
+      YTIdentifiable iLinked,
       Object iUserObject,
       String iFieldName,
       OFetchContext iContext)
@@ -146,10 +146,10 @@ public class OJSONFetchListener implements OFetchListener {
   }
 
   public Object fetchLinkedCollectionValue(
-      ODocument iRoot,
+      YTDocument iRoot,
       Object iUserObject,
       String iFieldName,
-      ODocument iLinked,
+      YTDocument iLinked,
       OFetchContext iContext)
       throws OFetchException {
     return iLinked;
@@ -157,7 +157,7 @@ public class OJSONFetchListener implements OFetchListener {
 
   @Override
   public void skipStandardField(
-      ODocument iRecord,
+      YTDocument iRecord,
       String iFieldName,
       OFetchContext iContext,
       Object iUserObject,

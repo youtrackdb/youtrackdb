@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,8 +19,8 @@ public class ODropIndexStatementExecutionTest extends BaseMemoryInternalDatabase
         db.getMetadata()
             .getSchema()
             .createClass("testPlain")
-            .createProperty(db, "bar", OType.STRING)
-            .createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+            .createProperty(db, "bar", YTType.STRING)
+            .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
     String indexName = index.getName();
 
     db.getMetadata().getIndexManagerInternal().reload(db);
@@ -43,8 +43,8 @@ public class ODropIndexStatementExecutionTest extends BaseMemoryInternalDatabase
         db.getMetadata()
             .getSchema()
             .createClass("testAll")
-            .createProperty(db, "baz", OType.STRING)
-            .createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+            .createProperty(db, "baz", YTType.STRING)
+            .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
     String indexName = index.getName();
 
     db.getMetadata().getIndexManagerInternal().reload(db);

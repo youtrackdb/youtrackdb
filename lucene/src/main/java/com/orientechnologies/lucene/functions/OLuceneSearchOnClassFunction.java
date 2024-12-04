@@ -7,11 +7,11 @@ import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
@@ -38,7 +38,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return NAME;
   }
 
@@ -55,7 +55,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] params,
       OCommandContext ctx) {
@@ -64,10 +64,10 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
     if (iThis instanceof OResult) {
       result = (OResult) iThis;
     } else {
-      result = new OResultInternal(ctx.getDatabase(), (OIdentifiable) iThis);
+      result = new OResultInternal(ctx.getDatabase(), (YTIdentifiable) iThis);
     }
 
-    OElement element = result.toElement();
+    YTEntity element = result.toElement();
 
     String className = element.getSchemaType().get().getName();
 
@@ -108,7 +108,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "SEARCH_INDEX( indexName, [ metdatada {} ] )";
   }
 
@@ -118,7 +118,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public Iterable<OIdentifiable> searchFromTarget(
+  public Iterable<YTIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -128,14 +128,14 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
     OLuceneFullTextIndex index = searchForIndex(target, ctx);
 
     OExpression expression = args[0];
-    String query = (String) expression.execute((OIdentifiable) null, ctx);
+    String query = (String) expression.execute((YTIdentifiable) null, ctx);
 
     if (index != null) {
 
       var metadata = getMetadata(args, ctx);
 
-      List<OIdentifiable> luceneResultSet;
-      try (Stream<ORID> rids =
+      List<YTIdentifiable> luceneResultSet;
+      try (Stream<YTRID> rids =
           index
               .getInternal()
               .getRids(ctx.getDatabase(),

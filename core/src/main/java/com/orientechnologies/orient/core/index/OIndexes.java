@@ -21,7 +21,7 @@ import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OHashIndexFactory;
 import java.util.Collections;
@@ -185,14 +185,14 @@ public final class OIndexes {
   public static String chooseDefaultIndexAlgorithm(String type) {
     String algorithm = null;
 
-    if (OClass.INDEX_TYPE.DICTIONARY.name().equalsIgnoreCase(type)
-        || OClass.INDEX_TYPE.FULLTEXT.name().equalsIgnoreCase(type)
-        || OClass.INDEX_TYPE.NOTUNIQUE.name().equalsIgnoreCase(type)
-        || OClass.INDEX_TYPE.UNIQUE.name().equalsIgnoreCase(type)) {
+    if (YTClass.INDEX_TYPE.DICTIONARY.name().equalsIgnoreCase(type)
+        || YTClass.INDEX_TYPE.FULLTEXT.name().equalsIgnoreCase(type)
+        || YTClass.INDEX_TYPE.NOTUNIQUE.name().equalsIgnoreCase(type)
+        || YTClass.INDEX_TYPE.UNIQUE.name().equalsIgnoreCase(type)) {
       algorithm = ODefaultIndexFactory.CELL_BTREE_ALGORITHM;
-    } else if (OClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.name().equalsIgnoreCase(type)
-        || OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.name().equalsIgnoreCase(type)
-        || OClass.INDEX_TYPE.UNIQUE_HASH_INDEX.name().equalsIgnoreCase(type)) {
+    } else if (YTClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.name().equalsIgnoreCase(type)
+        || YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.name().equalsIgnoreCase(type)
+        || YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX.name().equalsIgnoreCase(type)) {
       algorithm = OHashIndexFactory.HASH_INDEX_ALGORITHM;
     }
     return algorithm;

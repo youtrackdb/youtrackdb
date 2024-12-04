@@ -20,26 +20,26 @@
 package com.orientechnologies.orient.core.serialization.serializer.stream;
 
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
 import java.nio.ByteBuffer;
 
-public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
+public class OStreamSerializerRID implements OBinarySerializer<YTIdentifiable> {
 
   public static final OStreamSerializerRID INSTANCE = new OStreamSerializerRID();
   public static final byte ID = 16;
 
-  public int getObjectSize(OIdentifiable object, Object... hints) {
+  public int getObjectSize(YTIdentifiable object, Object... hints) {
     return OLinkSerializer.INSTANCE.getObjectSize(object.getIdentity());
   }
 
-  public void serialize(OIdentifiable object, byte[] stream, int startPosition, Object... hints) {
+  public void serialize(YTIdentifiable object, byte[] stream, int startPosition, Object... hints) {
     OLinkSerializer.INSTANCE.serialize(object.getIdentity(), stream, startPosition);
   }
 
-  public ORID deserialize(byte[] stream, int startPosition) {
+  public YTRID deserialize(byte[] stream, int startPosition) {
     return OLinkSerializer.INSTANCE.deserialize(stream, startPosition);
   }
 
@@ -56,11 +56,11 @@ public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
   }
 
   public void serializeNativeObject(
-      OIdentifiable object, byte[] stream, int startPosition, Object... hints) {
+      YTIdentifiable object, byte[] stream, int startPosition, Object... hints) {
     OLinkSerializer.INSTANCE.serializeNativeObject(object.getIdentity(), stream, startPosition);
   }
 
-  public OIdentifiable deserializeNativeObject(byte[] stream, int startPosition) {
+  public YTIdentifiable deserializeNativeObject(byte[] stream, int startPosition) {
     return OLinkSerializer.INSTANCE.deserializeNativeObject(stream, startPosition);
   }
 
@@ -73,7 +73,7 @@ public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
   }
 
   @Override
-  public OIdentifiable preprocess(OIdentifiable value, Object... hints) {
+  public YTIdentifiable preprocess(YTIdentifiable value, Object... hints) {
     return value;
   }
 
@@ -82,7 +82,7 @@ public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
    */
   @Override
   public void serializeInByteBufferObject(
-      OIdentifiable object, ByteBuffer buffer, Object... hints) {
+      YTIdentifiable object, ByteBuffer buffer, Object... hints) {
     OLinkSerializer.INSTANCE.serializeInByteBufferObject(object, buffer);
   }
 
@@ -90,12 +90,12 @@ public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
    * {@inheritDoc}
    */
   @Override
-  public OIdentifiable deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public YTIdentifiable deserializeFromByteBufferObject(ByteBuffer buffer) {
     return OLinkSerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
   }
 
   @Override
-  public OIdentifiable deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public YTIdentifiable deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
     return OLinkSerializer.INSTANCE.deserializeFromByteBufferObject(offset, buffer);
   }
 
@@ -116,7 +116,7 @@ public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
    * {@inheritDoc}
    */
   @Override
-  public OIdentifiable deserializeFromByteBufferObject(
+  public YTIdentifiable deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return OLinkSerializer.INSTANCE.deserializeFromByteBufferObject(buffer, walChanges, offset);
   }

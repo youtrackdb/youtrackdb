@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Test;
 
 public class DepthFetchPlanTest extends DBTestBase {
@@ -18,9 +18,9 @@ public class DepthFetchPlanTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    ODocument doc = new ODocument("Test");
-    ODocument doc1 = new ODocument("Test");
-    ODocument doc2 = new ODocument("Test");
+    YTDocument doc = new YTDocument("Test");
+    YTDocument doc1 = new YTDocument("Test");
+    YTDocument doc2 = new YTDocument("Test");
     doc.field("name", "name");
     db.save(doc);
     db.commit();
@@ -53,10 +53,10 @@ public class DepthFetchPlanTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    ODocument doc = new ODocument("Test");
-    ODocument doc1 = new ODocument("Test");
-    ODocument doc2 = new ODocument("Test");
-    ODocument doc3 = new ODocument("Test");
+    YTDocument doc = new YTDocument("Test");
+    YTDocument doc1 = new YTDocument("Test");
+    YTDocument doc2 = new YTDocument("Test");
+    YTDocument doc3 = new YTDocument("Test");
     doc.field("name", "name");
     db.save(doc);
     db.commit();
@@ -101,7 +101,7 @@ public class DepthFetchPlanTest extends DBTestBase {
     }
 
     @Override
-    protected void sendRecord(ORecordAbstract iLinked) {
+    protected void sendRecord(YTRecordAbstract iLinked) {
       count++;
     }
   }

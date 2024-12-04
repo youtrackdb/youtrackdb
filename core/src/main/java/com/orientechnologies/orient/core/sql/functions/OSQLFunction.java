@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.List;
 
 /**
@@ -50,7 +50,7 @@ public interface OSQLFunction {
    */
   Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
       OCommandContext iContext);
@@ -77,7 +77,7 @@ public interface OSQLFunction {
    * A function can act both as transformation or filtering records. If the function may reduce the
    * number final records than it must return true.
    *
-   * <p>Function should return null for the {@linkplain #execute(Object, OIdentifiable, Object,
+   * <p>Function should return null for the {@linkplain #execute(Object, YTIdentifiable, Object,
    * Object[], OCommandContext) execute} method if the record must be excluded.
    *
    * @return true if the function acts as a record filter.
@@ -89,7 +89,7 @@ public interface OSQLFunction {
    *
    * @return String , function name, never null or empty.
    */
-  String getName(ODatabaseSession session);
+  String getName(YTDatabaseSession session);
 
   /**
    * Minimum number of parameter this function must have.
@@ -103,7 +103,7 @@ public interface OSQLFunction {
    *
    * @return maximum number of parameters ??? -1 , negative or Integer.MAX_VALUE for unlimited ???
    */
-  int getMaxParams(ODatabaseSession session);
+  int getMaxParams(YTDatabaseSession session);
 
   /**
    * Returns a convenient SQL String representation of the function.
@@ -118,7 +118,7 @@ public interface OSQLFunction {
    *
    * @return String , never null.
    */
-  String getSyntax(ODatabaseSession session);
+  String getSyntax(YTDatabaseSession session);
 
   /**
    * Only called when function aggregates results after all records have been passed to the

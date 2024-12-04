@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.parser.OCluster;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OIndexIdentifier;
@@ -136,7 +136,7 @@ public class OInsertExecutionPlanner {
   private void handleTargetClass(
       OInsertExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
     var database = ctx.getDatabase();
-    OSchema schema = database.getMetadata().getSchema();
+    YTSchema schema = database.getMetadata().getSchema();
     OIdentifier tc = null;
     if (targetClass != null) {
       tc = targetClass;
@@ -145,13 +145,13 @@ public class OInsertExecutionPlanner {
       if (name == null) {
         name = database.getClusterNameById(targetCluster.getClusterNumber());
       }
-      OClass targetClass = schema.getClassByClusterId(database.getClusterIdByName(name));
+      YTClass targetClass = schema.getClassByClusterId(database.getClusterIdByName(name));
       if (targetClass != null) {
         tc = new OIdentifier(targetClass.getName());
       }
     } else if (this.targetClass == null) {
 
-      OClass targetClass =
+      YTClass targetClass =
           schema.getClassByClusterId(
               database.getClusterIdByName(targetClusterName.getStringValue()));
       if (targetClass != null) {

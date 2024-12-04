@@ -20,15 +20,15 @@
 
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -36,119 +36,119 @@ import java.util.Set;
 
 public class ODocumentInternal {
 
-  public static void convertAllMultiValuesToTrackedVersions(ODocument document) {
+  public static void convertAllMultiValuesToTrackedVersions(YTDocument document) {
     document.convertAllMultiValuesToTrackedVersions();
   }
 
-  public static void addOwner(ODocument oDocument, ORecordElement iOwner) {
+  public static void addOwner(YTDocument oDocument, ORecordElement iOwner) {
     oDocument.addOwner(iOwner);
   }
 
-  public static void removeOwner(ODocument oDocument, ORecordElement iOwner) {
+  public static void removeOwner(YTDocument oDocument, ORecordElement iOwner) {
     oDocument.removeOwner(iOwner);
   }
 
   public static void rawField(
-      final ODocument oDocument,
+      final YTDocument oDocument,
       final String iFieldName,
       final Object iFieldValue,
-      final OType iFieldType) {
+      final YTType iFieldType) {
     oDocument.rawField(iFieldName, iFieldValue, iFieldType);
   }
 
-  public static boolean rawContainsField(final ODocument oDocument, final String iFiledName) {
+  public static boolean rawContainsField(final YTDocument oDocument, final String iFiledName) {
     return oDocument.rawContainsField(iFiledName);
   }
 
-  public static OImmutableClass getImmutableSchemaClass(
-      final ODatabaseSessionInternal database, final ODocument oDocument) {
+  public static YTImmutableClass getImmutableSchemaClass(
+      final YTDatabaseSessionInternal database, final YTDocument oDocument) {
     if (oDocument == null) {
       return null;
     }
     return oDocument.getImmutableSchemaClass(database);
   }
 
-  public static OImmutableClass getImmutableSchemaClass(final ODocument oDocument) {
+  public static YTImmutableClass getImmutableSchemaClass(final YTDocument oDocument) {
     if (oDocument == null) {
       return null;
     }
     return oDocument.getImmutableSchemaClass();
   }
 
-  public static OImmutableSchema getImmutableSchema(final ODocument oDocument) {
+  public static YTImmutableSchema getImmutableSchema(final YTDocument oDocument) {
     if (oDocument == null) {
       return null;
     }
     return oDocument.getImmutableSchema();
   }
 
-  public static OGlobalProperty getGlobalPropertyById(final ODocument oDocument, final int id) {
+  public static OGlobalProperty getGlobalPropertyById(final YTDocument oDocument, final int id) {
     return oDocument.getGlobalPropertyById(id);
   }
 
-  public static void fillClassNameIfNeeded(final ODocument oDocument, String className) {
+  public static void fillClassNameIfNeeded(final YTDocument oDocument, String className) {
     oDocument.fillClassIfNeed(className);
   }
 
-  public static Set<Entry<String, ODocumentEntry>> rawEntries(final ODocument document) {
+  public static Set<Entry<String, ODocumentEntry>> rawEntries(final YTDocument document) {
     return document.getRawEntries();
   }
 
-  public static ODocumentEntry rawEntry(final ODocument document, String propertyName) {
+  public static ODocumentEntry rawEntry(final YTDocument document, String propertyName) {
     return document.fields.get(propertyName);
   }
 
-  public static List<Entry<String, ODocumentEntry>> filteredEntries(final ODocument document) {
+  public static List<Entry<String, ODocumentEntry>> filteredEntries(final YTDocument document) {
     return document.getFilteredEntries();
   }
 
-  public static void clearTrackData(final ODocument document) {
+  public static void clearTrackData(final YTDocument document) {
     document.clearTrackData();
   }
 
-  public static void checkClass(ODocument doc, ODatabaseSessionInternal database) {
+  public static void checkClass(YTDocument doc, YTDatabaseSessionInternal database) {
     doc.checkClass(database);
   }
 
-  public static void autoConvertValueToClass(ODatabaseSessionInternal database, ODocument doc) {
+  public static void autoConvertValueToClass(YTDatabaseSessionInternal database, YTDocument doc) {
     doc.autoConvertFieldsToClass(database);
   }
 
-  public static Object getRawProperty(ODocument doc, String propertyName) {
+  public static Object getRawProperty(YTDocument doc, String propertyName) {
     if (doc == null) {
       return null;
     }
     return doc.getRawProperty(propertyName);
   }
 
-  public static <RET> RET rawPropertyRead(OElement element, String propertyName) {
+  public static <RET> RET rawPropertyRead(YTEntity element, String propertyName) {
     if (element == null) {
       return null;
     }
-    return ((ODocument) element).rawField(propertyName);
+    return ((YTDocument) element).rawField(propertyName);
   }
 
-  public static void setPropertyAccess(ODocument doc, OPropertyAccess propertyAccess) {
+  public static void setPropertyAccess(YTDocument doc, OPropertyAccess propertyAccess) {
     doc.propertyAccess = propertyAccess;
   }
 
-  public static OPropertyAccess getPropertyAccess(ODocument doc) {
+  public static OPropertyAccess getPropertyAccess(YTDocument doc) {
     return doc.propertyAccess;
   }
 
-  public static void setPropertyEncryption(ODocument doc, OPropertyEncryption propertyEncryption) {
+  public static void setPropertyEncryption(YTDocument doc, OPropertyEncryption propertyEncryption) {
     doc.propertyEncryption = propertyEncryption;
   }
 
-  public static OPropertyEncryption getPropertyEncryption(ODocument doc) {
+  public static OPropertyEncryption getPropertyEncryption(YTDocument doc) {
     return doc.propertyEncryption;
   }
 
-  public static void clearTransactionTrackData(ODocument doc) {
+  public static void clearTransactionTrackData(YTDocument doc) {
     doc.clearTransactionTrackData();
   }
 
-  public static Iterator<String> iteratePropertieNames(ODocument doc) {
+  public static Iterator<String> iteratePropertieNames(YTDocument doc) {
     return doc.calculatePropertyNames().iterator();
   }
 }

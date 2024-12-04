@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import java.util.Collection;
@@ -50,8 +50,8 @@ public class ORuntimeResult {
   }
 
 
-  private static boolean entriesPersistent(Collection<OIdentifiable> projectionValue) {
-    for (OIdentifiable rec : projectionValue) {
+  private static boolean entriesPersistent(Collection<YTIdentifiable> projectionValue) {
+    for (YTIdentifiable rec : projectionValue) {
       if (rec != null && !rec.getIdentity().isPersistent()) {
         return false;
       }
@@ -61,7 +61,7 @@ public class ORuntimeResult {
   }
 
   public static OResultInternal getResult(
-      ODatabaseSessionInternal session, final OResultInternal iValue,
+      YTDatabaseSessionInternal session, final OResultInternal iValue,
       final Map<String, Object> iProjections) {
     if (iValue != null) {
       boolean canExcludeResult = false;
@@ -99,7 +99,7 @@ public class ORuntimeResult {
     value.setProperty(iName, iValue);
   }
 
-  public OResultInternal getResult(ODatabaseSessionInternal session) {
+  public OResultInternal getResult(YTDatabaseSessionInternal session) {
     return getResult(session, value, projections);
   }
 

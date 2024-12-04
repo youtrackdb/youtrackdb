@@ -4,8 +4,8 @@ import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.exception.OCoreException;
@@ -43,22 +43,22 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
   }
 
   @Override
-  public void onCreate(ODatabaseSession database, OResult data) {
+  public void onCreate(YTDatabaseSession database, OResult data) {
     addEvent(new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, data, null));
   }
 
   @Override
-  public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+  public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
     addEvent(new OLiveQueryResult(OLiveQueryResult.UPDATE_EVENT, after, before));
   }
 
   @Override
-  public void onDelete(ODatabaseSession database, OResult data) {
+  public void onDelete(YTDatabaseSession database, OResult data) {
     addEvent(new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, data, null));
   }
 
   @Override
-  public void onError(ODatabaseSession database, OException exception) {
+  public void onError(YTDatabaseSession database, OException exception) {
     try {
       // TODO: resolve error identifier
       int errorIdentifier = 0;
@@ -66,7 +66,7 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
       if (exception instanceof OCoreException) {
         code = ((OCoreException) exception).getErrorCode();
       }
-      protocol.push((ODatabaseSessionInternal) database,
+      protocol.push((YTDatabaseSessionInternal) database,
           new OLiveQueryPushRequest(monitorId, errorIdentifier, code, exception.getMessage()));
     } catch (IOException e) {
       throw OException.wrapException(
@@ -75,9 +75,9 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
   }
 
   @Override
-  public void onEnd(ODatabaseSession database) {
+  public void onEnd(YTDatabaseSession database) {
     try {
-      protocol.push((ODatabaseSessionInternal) database,
+      protocol.push((YTDatabaseSessionInternal) database,
           new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.END, Collections.emptyList()));
     } catch (IOException e) {
       throw OException.wrapException(
@@ -86,11 +86,11 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
   }
 
   @Override
-  public void onBatchEnd(ODatabaseSession database) {
+  public void onBatchEnd(YTDatabaseSession database) {
     sendEvents(database);
   }
 
-  private synchronized void sendEvents(ODatabaseSession database) {
+  private synchronized void sendEvents(YTDatabaseSession database) {
     if (toSend.isEmpty()) {
       return;
     }
@@ -98,7 +98,7 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
     toSend = new ArrayList<>();
 
     try {
-      protocol.push((ODatabaseSessionInternal) database,
+      protocol.push((YTDatabaseSessionInternal) database,
           new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.HAS_MORE, events));
     } catch (IOException e) {
       sharedContext.getLiveQueryOpsV2().getSubscribers().remove(monitorId);

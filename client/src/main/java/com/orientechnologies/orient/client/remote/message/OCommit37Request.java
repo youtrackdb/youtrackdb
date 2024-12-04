@@ -6,7 +6,7 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -36,7 +36,7 @@ public class OCommit37Request implements OBinaryRequest<OCommit37Response> {
   }
 
   public OCommit37Request(
-      ODatabaseSessionInternal session, long txId,
+      YTDatabaseSessionInternal session, long txId,
       boolean hasContent,
       boolean usingLong,
       Iterable<ORecordOperation> operations,
@@ -72,7 +72,7 @@ public class OCommit37Request implements OBinaryRequest<OCommit37Response> {
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
@@ -94,7 +94,7 @@ public class OCommit37Request implements OBinaryRequest<OCommit37Response> {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     txId = channel.readLong();

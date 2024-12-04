@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,16 +40,16 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
   @Before
   public void initMore() {
     db.set(ATTRIBUTES.CUSTOM, "strictSql=false");
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass oClass = schema.createClass("Place");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OLineString"));
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OLineString"));
+    oClass.createProperty(db, "name", YTType.STRING);
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
 
-    ODocument linestring1 = new ODocument("Place");
+    YTDocument linestring1 = new YTDocument("Place");
     linestring1.field("name", "LineString1");
     linestring1.field(
         "location",
@@ -61,7 +61,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
               }
             }));
 
-    ODocument linestring2 = new ODocument("Place");
+    YTDocument linestring2 = new YTDocument("Place");
     linestring2.field("name", "LineString2");
     linestring2.field(
         "location",
@@ -87,8 +87,8 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     db.commit();
   }
 
-  public ODocument createLineString(List<List<Double>> coordinates) {
-    ODocument location = new ODocument("OLineString");
+  public YTDocument createLineString(List<List<Double>> coordinates) {
+    YTDocument location = new YTDocument("OLineString");
     location.field("coordinates", coordinates);
     return location;
   }
@@ -108,7 +108,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     Assert.assertEquals(1, docs.size());
 
     query = "select * from Place where location && 'LINESTRING(1 2, 4 6)' ";
-    docs = db.query(new OSQLSynchQuery<ODocument>(query));
+    docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
     Assert.assertEquals(1, docs.size());
 

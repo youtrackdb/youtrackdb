@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -41,7 +41,7 @@ public class OServerCommandGetIndex extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Index get";
 
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -51,8 +51,8 @@ public class OServerCommandGetIndex extends OServerCommandDocumentAbstract {
         throw new IllegalArgumentException("Index name '" + urlParts[2] + "' not found");
       }
 
-      try (final Stream<ORID> stream = index.getInternal().getRids(db, urlParts[3])) {
-        final Iterator<ORID> iterator = stream.iterator();
+      try (final Stream<YTRID> stream = index.getInternal().getRids(db, urlParts[3])) {
+        final Iterator<YTRID> iterator = stream.iterator();
 
         if (!iterator.hasNext()) {
           iResponse.send(
@@ -67,7 +67,7 @@ public class OServerCommandGetIndex extends OServerCommandDocumentAbstract {
 
           int count = 0;
           while (iterator.hasNext()) {
-            final ORID item = iterator.next();
+            final YTRID item = iterator.next();
             if (count > 0) {
               buffer.append(", ");
             }

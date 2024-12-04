@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
@@ -57,7 +57,7 @@ public class DbCreationTest {
 
   private void initODB() {
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
     if (remoteDB) {
       youTrackDB =
@@ -100,7 +100,7 @@ public class DbCreationTest {
     String url = calculateURL() + "/";
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
     try (var odb = new YouTrackDB(url, "root", "root", configBuilder.build())) {
       var database = odb.open(DB_NAME, "admin", "admin");
@@ -123,7 +123,7 @@ public class DbCreationTest {
 
   @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testChangeLocale() {
-    try (var database = (ODatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin")) {
+    try (var database = (YTDatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin")) {
       database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
       database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
 
@@ -158,7 +158,7 @@ public class DbCreationTest {
     var url = calculateURL();
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     var odb = new YouTrackDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
@@ -180,7 +180,7 @@ public class DbCreationTest {
     var url = calculateURL();
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
     var odb = new YouTrackDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {

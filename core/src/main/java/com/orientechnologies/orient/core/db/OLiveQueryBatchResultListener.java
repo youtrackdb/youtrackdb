@@ -13,5 +13,5 @@ public interface OLiveQueryBatchResultListener extends OLiveQueryResultListener 
    * @param database the instance of the active datatabase connection where the live query operation
    *                 is being performed
    */
-  void onBatchEnd(ODatabaseSession database);
+  void onBatchEnd(YTDatabaseSession database);
 }

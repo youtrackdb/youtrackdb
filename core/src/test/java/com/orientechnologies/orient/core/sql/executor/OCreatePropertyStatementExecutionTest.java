@@ -7,9 +7,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Test;
 
 /**
@@ -30,12 +30,12 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE class testBasicCreateProperty").close();
     db.command("CREATE property testBasicCreateProperty.name STRING").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testBasicCreateProperty");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testBasicCreateProperty");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), "testBasicCreateProperty.name");
-    assertEquals(nameProperty.getType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.STRING);
     assertFalse(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
     assertFalse(nameProperty.isReadonly());
@@ -46,12 +46,12 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE class testBasicUnsafeCreateProperty").close();
     db.command("CREATE property testBasicUnsafeCreateProperty.name STRING UNSAFE").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testBasicUnsafeCreateProperty");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testBasicUnsafeCreateProperty");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), "testBasicUnsafeCreateProperty.name");
-    assertEquals(nameProperty.getType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.STRING);
     assertFalse(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
     assertFalse(nameProperty.isReadonly());
@@ -66,13 +66,13 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
                 + " testCreatePropertyWithLinkedClass_1")
         .close();
 
-    OClass companyClass =
+    YTClass companyClass =
         db.getMetadata().getSchema().getClass("testCreatePropertyWithLinkedClass_2");
-    OProperty nameProperty = companyClass.getProperty(PROP_DIVISION);
+    YTProperty nameProperty = companyClass.getProperty(PROP_DIVISION);
 
     assertEquals(nameProperty.getName(), PROP_DIVISION);
     assertEquals(nameProperty.getFullName(), "testCreatePropertyWithLinkedClass_2.division");
-    assertEquals(nameProperty.getType(), OType.LINK);
+    assertEquals(nameProperty.getType(), YTType.LINK);
     assertEquals(nameProperty.getLinkedClass().getName(), "testCreatePropertyWithLinkedClass_1");
     assertFalse(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
@@ -85,14 +85,14 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE Property testCreatePropertyWithEmbeddedType.officers EMBEDDEDLIST STRING")
         .close();
 
-    OClass companyClass =
+    YTClass companyClass =
         db.getMetadata().getSchema().getClass("testCreatePropertyWithEmbeddedType");
-    OProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    YTProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), "testCreatePropertyWithEmbeddedType.officers");
-    assertEquals(nameProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(nameProperty.getLinkedType(), YTType.STRING);
     assertFalse(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
     assertFalse(nameProperty.isReadonly());
@@ -103,8 +103,8 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE class testCreateMandatoryProperty").close();
     db.command("CREATE property testCreateMandatoryProperty.name STRING (MANDATORY)").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testCreateMandatoryProperty");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testCreateMandatoryProperty");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), "testCreateMandatoryProperty.name");
@@ -118,8 +118,8 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE class testCreateNotNullProperty").close();
     db.command("CREATE property testCreateNotNullProperty.name STRING (NOTNULL)").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testCreateNotNullProperty");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testCreateNotNullProperty");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), "testCreateNotNullProperty.name");
@@ -133,8 +133,8 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE class testCreateReadOnlyProperty").close();
     db.command("CREATE property testCreateReadOnlyProperty.name STRING (READONLY)").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testCreateReadOnlyProperty");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testCreateReadOnlyProperty");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), "testCreateReadOnlyProperty.name");
@@ -149,8 +149,8 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE property testCreateReadOnlyFalseProperty.name STRING (READONLY false)")
         .close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testCreateReadOnlyFalseProperty");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testCreateReadOnlyFalseProperty");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), "testCreateReadOnlyFalseProperty.name");
@@ -165,15 +165,15 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
                 + " STRING (MANDATORY)")
         .close();
 
-    OClass companyClass =
+    YTClass companyClass =
         db.getMetadata().getSchema().getClass("testCreateMandatoryPropertyWithEmbeddedType");
-    OProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    YTProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(
         nameProperty.getFullName(), "testCreateMandatoryPropertyWithEmbeddedType.officers");
-    assertEquals(nameProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(nameProperty.getLinkedType(), YTType.STRING);
     assertTrue(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
     assertFalse(nameProperty.isReadonly());
@@ -187,14 +187,14 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
                 + " UNSAFE")
         .close();
 
-    OClass companyClass =
+    YTClass companyClass =
         db.getMetadata().getSchema().getClass("testCreateUnsafePropertyWithEmbeddedType");
-    OProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    YTProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), "testCreateUnsafePropertyWithEmbeddedType.officers");
-    assertEquals(nameProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(nameProperty.getLinkedType(), YTType.STRING);
   }
 
   @Test
@@ -205,13 +205,13 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
                 + " READONLY, NOTNULL) UNSAFE")
         .close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testComplexCreateProperty");
-    OProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testComplexCreateProperty");
+    YTProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), "testComplexCreateProperty.officers");
-    assertEquals(nameProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(nameProperty.getLinkedType(), YTType.STRING);
     assertTrue(nameProperty.isMandatory());
     assertTrue(nameProperty.isNotNull());
     assertTrue(nameProperty.isReadonly());
@@ -225,14 +225,14 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
                 + " (DEFAULT 5, MIN 1, MAX 10) UNSAFE")
         .close();
 
-    OClass companyClass =
+    YTClass companyClass =
         db.getMetadata().getSchema().getClass("testLinkedTypeDefaultAndMinMaxUnsafeProperty");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), "testLinkedTypeDefaultAndMinMaxUnsafeProperty.id");
-    assertEquals(idProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(idProperty.getLinkedType(), OType.INTEGER);
+    assertEquals(idProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(idProperty.getLinkedType(), YTType.INTEGER);
     assertFalse(idProperty.isMandatory());
     assertFalse(idProperty.isNotNull());
     assertFalse(idProperty.isReadonly());
@@ -249,13 +249,13 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
                 + " 10) UNSAFE")
         .close();
 
-    OClass companyClass =
+    YTClass companyClass =
         db.getMetadata().getSchema().getClass("testDefaultAndMinMaxUnsafeProperty");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), "testDefaultAndMinMaxUnsafeProperty.id");
-    assertEquals(idProperty.getType(), OType.INTEGER);
+    assertEquals(idProperty.getType(), YTType.INTEGER);
     assertNull(idProperty.getLinkedType());
     assertFalse(idProperty.isMandatory());
     assertFalse(idProperty.isNotNull());
@@ -271,12 +271,12 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE PROPERTY testExtraSpaces.id INTEGER  ( DEFAULT  5 ,  MANDATORY  )  UNSAFE ")
         .close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testExtraSpaces");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testExtraSpaces");
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), "testExtraSpaces.id");
-    assertEquals(idProperty.getType(), OType.INTEGER);
+    assertEquals(idProperty.getType(), YTType.INTEGER);
     assertNull(idProperty.getLinkedType());
     assertTrue(idProperty.isMandatory());
     assertEquals(idProperty.getDefaultValue(), "5");
@@ -306,13 +306,13 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
                 + " UNSAFE")
         .close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testMandatoryAsLinkedName");
-    OClass mandatoryClass = db.getMetadata().getSchema().getClass("testMandatoryAsLinkedName_2");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testMandatoryAsLinkedName");
+    YTClass mandatoryClass = db.getMetadata().getSchema().getClass("testMandatoryAsLinkedName_2");
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), "testMandatoryAsLinkedName.id");
-    assertEquals(idProperty.getType(), OType.EMBEDDEDLIST);
+    assertEquals(idProperty.getType(), YTType.EMBEDDEDLIST);
     assertEquals(idProperty.getLinkedClass(), mandatoryClass);
     assertFalse(idProperty.isMandatory());
   }
@@ -322,12 +322,12 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     db.command("CREATE class testIfNotExists").close();
     db.command("CREATE property testIfNotExists.name if not exists STRING").close();
 
-    OClass clazz = db.getMetadata().getSchema().getClass("testIfNotExists");
-    OProperty nameProperty = clazz.getProperty(PROP_NAME);
+    YTClass clazz = db.getMetadata().getSchema().getClass("testIfNotExists");
+    YTProperty nameProperty = clazz.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), "testIfNotExists.name");
-    assertEquals(nameProperty.getType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.STRING);
 
     db.command("CREATE property testIfNotExists.name if not exists STRING").close();
 
@@ -336,6 +336,6 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), "testIfNotExists.name");
-    assertEquals(nameProperty.getType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.STRING);
   }
 }

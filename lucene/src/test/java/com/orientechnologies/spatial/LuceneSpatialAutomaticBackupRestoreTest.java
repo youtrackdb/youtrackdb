@@ -23,12 +23,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -65,7 +65,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   private String BACKUFILE = null;
 
   private OServer server;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   @Rule
   public TestName name = new TestName();
@@ -111,7 +111,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
 
-    db = (ODatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
+    db = (YTDatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
 
     db.command("create class City ").close();
     db.command("create property City.name string").close();
@@ -121,20 +121,20 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-    ODocument rome = newCity("Rome", 12.5, 41.9);
+    YTDocument rome = newCity("Rome", 12.5, 41.9);
 
     db.begin();
     db.save(rome);
     db.commit();
   }
 
-  protected ODocument newCity(String name, final Double longitude, final Double latitude) {
-    ODocument city =
-        new ODocument("City")
+  protected YTDocument newCity(String name, final Double longitude, final Double latitude) {
+    YTDocument city =
+        new YTDocument("City")
             .field("name", name)
             .field(
                 "location",
-                new ODocument("OPoint")
+                new YTDocument("OPoint")
                     .field(
                         "coordinates",
                         new ArrayList<Double>() {
@@ -175,8 +175,8 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
         OIOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
-    ODocument doc =
-        new ODocument();
+    YTDocument doc =
+        new YTDocument();
     doc.fromJSON(jsonConfig);
     doc.field("enabled", true)
         .field("targetFileName", "${DBNAME}.json")
@@ -241,18 +241,18 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     assertThat(index).isNotNull();
-    assertThat(index.getType()).isEqualTo(OClass.INDEX_TYPE.SPATIAL.name());
+    assertThat(index.getType()).isEqualTo(YTClass.INDEX_TYPE.SPATIAL.name());
 
     assertThat(db.query(query).stream()).hasSize(1);
   }
 
-  private ODatabaseSessionInternal createAndOpen() {
+  private YTDatabaseSessionInternal createAndOpen() {
     youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
     return open();
   }
 
-  private ODatabaseSessionInternal open() {
-    return (ODatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
+  private YTDatabaseSessionInternal open() {
+    return (YTDatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
   }
 }

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.common.listener;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 /**
  * Listener interface called on task execution.
@@ -30,5 +30,5 @@ public interface OProgressListener {
 
   boolean onProgress(Object iTask, long iCounter, float iPercent);
 
-  void onCompletition(ODatabaseSessionInternal session, Object iTask, boolean iSucceed);
+  void onCompletition(YTDatabaseSessionInternal session, Object iTask, boolean iSucceed);
 }

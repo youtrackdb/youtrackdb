@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,10 +32,10 @@ import java.util.List;
 
 /**
  * Index implementation bound to one schema class property that presents
- * {@link com.orientechnologies.orient.core.metadata.schema.OType#EMBEDDEDLIST},
- * {@link com.orientechnologies.orient.core.metadata.schema.OType#LINKLIST},
- * {@link com.orientechnologies.orient.core.metadata.schema.OType#LINKSET} or
- * {@link com.orientechnologies.orient.core.metadata.schema.OType#EMBEDDEDSET} properties.
+ * {@link YTType#EMBEDDEDLIST},
+ * {@link YTType#LINKLIST},
+ * {@link YTType#LINKSET} or
+ * {@link YTType#EMBEDDEDSET} properties.
  */
 public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
     implements OIndexDefinitionMultiValue {
@@ -45,17 +45,17 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
   }
 
   public OPropertyListIndexDefinition(
-      final String iClassName, final String iField, final OType iType) {
+      final String iClassName, final String iField, final YTType iType) {
     super(iClassName, iField, iType);
   }
 
   @Override
-  public Object getDocumentValueToIndex(ODatabaseSessionInternal session, ODocument iDocument) {
+  public Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTDocument iDocument) {
     return createValue(session, iDocument.<Object>field(field));
   }
 
   @Override
-  public Object createValue(ODatabaseSessionInternal session, List<?> params) {
+  public Object createValue(YTDatabaseSessionInternal session, List<?> params) {
     if (!(params.get(0) instanceof Collection)) {
       params = Collections.singletonList(params);
     }
@@ -69,11 +69,11 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
+  public Object createValue(YTDatabaseSessionInternal session, final Object... params) {
     Object param = params[0];
     if (!(param instanceof Collection<?>)) {
       try {
-        return OType.convert(session, param, keyType.getDefaultJavaType());
+        return YTType.convert(session, param, keyType.getDefaultJavaType());
       } catch (Exception e) {
         return null;
       }
@@ -88,10 +88,10 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
     return values;
   }
 
-  public Object createSingleValue(ODatabaseSessionInternal session, final Object... param) {
+  public Object createSingleValue(YTDatabaseSessionInternal session, final Object... param) {
     try {
       var value = refreshRid(session, param[0]);
-      return OType.convert(session, value, keyType.getDefaultJavaType());
+      return YTType.convert(session, value, keyType.getDefaultJavaType());
     } catch (Exception e) {
       throw OException.wrapException(
           new OIndexException(
@@ -101,7 +101,7 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
   }
 
   public void processChangeEvent(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {

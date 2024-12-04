@@ -20,13 +20,13 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.util.OPatternConst;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OPropertyImpl;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -46,7 +46,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private static final String[] NAMES = {"POST|studio/*"};
 
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
 
     try {
       final String[] urlParts =
@@ -109,14 +109,14 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClassProperties(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseSessionInternal db,
+      final YTDatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,
       final Map<String, String> fields)
       throws IOException {
     // GET THE TARGET CLASS
-    final OClass cls = db.getMetadata().getSchema().getClass(rid);
+    final YTClass cls = db.getMetadata().getSchema().getClass(rid);
     if (cls == null) {
       iResponse.send(
           OHttpUtils.STATUS_INTERNALERROR_CODE,
@@ -131,24 +131,24 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       iRequest.getData().commandInfo = "Studio add property";
 
       try {
-        OType type = OType.valueOf(fields.get("type"));
+        YTType type = YTType.valueOf(fields.get("type"));
 
-        OPropertyImpl prop;
-        if (type == OType.LINK
-            || type == OType.LINKLIST
-            || type == OType.LINKSET
-            || type == OType.LINKMAP) {
+        YTPropertyImpl prop;
+        if (type == YTType.LINK
+            || type == YTType.LINKLIST
+            || type == YTType.LINKSET
+            || type == YTType.LINKMAP) {
           prop =
-              (OPropertyImpl)
+              (YTPropertyImpl)
                   cls.createProperty(db,
                       fields.get("name"),
                       type, db.getMetadata().getSchema().getClass(fields.get("linkedClass")));
         } else {
-          prop = (OPropertyImpl) cls.createProperty(db, fields.get("name"), type);
+          prop = (YTPropertyImpl) cls.createProperty(db, fields.get("name"), type);
         }
 
         if (fields.get("linkedType") != null) {
-          prop.setLinkedType(db, OType.valueOf(fields.get("linkedType")));
+          prop.setLinkedType(db, YTType.valueOf(fields.get("linkedType")));
         }
         if (fields.get("mandatory") != null) {
           prop.setMandatory(db, "on".equals(fields.get("mandatory")));
@@ -198,7 +198,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClasses(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseSessionInternal db,
+      final YTDatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,
@@ -208,14 +208,15 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       iRequest.getData().commandInfo = "Studio add class";
       try {
         final String superClassName = fields.get("superClass");
-        final OClass superClass;
+        final YTClass superClass;
         if (superClassName != null) {
           superClass = db.getMetadata().getSchema().getClass(superClassName);
         } else {
           superClass = null;
         }
 
-        final OClass cls = db.getMetadata().getSchema().createClass(fields.get("name"), superClass);
+        final YTClass cls = db.getMetadata().getSchema()
+            .createClass(fields.get("name"), superClass);
 
         final String alias = fields.get("alias");
         if (alias != null) {
@@ -257,7 +258,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClusters(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseSessionInternal db,
+      final YTDatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String iClusterName,
@@ -290,7 +291,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   }
 
   private void executeDocument(
-      ODatabaseSessionInternal db, final OHttpRequest iRequest,
+      YTDatabaseSessionInternal db, final OHttpRequest iRequest,
       final OHttpResponse iResponse,
       final String operation,
       final String rid,
@@ -304,7 +305,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      ODocument doc = new ODocument(className, new ORecordId(rid));
+      YTDocument doc = new YTDocument(className, new YTRecordId(rid));
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
         final Object oldValue = doc.rawField(f.getKey());
@@ -346,7 +347,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
     } else if ("add".equals(operation)) {
       iRequest.getData().commandInfo = "Studio create document";
 
-      final ODocument doc = new ODocument(className);
+      final YTDocument doc = new YTDocument(className);
 
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
@@ -368,7 +369,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      final ODocument doc = new ORecordId(rid).getRecord();
+      final YTDocument doc = new YTRecordId(rid).getRecord();
       doc.delete();
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,
@@ -385,14 +386,14 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private static void executeClassIndexes(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseSessionInternal db,
+      final YTDatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,
       final Map<String, String> fields)
       throws IOException {
     // GET THE TARGET CLASS
-    final OClass cls = db.getMetadata().getSchema().getClass(rid);
+    final YTClass cls = db.getMetadata().getSchema().getClass(rid);
     if (cls == null) {
       iResponse.send(
           OHttpUtils.STATUS_INTERNALERROR_CODE,

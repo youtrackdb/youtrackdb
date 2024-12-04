@@ -28,7 +28,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.jnr.ONative;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
 import com.orientechnologies.orient.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
@@ -57,15 +57,15 @@ public class OEngineLocalPaginated extends OEngineAbstract {
   }
 
   private static int getOpenFilesLimit() {
-    if (OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger() > 0) {
+    if (YTGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger() > 0) {
       final Object[] additionalArgs =
-          new Object[]{OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger()};
+          new Object[]{YTGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger()};
       OLogManager.instance()
           .info(
               OEngineLocalPaginated.class,
               "Limit of open files for disk cache will be set to %d.",
               additionalArgs);
-      return OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger();
+      return YTGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger();
     }
 
     final int defaultLimit = 512;
@@ -92,10 +92,10 @@ public class OEngineLocalPaginated extends OEngineAbstract {
 
     final long diskCacheSize =
         calculateReadCacheMaxMemory(
-            OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024);
-    final int pageSize = OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+            YTGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024);
+    final int pageSize = YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
 
-    if (OGlobalConfiguration.DIRECT_MEMORY_PREALLOCATE.getValueAsBoolean()) {
+    if (YTGlobalConfiguration.DIRECT_MEMORY_PREALLOCATE.getValueAsBoolean()) {
       final int pageCount = (int) (diskCacheSize / pageSize);
       OLogManager.instance().info(this, "Allocation of " + pageCount + " pages.");
 
@@ -119,7 +119,7 @@ public class OEngineLocalPaginated extends OEngineAbstract {
   private static long calculateReadCacheMaxMemory(final long cacheSize) {
     return (long)
         (cacheSize
-            * ((100 - OGlobalConfiguration.DISK_WRITE_CACHE_PART.getValueAsInteger()) / 100.0));
+            * ((100 - YTGlobalConfiguration.DISK_WRITE_CACHE_PART.getValueAsInteger()) / 100.0));
   }
 
   /**

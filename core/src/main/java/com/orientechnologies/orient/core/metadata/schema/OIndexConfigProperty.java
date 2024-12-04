@@ -6,13 +6,13 @@ import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition.INDEX
 public class OIndexConfigProperty {
 
   protected final String name;
-  protected final OType type;
-  protected final OType linkedType;
+  protected final YTType type;
+  protected final YTType linkedType;
   protected final OCollate collate;
   protected final INDEX_BY index_by;
 
   public OIndexConfigProperty(
-      String name, OType type, OType linkedType, OCollate collate, INDEX_BY index_by) {
+      String name, YTType type, YTType linkedType, OCollate collate, INDEX_BY index_by) {
     this.name = name;
     this.type = type;
     this.linkedType = linkedType;
@@ -24,7 +24,7 @@ public class OIndexConfigProperty {
     return collate;
   }
 
-  public OType getLinkedType() {
+  public YTType getLinkedType() {
     return linkedType;
   }
 
@@ -32,7 +32,7 @@ public class OIndexConfigProperty {
     return name;
   }
 
-  public OType getType() {
+  public YTType getType() {
     return type;
   }
 

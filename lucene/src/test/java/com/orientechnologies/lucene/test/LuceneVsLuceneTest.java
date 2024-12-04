@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.lucene.analyzer.OLucenePerFieldAnalyzerWrapper;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +86,7 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
   @Test
   public void testLuceneVsLucene() throws IOException, ParseException {
 
-    for (ODocument oDocument : db.browseClass("Song")) {
+    for (YTDocument oDocument : db.browseClass("Song")) {
 
       String title = oDocument.field("title");
       if (title != null) {

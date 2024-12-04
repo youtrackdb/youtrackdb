@@ -21,11 +21,11 @@ package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +36,13 @@ import java.util.List;
 public abstract class OSQLFilterItemFieldMultiAbstract extends OSQLFilterItemAbstract {
 
   private final List<String> names;
-  private final OClass clazz;
+  private final YTClass clazz;
   private final List<OCollate> collates = new ArrayList<OCollate>();
 
   public OSQLFilterItemFieldMultiAbstract(
-      ODatabaseSessionInternal session, final OSQLPredicate iQueryCompiled,
+      YTDatabaseSessionInternal session, final OSQLPredicate iQueryCompiled,
       final String iName,
-      final OClass iClass,
+      final YTClass iClass,
       final List<String> iNames) {
     super(session, iQueryCompiled, iName);
     names = iNames;
@@ -54,8 +54,8 @@ public abstract class OSQLFilterItemFieldMultiAbstract extends OSQLFilterItemAbs
   }
 
   public Object getValue(
-      final OIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
-    final ODocument doc = ((ODocument) iRecord);
+      final YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
+    final YTDocument doc = ((YTDocument) iRecord);
 
     if (names.size() == 1) {
       return transformValue(

@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.collate.OCollate;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryComparator;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
@@ -17,7 +17,7 @@ public abstract class AbstractComparatorTest extends DBTestBase {
       ORecordSerializerBinary.INSTANCE.getCurrentSerializer();
   protected OBinaryComparator comparator = serializer.getComparator();
 
-  protected void testEquals(ODatabaseSessionInternal db, OType sourceType, OType destType) {
+  protected void testEquals(YTDatabaseSessionInternal db, YTType sourceType, YTType destType) {
     try {
       Assert.assertTrue(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 10)));
       Assert.assertFalse(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 9)));
@@ -28,11 +28,12 @@ public abstract class AbstractComparatorTest extends DBTestBase {
     }
   }
 
-  protected OBinaryField field(ODatabaseSessionInternal db, final OType type, final Object value) {
+  protected OBinaryField field(YTDatabaseSessionInternal db, final YTType type,
+      final Object value) {
     return field(db, type, value, null);
   }
 
-  protected OBinaryField field(ODatabaseSessionInternal db, final OType type, final Object value,
+  protected OBinaryField field(YTDatabaseSessionInternal db, final YTType type, final Object value,
       OCollate collate) {
     BytesContainer bytes = new BytesContainer();
     bytes.offset = serializer.serializeValue(db, bytes, value, type, null, null, null);

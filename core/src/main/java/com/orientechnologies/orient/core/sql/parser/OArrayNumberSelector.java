@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class OArrayNumberSelector extends SimpleNode {
     }
   }
 
-  public Integer getValue(OIdentifiable iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Integer getValue(YTIdentifiable iCurrentRecord, Object iResult, OCommandContext ctx) {
     Object result = null;
     if (inputValue != null) {
       result = inputValue.getValue(ctx.getInputParameters());
@@ -138,7 +138,7 @@ public class OArrayNumberSelector extends SimpleNode {
     return expressionValue != null && expressionValue.refersToParent();
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (inputValue != null) {
       result.setProperty("inputValue", inputValue.serialize(db));

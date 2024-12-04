@@ -50,9 +50,9 @@ public class ODatabaseDocumentPool extends ODatabasePoolBase {
   }
 
   @Override
-  protected ODatabaseDocumentTx createResource(
+  protected YTDatabaseDocumentTx createResource(
       Object owner, String iDatabaseName, Object... iAdditionalArgs) {
-    return new ODatabaseDocumentTxPooled(
+    return new YTDatabaseDocumentTxPooled(
         (ODatabaseDocumentPool) owner,
         iDatabaseName,
         (String) iAdditionalArgs[0],

@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.sandbox;
 
 import com.orientechnologies.lucene.tests.OLuceneBaseTest;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.apache.lucene.codecs.simpletext.SimpleTextCodec;
 import org.apache.lucene.document.Document;
@@ -100,7 +100,7 @@ public class LuceneSandboxTest extends OLuceneBaseTest {
     db.command("CREATE PROPERTY Son.textOfSon STRING");
 
     db.command("CREATE INDEX Son.textOfSon ON Son(textOfSon) FULLTEXT ENGINE LUCENE ");
-    OClass father = db.getMetadata().getSchema().getClass("Father");
+    YTClass father = db.getMetadata().getSchema().getClass("Father");
   }
 
   @Test

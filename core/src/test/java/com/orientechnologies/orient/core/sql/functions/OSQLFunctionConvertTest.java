@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -26,7 +26,7 @@ public class OSQLFunctionConvertTest extends DBTestBase {
         .close();
     db.commit();
 
-    ORID doc = db.query("select from TestConversion limit 1").next().getIdentity().get();
+    YTRID doc = db.query("select from TestConversion limit 1").next().getIdentity().get();
 
     db.begin();
     db.command("update TestConversion set selfrid = 'foo" + doc.getIdentity() + "'").close();

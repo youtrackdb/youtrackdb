@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,7 +56,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -76,7 +76,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testPersonSaving")
   public void testCityEquality() {
     database.begin();
-    List<ODocument> resultset =
+    List<YTDocument> resultset =
         executeQuery("select from profile where location.city.name = 'Rome'");
     Assert.assertEquals(resultset.size(), 2);
 
@@ -136,16 +136,16 @@ public class EntityTreeTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testSaveMultiCircular")
   public void testQueryMultiCircular() {
     database.begin();
-    List<ODocument> result =
+    List<YTDocument> result =
         executeQuery("select * from Profile where name = 'Barack' and surname = 'Obama'");
 
     Assert.assertEquals(result.size(), 1);
-    for (ODocument profile : result) {
-      final Collection<OIdentifiable> followers = profile.field("followers");
+    for (YTDocument profile : result) {
+      final Collection<YTIdentifiable> followers = profile.field("followers");
       if (followers != null) {
-        for (OIdentifiable follower : followers) {
+        for (YTIdentifiable follower : followers) {
           Assert.assertTrue(
-              ((Collection<OIdentifiable>)
+              ((Collection<YTIdentifiable>)
                   Objects.requireNonNull(follower.getElement().getProperty("followings")))
                   .contains(profile));
         }
@@ -163,29 +163,29 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     for (int i = 0; i < 100; i++) {
       var child = database.newInstance("Child");
       child.setProperty("name", String.valueOf(i));
-      test.<Set<OIdentifiable>>getProperty("set").add(child);
+      test.<Set<YTIdentifiable>>getProperty("set").add(child);
     }
-    Assert.assertNotNull(test.<Set<OIdentifiable>>getProperty("set"));
-    Assert.assertEquals(test.<Set<OIdentifiable>>getProperty("set").size(), 100);
+    Assert.assertNotNull(test.<Set<YTIdentifiable>>getProperty("set"));
+    Assert.assertEquals(test.<Set<YTIdentifiable>>getProperty("set").size(), 100);
 
     database.save(test);
     database.commit();
 
-    // Assert.assertEquals(test.<Set<OIdentifiable>>getProperty("set").size(), 100);
-    ORID rid = test.getIdentity();
+    // Assert.assertEquals(test.<Set<YTIdentifiable>>getProperty("set").size(), 100);
+    YTRID rid = test.getIdentity();
     database.close();
     database = createSessionInstance();
 
     database.begin();
     test = database.load(rid);
-    Assert.assertNotNull(test.<Set<OIdentifiable>>getProperty("set"));
-    for (OIdentifiable identifiable : test.<Set<OIdentifiable>>getProperty("set")) {
+    Assert.assertNotNull(test.<Set<YTIdentifiable>>getProperty("set"));
+    for (YTIdentifiable identifiable : test.<Set<YTIdentifiable>>getProperty("set")) {
       var child = identifiable.getElement();
       Assert.assertNotNull(child.<String>getProperty("name"));
       Assert.assertTrue(Integer.parseInt(child.getProperty("name")) < 100);
       Assert.assertTrue(Integer.parseInt(child.getProperty("name")) >= 0);
     }
-    Assert.assertEquals(test.<Set<OIdentifiable>>getProperty("set").size(), 100);
+    Assert.assertEquals(test.<Set<YTIdentifiable>>getProperty("set").size(), 100);
     database.delete(database.bindToSession(test));
     database.commit();
   }
@@ -206,7 +206,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     var fifth = database.newInstance("Child");
     fifth.setProperty("name", "5");
 
-    var set = new HashSet<OIdentifiable>();
+    var set = new HashSet<YTIdentifiable>();
     set.add(first);
     set.add(second);
     set.add(third);
@@ -215,7 +215,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
     a.setProperty("set", set);
 
-    var list = new ArrayList<OIdentifiable>();
+    var list = new ArrayList<YTIdentifiable>();
     list.add(first);
     list.add(second);
     list.add(third);
@@ -224,11 +224,11 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
     a.setProperty("list", list);
 
-    a.<Set<OIdentifiable>>getProperty("set").remove(third);
-    a.<List<OIdentifiable>>getProperty("list").remove(fourth);
+    a.<Set<YTIdentifiable>>getProperty("set").remove(third);
+    a.<List<YTIdentifiable>>getProperty("list").remove(fourth);
 
-    Assert.assertEquals(a.<Set<OIdentifiable>>getProperty("set").size(), 4);
-    Assert.assertEquals(a.<List<OIdentifiable>>getProperty("list").size(), 4);
+    Assert.assertEquals(a.<Set<YTIdentifiable>>getProperty("set").size(), 4);
+    Assert.assertEquals(a.<List<YTIdentifiable>>getProperty("list").size(), 4);
 
     database.begin();
     a = database.save(a);
@@ -236,9 +236,9 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
     database.begin();
     a = database.bindToSession(a);
-    ORID rid = a.getIdentity();
-    Assert.assertEquals(a.<Set<OIdentifiable>>getProperty("set").size(), 4);
-    Assert.assertEquals(a.<List<OIdentifiable>>getProperty("list").size(), 4);
+    YTRID rid = a.getIdentity();
+    Assert.assertEquals(a.<Set<YTIdentifiable>>getProperty("set").size(), 4);
+    Assert.assertEquals(a.<List<YTIdentifiable>>getProperty("list").size(), 4);
     database.commit();
 
     database.close();
@@ -249,7 +249,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     var loadedObj = database.loadElement(rid);
 
     Assert.assertEquals(loadedObj.<Set<Object>>getProperty("set").size(), 4);
-    Assert.assertEquals(loadedObj.<Set<OIdentifiable>>getProperty("set").size(), 4);
+    Assert.assertEquals(loadedObj.<Set<YTIdentifiable>>getProperty("set").size(), 4);
 
     database.delete(rid);
     database.commit();
@@ -273,11 +273,11 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    ORID rid = p.getIdentity();
+    YTRID rid = p.getIdentity();
     p = database.load(rid);
-    sat = p.<List<OIdentifiable>>getProperty("satellites").get(0).getElement();
+    sat = p.<List<YTIdentifiable>>getProperty("satellites").get(0).getElement();
     near = sat.getElementProperty("near");
-    satNear = near.<List<OIdentifiable>>getProperty("satellites").get(0).getElement();
+    satNear = near.<List<YTIdentifiable>>getProperty("satellites").get(0).getElement();
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 10);
 
     satNear.setProperty("diameter", 100);
@@ -288,9 +288,9 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
     database.begin();
     p = database.load(rid);
-    sat = p.<List<OIdentifiable>>getProperty("satellites").get(0).getElement();
+    sat = p.<List<YTIdentifiable>>getProperty("satellites").get(0).getElement();
     near = sat.getElementProperty("near");
-    satNear = near.<List<OIdentifiable>>getProperty("satellites").get(0).getElement();
+    satNear = near.<List<YTIdentifiable>>getProperty("satellites").get(0).getElement();
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 100);
     database.commit();
   }
@@ -314,10 +314,10 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     p = database.bindToSession(p);
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
-    ORID rid = p.getIdentity();
+    YTRID rid = p.getIdentity();
 
     p = database.load(rid);
-    sat = p.<Map<String, OIdentifiable>>getProperty("satellitesMap").get("Moon").getElement();
+    sat = p.<Map<String, YTIdentifiable>>getProperty("satellitesMap").get("Moon").getElement();
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
     Assert.assertEquals(sat.<Long>getProperty("diameter"), 50);
@@ -328,7 +328,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
     database.begin();
     p = database.load(rid);
-    sat = p.<Map<String, OIdentifiable>>getProperty("satellitesMap").get("Moon").getElement();
+    sat = p.<Map<String, YTIdentifiable>>getProperty("satellitesMap").get("Moon").getElement();
     Assert.assertEquals(sat.<Long>getProperty("diameter"), 500);
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
@@ -363,17 +363,17 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    ORID rid = jupiter.getIdentity();
+    YTRID rid = jupiter.getIdentity();
     jupiter = database.load(rid);
     jupiterMoon =
         jupiter
-            .<Map<String, OIdentifiable>>getProperty("satellitesMap")
+            .<Map<String, YTIdentifiable>>getProperty("satellitesMap")
             .get("JupiterMoon")
             .getElement();
     mercury = jupiterMoon.getElementProperty("near");
     mercuryMoon =
         mercury
-            .<Map<String, OIdentifiable>>getProperty("satellitesMap")
+            .<Map<String, YTIdentifiable>>getProperty("satellitesMap")
             .get("MercuryMoon")
             .getElement();
     Assert.assertEquals(mercuryMoon.<Long>getProperty("diameter"), 10);
@@ -395,13 +395,13 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     jupiter = database.load(rid);
     jupiterMoon =
         jupiter
-            .<Map<String, OIdentifiable>>getProperty("satellitesMap")
+            .<Map<String, YTIdentifiable>>getProperty("satellitesMap")
             .get("JupiterMoon")
             .getElement();
     mercury = jupiterMoon.getElementProperty("near");
     mercuryMoon =
         mercury
-            .<Map<String, OIdentifiable>>getProperty("satellitesMap")
+            .<Map<String, YTIdentifiable>>getProperty("satellitesMap")
             .get("MercuryMoon")
             .getElement();
     Assert.assertEquals(mercuryMoon.<Long>getProperty("diameter"), 100);
@@ -476,8 +476,8 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     otherThing.setProperty("relationToParent1", parent1);
     otherThing.setProperty("relationToParent2", parent2);
 
-    parent1.<Set<OIdentifiable>>getProperty("children").add(child3);
-    parent2.<Set<OIdentifiable>>getProperty("children").add(child3);
+    parent1.<Set<YTIdentifiable>>getProperty("children").add(child3);
+    parent2.<Set<YTIdentifiable>>getProperty("children").add(child3);
 
     database.save(parent1);
     database.save(parent2);
@@ -492,14 +492,14 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     }
 
     var child = schema.getClass("Child");
-    OClass clazz = schema.createClass("JavaCascadeDeleteTestClass");
-    clazz.createProperty(database, "simpleClass", OType.LINK,
+    YTClass clazz = schema.createClass("JavaCascadeDeleteTestClass");
+    clazz.createProperty(database, "simpleClass", YTType.LINK,
         schema.getClass("JavaSimpleTestClass"));
-    clazz.createProperty(database, "binary", OType.LINK);
-    clazz.createProperty(database, "name", OType.STRING);
-    clazz.createProperty(database, "set", OType.LINKSET, child);
-    clazz.createProperty(database, "children", OType.LINKMAP, child);
-    clazz.createProperty(database, "list", OType.LINKLIST, child);
+    clazz.createProperty(database, "binary", YTType.LINK);
+    clazz.createProperty(database, "name", YTType.STRING);
+    clazz.createProperty(database, "set", YTType.LINKSET, child);
+    clazz.createProperty(database, "children", YTType.LINKMAP, child);
+    clazz.createProperty(database, "list", YTType.LINKLIST, child);
   }
 
   private void createPlanetClasses() {
@@ -507,14 +507,14 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     var satellite = schema.createClass("Satellite");
     var planet = schema.createClass("Planet");
 
-    planet.createProperty(database, "name", OType.STRING);
-    planet.createProperty(database, "distanceSun", OType.INTEGER);
-    planet.createProperty(database, "satellites", OType.LINKLIST, satellite);
-    planet.createProperty(database, "satellitesMap", OType.LINKMAP, satellite);
+    planet.createProperty(database, "name", YTType.STRING);
+    planet.createProperty(database, "distanceSun", YTType.INTEGER);
+    planet.createProperty(database, "satellites", YTType.LINKLIST, satellite);
+    planet.createProperty(database, "satellitesMap", YTType.LINKMAP, satellite);
 
-    satellite.createProperty(database, "name", OType.STRING);
-    satellite.createProperty(database, "diameter", OType.LONG);
-    satellite.createProperty(database, "near", OType.LINK, planet);
+    satellite.createProperty(database, "name", YTType.STRING);
+    satellite.createProperty(database, "diameter", YTType.LONG);
+    satellite.createProperty(database, "near", YTType.LINK, planet);
   }
 
   private void createRefClasses() {
@@ -523,10 +523,10 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     var refChild = schema.createClass("RefChild");
     var otherThing = schema.createClass("OtherThing");
 
-    refParent.createProperty(database, "children", OType.LINKSET, refChild);
-    refChild.createProperty(database, "otherThing", OType.LINK, otherThing);
+    refParent.createProperty(database, "children", YTType.LINKSET, refChild);
+    refChild.createProperty(database, "otherThing", YTType.LINK, otherThing);
 
-    otherThing.createProperty(database, "relationToParent1", OType.LINK, refParent);
-    otherThing.createProperty(database, "relationToParent2", OType.LINK, refParent);
+    otherThing.createProperty(database, "relationToParent1", YTType.LINK, refParent);
+    otherThing.createProperty(database, "relationToParent2", YTType.LINK, refParent);
   }
 }

@@ -20,12 +20,12 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Set;
 
@@ -33,7 +33,7 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
     implements OIndexManager {
 
   public OIndexManagerProxy(
-      final OIndexManagerAbstract iDelegate, final ODatabaseSessionInternal iDatabase) {
+      final OIndexManagerAbstract iDelegate, final YTDatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 
@@ -70,7 +70,7 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
       final OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final OProgressListener progressListener,
-      final ODocument metadata) {
+      final YTDocument metadata) {
     return delegate.createIndex(
         database, iName, iType, indexDefinition, clusterIdsToIndex, progressListener, metadata);
   }
@@ -82,7 +82,7 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
       final OIndexDefinition iIndexDefinition,
       final int[] iClusterIdsToIndex,
       final OProgressListener progressListener,
-      final ODocument metadata,
+      final YTDocument metadata,
       final String algorithm) {
     return delegate.createIndex(
         database,
@@ -95,8 +95,8 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
         algorithm);
   }
 
-  public ODocument getConfiguration(ODatabaseSession session) {
-    return delegate.getConfiguration((ODatabaseSessionInternal) session);
+  public YTDocument getConfiguration(YTDatabaseSession session) {
+    return delegate.getConfiguration((YTDatabaseSessionInternal) session);
   }
 
   public OIndexManager dropIndex(final String iIndexName) {
@@ -112,7 +112,7 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
     delegate.setDefaultClusterName(database, defaultClusterName);
   }
 
-  public ODictionary<ORecord> getDictionary() {
+  public ODictionary<YTRecord> getDictionary() {
     return delegate.getDictionary(database);
   }
 
@@ -171,25 +171,25 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
   }
 
   @Override
-  public void addClusterToIndex(ODatabaseSession session, String clusterName, String indexName) {
-    delegate.addClusterToIndex((ODatabaseSessionInternal) session, clusterName, indexName);
+  public void addClusterToIndex(YTDatabaseSession session, String clusterName, String indexName) {
+    delegate.addClusterToIndex((YTDatabaseSessionInternal) session, clusterName, indexName);
   }
 
   @Override
-  public void removeClusterFromIndex(ODatabaseSession session, String clusterName,
+  public void removeClusterFromIndex(YTDatabaseSession session, String clusterName,
       String indexName) {
-    delegate.removeClusterFromIndex((ODatabaseSessionInternal) session, clusterName, indexName);
+    delegate.removeClusterFromIndex((YTDatabaseSessionInternal) session, clusterName, indexName);
   }
 
   @Override
-  public OIndexManager save(ODatabaseSession session) {
-    delegate.save((ODatabaseSessionInternal) session);
+  public OIndexManager save(YTDatabaseSession session) {
+    delegate.save((YTDatabaseSessionInternal) session);
     return this;
   }
 
-  public void removeClassPropertyIndex(ODatabaseSession session, final OIndex idx) {
+  public void removeClassPropertyIndex(YTDatabaseSession session, final OIndex idx) {
     //noinspection deprecation
-    delegate.removeClassPropertyIndex((ODatabaseSessionInternal) session, idx);
+    delegate.removeClassPropertyIndex((YTDatabaseSessionInternal) session, idx);
   }
 
   public void getClassRawIndexes(String name, Collection<OIndex> indexes) {

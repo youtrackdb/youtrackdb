@@ -5,12 +5,12 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
@@ -78,7 +78,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     db.registerHook(calls);
 
     db.begin();
-    ODocument doc = new ODocument("SomeTx");
+    YTDocument doc = new YTDocument("SomeTx");
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
@@ -106,7 +106,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
     database.begin();
-    ODocument doc = new ODocument("SomeTx");
+    YTDocument doc = new YTDocument("SomeTx");
     doc.setProperty("name", "some");
     database.save(doc);
     database.command("insert into SomeTx set name='aa' ").close();
@@ -132,7 +132,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
   public void testCalledInTxServer() {
     db.begin();
     CountCallHookServer calls = CountCallHookServer.instance;
-    ODocument doc = new ODocument("SomeTx");
+    YTDocument doc = new YTDocument("SomeTx");
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
@@ -151,7 +151,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
 
   public static class CountCallHookServer extends CountCallHook {
 
-    public CountCallHookServer(ODatabaseSession database) {
+    public CountCallHookServer(YTDatabaseSession database) {
       super(database);
       instance = this;
     }
@@ -168,7 +168,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     private int afterCreate = 0;
     private int afterDelete = 0;
 
-    public CountCallHook(ODatabaseSession database) {
+    public CountCallHook(YTDatabaseSession database) {
       super(database);
     }
 
@@ -178,35 +178,35 @@ public class RemoteTransactionHookTest extends DBTestBase {
     }
 
     @Override
-    public RESULT onRecordBeforeCreate(ODocument iDocument) {
+    public RESULT onRecordBeforeCreate(YTDocument iDocument) {
       beforeCreate++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterCreate(ODocument iDocument) {
+    public void onRecordAfterCreate(YTDocument iDocument) {
       afterCreate++;
     }
 
     @Override
-    public RESULT onRecordBeforeUpdate(ODocument iDocument) {
+    public RESULT onRecordBeforeUpdate(YTDocument iDocument) {
       beforeUpdate++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterUpdate(ODocument iDocument) {
+    public void onRecordAfterUpdate(YTDocument iDocument) {
       afterUpdate++;
     }
 
     @Override
-    public RESULT onRecordBeforeDelete(ODocument iDocument) {
+    public RESULT onRecordBeforeDelete(YTDocument iDocument) {
       beforeDelete++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterDelete(ODocument iDocument) {
+    public void onRecordAfterDelete(YTDocument iDocument) {
       afterDelete++;
     }
 

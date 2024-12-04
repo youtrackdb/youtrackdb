@@ -19,17 +19,17 @@
  */
 package com.orientechnologies.orient.core.query.live;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.QUERY_LIVE_SUPPORT;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.QUERY_LIVE_SUPPORT;
 
 import com.orientechnologies.common.concur.resource.OCloseable;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.LiveQueryListenerImpl;
@@ -57,9 +57,9 @@ public class OLiveQueryHookV2 {
     public OResult before;
     public OResult after;
     public byte type;
-    protected ODocument originalDoc;
+    protected YTDocument originalDoc;
 
-    OLiveQueryOp(ODocument originalDoc, OResult before, OResult after, byte type) {
+    OLiveQueryOp(YTDocument originalDoc, OResult before, OResult after, byte type) {
       this.originalDoc = originalDoc;
       this.type = type;
       this.before = before;
@@ -69,7 +69,7 @@ public class OLiveQueryHookV2 {
 
   public static class OLiveQueryOps implements OCloseable {
 
-    protected Map<ODatabaseSession, List<OLiveQueryOp>> pendingOps = new ConcurrentHashMap<>();
+    protected Map<YTDatabaseSession, List<OLiveQueryOp>> pendingOps = new ConcurrentHashMap<>();
     private OLiveQueryQueueThreadV2 queueThread = new OLiveQueryQueueThreadV2(this);
     private final Object threadLock = new Object();
 
@@ -121,12 +121,12 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static OLiveQueryOps getOpsReference(ODatabaseSessionInternal db) {
+  public static OLiveQueryOps getOpsReference(YTDatabaseSessionInternal db) {
     return db.getSharedContext().getLiveQueryOpsV2();
   }
 
   public static Integer subscribe(
-      Integer token, OLiveQueryListenerV2 iListener, ODatabaseSessionInternal db) {
+      Integer token, OLiveQueryListenerV2 iListener, YTDatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       OLogManager.instance()
           .warn(
@@ -147,7 +147,7 @@ public class OLiveQueryHookV2 {
     return ops.subscribe(token, iListener);
   }
 
-  public static void unsubscribe(Integer id, ODatabaseSessionInternal db) {
+  public static void unsubscribe(Integer id, YTDatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       OLogManager.instance()
           .warn(
@@ -167,8 +167,8 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static void notifyForTxChanges(ODatabaseSession database) {
-    OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) database);
+  public static void notifyForTxChanges(YTDatabaseSession database) {
+    OLiveQueryOps ops = getOpsReference((YTDatabaseSessionInternal) database);
     if (ops.pendingOps.isEmpty()) {
       return;
     }
@@ -187,13 +187,13 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static void removePendingDatabaseOps(ODatabaseSession database) {
+  public static void removePendingDatabaseOps(YTDatabaseSession database) {
     try {
       if (database.isClosed()
           || Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
         return;
       }
-      OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) database);
+      OLiveQueryOps ops = getOpsReference((YTDatabaseSessionInternal) database);
       synchronized (ops.pendingOps) {
         ops.pendingOps.remove(database);
       }
@@ -203,7 +203,7 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static void addOp(ODatabaseSessionInternal database, ODocument iDocument, byte iType) {
+  public static void addOp(YTDatabaseSessionInternal database, YTDocument iDocument, byte iType) {
     OLiveQueryOps ops = getOpsReference(database);
     if (!ops.hasListeners()) {
       return;
@@ -270,7 +270,7 @@ public class OLiveQueryHookV2 {
     return result;
   }
 
-  private static OLiveQueryOp prevousUpdate(List<OLiveQueryOp> list, ODocument doc) {
+  private static OLiveQueryOp prevousUpdate(List<OLiveQueryOp> list, YTDocument doc) {
     for (OLiveQueryOp oLiveQueryOp : list) {
       if (oLiveQueryOp.originalDoc == doc) {
         return oLiveQueryOp;
@@ -280,7 +280,7 @@ public class OLiveQueryHookV2 {
   }
 
   public static OResultInternal calculateBefore(
-      @Nonnull ODatabaseSessionInternal db, ODocument iDocument, Set<String> projectionsToLoad) {
+      @Nonnull YTDatabaseSessionInternal db, YTDocument iDocument, Set<String> projectionsToLoad) {
     OResultInternal result = new OResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
@@ -296,8 +296,9 @@ public class OLiveQueryHookV2 {
         result.setProperty(
             rawEntry.getKey(), convert(iDocument.getOriginalValue(rawEntry.getKey())));
       } else if (entry.isTrackedModified()) {
-        if (entry.value instanceof ODocument && ((ODocument) entry.value).isEmbedded()) {
-          result.setProperty(rawEntry.getKey(), calculateBefore(db, (ODocument) entry.value, null));
+        if (entry.value instanceof YTDocument && ((YTDocument) entry.value).isEmbedded()) {
+          result.setProperty(rawEntry.getKey(),
+              calculateBefore(db, (YTDocument) entry.value, null));
         }
       }
     }
@@ -314,7 +315,7 @@ public class OLiveQueryHookV2 {
   }
 
   private static OResultInternal calculateAfter(
-      ODatabaseSessionInternal db, ODocument iDocument, Set<String> projectionsToLoad) {
+      YTDatabaseSessionInternal db, YTDocument iDocument, Set<String> projectionsToLoad) {
     OResultInternal result = new OResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
@@ -330,8 +331,8 @@ public class OLiveQueryHookV2 {
   public static Object unboxRidbags(Object value) {
     // TODO move it to some helper class
     if (value instanceof ORidBag) {
-      List<OIdentifiable> result = new ArrayList<>(((ORidBag) value).size());
-      for (OIdentifiable oIdentifiable : (ORidBag) value) {
+      List<YTIdentifiable> result = new ArrayList<>(((ORidBag) value).size());
+      for (YTIdentifiable oIdentifiable : (ORidBag) value) {
         result.add(oIdentifiable);
       }
       return result;

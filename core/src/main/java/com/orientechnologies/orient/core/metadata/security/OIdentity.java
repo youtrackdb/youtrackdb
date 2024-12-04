@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 
 /**
@@ -14,7 +14,7 @@ public abstract class OIdentity extends ODocumentWrapper {
   public OIdentity() {
   }
 
-  public OIdentity(ORID iRID) {
+  public OIdentity(YTRID iRID) {
     super(iRID.getRecord());
   }
 
@@ -22,7 +22,7 @@ public abstract class OIdentity extends ODocumentWrapper {
     super(iClassName);
   }
 
-  public OIdentity(ODocument iDocument) {
+  public OIdentity(YTDocument iDocument) {
     super(iDocument);
   }
 }

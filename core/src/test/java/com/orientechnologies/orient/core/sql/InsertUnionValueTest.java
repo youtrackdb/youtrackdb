@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import org.junit.After;
@@ -32,7 +32,7 @@ public class InsertUnionValueTest {
 
   @Test
   public void testUnionInsert() {
-    try (ODatabaseSession session =
+    try (YTDatabaseSession session =
         youTrackDB.open(InsertUnionValueTest.class.getSimpleName(), "admin", "admpwd")) {
       session.command("create class example extends V").close();
       session.command("create property example.metadata EMBEDDEDMAP").close();

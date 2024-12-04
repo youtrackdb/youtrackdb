@@ -27,20 +27,20 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.query.OQuery;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
@@ -77,7 +77,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   private final List<OPair<String, Object>> removeEntries = new ArrayList<OPair<String, Object>>();
   private final List<OPair<String, Object>> incrementEntries =
       new ArrayList<OPair<String, Object>>();
-  private ODocument merge = null;
+  private YTDocument merge = null;
   private OReturnHandler returnHandler = new ORecordCountHandler();
   private OQuery<?> query;
   private OSQLFilter compiledFilter;
@@ -86,7 +86,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   private boolean upsertMode = false;
   private boolean isUpsertAllowed = false;
   private boolean updated = false;
-  private OClass clazz = null;
+  private YTClass clazz = null;
   private DISTRIBUTED_EXECUTION_MODE distributedMode;
 
   private boolean updateEdge = false;
@@ -209,7 +209,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         subjectName = subjectName.trim();
         query =
             database.command(
-                new OSQLAsynchQuery<ODocument>(
+                new OSQLAsynchQuery<YTDocument>(
                     subjectName.substring(1, subjectName.length() - 1), this)
                     .setContext(context));
 
@@ -245,10 +245,10 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
             updateStm.timeout.toString(params, selectString);
           }
 
-          query = new OSQLAsynchQuery<ODocument>(selectString.toString(), this);
+          query = new OSQLAsynchQuery<YTDocument>(selectString.toString(), this);
         } else {
           query =
-              new OSQLAsynchQuery<ODocument>(
+              new OSQLAsynchQuery<YTDocument>(
                   "select from "
                       + getSelectTarget()
                       + " "
@@ -264,7 +264,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       } else if (!additionalStatement.isEmpty()) {
         throwSyntaxErrorException("Invalid keyword " + additionalStatement);
       } else {
-        query = new OSQLAsynchQuery<ODocument>("select from " + getSelectTarget(), this);
+        query = new OSQLAsynchQuery<YTDocument>("select from " + getSelectTarget(), this);
       }
 
       if (upsertMode && !isUpsertAllowed) {
@@ -295,7 +295,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return ((OUpdateStatement) preParsedStatement).target.toString();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (subjectName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -323,7 +323,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     if (upsertMode && !updated) {
       // IF UPDATE DOES NOT PRODUCE RESULTS AND UPSERT MODE IS ENABLED, CREATE DOCUMENT AND APPLY
       // SET/ADD/PUT/MERGE and so on
-      final ODocument doc = subjectName != null ? new ODocument(subjectName) : new ODocument();
+      final YTDocument doc = subjectName != null ? new YTDocument(subjectName) : new YTDocument();
       // locks by result(doc)
       try {
         result(querySession, doc);
@@ -361,8 +361,8 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
    * Update current record.
    */
   @SuppressWarnings("unchecked")
-  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
-    final ODocument record = ((OIdentifiable) iRecord).getRecord();
+  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
+    final YTDocument record = ((YTIdentifiable) iRecord).getRecord();
 
     if (updateEdge && !isRecordInstanceOf(iRecord, "E")) {
       throw new OCommandExecutionException(
@@ -399,7 +399,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   }
 
   /**
-   * checks if an object is an OIdentifiable and an instance of a particular (schema) class
+   * checks if an object is an YTIdentifiable and an instance of a particular (schema) class
    *
    * @param iRecord     The record object
    * @param orientClass The schema class
@@ -409,10 +409,10 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     if (iRecord == null) {
       return false;
     }
-    if (!(iRecord instanceof OIdentifiable)) {
+    if (!(iRecord instanceof YTIdentifiable)) {
       return false;
     }
-    ODocument record = ((OIdentifiable) iRecord).getRecord();
+    YTDocument record = ((YTIdentifiable) iRecord).getRecord();
     if (iRecord == null) {
       return false;
     }
@@ -425,7 +425,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
    * @param db
    * @param record the edge record
    */
-  private void handleUpdateEdge(ODatabaseSessionInternal db, ODocument record) {
+  private void handleUpdateEdge(YTDatabaseSessionInternal db, YTDocument record) {
     if (!updateEdge) {
       return;
     }
@@ -437,8 +437,9 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
     validateOutInForEdge(record, currentOut, currentIn);
 
-    changeVertexEdgePointer(db, record, (OIdentifiable) prevIn, (OIdentifiable) currentIn, "in");
-    changeVertexEdgePointer(db, record, (OIdentifiable) prevOut, (OIdentifiable) currentOut, "out");
+    changeVertexEdgePointer(db, record, (YTIdentifiable) prevIn, (YTIdentifiable) currentIn, "in");
+    changeVertexEdgePointer(db, record, (YTIdentifiable) prevOut, (YTIdentifiable) currentOut,
+        "out");
   }
 
   /**
@@ -451,22 +452,22 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
    * @param direction     the direction ("out" or "in")
    */
   private void changeVertexEdgePointer(
-      ODatabaseSessionInternal db, ODocument edge, OIdentifiable prevVertex,
-      OIdentifiable currentVertex, String direction) {
+      YTDatabaseSessionInternal db, YTDocument edge, YTIdentifiable prevVertex,
+      YTIdentifiable currentVertex, String direction) {
     if (prevVertex != null && !prevVertex.equals(currentVertex)) {
       String edgeClassName = edge.getClassName();
       if (edgeClassName.equalsIgnoreCase("E")) {
         edgeClassName = "";
       }
       String vertexFieldName = direction + "_" + edgeClassName;
-      ODocument prevOutDoc = prevVertex.getRecord();
+      YTDocument prevOutDoc = prevVertex.getRecord();
       ORidBag prevBag = prevOutDoc.field(vertexFieldName);
       if (prevBag != null) {
         prevBag.remove(edge);
         prevOutDoc.save();
       }
 
-      ODocument currentVertexDoc = currentVertex.getRecord();
+      YTDocument currentVertexDoc = currentVertex.getRecord();
       ORidBag currentBag = currentVertexDoc.field(vertexFieldName);
       if (currentBag == null) {
         currentBag = new ORidBag(db);
@@ -476,7 +477,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     }
   }
 
-  private void validateOutInForEdge(ODocument record, Object currentOut, Object currentIn) {
+  private void validateOutInForEdge(YTDocument record, Object currentOut, Object currentIn) {
     if (!isRecordInstanceOf(currentOut, "V")) {
       throw new OCommandExecutionException(
           "Error updating edge: 'out' is not a vertex - " + currentOut);
@@ -525,7 +526,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   protected void parseMerge() {
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
       final String contentAsString = parserRequiredWord(false, "document to merge expected").trim();
-      merge = new ODocument();
+      merge = new YTDocument();
       merge.fromJSON(contentAsString);
       parserSkipWhiteSpaces();
     }
@@ -609,13 +610,13 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     }
   }
 
-  private boolean handleContent(ODocument record) {
+  private boolean handleContent(YTDocument record) {
     boolean updated = false;
     if (content != null) {
       // REPLACE ALL THE CONTENT
-      final ODocument fieldsToPreserve = new ODocument();
+      final YTDocument fieldsToPreserve = new YTDocument();
 
-      final OClass restricted =
+      final YTClass restricted =
           getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
@@ -623,12 +624,12 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
       if (restricted != null
           && restricted.isSuperClassOf(ODocumentInternal.getImmutableSchemaClass(record))) {
-        for (OProperty prop : restricted.properties(getDatabase())) {
+        for (YTProperty prop : restricted.properties(getDatabase())) {
           fieldsToPreserve.field(prop.getName(), record.<Object>field(prop.getName()));
         }
       }
 
-      OClass recordClass = ODocumentInternal.getImmutableSchemaClass(record);
+      YTClass recordClass = ODocumentInternal.getImmutableSchemaClass(record);
       if (recordClass != null && recordClass.isSubClassOf("V")) {
         for (String fieldName : record.fieldNames()) {
           if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
@@ -650,7 +651,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleMerge(ODocument record) {
+  private boolean handleMerge(YTDocument record) {
     boolean updated = false;
     if (merge != null) {
       // MERGE THE CONTENT
@@ -660,7 +661,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleSetEntries(final ODocument record) {
+  private boolean handleSetEntries(final YTDocument record) {
     boolean updated = false;
     // BIND VALUES TO UPDATE
     if (!setEntries.isEmpty()) {
@@ -670,7 +671,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleIncrementEntries(final ODocument record) {
+  private boolean handleIncrementEntries(final YTDocument record) {
     boolean updated = false;
     // BIND VALUES TO INCREMENT
     if (!incrementEntries.isEmpty()) {
@@ -694,7 +695,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         } else
         // COMPUTING INCREMENT
         {
-          record.field(entry.getKey(), OType.increment(prevValue, current));
+          record.field(entry.getKey(), YTType.increment(prevValue, current));
         }
       }
       updated = true;
@@ -702,7 +703,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleAddEntries(ODatabaseSessionInternal querySession, ODocument record) {
+  private boolean handleAddEntries(YTDatabaseSessionInternal querySession, YTDocument record) {
     boolean updated = false;
     // BIND VALUES TO ADD
     Object fieldValue;
@@ -712,14 +713,14 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       if (!record.containsField(entry.getKey())) {
         // GET THE TYPE IF ANY
         if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
-          OProperty prop =
+          YTProperty prop =
               ODocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
-          if (prop != null && prop.getType() == OType.LINKSET)
+          if (prop != null && prop.getType() == YTType.LINKSET)
           // SET TYPE
           {
             coll = new HashSet<Object>();
           }
-          if (prop != null && prop.getType() == OType.LINKBAG) {
+          if (prop != null && prop.getType() == YTType.LINKBAG) {
             // there is no ridbag value already but property type is defined as LINKBAG
             bag = new ORidBag(querySession);
             bag.setOwner(record);
@@ -757,17 +758,17 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       final Object value = extractValue(querySession, record, entry);
 
       if (coll != null) {
-        if (value instanceof OIdentifiable) {
+        if (value instanceof YTIdentifiable) {
           coll.add(value);
         } else {
           OMultiValue.add(coll, value);
         }
       } else {
-        if (!(value instanceof OIdentifiable)) {
+        if (!(value instanceof YTIdentifiable)) {
           throw new OCommandExecutionException("Only links or records can be added to LINKBAG");
         }
 
-        bag.add((OIdentifiable) value);
+        bag.add((YTIdentifiable) value);
       }
       updated = true;
     }
@@ -775,7 +776,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private boolean handlePutEntries(ODatabaseSessionInternal querySession, ODocument record) {
+  private boolean handlePutEntries(YTDatabaseSessionInternal querySession, YTDocument record) {
     boolean updated = false;
     if (!putEntries.isEmpty()) {
       // BIND VALUES TO PUT (AS MAP)
@@ -784,12 +785,12 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
         if (fieldValue == null) {
           if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
-            final OProperty property =
+            final YTProperty property =
                 ODocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
                 && (property.getType() != null
-                && (!property.getType().equals(OType.EMBEDDEDMAP)
-                && !property.getType().equals(OType.LINKMAP)))) {
+                && (!property.getType().equals(YTType.EMBEDDEDMAP)
+                && !property.getType().equals(YTType.LINKMAP)))) {
               throw new OCommandExecutionException(
                   "field " + entry.getKey() + " is not defined as a map");
             }
@@ -806,19 +807,19 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
           Object value = extractValue(querySession, record, pair);
 
           if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
-            final OProperty property =
+            final YTProperty property =
                 ODocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
-                && property.getType().equals(OType.LINKMAP)
-                && !(value instanceof OIdentifiable)) {
+                && property.getType().equals(YTType.LINKMAP)
+                && !(value instanceof YTIdentifiable)) {
               throw new OCommandExecutionException(
                   "field " + entry.getKey() + " defined of type LINKMAP accept only link values");
             }
           }
-          if (OType.LINKMAP.equals(OType.getTypeByValue(fieldValue))
-              && !(value instanceof OIdentifiable)) {
+          if (YTType.LINKMAP.equals(YTType.getTypeByValue(fieldValue))
+              && !(value instanceof YTIdentifiable)) {
             map = new OTrackedMap(record, map, Object.class);
-            record.field(entry.getKey(), map, OType.EMBEDDEDMAP);
+            record.field(entry.getKey(), map, YTType.EMBEDDEDMAP);
           }
           map.put(pair.getKey(), value);
           updated = true;
@@ -828,7 +829,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleRemoveEntries(ODatabaseSessionInternal querySession, ODocument record) {
+  private boolean handleRemoveEntries(YTDatabaseSessionInternal querySession, YTDocument record) {
     boolean updated = false;
     if (!removeEntries.isEmpty()) {
       // REMOVE FIELD IF ANY
@@ -874,7 +875,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean removeFromBag(ODocument record, boolean updated, Object value, ORidBag bag) {
+  private boolean removeFromBag(YTDocument record, boolean updated, Object value, ORidBag bag) {
     if (value instanceof Collection) {
       for (Object o : ((Collection) value)) {
         updated |= removeSingleValueFromBag(bag, o, record);
@@ -885,16 +886,16 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean removeSingleValueFromBag(ORidBag bag, Object value, ODocument record) {
-    if (!(value instanceof OIdentifiable)) {
+  private boolean removeSingleValueFromBag(ORidBag bag, Object value, YTDocument record) {
+    if (!(value instanceof YTIdentifiable)) {
       throw new OCommandExecutionException("Only links or records can be removed from LINKBAG");
     }
 
-    bag.remove((OIdentifiable) value);
+    bag.remove((YTIdentifiable) value);
     return record.isDirty();
   }
 
-  private Object extractValue(ODatabaseSessionInternal requestSession, ODocument record,
+  private Object extractValue(YTDatabaseSessionInternal requestSession, YTDocument record,
       OPair<String, Object> entry) {
     Object value = entry.getValue();
 
@@ -904,10 +905,10 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       value = ((OCommandRequest) value).execute(requestSession, record, null, context);
     }
 
-    if (value instanceof OIdentifiable && ((OIdentifiable) value).getIdentity().isPersistent())
+    if (value instanceof YTIdentifiable && ((YTIdentifiable) value).getIdentity().isPersistent())
     // USE ONLY THE RID TO AVOID CONCURRENCY PROBLEM WITH OLD VERSIONS
     {
-      value = ((OIdentifiable) value).getIdentity();
+      value = ((YTIdentifiable) value).getIdentity();
     }
     return value;
   }

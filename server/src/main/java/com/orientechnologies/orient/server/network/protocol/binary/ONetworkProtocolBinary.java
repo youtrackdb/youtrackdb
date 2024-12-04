@@ -37,19 +37,19 @@ import com.orientechnologies.orient.client.remote.message.OError37Response;
 import com.orientechnologies.orient.client.remote.message.OErrorResponse;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCoreException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.OSerializationThreadLocal;
@@ -116,12 +116,12 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
         Level.parse(
             server
                 .getContextConfiguration()
-                .getValueAsString(OGlobalConfiguration.SERVER_LOG_DUMP_CLIENT_EXCEPTION_LEVEL));
+                .getValueAsString(YTGlobalConfiguration.SERVER_LOG_DUMP_CLIENT_EXCEPTION_LEVEL));
     logClientFullStackTrace =
         server
             .getContextConfiguration()
             .getValueAsBoolean(
-                OGlobalConfiguration.SERVER_LOG_DUMP_CLIENT_EXCEPTION_FULLSTACKTRACE);
+                YTGlobalConfiguration.SERVER_LOG_DUMP_CLIENT_EXCEPTION_FULLSTACKTRACE);
   }
 
   /**
@@ -643,7 +643,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     }
   }
 
-  protected void checkServerAccess(ODatabaseSessionInternal session, final String iResource,
+  protected void checkServerAccess(YTDatabaseSessionInternal session, final String iResource,
       OClientConnection connection) {
     if (connection.getData().protocolVersion <= OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       if (connection.getServerUser() == null) {
@@ -938,7 +938,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
   }
 
   /**
-   * Write a OIdentifiable instance using this format:<br> - 2 bytes: class id [-2=no record,
+   * Write a YTIdentifiable instance using this format:<br> - 2 bytes: class id [-2=no record,
    * -3=rid, -1=no class id, > -1 = valid] <br> - 1 byte: record type [d,b,f] <br> - 2 bytes:
    * cluster id <br> - 8 bytes: position in cluster <br> - 4 bytes: record version <br> - x bytes:
    * record content <br>
@@ -946,13 +946,13 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
    * @param channel TODO
    */
   public static void writeIdentifiable(
-      OChannelBinary channel, OClientConnection connection, final OIdentifiable o)
+      OChannelBinary channel, OClientConnection connection, final YTIdentifiable o)
       throws IOException {
     if (o == null) {
       channel.writeShort(OChannelBinaryProtocol.RECORD_NULL);
-    } else if (o instanceof ORecordId) {
+    } else if (o instanceof YTRecordId) {
       channel.writeShort(OChannelBinaryProtocol.RECORD_RID);
-      channel.writeRID((ORID) o);
+      channel.writeRID((YTRID) o);
     } else {
       writeRecord(channel, connection, o.getRecord());
     }
@@ -973,16 +973,17 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     }
   }
 
-  public static byte[] getRecordBytes(OClientConnection connection, final ORecordAbstract iRecord) {
+  public static byte[] getRecordBytes(OClientConnection connection,
+      final YTRecordAbstract iRecord) {
     final byte[] stream;
     String dbSerializerName = null;
     if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
       dbSerializerName = (iRecord.getSession()).getSerializer().toString();
     }
     String name = connection.getData().getSerializationImpl();
-    if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
+    if (ORecordInternal.getRecordType(iRecord) == YTDocument.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(name))) {
-      ((ODocument) iRecord).deserializeFields();
+      ((YTDocument) iRecord).deserializeFields();
       ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(connection.getDatabase(), iRecord);
     } else {
@@ -993,7 +994,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
   }
 
   private static void writeRecord(
-      OChannelBinary channel, OClientConnection connection, final ORecordAbstract iRecord)
+      OChannelBinary channel, OClientConnection connection, final YTRecordAbstract iRecord)
       throws IOException {
     channel.writeShort((short) 0);
     channel.writeByte(ORecordInternal.getRecordType(iRecord));
@@ -1018,7 +1019,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
 
   protected static int trimCsvSerializedContent(OClientConnection connection, final byte[] stream) {
     int realLength = stream.length;
-    final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
       if (ORecordSerializerSchemaAware2CSV.NAME.equals(
           connection.getData().getSerializationImpl())) {
@@ -1053,7 +1054,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     return new OConnectionBinaryExecutor(connection, server, handshakeInfo);
   }
 
-  public OBinaryPushResponse push(ODatabaseSessionInternal session, OBinaryPushRequest request)
+  public OBinaryPushResponse push(YTDatabaseSessionInternal session, OBinaryPushRequest request)
       throws IOException {
     expectedPushResponse = request.createResponse();
     channel.acquireWriteLock();

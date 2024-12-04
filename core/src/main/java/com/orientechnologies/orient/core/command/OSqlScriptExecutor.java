@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.command;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorFunction;
 import com.orientechnologies.orient.core.command.script.OCommandFunction;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -33,7 +33,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(ODatabaseSessionInternal database, String script, Object... args)
+  public OResultSet execute(YTDatabaseSessionInternal database, String script, Object... args)
       throws OCommandSQLParsingException, OCommandExecutionException {
 
     if (!script.trim().endsWith(";")) {
@@ -55,7 +55,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(ODatabaseSessionInternal database, String script, Map params) {
+  public OResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
     if (!script.trim().endsWith(";")) {
       script += ";";
     }

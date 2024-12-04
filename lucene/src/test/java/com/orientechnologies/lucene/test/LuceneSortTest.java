@@ -1,9 +1,9 @@
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -553,19 +553,19 @@ public class LuceneSortTest extends BaseLuceneTest {
 
   @Before
   public void setUp() throws Exception {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass cls = schema.createClass("Person");
-    cls.createProperty(db, "name", OType.STRING);
-    cls.createProperty(db, "surname", OType.STRING);
-    cls.createProperty(db, "description", OType.STRING);
+    YTClass cls = schema.createClass("Person");
+    cls.createProperty(db, "name", YTType.STRING);
+    cls.createProperty(db, "surname", YTType.STRING);
+    cls.createProperty(db, "description", YTType.STRING);
   }
 
   @Test
   public void shouldIndexVeryLongDescriptionWithWildCardConfig() throws Exception {
 
     db.begin();
-    db.save(new ODocument("Person").field("description", DESCRIPTION));
+    db.save(new YTDocument("Person").field("description", DESCRIPTION));
     db.commit();
 
     db.command(
@@ -583,7 +583,7 @@ public class LuceneSortTest extends BaseLuceneTest {
   public void shouldIndexVeryLongDescriptionWithSingleField() throws Exception {
 
     db.begin();
-    db.save(new ODocument("Person").field("description", DESCRIPTION));
+    db.save(new YTDocument("Person").field("description", DESCRIPTION));
     db.commit();
 
     db.command(

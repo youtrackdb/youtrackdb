@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 
 /**
@@ -8,9 +8,9 @@ import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
  */
 public class ODocumentEqualityWrapper {
 
-  private final ODocument internal;
+  private final YTDocument internal;
 
-  ODocumentEqualityWrapper(ODocument internal) {
+  ODocumentEqualityWrapper(YTDocument internal) {
 
     this.internal = internal;
   }

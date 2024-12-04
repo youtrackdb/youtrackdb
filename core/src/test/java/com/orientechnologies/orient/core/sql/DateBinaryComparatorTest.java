@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,10 +24,10 @@ public class DateBinaryComparatorTest extends DBTestBase {
   }
 
   private void initSchema() {
-    OClass testClass = db.getMetadata().getSchema().createClass("Test");
-    testClass.createProperty(db, "date", OType.DATE);
+    YTClass testClass = db.getMetadata().getSchema().createClass("Test");
+    testClass.createProperty(db, "date", YTType.DATE);
     db.begin();
-    ODocument document = new ODocument(testClass.getName());
+    YTDocument document = new YTDocument(testClass.getName());
 
     try {
       document.field("date", new SimpleDateFormat(dateFormat).parse(dateValue));

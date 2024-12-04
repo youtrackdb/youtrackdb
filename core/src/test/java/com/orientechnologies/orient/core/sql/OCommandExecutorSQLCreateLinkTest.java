@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
@@ -32,10 +32,10 @@ public class OCommandExecutorSQLCreateLinkTest extends DBTestBase {
   @Test
   public void testBasic() {
     var basic1 = db.getMetadata().getSchema().createClass("Basic1");
-    basic1.createProperty(db, "theLink", OType.LINK);
+    basic1.createProperty(db, "theLink", YTType.LINK);
 
     var basic2 = db.getMetadata().getSchema().createClass("Basic2");
-    basic2.createProperty(db, "theLink", OType.LINK);
+    basic2.createProperty(db, "theLink", YTType.LINK);
 
     db.begin();
     db.command("insert into Basic1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();
@@ -61,10 +61,10 @@ public class OCommandExecutorSQLCreateLinkTest extends DBTestBase {
   @Test
   public void testInverse() {
     var inverse1 = db.getMetadata().getSchema().createClass("Inverse1");
-    inverse1.createProperty(db, "theLink", OType.LINK);
+    inverse1.createProperty(db, "theLink", YTType.LINK);
 
     var inverse2 = db.getMetadata().getSchema().createClass("Inverse2");
-    inverse2.createProperty(db, "theLink", OType.LINKSET);
+    inverse2.createProperty(db, "theLink", YTType.LINKSET);
 
     db.begin();
     db.command("insert into Inverse1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();

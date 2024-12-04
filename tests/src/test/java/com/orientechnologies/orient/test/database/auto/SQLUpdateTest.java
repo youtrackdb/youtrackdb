@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test
   public void updateWithWhereOperator() {
 
-    List<ORID> positions = getAddressValidPositions();
+    List<YTRID> positions = getAddressValidPositions();
 
     database.begin();
     OResultSet records =
@@ -149,7 +149,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     List<OResult> docs = database.query("select from Account").stream().toList();
 
-    List<ORID> positions = getAddressValidPositions();
+    List<YTRID> positions = getAddressValidPositions();
 
     for (OResult doc : docs) {
 
@@ -172,10 +172,10 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
       database.begin();
       Assert.assertEquals(records, 1);
 
-      ODocument loadedDoc = database.load(doc.getRecordId());
+      YTDocument loadedDoc = database.load(doc.getRecordId());
       Assert.assertEquals(((List<?>) loadedDoc.field("addresses")).size(), 3);
       Assert.assertEquals(
-          ((OIdentifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
+          ((YTIdentifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
           positions.get(0));
       loadedDoc.field("addresses", doc.<Object>getProperty("addresses"));
 
@@ -188,7 +188,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   public void updateMapsWithSetOperator() {
 
     database.begin();
-    OElement element =
+    YTEntity element =
         database
             .command(
                 "insert into O (equaledges, name, properties) values ('no',"
@@ -211,7 +211,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(records, 1);
 
-    OElement loadedElement = database.load(element.getIdentity());
+    YTEntity loadedElement = database.load(element.getIdentity());
 
     Assert.assertTrue(loadedElement.getProperty("properties") instanceof Map);
 
@@ -257,7 +257,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     database.createClass("Person");
     database.begin();
-    ODocument doc = new ODocument("Person");
+    YTDocument doc = new YTDocument("Person");
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
@@ -300,7 +300,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   public void updateWithReturn() {
-    ODocument doc = new ODocument("Data");
+    YTDocument doc = new YTDocument("Data");
     database.begin();
     doc.field("name", "Pawel");
     doc.field("city", "Wroclaw");
@@ -345,7 +345,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   @Test
   public void updateWithNamedParameters() {
-    ODocument doc = new ODocument("Data");
+    YTDocument doc = new YTDocument("Data");
 
     database.begin();
     doc.field("name", "Raf");
@@ -474,11 +474,11 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   @Test(enabled = false)
   public void testEscaping() {
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
     schema.createClass("FormatEscapingTest");
 
     database.begin();
-    ODocument document = new ODocument("FormatEscapingTest");
+    YTDocument document = new YTDocument("FormatEscapingTest");
     document.save();
     database.commit();
 
@@ -563,13 +563,13 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   public void testUpdateVertexContent() {
-    final OSchema schema = database.getMetadata().getSchema();
-    OClass vertex = schema.getClass("V");
+    final YTSchema schema = database.getMetadata().getSchema();
+    YTClass vertex = schema.getClass("V");
     schema.createClass("UpdateVertexContent", vertex);
 
     database.begin();
-    final ORID vOneId = database.command("create vertex UpdateVertexContent").next().getRecordId();
-    final ORID vTwoId = database.command("create vertex UpdateVertexContent").next().getRecordId();
+    final YTRID vOneId = database.command("create vertex UpdateVertexContent").next().getRecordId();
+    final YTRID vTwoId = database.command("create vertex UpdateVertexContent").next().getRecordId();
 
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
@@ -618,16 +618,16 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   public void testUpdateEdgeContent() {
-    final OSchema schema = database.getMetadata().getSchema();
-    OClass vertex = schema.getClass("V");
-    OClass edge = schema.getClass("E");
+    final YTSchema schema = database.getMetadata().getSchema();
+    YTClass vertex = schema.getClass("V");
+    YTClass edge = schema.getClass("E");
 
     schema.createClass("UpdateEdgeContentV", vertex);
     schema.createClass("UpdateEdgeContentE", edge);
 
     database.begin();
-    final ORID vOneId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
-    final ORID vTwoId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final YTRID vOneId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final YTRID vTwoId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
 
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
@@ -668,7 +668,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   private void checkUpdatedDoc(
-      ODatabaseSession database, String expectedCity, String expectedGender) {
+      YTDatabaseSession database, String expectedCity, String expectedGender) {
     OResultSet result = database.query("select * from person");
     OResult oDoc = result.next();
     Assert.assertEquals("Raf", oDoc.getProperty("name"));
@@ -676,8 +676,8 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     Assert.assertEquals(expectedGender, oDoc.getProperty("gender"));
   }
 
-  private List<ORID> getAddressValidPositions() {
-    final List<ORID> positions = new ArrayList<>();
+  private List<YTRID> getAddressValidPositions() {
+    final List<YTRID> positions = new ArrayList<>();
 
     final var iteratorClass = database.browseClass("Address");
 
@@ -685,7 +685,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
       if (!iteratorClass.hasNext()) {
         break;
       }
-      ODocument doc = iteratorClass.next();
+      YTDocument doc = iteratorClass.next();
       positions.add(doc.getIdentity());
     }
     return positions;
@@ -693,7 +693,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   public void testMultiplePut() {
     database.begin();
-    ODocument v = database.newInstance("V");
+    YTDocument v = database.newInstance("V");
     v.save();
     database.commit();
 
@@ -718,16 +718,16 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
-    OClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    YTClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
     if (!c.existsProperty("embeddedListWithLinkedClass")) {
       c.createProperty(database,
           "embeddedListWithLinkedClass",
-          OType.EMBEDDEDLIST,
+          YTType.EMBEDDEDLIST,
           database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
     }
 
     database.begin();
-    ORID id =
+    YTRID id =
         database
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
@@ -744,7 +744,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OElement doc = database.load(id);
+    YTEntity doc = database.load(id);
 
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
     Assert.assertEquals(((Collection) doc.getProperty("embeddedListWithLinkedClass")).size(), 2);
@@ -765,8 +765,8 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     List addr = doc.getProperty("embeddedListWithLinkedClass");
     for (Object o : addr) {
-      Assert.assertTrue(o instanceof ODocument);
-      Assert.assertEquals(((ODocument) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertTrue(o instanceof YTDocument);
+      Assert.assertEquals(((YTDocument) o).getClassName(), "TestConvertLinkedClass");
     }
   }
 

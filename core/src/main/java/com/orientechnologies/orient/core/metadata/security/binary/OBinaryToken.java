@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.core.metadata.security.binary;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.metadata.security.jwt.OBinaryTokenPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 public class OBinaryToken implements OToken {
 
@@ -43,10 +43,10 @@ public class OBinaryToken implements OToken {
   }
 
   @Override
-  public OUser getUser(ODatabaseSessionInternal db) {
+  public OUser getUser(YTDatabaseSessionInternal db) {
     if (this.payload.getUserRid() != null) {
       try {
-        ODocument result = db.load(new ORecordId(this.payload.getUserRid()));
+        YTDocument result = db.load(new YTRecordId(this.payload.getUserRid()));
         if (result.getClassName().equals(OUser.CLASS_NAME)) {
           return new OUser(db, result);
         }
@@ -68,7 +68,7 @@ public class OBinaryToken implements OToken {
   }
 
   @Override
-  public ORID getUserId() {
+  public YTRID getUserId() {
     return this.payload.getUserRid();
   }
 

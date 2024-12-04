@@ -23,8 +23,8 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -34,13 +34,13 @@ import java.io.IOException;
 public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutRecordResponse> {
 
   private int recordVersion;
-  private ORecordId recordId;
+  private YTRecordId recordId;
   private byte mode;
 
   public OCleanOutRecordRequest() {
   }
 
-  public OCleanOutRecordRequest(int recordVersion, ORecordId recordId) {
+  public OCleanOutRecordRequest(int recordVersion, YTRecordId recordId) {
     this.recordVersion = recordVersion;
     this.recordId = recordId;
   }
@@ -55,7 +55,7 @@ public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutReco
     return "Clean out record";
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     recordId = channel.readRID();
@@ -64,7 +64,7 @@ public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutReco
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeRID(recordId);
     network.writeVersion(recordVersion);
@@ -75,7 +75,7 @@ public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutReco
     return mode;
   }
 
-  public ORecordId getRecordId() {
+  public YTRecordId getRecordId() {
     return recordId;
   }
 

@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 
@@ -46,8 +46,8 @@ public class OQueryOperatorNot extends OQueryOperator {
 
   @Override
   public Object evaluateRecord(
-      final OIdentifiable iRecord,
-      ODocument iCurrentResult,
+      final YTIdentifiable iRecord,
+      YTDocument iCurrentResult,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -70,10 +70,10 @@ public class OQueryOperatorNot extends OQueryOperator {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     if (iLeft instanceof OSQLFilterCondition) {
-      final ORID beginRange = ((OSQLFilterCondition) iLeft).getBeginRidRange(session);
-      final ORID endRange = ((OSQLFilterCondition) iLeft).getEndRidRange(session);
+      final YTRID beginRange = ((OSQLFilterCondition) iLeft).getBeginRidRange(session);
+      final YTRID endRange = ((OSQLFilterCondition) iLeft).getEndRidRange(session);
 
       if (beginRange == null && endRange == null) {
         return null;
@@ -90,10 +90,10 @@ public class OQueryOperatorNot extends OQueryOperator {
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     if (iLeft instanceof OSQLFilterCondition) {
-      final ORID beginRange = ((OSQLFilterCondition) iLeft).getBeginRidRange(session);
-      final ORID endRange = ((OSQLFilterCondition) iLeft).getEndRidRange(session);
+      final YTRID beginRange = ((OSQLFilterCondition) iLeft).getBeginRidRange(session);
+      final YTRID endRange = ((OSQLFilterCondition) iLeft).getEndRidRange(session);
 
       if (beginRange == null && endRange == null) {
         return null;

@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.command.traverse;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.ArrayDeque;
 
 /**
@@ -53,7 +53,7 @@ public class OTraversePath {
     return buf.toString();
   }
 
-  public OTraversePath append(OIdentifiable record) {
+  public OTraversePath append(YTIdentifiable record) {
     return new OTraversePath(new RecordPathItem(record, lastPathItem));
   }
 
@@ -90,9 +90,9 @@ public class OTraversePath {
 
   private static class RecordPathItem extends PathItem {
 
-    private final OIdentifiable record;
+    private final YTIdentifiable record;
 
-    private RecordPathItem(OIdentifiable record, PathItem parentItem) {
+    private RecordPathItem(YTIdentifiable record, PathItem parentItem) {
       super(parentItem, parentItem.depth + 1);
       this.record = record;
     }

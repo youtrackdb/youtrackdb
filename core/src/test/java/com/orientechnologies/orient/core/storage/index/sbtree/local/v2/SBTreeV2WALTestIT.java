@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.storage.index.sbtree.local.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
@@ -46,13 +46,13 @@ import org.junit.Test;
 public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
 
   static {
-    OGlobalConfiguration.FILE_LOCK.setValue(false);
+    YTGlobalConfiguration.FILE_LOCK.setValue(false);
   }
 
   private OLocalPaginatedStorage actualStorage;
   private OWriteCache actualWriteCache;
 
-  private ODatabaseSession expectedDatabaseDocumentTx;
+  private YTDatabaseSession expectedDatabaseDocumentTx;
   private OLocalPaginatedStorage expectedStorage;
   private OReadCache expectedReadCache;
   private OWriteCache expectedWriteCache;
@@ -94,7 +94,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
 
     databaseDocumentTx = youTrackDB.open(ACTUAL_DB_NAME, "admin", "admin");
     actualStorage =
-        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (OLocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
     actualStorageDir = actualStorage.getStoragePath().toString();
     CASDiskWriteAheadLog writeAheadLog = (CASDiskWriteAheadLog) actualStorage.getWALInstance();
 
@@ -127,7 +127,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
     expectedDatabaseDocumentTx = youTrackDB.open(EXPECTED_DB_NAME, "admin", "admin");
     expectedStorage =
         (OLocalPaginatedStorage)
-            ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage();
+            ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage();
     expectedReadCache = expectedStorage.getReadCache();
     expectedWriteCache = expectedStorage.getWriteCache();
 

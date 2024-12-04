@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,14 +23,14 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
   public void testOnloadValue() {
     db.createClass("test");
     db.begin();
-    ODocument doc = new ODocument("test");
+    YTDocument doc = new YTDocument("test");
     doc.setProperty("name", "John Doe");
     doc.save();
     db.commit();
-    ORID id = doc.getIdentity();
+    YTRID id = doc.getIdentity();
     db.activateOnCurrentThread();
     db.begin();
-    ODocument doc2 = db.load(id);
+    YTDocument doc2 = db.load(id);
     doc2.setProperty("name", "Sun Doe");
     doc2.save();
     doc2.setProperty("name", "Jane Doe");
@@ -43,12 +43,12 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
     db.createVertexClass("test");
     db.createEdgeClass("myLink");
     db.begin();
-    OVertex doc = db.newVertex("test");
+    YTVertex doc = db.newVertex("test");
 
     IntStream.rangeClosed(1, 8)
         .forEach(
             i -> {
-              OVertex linked = db.newVertex("test");
+              YTVertex linked = db.newVertex("test");
               linked.setProperty("name", i + "");
               doc.addEdge(linked, "myLink");
             });
@@ -56,15 +56,15 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    var loadedDoc = db.<OElement>load(doc.getIdentity());
-    loadedDoc.getPropertyOnLoadValue(OVertex.DIRECTION_OUT_PREFIX + "myLink");
+    var loadedDoc = db.<YTEntity>load(doc.getIdentity());
+    loadedDoc.getPropertyOnLoadValue(YTVertex.DIRECTION_OUT_PREFIX + "myLink");
   }
 
   @Test
   public void testOnLoadValueForScalarList() throws IllegalArgumentException {
     db.createVertexClass("test");
     db.begin();
-    OVertex doc = db.newVertex("test");
+    YTVertex doc = db.newVertex("test");
     doc.setProperty("list", Arrays.asList(1, 2, 3));
     doc.save();
     db.commit();
@@ -81,7 +81,7 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
   public void testOnLoadValueForScalarSet() throws IllegalArgumentException {
     db.createVertexClass("test");
     db.begin();
-    OVertex doc = db.newVertex("test");
+    YTVertex doc = db.newVertex("test");
     doc.setProperty("set", new HashSet<>(Arrays.asList(1, 2, 3)));
     doc.save();
     db.commit();
@@ -101,11 +101,11 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
     String after = "Goodbye Cruel World";
 
     var byteArrayAfter = after.getBytes();
-    var oBlob = new ORecordBytes(byteArrayBefore);
-    var oBlob2 = new ORecordBytes(byteArrayAfter);
+    var oBlob = new YTRecordBytes(byteArrayBefore);
+    var oBlob2 = new YTRecordBytes(byteArrayAfter);
     db.createVertexClass("test");
     db.begin();
-    OVertexDocument doc = (OVertexDocument) db.newVertex("test");
+    YTVertexDocument doc = (YTVertexDocument) db.newVertex("test");
     doc.setProperty("stringBlob", oBlob);
     doc.save();
     db.commit();
@@ -116,13 +116,13 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
     doc = db.load(doc.getIdentity());
     doc.setProperty("stringBlob", oBlob2);
     doc.save();
-    ORecordBytes onLoad = doc.getPropertyOnLoadValue("stringBlob");
+    YTRecordBytes onLoad = doc.getPropertyOnLoadValue("stringBlob");
     Assert.assertEquals(before, new String(onLoad.toStream()));
     Assert.assertEquals(
-        after, new String(((ORecordBytes) doc.getProperty("stringBlob")).toStream()));
+        after, new String(((YTRecordBytes) doc.getProperty("stringBlob")).toStream()));
     // no lazy load
     doc.setLazyLoad(false);
-    Assert.assertTrue(doc.getPropertyOnLoadValue("stringBlob") instanceof ORID);
+    Assert.assertTrue(doc.getPropertyOnLoadValue("stringBlob") instanceof YTRID);
   }
 
   @Test
@@ -142,7 +142,7 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
     values.add(Arrays.asList(1, 2, 3, 4));
     values.add(Arrays.asList("1", "2", "3", "4"));
 
-    var operations = new ArrayList<BiFunction<OVertex, String, Void>>();
+    var operations = new ArrayList<BiFunction<YTVertex, String, Void>>();
     operations.add(
         (oVertex, propertyName) -> {
           oVertex.setProperty(propertyName, values.get(random.nextInt(values.size())));
@@ -160,7 +160,7 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
 
     db.createVertexClass("test");
     db.begin();
-    OVertex doc = db.newVertex("test");
+    YTVertex doc = db.newVertex("test");
     var initialValues = new HashMap<String, Object>();
     propertyNames.forEach(
         name -> {
@@ -184,7 +184,7 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
     }
   }
 
-  private void assertInitialValues(OVertex vertex, Map<String, Object> initialValues) {
+  private void assertInitialValues(YTVertex vertex, Map<String, Object> initialValues) {
     initialValues.forEach(
         (key, value) -> {
           Assert.assertEquals(vertex.getPropertyOnLoadValue(key), value);

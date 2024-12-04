@@ -25,9 +25,9 @@ import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.core.sql.parser.OStatementCache;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
@@ -42,7 +42,7 @@ import java.util.Set;
  */
 public class OCommandExecutorToOStatementWrapper implements OCommandExecutor {
 
-  protected OSQLAsynchQuery<ODocument> request;
+  protected OSQLAsynchQuery<YTDocument> request;
   private OCommandContext context;
   private OProgressListener progressListener;
 
@@ -53,10 +53,10 @@ public class OCommandExecutorToOStatementWrapper implements OCommandExecutor {
   public OCommandExecutorToOStatementWrapper parse(OCommandRequest iCommand) {
     final OCommandRequestText textRequest = (OCommandRequestText) iCommand;
     if (iCommand instanceof OSQLAsynchQuery) {
-      request = (OSQLAsynchQuery<ODocument>) iCommand;
+      request = (OSQLAsynchQuery<YTDocument>) iCommand;
     } else {
       // BUILD A QUERY OBJECT FROM THE COMMAND REQUEST
-      request = new OSQLSynchQuery<ODocument>(textRequest.getText());
+      request = new OSQLSynchQuery<YTDocument>(textRequest.getText());
       if (textRequest.getResultListener() != null) {
         request.setResultListener(textRequest.getResultListener());
       }
@@ -66,12 +66,12 @@ public class OCommandExecutorToOStatementWrapper implements OCommandExecutor {
     return this;
   }
 
-  public static ODatabaseSessionInternal getDatabase() {
+  public static YTDatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     return statement.execute(request, context, this.progressListener);
   }
 

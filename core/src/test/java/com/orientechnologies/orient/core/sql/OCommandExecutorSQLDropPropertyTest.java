@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,25 +30,25 @@ public class OCommandExecutorSQLDropPropertyTest extends DBTestBase {
 
   @Test
   public void test() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass foo = schema.createClass("Foo");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass foo = schema.createClass("Foo");
 
-    foo.createProperty(db, "name", OType.STRING);
+    foo.createProperty(db, "name", YTType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
     db.command("DROP PROPERTY Foo.name").close();
     Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
 
-    foo.createProperty(db, "name", OType.STRING);
+    foo.createProperty(db, "name", YTType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
     db.command("DROP PROPERTY `Foo`.name").close();
     Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
 
-    foo.createProperty(db, "name", OType.STRING);
+    foo.createProperty(db, "name", YTType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
     db.command("DROP PROPERTY Foo.`name`").close();
     Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
 
-    foo.createProperty(db, "name", OType.STRING);
+    foo.createProperty(db, "name", YTType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
     db.command("DROP PROPERTY `Foo`.`name`").close();
     Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
@@ -56,10 +56,10 @@ public class OCommandExecutorSQLDropPropertyTest extends DBTestBase {
 
   @Test
   public void testIfExists() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass testIfExistsClass = schema.createClass("testIfExists");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass testIfExistsClass = schema.createClass("testIfExists");
 
-    testIfExistsClass.createProperty(db, "name", OType.STRING);
+    testIfExistsClass.createProperty(db, "name", YTType.STRING);
     Assert.assertTrue(schema.getClass("testIfExists").existsProperty("name"));
     db.command("DROP PROPERTY testIfExists.name if exists").close();
     Assert.assertFalse(schema.getClass("testIfExists").existsProperty("name"));

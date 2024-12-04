@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,8 +15,8 @@ public class OCreateIndexStatementExecutionTest extends BaseMemoryInternalDataba
   @Test
   public void testPlain() {
     String className = "testPlain";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
     OResultSet result =
@@ -34,8 +34,8 @@ public class OCreateIndexStatementExecutionTest extends BaseMemoryInternalDataba
   @Test
   public void testIfNotExists() {
     String className = "testIfNotExists";
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(db, "name", OType.STRING);
+    YTClass clazz = db.getMetadata().getSchema().createClass(className);
+    clazz.createProperty(db, "name", YTType.STRING);
 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
     OResultSet result =

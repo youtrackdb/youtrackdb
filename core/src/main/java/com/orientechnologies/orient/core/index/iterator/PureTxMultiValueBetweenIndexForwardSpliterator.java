@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.index.iterator;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexMultiValues;
 import com.orientechnologies.orient.core.iterator.OEmptyIterator;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
@@ -14,7 +14,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public class PureTxMultiValueBetweenIndexForwardSpliterator
-    implements Spliterator<ORawPair<Object, ORID>> {
+    implements Spliterator<ORawPair<Object, YTRID>> {
 
   /**
    *
@@ -26,7 +26,7 @@ public class PureTxMultiValueBetweenIndexForwardSpliterator
 
   private Object nextKey;
 
-  private Iterator<OIdentifiable> valuesIterator = new OEmptyIterator<>();
+  private Iterator<YTIdentifiable> valuesIterator = new OEmptyIterator<>();
   private Object key;
 
   public PureTxMultiValueBetweenIndexForwardSpliterator(
@@ -58,9 +58,9 @@ public class PureTxMultiValueBetweenIndexForwardSpliterator
   }
 
   @Override
-  public boolean tryAdvance(Consumer<? super ORawPair<Object, ORID>> action) {
+  public boolean tryAdvance(Consumer<? super ORawPair<Object, YTRID>> action) {
     if (valuesIterator.hasNext()) {
-      final ORawPair<Object, ORID> entry = nextEntryInternal();
+      final ORawPair<Object, YTRID> entry = nextEntryInternal();
       action.accept(entry);
       return true;
     }
@@ -69,7 +69,7 @@ public class PureTxMultiValueBetweenIndexForwardSpliterator
       return false;
     }
 
-    Set<OIdentifiable> result;
+    Set<YTIdentifiable> result;
     do {
       result = OIndexMultiValues.calculateTxValue(nextKey, indexChanges);
       key = nextKey;
@@ -86,19 +86,19 @@ public class PureTxMultiValueBetweenIndexForwardSpliterator
     }
 
     valuesIterator = result.iterator();
-    final ORawPair<Object, ORID> entry = nextEntryInternal();
+    final ORawPair<Object, YTRID> entry = nextEntryInternal();
     action.accept(entry);
 
     return true;
   }
 
-  private ORawPair<Object, ORID> nextEntryInternal() {
-    final OIdentifiable identifiable = valuesIterator.next();
+  private ORawPair<Object, YTRID> nextEntryInternal() {
+    final YTIdentifiable identifiable = valuesIterator.next();
     return new ORawPair<>(key, identifiable.getIdentity());
   }
 
   @Override
-  public Spliterator<ORawPair<Object, ORID>> trySplit() {
+  public Spliterator<ORawPair<Object, YTRID>> trySplit() {
     return null;
   }
 
@@ -113,7 +113,7 @@ public class PureTxMultiValueBetweenIndexForwardSpliterator
   }
 
   @Override
-  public Comparator<? super ORawPair<Object, ORID>> getComparator() {
+  public Comparator<? super ORawPair<Object, YTRID>> getComparator() {
     return (entryOne, entryTwo) ->
         ODefaultComparator.INSTANCE.compare(entryOne.first, entryTwo.first);
   }

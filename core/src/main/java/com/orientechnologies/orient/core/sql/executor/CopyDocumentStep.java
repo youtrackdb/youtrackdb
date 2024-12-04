@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -27,15 +27,15 @@ public class CopyDocumentStep extends AbstractExecutionStep {
   }
 
   private static OResult mapResult(OResult result, OCommandContext ctx) {
-    ODocument resultDoc;
+    YTDocument resultDoc;
     if (result.isElement()) {
-      var docToCopy = (ODocument) result.toElement();
+      var docToCopy = (YTDocument) result.toElement();
       resultDoc = docToCopy.copy();
       resultDoc.getIdentity().reset();
       resultDoc.setClassName(null);
       resultDoc.setDirty();
     } else {
-      resultDoc = (ODocument) result.toElement();
+      resultDoc = (YTDocument) result.toElement();
     }
     return new OUpdatableResult(ctx.getDatabase(), resultDoc);
   }

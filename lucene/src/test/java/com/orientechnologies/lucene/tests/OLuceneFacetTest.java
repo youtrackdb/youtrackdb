@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -37,36 +37,36 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
 
   @Before
   public void init() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("Item");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("Item");
 
-    oClass.createProperty(db, "name", OType.STRING);
-    oClass.createProperty(db, "category", OType.STRING);
+    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "category", YTType.STRING);
 
     db.command(
             "create index Item.name_category on Item (name,category) FULLTEXT ENGINE LUCENE"
                 + " METADATA { 'facetFields' : ['category']}")
         .close();
 
-    ODocument doc = new ODocument("Item");
+    YTDocument doc = new YTDocument("Item");
     doc.field("name", "Pioneer");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new ODocument("Item");
+    doc = new YTDocument("Item");
     doc.field("name", "Hitachi");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new ODocument("Item");
+    doc = new YTDocument("Item");
     doc.field("name", "Philips");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new ODocument("Item");
+    doc = new YTDocument("Item");
     doc.field("name", "HP");
     doc.field("category", "Electronic/Computer");
 
@@ -79,27 +79,27 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
   @Ignore
   public void baseFacetTest() {
 
-    List<OElement> result =
+    List<YTEntity> result =
         db.command("select *,$facet from Item where name lucene '(name:P*)' limit 1 ").stream()
             .map((o) -> o.toElement())
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
 
-    List<ODocument> facets = result.get(0).getProperty("$facet");
+    List<YTDocument> facets = result.get(0).getProperty("$facet");
 
     Assert.assertEquals(facets.size(), 1);
 
-    ODocument facet = facets.get(0);
+    YTDocument facet = facets.get(0);
     Assert.assertEquals(facet.<Object>field("childCount"), 1);
     Assert.assertEquals(facet.<Object>field("value"), 2);
     Assert.assertEquals(facet.field("dim"), "category");
 
-    List<ODocument> labelsValues = facet.field("labelsValue");
+    List<YTDocument> labelsValues = facet.field("labelsValue");
 
     Assert.assertEquals(labelsValues.size(), 1);
 
-    ODocument labelValues = labelsValues.get(0);
+    YTDocument labelValues = labelsValues.get(0);
 
     Assert.assertEquals(labelValues.<Object>field("value"), 2);
     Assert.assertEquals(labelValues.field("label"), "Electronic");

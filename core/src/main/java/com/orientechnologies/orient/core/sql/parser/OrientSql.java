@@ -2,6 +2,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -16744,13 +16745,13 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case NAME:
           jj_consume_token(NAME);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.NAME;
+              YTClass.ATTRIBUTES.NAME;
           jjtn000.identifierValue = Identifier();
           break;
         case SHORTNAME:
           jj_consume_token(SHORTNAME);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.SHORTNAME;
+              YTClass.ATTRIBUTES.SHORTNAME;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TO:
             case VALUE:
@@ -16877,7 +16878,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case SUPERCLASS:
           jj_consume_token(SUPERCLASS);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.SUPERCLASS;
+              YTClass.ATTRIBUTES.SUPERCLASS;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case PLUS:
             case MINUS:
@@ -17026,7 +17027,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case SUPERCLASSES:
           jj_consume_token(SUPERCLASSES);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.SUPERCLASSES;
+              YTClass.ATTRIBUTES.SUPERCLASSES;
           jjtn000.identifierListValue = new ArrayList<OIdentifier>();
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TO:
@@ -17169,13 +17170,13 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case OVERSIZE:
           jj_consume_token(OVERSIZE);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.OVERSIZE;
+              YTClass.ATTRIBUTES.OVERSIZE;
           jjtn000.numberValue = Number();
           break;
         case STRICTMODE:
           jj_consume_token(STRICTMODE);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.STRICTMODE;
+              YTClass.ATTRIBUTES.STRICTMODE;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TRUE:
               jj_consume_token(TRUE);
@@ -17194,7 +17195,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case ADDCLUSTER:
           jj_consume_token(ADDCLUSTER);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.ADDCLUSTER;
+              YTClass.ATTRIBUTES.ADDCLUSTER;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TO:
             case VALUE:
@@ -17322,7 +17323,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case REMOVECLUSTER:
           jj_consume_token(REMOVECLUSTER);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.REMOVECLUSTER;
+              YTClass.ATTRIBUTES.REMOVECLUSTER;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TO:
             case VALUE:
@@ -17450,7 +17451,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case CUSTOM:
           jj_consume_token(CUSTOM);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.CUSTOM;
+              YTClass.ATTRIBUTES.CUSTOM;
           jjtn000.customKey = Identifier();
           jj_consume_token(EQ);
           jjtn000.customValue = Expression();
@@ -17458,7 +17459,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case ABSTRACT:
           jj_consume_token(ABSTRACT);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.ABSTRACT;
+              YTClass.ATTRIBUTES.ABSTRACT;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TRUE:
               jj_consume_token(TRUE);
@@ -17477,7 +17478,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case CLUSTERSELECTION:
           jj_consume_token(CLUSTERSELECTION);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.CLUSTERSELECTION;
+              YTClass.ATTRIBUTES.CLUSTERSELECTION;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TO:
             case VALUE:
@@ -17611,7 +17612,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case DESCRIPTION:
           jj_consume_token(DESCRIPTION);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.DESCRIPTION;
+              YTClass.ATTRIBUTES.DESCRIPTION;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TO:
             case VALUE:
@@ -17738,7 +17739,7 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
         case ENCRYPTION:
           jj_consume_token(ENCRYPTION);
           jjtn000.property =
-              com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.ENCRYPTION;
+              YTClass.ATTRIBUTES.ENCRYPTION;
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TO:
             case VALUE:

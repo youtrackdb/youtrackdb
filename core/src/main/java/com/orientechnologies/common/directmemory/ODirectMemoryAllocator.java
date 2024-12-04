@@ -25,7 +25,7 @@ import com.orientechnologies.common.exception.ODirectMemoryAllocationFailedExcep
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.types.OModifiableLong;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -44,7 +44,7 @@ import sun.misc.Unsafe;
  * Manages all allocations/deallocations from/to direct memory. Also tracks the presence of memory
  * leaks.
  *
- * @see OGlobalConfiguration#DIRECT_MEMORY_POOL_LIMIT
+ * @see YTGlobalConfiguration#DIRECT_MEMORY_POOL_LIMIT
  */
 public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
 
@@ -63,16 +63,16 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
   }
 
   private static final boolean PROFILE_MEMORY =
-      OGlobalConfiguration.MEMORY_PROFILING.getValueAsBoolean();
+      YTGlobalConfiguration.MEMORY_PROFILING.getValueAsBoolean();
 
   private static final int MEMORY_STATISTICS_PRINTING_INTERVAL =
-      OGlobalConfiguration.MEMORY_PROFILING_REPORT_INTERVAL.getValueAsInteger();
+      YTGlobalConfiguration.MEMORY_PROFILING_REPORT_INTERVAL.getValueAsInteger();
 
   /**
    * Whether we should track memory leaks during application execution
    */
   private static final boolean TRACK =
-      OGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.getValueAsBoolean();
+      YTGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.getValueAsBoolean();
 
   /**
    * Holder for singleton instance

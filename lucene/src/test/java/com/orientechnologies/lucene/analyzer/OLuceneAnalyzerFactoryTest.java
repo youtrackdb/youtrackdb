@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class OLuceneAnalyzerFactoryTest {
 
     String metajson =
         OIOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
-    var metadataDocument = new ODocument();
+    var metadataDocument = new YTDocument();
     metadataDocument.fromJSON(metajson);
     metadata = metadataDocument.toMap();
 

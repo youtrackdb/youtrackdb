@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.server.query;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -28,7 +28,7 @@ public class RemoteTokenExpireTest {
   private static final String SERVER_DIRECTORY = "./target/token";
   private OServer server;
   private YouTrackDB youTrackDB;
-  private ODatabaseSession session;
+  private YTDatabaseSession session;
   private int oldPageSize;
 
   private final long expireTimeout = 500;
@@ -60,7 +60,7 @@ public class RemoteTokenExpireTest {
     youTrackDB.close();
 
     var config =
-        YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
+        YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
     youTrackDB = new YouTrackDB("remote:localhost", "root", "root", config);
     session = youTrackDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
   }
@@ -208,11 +208,11 @@ public class RemoteTokenExpireTest {
             "admin",
             YouTrackDBConfig.builder()
                 .addConfig(
-                    OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY,
+                    YTGlobalConfiguration.CLIENT_CONNECTION_STRATEGY,
                     OStorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
                 .build());
 
-    ODatabaseSession session = pool.acquire();
+    YTDatabaseSession session = pool.acquire();
 
     try (OResultSet resultSet = session.query("select from Some")) {
       Assert.assertEquals(0, resultSet.stream().count());

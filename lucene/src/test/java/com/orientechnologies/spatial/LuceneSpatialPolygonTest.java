@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,12 +37,12 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
   public void init() {
 
     db.set(ATTRIBUTES.CUSTOM, "strictSql=false");
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass oClass = schema.createClass("Place");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OPolygon"));
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OPolygon"));
+    oClass.createProperty(db, "name", YTType.STRING);
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
   }
@@ -57,12 +57,12 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
   protected void queryPolygon() {
 
     String query = "select * from Place where location && 'POINT(13.383333 52.516667)'";
-    List<ODocument> docs = db.query(new OSQLSynchQuery<ODocument>(query));
+    List<YTDocument> docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
     Assert.assertEquals(docs.size(), 1);
 
     query = "select * from Place where location && 'POINT(12.5 41.9)'";
-    docs = db.query(new OSQLSynchQuery<ODocument>(query));
+    docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
     Assert.assertEquals(docs.size(), 0);
   }
@@ -72,14 +72,14 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
 
     InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("germany.json");
 
-    ODocument doc = new ODocument().fromJSON(systemResourceAsStream);
+    YTDocument doc = new YTDocument().fromJSON(systemResourceAsStream);
 
     Map geometry = doc.field("geometry");
 
     String type = (String) geometry.get("type");
-    ODocument location = new ODocument("O" + type);
+    YTDocument location = new YTDocument("O" + type);
     location.field("coordinates", geometry.get("coordinates"));
-    ODocument germany = new ODocument("Place");
+    YTDocument germany = new YTDocument("Place");
     germany.field("name", "Germany");
     germany.field("location", location);
 

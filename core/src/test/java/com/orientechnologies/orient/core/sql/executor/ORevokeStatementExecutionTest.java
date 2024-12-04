@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -22,7 +22,7 @@ import org.junit.Test;
 public class ORevokeStatementExecutionTest {
 
   static YouTrackDB orient;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
@@ -37,7 +37,7 @@ public class ORevokeStatementExecutionTest {
   @Before
   public void before() {
     OCreateDatabaseUtil.createDatabase("test", orient, OCreateDatabaseUtil.TYPE_MEMORY);
-    this.db = (ODatabaseSessionInternal) orient.open("test", "admin",
+    this.db = (YTDatabaseSessionInternal) orient.open("test", "admin",
         OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 

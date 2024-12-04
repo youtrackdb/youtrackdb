@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -33,10 +33,10 @@ import java.util.concurrent.ExecutionException;
 public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
 
   private static final int replicationProtocolVersion =
-      OGlobalConfiguration.DISTRIBUTED_REPLICATION_PROTOCOL_VERSION.getValue();
+      YTGlobalConfiguration.DISTRIBUTED_REPLICATION_PROTOCOL_VERSION.getValue();
 
   public OSequenceLibraryProxy(
-      final OSequenceLibraryImpl iDelegate, final ODatabaseSessionInternal iDatabase) {
+      final OSequenceLibraryImpl iDelegate, final YTDatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 
@@ -51,13 +51,13 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
   }
 
   @Override
-  public OSequence getSequence(String iName) {
+  public YTSequence getSequence(String iName) {
     return delegate.getSequence(database, iName);
   }
 
   @Override
-  public OSequence createSequence(
-      String iName, SEQUENCE_TYPE sequenceType, OSequence.CreateParams params)
+  public YTSequence createSequence(
+      String iName, SEQUENCE_TYPE sequenceType, YTSequence.CreateParams params)
       throws ODatabaseException {
     boolean shouldGoOverDistributted =
         database.isDistributed() && (replicationProtocolVersion == 2);
@@ -65,10 +65,10 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
   }
 
   @Override
-  OSequence createSequence(
+  YTSequence createSequence(
       String iName,
       SEQUENCE_TYPE sequenceType,
-      OSequence.CreateParams params,
+      YTSequence.CreateParams params,
       boolean executeViaDistributed)
       throws ODatabaseException {
     if (executeViaDistributed) {

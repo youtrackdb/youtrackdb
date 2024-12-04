@@ -4,8 +4,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 
 /**
@@ -13,10 +13,10 @@ import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
  */
 public class OLiveQueryClientListener {
 
-  private final ODatabaseSession database;
+  private final YTDatabaseSession database;
   private final OLiveQueryResultListener listener;
 
-  public OLiveQueryClientListener(ODatabaseSession database, OLiveQueryResultListener listener) {
+  public OLiveQueryClientListener(YTDatabaseSession database, OLiveQueryResultListener listener) {
     this.database = database;
     this.listener = listener;
   }
@@ -28,7 +28,7 @@ public class OLiveQueryClientListener {
    * @return
    */
   public boolean onEvent(OLiveQueryPushRequest pushRequest) {
-    ODatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       if (pushRequest.getStatus() == OLiveQueryPushRequest.ERROR) {
@@ -60,7 +60,7 @@ public class OLiveQueryClientListener {
   }
 
   public void onError(OException e) {
-    ODatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       listener.onError(database, e);
@@ -71,7 +71,7 @@ public class OLiveQueryClientListener {
   }
 
   public void onEnd() {
-    ODatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       listener.onEnd(database);

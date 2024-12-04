@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
@@ -30,7 +30,7 @@ public class OContainsTextCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (leftValue == null || !(leftValue instanceof String)) {
       return false;
@@ -211,7 +211,7 @@ public class OContainsTextCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (left != null && !left.isCacheable(session)) {
       return false;
     }

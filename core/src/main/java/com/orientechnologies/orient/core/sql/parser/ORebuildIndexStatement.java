@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -26,7 +26,7 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = ctx.getDatabase();
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
     OResultInternal result = new OResultInternal(database);
     result.setProperty("operation", "rebuild index");
 

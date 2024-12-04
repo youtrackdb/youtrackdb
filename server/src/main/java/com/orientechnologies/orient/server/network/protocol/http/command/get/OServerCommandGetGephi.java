@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -81,10 +81,10 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
         //        List<Object> result = new ArrayList<Object>();
         //        OGremlinHelper.execute(graph, text, null, null, result, null, null);
         //
-        //        resultSet = new ArrayList<OElement>(result.size());
+        //        resultSet = new ArrayList<YTEntity>(result.size());
         //
         //        for (Object o : result) {
-        //          ((ArrayList<OElement>) resultSet).add(db.getVertex(o));
+        //          ((ArrayList<YTEntity>) resultSet).add(db.getVertex(o));
         //        }
       } else {
         throw new IllegalArgumentException(
@@ -131,8 +131,8 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
     }
 
     // CREATE A SET TO SPEED UP SEARCHES ON VERTICES
-    final Set<OVertex> vertexes = new HashSet<>();
-    final Set<OEdge> edges = new HashSet<>();
+    final Set<YTVertex> vertexes = new HashSet<>();
+    final Set<YTEdge> edges = new HashSet<>();
 
     int i = 0;
     while (resultSet.hasNext()) {
@@ -149,7 +149,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
     }
     resultSet.close();
 
-    for (OVertex vertex : vertexes) {
+    for (YTVertex vertex : vertexes) {
       json.resetAttributes();
       json.beginObject(0, false, null);
       json.beginObject(1, false, "an");
@@ -171,7 +171,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
       json.newline();
     }
 
-    for (OEdge edge : edges) {
+    for (YTEdge edge : edges) {
 
       json.resetAttributes();
       json.beginObject();
@@ -203,7 +203,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
   }
 
   protected OResultSet executeStatement(
-      String language, String text, Object params, ODatabaseSession db) {
+      String language, String text, Object params, YTDatabaseSession db) {
     OResultSet result;
     if (params instanceof Map) {
       result = db.command(text, (Map) params);

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.OEdge;
+import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -23,7 +23,7 @@ public class CastToEdgeStep extends AbstractExecutionStep {
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
-    if (result.getElement().orElse(null) instanceof OEdge) {
+    if (result.getElement().orElse(null) instanceof YTEdge) {
       return result;
     }
     var db = ctx.getDatabase();

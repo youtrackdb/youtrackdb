@@ -4,12 +4,12 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -53,7 +53,7 @@ public class OExpression extends SimpleNode {
     mathExpression = new OBaseExpression(attr, modifier);
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     if (isNull) {
       return null;
     }
@@ -78,7 +78,7 @@ public class OExpression extends SimpleNode {
 
     // from here it's old stuff, only for the old executor
     if (value instanceof ORid v) {
-      return new ORecordId(v.cluster.getValue().intValue(), v.position.getValue().longValue());
+      return new YTRecordId(v.cluster.getValue().intValue(), v.position.getValue().longValue());
     } else if (value instanceof OMathExpression) {
       return ((OMathExpression) value).execute(iCurrentRecord, ctx);
     } else if (value instanceof OArrayConcatExpression) {
@@ -119,7 +119,7 @@ public class OExpression extends SimpleNode {
 
     // from here it's old stuff, only for the old executor
     if (value instanceof ORid v) {
-      return new ORecordId(v.cluster.getValue().intValue(), v.position.getValue().longValue());
+      return new YTRecordId(v.cluster.getValue().intValue(), v.position.getValue().longValue());
     } else if (value instanceof OMathExpression) {
       return ((OMathExpression) value).execute(iCurrentRecord, ctx);
     } else if (value instanceof OArrayConcatExpression) {
@@ -283,7 +283,7 @@ public class OExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexedFunctionCal(ODatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCal(YTDatabaseSessionInternal session) {
     if (mathExpression != null) {
       return mathExpression.isIndexedFunctionCall(session);
     }
@@ -318,7 +318,7 @@ public class OExpression extends SimpleNode {
     return -1;
   }
 
-  public Iterable<OIdentifiable> executeIndexedFunction(
+  public Iterable<YTIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
     if (mathExpression != null) {
       return mathExpression.executeIndexedFunction(target, context, operator, right);
@@ -409,7 +409,7 @@ public class OExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     if (mathExpression != null && mathExpression.isAggregate(session)) {
       return true;
     }
@@ -421,7 +421,7 @@ public class OExpression extends SimpleNode {
 
   public OExpression splitForAggregation(
       AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
-    ODatabaseSessionInternal database = ctx.getDatabase();
+    YTDatabaseSessionInternal database = ctx.getDatabase();
     if (isAggregate(database)) {
       OExpression result = new OExpression(-1);
       if (mathExpression != null) {
@@ -620,7 +620,7 @@ public class OExpression extends SimpleNode {
     this.arrayConcatExpression = arrayConcatExpression;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("singleQuotes", singleQuotes);
     result.setProperty("doubleQuotes", doubleQuotes);
@@ -674,7 +674,7 @@ public class OExpression extends SimpleNode {
     }
   }
 
-  public boolean isDefinedFor(OElement currentRecord) {
+  public boolean isDefinedFor(YTEntity currentRecord) {
     if (mathExpression != null) {
       return mathExpression.isDefinedFor(currentRecord);
     } else {
@@ -689,7 +689,7 @@ public class OExpression extends SimpleNode {
     return null;
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (mathExpression != null) {
       return mathExpression.isCacheable(session);
     }
@@ -703,7 +703,7 @@ public class OExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexChain(OCommandContext ctx, OClass clazz) {
+  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
     if (mathExpression != null) {
       return mathExpression.isIndexChain(ctx, clazz);
     }

@@ -17,7 +17,7 @@ package com.orientechnologies.orient.core.sql.functions.text;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
@@ -43,7 +43,7 @@ public class OSQLMethodHash extends OAbstractSQLMethod {
   @Override
   public Object execute(
       final Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final OCommandContext iContext,
       final Object ioResult,
       final Object[] iParams) {

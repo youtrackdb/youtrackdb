@@ -24,8 +24,8 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -38,17 +38,17 @@ import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
@@ -70,7 +70,7 @@ import java.util.TimeZone;
 public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   private static final String CHARSET_UTF_8 = "UTF-8";
-  private static final ORecordId NULL_RECORD_ID = new ORecordId(-2, ORID.CLUSTER_POS_INVALID);
+  private static final YTRecordId NULL_RECORD_ID = new YTRecordId(-2, YTRID.CLUSTER_POS_INVALID);
   private static final long MILLISEC_PER_DAY = 86400000;
 
   public ORecordSerializerNetworkV0() {
@@ -78,7 +78,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   @Override
   public void deserializePartial(
-      ODatabaseSessionInternal db, final ODocument document, final BytesContainer bytes,
+      YTDatabaseSessionInternal db, final YTDocument document, final BytesContainer bytes,
       final String[] iFields) {
     final String className = readString(bytes);
     if (className.length() != 0) {
@@ -93,7 +93,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
     String fieldName = null;
     int valuePos;
-    OType type;
+    YTType type;
     int unmarshalledFields = 0;
 
     while (true) {
@@ -142,7 +142,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         bytes.offset = headerCursor;
         document.field(fieldName, value, type);
       } else {
-        document.field(fieldName, null, (OType[]) null);
+        document.field(fieldName, null, (YTType[]) null);
       }
 
       if (unmarshalledFields == iFields.length)
@@ -154,7 +154,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   }
 
   @Override
-  public void deserialize(ODatabaseSessionInternal db, final ODocument document,
+  public void deserialize(YTDatabaseSessionInternal db, final YTDocument document,
       final BytesContainer bytes) {
     final String className = readString(bytes);
     if (className.length() != 0) {
@@ -164,7 +164,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     int last = 0;
     String fieldName;
     int valuePos;
-    OType type;
+    YTType type;
     while (true) {
       final int len = OVarIntSerializer.readAsInteger(bytes);
       if (len == 0) {
@@ -194,7 +194,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         bytes.offset = headerCursor;
         document.field(fieldName, value, type);
       } else {
-        document.field(fieldName, null, (OType[]) null);
+        document.field(fieldName, null, (YTType[]) null);
       }
     }
 
@@ -207,10 +207,10 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void serialize(ODatabaseSessionInternal session, final ODocument document,
+  public void serialize(YTDatabaseSessionInternal session, final YTDocument document,
       final BytesContainer bytes) {
     ORecordInternal.checkForBinding(document);
-    OImmutableSchema schema = ODocumentInternal.getImmutableSchema(document);
+    YTImmutableSchema schema = ODocumentInternal.getImmutableSchema(document);
     OPropertyEncryption encryption = ODocumentInternal.getPropertyEncryption(document);
 
     serializeClass(document, bytes);
@@ -239,12 +239,12 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
       int pointer = 0;
       final Object value = values[i].getValue().value;
       if (value != null) {
-        final OType type = getFieldType(values[i].getValue());
+        final YTType type = getFieldType(values[i].getValue());
         if (type == null) {
           throw new OSerializationException(
               "Impossible serialize value of type "
                   + value.getClass()
-                  + " with the ODocument binary serializer");
+                  + " with the YTDocument binary serializer");
         }
         pointer =
             serializeValue(session,
@@ -260,7 +260,8 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   }
 
   @Override
-  public String[] getFieldNames(ODocument reference, final BytesContainer bytes, boolean embedded) {
+  public String[] getFieldNames(YTDocument reference, final BytesContainer bytes,
+      boolean embedded) {
     // SKIP CLASS NAME
     final int classNameLen = OVarIntSerializer.readAsInteger(bytes);
     bytes.skip(classNameLen);
@@ -288,15 +289,15 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         result.add(prop.getName());
 
         // SKIP THE REST
-        bytes.skip(OIntegerSerializer.INT_SIZE + (prop.getType() != OType.ANY ? 0 : 1));
+        bytes.skip(OIntegerSerializer.INT_SIZE + (prop.getType() != YTType.ANY ? 0 : 1));
       }
     }
 
     return result.toArray(new String[result.size()]);
   }
 
-  protected OClass serializeClass(final ODocument document, final BytesContainer bytes) {
-    final OClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
+  protected YTClass serializeClass(final YTDocument document, final BytesContainer bytes) {
+    final YTClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
     String name = null;
     if (clazz != null) {
       name = clazz.getName();
@@ -313,15 +314,16 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return clazz;
   }
 
-  protected OType readOType(final BytesContainer bytes) {
-    return OType.getById(readByte(bytes));
+  protected YTType readOType(final BytesContainer bytes) {
+    return YTType.getById(readByte(bytes));
   }
 
-  private void writeOType(BytesContainer bytes, int pos, OType type) {
+  private void writeOType(BytesContainer bytes, int pos, YTType type) {
     bytes.bytes[pos] = (byte) type.getId();
   }
 
-  public Object deserializeValue(ODatabaseSessionInternal session, BytesContainer bytes, OType type,
+  public Object deserializeValue(YTDatabaseSessionInternal session, BytesContainer bytes,
+      YTType type,
       ORecordElement owner) {
     Object value = null;
     switch (type) {
@@ -360,20 +362,20 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         value = new Date(savedTime);
         break;
       case EMBEDDED:
-        value = new ODocumentEmbedded();
-        deserialize(session, (ODocument) value, bytes);
-        if (((ODocument) value).containsField(ODocumentSerializable.CLASS_NAME)) {
-          String className = ((ODocument) value).field(ODocumentSerializable.CLASS_NAME);
+        value = new YTDocumentEmbedded();
+        deserialize(session, (YTDocument) value, bytes);
+        if (((YTDocument) value).containsField(ODocumentSerializable.CLASS_NAME)) {
+          String className = ((YTDocument) value).field(ODocumentSerializable.CLASS_NAME);
           try {
             Class<?> clazz = Class.forName(className);
             ODocumentSerializable newValue = (ODocumentSerializable) clazz.newInstance();
-            newValue.fromDocument((ODocument) value);
+            newValue.fromDocument((YTDocument) value);
             value = newValue;
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
         } else {
-          ODocumentInternal.addOwner((ODocument) value, owner);
+          ODocumentInternal.addOwner((YTDocument) value, owner);
         }
 
         break;
@@ -444,14 +446,14 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return newValue;
   }
 
-  private Map<Object, OIdentifiable> readLinkMap(
-      ODatabaseSessionInternal db, final BytesContainer bytes, final ORecordElement owner) {
+  private Map<Object, YTIdentifiable> readLinkMap(
+      YTDatabaseSessionInternal db, final BytesContainer bytes, final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     OMap result = new OMap(owner);
     while ((size--) > 0) {
-      OType keyType = readOType(bytes);
+      YTType keyType = readOType(bytes);
       Object key = deserializeValue(db, bytes, keyType, result);
-      ORecordId value = readOptimizedLink(bytes);
+      YTRecordId value = readOptimizedLink(bytes);
       if (value.equals(NULL_RECORD_ID)) {
         result.put(key, null);
       } else {
@@ -461,16 +463,16 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return result;
   }
 
-  private Object readEmbeddedMap(ODatabaseSessionInternal db, final BytesContainer bytes,
+  private Object readEmbeddedMap(YTDatabaseSessionInternal db, final BytesContainer bytes,
       final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     final OTrackedMap<Object> result = new OTrackedMap<Object>(owner);
     int last = 0;
     while ((size--) > 0) {
-      OType keyType = readOType(bytes);
+      YTType keyType = readOType(bytes);
       Object key = deserializeValue(db, bytes, keyType, result);
       final int valuePos = readInteger(bytes);
-      final OType type = readOType(bytes);
+      final YTType type = readOType(bytes);
       if (valuePos != 0) {
         int headerCursor = bytes.offset;
         bytes.offset = valuePos;
@@ -490,11 +492,11 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return result;
   }
 
-  private Collection<OIdentifiable> readLinkCollection(
-      BytesContainer bytes, Collection<OIdentifiable> found) {
+  private Collection<YTIdentifiable> readLinkCollection(
+      BytesContainer bytes, Collection<YTIdentifiable> found) {
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
-      ORecordId id = readOptimizedLink(bytes);
+      YTRecordId id = readOptimizedLink(bytes);
       if (id.equals(NULL_RECORD_ID)) {
         found.add(null);
       } else {
@@ -504,21 +506,21 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return found;
   }
 
-  private ORecordId readOptimizedLink(final BytesContainer bytes) {
-    return new ORecordId(
+  private YTRecordId readOptimizedLink(final BytesContainer bytes) {
+    return new YTRecordId(
         OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
   }
 
   private Collection<?> readEmbeddedCollection(
-      ODatabaseSessionInternal db, final BytesContainer bytes, final Collection<Object> found,
+      YTDatabaseSessionInternal db, final BytesContainer bytes, final Collection<Object> found,
       final ORecordElement owner) {
     final int items = OVarIntSerializer.readAsInteger(bytes);
-    OType type = readOType(bytes);
+    YTType type = readOType(bytes);
 
-    if (type == OType.ANY) {
+    if (type == YTType.ANY) {
       for (int i = 0; i < items; i++) {
-        OType itemType = readOType(bytes);
-        if (itemType == OType.ANY) {
+        YTType itemType = readOType(bytes);
+        if (itemType == YTType.ANY) {
           found.add(null);
         } else {
           found.add(deserializeValue(db, bytes, itemType, owner));
@@ -530,13 +532,13 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return null;
   }
 
-  private OType getLinkedType(ODocument document, OType type, String key) {
-    if (type != OType.EMBEDDEDLIST && type != OType.EMBEDDEDSET && type != OType.EMBEDDEDMAP) {
+  private YTType getLinkedType(YTDocument document, YTType type, String key) {
+    if (type != YTType.EMBEDDEDLIST && type != YTType.EMBEDDEDSET && type != YTType.EMBEDDEDMAP) {
       return null;
     }
-    OClass immutableClass = ODocumentInternal.getImmutableSchemaClass(document);
+    YTClass immutableClass = ODocumentInternal.getImmutableSchemaClass(document);
     if (immutableClass != null) {
-      OProperty prop = immutableClass.getProperty(key);
+      YTProperty prop = immutableClass.getProperty(key);
       if (prop != null) {
         return prop.getLinkedType();
       }
@@ -547,11 +549,11 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   @SuppressWarnings("unchecked")
   @Override
   public int serializeValue(
-      ODatabaseSessionInternal session, final BytesContainer bytes,
+      YTDatabaseSessionInternal session, final BytesContainer bytes,
       Object value,
-      final OType type,
-      final OType linkedType,
-      OImmutableSchema schema,
+      final YTType type,
+      final YTType linkedType,
+      YTImmutableSchema schema,
       OPropertyEncryption encryption) {
     int pointer = 0;
     switch (type) {
@@ -603,11 +605,11 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
       case EMBEDDED:
         pointer = bytes.offset;
         if (value instanceof ODocumentSerializable) {
-          ODocument cur = ((ODocumentSerializable) value).toDocument();
+          YTDocument cur = ((ODocumentSerializable) value).toDocument();
           cur.field(ODocumentSerializable.CLASS_NAME, value.getClass().getName());
           serialize(session, cur, bytes);
         } else {
-          serialize(session, (ODocument) value, bytes);
+          serialize(session, (YTDocument) value, bytes);
         }
         break;
       case EMBEDDEDSET:
@@ -632,18 +634,18 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         break;
       case LINKSET:
       case LINKLIST:
-        Collection<OIdentifiable> ridCollection = (Collection<OIdentifiable>) value;
+        Collection<YTIdentifiable> ridCollection = (Collection<YTIdentifiable>) value;
         pointer = writeLinkCollection(bytes, ridCollection);
         break;
       case LINK:
-        if (!(value instanceof OIdentifiable)) {
-          throw new OValidationException("Value '" + value + "' is not a OIdentifiable");
+        if (!(value instanceof YTIdentifiable)) {
+          throw new OValidationException("Value '" + value + "' is not a YTIdentifiable");
         }
 
-        pointer = writeOptimizedLink(bytes, (OIdentifiable) value);
+        pointer = writeOptimizedLink(bytes, (YTIdentifiable) value);
         break;
       case LINKMAP:
-        pointer = writeLinkMap(bytes, (Map<Object, OIdentifiable>) value);
+        pointer = writeLinkMap(bytes, (Map<Object, YTIdentifiable>) value);
         break;
       case EMBEDDEDMAP:
         pointer = writeEmbeddedMap(session, bytes, (Map<Object, Object>) value, schema, encryption);
@@ -673,12 +675,12 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return pointer;
   }
 
-  private int writeLinkMap(final BytesContainer bytes, final Map<Object, OIdentifiable> map) {
+  private int writeLinkMap(final BytesContainer bytes, final Map<Object, YTIdentifiable> map) {
     final int fullPos = OVarIntSerializer.write(bytes, map.size());
-    for (Entry<Object, OIdentifiable> entry : map.entrySet()) {
+    for (Entry<Object, YTIdentifiable> entry : map.entrySet()) {
       // TODO:check skip of complex types
       // FIXME: changed to support only string key on map
-      final OType type = OType.STRING;
+      final YTType type = YTType.STRING;
       writeOType(bytes, bytes.alloc(1), type);
       writeString(bytes, entry.getKey().toString());
       if (entry.getValue() == null) {
@@ -692,9 +694,9 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   @SuppressWarnings("unchecked")
   private int writeEmbeddedMap(
-      ODatabaseSessionInternal session, BytesContainer bytes,
+      YTDatabaseSessionInternal session, BytesContainer bytes,
       Map<Object, Object> map,
-      OImmutableSchema schema,
+      YTImmutableSchema schema,
       OPropertyEncryption encryption) {
     final int[] pos = new int[map.size()];
     int i = 0;
@@ -703,7 +705,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     for (Entry<Object, Object> entry : map.entrySet()) {
       // TODO:check skip of complex types
       // FIXME: changed to support only string key on map
-      OType type = OType.STRING;
+      YTType type = YTType.STRING;
       writeOType(bytes, bytes.alloc(1), type);
       writeString(bytes, entry.getKey().toString());
       pos[i] = bytes.alloc(OIntegerSerializer.INT_SIZE + 1);
@@ -715,12 +717,12 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
       int pointer = 0;
       final Object value = values[i].getValue();
       if (value != null) {
-        final OType type = getTypeFromValueEmbedded(value);
+        final YTType type = getTypeFromValueEmbedded(value);
         if (type == null) {
           throw new OSerializationException(
               "Impossible serialize value of type "
                   + value.getClass()
-                  + " with the ODocument binary serializer");
+                  + " with the YTDocument binary serializer");
         }
         pointer = serializeValue(session, bytes, value, type, null, schema, encryption);
         OIntegerSerializer.INSTANCE.serializeLiteral(pointer, bytes.bytes, pos[i]);
@@ -736,7 +738,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return pos;
   }
 
-  private static int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
+  private static int writeOptimizedLink(final BytesContainer bytes, YTIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
       try {
         link = link.getRecord();
@@ -751,9 +753,9 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   }
 
   private int writeLinkCollection(
-      final BytesContainer bytes, final Collection<OIdentifiable> value) {
+      final BytesContainer bytes, final Collection<YTIdentifiable> value) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
-    for (OIdentifiable itemValue : value) {
+    for (YTIdentifiable itemValue : value) {
       // TODO: handle the null links
       if (itemValue == null) {
         writeNullLink(bytes);
@@ -766,21 +768,21 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   }
 
   private int writeEmbeddedCollection(
-      ODatabaseSessionInternal session, final BytesContainer bytes,
+      YTDatabaseSessionInternal session, final BytesContainer bytes,
       final Collection<?> value,
-      final OType linkedType,
-      OImmutableSchema schema,
+      final YTType linkedType,
+      YTImmutableSchema schema,
       OPropertyEncryption encryption) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
     // TODO manage embedded type from schema and auto-determined.
-    writeOType(bytes, bytes.alloc(1), OType.ANY);
+    writeOType(bytes, bytes.alloc(1), YTType.ANY);
     for (Object itemValue : value) {
       // TODO:manage in a better way null entry
       if (itemValue == null) {
-        writeOType(bytes, bytes.alloc(1), OType.ANY);
+        writeOType(bytes, bytes.alloc(1), YTType.ANY);
         continue;
       }
-      OType type;
+      YTType type;
       if (linkedType == null) {
         type = getTypeFromValueEmbedded(itemValue);
       } else {
@@ -793,32 +795,32 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         throw new OSerializationException(
             "Impossible serialize value of type "
                 + value.getClass()
-                + " with the ODocument binary serializer");
+                + " with the YTDocument binary serializer");
       }
     }
     return pos;
   }
 
-  private OType getFieldType(final ODocumentEntry entry) {
-    OType type = entry.type;
+  private YTType getFieldType(final ODocumentEntry entry) {
+    YTType type = entry.type;
     if (type == null) {
-      final OProperty prop = entry.property;
+      final YTProperty prop = entry.property;
       if (prop != null) {
         type = prop.getType();
       }
     }
-    if (type == null || OType.ANY == type) {
-      type = OType.getTypeByValue(entry.value);
+    if (type == null || YTType.ANY == type) {
+      type = YTType.getTypeByValue(entry.value);
     }
     return type;
   }
 
-  private OType getTypeFromValueEmbedded(final Object fieldValue) {
-    OType type = OType.getTypeByValue(fieldValue);
-    if (type == OType.LINK
-        && fieldValue instanceof ODocument
-        && !((ODocument) fieldValue).getIdentity().isValid()) {
-      type = OType.EMBEDDED;
+  private YTType getTypeFromValueEmbedded(final Object fieldValue) {
+    YTType type = YTType.getTypeByValue(fieldValue);
+    if (type == YTType.LINK
+        && fieldValue instanceof YTDocument
+        && !((YTDocument) fieldValue).getIdentity().isValid()) {
+      type = YTType.EMBEDDED;
     }
     return type;
   }
@@ -871,10 +873,10 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   @Override
   public OBinaryField deserializeField(
       final BytesContainer bytes,
-      final OClass iClass,
+      final YTClass iClass,
       final String iFieldName,
       boolean embedded,
-      OImmutableSchema schema,
+      YTImmutableSchema schema,
       OPropertyEncryption encryption) {
     // TODO: check if integrate the binary disc binary comparator here
     throw new UnsupportedOperationException("network serializer doesn't support comparators");
@@ -909,10 +911,10 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   @Override
   public <RET> RET deserializeFieldTyped(
-      ODatabaseSessionInternal session, BytesContainer record,
+      YTDatabaseSessionInternal session, BytesContainer record,
       String iFieldName,
       boolean isEmbedded,
-      OImmutableSchema schema,
+      YTImmutableSchema schema,
       OPropertyEncryption encryption) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
@@ -920,9 +922,9 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   @Override
   public void deserializeDebug(
-      ODatabaseSessionInternal db, BytesContainer bytes,
+      YTDatabaseSessionInternal db, BytesContainer bytes,
       ORecordSerializationDebug debugInfo,
-      OImmutableSchema schema) {
+      YTImmutableSchema schema) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }

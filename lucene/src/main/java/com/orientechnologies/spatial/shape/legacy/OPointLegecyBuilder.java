@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.spatial.shape.legacy;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Point;
 
@@ -25,10 +25,10 @@ import org.locationtech.spatial4j.shape.Point;
 public class OPointLegecyBuilder implements OShapeBuilderLegacy<Point> {
 
   @Override
-  public Point makeShape(ODatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx) {
-    double lat = ((Double) OType.convert(session, key.getKeys().get(0),
+  public Point makeShape(YTDatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx) {
+    double lat = ((Double) YTType.convert(session, key.getKeys().get(0),
         Double.class)).doubleValue();
-    double lng = ((Double) OType.convert(session, key.getKeys().get(1),
+    double lng = ((Double) YTType.convert(session, key.getKeys().get(1),
         Double.class)).doubleValue();
     return ctx.makePoint(lng, lat);
   }

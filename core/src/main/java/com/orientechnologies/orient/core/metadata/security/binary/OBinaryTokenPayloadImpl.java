@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security.binary;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.security.jwt.OBinaryTokenPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenMetaInfo;
 import java.io.DataOutputStream;
@@ -11,7 +11,7 @@ public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
   private String userName;
   private String database;
   private long expiry;
-  private ORID userRid;
+  private YTRID userRid;
   private String databaseType;
   private short protocolVersion;
   private String serializer;
@@ -38,11 +38,11 @@ public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
   }
 
   @Override
-  public ORID getUserRid() {
+  public YTRID getUserRid() {
     return userRid;
   }
 
-  public void setUserRid(ORID rid) {
+  public void setUserRid(YTRID rid) {
     this.userRid = rid;
   }
 
@@ -118,7 +118,7 @@ public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
     } else {
       output.writeByte(serializer.getDbTypeID(this.databaseType));
     }
-    ORID id = this.userRid;
+    YTRID id = this.userRid;
     if (id == null) {
       output.writeShort(-1);
       output.writeLong(-1);

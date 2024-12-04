@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.command.script.formatter;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 
 /**
@@ -28,8 +28,8 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
  */
 public interface OScriptFormatter {
 
-  String getFunctionDefinition(ODatabaseSessionInternal session, OFunction iFunction);
+  String getFunctionDefinition(YTDatabaseSessionInternal session, OFunction iFunction);
 
-  String getFunctionInvoke(ODatabaseSessionInternal session, OFunction iFunction,
+  String getFunctionInvoke(YTDatabaseSessionInternal session, OFunction iFunction,
       final Object[] iArgs);
 }

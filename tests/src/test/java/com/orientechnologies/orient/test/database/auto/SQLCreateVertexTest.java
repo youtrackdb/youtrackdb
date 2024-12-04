@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +27,10 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
 
-    OSchema schema = database.getMetadata().getSchema();
+    YTSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("CreateVertexByContent")) {
-      OClass vClass = schema.createClass("CreateVertexByContent", schema.getClass("V"));
-      vClass.createProperty(database, "message", OType.STRING);
+      YTClass vClass = schema.createClass("CreateVertexByContent", schema.getClass("V"));
+      vClass.createProperty(database, "message", YTType.STRING);
     }
 
     database.begin();
@@ -99,7 +99,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
     database.close();
 
     database = createSessionInstance();
-    database.createVertexClass("Like").createProperty(database, "anything", OType.STRING);
-    database.createVertexClass("Is").createProperty(database, "anything", OType.STRING);
+    database.createVertexClass("Like").createProperty(database, "anything", YTType.STRING);
+    database.createVertexClass("Is").createProperty(database, "anything", YTType.STRING);
   }
 }

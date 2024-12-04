@@ -17,8 +17,8 @@
 package com.orientechnologies.orient.core.sql.method.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,7 +39,7 @@ public class OSQLMethodAsMap extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
@@ -55,10 +55,10 @@ public class OSQLMethodAsMap extends OAbstractSQLMethod {
       return Collections.EMPTY_MAP;
     }
 
-    if (ioResult instanceof ODocument)
+    if (ioResult instanceof YTDocument)
     // CONVERT ODOCUMENT TO MAP
     {
-      return ((ODocument) ioResult).toMap();
+      return ((YTDocument) ioResult).toMap();
     }
 
     Iterator<Object> iter;

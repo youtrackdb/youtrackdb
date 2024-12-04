@@ -21,15 +21,15 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,11 +46,12 @@ import java.util.Set;
  */
 public class OFindReferenceHelper {
 
-  public static List<ODocument> findReferences(final Set<ORID> iRecordIds, final String classList) {
+  public static List<YTDocument> findReferences(final Set<YTRID> iRecordIds,
+      final String classList) {
     final var db = ODatabaseRecordThreadLocal.instance().get();
 
-    final Map<ORID, Set<ORID>> map = new HashMap<ORID, Set<ORID>>();
-    for (ORID rid : iRecordIds) {
+    final Map<YTRID, Set<YTRID>> map = new HashMap<YTRID, Set<YTRID>>();
+    for (YTRID rid : iRecordIds) {
       map.put(rid, new HashSet<>());
     }
 
@@ -73,9 +74,9 @@ public class OFindReferenceHelper {
       }
     }
 
-    final List<ODocument> result = new ArrayList<ODocument>();
-    for (Entry<ORID, Set<ORID>> entry : map.entrySet()) {
-      final ODocument doc = new ODocument();
+    final List<YTDocument> result = new ArrayList<YTDocument>();
+    for (Entry<YTRID, Set<YTRID>> entry : map.entrySet()) {
+      final YTDocument doc = new YTDocument();
       result.add(doc);
 
       doc.field("rid", entry.getKey());
@@ -86,15 +87,15 @@ public class OFindReferenceHelper {
   }
 
   private static void browseCluster(
-      final ODatabaseSession iDatabase,
-      final Set<ORID> iSourceRIDs,
-      final Map<ORID, Set<ORID>> map,
+      final YTDatabaseSession iDatabase,
+      final Set<YTRID> iSourceRIDs,
+      final Map<YTRID, Set<YTRID>> map,
       final String iClusterName) {
-    for (ORecord record : ((ODatabaseSessionInternal) iDatabase).browseCluster(iClusterName)) {
-      if (record instanceof ODocument) {
+    for (YTRecord record : ((YTDatabaseSessionInternal) iDatabase).browseCluster(iClusterName)) {
+      if (record instanceof YTDocument) {
         try {
-          for (String fieldName : ((ODocument) record).fieldNames()) {
-            Object value = ((ODocument) record).field(fieldName);
+          for (String fieldName : ((YTDocument) record).fieldNames()) {
+            Object value = ((YTDocument) record).field(fieldName);
             checkObject(iSourceRIDs, map, value, record);
           }
         } catch (Exception e) {
@@ -106,11 +107,11 @@ public class OFindReferenceHelper {
   }
 
   private static void browseClass(
-      final ODatabaseSessionInternal db,
-      Set<ORID> iSourceRIDs,
-      final Map<ORID, Set<ORID>> map,
+      final YTDatabaseSessionInternal db,
+      Set<YTRID> iSourceRIDs,
+      final Map<YTRID, Set<YTRID>> map,
       final String iClassName) {
-    final OClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+    final YTClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
     if (clazz == null) {
       throw new OCommandExecutionException("Class '" + iClassName + "' was not found");
@@ -122,12 +123,12 @@ public class OFindReferenceHelper {
   }
 
   private static void checkObject(
-      final Set<ORID> iSourceRIDs,
-      final Map<ORID, Set<ORID>> map,
+      final Set<YTRID> iSourceRIDs,
+      final Map<YTRID, Set<YTRID>> map,
       final Object value,
-      final ORecord iRootObject) {
-    if (value instanceof OIdentifiable) {
-      checkRecord(iSourceRIDs, map, (OIdentifiable) value, iRootObject);
+      final YTRecord iRootObject) {
+    if (value instanceof YTIdentifiable) {
+      checkRecord(iSourceRIDs, map, (YTIdentifiable) value, iRootObject);
     } else if (value instanceof Collection<?>) {
       checkCollection(iSourceRIDs, map, (Collection<?>) value, iRootObject);
     } else if (value instanceof Map<?, ?>) {
@@ -136,20 +137,20 @@ public class OFindReferenceHelper {
   }
 
   private static void checkCollection(
-      final Set<ORID> iSourceRIDs,
-      final Map<ORID, Set<ORID>> map,
+      final Set<YTRID> iSourceRIDs,
+      final Map<YTRID, Set<YTRID>> map,
       final Collection<?> values,
-      final ORecord iRootObject) {
+      final YTRecord iRootObject) {
     for (Object value : values) {
       checkObject(iSourceRIDs, map, value, iRootObject);
     }
   }
 
   private static void checkMap(
-      final Set<ORID> iSourceRIDs,
-      final Map<ORID, Set<ORID>> map,
+      final Set<YTRID> iSourceRIDs,
+      final Map<YTRID, Set<YTRID>> map,
       final Map<?, ?> values,
-      final ORecord iRootObject) {
+      final YTRecord iRootObject) {
     final Iterator<?> it;
     if (values instanceof OMap) {
       it = ((OMap) values).rawIterator();
@@ -162,15 +163,15 @@ public class OFindReferenceHelper {
   }
 
   private static void checkRecord(
-      final Set<ORID> iSourceRIDs,
-      final Map<ORID, Set<ORID>> map,
-      final OIdentifiable value,
-      final ORecord iRootObject) {
+      final Set<YTRID> iSourceRIDs,
+      final Map<YTRID, Set<YTRID>> map,
+      final YTIdentifiable value,
+      final YTRecord iRootObject) {
     if (iSourceRIDs.contains(value.getIdentity())) {
       map.get(value.getIdentity()).add(iRootObject.getIdentity());
-    } else if (!value.getIdentity().isValid() && value.getRecord() instanceof ODocument) {
+    } else if (!value.getIdentity().isValid() && value.getRecord() instanceof YTDocument) {
       // embedded document
-      ODocument doc = value.getRecord();
+      YTDocument doc = value.getRecord();
       for (String fieldName : doc.fieldNames()) {
         Object fieldValue = doc.field(fieldName);
         checkObject(iSourceRIDs, map, fieldValue, iRootObject);

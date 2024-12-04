@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -27,7 +27,7 @@ public class OConsoleStatement extends OSimpleExecStatement {
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
     OResultInternal item = new OResultInternal(ctx.getDatabase());
-    Object msg = "" + message.execute((OIdentifiable) null, ctx);
+    Object msg = "" + message.execute((YTIdentifiable) null, ctx);
 
     if (logLevel.getStringValue().equalsIgnoreCase("log")) {
       OLogManager.instance().info(this, "%s", msg);

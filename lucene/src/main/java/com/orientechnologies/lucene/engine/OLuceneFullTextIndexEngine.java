@@ -31,10 +31,10 @@ import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexEngineException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
@@ -92,7 +92,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   @Override
   public void onRecordAddedToResultSet(
       final OLuceneQueryContext queryContext,
-      final OContextualRecordId recordId,
+      final YTContextualRecordId recordId,
       final Document ret,
       final ScoreDoc score) {
     HashMap<String, Object> data = new HashMap<String, Object>();
@@ -119,24 +119,24 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   }
 
   @Override
-  public Object get(ODatabaseSessionInternal session, final Object key) {
+  public Object get(YTDatabaseSessionInternal session, final Object key) {
     return getInTx(session, key, null);
   }
 
   @Override
   public void update(
-      ODatabaseSessionInternal session, final OAtomicOperation atomicOperation,
+      YTDatabaseSessionInternal session, final OAtomicOperation atomicOperation,
       final Object key,
       final OIndexKeyUpdater<Object> updater) {
     put(session, atomicOperation, key, updater.update(null, bonsayFileId).getValue());
   }
 
   @Override
-  public void put(ODatabaseSessionInternal session, final OAtomicOperation atomicOperation,
+  public void put(YTDatabaseSessionInternal session, final OAtomicOperation atomicOperation,
       final Object key, final Object value) {
     updateLastAccess();
     openIfClosed();
-    final Document doc = buildDocument(session, key, (OIdentifiable) value);
+    final Document doc = buildDocument(session, key, (YTIdentifiable) value);
     addDocument(doc);
   }
 
@@ -144,15 +144,15 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator) {
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator) {
     throw new UnsupportedOperationException(
         "Validated put is not supported by OLuceneFullTextIndexEngine");
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -162,7 +162,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
         rangeFrom);
   }
 
-  private Set<OIdentifiable> getResults(
+  private Set<YTIdentifiable> getResults(
       final Query query,
       final OCommandContext context,
       final OLuceneTxChanges changes,
@@ -176,7 +176,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -185,7 +185,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -209,7 +209,8 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   }
 
   @Override
-  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
+  public Document buildDocument(YTDatabaseSessionInternal session, Object key,
+      YTIdentifiable value) {
     if (indexDefinition.isAutomatic()) {
       //      builder.newBuild(index, key, value);
 
@@ -219,7 +220,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
     }
   }
 
-  private static Document putInManualindex(Object key, OIdentifiable oIdentifiable) {
+  private static Document putInManualindex(Object key, YTIdentifiable oIdentifiable) {
     Document doc = new Document();
     doc.add(OLuceneIndexType.createOldIdField(oIdentifiable));
     doc.add(OLuceneIndexType.createIdField(oIdentifiable, key));
@@ -264,7 +265,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   }
 
   @Override
-  public Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+  public Set<YTIdentifiable> getInTx(YTDatabaseSessionInternal session, Object key,
       OLuceneTxChanges changes) {
     updateLastAccess();
     openIfClosed();

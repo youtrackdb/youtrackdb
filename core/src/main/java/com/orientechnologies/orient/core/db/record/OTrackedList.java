@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import java.io.Serial;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * Implementation of ArrayList bound to a source ORecord object to keep track of changes for literal
+ * Implementation of ArrayList bound to a source YTRecord object to keep track of changes for literal
  * types. This avoids to call the makeDirty() by hand when the list is changed.
  */
 public class OTrackedList<T> extends ArrayList<T>
@@ -107,8 +107,8 @@ public class OTrackedList<T> extends ArrayList<T>
     final T oldValue = super.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
-      if (oldValue instanceof ODocument) {
-        ODocumentInternal.removeOwner((ODocument) oldValue, this);
+      if (oldValue instanceof YTDocument) {
+        ODocumentInternal.removeOwner((YTDocument) oldValue, this);
       }
 
       addOwnerToEmbeddedDoc(element);
@@ -127,11 +127,12 @@ public class OTrackedList<T> extends ArrayList<T>
   }
 
   private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof ODocument && !((ODocument) e).getIdentity().isValid()) {
-      ODocumentInternal.addOwner((ODocument) e, this);
+    if (embeddedCollection && e instanceof YTDocument && !((YTDocument) e).getIdentity()
+        .isValid()) {
+      ODocumentInternal.addOwner((YTDocument) e, this);
     }
-    if (e instanceof ODocument) {
-      ORecordInternal.track(sourceRecord, (ODocument) e);
+    if (e instanceof YTDocument) {
+      ORecordInternal.track(sourceRecord, (YTDocument) e);
     }
   }
 
@@ -153,8 +154,8 @@ public class OTrackedList<T> extends ArrayList<T>
   }
 
   private void updateEvent(int index, T oldValue, T newValue) {
-    if (oldValue instanceof ODocument) {
-      ODocumentInternal.removeOwner((ODocument) oldValue, this);
+    if (oldValue instanceof YTDocument) {
+      ODocumentInternal.removeOwner((YTDocument) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(newValue);
@@ -167,8 +168,8 @@ public class OTrackedList<T> extends ArrayList<T>
   }
 
   private void removeEvent(int index, T removed) {
-    if (removed instanceof ODocument) {
-      ODocumentInternal.removeOwner((ODocument) removed, this);
+    if (removed instanceof YTDocument) {
+      ODocumentInternal.removeOwner((YTDocument) removed, this);
     }
     if (tracker.isEnabled()) {
       tracker.remove(index, removed);
@@ -213,8 +214,8 @@ public class OTrackedList<T> extends ArrayList<T>
   @SuppressWarnings("unchecked")
   public <RET> RET setDirty() {
     if (sourceRecord != null) {
-      if (!(sourceRecord instanceof ORecordAbstract)
-          || !((ORecordAbstract) sourceRecord).isDirty()) {
+      if (!(sourceRecord instanceof YTRecordAbstract)
+          || !((YTRecordAbstract) sourceRecord).isDirty()) {
         sourceRecord.setDirty();
       }
     }
@@ -231,7 +232,7 @@ public class OTrackedList<T> extends ArrayList<T>
   }
 
   public List<T> returnOriginalState(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final List<OMultiValueChangeEvent<Integer, T>> multiValueChangeEvents) {
     final List<T> reverted = new ArrayList<T>(this);
 

@@ -13,14 +13,14 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.sql.RowId;
 
 public class OrientRowId implements RowId {
 
-  protected final ORID rid;
+  protected final YTRID rid;
 
-  public OrientRowId(final ORID rid) {
+  public OrientRowId(final YTRID rid) {
     this.rid = rid;
   }
 

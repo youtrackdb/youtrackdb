@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class ODatabaseCreateDropClusterTest extends DBTestBase {
 
   @Test
   public void createDropClusterOnClass() {
-    OClass test = db.getMetadata().getSchema().createClass("test", 1, null);
+    YTClass test = db.getMetadata().getSchema().createClass("test", 1, null);
     test.addCluster(db, "aTest");
     Assert.assertNotEquals(db.getClusterIdByName("aTest"), -1);
     Assert.assertEquals(test.getClusterIds().length, 2);

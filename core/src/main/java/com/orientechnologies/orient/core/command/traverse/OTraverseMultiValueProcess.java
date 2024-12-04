@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.command.traverse;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.Iterator;
 
 public class OTraverseMultiValueProcess extends OTraverseAbstractProcess<Iterator<Object>> {
@@ -35,18 +35,18 @@ public class OTraverseMultiValueProcess extends OTraverseAbstractProcess<Iterato
     this.parentPath = parentPath;
   }
 
-  public OIdentifiable process() {
+  public YTIdentifiable process() {
     while (target.hasNext()) {
       value = target.next();
       index++;
 
-      if (value instanceof OIdentifiable) {
+      if (value instanceof YTIdentifiable) {
 
-        if (value instanceof ORID) {
-          value = ((OIdentifiable) value).getRecord();
+        if (value instanceof YTRID) {
+          value = ((YTIdentifiable) value).getRecord();
         }
-        final OTraverseAbstractProcess<OIdentifiable> subProcess =
-            new OTraverseRecordProcess(command, (OIdentifiable) value, getPath());
+        final OTraverseAbstractProcess<YTIdentifiable> subProcess =
+            new OTraverseRecordProcess(command, (YTIdentifiable) value, getPath());
         command.getContext().push(subProcess);
 
         return null;

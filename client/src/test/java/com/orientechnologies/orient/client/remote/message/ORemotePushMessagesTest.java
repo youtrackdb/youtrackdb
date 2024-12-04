@@ -9,11 +9,11 @@ import com.orientechnologies.orient.client.remote.message.push.OStorageConfigura
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,10 +49,10 @@ public class ORemotePushMessagesTest extends DBTestBase {
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
-    var session = (ODatabaseSessionInternal) youTrackDB.open("test", "admin", "admin");
+    var session = (YTDatabaseSessionInternal) youTrackDB.open("test", "admin", "admin");
 
     session.begin();
-    ODocument schema =
+    YTDocument schema =
         session.getSharedContext().getSchema().toStream(session).copy();
     session.commit();
 
@@ -72,11 +72,11 @@ public class ORemotePushMessagesTest extends DBTestBase {
         YouTrackDBConfig.defaultConfig())) {
       youTrackDB.execute(
           "create database test memory users (admin identified by 'admin' role admin)");
-      try (ODatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
+      try (YTDatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
         session.begin();
-        ODocument schema =
-            ((ODatabaseSessionInternal) session).getSharedContext().getIndexManager()
-                .toStream((ODatabaseSessionInternal) session);
+        YTDocument schema =
+            ((YTDatabaseSessionInternal) session).getSharedContext().getIndexManager()
+                .toStream((YTDatabaseSessionInternal) session);
 
         MockChannel channel = new MockChannel();
 
@@ -98,9 +98,9 @@ public class ORemotePushMessagesTest extends DBTestBase {
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession session = youTrackDB.open("test", "admin", "admin");
+    YTDatabaseSession session = youTrackDB.open("test", "admin", "admin");
     OStorageConfiguration configuration =
-        ((ODatabaseSessionInternal) session).getStorage().getConfiguration();
+        ((YTDatabaseSessionInternal) session).getStorage().getConfiguration();
     session.close();
     youTrackDB.close();
     MockChannel channel = new MockChannel();

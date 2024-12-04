@@ -22,9 +22,9 @@ package com.orientechnologies.orient.core.sql.filter;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Locale;
 import javax.annotation.Nonnull;
 
@@ -103,7 +103,8 @@ public class OSQLFilter extends OSQLPredicate implements OCommandPredicate {
   }
 
   public Object evaluate(
-      final OIdentifiable iRecord, final ODocument iCurrentResult, final OCommandContext iContext) {
+      final YTIdentifiable iRecord, final YTDocument iCurrentResult,
+      final OCommandContext iContext) {
     if (rootCondition == null) {
       return true;
     }

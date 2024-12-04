@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -19,7 +19,7 @@ public class RemoteSimpleSchemaTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal database;
+  private YTDatabaseSessionInternal database;
 
   @Before
   public void before() throws Exception {
@@ -33,7 +33,7 @@ public class RemoteSimpleSchemaTest {
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteSimpleSchemaTest.class.getSimpleName());
-    database = (ODatabaseSessionInternal) youTrackDB.open(
+    database = (YTDatabaseSessionInternal) youTrackDB.open(
         RemoteSimpleSchemaTest.class.getSimpleName(), "admin", "admin");
   }
 

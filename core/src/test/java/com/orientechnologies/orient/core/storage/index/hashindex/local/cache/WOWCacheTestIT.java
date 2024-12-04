@@ -8,7 +8,7 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
 import com.orientechnologies.common.types.OModifiableBoolean;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.OChecksumMode;
 import com.orientechnologies.orient.core.storage.cache.OCachePointer;
@@ -64,8 +64,8 @@ public class WOWCacheTestIT {
 
   @BeforeClass
   public static void beforeClass() {
-    OGlobalConfiguration.STORAGE_EXCLUSIVE_FILE_ACCESS.setValue(Boolean.FALSE);
-    OGlobalConfiguration.FILE_LOCK.setValue(Boolean.FALSE);
+    YTGlobalConfiguration.STORAGE_EXCLUSIVE_FILE_ACCESS.setValue(Boolean.FALSE);
+    YTGlobalConfiguration.FILE_LOCK.setValue(Boolean.FALSE);
     String buildDirectory = System.getProperty("buildDirectory", ".");
 
     fileName = "wowCacheTest.tst";
@@ -124,8 +124,8 @@ public class WOWCacheTestIT {
     Files.deleteIfExists(storagePath);
     bufferPool.clear();
 
-    OGlobalConfiguration.STORAGE_EXCLUSIVE_FILE_ACCESS.setValue(Boolean.TRUE);
-    OGlobalConfiguration.FILE_LOCK.setValue(Boolean.TRUE);
+    YTGlobalConfiguration.STORAGE_EXCLUSIVE_FILE_ACCESS.setValue(Boolean.TRUE);
+    YTGlobalConfiguration.FILE_LOCK.setValue(Boolean.TRUE);
   }
 
   private void initBuffer() throws IOException, InterruptedException {

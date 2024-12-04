@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Set;
 
@@ -120,7 +120,7 @@ public interface OIndexManager {
       OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final OProgressListener progressListener,
-      ODocument metadata);
+      YTDocument metadata);
 
   /**
    * Creates a new index.
@@ -144,7 +144,7 @@ public interface OIndexManager {
       OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final OProgressListener progressListener,
-      ODocument metadata,
+      YTDocument metadata,
       String algorithm);
 
   /**
@@ -182,7 +182,7 @@ public interface OIndexManager {
    * @deprecated Manual indexes are deprecated and will be removed
    */
   @Deprecated
-  ODictionary<ORecord> getDictionary();
+  ODictionary<YTRecord> getDictionary();
 
   /**
    * Returns a record where configurations are saved.
@@ -192,7 +192,7 @@ public interface OIndexManager {
    * @return a document that used to store index configurations.
    */
   @Deprecated
-  ODocument getConfiguration(ODatabaseSession session);
+  YTDocument getConfiguration(YTDatabaseSession session);
 
   /**
    * Returns list of indexes that contain passed in fields names as their first keys. Order of
@@ -316,7 +316,7 @@ public interface OIndexManager {
    */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  void addClusterToIndex(ODatabaseSession session, String clusterName, String indexName);
+  void addClusterToIndex(YTDatabaseSession session, String clusterName, String indexName);
 
   /**
    * Removes a cluster from tracked cluster list of specified index.
@@ -329,7 +329,7 @@ public interface OIndexManager {
    */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  void removeClusterFromIndex(ODatabaseSession session, String clusterName, String indexName);
+  void removeClusterFromIndex(YTDatabaseSession session, String clusterName, String indexName);
 
   /**
    * Saves index manager data.
@@ -337,7 +337,7 @@ public interface OIndexManager {
    * <p>IMPORTANT! Only for internal usage.
    */
   @Deprecated
-  OIndexManager save(ODatabaseSession session);
+  OIndexManager save(YTDatabaseSession session);
 
   /**
    * Removes index from class-property map.
@@ -349,5 +349,5 @@ public interface OIndexManager {
    */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  void removeClassPropertyIndex(ODatabaseSession session, OIndex idx);
+  void removeClassPropertyIndex(YTDatabaseSession session, OIndex idx);
 }

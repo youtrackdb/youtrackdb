@@ -23,7 +23,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.jnr.ONative;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OMemory;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import java.util.Locale;
 
@@ -59,11 +59,11 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
   }
 
   private void configureDefaults() {
-    if (!OGlobalConfiguration.DISK_CACHE_SIZE.isChanged()) {
+    if (!YTGlobalConfiguration.DISK_CACHE_SIZE.isChanged()) {
       configureDefaultDiskCacheSize();
     }
 
-    if (!OGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.isChanged()) {
+    if (!YTGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.isChanged()) {
       configureDefaultWalRestoreBatchSize();
     }
   }
@@ -73,11 +73,11 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
     if (jvmMaxMemory > 2L * OFileUtils.GIGABYTE)
     // INCREASE WAL RESTORE BATCH SIZE TO 50K INSTEAD OF DEFAULT 1K
     {
-      OGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.setValue(50000);
+      YTGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.setValue(50000);
     } else if (jvmMaxMemory > 512 * OFileUtils.MEGABYTE)
     // INCREASE WAL RESTORE BATCH SIZE TO 10K INSTEAD OF DEFAULT 1K
     {
-      OGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.setValue(10000);
+      YTGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.setValue(10000);
     }
   }
 
@@ -100,8 +100,8 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
     if (osMemory.insideContainer) {
       final Object[] additionalArgs =
           new Object[]{
-              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString(),
-              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey()
+              YTGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString(),
+              YTGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey()
           };
       OLogManager.instance()
           .info(
@@ -113,15 +113,15 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       diskCacheInMB =
           (calculateMemoryLeft(
               osMemory.memoryLimit,
-              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey(),
-              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString())
+              YTGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey(),
+              YTGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString())
               - jvmMaxMemory)
               / (1024 * 1024);
     } else {
       final Object[] additionalArgs =
           new Object[]{
-              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString(),
-              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey()
+              YTGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString(),
+              YTGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey()
           };
       OLogManager.instance()
           .info(
@@ -133,8 +133,8 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       diskCacheInMB =
           (calculateMemoryLeft(
               osMemory.memoryLimit,
-              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey(),
-              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString())
+              YTGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey(),
+              YTGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString())
               - jvmMaxMemory)
               / (1024 * 1024);
     }
@@ -148,7 +148,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
               jvmMaxMemory / 1024 / 1024,
               osMemory.memoryLimit / 1024 / 1024);
 
-      OGlobalConfiguration.DISK_CACHE_SIZE.setValue(diskCacheInMB);
+      YTGlobalConfiguration.DISK_CACHE_SIZE.setValue(diskCacheInMB);
     } else {
       // LOW MEMORY: SET IT TO 256MB ONLY
       diskCacheInMB = OReadCache.MIN_CACHE_SIZE;
@@ -162,7 +162,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
                   + "MB",
               osMemory.memoryLimit / 1024 / 1024,
               jvmMaxMemory / 1024 / 1024);
-      OGlobalConfiguration.DISK_CACHE_SIZE.setValue(diskCacheInMB);
+      YTGlobalConfiguration.DISK_CACHE_SIZE.setValue(diskCacheInMB);
 
       OLogManager.instance()
           .info(

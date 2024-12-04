@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import java.io.Serializable;
 import java.util.Set;
@@ -21,55 +21,55 @@ public interface OSecurityUser extends Serializable {
   }
 
   OSecurityRole allow(
-      ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
+      YTDatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific,
       final int iOperation);
 
   OSecurityRole checkIfAllowed(
-      ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
+      YTDatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific,
       final int iOperation);
 
-  boolean isRuleDefined(ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
+  boolean isRuleDefined(YTDatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       String resourceSpecific);
 
   @Deprecated
-  OSecurityRole allow(ODatabaseSessionInternal session, final String iResource,
+  OSecurityRole allow(YTDatabaseSessionInternal session, final String iResource,
       final int iOperation);
 
   @Deprecated
-  OSecurityRole checkIfAllowed(ODatabaseSessionInternal session, final String iResource,
+  OSecurityRole checkIfAllowed(YTDatabaseSessionInternal session, final String iResource,
       final int iOperation);
 
   @Deprecated
-  boolean isRuleDefined(ODatabaseSessionInternal session, final String iResource);
+  boolean isRuleDefined(YTDatabaseSessionInternal session, final String iResource);
 
-  boolean checkPassword(ODatabaseSessionInternal session, final String iPassword);
+  boolean checkPassword(YTDatabaseSessionInternal session, final String iPassword);
 
-  String getName(ODatabaseSessionInternal session);
+  String getName(YTDatabaseSessionInternal session);
 
-  OSecurityUser setName(ODatabaseSessionInternal session, final String iName);
+  OSecurityUser setName(YTDatabaseSessionInternal session, final String iName);
 
-  String getPassword(ODatabaseSessionInternal session);
+  String getPassword(YTDatabaseSessionInternal session);
 
-  OSecurityUser setPassword(ODatabaseSessionInternal session, final String iPassword);
+  OSecurityUser setPassword(YTDatabaseSessionInternal session, final String iPassword);
 
-  OSecurityUser.STATUSES getAccountStatus(ODatabaseSessionInternal session);
+  OSecurityUser.STATUSES getAccountStatus(YTDatabaseSessionInternal session);
 
-  void setAccountStatus(ODatabaseSessionInternal session, STATUSES accountStatus);
+  void setAccountStatus(YTDatabaseSessionInternal session, STATUSES accountStatus);
 
   Set<? extends OSecurityRole> getRoles();
 
-  OSecurityUser addRole(ODatabaseSessionInternal session, final String iRole);
+  OSecurityUser addRole(YTDatabaseSessionInternal session, final String iRole);
 
-  OSecurityUser addRole(ODatabaseSessionInternal session, final OSecurityRole iRole);
+  OSecurityUser addRole(YTDatabaseSessionInternal session, final OSecurityRole iRole);
 
-  boolean removeRole(ODatabaseSessionInternal session, final String iRoleName);
+  boolean removeRole(YTDatabaseSessionInternal session, final String iRoleName);
 
-  boolean hasRole(ODatabaseSessionInternal session, final String iRoleName,
+  boolean hasRole(YTDatabaseSessionInternal session, final String iRoleName,
       final boolean iIncludeInherited);
 
-  OIdentifiable getIdentity(ODatabaseSessionInternal session);
+  YTIdentifiable getIdentity(YTDatabaseSessionInternal session);
 
   String getUserType();
 }

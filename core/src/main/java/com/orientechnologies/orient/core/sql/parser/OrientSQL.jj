@@ -8794,12 +8794,12 @@ OAlterClassStatement AlterClassStatement():
 	(
 
 		(
-			<NAME> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.NAME; }
+			<NAME> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.NAME; }
 			jjtn000.identifierValue = Identifier()
 		)
 		|
 		(
-			<SHORTNAME> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.SHORTNAME; }
+			<SHORTNAME> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.SHORTNAME; }
 			(
 				jjtn000.identifierValue = Identifier()
 				|
@@ -8808,7 +8808,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<SUPERCLASS> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.SUPERCLASS; }
+			<SUPERCLASS> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.SUPERCLASS; }
 			[
 				(
 					<PLUS> {jjtn000.add = true;}
@@ -8827,7 +8827,7 @@ OAlterClassStatement AlterClassStatement():
 		|
 		(
 			<SUPERCLASSES> {
-				jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.SUPERCLASSES;
+				jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.SUPERCLASSES;
 				jjtn000.identifierListValue = new ArrayList<OIdentifier>();
 			}
 			(
@@ -8844,12 +8844,12 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<OVERSIZE> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.OVERSIZE; }
+			<OVERSIZE> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.OVERSIZE; }
 			jjtn000.numberValue = Number()
 		)
 		|
 		(
-			<STRICTMODE> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.STRICTMODE; }
+			<STRICTMODE> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.STRICTMODE; }
 			(
 				(
 					<TRUE> { jjtn000.booleanValue = true; }
@@ -8862,7 +8862,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<ADDCLUSTER> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.ADDCLUSTER; }
+			<ADDCLUSTER> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.ADDCLUSTER; }
 			(
 				jjtn000.identifierValue = Identifier()
 				|
@@ -8871,7 +8871,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<REMOVECLUSTER> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.REMOVECLUSTER; }
+			<REMOVECLUSTER> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.REMOVECLUSTER; }
 			(
 				jjtn000.identifierValue = Identifier()
 				|
@@ -8880,14 +8880,14 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<CUSTOM> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.CUSTOM; }
+			<CUSTOM> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.CUSTOM; }
 			jjtn000.customKey = Identifier()
 			<EQ>
 			jjtn000.customValue = Expression()
 		)
 		|
 		(
-			<ABSTRACT> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.ABSTRACT; }
+			<ABSTRACT> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.ABSTRACT; }
 			(
 				(
 					<TRUE> { jjtn000.booleanValue = true; }
@@ -8900,7 +8900,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<CLUSTERSELECTION> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.CLUSTERSELECTION; }
+			<CLUSTERSELECTION> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.CLUSTERSELECTION; }
 			(
 				jjtn000.identifierValue = Identifier()
 				|
@@ -8911,7 +8911,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<DESCRIPTION> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.DESCRIPTION; }
+			<DESCRIPTION> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.DESCRIPTION; }
 			(
 				jjtn000.identifierValue = Identifier()
 				|
@@ -8920,7 +8920,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<ENCRYPTION> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES.ENCRYPTION; }
+			<ENCRYPTION> { jjtn000.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.ENCRYPTION; }
 			(
 				jjtn000.identifierValue = Identifier()
 				|

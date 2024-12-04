@@ -3,13 +3,13 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Iterator<ORecord> data;
+    Iterator<YTRecord> data;
     data = init(ctx);
     return OExecutionStream.iterator(data).map(this::setContext);
   }
@@ -46,14 +46,14 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return result;
   }
 
-  private Iterator<ORecord> init(OCommandContext ctx) {
+  private Iterator<YTRecord> init(OCommandContext ctx) {
     Iterable<? extends ORecordOperation> iterable =
         ctx.getDatabase().getTransaction().getRecordOperations();
 
-    List<ORecord> records = new ArrayList<>();
+    List<YTRecord> records = new ArrayList<>();
     if (iterable != null) {
       for (ORecordOperation op : iterable) {
-        ORecord record = op.record;
+        YTRecord record = op.record;
         if (matchesClass(record, className) && !hasCluster(record)) {
           records.add(record);
         }
@@ -77,21 +77,21 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return records.iterator();
   }
 
-  private static boolean hasCluster(ORecord record) {
-    ORID rid = record.getIdentity();
+  private static boolean hasCluster(YTRecord record) {
+    YTRID rid = record.getIdentity();
     if (rid == null) {
       return false;
     }
     return rid.getClusterId() >= 0;
   }
 
-  private static boolean matchesClass(ORecord record, String className) {
-    ORecord doc = record.getRecord();
-    if (!(doc instanceof ODocument)) {
+  private static boolean matchesClass(YTRecord record, String className) {
+    YTRecord doc = record.getRecord();
+    if (!(doc instanceof YTDocument)) {
       return false;
     }
 
-    OClass schema = ODocumentInternal.getImmutableSchemaClass(((ODocument) doc));
+    YTClass schema = ODocumentInternal.getImmutableSchemaClass(((YTDocument) doc));
     if (schema == null) {
       return className == null;
     } else if (schema.getName().equals(className)) {
@@ -118,7 +118,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("className", className);
     return result;

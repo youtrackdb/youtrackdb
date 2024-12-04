@@ -25,7 +25,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -60,7 +60,7 @@ public class OSBTFetchEntriesMajorRequest<K, V>
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     OCollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, pointer);
     network.writeBytes(keyStream);
@@ -68,7 +68,7 @@ public class OSBTFetchEntriesMajorRequest<K, V>
     network.writeInt(128);
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     this.pointer = OCollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);

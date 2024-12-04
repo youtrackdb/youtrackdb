@@ -19,9 +19,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,19 +36,19 @@ public class SQLUpdateEdgeTest extends DBTestBase {
 
     // VERTEXES
     db.begin();
-    OElement v1 = db.command("create vertex").next().getElement().get();
+    YTEntity v1 = db.command("create vertex").next().getElement().get();
     assertEquals(v1.getSchemaType().get().getName(), "V");
 
-    OElement v2 = db.command("create vertex V1").next().getElement().get();
+    YTEntity v2 = db.command("create vertex V1").next().getElement().get();
     assertEquals(v2.getSchemaType().get().getName(), "V1");
 
-    OElement v3 =
+    YTEntity v3 =
         db.command("create vertex set vid = 'v3', brand = 'fiat'").next().getElement().get();
 
     assertEquals(v3.getSchemaType().get().getName(), "V");
     assertEquals(v3.getProperty("brand"), "fiat");
 
-    OElement v4 =
+    YTEntity v4 =
         db.command("create vertex V1 set vid = 'v4',  brand = 'fiat',name = 'wow'")
             .next()
             .getElement()
@@ -63,7 +63,7 @@ public class SQLUpdateEdgeTest extends DBTestBase {
     db.begin();
     OResultSet edges =
         db.command("create edge E1 from " + v1.getIdentity() + " to " + v2.getIdentity());
-    OEdge edge = edges.next().getEdge().get();
+    YTEdge edge = edges.next().getEdge().get();
     assertFalse(edges.hasNext());
     assertEquals(edge.getSchemaType().get().getName(), "E1");
     db.commit();
@@ -98,15 +98,15 @@ public class SQLUpdateEdgeTest extends DBTestBase {
   public void testUpdateEdgeOfTypeE() {
     // issue #6378
     db.begin();
-    OVertex v1 = db.command("create vertex").next().toVertex();
-    OVertex v2 = db.command("create vertex").next().toVertex();
-    OVertex v3 = db.command("create vertex").next().toVertex();
+    YTVertex v1 = db.command("create vertex").next().toVertex();
+    YTVertex v2 = db.command("create vertex").next().toVertex();
+    YTVertex v3 = db.command("create vertex").next().toVertex();
     db.commit();
 
     db.begin();
     OResultSet edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
-    OEdge edge = edges.next().toEdge();
+    YTEdge edge = edges.next().toEdge();
 
     db.command("UPDATE EDGE " + edge.getIdentity() + " SET in = " + v3.getIdentity());
     db.commit();

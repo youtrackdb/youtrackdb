@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.math.BigDecimal;
 import java.sql.ResultSetMetaData;
@@ -35,33 +35,33 @@ import java.util.Map;
  */
 public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
-  private static final Map<OType, Integer> typesSqlTypes = new HashMap<>();
+  private static final Map<YTType, Integer> typesSqlTypes = new HashMap<>();
 
   static {
-    typesSqlTypes.put(OType.STRING, Types.VARCHAR);
-    typesSqlTypes.put(OType.INTEGER, Types.INTEGER);
-    typesSqlTypes.put(OType.FLOAT, Types.FLOAT);
-    typesSqlTypes.put(OType.SHORT, Types.SMALLINT);
-    typesSqlTypes.put(OType.BOOLEAN, Types.BOOLEAN);
-    typesSqlTypes.put(OType.LONG, Types.BIGINT);
-    typesSqlTypes.put(OType.DOUBLE, Types.DOUBLE);
-    typesSqlTypes.put(OType.DECIMAL, Types.DECIMAL);
-    typesSqlTypes.put(OType.DATE, Types.DATE);
-    typesSqlTypes.put(OType.DATETIME, Types.TIMESTAMP);
-    typesSqlTypes.put(OType.BYTE, Types.TINYINT);
-    typesSqlTypes.put(OType.SHORT, Types.SMALLINT);
+    typesSqlTypes.put(YTType.STRING, Types.VARCHAR);
+    typesSqlTypes.put(YTType.INTEGER, Types.INTEGER);
+    typesSqlTypes.put(YTType.FLOAT, Types.FLOAT);
+    typesSqlTypes.put(YTType.SHORT, Types.SMALLINT);
+    typesSqlTypes.put(YTType.BOOLEAN, Types.BOOLEAN);
+    typesSqlTypes.put(YTType.LONG, Types.BIGINT);
+    typesSqlTypes.put(YTType.DOUBLE, Types.DOUBLE);
+    typesSqlTypes.put(YTType.DECIMAL, Types.DECIMAL);
+    typesSqlTypes.put(YTType.DATE, Types.DATE);
+    typesSqlTypes.put(YTType.DATETIME, Types.TIMESTAMP);
+    typesSqlTypes.put(YTType.BYTE, Types.TINYINT);
+    typesSqlTypes.put(YTType.SHORT, Types.SMALLINT);
 
     // NOT SURE ABOUT THE FOLLOWING MAPPINGS
-    typesSqlTypes.put(OType.BINARY, Types.BINARY);
-    typesSqlTypes.put(OType.EMBEDDED, Types.JAVA_OBJECT);
-    typesSqlTypes.put(OType.EMBEDDEDLIST, Types.ARRAY);
-    typesSqlTypes.put(OType.EMBEDDEDMAP, Types.JAVA_OBJECT);
-    typesSqlTypes.put(OType.EMBEDDEDSET, Types.ARRAY);
-    typesSqlTypes.put(OType.LINK, Types.JAVA_OBJECT);
-    typesSqlTypes.put(OType.LINKLIST, Types.ARRAY);
-    typesSqlTypes.put(OType.LINKMAP, Types.JAVA_OBJECT);
-    typesSqlTypes.put(OType.LINKSET, Types.ARRAY);
-    typesSqlTypes.put(OType.TRANSIENT, Types.NULL);
+    typesSqlTypes.put(YTType.BINARY, Types.BINARY);
+    typesSqlTypes.put(YTType.EMBEDDED, Types.JAVA_OBJECT);
+    typesSqlTypes.put(YTType.EMBEDDEDLIST, Types.ARRAY);
+    typesSqlTypes.put(YTType.EMBEDDEDMAP, Types.JAVA_OBJECT);
+    typesSqlTypes.put(YTType.EMBEDDEDSET, Types.ARRAY);
+    typesSqlTypes.put(YTType.LINK, Types.JAVA_OBJECT);
+    typesSqlTypes.put(YTType.LINKLIST, Types.ARRAY);
+    typesSqlTypes.put(YTType.LINKMAP, Types.JAVA_OBJECT);
+    typesSqlTypes.put(YTType.LINKSET, Types.ARRAY);
+    typesSqlTypes.put(YTType.TRANSIENT, Types.NULL);
   }
 
   private final String[] fieldNames;
@@ -73,7 +73,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     this.fieldNames = fieldNames.toArray(new String[]{});
   }
 
-  public static Integer getSqlType(final OType iType) {
+  public static Integer getSqlType(final YTType iType) {
     return typesSqlTypes.get(iType);
   }
 
@@ -122,7 +122,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
     String fieldName = fieldNames[column - 1];
 
-    OType otype =
+    YTType otype =
         currentRecord
             .toElement()
             .getSchemaType()
@@ -135,18 +135,18 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
       if (value == null) {
         return Types.NULL;
-      } else if (value instanceof OBlob) {
+      } else if (value instanceof YTBlob) {
         // Check if the type is a binary record or a collection of binary
         // records
         return Types.BINARY;
       } else if (value instanceof OList list) {
-        // check if all the list items are instances of ORecordBytes
-        ListIterator<OIdentifiable> iterator = list.listIterator();
-        OIdentifiable listElement;
+        // check if all the list items are instances of YTRecordBytes
+        ListIterator<YTIdentifiable> iterator = list.listIterator();
+        YTIdentifiable listElement;
         boolean stop = false;
         while (iterator.hasNext() && !stop) {
           listElement = iterator.next();
-          if (!(listElement instanceof OBlob)) {
+          if (!(listElement instanceof YTBlob)) {
             stop = true;
           }
         }
@@ -156,29 +156,29 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
       }
       return getSQLTypeFromJavaClass(value);
     } else {
-      if (otype == OType.EMBEDDED || otype == OType.LINK) {
+      if (otype == YTType.EMBEDDED || otype == YTType.LINK) {
         Object value = currentRecord.getProperty(fieldName);
         if (value == null) {
           return Types.NULL;
         }
         // 1. Check if the type is another record or a collection of records
-        if (value instanceof OBlob) {
+        if (value instanceof YTBlob) {
           return Types.BINARY;
         }
       } else {
-        if (otype == OType.EMBEDDEDLIST || otype == OType.LINKLIST) {
+        if (otype == YTType.EMBEDDEDLIST || otype == YTType.LINKLIST) {
           Object value = currentRecord.getProperty(fieldName);
           if (value == null) {
             return Types.NULL;
           }
           if (value instanceof OList list) {
-            // check if all the list items are instances of ORecordBytes
-            ListIterator<OIdentifiable> iterator = list.listIterator();
-            OIdentifiable listElement;
+            // check if all the list items are instances of YTRecordBytes
+            ListIterator<YTIdentifiable> iterator = list.listIterator();
+            YTIdentifiable listElement;
             boolean stop = false;
             while (iterator.hasNext() && !stop) {
               listElement = iterator.next();
-              if (!(listElement instanceof OBlob)) {
+              if (!(listElement instanceof YTBlob)) {
                 stop = true;
               }
             }
@@ -204,27 +204,27 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
   private int getSQLTypeFromJavaClass(final Object value) {
     if (value instanceof Boolean) {
-      return typesSqlTypes.get(OType.BOOLEAN);
+      return typesSqlTypes.get(YTType.BOOLEAN);
     } else if (value instanceof Byte) {
-      return typesSqlTypes.get(OType.BYTE);
+      return typesSqlTypes.get(YTType.BYTE);
     } else if (value instanceof Date) {
-      return typesSqlTypes.get(OType.DATETIME);
+      return typesSqlTypes.get(YTType.DATETIME);
     } else if (value instanceof Double) {
-      return typesSqlTypes.get(OType.DOUBLE);
+      return typesSqlTypes.get(YTType.DOUBLE);
     } else if (value instanceof BigDecimal) {
-      return typesSqlTypes.get(OType.DECIMAL);
+      return typesSqlTypes.get(YTType.DECIMAL);
     } else if (value instanceof Float) {
-      return typesSqlTypes.get(OType.FLOAT);
+      return typesSqlTypes.get(YTType.FLOAT);
     } else if (value instanceof Integer) {
-      return typesSqlTypes.get(OType.INTEGER);
+      return typesSqlTypes.get(YTType.INTEGER);
     } else if (value instanceof Long) {
-      return typesSqlTypes.get(OType.LONG);
+      return typesSqlTypes.get(YTType.LONG);
     } else if (value instanceof Short) {
-      return typesSqlTypes.get(OType.SHORT);
+      return typesSqlTypes.get(YTType.SHORT);
     } else if (value instanceof String) {
-      return typesSqlTypes.get(OType.STRING);
+      return typesSqlTypes.get(YTType.STRING);
     } else if (value instanceof List) {
-      return typesSqlTypes.get(OType.EMBEDDEDLIST);
+      return typesSqlTypes.get(YTType.EMBEDDEDLIST);
     } else {
       return Types.JAVA_OBJECT;
     }
@@ -258,12 +258,12 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     if (currentRecord == null) {
       return "";
     } else {
-      return ((ODocument) currentRecord.toElement()).getSession().getName();
+      return ((YTDocument) currentRecord.toElement()).getSession().getName();
     }
   }
 
   public String getTableName(final int column) throws SQLException {
-    final OProperty p = getProperty(column);
+    final YTProperty p = getProperty(column);
     return p != null ? p.getOwnerClass().getName() : null;
   }
 
@@ -272,7 +272,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public boolean isCaseSensitive(final int column) throws SQLException {
-    final OProperty p = getProperty(column);
+    final YTProperty p = getProperty(column);
     return p != null && p.getCollate().getName().equalsIgnoreCase("ci");
   }
 
@@ -291,7 +291,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public boolean isReadOnly(final int column) throws SQLException {
-    final OProperty p = getProperty(column);
+    final YTProperty p = getProperty(column);
     return p != null && p.isReadonly();
   }
 
@@ -301,7 +301,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
   public boolean isSigned(final int column) throws SQLException {
     final OResult currentRecord = getCurrentRecord();
-    OType otype =
+    YTType otype =
         currentRecord
             .toElement()
             .getSchemaType()
@@ -323,16 +323,16 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     return null;
   }
 
-  private boolean isANumericColumn(final OType type) {
-    return type == OType.BYTE
-        || type == OType.DOUBLE
-        || type == OType.FLOAT
-        || type == OType.INTEGER
-        || type == OType.LONG
-        || type == OType.SHORT;
+  private boolean isANumericColumn(final YTType type) {
+    return type == YTType.BYTE
+        || type == YTType.DOUBLE
+        || type == YTType.FLOAT
+        || type == YTType.INTEGER
+        || type == YTType.LONG
+        || type == YTType.SHORT;
   }
 
-  protected OProperty getProperty(final int column) throws SQLException {
+  protected YTProperty getProperty(final int column) throws SQLException {
 
     String fieldName = getColumnName(column);
 

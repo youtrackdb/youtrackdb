@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Optional;
 
@@ -23,7 +23,7 @@ public class DeleteStep extends AbstractExecutionStep {
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
-    Optional<ORID> id = result.getIdentity();
+    Optional<YTRID> id = result.getIdentity();
     if (id.isPresent()) {
       ctx.getDatabase().delete(id.get());
     }

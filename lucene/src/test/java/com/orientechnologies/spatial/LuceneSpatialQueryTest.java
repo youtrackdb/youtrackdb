@@ -18,10 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.File;
 import java.io.InputStream;
@@ -42,14 +42,14 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
 
-    OClass oClass = schema.createClass("Place");
+    YTClass oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "latitude", OType.DOUBLE);
-    oClass.createProperty(db, "longitude", OType.DOUBLE);
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "latitude", YTType.DOUBLE);
+    oClass.createProperty(db, "longitude", YTType.DOUBLE);
+    oClass.createProperty(db, "name", YTType.STRING);
 
     db.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
@@ -94,13 +94,13 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
           int i = 0;
           while ((line = lnr.readLine()) != null) {
             String[] nextLine = line.split(",");
-            ODocument doc = new ODocument("Place");
+            YTDocument doc = new YTDocument("Place");
             doc.field("name", nextLine[3]);
             doc.field("country", nextLine[1]);
             try {
 
-              Double lat = ((Double) OType.convert(db, nextLine[5], Double.class)).doubleValue();
-              Double lng = ((Double) OType.convert(db, nextLine[6], Double.class)).doubleValue();
+              Double lat = ((Double) YTType.convert(db, nextLine[5], Double.class)).doubleValue();
+              Double lng = ((Double) YTType.convert(db, nextLine[6], Double.class)).doubleValue();
               doc.field("latitude", lat);
               doc.field("longitude", lng);
             } catch (Exception e) {

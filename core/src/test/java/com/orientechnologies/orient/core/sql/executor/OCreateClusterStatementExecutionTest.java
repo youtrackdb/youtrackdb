@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class OCreateClusterStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testExisting() {
-    OClass clazz = db.getMetadata().getSchema().createClass("testExisting");
+    YTClass clazz = db.getMetadata().getSchema().createClass("testExisting");
     String clusterName = db.getClusterNameById(clazz.getClusterIds()[0]);
     try {
       db.command("create cluster " + clusterName);

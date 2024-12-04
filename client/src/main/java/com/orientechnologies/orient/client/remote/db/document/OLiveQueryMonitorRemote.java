@@ -7,10 +7,10 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
  */
 public class OLiveQueryMonitorRemote implements OLiveQueryMonitor {
 
-  private final ODatabaseSessionRemote database;
+  private final YTDatabaseSessionRemote database;
   private final int monitorId;
 
-  public OLiveQueryMonitorRemote(ODatabaseSessionRemote database, int monitorId) {
+  public OLiveQueryMonitorRemote(YTDatabaseSessionRemote database, int monitorId) {
     this.database = database;
     this.monitorId = monitorId;
   }

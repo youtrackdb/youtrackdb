@@ -3,12 +3,12 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -33,21 +33,21 @@ public class OInstanceofCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     if (currentRecord == null) {
       return false;
     }
-    ORecord record;
+    YTRecord record;
     try {
       record = currentRecord.getRecord();
     } catch (ORecordNotFoundException rnf) {
       return false;
     }
 
-    if (!(record instanceof ODocument doc)) {
+    if (!(record instanceof YTDocument doc)) {
       return false;
     }
-    OClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+    YTClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz == null) {
       return false;
     }
@@ -68,11 +68,11 @@ public class OInstanceofCondition extends OBooleanExpression {
       return false;
     }
 
-    ORecord record = currentRecord.getElement().get().getRecord();
-    if (!(record instanceof ODocument doc)) {
+    YTRecord record = currentRecord.getElement().get().getRecord();
+    if (!(record instanceof YTDocument doc)) {
       return false;
     }
-    OClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+    YTClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz == null) {
       return false;
     }
@@ -190,7 +190,7 @@ public class OInstanceofCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     return left.isCacheable(session);
   }
 }

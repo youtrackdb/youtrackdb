@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.shape.legacy;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
@@ -23,7 +23,7 @@ import org.locationtech.spatial4j.shape.Shape;
  */
 public interface OShapeBuilderLegacy<T extends Shape> {
 
-  T makeShape(ODatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx);
+  T makeShape(YTDatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx);
 
   boolean canHandle(OCompositeKey key);
 }

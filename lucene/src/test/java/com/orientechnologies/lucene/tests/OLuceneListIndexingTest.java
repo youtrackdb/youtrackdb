@@ -20,12 +20,12 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,19 +44,19 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
   @Before
   public void init() {
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass person = schema.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
-    person.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
+    YTClass person = schema.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
+    person.createProperty(db, "tags", YTType.EMBEDDEDLIST, YTType.STRING);
     //noinspection EmptyTryBlock
     try (OResultSet command =
         db.command("create index Person.name_tags on Person (name,tags) FULLTEXT ENGINE LUCENE")) {
     }
 
-    OClass city = schema.createClass("City");
-    city.createProperty(db, "name", OType.STRING);
-    city.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
+    YTClass city = schema.createClass("City");
+    city.createProperty(db, "name", YTType.STRING);
+    city.createProperty(db, "tags", YTType.EMBEDDEDLIST, YTType.STRING);
     //noinspection EmptyTryBlock
     try (OResultSet command =
         db.command("create index City.tags on City (tags) FULLTEXT ENGINE LUCENE")) {
@@ -66,10 +66,10 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
   @Test
   public void testIndexingList() {
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     // Rome
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
     doc.field("name", "Rome");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -79,17 +79,17 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
 
     OIndex tagsIndex = schema.getClass("City").getClassIndex(db, "City.tags");
     Collection<?> coll;
-    try (Stream<ORID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    try (Stream<YTRID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    doc = db.load((ORID) coll.iterator().next());
+    doc = db.load((YTRID) coll.iterator().next());
 
     assertThat(doc.<String>field("name")).isEqualTo("Rome");
 
     // London
-    doc = new ODocument("City");
+    doc = new YTDocument("City");
     doc.field("name", "London");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -98,7 +98,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     db.commit();
 
     db.begin();
-    try (Stream<ORID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    try (Stream<YTRID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);
@@ -113,17 +113,17 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<ORID> stream = tagsIndex.getInternal().getRids(db, "Rainy")) {
+    try (Stream<YTRID> stream = tagsIndex.getInternal().getRids(db, "Rainy")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    try (Stream<ORID> stream = tagsIndex.getInternal().getRids(db, "Beautiful")) {
+    try (Stream<YTRID> stream = tagsIndex.getInternal().getRids(db, "Beautiful")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);
 
-    try (Stream<ORID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
+    try (Stream<YTRID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
@@ -138,9 +138,9 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
   @Ignore
   public void testCompositeIndexList() {
     db.begin();
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    ODocument doc = new ODocument("Person");
+    YTDocument doc = new YTDocument("Person");
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
@@ -151,13 +151,13 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     db.begin();
     OIndex idx = schema.getClass("Person").getClassIndex(db, "Person.name_tags");
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Enrico")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Enrico")) {
       coll = stream.collect(Collectors.toList());
     }
 
     assertThat(coll).hasSize(3);
 
-    doc = new ODocument("Person");
+    doc = new YTDocument("Person");
     doc.field("name", "Jared");
     doc.field("tags", Arrays.asList("Funny", "Tall"));
 
@@ -165,7 +165,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     db.commit();
 
     db.begin();
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Jared")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Jared")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -179,12 +179,12 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Funny")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Funny")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(1);
 
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Geek")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Geek")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(2);

@@ -4,16 +4,16 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
@@ -44,7 +44,7 @@ public class OWhereClause extends SimpleNode {
     super(p, id);
   }
 
-  public boolean matchesFilters(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean matchesFilters(YTIdentifiable currentRecord, OCommandContext ctx) {
     if (baseExpression == null) {
       return true;
     }
@@ -78,7 +78,7 @@ public class OWhereClause extends SimpleNode {
    * @return an estimation of the number of records of this class returned applying this filter, 0
    * if and only if sure that no records are returned
    */
-  public long estimate(OClass oClass, long threshold, OCommandContext ctx) {
+  public long estimate(YTClass oClass, long threshold, OCommandContext ctx) {
     var database = ctx.getDatabase();
     long count = oClass.count(database);
     if (count > 1) {
@@ -112,7 +112,7 @@ public class OWhereClause extends SimpleNode {
         Map<String, Object> conditions = getEqualityOperations(condition, ctx);
 
         for (OIndex index : indexes) {
-          if (index.getType().equals(OClass.INDEX_TYPE.FULLTEXT.name())) {
+          if (index.getType().equals(YTClass.INDEX_TYPE.FULLTEXT.name())) {
             continue;
           }
           List<String> indexedFields = index.getDefinition().getFields();
@@ -141,7 +141,7 @@ public class OWhereClause extends SimpleNode {
   }
 
   private static long estimateFromIndex(
-      ODatabaseSessionInternal session, OIndex index, Map<String, Object> conditions,
+      YTDatabaseSessionInternal session, OIndex index, Map<String, Object> conditions,
       int nMatchingKeys) {
     if (nMatchingKeys < 1) {
       throw new IllegalArgumentException("Cannot estimate from an index with zero keys");
@@ -161,13 +161,13 @@ public class OWhereClause extends SimpleNode {
     }
     if (key != null) {
       if (conditions.size() == definitionFields.size()) {
-        try (Stream<ORID> rids = index.getInternal().getRids(session, key)) {
+        try (Stream<YTRID> rids = index.getInternal().getRids(session, key)) {
           return rids.count();
         }
       } else if (index.supportsOrderedIterations()) {
-        final Spliterator<ORawPair<Object, ORID>> spliterator;
+        final Spliterator<ORawPair<Object, YTRID>> spliterator;
 
-        try (Stream<ORawPair<Object, ORID>> stream =
+        try (Stream<ORawPair<Object, YTRID>> stream =
             index.getInternal().streamEntriesBetween(session, key, true, key, true, true)) {
           spliterator = stream.spliterator();
           return spliterator.estimateSize();
@@ -177,8 +177,8 @@ public class OWhereClause extends SimpleNode {
     return Long.MAX_VALUE;
   }
 
-  private static Object convert(ODatabaseSessionInternal session, Object o, OType oType) {
-    return OType.convert(session, o, oType.getDefaultJavaType());
+  private static Object convert(YTDatabaseSessionInternal session, Object o, YTType oType) {
+    return YTType.convert(session, o, oType.getDefaultJavaType());
   }
 
   private static Map<String, Object> getEqualityOperations(
@@ -208,7 +208,7 @@ public class OWhereClause extends SimpleNode {
   }
 
   public List<OBinaryCondition> getIndexedFunctionConditions(
-      OClass iSchemaClass, ODatabaseSessionInternal database) {
+      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
     if (baseExpression == null) {
       return null;
     }
@@ -285,7 +285,7 @@ public class OWhereClause extends SimpleNode {
     this.flattened = flattened;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (baseExpression != null) {
       result.setProperty("baseExpression", baseExpression.serialize(db));
@@ -316,7 +316,7 @@ public class OWhereClause extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     return baseExpression.isCacheable(session);
   }
 

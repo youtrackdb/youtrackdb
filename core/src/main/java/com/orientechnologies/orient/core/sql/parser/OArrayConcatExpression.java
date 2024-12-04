@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -87,7 +87,7 @@ public class OArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     Object result = childExpressions.get(0).execute(iCurrentRecord, ctx);
     for (int i = 1; i < childExpressions.size(); i++) {
       result = apply(result, childExpressions.get(i).execute(iCurrentRecord, ctx));
@@ -130,7 +130,7 @@ public class OArrayConcatExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     for (OArrayConcatExpressionElement expr : this.childExpressions) {
       if (expr.isAggregate(session)) {
         return true;
@@ -139,7 +139,7 @@ public class OArrayConcatExpression extends SimpleNode {
     return false;
   }
 
-  public SimpleNode splitForAggregation(ODatabaseSessionInternal session,
+  public SimpleNode splitForAggregation(YTDatabaseSessionInternal session,
       AggregateProjectionSplit aggregateProj) {
     if (isAggregate(session)) {
       throw new OCommandExecutionException("Cannot use aggregate functions in array concatenation");
@@ -226,7 +226,7 @@ public class OArrayConcatExpression extends SimpleNode {
     return childExpressions != null ? childExpressions.hashCode() : 0;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (childExpressions != null) {
       result.setProperty(
@@ -249,7 +249,7 @@ public class OArrayConcatExpression extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     for (OArrayConcatExpressionElement exp : childExpressions) {
       if (!exp.isCacheable(session)) {
         return false;

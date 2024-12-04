@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
@@ -59,7 +59,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
    * Delegates the execution to the configured command executor.
    */
   @SuppressWarnings("unchecked")
-  public <RET> RET execute(@Nonnull ODatabaseSessionInternal querySession, final Object... iArgs) {
+  public <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, final Object... iArgs) {
     setParameters(iArgs);
 
     OExecutionThreadLocal.INSTANCE.get().onAsyncReplicationOk = onAsyncReplicationOk;
@@ -83,7 +83,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     return this;
   }
 
-  public OCommandRequestText fromStream(ODatabaseSessionInternal db, final byte[] iStream,
+  public OCommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
       ORecordSerializer serializer)
       throws OSerializationException {
     final OMemoryStream buffer = new OMemoryStream(iStream);
@@ -123,14 +123,14 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
 
       buffer.set(!params.isEmpty());
       if (!params.isEmpty()) {
-        final ODocument param = new ODocument();
+        final YTDocument param = new YTDocument();
         param.field("parameters", params);
         buffer.set(param.toStream());
       }
 
       buffer.set(!compositeKeyParams.isEmpty());
       if (!compositeKeyParams.isEmpty()) {
-        final ODocument compositeKey = new ODocument();
+        final YTDocument compositeKey = new YTDocument();
         compositeKey.field("compositeKeyParams", compositeKeyParams);
         buffer.set(compositeKey.toStream());
       }
@@ -139,7 +139,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     return buffer.toByteArray();
   }
 
-  protected void fromStream(ODatabaseSessionInternal db, final OMemoryStream buffer,
+  protected void fromStream(YTDatabaseSessionInternal db, final OMemoryStream buffer,
       ORecordSerializer serializer) {
     text = buffer.getAsString();
 
@@ -148,7 +148,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     final boolean simpleParams = buffer.getAsBoolean();
     if (simpleParams) {
       final byte[] paramBuffer = buffer.getAsByteArray();
-      final ODocument param = new ODocument();
+      final YTDocument param = new YTDocument();
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {
@@ -187,7 +187,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     final boolean compositeKeyParamsPresent = buffer.getAsBoolean();
     if (compositeKeyParamsPresent) {
       final byte[] paramBuffer = buffer.getAsByteArray();
-      final ODocument param = new ODocument();
+      final YTDocument param = new YTDocument();
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {

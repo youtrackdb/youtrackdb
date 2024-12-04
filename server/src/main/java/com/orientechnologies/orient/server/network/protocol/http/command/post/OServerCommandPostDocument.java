@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -39,9 +39,9 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Create document";
 
-    ODatabaseSession db = null;
+    YTDatabaseSession db = null;
 
-    ODocument d;
+    YTDocument d;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -49,12 +49,12 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
       d =
           db.computeInTx(
               () -> {
-                ODocument doc = new ODocument();
+                YTDocument doc = new YTDocument();
                 doc.fromJSON(iRequest.getContent());
                 ORecordInternal.setVersion(doc, 0);
 
                 // ASSURE TO MAKE THE RECORD ID INVALID
-                ((ORecordId) doc.getIdentity()).setClusterPosition(ORID.CLUSTER_POS_INVALID);
+                ((YTRecordId) doc.getIdentity()).setClusterPosition(YTRID.CLUSTER_POS_INVALID);
 
                 doc.save();
                 return doc;

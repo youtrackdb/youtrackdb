@@ -2,16 +2,16 @@ package com.orientechnologies.orient.core.sql.functions.graph;
 
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,15 +30,15 @@ public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
 
   @Override
   protected Object move(
-      final ODatabaseSession graph, final OIdentifiable iRecord, final String[] iLabels) {
+      final YTDatabaseSession graph, final YTIdentifiable iRecord, final String[] iLabels) {
     return v2v(graph, iRecord, ODirection.IN, iLabels);
   }
 
   protected Object move(
-      final ODatabaseSession graph,
-      final OIdentifiable iRecord,
+      final YTDatabaseSession graph,
+      final YTIdentifiable iRecord,
       final String[] iLabels,
-      Iterable<OIdentifiable> iPossibleResults) {
+      Iterable<YTIdentifiable> iPossibleResults) {
     if (iPossibleResults == null) {
       return v2v(graph, iRecord, ODirection.IN, iLabels);
     }
@@ -62,9 +62,9 @@ public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
   }
 
   private static Object fetchFromIndex(
-      ODatabaseSession graph,
-      OIdentifiable iFrom,
-      Iterable<OIdentifiable> to,
+      YTDatabaseSession graph,
+      YTIdentifiable iFrom,
+      Iterable<YTIdentifiable> to,
       String[] iEdgeTypes) {
     String edgeClassName = null;
     if (iEdgeTypes == null) {
@@ -74,8 +74,8 @@ public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
     } else {
       return null;
     }
-    OClass edgeClass =
-        ((ODatabaseSessionInternal) graph)
+    YTClass edgeClass =
+        ((YTDatabaseSessionInternal) graph)
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(edgeClassName);
@@ -88,14 +88,14 @@ public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
     }
     OIndex index = indexes.iterator().next();
 
-    OMultiCollectionIterator<OVertex> result = new OMultiCollectionIterator<OVertex>();
-    for (OIdentifiable identifiable : to) {
+    OMultiCollectionIterator<YTVertex> result = new OMultiCollectionIterator<YTVertex>();
+    for (YTIdentifiable identifiable : to) {
       OCompositeKey key = new OCompositeKey(iFrom, identifiable);
-      try (Stream<ORID> stream = index.getInternal()
-          .getRids((ODatabaseSessionInternal) graph, key)) {
+      try (Stream<YTRID> stream = index.getInternal()
+          .getRids((YTDatabaseSessionInternal) graph, key)) {
         result.add(
             stream
-                .map((edge) -> ((ODocument) edge.getRecord()).rawField("out"))
+                .map((edge) -> ((YTDocument) edge.getRecord()).rawField("out"))
                 .collect(Collectors.toSet()));
       }
     }

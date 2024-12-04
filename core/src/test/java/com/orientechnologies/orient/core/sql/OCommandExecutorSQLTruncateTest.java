@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
 import org.junit.Test;
@@ -13,16 +13,16 @@ public class OCommandExecutorSQLTruncateTest extends DBTestBase {
 
   @Test
   public void testTruncatePlain() {
-    OClass vcl = db.getMetadata().getSchema().createClass("A");
+    YTClass vcl = db.getMetadata().getSchema().createClass("A");
     db.getMetadata().getSchema().createClass("ab", vcl);
 
     db.begin();
-    ODocument doc = new ODocument("A");
+    YTDocument doc = new YTDocument("A");
     db.save(doc);
     db.commit();
 
     db.begin();
-    doc = new ODocument("ab");
+    doc = new YTDocument("ab");
     db.save(doc);
     db.commit();
 
@@ -35,7 +35,7 @@ public class OCommandExecutorSQLTruncateTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("A");
 
     db.begin();
-    ODocument doc = new ODocument("A");
+    YTDocument doc = new YTDocument("A");
     db.save(doc);
     db.commit();
 
@@ -51,16 +51,16 @@ public class OCommandExecutorSQLTruncateTest extends DBTestBase {
 
   @Test
   public void testTruncatePolimorphic() {
-    OClass vcl = db.getMetadata().getSchema().createClass("A");
+    YTClass vcl = db.getMetadata().getSchema().createClass("A");
     db.getMetadata().getSchema().createClass("ab", vcl);
 
     db.begin();
-    ODocument doc = new ODocument("A");
+    YTDocument doc = new YTDocument("A");
     db.save(doc);
     db.commit();
 
     db.begin();
-    doc = new ODocument("ab");
+    doc = new YTDocument("ab");
     db.save(doc);
     db.commit();
 

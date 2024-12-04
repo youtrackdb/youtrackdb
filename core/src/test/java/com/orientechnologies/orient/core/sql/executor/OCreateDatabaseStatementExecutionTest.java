@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
@@ -23,7 +23,7 @@ public class OCreateDatabaseStatementExecutionTest {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try (OResultSet result =
         youTrackDb.execute(
@@ -40,7 +40,7 @@ public class OCreateDatabaseStatementExecutionTest {
     Assert.assertTrue(youTrackDb.exists(dbName));
 
     try {
-      final ODatabaseSession session =
+      final YTDatabaseSession session =
           youTrackDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
     } finally {
@@ -66,7 +66,7 @@ public class OCreateDatabaseStatementExecutionTest {
     Assert.assertTrue(youTrackDb.exists(dbName));
 
     try {
-      ODatabaseSession session =
+      YTDatabaseSession session =
           youTrackDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       Assert.fail();
     } catch (OSecurityAccessException e) {

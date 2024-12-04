@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCondition;
@@ -36,11 +36,11 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Iterator<OIdentifiable> fullResult = init(ctx);
+    Iterator<YTIdentifiable> fullResult = init(ctx);
     return OExecutionStream.loadIterator(fullResult).interruptable();
   }
 
-  private Iterator<OIdentifiable> init(OCommandContext ctx) {
+  private Iterator<YTIdentifiable> init(OCommandContext ctx) {
     return functionCondition.executeIndexedFunction(queryTarget, ctx).iterator();
   }
 
@@ -57,7 +57,7 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("functionCondition", this.functionCondition.serialize(db));
     result.setProperty("queryTarget", this.queryTarget.serialize(db));

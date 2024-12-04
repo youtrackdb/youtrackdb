@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.concur.lock;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +45,7 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
 
   private final int concurrencyLevel =
       closestInteger(
-          OGlobalConfiguration.ENVIRONMENT_LOCK_MANAGER_CONCURRENCY_LEVEL.getValueAsInteger());
+          YTGlobalConfiguration.ENVIRONMENT_LOCK_MANAGER_CONCURRENCY_LEVEL.getValueAsInteger());
   private final int mask = concurrencyLevel - 1;
 
   private final ReadWriteLock[] locks;

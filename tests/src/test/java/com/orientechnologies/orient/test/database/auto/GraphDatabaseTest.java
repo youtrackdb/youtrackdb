@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -55,19 +55,19 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     database.createEdgeClass("drives");
 
     database.begin();
-    OVertex tom = database.newVertex();
+    YTVertex tom = database.newVertex();
     tom.setProperty("name", "Tom");
     tom.save();
 
-    OVertex ferrari = database.newVertex("GraphCar");
+    YTVertex ferrari = database.newVertex("GraphCar");
     ferrari.setProperty("brand", "Ferrari");
     ferrari.save();
 
-    OVertex maserati = database.newVertex("GraphCar");
+    YTVertex maserati = database.newVertex("GraphCar");
     maserati.setProperty("brand", "Maserati");
     maserati.save();
 
-    OVertex porsche = database.newVertex("GraphCar");
+    YTVertex porsche = database.newVertex("GraphCar");
     porsche.setProperty("brand", "Porsche");
     porsche.save();
 
@@ -94,25 +94,25 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
   }
 
   public void testNotDuplicatedIndexTxChanges() throws IOException {
-    OClass oc = database.createVertexClass("vertexA");
+    YTClass oc = database.createVertexClass("vertexA");
     if (oc == null) {
       oc = database.createVertexClass("vertexA");
     }
 
     if (!oc.existsProperty("name")) {
-      oc.createProperty(database, "name", OType.STRING);
+      oc.createProperty(database, "name", YTType.STRING);
     }
 
     if (oc.getClassIndex(database, "vertexA_name_idx") == null) {
-      oc.createIndex(database, "vertexA_name_idx", OClass.INDEX_TYPE.UNIQUE, "name");
+      oc.createIndex(database, "vertexA_name_idx", YTClass.INDEX_TYPE.UNIQUE, "name");
     }
 
     database.begin();
-    OVertex vertexA = database.newVertex("vertexA");
+    YTVertex vertexA = database.newVertex("vertexA");
     vertexA.setProperty("name", "myKey");
     vertexA.save();
 
-    OVertex vertexB = database.newVertex("vertexA");
+    YTVertex vertexB = database.newVertex("vertexA");
     vertexB.setProperty("name", "anotherKey");
     vertexB.save();
     database.commit();
@@ -130,15 +130,15 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   public void testNewVertexAndEdgesWithFieldsInOneShoot() {
     database.begin();
-    OVertex vertexA = database.newVertex();
+    YTVertex vertexA = database.newVertex();
     vertexA.setProperty("field1", "value1");
     vertexA.setProperty("field2", "value2");
 
-    OVertex vertexB = database.newVertex();
+    YTVertex vertexB = database.newVertex();
     vertexB.setProperty("field1", "value1");
     vertexB.setProperty("field2", "value2");
 
-    OEdge edgeC = database.newEdge(vertexA, vertexB);
+    YTEdge edgeC = database.newEdge(vertexA, vertexB);
     edgeC.setProperty("edgeF1", "edgeV2");
 
     database.commit();
@@ -155,19 +155,19 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
   @Test
   public void sqlNestedQueries() {
     database.begin();
-    OVertex vertex1 = database.newVertex();
+    YTVertex vertex1 = database.newVertex();
     vertex1.setProperty("driver", "John");
     vertex1.save();
 
-    OVertex vertex2 = database.newVertex();
+    YTVertex vertex2 = database.newVertex();
     vertex2.setProperty("car", "ford");
     vertex2.save();
 
-    OVertex targetVertex = database.newVertex();
+    YTVertex targetVertex = database.newVertex();
     targetVertex.setProperty("car", "audi");
     targetVertex.save();
 
-    OEdge edge = database.newEdge(vertex1, vertex2);
+    YTEdge edge = database.newEdge(vertex1, vertex2);
     edge.setProperty("color", "red");
     edge.setProperty("action", "owns");
     edge.save();
@@ -202,19 +202,19 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     database.createEdgeClass("owns");
     database.begin();
 
-    OVertex countryVertex1 = database.newVertex();
+    YTVertex countryVertex1 = database.newVertex();
     countryVertex1.setProperty("name", "UK");
     countryVertex1.setProperty("area", "Europe");
     countryVertex1.setProperty("code", "2");
     countryVertex1.save();
 
-    OVertex cityVertex1 = database.newVertex();
+    YTVertex cityVertex1 = database.newVertex();
     cityVertex1.setProperty("name", "leicester");
     cityVertex1.setProperty("lat", "52.64640");
     cityVertex1.setProperty("long", "-1.13159");
     cityVertex1.save();
 
-    OVertex cityVertex2 = database.newVertex();
+    YTVertex cityVertex2 = database.newVertex();
     cityVertex2.setProperty("name", "manchester");
     cityVertex2.setProperty("lat", "53.47497");
     cityVertex2.setProperty("long", "-2.25769");
@@ -269,7 +269,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   public void testInsertOfEdgeWithInsertCommandUnsafe() {
     database.begin();
-    OElement insertedEdge =
+    YTEntity insertedEdge =
         database
             .command("insert into E set in = #9:0, out = #9:1, a = 33 unsafe")
             .next()
@@ -293,35 +293,35 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     database.createClass("NonVertex");
 
     database.begin();
-    OVertex vertex = database.newVertex();
+    YTVertex vertex = database.newVertex();
     vertex.setProperty("name", "vertexWithEmbedded");
     vertex.save();
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     doc.field("foo", "bar");
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     vertex.setProperty("emb1", doc);
 
-    ODocument doc2 = new ODocument("V");
+    YTDocument doc2 = new YTDocument("V");
     doc2.field("foo", "bar1");
-    vertex.setProperty("emb2", doc2, OType.EMBEDDED);
+    vertex.setProperty("emb2", doc2, YTType.EMBEDDED);
 
-    ODocument doc3 = new ODocument("NonVertex");
+    YTDocument doc3 = new YTDocument("NonVertex");
     doc3.field("foo", "bar2");
-    vertex.setProperty("emb3", doc3, OType.EMBEDDED);
+    vertex.setProperty("emb3", doc3, YTType.EMBEDDED);
 
     Object res1 = vertex.getProperty("emb1");
     Assert.assertNotNull(res1);
-    Assert.assertTrue(res1 instanceof ODocument);
+    Assert.assertTrue(res1 instanceof YTDocument);
 
     Object res2 = vertex.getProperty("emb2");
     Assert.assertNotNull(res2);
-    Assert.assertFalse(res2 instanceof ODocument);
+    Assert.assertFalse(res2 instanceof YTDocument);
 
     Object res3 = vertex.getProperty("emb3");
     Assert.assertNotNull(res3);
-    Assert.assertTrue(res3 instanceof ODocument);
+    Assert.assertTrue(res3 instanceof YTDocument);
     database.commit();
   }
 }

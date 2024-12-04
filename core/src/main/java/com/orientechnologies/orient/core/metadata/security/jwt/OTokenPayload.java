@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security.jwt;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ public interface OTokenPayload {
 
   long getExpiry();
 
-  ORID getUserRid();
+  YTRID getUserRid();
 
   String getDatabaseType();
 

@@ -22,9 +22,9 @@ package com.orientechnologies.orient.server.network.protocol.http.command.all;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestWrapper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -39,7 +39,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
   public boolean execute(final OHttpRequest iRequest, final OHttpResponse iResponse)
       throws Exception {
     final String[] parts = init(iRequest, iResponse);
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -76,7 +76,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       if (args.length == 0 && iRequest.getContent() != null && !iRequest.getContent().isEmpty()) {
         // PARSE PARAMETERS FROM CONTENT PAYLOAD
         try {
-          final ODocument params = new ODocument();
+          final YTDocument params = new YTDocument();
           params.fromJSON(iRequest.getContent());
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {
@@ -133,6 +133,6 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       OHttpRequest iRequest,
       OHttpResponse iResponse,
       Object iResult,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 }

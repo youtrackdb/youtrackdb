@@ -145,13 +145,13 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -163,16 +163,16 @@ import com.orientechnologies.orient.core.fetch.OFetchListener;
 import com.orientechnologies.orient.core.fetch.OFetchPlan;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
@@ -265,7 +265,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeDBReload(OReloadRequest request) {
-    final ODatabaseSessionInternal db = connection.getDatabase();
+    final YTDatabaseSessionInternal db = connection.getDatabase();
     final Collection<String> clusters = db.getClusterNames();
 
     String[] clusterNames = new String[clusters.size()];
@@ -361,8 +361,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeDistributedStatus(ODistributedStatusRequest request) {
-    final ODocument req = request.getStatus();
-    ODocument clusterConfig = new ODocument();
+    final YTDocument req = request.getStatus();
+    YTDocument clusterConfig = new YTDocument();
 
     final String operation = req.field("operation");
     if (operation == null) {
@@ -436,7 +436,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeReadRecord(OReadRecordRequest request) {
-    final ORecordId rid = request.getRid();
+    final YTRecordId rid = request.getRid();
     final String fetchPlanString = request.getFetchPlan();
     boolean ignoreCache = false;
     ignoreCache = request.isIgnoreCache();
@@ -454,24 +454,24 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               connection.getDatabase().getStorageInfo().getConfiguration())
               .toStream(connection.getData().protocolVersion, StandardCharsets.UTF_8);
 
-      response = new OReadRecordResponse(OBlob.RECORD_TYPE, 0, record, new HashSet<>());
+      response = new OReadRecordResponse(YTBlob.RECORD_TYPE, 0, record, new HashSet<>());
 
     } else {
       try {
-        final ORecordAbstract record = connection.getDatabase().load(rid);
+        final YTRecordAbstract record = connection.getDatabase().load(rid);
         assert !record.isUnloaded();
         byte[] bytes = getRecordBytes(connection, record);
-        final Set<ORecordAbstract> recordsToSend = new HashSet<>();
+        final Set<YTRecordAbstract> recordsToSend = new HashSet<>();
         if (!fetchPlanString.isEmpty()) {
           // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
           // PLAN
-          if (record instanceof ODocument doc) {
+          if (record instanceof YTDocument doc) {
             final OFetchPlan fetchPlan = OFetchHelper.buildFetchPlan(fetchPlanString);
 
             final OFetchListener listener =
                 new ORemoteFetchListener() {
                   @Override
-                  protected void sendRecord(ORecordAbstract iLinked) {
+                  protected void sendRecord(YTRecordAbstract iLinked) {
                     recordsToSend.add(iLinked);
                   }
                 };
@@ -491,7 +491,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeRecordExists(ORecordExistsRequest request) {
-    final ORID rid = request.getRecordId();
+    final YTRID rid = request.getRecordId();
     final boolean recordExists = connection.getDatabase().exists(rid);
     return new ORecordExistsResponse(recordExists);
   }
@@ -499,12 +499,12 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeCreateRecord(OCreateRecordRequest request) {
 
-    final ORecord record = request.getContent();
+    final YTRecord record = request.getContent();
     ORecordInternal.setIdentity(record, request.getRid());
     ORecordInternal.setVersion(record, 0);
-    if (record instanceof ODocument) {
+    if (record instanceof YTDocument) {
       // Force conversion of value to class for trigger default values.
-      ODocumentInternal.autoConvertValueToClass(connection.getDatabase(), (ODocument) record);
+      ODocumentInternal.autoConvertValueToClass(connection.getDatabase(), (YTDocument) record);
     }
     connection.getDatabase().save(record);
 
@@ -520,7 +520,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       }
 
       return new OCreateRecordResponse(
-          (ORecordId) record.getIdentity(), record.getVersion(), changedIds);
+          (YTRecordId) record.getIdentity(), record.getVersion(), changedIds);
     }
     return null;
   }
@@ -528,15 +528,15 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeUpdateRecord(OUpdateRecordRequest request) {
 
-    ODatabaseSessionInternal database = connection.getDatabase();
-    final ORecord newRecord = request.getContent();
+    YTDatabaseSessionInternal database = connection.getDatabase();
+    final YTRecord newRecord = request.getContent();
     ORecordInternal.setIdentity(newRecord, request.getRid());
     ORecordInternal.setVersion(newRecord, request.getVersion());
 
     ORecordInternal.setContentChanged(newRecord, request.isUpdateContent());
     ORecordInternal.getDirtyManager(newRecord).clearForSave();
-    ORecord currentRecord = null;
-    if (newRecord instanceof ODocument) {
+    YTRecord currentRecord = null;
+    if (newRecord instanceof YTDocument) {
       try {
         currentRecord = database.load(request.getRid());
       } catch (ORecordNotFoundException e) {
@@ -552,9 +552,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         throw new ORecordNotFoundException(request.getRid());
       }
 
-      ((ODocument) currentRecord).merge((ODocument) newRecord, false, false);
+      ((YTDocument) currentRecord).merge((YTDocument) newRecord, false, false);
       if (request.isUpdateContent()) {
-        ((ODocument) currentRecord).setDirty();
+        ((YTDocument) currentRecord).setDirty();
       }
     } else {
       currentRecord = newRecord;
@@ -672,7 +672,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         connection
             .getDatabase()
             .getConfiguration()
-            .getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT);
+            .getValueAsLong(YTGlobalConfiguration.COMMAND_TIMEOUT);
 
     if (serverTimeout > 0 && command.getTimeoutTime() > serverTimeout)
     // FORCE THE SERVER'S TIMEOUT
@@ -794,7 +794,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeGetGlobalConfiguration(OGetGlobalConfigurationRequest request) {
-    final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(request.getKey());
+    final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(request.getKey());
     String cfgValue = cfg != null ? cfg.isHidden() ? "<hidden>" : cfg.getValueAsString() : "";
     return new OGetGlobalConfigurationResponse(cfgValue);
   }
@@ -802,7 +802,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeListGlobalConfigurations(OListGlobalConfigurationsRequest request) {
     Map<String, String> configs = new HashMap<>();
-    for (OGlobalConfiguration cfg : OGlobalConfiguration.values()) {
+    for (YTGlobalConfiguration cfg : YTGlobalConfiguration.values()) {
       String key;
       try {
         key = cfg.getKey();
@@ -829,7 +829,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFreezeDatabase(OFreezeDatabaseRequest request) {
-    ODatabaseSessionInternal database =
+    YTDatabaseSessionInternal database =
         server
             .getDatabases()
             .openNoAuthenticate(request.getName(), connection.getServerUser().getName(null));
@@ -843,7 +843,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeReleaseDatabase(OReleaseDatabaseRequest request) {
-    ODatabaseSessionInternal database =
+    YTDatabaseSessionInternal database =
         server
             .getDatabases()
             .openNoAuthenticate(request.getName(), connection.getServerUser().getName(null));
@@ -870,7 +870,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeSBTreeCreate(OSBTCreateTreeRequest request) {
     OBonsaiCollectionPointer collectionPointer = null;
     try {
-      final ODatabaseSessionInternal database = connection.getDatabase();
+      final YTDatabaseSessionInternal database = connection.getDatabase();
       final OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) database.getStorage();
       final OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
       collectionPointer =
@@ -892,10 +892,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeSBTGet(OSBTGetRequest request) {
     final OSBTreeCollectionManager sbTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final OSBTreeBonsai<OIdentifiable, Integer> tree =
+    final OSBTreeBonsai<YTIdentifiable, Integer> tree =
         sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     try {
-      final OIdentifiable key = tree.getKeySerializer().deserialize(request.getKeyStream(), 0);
+      final YTIdentifiable key = tree.getKeySerializer().deserialize(request.getKeyStream(), 0);
 
       Integer result = tree.get(key);
       final OBinarySerializer<? super Integer> valueSerializer;
@@ -919,13 +919,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     final OSBTreeCollectionManager sbTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final OSBTreeBonsai<OIdentifiable, Integer> tree =
+    final OSBTreeBonsai<YTIdentifiable, Integer> tree =
         sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     byte[] stream;
     try {
 
-      OIdentifiable result = tree.firstKey();
-      final OBinarySerializer<? super OIdentifiable> keySerializer;
+      YTIdentifiable result = tree.firstKey();
+      final OBinarySerializer<? super YTIdentifiable> keySerializer;
       if (result == null) {
         keySerializer = ONullSerializer.INSTANCE;
       } else {
@@ -947,18 +947,18 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     final OSBTreeCollectionManager sbTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final OSBTreeBonsai<OIdentifiable, Integer> tree =
+    final OSBTreeBonsai<YTIdentifiable, Integer> tree =
         sbTreeCollectionManager.loadSBTree(request.getPointer());
     try {
-      final OBinarySerializer<OIdentifiable> keySerializer = tree.getKeySerializer();
-      OIdentifiable key = keySerializer.deserialize(request.getKeyStream(), 0);
+      final OBinarySerializer<YTIdentifiable> keySerializer = tree.getKeySerializer();
+      YTIdentifiable key = keySerializer.deserialize(request.getKeyStream(), 0);
 
       final OBinarySerializer<Integer> valueSerializer = tree.getValueSerializer();
 
-      OTreeInternal.AccumulativeListener<OIdentifiable, Integer> listener =
+      OTreeInternal.AccumulativeListener<YTIdentifiable, Integer> listener =
           new OTreeInternal.AccumulativeListener<>(request.getPageSize());
       tree.loadEntriesMajor(key, request.isInclusive(), true, listener);
-      List<Entry<OIdentifiable, Integer>> result = listener.getResult();
+      List<Entry<YTIdentifiable, Integer>> result = listener.getResult();
       return new OSBTFetchEntriesMajorResponse<>(keySerializer, valueSerializer, result);
     } finally {
       sbTreeCollectionManager.releaseSBTree(request.getPointer());
@@ -969,7 +969,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeSBTGetRealSize(OSBTGetRealBagSizeRequest request) {
     final OSBTreeCollectionManager sbTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final OSBTreeBonsai<OIdentifiable, Integer> tree =
+    final OSBTreeBonsai<YTIdentifiable, Integer> tree =
         sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     try {
       int realSize = tree.getRealBagSize(request.getChanges());
@@ -1031,7 +1031,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     connection.getData().collectStats = request.isCollectStats();
 
     if (!request.isTokenBased()
-        && !OGlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
+        && !YTGlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
       OLogManager.instance()
           .warn(
               this,
@@ -1112,7 +1112,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     connection.getData().clientId = request.getClientId();
     connection.getData().setSerializationImpl(request.getRecordFormat());
     if (!request.isUseToken()
-        && !OGlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
+        && !YTGlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
       OLogManager.instance()
           .warn(
               this,
@@ -1152,7 +1152,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       server.getClientConnectionManager().connect(connection.getProtocol(), connection, token);
     }
 
-    ODatabaseSessionInternal db = connection.getDatabase();
+    YTDatabaseSessionInternal db = connection.getDatabase();
     final Collection<String> clusters = db.getClusterNames();
     final byte[] tokenToSend;
     if (Boolean.TRUE.equals(connection.getTokenBased())) {
@@ -1163,7 +1163,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     final OServerPlugin plugin = server.getPlugin("cluster");
     byte[] distriConf = null;
-    ODocument distributedCfg;
+    YTDocument distributedCfg;
     if (plugin instanceof ODistributedServerManager) {
       distributedCfg = ((ODistributedServerManager) plugin).getClusterConfiguration();
 
@@ -1172,7 +1172,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               .getDatabaseConfiguration(connection.getDatabase().getName());
       if (dbCfg != null) {
         // ENHANCE SERVER CFG WITH DATABASE CFG
-        distributedCfg.field("database", dbCfg.getDocument(), OType.EMBEDDED);
+        distributedCfg.field("database", dbCfg.getDocument(), YTType.EMBEDDED);
       }
       distriConf = getRecordBytes(connection, distributedCfg);
     }
@@ -1280,7 +1280,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeSetGlobalConfig(OSetGlobalConfigurationRequest request) {
 
-    final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(request.getKey());
+    final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(request.getKey());
 
     if (cfg != null) {
       cfg.setValue(request.getValue());
@@ -1298,12 +1298,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     return new OSetGlobalConfigurationResponse();
   }
 
-  public static byte[] getRecordBytes(OClientConnection connection, final ORecordAbstract iRecord) {
+  public static byte[] getRecordBytes(OClientConnection connection,
+      final YTRecordAbstract iRecord) {
     var db = connection.getDatabase();
     final byte[] stream;
     String name = connection.getData().getSerializationImpl();
-    if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE) {
-      ((ODocument) iRecord).deserializeFields();
+    if (ORecordInternal.getRecordType(iRecord) == YTDocument.RECORD_TYPE) {
+      ((YTDocument) iRecord).deserializeFields();
       ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(db, iRecord);
     } else {
@@ -1340,7 +1341,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeQuery(OQueryRequest request) {
-    ODatabaseSessionInternal database = connection.getDatabase();
+    YTDatabaseSessionInternal database = connection.getDatabase();
     OQueryMetadataUpdateListener metadataListener = new OQueryMetadataUpdateListener();
     database.getSharedContext().registerListener(metadataListener);
     if (database.getTransaction().isActive()) {
@@ -1405,7 +1406,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse closeQuery(OCloseQueryRequest oQueryRequest) {
     String queryId = oQueryRequest.getQueryId();
-    ODatabaseSessionInternal db = connection.getDatabase();
+    YTDatabaseSessionInternal db = connection.getDatabase();
     OResultSet query = db.getActiveQuery(queryId);
     if (query != null) {
       query.close();
@@ -1415,7 +1416,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeQueryNextPage(OQueryNextPageRequest request) {
-    ODatabaseSessionInternal database = connection.getDatabase();
+    YTDatabaseSessionInternal database = connection.getDatabase();
     YouTrackDBInternal orientDB = database.getSharedContext().getYouTrackDB();
     OLocalResultSetLifecycleDecorator rs =
         (OLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
@@ -1523,7 +1524,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   }
 
   private static OTransactionOptimisticServer doExecuteBeginTransaction(
-      long txId, ODatabaseSessionInternal database,
+      long txId, YTDatabaseSessionInternal database,
       List<ORecordOperationRequest> recordOperations) {
     assert database.activeTxCount() == 0;
 
@@ -1737,7 +1738,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFetchTransaction(OFetchTransactionRequest request) {
-    ODatabaseSessionInternal database = connection.getDatabase();
+    YTDatabaseSessionInternal database = connection.getDatabase();
     if (!database.getTransaction().isActive()) {
       throw new ODatabaseException("No Transaction Active");
     }
@@ -1757,7 +1758,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFetchTransaction38(OFetchTransaction38Request request) {
-    ODatabaseSessionInternal database = connection.getDatabase();
+    YTDatabaseSessionInternal database = connection.getDatabase();
     if (!database.getTransaction().isActive()) {
       throw new ODatabaseException("No Transaction Active");
     }
@@ -1777,7 +1778,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeRollback(ORollbackTransactionRequest request) {
-    ODatabaseSessionInternal database = connection.getDatabase();
+    YTDatabaseSessionInternal database = connection.getDatabase();
     if (database.getTransaction().isActive()) {
       database.rollback(true);
     }
@@ -1857,7 +1858,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeUnsubscribeLiveQuery(OUnsubscribeLiveQueryRequest request) {
-    ODatabaseSessionInternal database = connection.getDatabase();
+    YTDatabaseSessionInternal database = connection.getDatabase();
     OLiveQueryHookV2.unsubscribe(request.getMonitorId(), database);
     return new OUnsubscribLiveQueryResponse();
   }

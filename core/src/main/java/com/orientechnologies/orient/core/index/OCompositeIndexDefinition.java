@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.collate.OCollate;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -146,7 +146,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
    * {@inheritDoc}
    */
   public Object getDocumentValueToIndex(
-      ODatabaseSessionInternal session, final ODocument iDocument) {
+      YTDatabaseSessionInternal session, final YTDocument iDocument) {
     final List<OCompositeKey> compositeKeys = new ArrayList<>(10);
     final OCompositeKey firstKey = new OCompositeKey();
     boolean containsCollection = false;
@@ -192,7 +192,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
   /**
    * {@inheritDoc}
    */
-  public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
+  public Object createValue(YTDatabaseSessionInternal session, final List<?> params) {
     int currentParamIndex = 0;
     final OCompositeKey firstKey = new OCompositeKey();
 
@@ -242,7 +242,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     return null;
   }
 
-  public OCompositeKey createSingleValue(ODatabaseSessionInternal session, final List<?> params) {
+  public OCompositeKey createSingleValue(YTDatabaseSessionInternal session, final List<?> params) {
     final OCompositeKey compositeKey = new OCompositeKey();
     int currentParamIndex = 0;
 
@@ -336,7 +336,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
   /**
    * {@inheritDoc}
    */
-  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
+  public Object createValue(YTDatabaseSessionInternal session, final Object... params) {
     if (params.length == 1 && params[0] instanceof Collection) {
       return params[0];
     }
@@ -345,7 +345,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public void processChangeEvent(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OMultiValueChangeEvent<?, ?> changeEvent,
       Object2IntOpenHashMap<OCompositeKey> keysToAdd,
       Object2IntOpenHashMap<OCompositeKey> keysToRemove,
@@ -380,13 +380,13 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
   /**
    * {@inheritDoc}
    */
-  public OType[] getTypes() {
-    final List<OType> types = new LinkedList<>();
+  public YTType[] getTypes() {
+    final List<YTType> types = new LinkedList<>();
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
       Collections.addAll(types, indexDefinition.getTypes());
     }
 
-    return types.toArray(new OType[0]);
+    return types.toArray(new YTType[0]);
   }
 
   @Override
@@ -428,27 +428,27 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull ODocument toStream(@Nonnull ODocument document) {
+  public @Nonnull YTDocument toStream(@Nonnull YTDocument document) {
     serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream(ODocument document) {
+  protected void serializeToStream(YTDocument document) {
     super.serializeToStream(document);
 
-    final List<ODocument> inds = new ArrayList<>(indexDefinitions.size());
+    final List<YTDocument> inds = new ArrayList<>(indexDefinitions.size());
     final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
 
     document.setPropertyInternal("className", className);
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
-      final ODocument indexDocument = indexDefinition.toStream(new ODocument());
+      final YTDocument indexDocument = indexDefinition.toStream(new YTDocument());
       inds.add(indexDocument);
 
       indClasses.add(indexDefinition.getClass().getName());
     }
-    document.setPropertyInternal("indexDefinitions", inds, OType.EMBEDDEDLIST);
-    document.setPropertyInternal("indClasses", indClasses, OType.EMBEDDEDLIST);
+    document.setPropertyInternal("indexDefinitions", inds, YTType.EMBEDDEDLIST);
+    document.setPropertyInternal("indClasses", indClasses, YTType.EMBEDDEDLIST);
     document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
@@ -474,7 +474,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
 
     if (multiValueDefinitionIndex == -1) {
       boolean first = true;
-      for (OType oType : getTypes()) {
+      for (YTType oType : getTypes()) {
         if (first) {
           first = false;
         } else {
@@ -503,18 +503,18 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     return "`" + next + "`";
   }
 
-  public void fromStream(@Nonnull ODocument document) {
+  public void fromStream(@Nonnull YTDocument document) {
     serializeFromStream(document);
   }
 
   @Override
-  protected void serializeFromStream(ODocument document) {
+  protected void serializeFromStream(YTDocument document) {
     super.serializeFromStream(document);
 
     try {
       className = document.field("className");
 
-      final List<ODocument> inds = document.field("indexDefinitions");
+      final List<YTDocument> inds = document.field("indexDefinitions");
       final List<String> indClasses = document.field("indClasses");
 
       indexDefinitions.clear();
@@ -523,7 +523,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
 
       for (int i = 0; i < indClasses.size(); i++) {
         final Class<?> clazz = Class.forName(indClasses.get(i));
-        final ODocument indDoc = inds.get(i);
+        final YTDocument indDoc = inds.get(i);
 
         final OIndexDefinition indexDefinition =
             (OIndexDefinition) clazz.getDeclaredConstructor().newInstance();
@@ -564,10 +564,10 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     private final Object[] params;
     private final List<OIndexDefinition> indexDefinitions;
     private final int multiValueIndex;
-    private final ODatabaseSessionInternal session;
+    private final YTDatabaseSessionInternal session;
 
     private CompositeWrapperMap(
-        ODatabaseSessionInternal session,
+        YTDatabaseSessionInternal session,
         Object2IntOpenHashMap<OCompositeKey> underlying,
         List<OIndexDefinition> indexDefinitions,
         Object[] params,
@@ -647,7 +647,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
       return underlying.values();
     }
 
-    private OCompositeKey convertToCompositeKey(ODatabaseSessionInternal session, Object key) {
+    private OCompositeKey convertToCompositeKey(YTDatabaseSessionInternal session, Object key) {
       final OCompositeKey compositeKey = new OCompositeKey();
 
       int paramsIndex = 0;

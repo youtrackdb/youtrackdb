@@ -18,17 +18,17 @@ package com.orientechnologies.orient.server.network.protocol.binary;
 
 import com.orientechnologies.orient.client.remote.OFetchPlanResults;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,17 +38,17 @@ import java.util.Set;
 public class OSyncCommandResultListener extends OAbstractCommandResultListener
     implements OFetchPlanResults {
 
-  private final Set<ORecord> fetchedRecordsToSend = new HashSet<ORecord>();
-  private final Set<ORecord> alreadySent = new HashSet<ORecord>();
+  private final Set<YTRecord> fetchedRecordsToSend = new HashSet<YTRecord>();
+  private final Set<YTRecord> alreadySent = new HashSet<YTRecord>();
 
   public OSyncCommandResultListener(final OCommandResultListener wrappedResultListener) {
     super(wrappedResultListener);
   }
 
   @Override
-  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
-    if (iRecord instanceof ORecord) {
-      alreadySent.add((ORecord) iRecord);
+  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
+    if (iRecord instanceof YTRecord) {
+      alreadySent.add((YTRecord) iRecord);
       fetchedRecordsToSend.remove(iRecord);
     }
 
@@ -62,7 +62,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
         iRecord,
         new ORemoteFetchListener() {
           @Override
-          protected void sendRecord(ORecordAbstract iLinked) {
+          protected void sendRecord(YTRecordAbstract iLinked) {
             if (!alreadySent.contains(iLinked)) {
               fetchedRecordsToSend.add(iLinked);
             }
@@ -71,7 +71,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
     return true;
   }
 
-  public Set<ORecord> getFetchedRecordsToSend() {
+  public Set<YTRecord> getFetchedRecordsToSend() {
     return fetchedRecordsToSend;
   }
 
@@ -80,12 +80,12 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(ODocument doc) {
+  public void linkdedBySimpleValue(YTDocument doc) {
 
     ORemoteFetchListener listener =
         new ORemoteFetchListener() {
           @Override
-          protected void sendRecord(ORecordAbstract iLinked) {
+          protected void sendRecord(YTRecordAbstract iLinked) {
             if (!alreadySent.contains(iLinked)) {
               fetchedRecordsToSend.add(iLinked);
             }
@@ -93,27 +93,27 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
 
           @Override
           public void parseLinked(
-              ODocument iRootRecord,
-              OIdentifiable iLinked,
+              YTDocument iRootRecord,
+              YTIdentifiable iLinked,
               Object iUserObject,
               String iFieldName,
               OFetchContext iContext)
               throws OFetchException {
-            if (!(iLinked instanceof ORecordId)) {
+            if (!(iLinked instanceof YTRecordId)) {
               sendRecord(iLinked.getRecord());
             }
           }
 
           @Override
           public void parseLinkedCollectionValue(
-              ODocument iRootRecord,
-              OIdentifiable iLinked,
+              YTDocument iRootRecord,
+              YTIdentifiable iLinked,
               Object iUserObject,
               String iFieldName,
               OFetchContext iContext)
               throws OFetchException {
 
-            if (!(iLinked instanceof ORecordId)) {
+            if (!(iLinked instanceof YTRecordId)) {
               sendRecord(iLinked.getRecord());
             }
           }

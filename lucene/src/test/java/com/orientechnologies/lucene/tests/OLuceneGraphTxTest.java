@@ -20,9 +20,9 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +34,8 @@ public class OLuceneGraphTxTest extends OLuceneBaseTest {
 
   @Before
   public void init() {
-    OClass type = db.createVertexClass("City");
-    type.createProperty(db, "name", OType.STRING);
+    YTClass type = db.createVertexClass("City");
+    type.createProperty(db, "name", YTType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
   }
@@ -43,7 +43,7 @@ public class OLuceneGraphTxTest extends OLuceneBaseTest {
   @Test
   public void graphTxTest() throws Exception {
 
-    OVertex v = db.newVertex("City");
+    YTVertex v = db.newVertex("City");
     v.setProperty("name", "London");
 
     // save london

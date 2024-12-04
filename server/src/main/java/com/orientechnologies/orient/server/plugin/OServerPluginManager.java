@@ -25,7 +25,7 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OService;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -388,7 +388,7 @@ public class OServerPluginManager implements OService {
                   "Error on loading 'plugin.json' file for dynamic plugin '%s'", pluginName));
         }
 
-        final ODocument properties = new ODocument().fromJSON(pluginConfigFile);
+        final YTDocument properties = new YTDocument().fromJSON(pluginConfigFile);
 
         if (properties.containsField("name"))
         // OVERWRITE PLUGIN NAME

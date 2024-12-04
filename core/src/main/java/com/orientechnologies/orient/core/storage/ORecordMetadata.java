@@ -20,22 +20,22 @@
 
 package com.orientechnologies.orient.core.storage;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 
 /**
  * @since 18.12.12
  */
 public final class ORecordMetadata {
 
-  private final ORID recordId;
+  private final YTRID recordId;
   private final int recordVersion;
 
-  public ORecordMetadata(ORID recordId, int recordVersion) {
+  public ORecordMetadata(YTRID recordId, int recordVersion) {
     this.recordId = recordId;
     this.recordVersion = recordVersion;
   }
 
-  public ORID getRecordId() {
+  public YTRID getRecordId() {
     return recordId;
   }
 

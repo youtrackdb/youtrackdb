@@ -15,10 +15,10 @@ package com.orientechnologies.spatial.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
@@ -39,7 +39,7 @@ public class OLuceneOverlapOperator extends OLuceneSpatialOperator {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     Object key;
     key = keyParams.get(0);
@@ -57,14 +57,14 @@ public class OLuceneOverlapOperator extends OLuceneSpatialOperator {
 
   @Override
   public Object evaluateRecord(
-      OIdentifiable iRecord,
-      ODocument iCurrentResult,
+      YTIdentifiable iRecord,
+      YTDocument iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    Shape shape = factory.fromDoc((ODocument) iLeft);
+    Shape shape = factory.fromDoc((YTDocument) iLeft);
 
     // TODO { 'shape' : { 'type' : 'LineString' , 'coordinates' : [[1,2],[4,6]]} }
     // TODO is not translated in map but in array[ { 'type' : 'LineString' , 'coordinates' :

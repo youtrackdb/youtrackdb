@@ -14,15 +14,15 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -154,10 +154,10 @@ public class OrientJdbcResultSet implements ResultSet {
       try {
 
         OrientSql osql = null;
-        ODatabaseSessionInternal db = null;
+        YTDatabaseSessionInternal db = null;
         try {
           db =
-              (ODatabaseSessionInternal)
+              (YTDatabaseSessionInternal)
                   ((OrientJdbcConnection) statement.getConnection()).getDatabase();
           if (db == null) {
             osql = new OrientSql(new ByteArrayInputStream(statement.sql.getBytes()));
@@ -323,12 +323,12 @@ public class OrientJdbcResultSet implements ResultSet {
 
   public Array getArray(String columnLabel) throws SQLException {
 
-    OType columnType =
+    YTType columnType =
         result
             .toElement()
             .getSchemaType()
             .map(t -> t.getProperty(columnLabel).getType())
-            .orElse(OType.EMBEDDEDLIST);
+            .orElse(YTType.EMBEDDEDLIST);
 
     assert columnType.isEmbedded() && columnType.isMultiValue();
 
@@ -413,23 +413,23 @@ public class OrientJdbcResultSet implements ResultSet {
     try {
       Object value = result.getProperty(columnLabel);
 
-      if (value instanceof ORID) {
-        value = ((ORID) value).getRecord();
+      if (value instanceof YTRID) {
+        value = ((YTRID) value).getRecord();
       }
 
-      if (value instanceof OBlob) {
+      if (value instanceof YTBlob) {
         lastReadWasNull = false;
-        return new OrientBlob((OBlob) value);
+        return new OrientBlob((YTBlob) value);
       } else if (value instanceof OList list) {
-        // check if all the list items are instances of ORecordBytes
-        ListIterator<OIdentifiable> iterator = list.listIterator();
+        // check if all the list items are instances of YTRecordBytes
+        ListIterator<YTIdentifiable> iterator = list.listIterator();
 
-        List<OBlob> binaryRecordList = new ArrayList<>(list.size());
+        List<YTBlob> binaryRecordList = new ArrayList<>(list.size());
         while (iterator.hasNext()) {
-          OIdentifiable listElement = iterator.next();
+          YTIdentifiable listElement = iterator.next();
 
           try {
-            OBlob ob = statement.database.load(listElement.getIdentity());
+            YTBlob ob = statement.database.load(listElement.getIdentity());
             binaryRecordList.add(ob);
           } catch (ORecordNotFoundException rnf) {
             // ignore
@@ -498,9 +498,9 @@ public class OrientJdbcResultSet implements ResultSet {
         lastReadWasNull = true;
         return null;
       } else {
-        if (value instanceof OBlob) {
+        if (value instanceof YTBlob) {
           lastReadWasNull = false;
-          return ((ORecordAbstract) value).toStream();
+          return ((YTRecordAbstract) value).toStream();
         }
         byte[] r = result.getProperty(columnLabel);
         lastReadWasNull = r == null;
@@ -1241,7 +1241,7 @@ public class OrientJdbcResultSet implements ResultSet {
   }
 
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
-    return ODocument.class.isAssignableFrom(iface);
+    return YTDocument.class.isAssignableFrom(iface);
   }
 
   public <T> T unwrap(Class<T> iface) throws SQLException {

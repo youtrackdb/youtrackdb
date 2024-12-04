@@ -20,11 +20,11 @@
 
 package com.orientechnologies.orient.core.record;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 
@@ -33,45 +33,45 @@ public class ORecordInternal {
   /**
    * Internal only. Fills in one shot the record.
    */
-  public static ORecordAbstract fill(
-      final ORecord record,
-      final ORID iRid,
+  public static YTRecordAbstract fill(
+      final YTRecord record,
+      final YTRID iRid,
       final int iVersion,
       final byte[] iBuffer,
       final boolean iDirty) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.fill(iRid, iVersion, iBuffer, iDirty);
     return rec;
   }
 
-  public static void checkForBinding(ORecord record) {
-    ((ORecordAbstract) record).checkForBinding();
+  public static void checkForBinding(YTRecord record) {
+    ((YTRecordAbstract) record).checkForBinding();
   }
 
-  public static ORecordAbstract fill(
-      final ORecord record,
-      final ORID iRid,
+  public static YTRecordAbstract fill(
+      final YTRecord record,
+      final YTRID iRid,
       final int iVersion,
       final byte[] iBuffer,
       final boolean iDirty,
-      ODatabaseSessionInternal db) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+      YTDatabaseSessionInternal db) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.fill(iRid, iVersion, iBuffer, iDirty, db);
     return rec;
   }
 
   public static void fromStream(
-      final ORecord record, final byte[] iBuffer, ODatabaseSessionInternal db) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+      final YTRecord record, final byte[] iBuffer, YTDatabaseSessionInternal db) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.fromStream(iBuffer, db);
   }
 
   /**
    * Internal only. Changes the identity of the record.
    */
-  public static ORecordAbstract setIdentity(
-      final ORecord record, final int iClusterId, final long iClusterPosition) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+  public static YTRecordAbstract setIdentity(
+      final YTRecord record, final int iClusterId, final long iClusterPosition) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.setIdentity(iClusterId, iClusterPosition);
     return rec;
   }
@@ -79,8 +79,8 @@ public class ORecordInternal {
   /**
    * Internal only. Changes the identity of the record.
    */
-  public static ORecordAbstract setIdentity(final ORecord record, final ORecordId iIdentity) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+  public static YTRecordAbstract setIdentity(final YTRecord record, final YTRecordId iIdentity) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.setIdentity(iIdentity);
     return rec;
   }
@@ -88,108 +88,109 @@ public class ORecordInternal {
   /**
    * Internal only. Unsets the dirty status of the record.
    */
-  public static void unsetDirty(final ORecord record) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+  public static void unsetDirty(final YTRecord record) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.unsetDirty();
   }
 
   /**
    * Internal only. Sets the version.
    */
-  public static void setVersion(final ORecord record, final int iVersion) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+  public static void setVersion(final YTRecord record, final int iVersion) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.setVersion(iVersion);
   }
 
   /**
    * Internal only. Return the record type.
    */
-  public static byte getRecordType(final ORecord record) {
-    if (record instanceof ORecordAbstract) {
-      return ((ORecordAbstract) record).getRecordType();
+  public static byte getRecordType(final YTRecord record) {
+    if (record instanceof YTRecordAbstract) {
+      return ((YTRecordAbstract) record).getRecordType();
     }
-    final ORecordAbstract rec = record.getRecord();
+    final YTRecordAbstract rec = record.getRecord();
     return rec.getRecordType();
   }
 
-  public static boolean isContentChanged(final ORecord record) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+  public static boolean isContentChanged(final YTRecord record) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     return rec.isContentChanged();
   }
 
-  public static void setContentChanged(final ORecord record, final boolean changed) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+  public static void setContentChanged(final YTRecord record, final boolean changed) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.setContentChanged(changed);
   }
 
-  public static void clearSource(final ORecord record) {
-    final ORecordAbstract rec = (ORecordAbstract) record;
+  public static void clearSource(final YTRecord record) {
+    final YTRecordAbstract rec = (YTRecordAbstract) record;
     rec.clearSource();
   }
 
   public static void addIdentityChangeListener(
-      ORecord record, final OIdentityChangeListener identityChangeListener) {
-    if (!(record instanceof ORecordAbstract)) {
+      YTRecord record, final OIdentityChangeListener identityChangeListener) {
+    if (!(record instanceof YTRecordAbstract)) {
       // manage O*Delegate
       record = record.getRecord();
     }
-    if (record instanceof ORecordAbstract) {
-      ((ORecordAbstract) record).addIdentityChangeListener(identityChangeListener);
+    if (record instanceof YTRecordAbstract) {
+      ((YTRecordAbstract) record).addIdentityChangeListener(identityChangeListener);
     }
   }
 
   public static void removeIdentityChangeListener(
-      final ORecord record, final OIdentityChangeListener identityChangeListener) {
-    ((ORecordAbstract) record).removeIdentityChangeListener(identityChangeListener);
+      final YTRecord record, final OIdentityChangeListener identityChangeListener) {
+    ((YTRecordAbstract) record).removeIdentityChangeListener(identityChangeListener);
   }
 
-  public static void onBeforeIdentityChanged(final ORecord record) {
-    ((ORecordAbstract) record).onBeforeIdentityChanged();
+  public static void onBeforeIdentityChanged(final YTRecord record) {
+    ((YTRecordAbstract) record).onBeforeIdentityChanged();
   }
 
-  public static void onAfterIdentityChanged(final ORecord record) {
-    ((ORecordAbstract) record).onAfterIdentityChanged();
+  public static void onAfterIdentityChanged(final YTRecord record) {
+    ((YTRecordAbstract) record).onAfterIdentityChanged();
   }
 
-  public static void setRecordSerializer(final ORecord record, final ORecordSerializer serializer) {
-    ((ORecordAbstract) record).recordFormat = serializer;
+  public static void setRecordSerializer(final YTRecord record,
+      final ORecordSerializer serializer) {
+    ((YTRecordAbstract) record).recordFormat = serializer;
   }
 
-  public static ODirtyManager getDirtyManager(ORecord record) {
-    if (!(record instanceof ORecordAbstract)) {
+  public static ODirtyManager getDirtyManager(YTRecord record) {
+    if (!(record instanceof YTRecordAbstract)) {
       record = record.getRecord();
     }
-    return ((ORecordAbstract) record).getDirtyManager();
+    return ((YTRecordAbstract) record).getDirtyManager();
   }
 
-  public static void setDirtyManager(ORecord record, final ODirtyManager dirtyManager) {
-    if (!(record instanceof ORecordAbstract)) {
+  public static void setDirtyManager(YTRecord record, final ODirtyManager dirtyManager) {
+    if (!(record instanceof YTRecordAbstract)) {
       record = record.getRecord();
     }
-    ((ORecordAbstract) record).setDirtyManager(dirtyManager);
+    ((YTRecordAbstract) record).setDirtyManager(dirtyManager);
   }
 
-  public static void track(final ORecordElement pointer, final OIdentifiable pointed) {
+  public static void track(final ORecordElement pointer, final YTIdentifiable pointed) {
     ORecordElement firstRecord = pointer;
-    while (firstRecord != null && !(firstRecord instanceof ORecord)) {
+    while (firstRecord != null && !(firstRecord instanceof YTRecord)) {
       firstRecord = firstRecord.getOwner();
     }
-    if (firstRecord instanceof ORecordAbstract) {
-      ((ORecordAbstract) firstRecord).track(pointed);
+    if (firstRecord instanceof YTRecordAbstract) {
+      ((YTRecordAbstract) firstRecord).track(pointed);
     }
   }
 
-  public static void unTrack(final ORecordElement pointer, final OIdentifiable pointed) {
+  public static void unTrack(final ORecordElement pointer, final YTIdentifiable pointed) {
     ORecordElement firstRecord = pointer;
-    while (firstRecord != null && !(firstRecord instanceof ORecord)) {
+    while (firstRecord != null && !(firstRecord instanceof YTRecord)) {
       firstRecord = firstRecord.getOwner();
     }
-    if (firstRecord instanceof ORecordAbstract) {
-      ((ORecordAbstract) firstRecord).unTrack(pointed);
+    if (firstRecord instanceof YTRecordAbstract) {
+      ((YTRecordAbstract) firstRecord).unTrack(pointed);
     }
   }
 
-  public static ORecordSerializer getRecordSerializer(ORecord iRecord) {
-    return ((ORecordAbstract) iRecord).recordFormat;
+  public static ORecordSerializer getRecordSerializer(YTRecord iRecord) {
+    return ((YTRecordAbstract) iRecord).recordFormat;
   }
 }

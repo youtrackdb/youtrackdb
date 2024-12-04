@@ -2,9 +2,9 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,8 +17,8 @@ public class OLucenePhraseQueriesTest extends OLuceneBaseTest {
   @Before
   public void setUp() throws Exception {
 
-    OClass type = db.createVertexClass("Role");
-    type.createProperty(db, "name", OType.STRING);
+    YTClass type = db.createVertexClass("Role");
+    type.createProperty(db, "name", YTType.STRING);
 
     db.command(
         "create index Role.name on Role (name) FULLTEXT ENGINE LUCENE "
@@ -32,7 +32,7 @@ public class OLucenePhraseQueriesTest extends OLuceneBaseTest {
             + "} ");
 
     db.begin();
-    OVertex role = db.newVertex("Role");
+    YTVertex role = db.newVertex("Role");
     role.setProperty("name", "System IT Owner");
     db.save(role);
 

@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,10 +23,10 @@ public class OImmutableRole implements OSecurityRole {
   private final Map<ORule.ResourceGeneric, ORule> rules =
       new HashMap<ORule.ResourceGeneric, ORule>();
   private final String name;
-  private final ORID rid;
+  private final YTRID rid;
   private final Map<String, OSecurityPolicy> policies;
 
-  public OImmutableRole(ODatabaseSessionInternal session, OSecurityRole role) {
+  public OImmutableRole(YTDatabaseSessionInternal session, OSecurityRole role) {
     if (role.getParentRole() == null) {
       this.parentRole = null;
     } else {
@@ -62,7 +62,7 @@ public class OImmutableRole implements OSecurityRole {
 
     this.mode = ALLOW_MODES.DENY_ALL_BUT;
     this.name = name;
-    this.rid = new ORecordId(-1, -1);
+    this.rid = new YTRecordId(-1, -1);
     this.rules.putAll(rules);
     this.policies = (Map<String, OSecurityPolicy>) (Map) policies;
   }
@@ -103,19 +103,19 @@ public class OImmutableRole implements OSecurityRole {
   }
 
   public OSecurityRole addRule(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      YTDatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
     throw new UnsupportedOperationException();
   }
 
   public OSecurityRole grant(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      YTDatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
     throw new UnsupportedOperationException();
   }
 
   public ORole revoke(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      YTDatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
       final int iOperation) {
     throw new UnsupportedOperationException();
   }
@@ -149,21 +149,21 @@ public class OImmutableRole implements OSecurityRole {
   }
 
   @Override
-  public OSecurityRole addRule(ODatabaseSession session, String iResource, int iOperation) {
+  public OSecurityRole addRule(YTDatabaseSession session, String iResource, int iOperation) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OSecurityRole grant(ODatabaseSession session, String iResource, int iOperation) {
+  public OSecurityRole grant(YTDatabaseSession session, String iResource, int iOperation) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OSecurityRole revoke(ODatabaseSession session, String iResource, int iOperation) {
+  public OSecurityRole revoke(YTDatabaseSession session, String iResource, int iOperation) {
     throw new UnsupportedOperationException();
   }
 
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return name;
   }
 
@@ -179,7 +179,7 @@ public class OImmutableRole implements OSecurityRole {
     return parentRole;
   }
 
-  public ORole setParentRole(ODatabaseSession session, final OSecurityRole iParent) {
+  public ORole setParentRole(YTDatabaseSession session, final OSecurityRole iParent) {
     throw new UnsupportedOperationException();
   }
 
@@ -193,17 +193,17 @@ public class OImmutableRole implements OSecurityRole {
   }
 
   @Override
-  public OIdentifiable getIdentity(ODatabaseSession session) {
+  public YTIdentifiable getIdentity(YTDatabaseSession session) {
     return rid;
   }
 
   @Override
-  public Map<String, OSecurityPolicy> getPolicies(ODatabaseSession session) {
+  public Map<String, OSecurityPolicy> getPolicies(YTDatabaseSession session) {
     return policies;
   }
 
   @Override
-  public OSecurityPolicy getPolicy(ODatabaseSession session, String resource) {
+  public OSecurityPolicy getPolicy(YTDatabaseSession session, String resource) {
     if (policies == null) {
       return null;
     }

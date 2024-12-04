@@ -21,11 +21,11 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.ODefaultSecuritySystem;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.UUID;
@@ -54,14 +54,15 @@ public class OSystemDatabase {
    * Adds the specified cluster to the class, if it doesn't already exist.
    */
   public void createCluster(final String className, final String clusterName) {
-    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final YTDatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance()
+        .getIfDefined();
     try {
-      final ODatabaseSessionInternal sysdb = openSystemDatabase();
+      final YTDatabaseSessionInternal sysdb = openSystemDatabase();
       try {
 
         if (!sysdb.existsCluster(clusterName)) {
-          OSchema schema = sysdb.getMetadata().getSchema();
-          OClass cls = schema.getClass(className);
+          YTSchema schema = sysdb.getMetadata().getSchema();
+          YTClass cls = schema.getClass(className);
 
           if (cls != null) {
             cls.addCluster(sysdb, clusterName);
@@ -85,11 +86,11 @@ public class OSystemDatabase {
   }
 
   /**
-   * Opens the System Database and returns an ODatabaseSessionInternal object. The caller is
+   * Opens the System Database and returns an YTDatabaseSessionInternal object. The caller is
    * responsible for retrieving any ThreadLocal-stored database before openSystemDatabase() is
    * called and restoring it after the database is closed.
    */
-  public ODatabaseSessionInternal openSystemDatabase() {
+  public YTDatabaseSessionInternal openSystemDatabase() {
     if (!exists()) {
       init();
     }
@@ -97,12 +98,13 @@ public class OSystemDatabase {
   }
 
   public <R> R execute(
-      @Nonnull final BiFunction<OResultSet, ODatabaseSession, R> callback, final String sql,
+      @Nonnull final BiFunction<OResultSet, YTDatabaseSession, R> callback, final String sql,
       final Object... args) {
-    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final YTDatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance()
+        .getIfDefined();
     try {
       // BYPASS SECURITY
-      try (final ODatabaseSession db = openSystemDatabase()) {
+      try (final YTDatabaseSession db = openSystemDatabase()) {
         try (OResultSet result = db.command(sql, args)) {
           return callback.apply(result, db);
         }
@@ -116,15 +118,16 @@ public class OSystemDatabase {
     }
   }
 
-  public ODocument save(final ODocument document) {
+  public YTDocument save(final YTDocument document) {
     return save(document, null);
   }
 
-  public ODocument save(final ODocument document, final String clusterName) {
-    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public YTDocument save(final YTDocument document, final String clusterName) {
+    final YTDatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance()
+        .getIfDefined();
     try {
       // BYPASS SECURITY
-      final ODatabaseSessionInternal db = openSystemDatabase();
+      final YTDatabaseSessionInternal db = openSystemDatabase();
       try {
         if (clusterName != null) {
           return db.save(document, clusterName);
@@ -146,7 +149,7 @@ public class OSystemDatabase {
 
   public void init() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    final ODatabaseSessionInternal oldDbInThread = tl != null ? tl.getIfDefined() : null;
+    final YTDatabaseSessionInternal oldDbInThread = tl != null ? tl.getIfDefined() : null;
     try {
       if (!exists()) {
         OLogManager.instance()
@@ -154,8 +157,8 @@ public class OSystemDatabase {
 
         YouTrackDBConfig config =
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
-                .addConfig(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .build();
         ODatabaseType type = ODatabaseType.PLOCAL;
         if (context.isMemoryOnly()) {
@@ -178,15 +181,15 @@ public class OSystemDatabase {
   }
 
   private synchronized void checkServerId() {
-    try (ODatabaseSessionInternal db = openSystemDatabase()) {
-      OClass clazz = db.getClass(SERVER_INFO_CLASS);
+    try (YTDatabaseSessionInternal db = openSystemDatabase()) {
+      YTClass clazz = db.getClass(SERVER_INFO_CLASS);
       if (clazz == null) {
         clazz = db.createClass(SERVER_INFO_CLASS);
       }
       var clz = clazz;
       db.executeInTx(
           () -> {
-            OElement info;
+            YTEntity info;
             if (clz.count(db) == 0) {
               info = db.newElement(SERVER_INFO_CLASS);
             } else {
@@ -202,12 +205,13 @@ public class OSystemDatabase {
     }
   }
 
-  public void executeInDBScope(OCallable<Void, ODatabaseSessionInternal> callback) {
+  public void executeInDBScope(OCallable<Void, YTDatabaseSessionInternal> callback) {
     executeWithDB(callback);
   }
 
-  public <T> T executeWithDB(OCallable<T, ODatabaseSessionInternal> callback) {
-    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public <T> T executeWithDB(OCallable<T, YTDatabaseSessionInternal> callback) {
+    final YTDatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance()
+        .getIfDefined();
     try {
       try (final var db = openSystemDatabase()) {
         return callback.call(db);

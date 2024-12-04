@@ -2,11 +2,11 @@ package com.orientechnologies.orient.core.storage.index.hashindex.local.v3;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OMurmurHash3HashFunction;
@@ -33,7 +33,7 @@ public class OLocalHashTableV3TestIT extends OLocalHashTableV3Base {
 
     youTrackDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
-    final ODatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin");
+    final YTDatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin");
 
     OMurmurHash3HashFunction<Integer> murmurHash3HashFunction =
         new OMurmurHash3HashFunction<Integer>(OIntegerSerializer.INSTANCE);
@@ -46,10 +46,10 @@ public class OLocalHashTableV3TestIT extends OLocalHashTableV3Base {
             ".obf",
             ".nbh",
             (OAbstractPaginatedStorage)
-                ((ODatabaseSessionInternal) databaseDocumentTx).getStorage());
+                ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage())
+        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage())
             .getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
@@ -57,7 +57,7 @@ public class OLocalHashTableV3TestIT extends OLocalHashTableV3Base {
             localHashTable.create(
                 atomicOperation,
                 OIntegerSerializer.INSTANCE,
-                OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING),
+                OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING),
                 null,
                 null,
                 murmurHash3HashFunction,

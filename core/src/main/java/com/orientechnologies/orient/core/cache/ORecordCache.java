@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.cache;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import java.util.Collection;
 
 /**
@@ -82,7 +82,7 @@ public interface ORecordCache {
    * @param id unique identifier of record
    * @return record stored in cache if any, otherwise - {@code null}
    */
-  ORecordAbstract get(ORID id);
+  YTRecordAbstract get(YTRID id);
 
   /**
    * Push record to cache. Identifier of record used as access key
@@ -90,7 +90,7 @@ public interface ORecordCache {
    * @param record record that should be cached
    * @return previous version of record
    */
-  ORecordAbstract put(ORecordAbstract record);
+  YTRecordAbstract put(YTRecordAbstract record);
 
   /**
    * Remove record with specified identifier
@@ -98,7 +98,7 @@ public interface ORecordCache {
    * @param id unique identifier of record
    * @return record stored in cache if any, otherwise - {@code null}
    */
-  ORecordAbstract remove(ORID id);
+  YTRecordAbstract remove(YTRID id);
 
   /**
    * Remove all records from cache
@@ -117,7 +117,7 @@ public interface ORecordCache {
    *
    * @return keys of records
    */
-  Collection<ORID> keys();
+  Collection<YTRID> keys();
 
   /**
    * Transfer all records contained in cache to unload state.

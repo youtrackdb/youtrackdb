@@ -17,10 +17,10 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.Set;
@@ -39,11 +39,11 @@ public class GEOTest extends DocumentDBBaseTest {
 
   @Test
   public void geoSchema() {
-    final OClass mapPointClass = database.getMetadata().getSchema().createClass("MapPoint");
-    mapPointClass.createProperty(database, "x", OType.DOUBLE)
-        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
-    mapPointClass.createProperty(database, "y", OType.DOUBLE)
-        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    final YTClass mapPointClass = database.getMetadata().getSchema().createClass("MapPoint");
+    mapPointClass.createProperty(database, "x", YTType.DOUBLE)
+        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+    mapPointClass.createProperty(database, "y", YTType.DOUBLE)
+        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     final Set<OIndex> xIndexes =
         database.getMetadata().getSchema().getClass("MapPoint").getProperty("x")
@@ -71,10 +71,10 @@ public class GEOTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "checkGeoIndexes")
   public void queryCreatePoints() {
-    ODocument point;
+    YTDocument point;
 
     for (int i = 0; i < 10000; ++i) {
-      point = new ODocument();
+      point = new YTDocument();
       point.setClassName("MapPoint");
 
       point.field("x", (52.20472d + i / 100d));
@@ -90,18 +90,18 @@ public class GEOTest extends DocumentDBBaseTest {
   public void queryDistance() {
     Assert.assertEquals(database.countClass("MapPoint"), 10000);
 
-    List<ODocument> result =
+    List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select from MapPoint where distance(x, y,52.20472, 0.14056 ) <= 30"))
             .execute(database);
 
     Assert.assertTrue(result.size() != 0);
 
-    for (ODocument d : result) {
+    for (YTDocument d : result) {
       Assert.assertEquals(d.getClassName(), "MapPoint");
-      Assert.assertEquals(ORecordInternal.getRecordType(d), ODocument.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), YTDocument.RECORD_TYPE);
     }
   }
 
@@ -110,8 +110,8 @@ public class GEOTest extends DocumentDBBaseTest {
     Assert.assertEquals(database.countClass("MapPoint"), 10000);
 
     // MAKE THE FIRST RECORD DIRTY TO TEST IF DISTANCE JUMP IT
-    List<ODocument> result =
-        database.command(new OSQLSynchQuery<ODocument>("select from MapPoint limit 1"))
+    List<YTDocument> result =
+        database.command(new OSQLSynchQuery<YTDocument>("select from MapPoint limit 1"))
             .execute(database);
     try {
       result.get(0).field("x", "--wrong--");
@@ -128,7 +128,7 @@ public class GEOTest extends DocumentDBBaseTest {
     Assert.assertTrue(result.size() != 0);
 
     Double lastDistance = null;
-    for (ODocument d : result) {
+    for (YTDocument d : result) {
       if (lastDistance != null && d.field("distance") != null) {
         Assert.assertTrue(((Double) d.field("distance")).compareTo(lastDistance) <= 0);
       }

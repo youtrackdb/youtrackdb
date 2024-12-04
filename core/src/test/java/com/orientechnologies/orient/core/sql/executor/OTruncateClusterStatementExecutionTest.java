@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -21,16 +21,16 @@ public class OTruncateClusterStatementExecutionTest extends DBTestBase {
     final int clusterId = db.addCluster(clusterName);
 
     final String className = "TruncateClusterClass";
-    final OSchema schema = db.getMetadata().getSchema();
+    final YTSchema schema = db.getMetadata().getSchema();
 
-    final OClass clazz = schema.createClass(className);
+    final YTClass clazz = schema.createClass(className);
     clazz.addClusterId(db, clusterId);
 
-    clazz.createProperty(db, "value", OType.STRING);
-    clazz.createIndex(db, "TruncateClusterIndex", OClass.INDEX_TYPE.UNIQUE, "value");
+    clazz.createProperty(db, "value", YTType.STRING);
+    clazz.createIndex(db, "TruncateClusterIndex", YTClass.INDEX_TYPE.UNIQUE, "value");
 
     db.begin();
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
     document.field("value", "val");
 
     document.save(clusterName);

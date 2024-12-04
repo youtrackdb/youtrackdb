@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import javax.annotation.Nonnull;
 
 public class OImmutableSecurityPolicy implements OSecurityPolicy {
 
-  private final ORID identity;
+  private final YTRID identity;
   private final String name;
   private final boolean active;
   private final String create;
@@ -17,7 +17,7 @@ public class OImmutableSecurityPolicy implements OSecurityPolicy {
   private final String delete;
   private final String execute;
 
-  public OImmutableSecurityPolicy(@Nonnull ODatabaseSessionInternal db, OSecurityPolicy element) {
+  public OImmutableSecurityPolicy(@Nonnull YTDatabaseSessionInternal db, OSecurityPolicy element) {
     this.identity = element.getIdentity();
     this.name = element.getName(db);
     this.active = element.isActive(db);
@@ -38,7 +38,7 @@ public class OImmutableSecurityPolicy implements OSecurityPolicy {
       String delete,
       String execute) {
     super();
-    this.identity = new ORecordId(-1, -1);
+    this.identity = new YTRecordId(-1, -1);
     this.active = true;
     this.name = name;
     this.create = create;
@@ -50,47 +50,47 @@ public class OImmutableSecurityPolicy implements OSecurityPolicy {
   }
 
   @Override
-  public String getName(@Nonnull ODatabaseSessionInternal db) {
+  public String getName(@Nonnull YTDatabaseSessionInternal db) {
     return name;
   }
 
   @Override
-  public boolean isActive(@Nonnull ODatabaseSessionInternal db) {
+  public boolean isActive(@Nonnull YTDatabaseSessionInternal db) {
     return active;
   }
 
   @Override
-  public String getCreateRule(@Nonnull ODatabaseSessionInternal db) {
+  public String getCreateRule(@Nonnull YTDatabaseSessionInternal db) {
     return create;
   }
 
   @Override
-  public String getReadRule(@Nonnull ODatabaseSessionInternal db) {
+  public String getReadRule(@Nonnull YTDatabaseSessionInternal db) {
     return read;
   }
 
   @Override
-  public String getBeforeUpdateRule(@Nonnull ODatabaseSessionInternal db) {
+  public String getBeforeUpdateRule(@Nonnull YTDatabaseSessionInternal db) {
     return beforeUpdate;
   }
 
   @Override
-  public String getAfterUpdateRule(@Nonnull ODatabaseSessionInternal db) {
+  public String getAfterUpdateRule(@Nonnull YTDatabaseSessionInternal db) {
     return afterUpdate;
   }
 
   @Override
-  public String getDeleteRule(@Nonnull ODatabaseSessionInternal db) {
+  public String getDeleteRule(@Nonnull YTDatabaseSessionInternal db) {
     return delete;
   }
 
   @Override
-  public String getExecuteRule(@Nonnull ODatabaseSessionInternal db) {
+  public String getExecuteRule(@Nonnull YTDatabaseSessionInternal db) {
     return execute;
   }
 
   @Override
-  public ORID getIdentity() {
+  public YTRID getIdentity() {
     return identity;
   }
 }

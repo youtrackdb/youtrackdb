@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
   @Test
   public void testSelectBinary() {
     db.begin();
-    db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    db.save(new YTRecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     OResultSet res = db.query("select from cluster:BlobCluster");
@@ -37,7 +37,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
   @Test
   public void testSelectRidBinary() {
     db.begin();
-    db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    db.save(new YTRecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     OResultSet res = db.query("select @rid from cluster:BlobCluster");
@@ -47,7 +47,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
   @Test
   public void testDeleteBinary() {
     db.begin();
-    ORecord rec = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    YTRecord rec = db.save(new YTRecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.begin();
@@ -66,13 +66,13 @@ public class TestBinaryRecordsQuery extends DBTestBase {
   @Test
   public void testSelectDeleteBinary() {
     db.begin();
-    ORecord rec = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    YTRecord rec = db.save(new YTRecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.getMetadata().getSchema().createClass("RecordPointer");
 
     db.begin();
-    ODocument doc = new ODocument("RecordPointer");
+    YTDocument doc = new YTDocument("RecordPointer");
     doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
@@ -94,20 +94,20 @@ public class TestBinaryRecordsQuery extends DBTestBase {
   @Test
   public void testDeleteFromSelectBinary() {
     db.begin();
-    ORecord rec = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
-    ORecord rec1 = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    YTRecord rec = db.save(new YTRecordBytes("blabla".getBytes()), "BlobCluster");
+    YTRecord rec1 = db.save(new YTRecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
     db.getMetadata().getSchema().createClass("RecordPointer");
 
     db.begin();
-    ODocument doc = new ODocument("RecordPointer");
+    YTDocument doc = new YTDocument("RecordPointer");
     doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
 
     db.begin();
-    ODocument doc1 = new ODocument("RecordPointer");
+    YTDocument doc1 = new YTDocument("RecordPointer");
     doc1.field("ref", db.bindToSession(rec1));
     db.save(doc1);
     db.commit();

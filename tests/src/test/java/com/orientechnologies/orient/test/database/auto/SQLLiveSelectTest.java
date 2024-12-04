@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
 import com.orientechnologies.orient.core.sql.query.OLiveQuery;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
@@ -56,7 +56,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     int TOTAL_OPS = 6;
     final CountDownLatch latch = new CountDownLatch(TOTAL_OPS);
     final List<ORecordOperation> ops = Collections.synchronizedList(new ArrayList());
-    OLegacyResultSet<ODocument> tokens =
+    OLegacyResultSet<YTDocument> tokens =
         database.query(
             new OLiveQuery<Object>(
                 "live select from LiveClassTx",
@@ -77,7 +77,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
                 }));
     Assert.assertEquals(tokens.size(), 1);
 
-    ODocument tokenDoc = tokens.get(0);
+    YTDocument tokenDoc = tokens.get(0);
     Integer token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
@@ -96,9 +96,9 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     Assert.assertEquals(ops.size(), TOTAL_OPS);
     for (ORecordOperation doc : ops) {
       if (doc.type == ORecordOperation.CREATED) {
-        Assert.assertEquals(((ODocument) doc.record).field("name"), "foo");
+        Assert.assertEquals(((YTDocument) doc.record).field("name"), "foo");
       } else if (doc.type == ORecordOperation.UPDATED) {
-        Assert.assertEquals(((ODocument) doc.record).field("name"), "updated");
+        Assert.assertEquals(((YTDocument) doc.record).field("name"), "updated");
       } else {
         Assert.fail();
       }
@@ -110,7 +110,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
 
     final CountDownLatch latch = new CountDownLatch(6);
     final List<ORecordOperation> ops = Collections.synchronizedList(new ArrayList());
-    OLegacyResultSet<ODocument> tokens =
+    OLegacyResultSet<YTDocument> tokens =
         database.query(
             new OLiveQuery<Object>(
                 "live select from LiveClass",
@@ -131,7 +131,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
                 }));
     Assert.assertEquals(tokens.size(), 1);
 
-    ODocument tokenDoc = tokens.get(0);
+    YTDocument tokenDoc = tokens.get(0);
     Integer token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
@@ -146,9 +146,9 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     Assert.assertEquals(ops.size(), 6);
     for (ORecordOperation doc : ops) {
       if (doc.type == ORecordOperation.CREATED) {
-        Assert.assertEquals(((ODocument) doc.record).field("name"), "foo");
+        Assert.assertEquals(((YTDocument) doc.record).field("name"), "foo");
       } else if (doc.type == ORecordOperation.UPDATED) {
-        Assert.assertEquals(((ODocument) doc.record).field("name"), "updated");
+        Assert.assertEquals(((YTDocument) doc.record).field("name"), "updated");
       } else {
         Assert.fail();
       }

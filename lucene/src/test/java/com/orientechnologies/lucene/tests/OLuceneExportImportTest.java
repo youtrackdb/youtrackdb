@@ -18,17 +18,17 @@
 
 package com.orientechnologies.lucene.tests;
 
-import static com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE.FULLTEXT;
+import static com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.OLuceneIndexFactory;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,13 +45,13 @@ public class OLuceneExportImportTest extends OLuceneBaseTest {
   @Before
   public void init() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass city = schema.createClass("City");
-    city.createProperty(db, "name", OType.STRING);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass city = schema.createClass("City");
+    city.createProperty(db, "name", YTType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
     doc.field("name", "Rome");
 
     db.begin();

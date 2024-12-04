@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
@@ -37,7 +37,7 @@ public class OSQLFunctionFormat extends OSQLFunctionAbstract {
 
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -48,7 +48,7 @@ public class OSQLFunctionFormat extends OSQLFunctionAbstract {
     return String.format((String) iParams[0], args);
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "format(<format>, <arg1> [,<argN>]*)";
   }
 }

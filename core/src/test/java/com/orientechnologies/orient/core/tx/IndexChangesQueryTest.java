@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,7 +27,7 @@ public class IndexChangesQueryTest {
   private static final String FIELD_NAME = "value";
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetEntriesTestIndex";
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal database;
+  private YTDatabaseSessionInternal database;
 
   @Before
   public void before() {
@@ -35,13 +35,13 @@ public class IndexChangesQueryTest {
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     database =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass cls = schema.createClass(CLASS_NAME);
-    cls.createProperty(database, FIELD_NAME, OType.INTEGER);
-    cls.createIndex(database, INDEX_NAME, OClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass cls = schema.createClass(CLASS_NAME);
+    cls.createProperty(database, FIELD_NAME, YTType.INTEGER);
+    cls.createIndex(database, INDEX_NAME, YTClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
   }
 
   @After
@@ -57,11 +57,11 @@ public class IndexChangesQueryTest {
     final OIndex index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
-    ODocument doc = new ODocument(CLASS_NAME);
+    YTDocument doc = new YTDocument(CLASS_NAME);
     doc.field(FIELD_NAME, 1);
     doc.save();
 
-    ODocument doc1 = new ODocument(CLASS_NAME);
+    YTDocument doc1 = new YTDocument(CLASS_NAME);
     doc1.field(FIELD_NAME, 2);
     doc1.save();
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
@@ -76,8 +76,8 @@ public class IndexChangesQueryTest {
     Assert.assertFalse((fetchCollectionFromIndex(index, 2)).isEmpty());
   }
 
-  private Collection<ORID> fetchCollectionFromIndex(OIndex index, int key) {
-    try (Stream<ORID> stream = index.getInternal().getRids(database, key)) {
+  private Collection<YTRID> fetchCollectionFromIndex(OIndex index, int key) {
+    try (Stream<YTRID> stream = index.getInternal().getRids(database, key)) {
       return stream.collect(Collectors.toList());
     }
   }
@@ -86,15 +86,15 @@ public class IndexChangesQueryTest {
   public void testClearAndPut() {
     database.begin();
 
-    ODocument doc1 = new ODocument(CLASS_NAME);
+    YTDocument doc1 = new YTDocument(CLASS_NAME);
     doc1.field(FIELD_NAME, 1);
     doc1.save();
 
-    ODocument doc2 = new ODocument(CLASS_NAME);
+    YTDocument doc2 = new YTDocument(CLASS_NAME);
     doc2.field(FIELD_NAME, 1);
     doc2.save();
 
-    ODocument doc3 = new ODocument(CLASS_NAME);
+    YTDocument doc3 = new YTDocument(CLASS_NAME);
     doc3.field(FIELD_NAME, 2);
     doc3.save();
 
@@ -117,11 +117,11 @@ public class IndexChangesQueryTest {
     doc2.delete();
     doc3.delete();
 
-    doc3 = new ODocument(CLASS_NAME);
+    doc3 = new YTDocument(CLASS_NAME);
     doc3.field(FIELD_NAME, 1);
     doc3.save();
 
-    ODocument doc = new ODocument(CLASS_NAME);
+    YTDocument doc = new YTDocument(CLASS_NAME);
     doc.field(FIELD_NAME, 2);
     doc.save();
 

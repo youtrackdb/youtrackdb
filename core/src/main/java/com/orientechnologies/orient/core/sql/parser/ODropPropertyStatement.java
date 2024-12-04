@@ -5,10 +5,10 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.comparator.OCaseInsentiveComparator;
 import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -35,9 +35,9 @@ public class ODropPropertyStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
 
-    final ODatabaseSessionInternal database = ctx.getDatabase();
-    final OClassImpl sourceClass =
-        (OClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
+    final YTClassImpl sourceClass =
+        (YTClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
     if (sourceClass == null) {
       throw new OCommandExecutionException("Source class '" + className + "' not found");
     }
@@ -92,7 +92,7 @@ public class ODropPropertyStatement extends ODDLStatement {
     return OExecutionStream.resultIterator(rs.iterator());
   }
 
-  private List<OIndex> relatedIndexes(final String fieldName, ODatabaseSessionInternal database) {
+  private List<OIndex> relatedIndexes(final String fieldName, YTDatabaseSessionInternal database) {
     final List<OIndex> result = new ArrayList<OIndex>();
     for (final OIndex oIndex :
         database

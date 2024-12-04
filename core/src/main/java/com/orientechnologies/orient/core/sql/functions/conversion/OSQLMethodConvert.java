@@ -18,8 +18,8 @@ package com.orientechnologies.orient.core.sql.functions.conversion;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.Locale;
 
@@ -42,7 +42,7 @@ public class OSQLMethodConvert extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
@@ -55,14 +55,14 @@ public class OSQLMethodConvert extends OAbstractSQLMethod {
     var db = iContext.getDatabase();
     if (destType.contains(".")) {
       try {
-        return OType.convert(db, iThis, Class.forName(destType));
+        return YTType.convert(db, iThis, Class.forName(destType));
       } catch (ClassNotFoundException e) {
         OLogManager.instance().error(this, "Class for destination type was not found", e);
       }
     } else {
-      final OType orientType = OType.valueOf(destType.toUpperCase(Locale.ENGLISH));
+      final YTType orientType = YTType.valueOf(destType.toUpperCase(Locale.ENGLISH));
       if (orientType != null) {
-        return OType.convert(db, iThis, orientType.getDefaultJavaType());
+        return YTType.convert(db, iThis, orientType.getDefaultJavaType());
       }
     }
 

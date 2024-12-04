@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.conflict;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,7 +35,7 @@ public class OAutoMergeRecordConflictStrategy extends OVersionRecordConflictStra
   public byte[] onUpdate(
       OStorage storage,
       byte iRecordType,
-      final ORecordId rid,
+      final YTRecordId rid,
       final int iRecordVersion,
       final byte[] iRecordContent,
       final AtomicInteger iDatabaseVersion) {

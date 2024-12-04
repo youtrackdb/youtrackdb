@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.jts.geom.Geometry;
@@ -40,25 +40,26 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public void initClazz(ODatabaseSessionInternal db) {
+  public void initClazz(YTDatabaseSessionInternal db) {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass point = schema.createAbstractClass(NAME, superClass(db));
-    OProperty coordinates = point.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass point = schema.createAbstractClass(NAME, superClass(db));
+    YTProperty coordinates = point.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST,
+        YTType.DOUBLE);
     coordinates.setMin(db, "2");
     coordinates.setMax(db, "2");
 
-    if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      OClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
-      OProperty coordinatesz = pointz.createProperty(db, COORDINATES, OType.EMBEDDEDLIST,
-          OType.DOUBLE);
+    if (YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
+      YTClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
+      YTProperty coordinatesz = pointz.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST,
+          YTType.DOUBLE);
       coordinatesz.setMin(db, "3");
       coordinatesz.setMax(db, "3");
     }
   }
 
   @Override
-  public Point fromDoc(ODocument document) {
+  public Point fromDoc(YTDocument document) {
     validate(document);
     List<Number> coordinates = document.field(COORDINATES);
     if (coordinates.size() == 2) {
@@ -73,9 +74,9 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public ODocument toDoc(final Point shape) {
+  public YTDocument toDoc(final Point shape) {
 
-    ODocument doc = new ODocument(NAME);
+    YTDocument doc = new YTDocument(NAME);
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -88,12 +89,12 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  protected ODocument toDoc(Point parsed, Geometry geometry) {
+  protected YTDocument toDoc(Point parsed, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
       return toDoc(parsed);
     }
 
-    ODocument doc = new ODocument(NAME + "Z");
+    YTDocument doc = new YTDocument(NAME + "Z");
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -107,7 +108,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public String asText(ODocument document) {
+  public String asText(YTDocument document) {
     if (document.getClassName().equals("OPointZ")) {
       List<Double> coordinates = document.getProperty("coordinates");
       return "POINT Z ("

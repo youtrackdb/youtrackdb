@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.metadata.function;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class ODatabaseFunction implements OSQLFunction {
   @Override
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iFuncParams,
       final OCommandContext iContext) {
@@ -57,7 +57,7 @@ public class ODatabaseFunction implements OSQLFunction {
   }
 
   @Override
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return f.getName(session);
   }
 
@@ -67,12 +67,12 @@ public class ODatabaseFunction implements OSQLFunction {
   }
 
   @Override
-  public int getMaxParams(ODatabaseSession session) {
+  public int getMaxParams(YTDatabaseSession session) {
     return f.getParameters(session) != null ? f.getParameters(session).size() : 0;
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     final StringBuilder buffer = new StringBuilder(512);
     buffer.append(f.getName(session));
     buffer.append('(');

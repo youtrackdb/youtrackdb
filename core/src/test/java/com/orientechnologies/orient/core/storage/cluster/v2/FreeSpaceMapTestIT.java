@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.cluster.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -45,8 +45,8 @@ public class FreeSpaceMapTestIT {
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-    final ODatabaseSessionInternal databaseDocumentTx =
-        (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    final YTDatabaseSessionInternal databaseDocumentTx =
+        (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     storage = (OAbstractPaginatedStorage) databaseDocumentTx.getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();

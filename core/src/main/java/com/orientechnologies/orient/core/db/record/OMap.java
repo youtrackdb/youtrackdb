@@ -22,20 +22,20 @@ package com.orientechnologies.orient.core.db.record;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.record.ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Lazy implementation of LinkedHashMap. It's bound to a source ORecord object to keep track of
+ * Lazy implementation of LinkedHashMap. It's bound to a source YTRecord object to keep track of
  * changes. This avoid to call the makeDirty() by hand when the map is changed.
  */
 @SuppressWarnings({"serial"})
-public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
+public class OMap extends OTrackedMap<YTIdentifiable> implements OSizeable {
 
   private final byte recordType;
   private ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE multiValueStatus =
@@ -44,10 +44,10 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
 
   public OMap(final ORecordElement iSourceRecord) {
     super(iSourceRecord);
-    this.recordType = ODocument.RECORD_TYPE;
+    this.recordType = YTDocument.RECORD_TYPE;
   }
 
-  public OMap(final ODocument iSourceRecord, final byte iRecordType) {
+  public OMap(final YTDocument iSourceRecord, final byte iRecordType) {
     super(iSourceRecord);
     this.recordType = iRecordType;
 
@@ -60,7 +60,7 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
     }
   }
 
-  public OMap(final ODocument iSourceRecord, final Map<Object, OIdentifiable> iOrigin) {
+  public OMap(final YTDocument iSourceRecord, final Map<Object, YTIdentifiable> iOrigin) {
     this(iSourceRecord);
     if (iOrigin != null && !iOrigin.isEmpty()) {
       putAll(iOrigin);
@@ -73,7 +73,7 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
   }
 
   @Override
-  public OIdentifiable get(final Object iKey) {
+  public YTIdentifiable get(final Object iKey) {
     if (iKey == null) {
       return null;
     }
@@ -88,9 +88,9 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
   }
 
   @Override
-  public OIdentifiable put(final Object key, OIdentifiable value) {
+  public YTIdentifiable put(final Object key, YTIdentifiable value) {
     if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS
-        && value instanceof ORecord
+        && value instanceof YTRecord
         && !value.getIdentity().isNew())
     // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
     {
@@ -103,13 +103,13 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
   }
 
   @Override
-  public Collection<OIdentifiable> values() {
+  public Collection<YTIdentifiable> values() {
     return super.values();
   }
 
   @Override
-  public OIdentifiable remove(Object o) {
-    final OIdentifiable result = super.remove(o);
+  public YTIdentifiable remove(Object o) {
+    final YTIdentifiable result = super.remove(o);
     if (size() == 0) {
       multiValueStatus = MULTIVALUE_CONTENT_TYPE.EMPTY;
     }
@@ -147,16 +147,16 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
 
     final Object value;
 
-    if (iKey instanceof ORID) {
+    if (iKey instanceof YTRID) {
       value = iKey;
     } else {
       value = super.get(iKey);
     }
 
-    if (value instanceof ORID rid) {
+    if (value instanceof YTRID rid) {
       try {
         // OVERWRITE IT
-        ORecord record = rid.getRecord();
+        YTRecord record = rid.getRecord();
         ORecordInternal.unTrack(sourceRecord, rid);
         ORecordInternal.track(sourceRecord, record);
         super.putInternal(iKey, record);
@@ -170,7 +170,7 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
     return recordType;
   }
 
-  public Iterator<OIdentifiable> rawIterator() {
+  public Iterator<YTIdentifiable> rawIterator() {
     return super.values().iterator();
   }
 

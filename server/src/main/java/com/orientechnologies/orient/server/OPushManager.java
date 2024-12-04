@@ -11,7 +11,7 @@ import com.orientechnologies.orient.client.remote.message.OPushSchemaRequest;
 import com.orientechnologies.orient.client.remote.message.OPushSequencesRequest;
 import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurationRequest;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OIndexManagerShared;
@@ -45,7 +45,7 @@ public class OPushManager implements OMetadataUpdateListener {
             "Push Requests", Thread.currentThread().getThreadGroup(), 5, 0);
   }
 
-  public synchronized void pushDistributedConfig(ODatabaseSessionInternal database,
+  public synchronized void pushDistributedConfig(YTDatabaseSessionInternal database,
       List<String> hosts) {
     Iterator<WeakReference<ONetworkProtocolBinary>> iter = distributedConfigPush.iterator();
     while (iter.hasNext()) {
@@ -100,7 +100,7 @@ public class OPushManager implements OMetadataUpdateListener {
   }
 
   private void genericSubscribe(
-      OPushEventType context, ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
+      OPushEventType context, YTDatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     if (!registerDatabase.contains(database.getName())) {
       database.getSharedContext().registerListener(this);
       registerDatabase.add(database.getName());
@@ -109,32 +109,32 @@ public class OPushManager implements OMetadataUpdateListener {
   }
 
   public synchronized void subscribeStorageConfiguration(
-      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
+      YTDatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(storageConfigurations, database, protocol);
   }
 
   public synchronized void subscribeSchema(
-      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
+      YTDatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(schema, database, protocol);
   }
 
   public synchronized void subscribeIndexManager(
-      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
+      YTDatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(indexManager, database, protocol);
   }
 
   public synchronized void subscribeFunctions(
-      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
+      YTDatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(functions, database, protocol);
   }
 
   public synchronized void subscribeSequences(
-      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
+      YTDatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(sequences, database, protocol);
   }
 
   @Override
-  public void onSchemaUpdate(ODatabaseSessionInternal session, String database,
+  public void onSchemaUpdate(YTDatabaseSessionInternal session, String database,
       OSchemaShared schema) {
     var document = schema.toNetworkStream();
     document.setup(null);
@@ -143,7 +143,7 @@ public class OPushManager implements OMetadataUpdateListener {
   }
 
   @Override
-  public void onIndexManagerUpdate(ODatabaseSessionInternal session, String database,
+  public void onIndexManagerUpdate(YTDatabaseSessionInternal session, String database,
       OIndexManagerAbstract indexManager) {
     var document = ((OIndexManagerShared) indexManager).toNetworkStream(session);
     document.setup(null);
@@ -152,13 +152,13 @@ public class OPushManager implements OMetadataUpdateListener {
   }
 
   @Override
-  public void onFunctionLibraryUpdate(ODatabaseSessionInternal session, String database) {
+  public void onFunctionLibraryUpdate(YTDatabaseSessionInternal session, String database) {
     OPushFunctionsRequest request = new OPushFunctionsRequest();
     this.functions.send(session, database, request, this);
   }
 
   @Override
-  public void onSequenceLibraryUpdate(ODatabaseSessionInternal session, String database) {
+  public void onSequenceLibraryUpdate(YTDatabaseSessionInternal session, String database) {
     OPushSequencesRequest request = new OPushSequencesRequest();
     this.sequences.send(session, database, request, this);
   }
@@ -171,12 +171,12 @@ public class OPushManager implements OMetadataUpdateListener {
   }
 
   public void genericNotify(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       Map<String, Set<WeakReference<ONetworkProtocolBinary>>> context,
       String database,
       OPushEventType pack) {
     try {
-      ODatabaseSessionInternal sessionCopy;
+      YTDatabaseSessionInternal sessionCopy;
       if (session != null) {
         sessionCopy = session.copy();
       } else {

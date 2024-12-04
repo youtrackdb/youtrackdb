@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -19,7 +19,7 @@ public class ODatabaseImportSimpleCompatibilityTest {
 
   private YouTrackDB youTrackDB;
 
-  private ODatabaseSessionInternal importDatabase;
+  private YTDatabaseSessionInternal importDatabase;
   private ODatabaseImport importer;
 
   private ODatabaseExport export;
@@ -87,7 +87,7 @@ public class ODatabaseImportSimpleCompatibilityTest {
     this.tearDown(databaseName);
     Assert.assertTrue(output.size() > 0);
     System.setProperty(
-        OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getKey(), String.valueOf(false));
+        YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getKey(), String.valueOf(false));
   }
 
   private InputStream load(final String path) throws FileNotFoundException {
@@ -101,7 +101,7 @@ public class ODatabaseImportSimpleCompatibilityTest {
     youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             databaseName, importDbUrl, OCreateDatabaseUtil.TYPE_MEMORY);
-    importDatabase = (ODatabaseSessionInternal) youTrackDB.open(databaseName, "admin",
+    importDatabase = (YTDatabaseSessionInternal) youTrackDB.open(databaseName, "admin",
         OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       importer = new ODatabaseImport(importDatabase, input, iText -> {

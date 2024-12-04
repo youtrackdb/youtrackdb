@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 /**
  *
@@ -19,19 +19,19 @@ public abstract class OAbstractCollectionConverter<T> implements OValuesConverte
     void add(Object item);
   }
 
-  protected boolean convertSingleValue(ODatabaseSessionInternal db, final Object item,
+  protected boolean convertSingleValue(YTDatabaseSessionInternal db, final Object item,
       ResultCallback result, boolean updated) {
     if (item == null) {
       result.add(null);
       return false;
     }
 
-    if (item instanceof OIdentifiable) {
-      final OValuesConverter<OIdentifiable> converter =
-          (OValuesConverter<OIdentifiable>)
+    if (item instanceof YTIdentifiable) {
+      final OValuesConverter<YTIdentifiable> converter =
+          (OValuesConverter<YTIdentifiable>)
               OImportConvertersFactory.INSTANCE.getConverter(item, converterData);
 
-      final OIdentifiable newValue = converter.convert(db, (OIdentifiable) item);
+      final YTIdentifiable newValue = converter.convert(db, (YTIdentifiable) item);
 
       // this code intentionally uses == instead of equals, in such case we may distinguish rids
       // which already contained in

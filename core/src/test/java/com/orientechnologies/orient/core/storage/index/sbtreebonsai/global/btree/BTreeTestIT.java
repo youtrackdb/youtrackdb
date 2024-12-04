@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btre
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -71,8 +71,8 @@ public class BTreeTestIT {
     youTrackDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
-    ODatabaseSession databaseSession = youTrackDB.open(DB_NAME, "admin", "admin");
-    storage = (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseSession).getStorage();
+    YTDatabaseSession databaseSession = youTrackDB.open(DB_NAME, "admin", "admin");
+    storage = (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
   }

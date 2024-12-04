@@ -16,7 +16,7 @@
 
 package com.orientechnologies.orient.core.schedule;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import java.util.Map;
 
 /**
@@ -35,7 +35,7 @@ public interface OScheduler {
   /**
    * Creates a new scheduled event.
    */
-  void scheduleEvent(ODatabaseSession session, OScheduledEvent event);
+  void scheduleEvent(YTDatabaseSession session, OScheduledEvent event);
 
   /**
    * Removes a scheduled event.
@@ -43,12 +43,12 @@ public interface OScheduler {
    * @param session
    * @param eventName Event's name
    */
-  void removeEvent(ODatabaseSession session, String eventName);
+  void removeEvent(YTDatabaseSession session, String eventName);
 
   /**
    * Updates a scheduled event.
    */
-  void updateEvent(ODatabaseSession session, OScheduledEvent event);
+  void updateEvent(YTDatabaseSession session, OScheduledEvent event);
 
   /**
    * Returns all the scheduled events.

@@ -18,9 +18,9 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -33,8 +33,8 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
 
   @Before
   public void init() {
-    OClass type = db.getMetadata().getSchema().createClass("City");
-    type.createProperty(db, "name", OType.STRING);
+    YTClass type = db.getMetadata().getSchema().createClass("City");
+    type.createProperty(db, "name", YTType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
   }
@@ -42,14 +42,14 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
   @Test
   public void embeddedNoTx() {
 
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
 
     doc.field("name", "London");
     db.begin();
     db.save(doc);
     db.commit();
 
-    doc = new ODocument("City");
+    doc = new YTDocument("City");
     doc.field("name", "Rome");
 
     db.begin();
@@ -65,7 +65,7 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
   @Test
   public void embeddedTx() {
 
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
 
     db.begin();
     doc.field("name", "Berlin");

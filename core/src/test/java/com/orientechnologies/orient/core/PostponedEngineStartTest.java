@@ -22,15 +22,15 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.engine.OEngine;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -79,7 +79,7 @@ public class PostponedEngineStartTest {
 
           @Override
           public YouTrackDBManager shutdown() {
-            ODatabaseDocumentTx.closeAll();
+            YTDatabaseDocumentTx.closeAll();
             return this;
           }
         };
@@ -247,7 +247,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public String getClusterName(ODatabaseSessionInternal database, int clusterId) {
+        public String getClusterName(YTDatabaseSessionInternal database, int clusterId) {
           return null;
         }
 
@@ -263,7 +263,7 @@ public class PostponedEngineStartTest {
 
         @Override
         public void open(
-            ODatabaseSessionInternal remote, String iUserName, String iUserPassword,
+            YTDatabaseSessionInternal remote, String iUserName, String iUserPassword,
             OContextConfiguration contextConfiguration) {
         }
 
@@ -277,7 +277,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public void reload(ODatabaseSessionInternal database) {
+        public void reload(YTDatabaseSessionInternal database) {
         }
 
         @Override
@@ -285,21 +285,21 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public void close(ODatabaseSessionInternal session) {
+        public void close(YTDatabaseSessionInternal session) {
         }
 
         @Override
-        public void close(ODatabaseSessionInternal database, boolean iForce) {
+        public void close(YTDatabaseSessionInternal database, boolean iForce) {
         }
 
         @Override
-        public boolean isClosed(ODatabaseSessionInternal database) {
+        public boolean isClosed(YTDatabaseSessionInternal database) {
           return false;
         }
 
         @Override
         public @Nonnull ORawBuffer readRecord(
-            ODatabaseSessionInternal session, ORecordId iRid,
+            YTDatabaseSessionInternal session, YTRecordId iRid,
             boolean iIgnoreCache,
             boolean prefetchRecords,
             ORecordCallback<ORawBuffer> iCallback) {
@@ -307,18 +307,18 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public boolean recordExists(ODatabaseSessionInternal session, ORID rid) {
+        public boolean recordExists(YTDatabaseSessionInternal session, YTRID rid) {
           return false;
         }
 
         @Override
-        public ORecordMetadata getRecordMetadata(ODatabaseSessionInternal session, ORID rid) {
+        public ORecordMetadata getRecordMetadata(YTDatabaseSessionInternal session, YTRID rid) {
           return null;
         }
 
         @Override
         public boolean cleanOutRecord(
-            ODatabaseSessionInternal session, ORecordId recordId, int recordVersion, int iMode,
+            YTDatabaseSessionInternal session, YTRecordId recordId, int recordVersion, int iMode,
             ORecordCallback<Boolean> callback) {
           return false;
         }
@@ -349,24 +349,24 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public int addCluster(ODatabaseSessionInternal database, String iClusterName,
+        public int addCluster(YTDatabaseSessionInternal database, String iClusterName,
             Object... iParameters) {
           return 0;
         }
 
         @Override
-        public int addCluster(ODatabaseSessionInternal database, String iClusterName,
+        public int addCluster(YTDatabaseSessionInternal database, String iClusterName,
             int iRequestedId) {
           return 0;
         }
 
         @Override
-        public boolean dropCluster(ODatabaseSessionInternal session, String iClusterName) {
+        public boolean dropCluster(YTDatabaseSessionInternal session, String iClusterName) {
           return false;
         }
 
         @Override
-        public boolean dropCluster(ODatabaseSessionInternal database, int iId) {
+        public boolean dropCluster(YTDatabaseSessionInternal database, int iId) {
           return false;
         }
 
@@ -411,39 +411,39 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public OPaginatedCluster.RECORD_STATUS getRecordStatus(ORID rid) {
+        public OPaginatedCluster.RECORD_STATUS getRecordStatus(YTRID rid) {
           return null;
         }
 
         @Override
-        public long count(ODatabaseSessionInternal session, int iClusterId) {
+        public long count(YTDatabaseSessionInternal session, int iClusterId) {
           return 0;
         }
 
         @Override
-        public long count(ODatabaseSessionInternal session, int iClusterId,
+        public long count(YTDatabaseSessionInternal session, int iClusterId,
             boolean countTombstones) {
           return 0;
         }
 
         @Override
-        public long count(ODatabaseSessionInternal session, int[] iClusterIds) {
+        public long count(YTDatabaseSessionInternal session, int[] iClusterIds) {
           return 0;
         }
 
         @Override
-        public long count(ODatabaseSessionInternal session, int[] iClusterIds,
+        public long count(YTDatabaseSessionInternal session, int[] iClusterIds,
             boolean countTombstones) {
           return 0;
         }
 
         @Override
-        public long getSize(ODatabaseSessionInternal session) {
+        public long getSize(YTDatabaseSessionInternal session) {
           return 0;
         }
 
         @Override
-        public long countRecords(ODatabaseSessionInternal session) {
+        public long countRecords(YTDatabaseSessionInternal session) {
           return 0;
         }
 
@@ -491,36 +491,36 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public Object command(ODatabaseSessionInternal database, OCommandRequestText iCommand) {
+        public Object command(YTDatabaseSessionInternal database, OCommandRequestText iCommand) {
           return null;
         }
 
         @Override
-        public long[] getClusterDataRange(ODatabaseSessionInternal session, int currentClusterId) {
+        public long[] getClusterDataRange(YTDatabaseSessionInternal session, int currentClusterId) {
           return new long[0];
         }
 
         @Override
         public OPhysicalPosition[] higherPhysicalPositions(
-            ODatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
+            YTDatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
           return new OPhysicalPosition[0];
         }
 
         @Override
         public OPhysicalPosition[] lowerPhysicalPositions(
-            ODatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
+            YTDatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
           return new OPhysicalPosition[0];
         }
 
         @Override
         public OPhysicalPosition[] ceilingPhysicalPositions(
-            ODatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
+            YTDatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
           return new OPhysicalPosition[0];
         }
 
         @Override
         public OPhysicalPosition[] floorPhysicalPositions(
-            ODatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
+            YTDatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
           return new OPhysicalPosition[0];
         }
 
@@ -574,7 +574,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public String incrementalBackup(ODatabaseSessionInternal session, String backupDirectory,
+        public String incrementalBackup(YTDatabaseSessionInternal session, String backupDirectory,
             OCallable<Void, Void> started) {
           return null;
         }
@@ -590,12 +590,12 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public void restoreFromIncrementalBackup(ODatabaseSessionInternal session,
+        public void restoreFromIncrementalBackup(YTDatabaseSessionInternal session,
             String filePath) {
         }
 
         @Override
-        public void restoreFullIncrementalBackup(ODatabaseSessionInternal session,
+        public void restoreFullIncrementalBackup(YTDatabaseSessionInternal session,
             final InputStream stream)
             throws UnsupportedOperationException {
         }

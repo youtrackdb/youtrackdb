@@ -4,9 +4,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
@@ -93,7 +93,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
@@ -105,8 +105,8 @@ public class OContainsAnyCondition extends OBooleanExpression {
       Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
-        if (item instanceof OIdentifiable) {
-          if (!rightBlock.evaluate((OIdentifiable) item, ctx)) {
+        if (item instanceof YTIdentifiable) {
+          if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
             return false;
           }
         } else if (item instanceof OResult) {
@@ -134,8 +134,8 @@ public class OContainsAnyCondition extends OBooleanExpression {
       Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
-        if (item instanceof OIdentifiable) {
-          if (!rightBlock.evaluate((OIdentifiable) item, ctx)) {
+        if (item instanceof YTIdentifiable) {
+          if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
             return false;
           }
         } else if (item instanceof OResult) {
@@ -275,7 +275,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, OClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
     if (right.isEarlyCalculated(ctx) && left.isIndexChain(ctx, clazz)) {
       OContainsAnyCondition result = new OContainsAnyCondition(-1);
 
@@ -288,7 +288,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
       base.setIdentifier(identifier);
       result.left.mathExpression = base;
 
-      OClass nextClazz =
+      YTClass nextClazz =
           clazz
               .getProperty(base.getIdentifier().suffix.getIdentifier().getStringValue())
               .getLinkedClass();
@@ -353,7 +353,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (left != null && !left.isCacheable(session)) {
       return false;
     }

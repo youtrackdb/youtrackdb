@@ -5,11 +5,11 @@ package com.orientechnologies.orient.core.db;
  */
 public interface ODatabasePoolInternal extends AutoCloseable {
 
-  ODatabaseSession acquire();
+  YTDatabaseSession acquire();
 
   void close();
 
-  void release(ODatabaseSessionInternal database);
+  void release(YTDatabaseSessionInternal database);
 
   YouTrackDBConfig getConfig();
 

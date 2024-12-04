@@ -5,7 +5,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -29,7 +29,7 @@ public class OSendTransactionStateRequest implements OBinaryRequest<OSendTransac
     operations = new ArrayList<>();
   }
 
-  public OSendTransactionStateRequest(ODatabaseSessionInternal session, long txId,
+  public OSendTransactionStateRequest(YTDatabaseSessionInternal session, long txId,
       Iterable<ORecordOperation> operations) {
     this.txId = txId;
     this.operations = new ArrayList<>();
@@ -55,7 +55,7 @@ public class OSendTransactionStateRequest implements OBinaryRequest<OSendTransac
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeLong(txId);
 
@@ -68,7 +68,7 @@ public class OSendTransactionStateRequest implements OBinaryRequest<OSendTransac
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     txId = channel.readLong();

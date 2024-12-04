@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.sql.functions.math;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
 
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -78,12 +78,12 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
       {
         sum = value;
       } else {
-        sum = OType.increment(sum, value);
+        sum = YTType.increment(sum, value);
       }
     }
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "avg(<field> [,<field>*])";
   }
 
@@ -110,7 +110,7 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
         if (dSum == null) {
           dSum = (Number) item.get("sum");
         } else {
-          dSum = OType.increment(dSum, (Number) item.get("sum"));
+          dSum = YTType.increment(dSum, (Number) item.get("sum"));
         }
 
         dTotal += (Integer) item.get("total");

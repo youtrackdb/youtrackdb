@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -16,7 +16,7 @@ import java.util.List;
 public class OPushDistributedConfigurationRequest
     implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  public ODocument configuration;
+  public YTDocument configuration;
   private List<String> hosts;
 
   public OPushDistributedConfigurationRequest(List<String> hosts) {
@@ -32,7 +32,7 @@ public class OPushDistributedConfigurationRequest
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
     channel.writeInt(hosts.size());
     for (String host : hosts) {
@@ -41,7 +41,7 @@ public class OPushDistributedConfigurationRequest
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     int size = network.readInt();
     hosts = new ArrayList<>(size);
     while (size-- > 0) {
@@ -49,7 +49,7 @@ public class OPushDistributedConfigurationRequest
     }
   }
 
-  public OBinaryPushResponse execute(ODatabaseSessionInternal session, ORemotePushHandler remote) {
+  public OBinaryPushResponse execute(YTDatabaseSessionInternal session, ORemotePushHandler remote) {
     return remote.executeUpdateDistributedConfig(this);
   }
 

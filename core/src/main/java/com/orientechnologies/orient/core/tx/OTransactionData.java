@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkDistributed;
@@ -71,14 +71,14 @@ public class OTransactionData {
     }
   }
 
-  public void fill(OTransactionInternal transaction, ODatabaseSessionInternal database) {
+  public void fill(OTransactionInternal transaction, YTDatabaseSessionInternal database) {
     transaction.fill(
         changes.stream()
             .map(
                 (x) -> {
                   ORecordOperation operation = new ORecordOperation(null, x.getType());
                   // TODO: Handle dirty no changed
-                  ORecordAbstract record = null;
+                  YTRecordAbstract record = null;
                   switch (x.getType()) {
                     case ORecordOperation.CREATED: {
                       record =
@@ -88,17 +88,17 @@ public class OTransactionData {
                       break;
                     }
                     case ORecordOperation.UPDATED: {
-                      if (x.getRecordType() == ODocument.RECORD_TYPE) {
+                      if (x.getRecordType() == YTDocument.RECORD_TYPE) {
                         try {
                           record = database.load(x.getId());
                         } catch (ORecordNotFoundException rnf) {
-                          record = new ODocument();
+                          record = new YTDocument();
                         }
 
-                        ((ODocument) record).deserializeFields();
-                        ODocumentInternal.clearTransactionTrackData((ODocument) record);
+                        ((YTDocument) record).deserializeFields();
+                        ODocumentInternal.clearTransactionTrackData((YTDocument) record);
                         ODocumentSerializerDelta.instance()
-                            .deserializeDelta(database, x.getRecord().get(), (ODocument) record);
+                            .deserializeDelta(database, x.getRecord().get(), (YTDocument) record);
                         /// Got record with empty deltas, at this level we mark the record dirty
                         // anyway.
                         record.setDirty();
@@ -122,7 +122,7 @@ public class OTransactionData {
                       break;
                     }
                   }
-                  ORecordInternal.setIdentity(record, (ORecordId) x.getId());
+                  ORecordInternal.setIdentity(record, (YTRecordId) x.getId());
                   ORecordInternal.setVersion(record, x.getVersion());
                   operation.record = record;
 

@@ -25,10 +25,10 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -36,9 +36,9 @@ import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringBuilderSerializable;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
@@ -58,7 +58,7 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 
 /**
- * A collection that contain links to {@link OIdentifiable}. Bag is similar to set but can contain
+ * A collection that contain links to {@link YTIdentifiable}. Bag is similar to set but can contain
  * several entering of the same object.<br>
  *
  * <p>Could be tree based and embedded representation.<br>
@@ -75,8 +75,8 @@ import javax.annotation.Nonnull;
  * The representation is automatically converted to tree-based implementation when top threshold is
  * reached. And backward to embedded one when size is decreased to bottom threshold. <br>
  * The thresholds could be configured by {@link
- * OGlobalConfiguration#RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD} and {@link
- * OGlobalConfiguration#RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD}. <br>
+ * YTGlobalConfiguration#RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD} and {@link
+ * YTGlobalConfiguration#RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD}. <br>
  * <br>
  * This collection is used to efficiently manage relationships in graph model.<br>
  * <br>
@@ -87,14 +87,14 @@ import javax.annotation.Nonnull;
  */
 public class ORidBag
     implements OStringBuilderSerializable,
-    Iterable<OIdentifiable>,
+    Iterable<YTIdentifiable>,
     OSizeable,
-    OTrackedMultiValue<OIdentifiable, OIdentifiable>,
-    OCollection<OIdentifiable>,
+    OTrackedMultiValue<YTIdentifiable, YTIdentifiable>,
+    OCollection<YTIdentifiable>,
     ORecordElement {
 
   private ORidBagDelegate delegate;
-  private ORecordId ownerRecord;
+  private YTRecordId ownerRecord;
   private String fieldName;
 
   private int topThreshold;
@@ -102,48 +102,48 @@ public class ORidBag
 
   private UUID uuid;
 
-  public ORidBag(ODatabaseSessionInternal session, final ORidBag ridBag) {
+  public ORidBag(YTDatabaseSessionInternal session, final ORidBag ridBag) {
     initThresholds(session);
     init();
-    for (OIdentifiable identifiable : ridBag) {
+    for (YTIdentifiable identifiable : ridBag) {
       add(identifiable);
     }
   }
 
-  public ORidBag(ODatabaseSessionInternal session) {
+  public ORidBag(YTDatabaseSessionInternal session) {
     initThresholds(session);
     init();
   }
 
-  public ORidBag(ODatabaseSessionInternal session, UUID uuid) {
+  public ORidBag(YTDatabaseSessionInternal session, UUID uuid) {
     initThresholds(session);
     init();
     this.uuid = uuid;
   }
 
-  public ORidBag(ODatabaseSessionInternal session, OBonsaiCollectionPointer pointer,
-      Map<OIdentifiable, Change> changes, UUID uuid) {
+  public ORidBag(YTDatabaseSessionInternal session, OBonsaiCollectionPointer pointer,
+      Map<YTIdentifiable, Change> changes, UUID uuid) {
     initThresholds(session);
     delegate = new OSBTreeRidBag(pointer, changes);
     this.uuid = uuid;
   }
 
-  private ORidBag(ODatabaseSessionInternal session, final byte[] stream) {
+  private ORidBag(YTDatabaseSessionInternal session, final byte[] stream) {
     initThresholds(session);
     fromStream(stream);
   }
 
-  public ORidBag(ODatabaseSessionInternal session, ORidBagDelegate delegate) {
+  public ORidBag(YTDatabaseSessionInternal session, ORidBagDelegate delegate) {
     initThresholds(session);
     this.delegate = delegate;
   }
 
-  public static ORidBag fromStream(ODatabaseSessionInternal session, final String value) {
+  public static ORidBag fromStream(YTDatabaseSessionInternal session, final String value) {
     final byte[] stream = Base64.getDecoder().decode(value);
     return new ORidBag(session, stream);
   }
 
-  public ORidBag copy(ODatabaseSessionInternal session) {
+  public ORidBag copy(YTDatabaseSessionInternal session) {
     final ORidBag copy = new ORidBag(session);
     copy.topThreshold = topThreshold;
     copy.bottomThreshold = bottomThreshold;
@@ -167,26 +167,26 @@ public class ORidBag
    * @return true if ridbag contains at leas one instance with the same rid as passed in
    * identifiable.
    */
-  public boolean contains(OIdentifiable identifiable) {
+  public boolean contains(YTIdentifiable identifiable) {
     return delegate.contains(identifiable);
   }
 
-  public void addAll(Collection<OIdentifiable> values) {
+  public void addAll(Collection<YTIdentifiable> values) {
     delegate.addAll(values);
   }
 
   @Override
-  public void add(OIdentifiable identifiable) {
+  public void add(YTIdentifiable identifiable) {
     delegate.add(identifiable);
   }
 
   @Override
-  public boolean addInternal(OIdentifiable e) {
+  public boolean addInternal(YTIdentifiable e) {
     return delegate.addInternal(e);
   }
 
   @Override
-  public void remove(OIdentifiable identifiable) {
+  public void remove(YTIdentifiable identifiable) {
     delegate.remove(identifiable);
   }
 
@@ -196,7 +196,7 @@ public class ORidBag
 
   @Nonnull
   @Override
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return delegate.iterator();
   }
 
@@ -213,7 +213,7 @@ public class ORidBag
     if (isEmbedded()) {
       return true;
     }
-    if (getOwner() instanceof ORecord && !((ORecord) getOwner()).getIdentity().isPersistent()) {
+    if (getOwner() instanceof YTRecord && !((YTRecord) getOwner()).getIdentity().isPersistent()) {
       return true;
     }
     return bottomThreshold >= size();
@@ -263,7 +263,7 @@ public class ORidBag
   }
 
   public void checkAndConvert() {
-    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (database != null && !database.isRemote()) {
       if (isEmbedded()
           && ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager() != null
@@ -282,7 +282,7 @@ public class ORidBag
 
     final ORecordElement owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
-    for (OIdentifiable identifiable : oldDelegate) {
+    for (YTIdentifiable identifiable : oldDelegate) {
       delegate.add(identifiable);
     }
 
@@ -305,7 +305,7 @@ public class ORidBag
 
     final ORecordElement owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
-    for (OIdentifiable identifiable : oldDelegate) {
+    for (YTIdentifiable identifiable : oldDelegate) {
       delegate.add(identifiable);
     }
 
@@ -366,8 +366,8 @@ public class ORidBag
 
   @Override
   public Object returnOriginalState(
-      ODatabaseSessionInternal session,
-      List<OMultiValueChangeEvent<OIdentifiable, OIdentifiable>> multiValueChangeEvents) {
+      YTDatabaseSessionInternal session,
+      List<OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable>> multiValueChangeEvents) {
     return new ORidBag(session,
         (ORidBagDelegate) delegate.returnOriginalState(session, multiValueChangeEvents));
   }
@@ -378,8 +378,8 @@ public class ORidBag
   }
 
   public void setOwner(ORecordElement owner) {
-    if ((!(owner instanceof ODocument) && owner != null)
-        || (owner != null && ((ODocument) owner).isEmbedded())) {
+    if ((!(owner instanceof YTDocument) && owner != null)
+        || (owner != null && ((YTDocument) owner).isEmbedded())) {
       throw new ODatabaseException("RidBag are supported only at document root");
     }
     delegate.setOwner(owner);
@@ -445,12 +445,12 @@ public class ORidBag
         return true;
       }
     } else if (iMergeSingleItemsOfMultiValueFields) {
-      for (OIdentifiable value : otherValue) {
+      for (YTIdentifiable value : otherValue) {
         if (value != null) {
-          final Iterator<OIdentifiable> localIter = iterator();
+          final Iterator<YTIdentifiable> localIter = iterator();
           boolean found = false;
           while (localIter.hasNext()) {
-            final OIdentifiable v = localIter.next();
+            final YTIdentifiable v = localIter.next();
             if (value.equals(v)) {
               found = true;
               break;
@@ -466,14 +466,14 @@ public class ORidBag
     return false;
   }
 
-  protected void initThresholds(@Nonnull ODatabaseSessionInternal session) {
+  protected void initThresholds(@Nonnull YTDatabaseSessionInternal session) {
     assert session.assertIfNotActive();
     OContextConfiguration conf = session.getConfiguration();
     topThreshold =
-        conf.getValueAsInteger(OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD);
+        conf.getValueAsInteger(YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD);
 
     bottomThreshold =
-        conf.getValueAsInteger(OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD);
+        conf.getValueAsInteger(YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD);
   }
 
   protected void init() {
@@ -507,7 +507,7 @@ public class ORidBag
     return delegate;
   }
 
-  public NavigableMap<OIdentifiable, Change> getChanges() {
+  public NavigableMap<YTIdentifiable, Change> getChanges() {
     return delegate.getChanges();
   }
 
@@ -526,15 +526,15 @@ public class ORidBag
       return false;
     }
 
-    Iterator<OIdentifiable> firstIter = delegate.iterator();
-    Iterator<OIdentifiable> secondIter = otherRidbag.delegate.iterator();
+    Iterator<YTIdentifiable> firstIter = delegate.iterator();
+    Iterator<YTIdentifiable> secondIter = otherRidbag.delegate.iterator();
     while (firstIter.hasNext()) {
       if (!secondIter.hasNext()) {
         return false;
       }
 
-      OIdentifiable firstElement = firstIter.next();
-      OIdentifiable secondElement = secondIter.next();
+      YTIdentifiable firstElement = firstIter.next();
+      YTIdentifiable secondElement = secondIter.next();
       if (!Objects.equals(firstElement, secondElement)) {
         return false;
       }
@@ -587,11 +587,11 @@ public class ORidBag
   }
 
   @Override
-  public OMultiValueChangeTimeLine<OIdentifiable, OIdentifiable> getTransactionTimeLine() {
+  public OMultiValueChangeTimeLine<YTIdentifiable, YTIdentifiable> getTransactionTimeLine() {
     return delegate.getTransactionTimeLine();
   }
 
-  public void setRecordAndField(ORecordId id, String fieldName) {
+  public void setRecordAndField(YTRecordId id, String fieldName) {
     if (this.delegate instanceof ORemoteTreeRidBag) {
       ((ORemoteTreeRidBag) this.delegate).setRecordAndField(id, fieldName);
     }

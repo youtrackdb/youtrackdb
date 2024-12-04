@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.db.document;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,18 +17,18 @@ public class DefaultClusterTest {
         OCreateDatabaseUtil.createDatabase("test",
             DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
-    try (final ODatabaseSession db =
+    try (final YTDatabaseSession db =
         context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       var v =
           db.computeInTx(
               () -> {
-                final OVertex vertex = db.newVertex("V");
-                vertex.setProperty("embedded", new ODocument());
+                final YTVertex vertex = db.newVertex("V");
+                vertex.setProperty("embedded", new YTDocument());
                 db.save(vertex);
                 return vertex;
               });
 
-      final ODocument embedded = db.bindToSession(v).getProperty("embedded");
+      final YTDocument embedded = db.bindToSession(v).getProperty("embedded");
       Assert.assertFalse("Found: " + embedded.getIdentity(), embedded.getIdentity().isValid());
     }
   }

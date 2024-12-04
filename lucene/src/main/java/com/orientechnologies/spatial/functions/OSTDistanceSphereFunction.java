@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial.functions;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
@@ -40,7 +40,7 @@ public class OSTDistanceSphereFunction extends OSpatialFunctionAbstractIndexable
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
       OCommandContext iContext) {
@@ -64,7 +64,7 @@ public class OSTDistanceSphereFunction extends OSpatialFunctionAbstractIndexable
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return null;
   }
 
@@ -74,7 +74,7 @@ public class OSTDistanceSphereFunction extends OSpatialFunctionAbstractIndexable
   }
 
   @Override
-  public Iterable<OIdentifiable> searchFromTarget(
+  public Iterable<YTIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,

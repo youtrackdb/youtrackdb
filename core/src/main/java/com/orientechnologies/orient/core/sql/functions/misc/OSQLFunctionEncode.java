@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.OBlob;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import java.util.Base64;
@@ -44,7 +44,7 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
 
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -55,10 +55,10 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
     byte[] data = null;
     if (candidate instanceof byte[]) {
       data = (byte[]) candidate;
-    } else if (candidate instanceof ORecordId) {
+    } else if (candidate instanceof YTRecordId) {
       try {
-        final ORecordAbstract rec = ((ORecordId) candidate).getRecord();
-        if (rec instanceof OBlob) {
+        final YTRecordAbstract rec = ((YTRecordId) candidate).getRecord();
+        if (rec instanceof YTBlob) {
           data = rec.toStream();
         }
       } catch (ORecordNotFoundException rnf) {
@@ -80,7 +80,7 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "encode(<binaryfield>, <format>)";
   }
 }

@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -42,11 +42,11 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass song = schema.createClass("Person");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass song = schema.createClass("Person");
     song.setSuperClass(db, v);
-    song.createProperty(db, "isDeleted", OType.BOOLEAN);
+    song.createProperty(db, "isDeleted", YTType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
         .close();
@@ -56,7 +56,7 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
   public void insertPerson() {
 
     for (int i = 0; i < 1000; i++) {
-      ODocument doc = new ODocument("Person");
+      YTDocument doc = new YTDocument("Person");
       doc.field("isDeleted", i % 2 == 0);
       db.begin();
       db.save(doc);

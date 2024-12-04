@@ -28,10 +28,10 @@ import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.common.parser.OVariableParserListener;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OAutomaticBackup extends OServerPluginAbstract implements OServerPluginConfigurable {
 
-  private ODocument configuration;
+  private YTDocument configuration;
 
   private final Set<OAutomaticBackupListener> listeners =
       Collections.newSetFromMap(new ConcurrentHashMap<OAutomaticBackupListener, Boolean>());
@@ -92,7 +92,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   public void config(final OServer iServer, final OServerParameterConfiguration[] iParams) {
     serverInstance = iServer;
 
-    configuration = new ODocument();
+    configuration = new YTDocument();
 
     for (OServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("config") && param.value.trim().length() > 0) {
@@ -190,7 +190,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                 }
 
                 if (include) {
-                  try (ODatabaseSessionInternal db =
+                  try (YTDatabaseSessionInternal db =
                       serverInstance.getDatabases().openNoAuthorization(dbName)) {
 
                     final long begin = System.currentTimeMillis();
@@ -286,7 +286,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       // READ THE FILE
       try {
         final String configurationContent = OIOUtils.readFileAsString(f);
-        configuration = new ODocument();
+        configuration = new YTDocument();
         configuration.fromJSON(configurationContent);
       } catch (IOException e) {
         throw OException.wrapException(
@@ -386,7 +386,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   protected void incrementalBackupDatabase(
-      final String dbURL, String iPath, final ODatabaseSessionInternal db) throws IOException {
+      final String dbURL, String iPath, final YTDatabaseSessionInternal db) throws IOException {
     // APPEND DB NAME TO THE DIRECTORY NAME
     if (!iPath.endsWith("/")) {
       iPath += "/";
@@ -404,7 +404,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   protected void exportDatabase(
-      final String dbURL, final String iPath, final ODatabaseSessionInternal db)
+      final String dbURL, final String iPath, final YTDatabaseSessionInternal db)
       throws IOException {
 
     OLogManager.instance()
@@ -457,13 +457,13 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   @Override
-  public ODocument getConfig() {
+  public YTDocument getConfig() {
     return configuration;
   }
 
   // TODO change current config and restart the automatic backup plugin
   @Override
-  public void changeConfig(ODocument document) {
+  public void changeConfig(YTDocument document) {
   }
 
   public void registerListener(OAutomaticBackupListener listener) {

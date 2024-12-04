@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.query;
 
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -42,7 +42,7 @@ public class OBasicLegacyResultSet<T> implements OLegacyResultSet<T> {
   protected List<T> underlying;
   protected transient int limit = -1;
   // Reference to temporary record for avoid garbace collection
-  private List<ORecord> temporaryRecordCache;
+  private List<YTRecord> temporaryRecordCache;
 
   public OBasicLegacyResultSet() {
     underlying = Collections.synchronizedList(new ArrayList<T>());
@@ -246,7 +246,7 @@ public class OBasicLegacyResultSet<T> implements OLegacyResultSet<T> {
     return underlying.isEmpty();
   }
 
-  public void setTemporaryRecordCache(List<ORecord> temporaryRecordCache) {
+  public void setTemporaryRecordCache(List<YTRecord> temporaryRecordCache) {
     this.temporaryRecordCache = temporaryRecordCache;
   }
 }

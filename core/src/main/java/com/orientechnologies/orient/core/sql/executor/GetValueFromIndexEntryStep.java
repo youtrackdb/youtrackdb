@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.stream.Collectors;
@@ -40,10 +40,10 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
   private OResult filterMap(OResult result, OCommandContext ctx) {
     Object finalVal = result.getProperty("rid");
     if (filterClusterIds != null) {
-      if (!(finalVal instanceof OIdentifiable)) {
+      if (!(finalVal instanceof YTIdentifiable)) {
         return null;
       }
-      ORID rid = ((OIdentifiable) finalVal).getIdentity();
+      YTRID rid = ((YTIdentifiable) finalVal).getIdentity();
       boolean found = false;
       for (int filterClusterId : filterClusterIds) {
         if (rid.getClusterId() < 0 || filterClusterId == rid.getClusterId()) {
@@ -55,8 +55,8 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
         return null;
       }
     }
-    if (finalVal instanceof OIdentifiable) {
-      return new OResultInternal(ctx.getDatabase(), (OIdentifiable) finalVal);
+    if (finalVal instanceof YTIdentifiable) {
+      return new OResultInternal(ctx.getDatabase(), (YTIdentifiable) finalVal);
 
     } else if (finalVal instanceof OResult) {
       return (OResult) finalVal;

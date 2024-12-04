@@ -7,14 +7,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
@@ -37,10 +37,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testGetFromOriginalSimpleDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     String constantFieldName = "constantField";
     String originalValue = "orValue";
@@ -56,7 +56,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     doc.setProperty(fieldName, testValue);
     doc.removeProperty(removeField);
@@ -71,11 +71,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testGetFromNestedDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
-    ODocument nestedDoc = new ODocumentEmbedded(claz.getName());
+    YTDocument doc = new YTDocument(claz);
+    YTDocument nestedDoc = new YTDocumentEmbedded(claz.getName());
     String fieldName = "testField";
     String constantFieldName = "constantField";
     String originalValue = "orValue";
@@ -86,11 +86,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     nestedDoc.setProperty(constantFieldName, "someValue1");
 
     doc.setProperty(constantFieldName, "someValue2");
-    doc.setProperty(nestedDocField, nestedDoc, OType.EMBEDDED);
+    doc.setProperty(nestedDocField, nestedDoc, YTType.EMBEDDED);
 
-    ODocument originalDoc = new ODocument();
+    YTDocument originalDoc = new YTDocument();
     originalDoc.setProperty(constantFieldName, "someValue2");
-    originalDoc.setProperty(nestedDocField, nestedDoc, OType.EMBEDDED);
+    originalDoc.setProperty(nestedDocField, nestedDoc, YTType.EMBEDDED);
 
     doc = db.save(doc);
     db.commit();
@@ -100,7 +100,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     nestedDoc = doc.field(nestedDocField);
     nestedDoc.setProperty(fieldName, testValue);
 
-    doc.setProperty(nestedDocField, nestedDoc, OType.EMBEDDED);
+    doc.setProperty(nestedDocField, nestedDoc, YTType.EMBEDDED);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
@@ -115,10 +115,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testListDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
 
     String fieldName = "testField";
     List<String> originalValue = new ArrayList<>();
@@ -133,7 +133,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     List<String> newArray = doc.field(fieldName);
     newArray.set(1, "three");
@@ -153,9 +153,9 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testSetDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
 
     String fieldName = "testField";
     Set<String> originalValue = new HashSet<>();
@@ -169,7 +169,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     Set<String> newArray = doc.field(fieldName);
     newArray.add("three");
@@ -189,10 +189,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testSetOfSetsDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     Set<Set<String>> originalValue = new HashSet<>();
     for (int i = 0; i < 2; i++) {
@@ -209,7 +209,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
     Set<String> newSet = ((Set<Set<String>>) doc.getProperty(fieldName)).iterator().next();
@@ -229,10 +229,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   @Test
   public void testListOfListsDelta() {
 
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     List<List<String>> originalValue = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
@@ -250,7 +250,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
     List<String> newList = ((List<List<String>>) doc.field(fieldName)).get(0);
@@ -271,17 +271,17 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   public void testListOfDocsDelta() {
     String fieldName = "testField";
 
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
 
     String constantField = "constField";
     String constValue = "ConstValue";
     String variableField = "varField";
-    List<ODocument> originalValue = new ArrayList<>();
+    List<YTDocument> originalValue = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
-      ODocument containedDoc = new ODocumentEmbedded();
+      YTDocument containedDoc = new YTDocumentEmbedded();
       containedDoc.setProperty(constantField, constValue);
       containedDoc.setProperty(variableField, "one" + i);
       originalValue.add(containedDoc);
@@ -294,10 +294,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
-    ODocument testDoc = ((List<ODocument>) doc.getProperty(fieldName)).get(1);
+    YTDocument testDoc = ((List<YTDocument>) doc.getProperty(fieldName)).get(1);
     testDoc.setProperty(variableField, "two");
 
     // test serialization/deserialization
@@ -306,8 +306,8 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] bytes = serializerDelta.serializeDelta(doc);
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
-    List<ODocument> checkList = originalDoc.field(fieldName);
-    ODocument checkDoc = checkList.get(1);
+    List<YTDocument> checkList = originalDoc.field(fieldName);
+    YTDocument checkDoc = checkList.get(1);
     assertEquals(checkDoc.field(constantField), constValue);
     assertEquals(checkDoc.field(variableField), "two");
     db.rollback();
@@ -315,22 +315,22 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testListOfListsOfDocumentDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     String constantField = "constField";
     String constValue = "ConstValue";
     String variableField = "varField";
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
-    List<List<ODocument>> originalValue = new ArrayList<>();
+    List<List<YTDocument>> originalValue = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
-      List<ODocument> containedList = new ArrayList<>();
-      ODocument d1 = new ODocument();
+      List<YTDocument> containedList = new ArrayList<>();
+      YTDocument d1 = new YTDocument();
       d1.setProperty(constantField, constValue);
       d1.setProperty(variableField, "one");
-      ODocument d2 = new ODocument();
+      YTDocument d2 = new YTDocument();
       d2.setProperty(constantField, constValue);
       containedList.add(d1);
       containedList.add(d2);
@@ -344,10 +344,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     originalValue = doc.getProperty(fieldName);
-    ODocument d1 = originalValue.get(0).get(0);
+    YTDocument d1 = originalValue.get(0).get(0);
     d1.setProperty(variableField, "two");
 
     // test serialization/deserialization
@@ -356,17 +356,17 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] bytes = serializerDelta.serializeDelta(doc);
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
-    List<List<ODocument>> checkList = originalDoc.field(fieldName);
+    List<List<YTDocument>> checkList = originalDoc.field(fieldName);
     assertEquals("two", checkList.get(0).get(0).field(variableField));
     db.rollback();
   }
 
   @Test
   public void testListOfListsOfListDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     List<List<List<String>>> originalValue = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
@@ -387,7 +387,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
     List<String> innerList = ((List<List<List<String>>>) doc.field(fieldName)).get(0).get(0);
@@ -408,18 +408,18 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   public void testListOfDocsWithList() {
     String fieldName = "testField";
 
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
 
     String constantField = "constField";
     String constValue = "ConstValue";
     String variableField = "varField";
 
-    List<ODocument> originalValue = new ArrayList<>();
+    List<YTDocument> originalValue = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
-      ODocument containedDoc = new ODocumentEmbedded();
+      YTDocument containedDoc = new YTDocumentEmbedded();
       containedDoc.setProperty(constantField, constValue);
       List<String> listField = new ArrayList<>();
       for (int j = 0; j < 2; j++) {
@@ -436,10 +436,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
-    ODocument testDoc = ((List<ODocument>) doc.field(fieldName)).get(1);
+    YTDocument testDoc = ((List<YTDocument>) doc.field(fieldName)).get(1);
     List<String> currentList = testDoc.field(variableField);
     currentList.set(0, "changed");
     // test serialization/deserialization
@@ -448,8 +448,8 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] bytes = serializerDelta.serializeDelta(doc);
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
-    List<ODocument> checkList = originalDoc.field(fieldName);
-    ODocument checkDoc = checkList.get(1);
+    List<YTDocument> checkList = originalDoc.field(fieldName);
+    YTDocument checkDoc = checkList.get(1);
     List<String> checkInnerList = checkDoc.field(variableField);
     assertEquals("changed", checkInnerList.get(0));
     db.rollback();
@@ -457,10 +457,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testListAddDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
 
     String fieldName = "testField";
     List<String> originalValue = new ArrayList<>();
@@ -473,7 +473,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     List<String> newArray = doc.field(fieldName);
     newArray.add("three");
@@ -491,10 +491,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testListOfListAddDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
 
     String fieldName = "testField";
     List<List<String>> originalList = new ArrayList<>();
@@ -511,8 +511,8 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     db.commit();
 
     // Deep Copy is not working in this case, use toStream/fromStream as workaround.
-    // ODocument originalDoc = doc.copy();
-    ODocument originalDoc = new ODocument();
+    // YTDocument originalDoc = doc.copy();
+    YTDocument originalDoc = new YTDocument();
     ORecordInternal.unsetDirty(originalDoc);
 
     db.begin();
@@ -537,10 +537,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testListRemoveDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
 
     String fieldName = "testField";
     List<String> originalValue = new ArrayList<>();
@@ -555,7 +555,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     List<String> newArray = doc.field(fieldName);
     newArray.remove(0);
@@ -574,10 +574,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testAddDocFieldDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     String constantFieldName = "constantField";
     String testValue = "testValue";
@@ -590,7 +590,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     doc.setProperty(fieldName, testValue);
 
@@ -605,9 +605,9 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testRemoveCreateDocFieldDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     String constantFieldName = "constantField";
     String testValue = "testValue";
@@ -621,7 +621,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     doc.removeProperty(fieldName);
     doc.setProperty("other", "new");
@@ -641,11 +641,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   public void testRemoveNestedDocFieldDelta() {
     String nestedFieldName = "nested";
 
-    OClass claz = db.createClassIfNotExist("TestClass");
-    claz.createProperty(db, nestedFieldName, OType.EMBEDDED);
+    YTClass claz = db.createClassIfNotExist("TestClass");
+    claz.createProperty(db, nestedFieldName, YTType.EMBEDDED);
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     String constantFieldName = "constantField";
     String testValue = "testValue";
@@ -653,7 +653,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     doc.setProperty(fieldName, testValue);
     doc.setProperty(constantFieldName, "someValue");
 
-    ODocument rootDoc = new ODocument(claz);
+    YTDocument rootDoc = new YTDocument(claz);
     rootDoc.setProperty(nestedFieldName, doc);
 
     rootDoc = db.save(rootDoc);
@@ -661,7 +661,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     rootDoc = db.bindToSession(rootDoc);
-    ODocument originalDoc = rootDoc.copy();
+    YTDocument originalDoc = rootDoc.copy();
 
     doc = rootDoc.field(nestedFieldName);
     doc.removeProperty(fieldName);
@@ -672,7 +672,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] bytes = serializerDelta.serializeDelta(rootDoc);
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
-    ODocument nested = originalDoc.field(nestedFieldName);
+    YTDocument nested = originalDoc.field(nestedFieldName);
     assertFalse(nested.hasProperty(fieldName));
     db.rollback();
   }
@@ -681,17 +681,17 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   public void testRemoveFieldListOfDocsDelta() {
     String fieldName = "testField";
 
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
 
     String constantField = "constField";
     String constValue = "ConstValue";
     String variableField = "varField";
-    List<ODocument> originalValue = new ArrayList<>();
+    List<YTDocument> originalValue = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
-      ODocument containedDoc = new ODocument();
+      YTDocument containedDoc = new YTDocument();
       containedDoc.setProperty(constantField, constValue);
       containedDoc.setProperty(variableField, "one" + i);
       originalValue.add(containedDoc);
@@ -704,10 +704,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
-    ODocument testDoc = ((List<OIdentifiable>) doc.field(fieldName)).get(1).getRecord();
+    YTDocument testDoc = ((List<YTIdentifiable>) doc.field(fieldName)).get(1).getRecord();
     testDoc.removeProperty(variableField);
     // test serialization/deserialization
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -715,8 +715,8 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] bytes = serializerDelta.serializeDelta(doc);
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
-    List<OIdentifiable> checkList = originalDoc.field(fieldName);
-    ODocument checkDoc = checkList.get(1).getRecord();
+    List<YTIdentifiable> checkList = originalDoc.field(fieldName);
+    YTDocument checkDoc = checkList.get(1).getRecord();
     assertEquals(checkDoc.field(constantField), constValue);
     assertFalse(checkDoc.hasProperty(variableField));
     db.rollback();
@@ -724,23 +724,23 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testUpdateEmbeddedMapDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     Map<String, String> mapValue = new HashMap<>();
     mapValue.put("first", "one");
     mapValue.put("second", "two");
 
-    doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
+    doc.setProperty(fieldName, mapValue, YTType.EMBEDDEDMAP);
 
     doc = db.save(doc);
     db.commit();
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     Map<String, String> containedMap = doc.field(fieldName);
     containedMap.put("first", "changed");
@@ -758,10 +758,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testUpdateListOfEmbeddedMapDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     List<Map<String, String>> originalValue = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
@@ -771,14 +771,14 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
       originalValue.add(mapValue);
     }
 
-    doc.setProperty(fieldName, originalValue, OType.EMBEDDEDLIST);
+    doc.setProperty(fieldName, originalValue, YTType.EMBEDDEDLIST);
 
     doc = db.save(doc);
     db.commit();
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     @SuppressWarnings("unchecked")
     Map<String, String> containedMap = ((List<Map<String, String>>) doc.field(fieldName)).get(0);
@@ -800,29 +800,29 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testUpdateDocInMapDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
-    Map<String, ODocument> mapValue = new HashMap<>();
-    ODocument d1 = new ODocument();
+    Map<String, YTDocument> mapValue = new HashMap<>();
+    YTDocument d1 = new YTDocument();
     d1.setProperty("f1", "v1");
     mapValue.put("first", d1);
-    ODocument d2 = new ODocument();
+    YTDocument d2 = new YTDocument();
     d2.setProperty("f2", "v2");
     mapValue.put("second", d2);
-    doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
+    doc.setProperty(fieldName, mapValue, YTType.EMBEDDEDMAP);
 
     doc = db.save(doc);
     db.commit();
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
-    Map<String, ODocument> containedMap = doc.field(fieldName);
-    ODocument changeDoc = containedMap.get("first");
+    Map<String, YTDocument> containedMap = doc.field(fieldName);
+    YTDocument changeDoc = containedMap.get("first");
     changeDoc.setProperty("f1", "changed");
 
     // test serialization/deserialization
@@ -831,17 +831,17 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] bytes = serializerDelta.serializeDelta(doc);
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
     containedMap = originalDoc.field(fieldName);
-    ODocument containedDoc = containedMap.get("first");
+    YTDocument containedDoc = containedMap.get("first");
     assertEquals("changed", containedDoc.field("f1"));
     db.rollback();
   }
 
   @Test
   public void testListOfMapsUpdateDelta() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
     List<Map> originalList = new ArrayList<>();
     List<Map> copyList = new ArrayList<>();
@@ -867,7 +867,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     Map<String, String> containedMap = (Map<String, String>) ((List) doc.field(fieldName)).get(0);
     containedMap.put("first", "changed");
@@ -884,27 +884,27 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testRidbagsUpdateDeltaAddWithCopy() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
 
-    ODocument first = new ODocument(claz);
+    YTDocument first = new YTDocument(claz);
     first = db.save(first);
-    ODocument second = new ODocument(claz);
+    YTDocument second = new YTDocument(claz);
     second = db.save(second);
 
     ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
-    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc.field(fieldName, ridBag, YTType.LINKBAG);
     doc = db.save(doc);
 
-    ODocument originalDoc = doc;
+    YTDocument originalDoc = doc;
     doc.save();
 
-    ODocument third = new ODocument(claz);
+    YTDocument third = new YTDocument(claz);
     third = db.save(third);
     db.commit();
 
@@ -919,7 +919,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     ridBag.add(third);
 
     doc = db.bindToSession(doc);
-    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc.field(fieldName, ridBag, YTType.LINKBAG);
     // test serialization/deserialization
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
@@ -934,17 +934,17 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testRidbagsUpdateDeltaRemoveWithCopy() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
 
     db.begin();
-    ODocument first = new ODocument(claz);
+    YTDocument first = new YTDocument(claz);
     first = db.save(first);
-    ODocument second = new ODocument(claz);
+    YTDocument second = new YTDocument(claz);
     second = db.save(second);
-    ODocument third = new ODocument(claz);
+    YTDocument third = new YTDocument(claz);
     third = db.save(third);
     db.commit();
 
@@ -958,7 +958,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     ridBag.add(second);
     ridBag.add(third);
 
-    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc.field(fieldName, ridBag, YTType.LINKBAG);
     doc = db.save(doc);
     db.commit();
 
@@ -967,12 +967,12 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     second = db.bindToSession(second);
     doc = db.bindToSession(doc);
 
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
-    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc.field(fieldName, ridBag, YTType.LINKBAG);
 
     // test serialization/deserialization
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -987,29 +987,29 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testRidbagsUpdateDeltaAdd() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
 
-    ODocument first = new ODocument(claz);
+    YTDocument first = new YTDocument(claz);
     first = db.save(first);
-    ODocument second = new ODocument(claz);
+    YTDocument second = new YTDocument(claz);
     second = db.save(second);
 
     ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
-    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc.field(fieldName, ridBag, YTType.LINKBAG);
     doc = db.save(doc);
     db.commit();
 
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     db.begin();
-    ODocument third = new ODocument(claz);
+    YTDocument third = new YTDocument(claz);
     third = db.save(third);
     db.commit();
 
@@ -1033,30 +1033,30 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testRidbagsUpdateDeltaRemove() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
 
-    ODocument first = new ODocument(claz);
+    YTDocument first = new YTDocument(claz);
     first = db.save(first);
-    ODocument second = new ODocument(claz);
+    YTDocument second = new YTDocument(claz);
     second = db.save(second);
-    ODocument third = new ODocument(claz);
+    YTDocument third = new YTDocument(claz);
     third = db.save(third);
 
     ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     ridBag.add(third);
-    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc.field(fieldName, ridBag, YTType.LINKBAG);
     doc = db.save(doc);
     db.commit();
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
     ridBag = doc.getProperty(fieldName);
     ridBag.remove(third);
 
@@ -1073,35 +1073,35 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testRidbagsUpdateDeltaChangeWithCopy() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     String fieldName = "testField";
 
-    ODocument first = new ODocument(claz);
+    YTDocument first = new YTDocument(claz);
     first = db.save(first);
-    ODocument second = new ODocument(claz);
+    YTDocument second = new YTDocument(claz);
     second = db.save(second);
-    ODocument third = new ODocument(claz);
+    YTDocument third = new YTDocument(claz);
     third = db.save(third);
 
     ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     ridBag.add(third);
-    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc.field(fieldName, ridBag, YTType.LINKBAG);
     doc = db.save(doc);
     db.commit();
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
 
     ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(third);
-    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc.field(fieldName, ridBag, YTType.LINKBAG);
 
     // test serialization/deserialization
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -1116,20 +1116,20 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testDeltaNullValues() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     doc.setProperty("one", "value");
     doc.setProperty("list", List.of("test"));
     doc.setProperty("set", new HashSet<>(List.of("test")));
     Map<String, String> map = new HashMap<>();
     map.put("two", "value");
     doc.setProperty("map", map);
-    OIdentifiable link = db.save(new ODocument("testClass"));
+    YTIdentifiable link = db.save(new YTDocument("testClass"));
     doc.setProperty("linkList", Collections.singletonList(link));
     doc.setProperty("linkSet", new HashSet<>(Collections.singletonList(link)));
-    Map<String, OIdentifiable> linkMap = new HashMap<>();
+    Map<String, YTIdentifiable> linkMap = new HashMap<>();
     linkMap.put("two", link);
     doc.setProperty("linkMap", linkMap);
     doc = db.save(doc);
@@ -1137,14 +1137,14 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
     doc.setProperty("one", null);
     ((List<String>) doc.getProperty("list")).add(null);
     ((Set<String>) doc.getProperty("set")).add(null);
     ((Map<String, String>) doc.getProperty("map")).put("nullValue", null);
-    ((List<OIdentifiable>) doc.getProperty("linkList")).add(null);
-    ((Set<OIdentifiable>) doc.getProperty("linkSet")).add(null);
-    ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("nullValue", null);
+    ((List<YTIdentifiable>) doc.getProperty("linkList")).add(null);
+    ((Set<YTIdentifiable>) doc.getProperty("linkSet")).add(null);
+    ((Map<String, YTIdentifiable>) doc.getProperty("linkMap")).put("nullValue", null);
     // test serialization/deserialization
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
@@ -1161,38 +1161,38 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testDeltaLinkAllCases() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
-    OIdentifiable link = db.save(new ODocument("testClass"));
-    var link1 = db.save(new ODocument("testClass"));
+    YTDocument doc = new YTDocument(claz);
+    YTIdentifiable link = db.save(new YTDocument("testClass"));
+    var link1 = db.save(new YTDocument("testClass"));
     doc.setProperty("linkList", Arrays.asList(link, link1, link1));
     doc.setProperty("linkSet", new HashSet<>(Arrays.asList(link, link1)));
-    Map<String, OIdentifiable> linkMap = new HashMap<>();
+    Map<String, YTIdentifiable> linkMap = new HashMap<>();
     linkMap.put("one", link);
     linkMap.put("two", link1);
     linkMap.put("three", link1);
     doc.setProperty("linkMap", linkMap);
     doc = db.save(doc);
 
-    ODocument link2 = db.save(new ODocument("testClass"));
+    YTDocument link2 = db.save(new YTDocument("testClass"));
     db.commit();
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
+    YTDocument originalDoc = doc.copy();
     link2 = db.bindToSession(link2);
     link1 = db.bindToSession(link1);
 
-    ((List<OIdentifiable>) doc.getProperty("linkList")).set(1, link2);
-    ((List<OIdentifiable>) doc.getProperty("linkList")).remove(link1);
-    ((List<OIdentifiable>) doc.getProperty("linkList")).add(link2);
-    ((Set<OIdentifiable>) doc.getProperty("linkSet")).add(link2);
-    ((Set<OIdentifiable>) doc.getProperty("linkSet")).remove(link1);
-    ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("new", link2);
-    ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("three", link2);
-    ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).remove("two");
+    ((List<YTIdentifiable>) doc.getProperty("linkList")).set(1, link2);
+    ((List<YTIdentifiable>) doc.getProperty("linkList")).remove(link1);
+    ((List<YTIdentifiable>) doc.getProperty("linkList")).add(link2);
+    ((Set<YTIdentifiable>) doc.getProperty("linkSet")).add(link2);
+    ((Set<YTIdentifiable>) doc.getProperty("linkSet")).remove(link1);
+    ((Map<String, YTIdentifiable>) doc.getProperty("linkMap")).put("new", link2);
+    ((Map<String, YTIdentifiable>) doc.getProperty("linkMap")).put("three", link2);
+    ((Map<String, YTIdentifiable>) doc.getProperty("linkMap")).remove("two");
     // test serialization/deserialization
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
@@ -1212,10 +1212,10 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testDeltaAllCasesMap() {
-    OClass claz = db.createClassIfNotExist("TestClass");
+    YTClass claz = db.createClassIfNotExist("TestClass");
 
     db.begin();
-    ODocument doc = new ODocument(claz);
+    YTDocument doc = new YTDocument(claz);
     Map<String, String> map = new HashMap<>();
     map.put("two", "value");
     doc.setProperty("map", map);
@@ -1228,20 +1228,20 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     mapNested.put("nest", nested);
     doc.setProperty("mapNested", mapNested);
     doc.setProperty("map1", map1);
-    Map<String, OElement> mapEmbedded = new HashMap<>();
-    OElement embedded = db.newElement();
+    Map<String, YTEntity> mapEmbedded = new HashMap<>();
+    YTEntity embedded = db.newElement();
     embedded.setProperty("other", 1);
     mapEmbedded.put("first", embedded);
-    doc.setProperty("mapEmbedded", mapEmbedded, OType.EMBEDDEDMAP);
+    doc.setProperty("mapEmbedded", mapEmbedded, YTType.EMBEDDEDMAP);
     doc = db.save(doc);
     db.commit();
 
     db.begin();
     doc = db.bindToSession(doc);
-    ODocument originalDoc = doc.copy();
-    OElement embedded1 = db.newElement();
+    YTDocument originalDoc = doc.copy();
+    YTEntity embedded1 = db.newElement();
     embedded1.setProperty("other", 1);
-    ((Map<String, OElement>) doc.getProperty("mapEmbedded")).put("newDoc", embedded1);
+    ((Map<String, YTEntity>) doc.getProperty("mapEmbedded")).put("newDoc", embedded1);
     ((Map<String, String>) doc.getProperty("map")).put("value", "other");
     ((Map<String, String>) doc.getProperty("map")).put("two", "something");
     ((Map<String, String>) doc.getProperty("map1")).remove("one");
@@ -1256,7 +1256,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     serializerDelta.deserializeDelta(db, bytes, originalDoc);
     assertNotNull(((Map) originalDoc.getProperty("mapEmbedded")).get("newDoc"));
     assertEquals(
-        ((Map<String, OElement>) originalDoc.getProperty("mapEmbedded"))
+        ((Map<String, YTEntity>) originalDoc.getProperty("mapEmbedded"))
             .get("newDoc")
             .getProperty("other"),
         Integer.valueOf(1));
@@ -1274,7 +1274,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testSimpleSerialization() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     document.field("name", "name");
     document.field("age", 20);
@@ -1290,28 +1290,28 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     document.field(
         "bigNumber", new BigDecimal("43989872423376487952454365232141525434.32146432321442534"));
     ORidBag bag = new ORidBag(db);
-    bag.add(new ORecordId(1, 1));
-    bag.add(new ORecordId(2, 2));
+    bag.add(new YTRecordId(1, 1));
+    bag.add(new YTRecordId(2, 2));
     // document.field("ridBag", bag);
     Calendar c = Calendar.getInstance();
-    document.field("date", c.getTime(), OType.DATE);
+    document.field("date", c.getTime(), YTType.DATE);
     Calendar c1 = Calendar.getInstance();
     c1.set(Calendar.MILLISECOND, 0);
     c1.set(Calendar.SECOND, 0);
     c1.set(Calendar.MINUTE, 0);
     c1.set(Calendar.HOUR_OF_DAY, 0);
-    document.field("date1", c1.getTime(), OType.DATE);
+    document.field("date1", c1.getTime(), YTType.DATE);
 
     byte[] byteValue = new byte[10];
     Arrays.fill(byteValue, (byte) 10);
     document.field("bytes", byteValue);
 
     document.field("utf8String", "A" + "\u00ea" + "\u00f1" + "\u00fc" + "C");
-    document.field("recordId", new ORecordId(10, 10));
+    document.field("recordId", new YTRecordId(10, 10));
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     c.set(Calendar.MILLISECOND, 0);
@@ -1346,7 +1346,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralArray() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     String[] strings = new String[3];
     strings[0] = "a";
     strings[1] = "b";
@@ -1425,7 +1425,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -1442,7 +1442,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralList() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     List<String> strings = new ArrayList<String>();
     strings.add("a");
     strings.add("b");
@@ -1518,7 +1518,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -1534,7 +1534,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralSet() throws InterruptedException {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     Set<String> strings = new HashSet<String>();
     strings.add("a");
     strings.add("b");
@@ -1608,12 +1608,12 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     listMixed.add("hello");
     listMixed.add(new Date());
     listMixed.add((byte) 10);
-    listMixed.add(new ORecordId(10, 20));
+    listMixed.add(new YTRecordId(10, 20));
     document.field("listMixed", listMixed);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -1628,24 +1628,24 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testLinkCollections() {
-    ODocument document = new ODocument();
-    Set<ORecordId> linkSet = new HashSet<ORecordId>();
-    linkSet.add(new ORecordId(10, 20));
-    linkSet.add(new ORecordId(10, 21));
-    linkSet.add(new ORecordId(10, 22));
-    linkSet.add(new ORecordId(11, 22));
-    document.field("linkSet", linkSet, OType.LINKSET);
+    YTDocument document = new YTDocument();
+    Set<YTRecordId> linkSet = new HashSet<YTRecordId>();
+    linkSet.add(new YTRecordId(10, 20));
+    linkSet.add(new YTRecordId(10, 21));
+    linkSet.add(new YTRecordId(10, 22));
+    linkSet.add(new YTRecordId(11, 22));
+    document.field("linkSet", linkSet, YTType.LINKSET);
 
-    List<ORecordId> linkList = new ArrayList<ORecordId>();
-    linkList.add(new ORecordId(10, 20));
-    linkList.add(new ORecordId(10, 21));
-    linkList.add(new ORecordId(10, 22));
-    linkList.add(new ORecordId(11, 22));
-    document.field("linkList", linkList, OType.LINKLIST);
+    List<YTRecordId> linkList = new ArrayList<YTRecordId>();
+    linkList.add(new YTRecordId(10, 20));
+    linkList.add(new YTRecordId(10, 21));
+    linkList.add(new YTRecordId(10, 22));
+    linkList.add(new YTRecordId(11, 22));
+    document.field("linkList", linkList, YTType.LINKLIST);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -1657,19 +1657,19 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testSimpleEmbeddedDoc() {
-    ODocument document = new ODocument();
-    ODocument embedded = new ODocument();
+    YTDocument document = new YTDocument();
+    YTDocument embedded = new YTDocument();
     embedded.field("name", "test");
     embedded.field("surname", "something");
-    document.field("embed", embedded, OType.EMBEDDED);
+    document.field("embed", embedded, YTType.EMBEDDED);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(document.fields(), extr.fields());
-    ODocument emb = extr.field("embed");
+    YTDocument emb = extr.field("embed");
     assertNotNull(emb);
     assertEquals(emb.<Object>field("name"), embedded.field("name"));
     assertEquals(emb.<Object>field("surname"), embedded.field("surname"));
@@ -1677,7 +1677,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testSimpleMapStringLiteral() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -1726,7 +1726,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -1740,7 +1740,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testlistOfList() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     List<List<String>> list = new ArrayList<List<String>>();
     List<String> ls = new ArrayList<String>();
     ls.add("test1");
@@ -1750,7 +1750,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -1759,7 +1759,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testArrayOfArray() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     String[][] array = new String[1][];
     String[] ls = new String[2];
     ls[0] = "test1";
@@ -1769,7 +1769,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -1782,7 +1782,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testEmbeddedListOfEmbeddedMap() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     List<Map<String, String>> coll = new ArrayList<Map<String, String>>();
     Map<String, String> map = new HashMap<String, String>();
     map.put("first", "something");
@@ -1795,7 +1795,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     document.field("list", coll);
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("list"), document.field("list"));
@@ -1803,23 +1803,23 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testMapOfEmbeddedDocument() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
-    ODocument embeddedInMap = new ODocument();
+    YTDocument embeddedInMap = new YTDocument();
     embeddedInMap.field("name", "test");
     embeddedInMap.field("surname", "something");
-    Map<String, ODocument> map = new HashMap<String, ODocument>();
+    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
     map.put("embedded", embeddedInMap);
-    document.field("map", map, OType.EMBEDDEDMAP);
+    document.field("map", map, YTType.EMBEDDEDMAP);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
-    Map<String, ODocument> mapS = extr.field("map");
+    Map<String, YTDocument> mapS = extr.field("map");
     assertEquals(1, mapS.size());
-    ODocument emb = mapS.get("embedded");
+    YTDocument emb = mapS.get("embedded");
     assertNotNull(emb);
     assertEquals(emb.<Object>field("name"), embeddedInMap.field("name"));
     assertEquals(emb.<Object>field("surname"), embeddedInMap.field("surname"));
@@ -1828,15 +1828,15 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
   @Test
   public void testMapOfLink() {
     // needs a database because of the lazy loading
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
-    Map<String, OIdentifiable> map = new HashMap<String, OIdentifiable>();
-    map.put("link", new ORecordId(0, 0));
-    document.field("map", map, OType.LINKMAP);
+    Map<String, YTIdentifiable> map = new HashMap<String, YTIdentifiable>();
+    map.put("link", new YTRecordId(0, 0));
+    document.field("map", map, YTType.LINKMAP);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -1845,11 +1845,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testDocumentSimple() {
-    ODocument document = new ODocument("TestClass");
+    YTDocument document = new YTDocument("TestClass");
     document.field("test", "test");
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     //      assertEquals(extr.getClassName(), document.getClassName());
@@ -1859,34 +1859,34 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testDocumentWithCostum() {
-    boolean old = OGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
-    OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
+    boolean old = YTGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
+    YTGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
 
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     document.field("test", "test");
     document.field("custom", new ODocumentSchemalessBinarySerializationTest.Custom());
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.getClassName(), document.getClassName());
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("test"), document.field("test"));
     assertEquals(extr.<Object>field("custom"), document.field("custom"));
-    OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
+    YTGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
   }
 
   @Test
   public void testDocumentWithCostumDocument() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     document.field("test", "test");
     document.field("custom", new ODocumentSchemalessBinarySerializationTest.CustomDocument());
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.getClassName(), document.getClassName());
@@ -1897,11 +1897,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test(expected = OSerializationException.class)
   public void testSetOfWrongData() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     Set<Object> embeddedSet = new HashSet<Object>();
     embeddedSet.add(new WrongData());
-    document.field("embeddedSet", embeddedSet, OType.EMBEDDEDSET);
+    document.field("embeddedSet", embeddedSet, YTType.EMBEDDEDSET);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
@@ -1909,11 +1909,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test(expected = OSerializationException.class)
   public void testListOfWrongData() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     List<Object> embeddedList = new ArrayList<Object>();
     embeddedList.add(new WrongData());
-    document.field("embeddedList", embeddedList, OType.EMBEDDEDLIST);
+    document.field("embeddedList", embeddedList, YTType.EMBEDDEDLIST);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
@@ -1921,11 +1921,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test(expected = OSerializationException.class)
   public void testMapOfWrongData() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     Map<String, Object> embeddedMap = new HashMap<String, Object>();
     embeddedMap.put("name", new WrongData());
-    document.field("embeddedMap", embeddedMap, OType.EMBEDDEDMAP);
+    document.field("embeddedMap", embeddedMap, YTType.EMBEDDEDMAP);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
@@ -1933,11 +1933,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test(expected = ClassCastException.class)
   public void testLinkSetOfWrongData() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     Set<Object> linkSet = new HashSet<Object>();
     linkSet.add(new WrongData());
-    document.field("linkSet", linkSet, OType.LINKSET);
+    document.field("linkSet", linkSet, YTType.LINKSET);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
@@ -1945,11 +1945,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test(expected = ClassCastException.class)
   public void testLinkListOfWrongData() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     List<Object> linkList = new ArrayList<Object>();
     linkList.add(new WrongData());
-    document.field("linkList", linkList, OType.LINKLIST);
+    document.field("linkList", linkList, YTType.LINKLIST);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
@@ -1957,11 +1957,11 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test(expected = ClassCastException.class)
   public void testLinkMapOfWrongData() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     Map<String, Object> linkMap = new HashMap<String, Object>();
     linkMap.put("name", new WrongData());
-    document.field("linkMap", linkMap, OType.LINKMAP);
+    document.field("linkMap", linkMap, YTType.LINKMAP);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
@@ -1969,7 +1969,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test(expected = OSerializationException.class)
   public void testFieldWrongData() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     document.field("wrongData", new WrongData());
 
@@ -1979,57 +1979,57 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testCollectionOfEmbeddedDocument() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
-    ODocument embeddedInList = new ODocument();
+    YTDocument embeddedInList = new YTDocument();
     embeddedInList.field("name", "test");
     embeddedInList.field("surname", "something");
 
-    ODocument embeddedInList2 = new ODocument();
+    YTDocument embeddedInList2 = new YTDocument();
     embeddedInList2.field("name", "test1");
     embeddedInList2.field("surname", "something2");
 
-    List<ODocument> embeddedList = new ArrayList<ODocument>();
+    List<YTDocument> embeddedList = new ArrayList<YTDocument>();
     embeddedList.add(embeddedInList);
     embeddedList.add(embeddedInList2);
     embeddedList.add(null);
-    embeddedList.add(new ODocument());
-    document.field("embeddedList", embeddedList, OType.EMBEDDEDLIST);
+    embeddedList.add(new YTDocument());
+    document.field("embeddedList", embeddedList, YTType.EMBEDDEDLIST);
 
-    ODocument embeddedInSet = new ODocument();
+    YTDocument embeddedInSet = new YTDocument();
     embeddedInSet.field("name", "test2");
     embeddedInSet.field("surname", "something3");
 
-    ODocument embeddedInSet2 = new ODocument();
+    YTDocument embeddedInSet2 = new YTDocument();
     embeddedInSet2.field("name", "test5");
     embeddedInSet2.field("surname", "something6");
 
-    Set<ODocument> embeddedSet = new HashSet<ODocument>();
+    Set<YTDocument> embeddedSet = new HashSet<YTDocument>();
     embeddedSet.add(embeddedInSet);
     embeddedSet.add(embeddedInSet2);
-    embeddedSet.add(new ODocument());
-    document.field("embeddedSet", embeddedSet, OType.EMBEDDEDSET);
+    embeddedSet.add(new YTDocument());
+    document.field("embeddedSet", embeddedSet, YTType.EMBEDDEDSET);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
-    List<ODocument> ser = extr.field("embeddedList");
+    List<YTDocument> ser = extr.field("embeddedList");
     assertEquals(ser.size(), 4);
     assertNotNull(ser.get(0));
     assertNotNull(ser.get(1));
     assertNull(ser.get(2));
     assertNotNull(ser.get(3));
-    ODocument inList = ser.get(0);
+    YTDocument inList = ser.get(0);
     assertNotNull(inList);
     assertEquals(inList.<Object>field("name"), embeddedInList.field("name"));
     assertEquals(inList.<Object>field("surname"), embeddedInList.field("surname"));
 
-    Set<ODocument> setEmb = extr.field("embeddedSet");
+    Set<YTDocument> setEmb = extr.field("embeddedSet");
     assertEquals(setEmb.size(), 3);
     boolean ok = false;
-    for (ODocument inSet : setEmb) {
+    for (YTDocument inSet : setEmb) {
       assertNotNull(inSet);
       if (embeddedInSet.field("name").equals(inSet.field("name"))
           && embeddedInSet.field("surname").equals(inSet.field("surname"))) {
@@ -2047,34 +2047,34 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testSerializableValue() {
-    boolean old = OGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
-    OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
+    boolean old = YTGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
+    YTGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
 
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     SimpleSerializableClass ser = new SimpleSerializableClass();
     ser.name = "testName";
     document.field("seri", ser);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertNotNull(extr.field("seri"));
-    assertEquals(extr.fieldType("seri"), OType.CUSTOM);
+    assertEquals(extr.fieldType("seri"), YTType.CUSTOM);
     SimpleSerializableClass newser = extr.field("seri");
     assertEquals(newser.name, ser.name);
-    OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
+    YTGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
   }
 
   @Test
   public void testFieldNames() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     document.fields("a", 1, "b", 2, "c", 3);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     final String[] fields = extr.fieldNames();
@@ -2088,7 +2088,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testWithRemove() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     document.field("name", "name");
     document.field("age", 20);
     document.field("youngAge", (short) 20);
@@ -2097,7 +2097,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(document.field("name"), extr.<Object>field("name"));
@@ -2108,7 +2108,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testListOfMapsWithNull() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     List lista = new ArrayList<>();
     Map mappa = new LinkedHashMap<>();
@@ -2123,7 +2123,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
-    ODocument extr = new ODocument();
+    YTDocument extr = new YTDocument();
     serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
@@ -2132,16 +2132,16 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   public static class CustomDocument implements ODocumentSerializable {
 
-    private ODocument document;
+    private YTDocument document;
 
     @Override
-    public void fromDocument(ODocument document) {
+    public void fromDocument(YTDocument document) {
       this.document = document;
     }
 
     @Override
-    public ODocument toDocument() {
-      document = new ODocument();
+    public YTDocument toDocument() {
+      document = new YTDocument();
       document.field("test", "some strange content");
       return document;
     }

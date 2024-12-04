@@ -22,10 +22,10 @@ package com.orientechnologies.orient.core.security;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -37,7 +37,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OSystemUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.authenticator.ODatabaseUserAuthenticator;
 import com.orientechnologies.orient.core.security.authenticator.OServerConfigAuthenticator;
 import com.orientechnologies.orient.core.security.authenticator.OSystemUserAuthenticator;
@@ -78,17 +78,17 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   private final Object auditingSynch = new Object();
   private OAuditingService auditingService;
 
-  private ODocument configDoc; // Holds the
+  private YTDocument configDoc; // Holds the
   // current JSON
   // configuration.
   private OSecurityConfig serverConfig;
   private YouTrackDBInternal context;
 
-  private ODocument auditingDoc;
-  private ODocument serverDoc;
-  private ODocument authDoc;
-  private ODocument passwdValDoc;
-  private ODocument ldapImportDoc;
+  private YTDocument auditingDoc;
+  private YTDocument serverDoc;
+  private YTDocument authDoc;
+  private YTDocument passwdValDoc;
+  private YTDocument ldapImportDoc;
 
   // We use a list because the order indicates priority of method.
   private volatile List<OSecurityAuthenticator> authenticatorsList;
@@ -119,7 +119,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  public static void createSystemRoles(ODatabaseSessionInternal session) {
+  public static void createSystemRoles(YTDatabaseSessionInternal session) {
     session.executeInTx(
         () -> {
           OSecurity security = session.getMetadata().getSecurity();
@@ -175,7 +175,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
         });
   }
 
-  private void initDefultAuthenticators(ODatabaseSessionInternal session) {
+  private void initDefultAuthenticators(YTDatabaseSessionInternal session) {
     OServerConfigAuthenticator serverAuth = new OServerConfigAuthenticator();
     serverAuth.config(session, null, this);
 
@@ -196,7 +196,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     close();
   }
 
-  private Class<?> getClass(final ODocument jsonConfig) {
+  private Class<?> getClass(final YTDocument jsonConfig) {
     Class<?> cls = null;
 
     try {
@@ -229,7 +229,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   @Override
   public OSecurityUser authenticate(
-      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
+      YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     try {
       for (OSecurityAuthenticator sa : enabledAuthenticators) {
         OSecurityUser principal = sa.authenticate(session, authenticationInfo);
@@ -247,7 +247,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   // OSecuritySystem (via OServerSecurity)
   public OSecurityUser authenticate(
-      ODatabaseSessionInternal session, final String username, final String password) {
+      YTDatabaseSessionInternal session, final String username, final String password) {
     try {
       // It's possible for the username to be null or an empty string in the case of SPNEGO
       // Kerberos
@@ -277,7 +277,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return null; // Indicates authentication failed.
   }
 
-  public OSecurityUser authenticateServerUser(ODatabaseSessionInternal session,
+  public OSecurityUser authenticateServerUser(YTDatabaseSessionInternal session,
       final String username,
       final String password) {
     OSecurityUser user = getServerUser(session, username);
@@ -356,31 +356,31 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OSecuritySystem (via OServerSecurity)
-  public ODocument getConfig() {
-    ODocument jsonConfig = new ODocument();
+  public YTDocument getConfig() {
+    YTDocument jsonConfig = new YTDocument();
 
     try {
       jsonConfig.field("enabled", enabled);
       jsonConfig.field("debug", debug);
 
       if (serverDoc != null) {
-        jsonConfig.field("server", serverDoc, OType.EMBEDDED);
+        jsonConfig.field("server", serverDoc, YTType.EMBEDDED);
       }
 
       if (authDoc != null) {
-        jsonConfig.field("authentication", authDoc, OType.EMBEDDED);
+        jsonConfig.field("authentication", authDoc, YTType.EMBEDDED);
       }
 
       if (passwdValDoc != null) {
-        jsonConfig.field("passwordValidator", passwdValDoc, OType.EMBEDDED);
+        jsonConfig.field("passwordValidator", passwdValDoc, YTType.EMBEDDED);
       }
 
       if (ldapImportDoc != null) {
-        jsonConfig.field("ldapImporter", ldapImportDoc, OType.EMBEDDED);
+        jsonConfig.field("ldapImporter", ldapImportDoc, YTType.EMBEDDED);
       }
 
       if (auditingDoc != null) {
-        jsonConfig.field("auditing", auditingDoc, OType.EMBEDDED);
+        jsonConfig.field("auditing", auditingDoc, YTType.EMBEDDED);
       }
     } catch (Exception ex) {
       OLogManager.instance().error(this, "ODefaultServerSecurity.getConfig() Exception: %s", ex);
@@ -390,9 +390,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OSecuritySystem (via OServerSecurity)
-  // public ODocument getComponentConfig(final String name) { return getSection(name); }
+  // public YTDocument getComponentConfig(final String name) { return getSection(name); }
 
-  public ODocument getComponentConfig(final String name) {
+  public YTDocument getComponentConfig(final String name) {
     if (name != null) {
       if (name.equalsIgnoreCase("auditing")) {
         return auditingDoc;
@@ -424,7 +424,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       return systemDb
           .execute(
               (resultset, session) -> {
-                var sessionInternal = (ODatabaseSessionInternal) session;
+                var sessionInternal = (YTDatabaseSessionInternal) session;
                 if (resultset != null && resultset.hasNext()) {
                   return new OImmutableUser(sessionInternal,
                       0,
@@ -442,7 +442,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // OSecuritySystem (via OServerSecurity)
   // This will first look for a user in the security.json "users" array and then check if a resource
   // matches.
-  public boolean isAuthorized(ODatabaseSessionInternal session, final String username,
+  public boolean isAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource) {
     if (username == null || resource == null) {
       return false;
@@ -457,7 +457,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return false;
   }
 
-  public boolean isServerUserAuthorized(ODatabaseSessionInternal session, final String username,
+  public boolean isServerUserAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource) {
     final OSecurityUser user = getServerUser(session, username);
 
@@ -556,7 +556,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OServerSecurity
-  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
+  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
     OSecurityUser userCfg = null;
 
     // Walk through the list of OSecurityAuthenticators.
@@ -570,7 +570,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return userCfg;
   }
 
-  public OSecurityUser getServerUser(ODatabaseSessionInternal session, final String username) {
+  public OSecurityUser getServerUser(YTDatabaseSessionInternal session, final String username) {
     OSecurityUser systemUser = null;
     // This will throw an IllegalArgumentException if iUserName is null or empty.
     // However, a null or empty iUserName is possible with some security implementations.
@@ -602,7 +602,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   // OSecuritySystem
   public void log(
-      ODatabaseSessionInternal session, final OAuditingOperation operation,
+      YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       OSecurityUser user,
       final String message) {
@@ -651,12 +651,12 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OSecuritySystem
-  public void reload(ODatabaseSessionInternal session, final ODocument configDoc) {
+  public void reload(YTDatabaseSessionInternal session, final YTDocument configDoc) {
     reload(session, null, configDoc);
   }
 
   @Override
-  public void reload(ODatabaseSessionInternal session, OSecurityUser user, ODocument configDoc) {
+  public void reload(YTDatabaseSessionInternal session, OSecurityUser user, YTDocument configDoc) {
     if (configDoc != null) {
       close();
 
@@ -672,15 +672,15 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       OLogManager.instance()
           .warn(
               this,
-              "ODefaultServerSecurity.reload(ODocument) The provided configuration document is"
+              "ODefaultServerSecurity.reload(YTDocument) The provided configuration document is"
                   + " null");
       throw new OSecuritySystemException(
-          "ODefaultServerSecurity.reload(ODocument) The provided configuration document is null");
+          "ODefaultServerSecurity.reload(YTDocument) The provided configuration document is null");
     }
   }
 
-  public void reloadComponent(ODatabaseSessionInternal session, OSecurityUser user,
-      final String name, final ODocument jsonConfig) {
+  public void reloadComponent(YTDatabaseSessionInternal session, OSecurityUser user,
+      final String name, final YTDocument jsonConfig) {
     if (name == null || name.isEmpty()) {
       throw new OSecuritySystemException(
           "ODefaultServerSecurity.reloadComponent() name is null or empty");
@@ -716,12 +716,12 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
         user, String.format("The %s security component has been reloaded", name));
   }
 
-  private void loadAuthenticators(ODatabaseSessionInternal session, final ODocument authDoc) {
+  private void loadAuthenticators(YTDatabaseSessionInternal session, final YTDocument authDoc) {
     if (authDoc.containsField("authenticators")) {
       List<OSecurityAuthenticator> autheticators = new ArrayList<OSecurityAuthenticator>();
-      List<ODocument> authMethodsList = authDoc.field("authenticators");
+      List<YTDocument> authMethodsList = authDoc.field("authenticators");
 
-      for (ODocument authMethodDoc : authMethodsList) {
+      for (YTDocument authMethodDoc : authMethodsList) {
         try {
           if (authMethodDoc.containsField("name")) {
             final String name = authMethodDoc.field("name");
@@ -786,12 +786,12 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OServerSecurity
-  public void onAfterDynamicPlugins(ODatabaseSessionInternal session) {
+  public void onAfterDynamicPlugins(YTDatabaseSessionInternal session) {
     onAfterDynamicPlugins(session, null);
   }
 
   @Override
-  public void onAfterDynamicPlugins(ODatabaseSessionInternal session, OSecurityUser user) {
+  public void onAfterDynamicPlugins(YTDatabaseSessionInternal session, OSecurityUser user) {
     if (configDoc != null) {
       loadComponents(session);
 
@@ -804,7 +804,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  protected void loadComponents(ODatabaseSessionInternal session) {
+  protected void loadComponents(YTDatabaseSessionInternal session) {
     // Loads the top-level configuration properties ("enabled" and "debug").
     loadSecurity();
 
@@ -831,9 +831,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  // Returns a section of the JSON document configuration as an ODocument if section is present.
-  private ODocument getSection(final String section) {
-    ODocument sectionDoc = null;
+  // Returns a section of the JSON document configuration as an YTDocument if section is present.
+  private YTDocument getSection(final String section) {
+    YTDocument sectionDoc = null;
 
     try {
       if (configDoc != null) {
@@ -856,9 +856,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // Change the component section and save it to disk
-  private void setSection(final String section, ODocument sectionDoc) {
+  private void setSection(final String section, YTDocument sectionDoc) {
 
-    ODocument oldSection = getSection(section);
+    YTDocument oldSection = getSection(section);
     try {
       if (configDoc != null) {
 
@@ -867,7 +867,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
             OSystemVariableResolver.resolveSystemVariables(
                 "${YOU_TRACK_DB_HOME}/config/security.json");
 
-        String ssf = OGlobalConfiguration.SERVER_SECURITY_FILE.getValueAsString();
+        String ssf = YTGlobalConfiguration.SERVER_SECURITY_FILE.getValueAsString();
         if (ssf != null) {
           configFile = ssf;
         }
@@ -882,8 +882,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // "${YOU_TRACK_DB_HOME}/config/security.json"
-  private ODocument loadConfig(final String cfgPath) {
-    ODocument securityDoc = null;
+  private YTDocument loadConfig(final String cfgPath) {
+    YTDocument securityDoc = null;
 
     try {
       if (cfgPath != null) {
@@ -901,7 +901,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
             final byte[] buffer = new byte[(int) file.length()];
             fis.read(buffer);
 
-            securityDoc = new ODocument().fromJSON(new String(buffer), "noMap");
+            securityDoc = new YTDocument().fromJSON(new String(buffer), "noMap");
           } finally {
             if (fis != null) {
               fis.close();
@@ -926,7 +926,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return securityDoc;
   }
 
-  private boolean isEnabled(final ODocument sectionDoc) {
+  private boolean isEnabled(final YTDocument sectionDoc) {
     boolean enabled = true;
 
     try {
@@ -967,7 +967,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
       if (serverDoc != null) {
         if (serverDoc.containsField("createDefaultUsers")) {
-          OGlobalConfiguration.CREATE_DEFAULT_USERS.setValue(serverDoc.field("createDefaultUsers"));
+          YTGlobalConfiguration.CREATE_DEFAULT_USERS.setValue(
+              serverDoc.field("createDefaultUsers"));
         }
 
         if (serverDoc.containsField("storePasswords")) {
@@ -979,7 +980,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  private void reloadAuthMethods(ODatabaseSessionInternal session) {
+  private void reloadAuthMethods(YTDatabaseSessionInternal session) {
     if (authDoc != null) {
       if (authDoc.containsField("allowDefault")) {
         allowDefault = authDoc.field("allowDefault");
@@ -989,7 +990,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  private void reloadPasswordValidator(ODatabaseSessionInternal session) {
+  private void reloadPasswordValidator(YTDatabaseSessionInternal session) {
     try {
       synchronized (passwordValidatorSynch) {
         if (passwdValDoc != null && isEnabled(passwdValDoc)) {
@@ -1029,7 +1030,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  private void reloadImportLDAP(ODatabaseSessionInternal session) {
+  private void reloadImportLDAP(YTDatabaseSessionInternal session) {
     try {
       synchronized (importLDAPSynch) {
         if (importLDAP != null) {
@@ -1068,7 +1069,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  private void reloadAuditingService(ODatabaseSessionInternal session) {
+  private void reloadAuditingService(YTDatabaseSessionInternal session) {
     try {
       synchronized (auditingSynch) {
         if (auditingService != null) {
@@ -1139,7 +1140,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   @Override
   public OSecurityUser authenticateAndAuthorize(
-      ODatabaseSessionInternal session, String iUserName, String iPassword,
+      YTDatabaseSessionInternal session, String iUserName, String iPassword,
       String iResourceToCheck) {
     // Returns the authenticated username, if successful, otherwise null.
     OSecurityUser user = authenticate(null, iUserName, iPassword);

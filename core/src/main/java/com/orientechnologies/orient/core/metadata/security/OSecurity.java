@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import java.util.Set;
 
@@ -41,12 +41,12 @@ public interface OSecurity {
   String ONCREATE_FIELD = "onCreate.fields";
 
   @Deprecated
-  boolean isAllowed(final Set<OIdentifiable> iAllowAll, final Set<OIdentifiable> iAllowOperation);
+  boolean isAllowed(final Set<YTIdentifiable> iAllowAll, final Set<YTIdentifiable> iAllowOperation);
 
   /**
    * Record level security: allows a user to access to a record.
    *
-   * @param iDocument      ODocument instance to give access
+   * @param iDocument      YTDocument instance to give access
    * @param iOperationType Operation type to use based on the permission to allow:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -58,13 +58,14 @@ public interface OSecurity {
    * @return The OIdentity instance allowed
    */
   @Deprecated
-  OIdentifiable allowUser(
-      final ODocument iDocument, final ORestrictedOperation iOperationType, final String iUserName);
+  YTIdentifiable allowUser(
+      final YTDocument iDocument, final ORestrictedOperation iOperationType,
+      final String iUserName);
 
   /**
    * Record level security: allows a role to access to a record.
    *
-   * @param iDocument      ODocument instance to give access
+   * @param iDocument      YTDocument instance to give access
    * @param iOperationType Operation type to use based on the permission to allow:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -76,13 +77,14 @@ public interface OSecurity {
    * @return The OIdentity instance allowed
    */
   @Deprecated
-  OIdentifiable allowRole(
-      final ODocument iDocument, final ORestrictedOperation iOperationType, final String iRoleName);
+  YTIdentifiable allowRole(
+      final YTDocument iDocument, final ORestrictedOperation iOperationType,
+      final String iRoleName);
 
   /**
    * Record level security: deny a user to access to a record.
    *
-   * @param iDocument      ODocument instance to give access
+   * @param iDocument      YTDocument instance to give access
    * @param iOperationType Operation type to use based on the permission to deny:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -94,13 +96,14 @@ public interface OSecurity {
    * @return The OIdentity instance denied
    */
   @Deprecated
-  OIdentifiable denyUser(
-      final ODocument iDocument, final ORestrictedOperation iOperationType, final String iUserName);
+  YTIdentifiable denyUser(
+      final YTDocument iDocument, final ORestrictedOperation iOperationType,
+      final String iUserName);
 
   /**
    * Record level security: deny a role to access to a record.
    *
-   * @param iDocument      ODocument instance to give access
+   * @param iDocument      YTDocument instance to give access
    * @param iOperationType Operation type to use based on the permission to deny:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -112,8 +115,9 @@ public interface OSecurity {
    * @return The OIdentity instance denied
    */
   @Deprecated
-  OIdentifiable denyRole(
-      final ODocument iDocument, final ORestrictedOperation iOperationType, final String iRoleName);
+  YTIdentifiable denyRole(
+      final YTDocument iDocument, final ORestrictedOperation iOperationType,
+      final String iRoleName);
 
   @Deprecated
   OUser authenticate(String iUsername, String iUserPassword);
@@ -123,7 +127,7 @@ public interface OSecurity {
 
   OUser getUser(String iUserName);
 
-  OUser getUser(final ORID iUserId);
+  OUser getUser(final YTRID iUserId);
 
   OUser createUser(String iUserName, String iUserPassword, String... iRoles);
 
@@ -133,7 +137,7 @@ public interface OSecurity {
 
   ORole getRole(String iRoleName);
 
-  ORole getRole(OIdentifiable role);
+  ORole getRole(YTIdentifiable role);
 
   ORole createRole(String iRoleName, ORole.ALLOW_MODES iAllowMode);
 
@@ -141,7 +145,7 @@ public interface OSecurity {
 
   boolean dropRole(String iRoleName);
 
-  List<ODocument> getAllUsers();
+  List<YTDocument> getAllUsers();
 
-  List<ODocument> getAllRoles();
+  List<YTDocument> getAllRoles();
 }

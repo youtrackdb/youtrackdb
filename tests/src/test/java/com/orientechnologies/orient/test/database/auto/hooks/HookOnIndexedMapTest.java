@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -16,7 +16,7 @@ public class HookOnIndexedMapTest {
 
     orient.execute(
         "create database " + "test" + " memory users ( admin identified by 'admin' role admin)");
-    ODatabaseSession db = orient.open("test", "admin", "admin");
+    YTDatabaseSession db = orient.open("test", "admin", "admin");
     db.registerHook(new BrokenMapHook());
 
     db.command("CREATE CLASS AbsVertex IF NOT EXISTS EXTENDS V ABSTRACT;");

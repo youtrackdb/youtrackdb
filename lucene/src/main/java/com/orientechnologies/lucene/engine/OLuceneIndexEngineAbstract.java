@@ -32,18 +32,18 @@ import com.orientechnologies.lucene.tx.OLuceneTxChangesMultiRid;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesSingleRid;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -205,10 +205,10 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
 
     List<String> fields = indexDefinition.getFields();
 
-    OClass aClass =
+    YTClass aClass =
         getDatabase().getMetadata().getSchema().getClass(indexDefinition.getClassName());
     for (String field : fields) {
-      OProperty property = aClass.getProperty(field);
+      YTProperty property = aClass.getProperty(field);
 
       if (property.getType().isEmbedded() && property.getLinkedType() != null) {
         collectionFields.put(field, true);
@@ -229,7 +229,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
     open(storage);
   }
 
-  protected static ODatabaseSessionInternal getDatabase() {
+  protected static YTDatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -267,10 +267,10 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
       final TopDocs topDocs =
           searcher.search(new TermQuery(new Term("_CLASS", "JSON_METADATA")), 1);
       if (topDocs.totalHits == 0) {
-        var metaDoc = new ODocument();
+        var metaDoc = new YTDocument();
         metaDoc.fromMap(metadata);
         String metaAsJson = metaDoc.toJSON();
-        String defAsJson = indexDefinition.toStream(new ODocument()).toJSON();
+        String defAsJson = indexDefinition.toStream(new YTDocument()).toJSON();
 
         Document lMetaDoc = new Document();
         lMetaDoc.add(new StringField("_META_JSON", metaAsJson, Field.Store.YES));
@@ -398,7 +398,8 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
 
   @Override
   public abstract void onRecordAddedToResultSet(
-      OLuceneQueryContext queryContext, OContextualRecordId recordId, Document ret, ScoreDoc score);
+      OLuceneQueryContext queryContext, YTContextualRecordId recordId, Document ret,
+      ScoreDoc score);
 
   @Override
   public Analyzer indexAnalyzer() {
@@ -411,7 +412,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
   }
 
   @Override
-  public boolean remove(Object key, OIdentifiable value) {
+  public boolean remove(Object key, YTIdentifiable value) {
     updateLastAccess();
     openIfClosed();
 
@@ -523,7 +524,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
   }
 
   @Override
-  public Query deleteQuery(Object key, OIdentifiable value) {
+  public Query deleteQuery(Object key, YTIdentifiable value) {
     updateLastAccess();
     openIfClosed();
 
@@ -573,12 +574,13 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> descStream(
+      IndexEngineValuesTransformer valuesTransformer) {
     throw new UnsupportedOperationException("Cannot iterate over a lucene index");
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> stream(IndexEngineValuesTransformer valuesTransformer) {
     throw new UnsupportedOperationException("Cannot iterate over a lucene index");
   }
 

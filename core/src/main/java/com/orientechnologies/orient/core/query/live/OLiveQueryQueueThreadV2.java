@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.query.live;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -47,7 +47,7 @@ public class OLiveQueryQueueThreadV2 extends Thread {
 
   @Override
   public void run() {
-    final int batchSize = OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    final int batchSize = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     final BlockingQueue<OLiveQueryHookV2.OLiveQueryOp> queue = ops.getQueue();
 
     long totalEventsServed = 0;

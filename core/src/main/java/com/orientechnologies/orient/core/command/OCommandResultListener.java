@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 /**
  * Callback interface called when the command returns results.
@@ -33,7 +33,7 @@ public interface OCommandResultListener {
    * @param iRecord      Current record
    * @return True to continue the query, otherwise false
    */
-  boolean result(ODatabaseSessionInternal querySession, Object iRecord);
+  boolean result(YTDatabaseSessionInternal querySession, Object iRecord);
 
   /**
    * Called at the end of processing. This is useful to clean-up local attributes.

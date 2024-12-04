@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.type;
 
 import com.orientechnologies.orient.core.annotation.ODocumentInstance;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.Serializable;
 
 /**
@@ -33,28 +33,28 @@ import java.io.Serializable;
 public class ODocumentWrapper implements Serializable {
 
   @ODocumentInstance
-  private ODocument document;
+  private YTDocument document;
 
   public ODocumentWrapper() {
   }
 
   public ODocumentWrapper(final String iClassName) {
-    this(new ODocument(iClassName));
+    this(new YTDocument(iClassName));
   }
 
-  public ODocumentWrapper(final ODocument iDocument) {
+  public ODocumentWrapper(final YTDocument iDocument) {
     document = iDocument;
   }
 
-  public void fromStream(ODatabaseSessionInternal session, final ODocument iDocument) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iDocument) {
     document = iDocument;
   }
 
-  public ODocument toStream(ODatabaseSession session) {
+  public YTDocument toStream(YTDatabaseSession session) {
     return getDocument(session);
   }
 
-  public <RET extends ODocumentWrapper> RET save(ODatabaseSessionInternal session) {
+  public <RET extends ODocumentWrapper> RET save(YTDatabaseSessionInternal session) {
     document.save();
     return (RET) this;
   }
@@ -64,7 +64,7 @@ public class ODocumentWrapper implements Serializable {
     return (RET) this;
   }
 
-  public ODocument getDocument(ODatabaseSession session) {
+  public YTDocument getDocument(YTDatabaseSession session) {
     if (document != null && document.isNotBound(session)) {
       document = session.bindToSession(document);
     }
@@ -72,7 +72,7 @@ public class ODocumentWrapper implements Serializable {
     return document;
   }
 
-  public void setDocument(ODatabaseSessionInternal session, ODocument document) {
+  public void setDocument(YTDatabaseSessionInternal session, YTDocument document) {
     if (document != null && document.isNotBound(session)) {
       document = session.bindToSession(document);
     }
@@ -80,7 +80,7 @@ public class ODocumentWrapper implements Serializable {
     this.document = document;
   }
 
-  public ORID getIdentity() {
+  public YTRID getIdentity() {
     return document.getIdentity();
   }
 

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 
 /**
@@ -31,7 +31,7 @@ public interface OCommandRequestText extends OCommandRequestInternal {
 
   OCommandRequestText setText(String iText);
 
-  OCommandRequestText fromStream(ODatabaseSessionInternal db, byte[] bytes,
+  OCommandRequestText fromStream(YTDatabaseSessionInternal db, byte[] bytes,
       ORecordSerializer serializer);
 
   byte[] toStream();

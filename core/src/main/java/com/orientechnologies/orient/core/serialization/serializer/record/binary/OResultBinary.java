@@ -15,16 +15,16 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -39,16 +39,16 @@ public class OResultBinary implements OResult {
 
   private final ODocumentSerializer serializer;
   @Nullable
-  private final ORecordId id;
+  private final YTRecordId id;
   private final byte[] bytes;
   private final int offset;
   private final int fieldLength;
-  private final OImmutableSchema schema;
-  private final ODatabaseSessionInternal db;
+  private final YTImmutableSchema schema;
+  private final YTDatabaseSessionInternal db;
 
   public OResultBinary(
-      ODatabaseSessionInternal db,
-      OImmutableSchema schema,
+      YTDatabaseSessionInternal db,
+      YTImmutableSchema schema,
       byte[] bytes,
       int offset,
       int fieldLength,
@@ -64,12 +64,12 @@ public class OResultBinary implements OResult {
   }
 
   public OResultBinary(
-      ODatabaseSessionInternal db,
+      YTDatabaseSessionInternal db,
       byte[] bytes,
       int offset,
       int fieldLength,
       ODocumentSerializer serializer,
-      @Nullable ORecordId id) {
+      @Nullable YTRecordId id) {
     schema = db.getMetadata().getImmutableSchemaSnapshot();
     this.id = id;
     this.bytes = bytes;
@@ -99,24 +99,24 @@ public class OResultBinary implements OResult {
   }
 
   @Override
-  public OElement getElementProperty(String name) {
+  public YTEntity getElementProperty(String name) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
-  public OVertex getVertexProperty(String name) {
+  public YTVertex getVertexProperty(String name) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
-  public OEdge getEdgeProperty(String name) {
+  public YTEdge getEdgeProperty(String name) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
-  public OBlob getBlobProperty(String name) {
+  public YTBlob getBlobProperty(String name) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
@@ -124,19 +124,19 @@ public class OResultBinary implements OResult {
   public Set<String> getPropertyNames() {
     final BytesContainer container = new BytesContainer(bytes);
     container.skip(offset);
-    // TODO: use something more correct that new ODocument
-    String[] fields = serializer.getFieldNames(new ODocument(), container, id == null);
+    // TODO: use something more correct that new YTDocument
+    String[] fields = serializer.getFieldNames(new YTDocument(), container, id == null);
     return new HashSet<>(Arrays.asList(fields));
   }
 
   @Override
-  public Optional<ORID> getIdentity() {
+  public Optional<YTRID> getIdentity() {
     return Optional.ofNullable(id);
   }
 
   @Nullable
   @Override
-  public ORID getRecordId() {
+  public YTRID getRecordId() {
     return id;
   }
 
@@ -151,17 +151,17 @@ public class OResultBinary implements OResult {
   }
 
   @Override
-  public Optional<OElement> getElement() {
+  public Optional<YTEntity> getElement() {
     return Optional.of(toDocument());
   }
 
   @Override
-  public OElement asElement() {
+  public YTEntity asElement() {
     return toDocument();
   }
 
   @Override
-  public OElement toElement() {
+  public YTEntity toElement() {
     return toDocument();
   }
 
@@ -171,12 +171,12 @@ public class OResultBinary implements OResult {
   }
 
   @Override
-  public Optional<OBlob> getBlob() {
+  public Optional<YTBlob> getBlob() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<ORecord> getRecord() {
+  public Optional<YTRecord> getRecord() {
     return Optional.of(toDocument());
   }
 
@@ -201,8 +201,8 @@ public class OResultBinary implements OResult {
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
-  private ODocument toDocument() {
-    ODocument doc = new ODocument();
+  private YTDocument toDocument() {
+    YTDocument doc = new YTDocument();
     BytesContainer bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
 

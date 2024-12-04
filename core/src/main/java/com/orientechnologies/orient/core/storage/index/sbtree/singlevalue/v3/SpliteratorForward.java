@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v3;
 
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-final class SpliteratorForward<K> implements Spliterator<ORawPair<K, ORID>> {
+final class SpliteratorForward<K> implements Spliterator<ORawPair<K, YTRID>> {
 
   /**
    *
@@ -28,8 +28,8 @@ final class SpliteratorForward<K> implements Spliterator<ORawPair<K, ORID>> {
 
   private OLogSequenceNumber lastLSN = null;
 
-  private final List<ORawPair<K, ORID>> dataCache = new ArrayList<>();
-  private Iterator<ORawPair<K, ORID>> cacheIterator = Collections.emptyIterator();
+  private final List<ORawPair<K, YTRID>> dataCache = new ArrayList<>();
+  private Iterator<ORawPair<K, YTRID>> cacheIterator = Collections.emptyIterator();
 
   SpliteratorForward(
       CellBTreeSingleValueV3<K> cellBTreeSingleValueV3,
@@ -46,7 +46,7 @@ final class SpliteratorForward<K> implements Spliterator<ORawPair<K, ORID>> {
   }
 
   @Override
-  public boolean tryAdvance(Consumer<? super ORawPair<K, ORID>> action) {
+  public boolean tryAdvance(Consumer<? super ORawPair<K, YTRID>> action) {
     if (cacheIterator == null) {
       return false;
     }
@@ -71,7 +71,7 @@ final class SpliteratorForward<K> implements Spliterator<ORawPair<K, ORID>> {
   }
 
   @Override
-  public Spliterator<ORawPair<K, ORID>> trySplit() {
+  public Spliterator<ORawPair<K, YTRID>> trySplit() {
     return null;
   }
 
@@ -86,7 +86,7 @@ final class SpliteratorForward<K> implements Spliterator<ORawPair<K, ORID>> {
   }
 
   @Override
-  public Comparator<? super ORawPair<K, ORID>> getComparator() {
+  public Comparator<? super ORawPair<K, YTRID>> getComparator() {
     return (pairOne, pairTwo) -> btree.comparator.compare(pairOne.first, pairTwo.first);
   }
 
@@ -122,7 +122,7 @@ final class SpliteratorForward<K> implements Spliterator<ORawPair<K, ORID>> {
     this.pageIndex = pageIndex;
   }
 
-  List<ORawPair<K, ORID>> getDataCache() {
+  List<ORawPair<K, YTRID>> getDataCache() {
     return dataCache;
   }
 
@@ -134,7 +134,7 @@ final class SpliteratorForward<K> implements Spliterator<ORawPair<K, ORID>> {
     this.lastLSN = lastLSN;
   }
 
-  public void setCacheIterator(Iterator<ORawPair<K, ORID>> cacheIterator) {
+  public void setCacheIterator(Iterator<ORawPair<K, YTRID>> cacheIterator) {
     this.cacheIterator = cacheIterator;
   }
 }

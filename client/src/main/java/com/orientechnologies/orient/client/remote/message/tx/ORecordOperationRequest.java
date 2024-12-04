@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.client.remote.message.tx;
 
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -11,8 +11,8 @@ public class ORecordOperationRequest {
 
   private byte type;
   private byte recordType;
-  private ORID id;
-  private ORID oldId;
+  private YTRID id;
+  private YTRID oldId;
   private byte[] record;
   private int version;
   private boolean contentChanged;
@@ -23,8 +23,8 @@ public class ORecordOperationRequest {
   public ORecordOperationRequest(
       byte type,
       byte recordType,
-      ORID id,
-      ORID oldId,
+      YTRID id,
+      YTRID oldId,
       byte[] record,
       int version,
       boolean contentChanged) {
@@ -37,19 +37,19 @@ public class ORecordOperationRequest {
     this.contentChanged = contentChanged;
   }
 
-  public ORID getId() {
+  public YTRID getId() {
     return id;
   }
 
-  public void setId(ORID id) {
+  public void setId(YTRID id) {
     this.id = id;
   }
 
-  public ORID getOldId() {
+  public YTRID getOldId() {
     return oldId;
   }
 
-  public void setOldId(ORID oldId) {
+  public void setOldId(YTRID oldId) {
     this.oldId = oldId;
   }
 
@@ -96,8 +96,8 @@ public class ORecordOperationRequest {
   public void deserialize(DataInput input) throws IOException {
     type = input.readByte();
     recordType = input.readByte();
-    id = ORecordId.deserialize(input);
-    oldId = ORecordId.deserialize(input);
+    id = YTRecordId.deserialize(input);
+    oldId = YTRecordId.deserialize(input);
     if (type != ORecordOperation.DELETED) {
       int size = input.readInt();
       record = new byte[size];
@@ -110,8 +110,8 @@ public class ORecordOperationRequest {
   public void serialize(DataOutput output) throws IOException {
     output.writeByte(type);
     output.writeByte(recordType);
-    ORecordId.serialize(id, output);
-    ORecordId.serialize(oldId, output);
+    YTRecordId.serialize(id, output);
+    YTRecordId.serialize(oldId, output);
     if (type != ORecordOperation.DELETED) {
       output.writeInt(record.length);
       output.write(record);

@@ -5,10 +5,10 @@ import static java.util.Arrays.asList;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +20,9 @@ import org.junit.Test;
 public class OSQLFunctionShortestPathTest {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSession graph;
+  private YTDatabaseSession graph;
 
-  private Map<Integer, OVertex> vertices = new HashMap<Integer, OVertex>();
+  private Map<Integer, YTVertex> vertices = new HashMap<Integer, YTVertex>();
   private OSQLFunctionShortestPath function;
 
   @Before
@@ -90,7 +90,7 @@ public class OSQLFunctionShortestPathTest {
   public void testExecute() {
     bindVertices();
 
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -108,7 +108,7 @@ public class OSQLFunctionShortestPathTest {
   public void testExecuteOut() {
     bindVertices();
 
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -127,7 +127,7 @@ public class OSQLFunctionShortestPathTest {
   public void testExecuteOnlyEdge1() {
     bindVertices();
 
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -146,7 +146,7 @@ public class OSQLFunctionShortestPathTest {
   public void testExecuteOnlyEdge1AndEdge2() {
     bindVertices();
 
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -164,7 +164,7 @@ public class OSQLFunctionShortestPathTest {
   public void testLong() {
     bindVertices();
 
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -187,7 +187,7 @@ public class OSQLFunctionShortestPathTest {
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(OSQLFunctionShortestPath.PARAM_MAX_DEPTH, 11);
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -204,7 +204,7 @@ public class OSQLFunctionShortestPathTest {
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(OSQLFunctionShortestPath.PARAM_MAX_DEPTH, 12);
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -221,7 +221,7 @@ public class OSQLFunctionShortestPathTest {
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(OSQLFunctionShortestPath.PARAM_MAX_DEPTH, 10);
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -238,7 +238,7 @@ public class OSQLFunctionShortestPathTest {
 
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(OSQLFunctionShortestPath.PARAM_MAX_DEPTH, 3);
-    final List<ORID> result =
+    final List<YTRID> result =
         function.execute(
             null,
             null,
@@ -250,7 +250,7 @@ public class OSQLFunctionShortestPathTest {
   }
 
   private void bindVertices() {
-    var newVertices = new HashMap<Integer, OVertex>();
+    var newVertices = new HashMap<Integer, YTVertex>();
     for (var entry : vertices.entrySet()) {
       newVertices.put(entry.getKey(), graph.bindToSession(entry.getValue()));
     }

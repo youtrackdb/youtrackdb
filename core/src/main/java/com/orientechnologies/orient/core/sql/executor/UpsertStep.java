@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
@@ -43,21 +43,21 @@ public class UpsertStep extends AbstractExecutionStep {
 
   private OResult createNewRecord(
       OCommandContext ctx, OFromClause commandTarget, OWhereClause initialFilter) {
-    ODocument doc;
+    YTDocument doc;
     if (commandTarget.getItem().getIdentifier() != null) {
-      doc = new ODocument(commandTarget.getItem().getIdentifier().getStringValue());
+      doc = new YTDocument(commandTarget.getItem().getIdentifier().getStringValue());
     } else if (commandTarget.getItem().getCluster() != null) {
       OCluster cluster = commandTarget.getItem().getCluster();
       Integer clusterId = cluster.getClusterNumber();
       if (clusterId == null) {
         clusterId = ctx.getDatabase().getClusterIdByName(cluster.getClusterName());
       }
-      OClass clazz =
+      YTClass clazz =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClassByClusterId(clusterId);
-      doc = new ODocument(clazz);
+      doc = new YTDocument(clazz);
     } else {
       throw new OCommandExecutionException(
           "Cannot execute UPSERT on target '" + commandTarget + "'");

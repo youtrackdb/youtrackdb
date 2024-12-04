@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInternal> {
+public class ODatabaseRecordThreadLocal extends ThreadLocal<YTDatabaseSessionInternal> {
 
   private static final AtomicReference<ODatabaseRecordThreadLocal> INSTANCE =
       new AtomicReference<>();
@@ -70,8 +70,8 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInte
   }
 
   @Override
-  public ODatabaseSessionInternal get() {
-    ODatabaseSessionInternal db = super.get();
+  public YTDatabaseSessionInternal get() {
+    YTDatabaseSessionInternal db = super.get();
     if (db == null) {
       if (YouTrackDBManager.instance().getDatabaseThreadFactory() == null) {
         throw new ODatabaseException(
@@ -97,11 +97,11 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInte
   }
 
   @Override
-  public void set(final ODatabaseSessionInternal value) {
+  public void set(final YTDatabaseSessionInternal value) {
     super.set(value);
   }
 
-  public ODatabaseSessionInternal getIfDefined() {
+  public YTDatabaseSessionInternal getIfDefined() {
     return super.get();
   }
 

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v3;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -28,7 +28,7 @@ public class LocalHashTableV3IterationTestIT {
 
   private static final int KEYS_COUNT = 500000;
 
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   private OLocalHashTableV3<Integer, String> localHashTable;
   private OAtomicOperationsManager atomicOperationsManager;
@@ -40,7 +40,7 @@ public class LocalHashTableV3IterationTestIT {
       buildDirectory = ".";
     }
 
-    db = new ODatabaseDocumentTx("plocal:" + buildDirectory + "/localHashTableV3IterationTest");
+    db = new YTDatabaseDocumentTx("plocal:" + buildDirectory + "/localHashTableV3IterationTest");
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -67,7 +67,7 @@ public class LocalHashTableV3IterationTestIT {
             localHashTable.create(
                 atomicOperation,
                 OIntegerSerializer.INSTANCE,
-                OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING),
+                OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING),
                 null,
                 null,
                 hashFunction,

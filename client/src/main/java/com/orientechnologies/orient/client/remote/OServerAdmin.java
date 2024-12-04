@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -136,7 +136,7 @@ public class OServerAdmin {
    * @throws IOException
    */
   @Deprecated
-  public synchronized ODocument getServerInfo() throws IOException {
+  public synchronized YTDocument getServerInfo() throws IOException {
     checkConnected();
     return remote.getServerInfo(user, password);
   }
@@ -202,7 +202,7 @@ public class OServerAdmin {
       storageMode = ODatabaseType.valueOf(iStorageMode.toUpperCase());
     }
     YouTrackDBConfig config =
-        YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
+        YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
     if (backupPath != null) {
       remote.restore(iDatabaseName, user, password, storageMode, backupPath, null);
@@ -320,7 +320,7 @@ public class OServerAdmin {
    *
    * @return the JSON containing the current cluster structure
    */
-  public ODocument clusterStatus() {
+  public YTDocument clusterStatus() {
     checkConnected();
     return remote.getClusterStatus(user, password);
   }
@@ -330,14 +330,14 @@ public class OServerAdmin {
     return remote.getGlobalConfigurations(user, password);
   }
 
-  public synchronized String getGlobalConfiguration(final OGlobalConfiguration config)
+  public synchronized String getGlobalConfiguration(final YTGlobalConfiguration config)
       throws IOException {
     checkConnected();
     return remote.getGlobalConfiguration(user, password, config);
   }
 
   public synchronized OServerAdmin setGlobalConfiguration(
-      final OGlobalConfiguration config, final Object iValue) throws IOException {
+      final YTGlobalConfiguration config, final Object iValue) throws IOException {
     checkConnected();
     remote.setGlobalConfiguration(user, password, config, iValue.toString());
     return this;

@@ -2,12 +2,12 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Arrays;
 import java.util.List;
@@ -24,14 +24,14 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass cls = schema.createClass("Person");
-    cls.createProperty(db, "name", OType.STRING);
-    cls.createProperty(db, "surname", OType.STRING);
-    cls.createProperty(db, "date", OType.DATETIME);
-    cls.createProperty(db, "age", OType.INTEGER);
-    cls.createProperty(db, "weight", OType.FLOAT);
+    YTClass cls = schema.createClass("Person");
+    cls.createProperty(db, "name", YTType.STRING);
+    cls.createProperty(db, "surname", YTType.STRING);
+    cls.createProperty(db, "date", YTType.DATETIME);
+    cls.createProperty(db, "age", YTType.INTEGER);
+    cls.createProperty(db, "weight", YTType.FLOAT);
 
     List<String> names =
         Arrays.asList(
@@ -48,7 +48,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new ODocument("Person")
+          new YTDocument("Person")
               .field("name", names.get(i))
               .field("surname", "Reese")
               // from today back one day a time
@@ -239,20 +239,20 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.composite");
 
     // name and age range
-    try (Stream<ORID> stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
+    try (Stream<YTRID> stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
       assertThat(stream.count()).isEqualTo(2);
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         index.getInternal().getRids(db, "date:[" + fiveDaysAgo + " TO " + today + "]")) {
       assertThat(stream.count()).isEqualTo(5);
     }
-    try (Stream<ORID> stream =
+    try (Stream<YTRID> stream =
         index
             .getInternal()
             .getRids(db, "+age:[4 TO 7]  +date:[" + fiveDaysAgo + " TO " + today + "]")) {
       assertThat(stream.count()).isEqualTo(2);
     }
-    try (Stream<ORID> stream = index.getInternal().getRids(db, "*:*")) {
+    try (Stream<YTRID> stream = index.getInternal().getRids(db, "*:*")) {
       assertThat(stream.count()).isEqualTo(11);
     }
   }

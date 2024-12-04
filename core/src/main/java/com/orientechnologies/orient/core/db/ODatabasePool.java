@@ -164,7 +164,7 @@ public class ODatabasePool implements AutoCloseable {
    * @return a session from the pool.
    * @throws OAcquireTimeoutException in case the timeout for waiting for a session is reached.
    */
-  public ODatabaseSession acquire() throws OAcquireTimeoutException {
+  public YTDatabaseSession acquire() throws OAcquireTimeoutException {
     return internal.acquire();
   }
 

@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Collections;
 import java.util.Set;
 import org.apache.lucene.document.Document;
@@ -31,9 +31,9 @@ import org.apache.lucene.search.Query;
  */
 public interface OLuceneTxChanges {
 
-  void put(Object key, OIdentifiable value, Document doc);
+  void put(Object key, YTIdentifiable value, Document doc);
 
-  void remove(ODatabaseSessionInternal session, Object key, OIdentifiable value);
+  void remove(YTDatabaseSessionInternal session, Object key, YTIdentifiable value);
 
   IndexSearcher searcher();
 
@@ -45,9 +45,9 @@ public interface OLuceneTxChanges {
     return Collections.emptySet();
   }
 
-  boolean isDeleted(Document document, Object key, OIdentifiable value);
+  boolean isDeleted(Document document, Object key, YTIdentifiable value);
 
-  boolean isUpdated(Document document, Object key, OIdentifiable value);
+  boolean isUpdated(Document document, Object key, YTIdentifiable value);
 
   default long deletedDocs(Query query) {
     return 0;

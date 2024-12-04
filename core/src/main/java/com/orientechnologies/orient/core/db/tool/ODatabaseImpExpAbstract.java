@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.List;
 
 /**
@@ -35,7 +35,7 @@ public abstract class ODatabaseImpExpAbstract extends ODatabaseTool {
   protected OCommandOutputListener listener;
 
   public ODatabaseImpExpAbstract(
-      final ODatabaseSessionInternal iDatabase,
+      final YTDatabaseSessionInternal iDatabase,
       final String iFileName,
       final OCommandOutputListener iListener) {
     database = iDatabase;
@@ -67,7 +67,7 @@ public abstract class ODatabaseImpExpAbstract extends ODatabaseTool {
     this.listener = listener;
   }
 
-  public ODatabaseSessionInternal getDatabase() {
+  public YTDatabaseSessionInternal getDatabase() {
     return database;
   }
 

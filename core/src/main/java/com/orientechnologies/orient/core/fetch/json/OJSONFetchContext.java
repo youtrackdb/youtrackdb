@@ -18,15 +18,15 @@ package com.orientechnologies.orient.core.fetch.json;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.OFieldTypesString;
@@ -45,18 +45,18 @@ public class OJSONFetchContext implements OFetchContext {
   protected final OJSONWriter jsonWriter;
   protected final FormatSettings settings;
   protected final Stack<StringBuilder> typesStack = new Stack<>();
-  protected final Stack<ODocument> collectionStack = new Stack<>();
+  protected final Stack<YTDocument> collectionStack = new Stack<>();
 
   public OJSONFetchContext(final OJSONWriter jsonWriter, final FormatSettings settings) {
     this.jsonWriter = jsonWriter;
     this.settings = settings;
   }
 
-  public void onBeforeFetch(final ODocument rootRecord) {
+  public void onBeforeFetch(final YTDocument rootRecord) {
     typesStack.add(new StringBuilder());
   }
 
-  public void onAfterFetch(final ODocument rootRecord) {
+  public void onAfterFetch(final YTDocument rootRecord) {
     final StringBuilder sb = typesStack.pop();
     if (settings.keepTypes && sb.length() > 0) {
       try {
@@ -75,29 +75,29 @@ public class OJSONFetchContext implements OFetchContext {
       final Object iFieldValue,
       final String iFieldName,
       final Object iUserObject,
-      OType fieldType) {
+      YTType fieldType) {
     manageTypes(iFieldName, iFieldValue, fieldType);
   }
 
   public void onAfterStandardField(
-      Object iFieldValue, String iFieldName, Object iUserObject, OType fieldType) {
+      Object iFieldValue, String iFieldName, Object iUserObject, YTType fieldType) {
   }
 
   public void onBeforeArray(
-      final ODocument iRootRecord,
+      final YTDocument iRootRecord,
       final String iFieldName,
       final Object iUserObject,
-      final OIdentifiable[] iArray) {
+      final YTIdentifiable[] iArray) {
     onBeforeCollection(iRootRecord, iFieldName, iUserObject, null);
   }
 
   public void onAfterArray(
-      final ODocument iRootRecord, final String iFieldName, final Object iUserObject) {
+      final YTDocument iRootRecord, final String iFieldName, final Object iUserObject) {
     onAfterCollection(iRootRecord, iFieldName, iUserObject);
   }
 
   public void onBeforeCollection(
-      final ODocument rootRecord,
+      final YTDocument rootRecord,
       final String fieldName,
       final Object userObject,
       final Iterable<?> iterable) {
@@ -117,7 +117,7 @@ public class OJSONFetchContext implements OFetchContext {
   }
 
   public void onAfterCollection(
-      final ODocument iRootRecord, final String iFieldName, final Object iUserObject) {
+      final YTDocument iRootRecord, final String iFieldName, final Object iUserObject) {
     try {
       jsonWriter.endCollection(settings.indentLevel--, true);
       collectionStack.pop();
@@ -133,12 +133,12 @@ public class OJSONFetchContext implements OFetchContext {
   }
 
   public void onBeforeMap(
-      final ODocument iRootRecord, final String iFieldName, final Object iUserObject) {
+      final YTDocument iRootRecord, final String iFieldName, final Object iUserObject) {
     try {
       jsonWriter.beginObject(++settings.indentLevel, true, iFieldName);
-      if (!(iUserObject instanceof ODocument)) {
+      if (!(iUserObject instanceof YTDocument)) {
         collectionStack.add(
-            new ODocument()); // <-- sorry for this... fixes #2845 but this mess should be
+            new YTDocument()); // <-- sorry for this... fixes #2845 but this mess should be
         // rewritten...
       }
     } catch (IOException e) {
@@ -150,10 +150,10 @@ public class OJSONFetchContext implements OFetchContext {
   }
 
   public void onAfterMap(
-      final ODocument iRootRecord, final String iFieldName, final Object iUserObject) {
+      final YTDocument iRootRecord, final String iFieldName, final Object iUserObject) {
     try {
       jsonWriter.endObject(--settings.indentLevel, true);
-      if (!(iUserObject instanceof ODocument)) {
+      if (!(iUserObject instanceof YTDocument)) {
         collectionStack.pop();
       }
     } catch (IOException e) {
@@ -165,8 +165,8 @@ public class OJSONFetchContext implements OFetchContext {
   }
 
   public void onBeforeDocument(
-      final ODocument iRootRecord,
-      final ODocument iDocument,
+      final YTDocument iRootRecord,
+      final YTDocument iDocument,
       final String iFieldName,
       final Object iUserObject) {
     try {
@@ -187,8 +187,8 @@ public class OJSONFetchContext implements OFetchContext {
   }
 
   public void onAfterDocument(
-      final ODocument iRootRecord,
-      final ODocument iDocument,
+      final YTDocument iRootRecord,
+      final YTDocument iDocument,
       final String iFieldName,
       final Object iUserObject) {
     try {
@@ -201,19 +201,19 @@ public class OJSONFetchContext implements OFetchContext {
     }
   }
 
-  public void writeLinkedValue(final OIdentifiable iRecord, final String iFieldName)
+  public void writeLinkedValue(final YTIdentifiable iRecord, final String iFieldName)
       throws IOException {
     jsonWriter.writeValue(settings.indentLevel, true, OJSONWriter.encode(iRecord.getIdentity()));
   }
 
-  public void writeLinkedAttribute(final OIdentifiable iRecord, final String iFieldName)
+  public void writeLinkedAttribute(final YTIdentifiable iRecord, final String iFieldName)
       throws IOException {
     final Object link =
         iRecord.getIdentity().isValid() ? OJSONWriter.encode(iRecord.getIdentity()) : null;
     jsonWriter.writeAttribute(settings.indentLevel, true, iFieldName, link);
   }
 
-  public boolean isInCollection(ODocument record) {
+  public boolean isInCollection(YTDocument record) {
     return !collectionStack.isEmpty() && collectionStack.peek().equals(record);
   }
 
@@ -225,7 +225,7 @@ public class OJSONFetchContext implements OFetchContext {
     return settings.indentLevel;
   }
 
-  public void writeSignature(final OJSONWriter json, final ORecord record) throws IOException {
+  public void writeSignature(final OJSONWriter json, final YTRecord record) throws IOException {
     if (record == null) {
       json.write("null");
       return;
@@ -263,13 +263,13 @@ public class OJSONFetchContext implements OFetchContext {
       }
     }
     if (settings.includeClazz
-        && record instanceof ODocument
-        && ((ODocument) record).getClassName() != null) {
+        && record instanceof YTDocument
+        && ((YTDocument) record).getClassName() != null) {
       json.writeAttribute(
           firstAttribute ? settings.indentLevel : 1,
           firstAttribute,
           ODocumentHelper.ATTRIBUTE_CLASS,
-          ((ODocument) record).getClassName());
+          ((YTDocument) record).getClassName());
       if (settings.attribSameRow) {
         firstAttribute = false;
       }
@@ -281,7 +281,7 @@ public class OJSONFetchContext implements OFetchContext {
   }
 
   protected void manageTypes(
-      final String fieldName, final Object fieldValue, final OType fieldType) {
+      final String fieldName, final Object fieldValue, final YTType fieldType) {
     // TODO: avoid `EmptyStackException`, but check root cause
     if (typesStack.empty()) {
       typesStack.push(new StringBuilder());
@@ -296,7 +296,7 @@ public class OJSONFetchContext implements OFetchContext {
     if (settings.keepTypes) {
       if (fieldValue instanceof Long) {
         appendType(typesStack.peek(), fieldName, 'l');
-      } else if (fieldValue instanceof OIdentifiable) {
+      } else if (fieldValue instanceof YTIdentifiable) {
         appendType(typesStack.peek(), fieldName, 'x');
       } else if (fieldValue instanceof Float) {
         appendType(typesStack.peek(), fieldName, 'f');
@@ -317,15 +317,15 @@ public class OJSONFetchContext implements OFetchContext {
       } else if (fieldValue instanceof ORidBag) {
         appendType(typesStack.peek(), fieldName, 'g');
       } else {
-        OType t = fieldType;
+        YTType t = fieldType;
         if (t == null) {
-          t = OType.getTypeByValue(fieldValue);
+          t = YTType.getTypeByValue(fieldValue);
         }
-        if (t == OType.LINKLIST) {
+        if (t == YTType.LINKLIST) {
           appendType(typesStack.peek(), fieldName, 'z');
-        } else if (t == OType.LINKMAP) {
+        } else if (t == YTType.LINKMAP) {
           appendType(typesStack.peek(), fieldName, 'm');
-        } else if (t == OType.CUSTOM) {
+        } else if (t == YTType.CUSTOM) {
           appendType(typesStack.peek(), fieldName, 'u');
         }
       }

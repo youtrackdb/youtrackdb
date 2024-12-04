@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -30,16 +30,16 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLResultsetDelegate extends OCommandExecutorSQLDelegate
-    implements OIterableRecordSource, Iterable<OIdentifiable> {
+    implements OIterableRecordSource, Iterable<YTIdentifiable> {
 
   @Override
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return ((OIterableRecordSource) delegate).iterator(ODatabaseRecordThreadLocal.instance().get(),
         null);
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator(ODatabaseSessionInternal querySession,
+  public Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
       final Map<Object, Object> iArgs) {
     return ((OIterableRecordSource) delegate).iterator(querySession, iArgs);
   }

@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlan;
@@ -156,7 +156,8 @@ public class OUpdateStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSessionInternal db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
+      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -181,7 +182,7 @@ public class OUpdateStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
+      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);

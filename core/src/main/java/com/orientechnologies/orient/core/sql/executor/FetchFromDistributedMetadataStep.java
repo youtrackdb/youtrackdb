@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
@@ -27,7 +27,7 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
   }
 
   private OResult produce(OCommandContext ctx) {
-    ODatabaseSessionInternal session = ctx.getDatabase();
+    YTDatabaseSessionInternal session = ctx.getDatabase();
     OSharedContextEmbedded value = (OSharedContextEmbedded) session.getSharedContext();
 
     Map<String, Object> map = value.loadDistributedConfig(session);

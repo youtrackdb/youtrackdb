@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.OBlob;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Map;
 
@@ -33,9 +33,9 @@ import java.util.Map;
  */
 public class OScriptDatabaseWrapper {
 
-  protected ODatabaseSessionInternal database;
+  protected YTDatabaseSessionInternal database;
 
-  public OScriptDatabaseWrapper(final ODatabaseSessionInternal database) {
+  public OScriptDatabaseWrapper(final YTDatabaseSessionInternal database) {
     this.database = database;
   }
 
@@ -63,35 +63,35 @@ public class OScriptDatabaseWrapper {
     return this.database.execute(language, script, iParameters);
   }
 
-  public OElement newInstance() {
+  public YTEntity newInstance() {
     return this.database.newInstance();
   }
 
-  public OElement newInstance(String className) {
+  public YTEntity newInstance(String className) {
     return this.database.newInstance(className);
   }
 
-  public OVertex newVertex() {
+  public YTVertex newVertex() {
     return this.database.newVertex();
   }
 
-  public OVertex newVertex(String className) {
+  public YTVertex newVertex(String className) {
     return this.database.newVertex(className);
   }
 
-  public OEdge newEdge(OVertex from, OVertex to) {
+  public YTEdge newEdge(YTVertex from, YTVertex to) {
     return this.database.newEdge(from, to);
   }
 
-  public OEdge newEdge(OVertex from, OVertex to, String edgeClassName) {
+  public YTEdge newEdge(YTVertex from, YTVertex to, String edgeClassName) {
     return this.database.newEdge(from, to, edgeClassName);
   }
 
-  public ORecord save(ORecord element) {
+  public YTRecord save(YTRecord element) {
     return this.database.save(element);
   }
 
-  public void delete(ORecord record) {
+  public void delete(YTRecord record) {
     this.database.delete(record);
   }
 
@@ -107,7 +107,7 @@ public class OScriptDatabaseWrapper {
     database.begin();
   }
 
-  public OBlob newBlob() {
+  public YTBlob newBlob() {
     return this.database.newBlob();
   }
 }

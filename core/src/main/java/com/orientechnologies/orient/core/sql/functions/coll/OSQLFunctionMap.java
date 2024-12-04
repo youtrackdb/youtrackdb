@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +41,7 @@ public class OSQLFunctionMap extends OSQLFunctionMultiValueAbstract<Map<Object, 
   @SuppressWarnings("unchecked")
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -93,7 +93,7 @@ public class OSQLFunctionMap extends OSQLFunctionMultiValueAbstract<Map<Object, 
     return prepareResult(context);
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "map(<map>|[<key>,<value>]*)";
   }
 

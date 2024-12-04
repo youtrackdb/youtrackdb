@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.index.OIndexNotUnique;
 import com.orientechnologies.orient.core.index.OIndexUnique;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.index.engine.OHashTableIndexEngine;
@@ -50,9 +50,9 @@ public final class OHashIndexFactory implements OIndexFactory {
 
   static {
     final Set<String> types = new HashSet<>(4);
-    types.add(OClass.INDEX_TYPE.UNIQUE_HASH_INDEX.toString());
-    types.add(OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString());
-    types.add(OClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.toString());
+    types.add(YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX.toString());
+    types.add(YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString());
+    types.add(YTClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.toString());
     TYPES = Collections.unmodifiableSet(types);
   }
 
@@ -92,11 +92,11 @@ public final class OHashIndexFactory implements OIndexFactory {
       im.setVersion(version);
     }
 
-    if (OClass.INDEX_TYPE.UNIQUE_HASH_INDEX.toString().equals(indexType)) {
+    if (YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX.toString().equals(indexType)) {
       return new OIndexUnique(im, storage);
-    } else if (OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(indexType)) {
+    } else if (YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(indexType)) {
       return new OIndexNotUnique(im, storage);
-    } else if (OClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.toString().equals(indexType)) {
+    } else if (YTClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.toString().equals(indexType)) {
       return new OIndexDictionary(im, storage);
     }
 

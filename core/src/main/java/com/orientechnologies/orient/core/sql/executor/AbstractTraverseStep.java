@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OInteger;
 import com.orientechnologies.orient.core.sql.parser.OTraverseProjectionItem;
@@ -45,7 +45,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
     return new OExecutionStream() {
       private final List<OResult> entryPoints = new ArrayList<>();
       private final List<OResult> results = new ArrayList<>();
-      private final Set<ORID> traversed = new ORidSet();
+      private final Set<YTRID> traversed = new ORidSet();
 
       @Override
       public boolean hasNext(OCommandContext ctx) {
@@ -77,7 +77,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
       OCommandContext ctx,
       List<OResult> entryPoints,
       List<OResult> results,
-      Set<ORID> traversed,
+      Set<YTRID> traversed,
       OExecutionStream resultSet) {
     if (!results.isEmpty()) {
       return;
@@ -100,10 +100,10 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
       OExecutionStream toFetch,
       OCommandContext ctx,
       List<OResult> entryPoints,
-      Set<ORID> traversed);
+      Set<YTRID> traversed);
 
   protected abstract void fetchNextResults(
-      OCommandContext ctx, List<OResult> results, List<OResult> entryPoints, Set<ORID> traversed);
+      OCommandContext ctx, List<OResult> results, List<OResult> entryPoints, Set<YTRID> traversed);
 
   @Override
   public String toString() {

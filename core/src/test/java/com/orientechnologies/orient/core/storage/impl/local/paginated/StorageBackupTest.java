@@ -2,17 +2,17 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBEmbedded;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.File;
 import java.util.Random;
 import org.junit.Assert;
@@ -40,14 +40,14 @@ public class StorageBackupTest {
     youTrackDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    var db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass backupClass = schema.createClass("BackupClass");
-    backupClass.createProperty(db, "num", OType.INTEGER);
-    backupClass.createProperty(db, "data", OType.BINARY);
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass backupClass = schema.createClass("BackupClass");
+    backupClass.createProperty(db, "num", YTType.INTEGER);
+    backupClass.createProperty(db, "data", YTType.BINARY);
 
-    backupClass.createIndex(db, "backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
+    backupClass.createIndex(db, "backupIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "num");
 
     final Random random = new Random();
     for (int i = 0; i < 1000; i++) {
@@ -57,7 +57,7 @@ public class StorageBackupTest {
 
       final int num = random.nextInt();
 
-      final ODocument document = new ODocument("BackupClass");
+      final YTDocument document = new YTDocument("BackupClass");
       document.field("num", num);
       document.field("data", data);
 
@@ -95,8 +95,8 @@ public class StorageBackupTest {
     youTrackDB = new YouTrackDB("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
-            (ODatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
+            (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
+            (YTDatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
             System.out::println);
 
     Assert.assertTrue(compare.compare());
@@ -127,14 +127,14 @@ public class StorageBackupTest {
     youTrackDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    var db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass backupClass = schema.createClass("BackupClass");
-    backupClass.createProperty(db, "num", OType.INTEGER);
-    backupClass.createProperty(db, "data", OType.BINARY);
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass backupClass = schema.createClass("BackupClass");
+    backupClass.createProperty(db, "num", YTType.INTEGER);
+    backupClass.createProperty(db, "data", YTType.BINARY);
 
-    backupClass.createIndex(db, "backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
+    backupClass.createIndex(db, "backupIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "num");
 
     final Random random = new Random();
     for (int i = 0; i < 1000; i++) {
@@ -144,7 +144,7 @@ public class StorageBackupTest {
 
       final int num = random.nextInt();
 
-      final ODocument document = new ODocument("BackupClass");
+      final YTDocument document = new YTDocument("BackupClass");
       document.field("num", num);
       document.field("data", data);
 
@@ -169,7 +169,7 @@ public class StorageBackupTest {
 
         final int num = random.nextInt();
 
-        final ODocument document = new ODocument("BackupClass");
+        final YTDocument document = new YTDocument("BackupClass");
         document.field("num", num);
         document.field("data", data);
 
@@ -205,8 +205,8 @@ public class StorageBackupTest {
     youTrackDB = new YouTrackDB("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
-            (ODatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
+            (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
+            (YTDatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
             System.out::println);
 
     Assert.assertTrue(compare.compare());
@@ -232,7 +232,7 @@ public class StorageBackupTest {
 
     final YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
+            .addConfig(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
     YouTrackDB youTrackDB = new YouTrackDB("embedded:" + testDirectory, config);
 
@@ -240,14 +240,14 @@ public class StorageBackupTest {
     youTrackDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    var db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass backupClass = schema.createClass("BackupClass");
-    backupClass.createProperty(db, "num", OType.INTEGER);
-    backupClass.createProperty(db, "data", OType.BINARY);
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass backupClass = schema.createClass("BackupClass");
+    backupClass.createProperty(db, "num", YTType.INTEGER);
+    backupClass.createProperty(db, "data", YTType.BINARY);
 
-    backupClass.createIndex(db, "backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
+    backupClass.createIndex(db, "backupIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "num");
 
     final Random random = new Random();
     for (int i = 0; i < 1000; i++) {
@@ -257,7 +257,7 @@ public class StorageBackupTest {
 
       final int num = random.nextInt();
 
-      final ODocument document = new ODocument("BackupClass");
+      final YTDocument document = new YTDocument("BackupClass");
       document.field("num", num);
       document.field("data", data);
 
@@ -282,7 +282,7 @@ public class StorageBackupTest {
 
         final int num = random.nextInt();
 
-        final ODocument document = new ODocument("BackupClass");
+        final YTDocument document = new YTDocument("BackupClass");
         document.field("num", num);
         document.field("data", data);
 
@@ -308,13 +308,13 @@ public class StorageBackupTest {
     embedded.restore(backupDbName, null, null, null, backupDir.getAbsolutePath(), config);
     embedded.close();
 
-    OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
+    YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
     youTrackDB = new YouTrackDB("embedded:" + testDirectory, YouTrackDBConfig.defaultConfig());
 
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
-            (ODatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
+            (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
+            (YTDatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
             System.out::println);
 
     Assert.assertTrue(compare.compare());
@@ -323,7 +323,7 @@ public class StorageBackupTest {
       youTrackDB.close();
     }
 
-    OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(null);
+    YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(null);
 
     youTrackDB = new YouTrackDB("embedded:" + testDirectory, config);
     youTrackDB.drop(dbName);
@@ -333,6 +333,6 @@ public class StorageBackupTest {
 
     OFileUtils.deleteRecursively(backupDir);
 
-    OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(null);
+    YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(null);
   }
 }

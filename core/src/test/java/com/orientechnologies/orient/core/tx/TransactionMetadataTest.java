@@ -5,11 +5,11 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.Optional;
 import org.junit.After;
@@ -19,7 +19,7 @@ import org.junit.Test;
 public class TransactionMetadataTest {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
@@ -29,7 +29,7 @@ public class TransactionMetadataTest {
             DB_NAME, DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL);
     db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
@@ -39,7 +39,7 @@ public class TransactionMetadataTest {
     byte[] metadata = new byte[]{1, 2, 4};
     ((OTransactionInternal) db.getTransaction())
         .setMetadataHolder(new TestMetadataHolder(metadata));
-    OVertex v = db.newVertex("V");
+    YTVertex v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
     db.commit();
@@ -50,10 +50,10 @@ public class TransactionMetadataTest {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     Optional<byte[]> fromStorage = ((OAbstractPaginatedStorage) db.getStorage()).getLastMetadata();

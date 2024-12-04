@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -38,7 +38,7 @@ public class OQueryOperatorNotEquals extends OQueryOperatorEqualityNotNulls {
 
   public OQueryOperatorNotEquals() {
     super("<>", 5, false);
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
       binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
     }
@@ -46,7 +46,7 @@ public class OQueryOperatorNotEquals extends OQueryOperatorEqualityNotNulls {
 
   @Override
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -74,12 +74,12 @@ public class OQueryOperatorNotEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

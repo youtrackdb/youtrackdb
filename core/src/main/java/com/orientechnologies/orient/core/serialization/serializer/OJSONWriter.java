@@ -23,11 +23,11 @@ import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class OJSONWriter {
   }
 
   public static String writeValue(
-      Object iValue, final String iFormat, final int iIndentLevel, OType valueType)
+      Object iValue, final String iFormat, final int iIndentLevel, YTType valueType)
       throws IOException {
     if (iValue == null) {
       return "null";
@@ -91,7 +91,7 @@ public class OJSONWriter {
         buffer.append(iValue);
       }
 
-    } else if (iValue instanceof OIdentifiable linked) {
+    } else if (iValue instanceof YTIdentifiable linked) {
       if (linked.getIdentity().isValid()) {
         buffer.append('\"');
         linked.getIdentity().toString(buffer);
@@ -101,7 +101,7 @@ public class OJSONWriter {
           buffer.append("{}");
         } else {
           try {
-            final ORecord rec = linked.getRecord();
+            final YTRecord rec = linked.getRecord();
             final String embeddedFormat =
                 iFormat != null && iFormat.isEmpty()
                     ? "indent:" + iIndentLevel
@@ -169,10 +169,10 @@ public class OJSONWriter {
       iteratorToJSON(((Iterable<?>) iValue).iterator(), iFormat, buffer);
     } else {
       if (valueType == null) {
-        valueType = OType.getTypeByValue(iValue);
+        valueType = YTType.getTypeByValue(iValue);
       }
 
-      if (valueType == OType.CUSTOM) {
+      if (valueType == YTType.CUSTOM) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream object = new ObjectOutputStream(baos);
         object.writeObject(iValue);
@@ -226,7 +226,7 @@ public class OJSONWriter {
   }
 
   public static String listToJSON(
-      final Collection<? extends OIdentifiable> iRecords, final String iFormat) {
+      final Collection<? extends YTIdentifiable> iRecords, final String iFormat) {
     try {
       final StringWriter buffer = new StringWriter();
       final OJSONWriter json = new OJSONWriter(buffer);
@@ -238,7 +238,7 @@ public class OJSONWriter {
         } else {
           int counter = 0;
           String objectJson;
-          for (OIdentifiable rec : iRecords) {
+          for (YTIdentifiable rec : iRecords) {
             if (rec != null) {
               try {
                 objectJson =
@@ -331,7 +331,7 @@ public class OJSONWriter {
   }
 
   public OJSONWriter writeRecord(
-      final int iIdentLevel, final boolean iNewLine, final Object iName, final ORecord iRecord)
+      final int iIdentLevel, final boolean iNewLine, final Object iName, final YTRecord iRecord)
       throws IOException {
     if (!firstAttribute) {
       out.append(",");
@@ -449,7 +449,7 @@ public class OJSONWriter {
       final String iName,
       final Object iValue,
       final String iFormat,
-      OType valueType)
+      YTType valueType)
       throws IOException {
     if (!firstAttribute) {
       out.append(",");
@@ -469,10 +469,10 @@ public class OJSONWriter {
         && iFormat.contains("graph")
         && iName != null
         && (iName.startsWith("in_") || iName.startsWith("out_"))
-        && (iValue == null || iValue instanceof OIdentifiable)) {
+        && (iValue == null || iValue instanceof YTIdentifiable)) {
       // FORCE THE OUTPUT AS COLLECTION
       out.append('[');
-      if (iValue instanceof OIdentifiable) {
+      if (iValue instanceof YTIdentifiable) {
         final boolean shallow = iFormat != null && iFormat.contains("shallow");
         if (shallow) {
           out.append("1");

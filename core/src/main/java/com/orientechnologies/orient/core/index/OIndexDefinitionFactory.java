@@ -21,10 +21,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.OCollate;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -51,9 +51,9 @@ public class OIndexDefinitionFactory {
    * @return index definition instance
    */
   public static OIndexDefinition createIndexDefinition(
-      final OClass oClass,
+      final YTClass oClass,
       final List<String> fieldNames,
-      final List<OType> types,
+      final List<YTType> types,
       List<OCollate> collates,
       String indexKind,
       String algorithm) {
@@ -61,15 +61,15 @@ public class OIndexDefinitionFactory {
 
     if (fieldNames.size() == 1) {
       OCollate collate = null;
-      OType linkedType = null;
-      OType type = types.get(0);
+      YTType linkedType = null;
+      YTType type = types.get(0);
       String field = fieldNames.get(0);
       final String fieldName =
-          OClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
+          YTClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
       if (collates != null) {
         collate = collates.get(0);
       }
-      OProperty property = oClass.getProperty(fieldName);
+      YTProperty property = oClass.getProperty(fieldName);
       if (property != null) {
         if (collate == null) {
           collate = property.getCollate();
@@ -118,9 +118,9 @@ public class OIndexDefinitionFactory {
   }
 
   private static OIndexDefinition createMultipleFieldIndexDefinition(
-      final OClass oClass,
+      final YTClass oClass,
       final List<String> fieldsToIndex,
-      final List<OType> types,
+      final List<YTType> types,
       List<OCollate> collates,
       String indexKind,
       String algorithm) {
@@ -130,15 +130,15 @@ public class OIndexDefinitionFactory {
 
     for (int i = 0, fieldsToIndexSize = fieldsToIndex.size(); i < fieldsToIndexSize; i++) {
       OCollate collate = null;
-      OType linkedType = null;
-      OType type = types.get(i);
+      YTType linkedType = null;
+      YTType type = types.get(i);
       if (collates != null) {
         collate = collates.get(i);
       }
       String field = fieldsToIndex.get(i);
       final String fieldName =
-          OClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
-      OProperty property = oClass.getProperty(fieldName);
+          YTClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
+      YTProperty property = oClass.getProperty(fieldName);
       if (property != null) {
         if (collate == null) {
           collate = property.getCollate();
@@ -154,7 +154,7 @@ public class OIndexDefinitionFactory {
     return compositeIndex;
   }
 
-  private static void checkTypes(OClass oClass, List<String> fieldNames, List<OType> types) {
+  private static void checkTypes(YTClass oClass, List<String> fieldNames, List<YTType> types) {
     if (fieldNames.size() != types.size()) {
       throw new IllegalArgumentException(
           "Count of field names doesn't match count of field types. It was "
@@ -166,9 +166,9 @@ public class OIndexDefinitionFactory {
 
     for (int i = 0, fieldNamesSize = fieldNames.size(); i < fieldNamesSize; i++) {
       final String fieldName = fieldNames.get(i);
-      final OType type = types.get(i);
+      final YTType type = types.get(i);
 
-      final OProperty property = oClass.getProperty(fieldName);
+      final YTProperty property = oClass.getProperty(fieldName);
       if (property != null && !type.equals(property.getType())) {
         throw new IllegalArgumentException("Property type list not match with real property types");
       }
@@ -178,13 +178,13 @@ public class OIndexDefinitionFactory {
   public static OIndexDefinition createSingleFieldIndexDefinition(
       final String className,
       final String fieldName,
-      final OType type,
-      final OType linkedType,
+      final YTType type,
+      final YTType linkedType,
       OCollate collate,
       final String indexKind,
       final OPropertyMapIndexDefinition.INDEX_BY indexBy) {
     // TODO: let index implementations name their preferences_
-    if (type.equals(OType.EMBEDDED)) {
+    if (type.equals(YTType.EMBEDDED)) {
       if (indexKind.equals("FULLTEXT")) {
         throw new UnsupportedOperationException(
             "Fulltext index does not support embedded types: " + type);
@@ -193,8 +193,8 @@ public class OIndexDefinitionFactory {
 
     final OIndexDefinition indexDefinition;
 
-    final OType indexType;
-    if (type == OType.EMBEDDEDMAP || type == OType.LINKMAP) {
+    final YTType indexType;
+    if (type == YTType.EMBEDDEDMAP || type == YTType.LINKMAP) {
 
       if (indexBy == null) {
         throw new IllegalArgumentException(
@@ -203,10 +203,10 @@ public class OIndexDefinitionFactory {
                 + '\'');
       }
       if (indexBy.equals(OPropertyMapIndexDefinition.INDEX_BY.KEY)) {
-        indexType = OType.STRING;
+        indexType = YTType.STRING;
       } else {
-        if (type == OType.LINKMAP) {
-          indexType = OType.LINK;
+        if (type == YTType.LINKMAP) {
+          indexType = YTType.LINK;
         } else {
           indexType = linkedType;
           if (indexType == null) {
@@ -217,14 +217,14 @@ public class OIndexDefinitionFactory {
         }
       }
       indexDefinition = new OPropertyMapIndexDefinition(className, fieldName, indexType, indexBy);
-    } else if (type.equals(OType.EMBEDDEDLIST)
-        || type.equals(OType.EMBEDDEDSET)
-        || type.equals(OType.LINKLIST)
-        || type.equals(OType.LINKSET)) {
-      if (type.equals(OType.LINKSET)) {
-        indexType = OType.LINK;
-      } else if (type.equals(OType.LINKLIST)) {
-        indexType = OType.LINK;
+    } else if (type.equals(YTType.EMBEDDEDLIST)
+        || type.equals(YTType.EMBEDDEDSET)
+        || type.equals(YTType.LINKLIST)
+        || type.equals(YTType.LINKSET)) {
+      if (type.equals(YTType.LINKSET)) {
+        indexType = YTType.LINK;
+      } else if (type.equals(YTType.LINKLIST)) {
+        indexType = YTType.LINK;
       } else {
         indexType = linkedType;
         if (indexType == null) {
@@ -234,7 +234,7 @@ public class OIndexDefinitionFactory {
         }
       }
       indexDefinition = new OPropertyListIndexDefinition(className, fieldName, indexType);
-    } else if (type.equals(OType.LINKBAG)) {
+    } else if (type.equals(YTType.LINKBAG)) {
       indexDefinition = new OPropertyRidBagIndexDefinition(className, fieldName);
     } else {
       indexDefinition = new OPropertyIndexDefinition(className, fieldName, type);
@@ -271,8 +271,8 @@ public class OIndexDefinitionFactory {
             + '\'');
   }
 
-  private static String adjustFieldName(final OClass clazz, final String fieldName) {
-    final OProperty property = clazz.getProperty(fieldName);
+  private static String adjustFieldName(final YTClass clazz, final String fieldName) {
+    final YTProperty property = clazz.getProperty(fieldName);
     if (property != null) {
       return property.getName();
     } else {

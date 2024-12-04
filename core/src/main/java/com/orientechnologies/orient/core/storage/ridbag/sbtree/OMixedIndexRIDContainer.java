@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -17,15 +17,15 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
+public class OMixedIndexRIDContainer implements Set<YTIdentifiable> {
 
   private static final String INDEX_FILE_EXTENSION = ".irs";
 
   private final long fileId;
-  private final Set<ORID> embeddedSet;
+  private final Set<YTRID> embeddedSet;
   private OIndexRIDContainerSBTree tree = null;
   private final int topThreshold =
-      OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+      YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
 
   /**
    * Should be called inside of lock to ensure uniqueness of entity on disk !!!
@@ -42,7 +42,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   public OMixedIndexRIDContainer(
-      long fileId, Set<ORID> embeddedSet, OIndexRIDContainerSBTree tree) {
+      long fileId, Set<YTRID> embeddedSet, OIndexRIDContainerSBTree tree) {
     this.fileId = fileId;
     this.embeddedSet = embeddedSet;
     this.tree = tree;
@@ -101,10 +101,10 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     if (tree == null) {
-      return new Iterator<OIdentifiable>() {
-        private final Iterator<ORID> embeddedIterator = embeddedSet.iterator();
+      return new Iterator<YTIdentifiable>() {
+        private final Iterator<YTRID> embeddedIterator = embeddedSet.iterator();
 
         @Override
         public boolean hasNext() {
@@ -112,15 +112,15 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
         }
 
         @Override
-        public OIdentifiable next() {
+        public YTIdentifiable next() {
           return embeddedIterator.next();
         }
       };
     }
 
-    return new Iterator<OIdentifiable>() {
-      private final Iterator<ORID> embeddedIterator = embeddedSet.iterator();
-      private final Iterator<OIdentifiable> treeIterator = tree.iterator();
+    return new Iterator<YTIdentifiable>() {
+      private final Iterator<YTRID> embeddedIterator = embeddedSet.iterator();
+      private final Iterator<YTIdentifiable> treeIterator = tree.iterator();
 
       @Override
       public boolean hasNext() {
@@ -132,7 +132,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
       }
 
       @Override
-      public OIdentifiable next() {
+      public YTIdentifiable next() {
         if (embeddedIterator.hasNext()) {
           return embeddedIterator.next();
         }
@@ -180,7 +180,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   @Override
-  public boolean add(OIdentifiable oIdentifiable) {
+  public boolean add(YTIdentifiable oIdentifiable) {
     if (embeddedSet.contains(oIdentifiable.getIdentity())) {
       return false;
     }
@@ -190,14 +190,14 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
     }
 
     if (tree == null) {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
     }
 
     return tree.add(oIdentifiable);
   }
 
-  public boolean addEntry(OIdentifiable identifiable) {
+  public boolean addEntry(YTIdentifiable identifiable) {
     if (embeddedSet.contains(identifiable.getIdentity())) {
       return false;
     }
@@ -208,7 +208,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
 
     boolean treeWasCreated = false;
     if (tree == null) {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
       treeWasCreated = true;
     }
@@ -250,14 +250,14 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   @Override
-  public boolean addAll(Collection<? extends OIdentifiable> c) {
+  public boolean addAll(Collection<? extends YTIdentifiable> c) {
     final int sizeDiff = topThreshold - embeddedSet.size();
     boolean changed = false;
 
-    final Iterator<? extends OIdentifiable> iterator = c.iterator();
+    final Iterator<? extends YTIdentifiable> iterator = c.iterator();
     for (int i = 0; i < sizeDiff; i++) {
       if (iterator.hasNext()) {
-        final OIdentifiable identifiable = iterator.next();
+        final YTIdentifiable identifiable = iterator.next();
         changed = changed | embeddedSet.add(identifiable.getIdentity());
       } else {
         return changed;
@@ -266,12 +266,12 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
 
     if (c.size() > sizeDiff) {
       if (tree == null) {
-        final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+        final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
         tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
       }
 
       while (iterator.hasNext()) {
-        final OIdentifiable identifiable = iterator.next();
+        final YTIdentifiable identifiable = iterator.next();
         changed = changed | tree.add(identifiable);
       }
     }
@@ -314,13 +314,13 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
       tree.delete();
       tree = null;
     } else if (fileId > 0) {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
       tree.delete();
     }
   }
 
-  public Set<ORID> getEmbeddedSet() {
+  public Set<YTRID> getEmbeddedSet() {
     return embeddedSet;
   }
 

@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
@@ -31,18 +31,18 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
   @Before
   public void before() {
     serializer = new ORecordSerializerSchemaAware2CSV();
-    defaultSerializer = ODatabaseSessionAbstract.getDefaultSerializer();
-    ODatabaseSessionAbstract.setDefaultSerializer(serializer);
+    defaultSerializer = YTDatabaseSessionAbstract.getDefaultSerializer();
+    YTDatabaseSessionAbstract.setDefaultSerializer(serializer);
   }
 
   @After
   public void after() {
-    ODatabaseSessionAbstract.setDefaultSerializer(defaultSerializer);
+    YTDatabaseSessionAbstract.setDefaultSerializer(defaultSerializer);
   }
 
   @Test
   public void testSimpleSerialization() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     document.field("name", "name");
     document.field("age", 20);
@@ -54,10 +54,10 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
     document.field("character", 'C');
     document.field("alive", true);
     document.field("date", new Date());
-    document.field("recordId", new ORecordId(10, 10));
+    document.field("recordId", new YTRecordId(10, 10));
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
+    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<String>field("name"), document.field("name"));
@@ -79,7 +79,7 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
   @Test
   public void testSimpleLiteralList() {
 
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
     List<String> strings = new ArrayList<String>();
     strings.add("a");
     strings.add("b");
@@ -154,7 +154,7 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
     document.field("listMixed", listMixed);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
+    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<String>field("listStrings"), document.field("listStrings"));
@@ -168,7 +168,7 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
 
   @Test
   public void testSimpleMapStringLiteral() {
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -211,7 +211,7 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
     document.field("bytesMap", bytesMap);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
+    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<String>field("mapString"), document.field("mapString"));
     assertEquals(extr.<String>field("mapLong"), document.field("mapLong"));
@@ -223,16 +223,16 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
 
   @Test
   public void testSimpleEmbeddedDoc() {
-    ODocument document = new ODocument();
-    ODocument embedded = new ODocument();
+    YTDocument document = new YTDocument();
+    YTDocument embedded = new YTDocument();
     embedded.field("name", "test");
     embedded.field("surname", "something");
-    document.field("embed", embedded, OType.EMBEDDED);
+    document.field("embed", embedded, YTType.EMBEDDED);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
+    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
     assertEquals(document.fields(), extr.fields());
-    ODocument emb = extr.field("embed");
+    YTDocument emb = extr.field("embed");
     assertNotNull(emb);
     assertEquals(emb.<String>field("name"), embedded.field("name"));
     assertEquals(emb.<String>field("surname"), embedded.field("surname"));
@@ -241,20 +241,20 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
   @Test
   public void testMapOfEmbeddedDocument() {
 
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
-    ODocument embeddedInMap = new ODocument();
+    YTDocument embeddedInMap = new YTDocument();
     embeddedInMap.field("name", "test");
     embeddedInMap.field("surname", "something");
-    Map<String, ODocument> map = new HashMap<String, ODocument>();
+    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
     map.put("embedded", embeddedInMap);
-    document.field("map", map, OType.EMBEDDEDMAP);
+    document.field("map", map, YTType.EMBEDDEDMAP);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
-    Map<String, ODocument> mapS = extr.field("map");
+    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    Map<String, YTDocument> mapS = extr.field("map");
     assertEquals(1, mapS.size());
-    ODocument emb = mapS.get("embedded");
+    YTDocument emb = mapS.get("embedded");
     assertNotNull(emb);
     assertEquals(emb.<String>field("name"), embeddedInMap.field("name"));
     assertEquals(emb.<String>field("surname"), embeddedInMap.field("surname"));
@@ -263,37 +263,37 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
   @Test
   public void testCollectionOfEmbeddedDocument() {
 
-    ODocument document = new ODocument();
+    YTDocument document = new YTDocument();
 
-    ODocument embeddedInList = new ODocument();
+    YTDocument embeddedInList = new YTDocument();
     embeddedInList.field("name", "test");
     embeddedInList.field("surname", "something");
 
-    List<ODocument> embeddedList = new ArrayList<ODocument>();
+    List<YTDocument> embeddedList = new ArrayList<YTDocument>();
     embeddedList.add(embeddedInList);
-    document.field("embeddedList", embeddedList, OType.EMBEDDEDLIST);
+    document.field("embeddedList", embeddedList, YTType.EMBEDDEDLIST);
 
-    ODocument embeddedInSet = new ODocument();
+    YTDocument embeddedInSet = new YTDocument();
     embeddedInSet.field("name", "test1");
     embeddedInSet.field("surname", "something2");
 
-    Set<ODocument> embeddedSet = new HashSet<ODocument>();
+    Set<YTDocument> embeddedSet = new HashSet<YTDocument>();
     embeddedSet.add(embeddedInSet);
-    document.field("embeddedSet", embeddedSet, OType.EMBEDDEDSET);
+    document.field("embeddedSet", embeddedSet, YTType.EMBEDDEDSET);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
+    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
 
-    List<ODocument> ser = extr.field("embeddedList");
+    List<YTDocument> ser = extr.field("embeddedList");
     assertEquals(1, ser.size());
-    ODocument inList = ser.get(0);
+    YTDocument inList = ser.get(0);
     assertNotNull(inList);
     assertEquals(inList.<String>field("name"), embeddedInList.field("name"));
     assertEquals(inList.<String>field("surname"), embeddedInList.field("surname"));
 
-    Set<ODocument> setEmb = extr.field("embeddedSet");
+    Set<YTDocument> setEmb = extr.field("embeddedSet");
     assertEquals(1, setEmb.size());
-    ODocument inSet = setEmb.iterator().next();
+    YTDocument inSet = setEmb.iterator().next();
     assertNotNull(inSet);
     assertEquals(inSet.<String>field("name"), embeddedInSet.field("name"));
     assertEquals(inSet.<String>field("surname"), embeddedInSet.field("surname"));

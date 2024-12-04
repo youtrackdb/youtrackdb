@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -24,8 +24,8 @@ public class SQLCreateClassTest {
 
   @Test
   public void testSimpleCreate() {
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName());
+    YTDatabaseSessionInternal db =
+        new YTDatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName());
     db.create();
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testSimpleCreate"));
@@ -38,8 +38,8 @@ public class SQLCreateClassTest {
 
   @Test
   public void testIfNotExists() {
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName() + "_ifNotExists");
+    YTDatabaseSessionInternal db =
+        new YTDatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName() + "_ifNotExists");
     db.create();
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfNotExists"));

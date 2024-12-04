@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBooleanSerializer;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
@@ -41,10 +41,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Persistent Set<OIdentifiable> implementation that uses the SBTree to handle entries in persistent
+ * Persistent Set<YTIdentifiable> implementation that uses the SBTree to handle entries in persistent
  * way.
  */
-public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
+public class OIndexRIDContainerSBTree implements Set<YTIdentifiable> {
 
   public static final String INDEX_FILE_EXTENSION = ".irs";
 
@@ -58,7 +58,7 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
     return indexName + INDEX_FILE_EXTENSION;
   }
 
-  private final OSBTreeBonsaiLocal<OIdentifiable, Boolean> tree;
+  private final OSBTreeBonsaiLocal<YTIdentifiable, Boolean> tree;
   private final OAtomicOperationsManager atomicOperationsManager;
 
   OIndexRIDContainerSBTree(long fileId, OAbstractPaginatedStorage storage) {
@@ -122,21 +122,21 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
 
   @Override
   public boolean contains(Object o) {
-    return o instanceof OIdentifiable && contains((OIdentifiable) o);
+    return o instanceof YTIdentifiable && contains((YTIdentifiable) o);
   }
 
-  public boolean contains(OIdentifiable o) {
+  public boolean contains(YTIdentifiable o) {
     return tree.get(o) != null;
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return new TreeKeyIterator(tree, false);
   }
 
   @Override
   public Object[] toArray() {
-    final ArrayList<OIdentifiable> list = new ArrayList<>(size());
+    final ArrayList<YTIdentifiable> list = new ArrayList<>(size());
 
     list.addAll(this);
 
@@ -146,7 +146,7 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
   @SuppressWarnings("SuspiciousToArrayCall")
   @Override
   public <T> T[] toArray(T[] a) {
-    final ArrayList<OIdentifiable> list = new ArrayList<>(size());
+    final ArrayList<YTIdentifiable> list = new ArrayList<>(size());
 
     list.addAll(this);
 
@@ -154,7 +154,7 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
   }
 
   @Override
-  public boolean add(OIdentifiable oIdentifiable) {
+  public boolean add(YTIdentifiable oIdentifiable) {
     final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
     Objects.requireNonNull(atomicOperation);
 
@@ -163,10 +163,10 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
 
   @Override
   public boolean remove(Object o) {
-    return o instanceof OIdentifiable && remove((OIdentifiable) o);
+    return o instanceof YTIdentifiable && remove((YTIdentifiable) o);
   }
 
-  public boolean remove(OIdentifiable o) {
+  public boolean remove(YTIdentifiable o) {
     final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
     Objects.requireNonNull(atomicOperation);
 
@@ -184,9 +184,9 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
   }
 
   @Override
-  public boolean addAll(Collection<? extends OIdentifiable> c) {
+  public boolean addAll(Collection<? extends YTIdentifiable> c) {
     boolean modified = false;
-    for (OIdentifiable e : c) {
+    for (YTIdentifiable e : c) {
       if (add(e)) {
         modified = true;
       }
@@ -197,7 +197,7 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
   @Override
   public boolean retainAll(Collection<?> c) {
     boolean modified = false;
-    Iterator<OIdentifiable> it = iterator();
+    Iterator<YTIdentifiable> it = iterator();
     while (it.hasNext()) {
       if (!c.contains(it.next())) {
         it.remove();
@@ -235,13 +235,13 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
     return tree.getName();
   }
 
-  private static class TreeKeyIterator implements Iterator<OIdentifiable> {
+  private static class TreeKeyIterator implements Iterator<YTIdentifiable> {
 
     private final boolean autoConvertToRecord;
-    private final OSBTreeMapEntryIterator<OIdentifiable, Boolean> entryIterator;
+    private final OSBTreeMapEntryIterator<YTIdentifiable, Boolean> entryIterator;
 
     private TreeKeyIterator(
-        OTreeInternal<OIdentifiable, Boolean> tree, boolean autoConvertToRecord) {
+        OTreeInternal<YTIdentifiable, Boolean> tree, boolean autoConvertToRecord) {
       entryIterator = new OSBTreeMapEntryIterator<>(tree);
       this.autoConvertToRecord = autoConvertToRecord;
     }
@@ -252,8 +252,8 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
     }
 
     @Override
-    public OIdentifiable next() {
-      final OIdentifiable identifiable = entryIterator.next().getKey();
+    public YTIdentifiable next() {
+      final YTIdentifiable identifiable = entryIterator.next().getKey();
       if (autoConvertToRecord) {
         try {
           return identifiable.getRecord();

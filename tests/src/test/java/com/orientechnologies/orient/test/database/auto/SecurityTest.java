@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -52,7 +52,7 @@ public class SecurityTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -82,7 +82,7 @@ public class SecurityTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      new ODocument().save("internal");
+      new YTDocument().save("internal");
       database.commit();
 
       Assert.fail();
@@ -101,7 +101,7 @@ public class SecurityTest extends DocumentDBBaseTest {
       database.createClassIfNotExist("Profile");
 
       database.begin();
-      new ODocument("Profile")
+      new YTDocument("Profile")
           .fields(
               "nick",
               "error",

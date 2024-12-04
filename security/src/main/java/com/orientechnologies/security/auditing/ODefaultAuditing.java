@@ -17,14 +17,14 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OAuditingOperation;
 import com.orientechnologies.orient.core.security.OAuditingService;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -81,7 +81,7 @@ public class ODefaultAuditing
     private boolean onNodeLeftEnabled = false;
     private String onNodeLeftMessage = "The node ${node} has left";
 
-    public OAuditingDistribConfig(final ODocument cfg) {
+    public OAuditingDistribConfig(final YTDocument cfg) {
       if (cfg.containsField("onNodeJoinedEnabled")) {
         onNodeJoinedEnabled = cfg.field("onNodeJoinedEnabled");
       }
@@ -128,7 +128,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onCreate(final ODatabaseSessionInternal iDatabase) {
+  public void onCreate(final YTDatabaseSessionInternal iDatabase) {
     // Don't audit system database events.
     if (iDatabase.getName().equalsIgnoreCase(OSystemDatabase.SYSTEM_DB_NAME)) {
       return;
@@ -140,7 +140,7 @@ public class ODefaultAuditing
     iDatabase.registerListener(hook);
   }
 
-  private OAuditingHook defaultHook(final ODatabaseSessionInternal iDatabase) {
+  private OAuditingHook defaultHook(final YTDatabaseSessionInternal iDatabase) {
     final File auditingFileConfig = getConfigFile(iDatabase.getName());
     String content = null;
     if (auditingFileConfig != null && auditingFileConfig.exists()) {
@@ -182,7 +182,7 @@ public class ODefaultAuditing
         }
       }
     }
-    final ODocument cfg = new ODocument().fromJSON(content, "noMap");
+    final YTDocument cfg = new YTDocument().fromJSON(content, "noMap");
     return new OAuditingHook(cfg, security);
   }
 
@@ -227,7 +227,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onOpen(ODatabaseSessionInternal iDatabase) {
+  public void onOpen(YTDatabaseSessionInternal iDatabase) {
     // Don't audit system database events.
     if (iDatabase.getName().equalsIgnoreCase(OSystemDatabase.SYSTEM_DB_NAME)) {
       return;
@@ -248,7 +248,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {
+  public void onClose(YTDatabaseSessionInternal iDatabase) {
     final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
     if (oAuditingHook != null) {
       iDatabase.unregisterHook(oAuditingHook);
@@ -257,7 +257,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onDrop(ODatabaseSessionInternal iDatabase) {
+  public void onDrop(YTDatabaseSessionInternal iDatabase) {
     onClose(iDatabase);
 
     final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
@@ -283,7 +283,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  public void onCreateClass(YTDatabaseSessionInternal iDatabase, YTClass iClass) {
     final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
 
     if (oAuditingHook != null) {
@@ -292,7 +292,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  public void onDropClass(YTDatabaseSessionInternal iDatabase, YTClass iClass) {
     final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
 
     if (oAuditingHook != null) {
@@ -301,10 +301,10 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
   }
 
-  protected void updateConfigOnDisk(final String iDatabaseName, final ODocument cfg)
+  protected void updateConfigOnDisk(final String iDatabaseName, final YTDocument cfg)
       throws IOException {
     final File auditingFileConfig = getConfigFile(iDatabaseName);
     if (auditingFileConfig != null) {
@@ -324,7 +324,7 @@ public class ODefaultAuditing
     return true;
   }
 
-  public void onNodeJoined(ODatabaseSessionInternal session, String iNode) {
+  public void onNodeJoined(YTDatabaseSessionInternal session, String iNode) {
     if (distribConfig != null && distribConfig.isEnabled(OAuditingOperation.NODEJOINED)) {
       log(session,
           OAuditingOperation.NODEJOINED,
@@ -332,7 +332,7 @@ public class ODefaultAuditing
     }
   }
 
-  public void onNodeLeft(ODatabaseSessionInternal session, String iNode) {
+  public void onNodeLeft(YTDatabaseSessionInternal session, String iNode) {
     if (distribConfig != null && distribConfig.isEnabled(OAuditingOperation.NODELEFT)) {
       log(session,
           OAuditingOperation.NODELEFT,
@@ -356,8 +356,8 @@ public class ODefaultAuditing
   /// ///
   // OAuditingService
   public void changeConfig(
-      ODatabaseSessionInternal session, final OSecurityUser user, final String iDatabaseName,
-      final ODocument cfg)
+      YTDatabaseSessionInternal session, final OSecurityUser user, final String iDatabaseName,
+      final YTDocument cfg)
       throws IOException {
 
     // This should never happen, but just in case...
@@ -376,14 +376,14 @@ public class ODefaultAuditing
             "The auditing configuration for the database '%s' has been changed", iDatabaseName));
   }
 
-  public ODocument getConfig(final String iDatabaseName) {
+  public YTDocument getConfig(final String iDatabaseName) {
     return hooks.get(iDatabaseName).getConfiguration();
   }
 
   /**
    * Primarily used for global logging events (e.g., NODEJOINED, NODELEFT).
    */
-  public void log(ODatabaseSessionInternal session, final OAuditingOperation operation,
+  public void log(YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String message) {
     log(session, operation, null, null, message);
   }
@@ -391,7 +391,7 @@ public class ODefaultAuditing
   /**
    * Primarily used for global logging events (e.g., NODEJOINED, NODELEFT).
    */
-  public void log(ODatabaseSessionInternal session, final OAuditingOperation operation,
+  public void log(YTDatabaseSessionInternal session, final OAuditingOperation operation,
       OSecurityUser user, final String message) {
     log(session, operation, null, user, message);
   }
@@ -400,7 +400,7 @@ public class ODefaultAuditing
    * Primarily used for global logging events (e.g., NODEJOINED, NODELEFT).
    */
   public void log(
-      ODatabaseSessionInternal session, final OAuditingOperation operation,
+      YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       OSecurityUser user,
       final String message) {
@@ -436,25 +436,26 @@ public class ODefaultAuditing
   }
 
   private void createClassIfNotExists() {
-    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final YTDatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance()
+        .getIfDefined();
 
-    ODatabaseSessionInternal sysdb = null;
+    YTDatabaseSessionInternal sysdb = null;
 
     try {
       sysdb = context.getSystemDatabase().openSystemDatabase();
 
-      OSchema schema = sysdb.getMetadata().getSchema();
-      OClass cls = schema.getClass(AUDITING_LOG_CLASSNAME);
+      YTSchema schema = sysdb.getMetadata().getSchema();
+      YTClass cls = schema.getClass(AUDITING_LOG_CLASSNAME);
 
       if (cls == null) {
         cls = sysdb.getMetadata().getSchema().createClass(AUDITING_LOG_CLASSNAME);
-        cls.createProperty(currentDB, "date", OType.DATETIME);
-        cls.createProperty(currentDB, "user", OType.STRING);
-        cls.createProperty(currentDB, "operation", OType.BYTE);
-        cls.createProperty(currentDB, "record", OType.LINK);
-        cls.createProperty(currentDB, "changes", OType.EMBEDDED);
-        cls.createProperty(currentDB, "note", OType.STRING);
-        cls.createProperty(currentDB, "database", OType.STRING);
+        cls.createProperty(currentDB, "date", YTType.DATETIME);
+        cls.createProperty(currentDB, "user", YTType.STRING);
+        cls.createProperty(currentDB, "operation", YTType.BYTE);
+        cls.createProperty(currentDB, "record", YTType.LINK);
+        cls.createProperty(currentDB, "changes", YTType.EMBEDDED);
+        cls.createProperty(currentDB, "note", YTType.STRING);
+        cls.createProperty(currentDB, "database", YTType.STRING);
       }
     } catch (Exception e) {
       OLogManager.instance().error(this, "Creating auditing class exception", e);
@@ -525,7 +526,7 @@ public class ODefaultAuditing
             }));
   }
 
-  public void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final YTDocument jsonConfig,
       OSecuritySystem security) {
     context = security.getContext();
     this.security = security;
@@ -539,12 +540,12 @@ public class ODefaultAuditing
       }
 
       if (jsonConfig.containsField("distributed")) {
-        ODocument distribDoc = jsonConfig.field("distributed");
+        YTDocument distribDoc = jsonConfig.field("distributed");
         distribConfig = new OAuditingDistribConfig(distribDoc);
       }
 
       if (jsonConfig.containsField("systemImport")) {
-        ODocument sysImport = jsonConfig.field("systemImport");
+        YTDocument sysImport = jsonConfig.field("systemImport");
 
         systemDbImporter = new OSystemDBImporter(context, sysImport);
       }

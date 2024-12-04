@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -32,7 +32,7 @@ public class OLuceneResultSetEmpty extends OLuceneResultSet {
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return Collections.emptyIterator();
   }
 }

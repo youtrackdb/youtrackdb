@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.index.multivalue;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.ODefaultIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexUpdateAction;
@@ -12,12 +12,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class OMultivalueIndexKeyUpdaterImpl implements OIndexKeyUpdater<Object> {
 
-  private final ORID identity;
+  private final YTRID identity;
   private final String indexName;
   private final boolean mixedContainer;
 
   public OMultivalueIndexKeyUpdaterImpl(
-      ORID identity, String valueContainerAlgorithm, int binaryFormatVersion, String indexName) {
+      YTRID identity, String valueContainerAlgorithm, int binaryFormatVersion, String indexName) {
     this.identity = identity;
     this.indexName = indexName;
     if (ODefaultIndexFactory.SBTREE_BONSAI_VALUE_CONTAINER.equals(valueContainerAlgorithm)) {
@@ -29,7 +29,7 @@ public final class OMultivalueIndexKeyUpdaterImpl implements OIndexKeyUpdater<Ob
 
   @Override
   public OIndexUpdateAction<Object> update(Object oldValue, AtomicLong bonsayFileId) {
-    Set<OIdentifiable> toUpdate = (Set<OIdentifiable>) oldValue;
+    Set<YTIdentifiable> toUpdate = (Set<YTIdentifiable>) oldValue;
     if (toUpdate == null) {
       if (mixedContainer) {
         toUpdate = new OMixedIndexRIDContainer(indexName, bonsayFileId);

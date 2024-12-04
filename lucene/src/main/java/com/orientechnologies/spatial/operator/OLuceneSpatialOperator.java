@@ -15,11 +15,11 @@ package com.orientechnologies.spatial.operator;
 
 import com.orientechnologies.lucene.operator.OLuceneOperatorUtil;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -45,7 +45,7 @@ public abstract class OLuceneSpatialOperator extends OQueryTargetOperator {
 
   @Override
   public OIndexSearchResult getOIndexSearchResult(
-      OClass iSchemaClass,
+      YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
       OCommandContext context) {
@@ -56,8 +56,8 @@ public abstract class OLuceneSpatialOperator extends OQueryTargetOperator {
   // TODO HANDLE EVALUATE RECORD
   @Override
   public Object evaluateRecord(
-      OIdentifiable iRecord,
-      ODocument iCurrentResult,
+      YTIdentifiable iRecord,
+      YTDocument iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
@@ -75,12 +75,12 @@ public abstract class OLuceneSpatialOperator extends OQueryTargetOperator {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

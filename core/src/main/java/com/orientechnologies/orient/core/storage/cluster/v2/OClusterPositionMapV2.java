@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.storage.cluster.v2;
 
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.exception.OClusterPositionMapException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMap;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMapBucket;
@@ -490,7 +490,7 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
       }
     }
 
-    return ORID.CLUSTER_POS_INVALID;
+    return YTRID.CLUSTER_POS_INVALID;
   }
 
   public byte getStatus(final long clusterPosition, final OAtomicOperation atomicOperation)
@@ -531,7 +531,7 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
       }
     }
 
-    return ORID.CLUSTER_POS_INVALID;
+    return YTRID.CLUSTER_POS_INVALID;
   }
 
   /**

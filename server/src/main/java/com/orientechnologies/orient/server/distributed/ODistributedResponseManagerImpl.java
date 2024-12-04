@@ -24,7 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.distributed.ODistributedServerLog.DIRECTION;
 import com.orientechnologies.orient.server.distributed.task.ODistributedOperationException;
 import com.orientechnologies.orient.server.distributed.task.ODistributedRecordLockedException;
@@ -171,10 +171,10 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
             {
               foundBucket = true;
             } else if (rgPayload != null) {
-              if (rgPayload instanceof ODocument
-                  && responsePayload instanceof ODocument
-                  && !((ODocument) rgPayload).getIdentity().isValid()
-                  && ((ODocument) rgPayload).hasSameContentOf((ODocument) responsePayload))
+              if (rgPayload instanceof YTDocument
+                  && responsePayload instanceof YTDocument
+                  && !((YTDocument) rgPayload).getIdentity().isValid()
+                  && ((YTDocument) rgPayload).hasSameContentOf((YTDocument) responsePayload))
               // SAME RESULT
               {
                 foundBucket = true;

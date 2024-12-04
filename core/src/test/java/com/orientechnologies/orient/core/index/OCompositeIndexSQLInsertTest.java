@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,15 +13,15 @@ public class OCompositeIndexSQLInsertTest extends DBTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    OSchema schema = db.getMetadata().getSchema();
-    OClass book = schema.createClass("Book");
-    book.createProperty(db, "author", OType.STRING);
-    book.createProperty(db, "title", OType.STRING);
-    book.createProperty(db, "publicationYears", OType.EMBEDDEDLIST, OType.INTEGER);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass book = schema.createClass("Book");
+    book.createProperty(db, "author", YTType.STRING);
+    book.createProperty(db, "title", YTType.STRING);
+    book.createProperty(db, "publicationYears", YTType.EMBEDDEDLIST, YTType.INTEGER);
     book.createIndex(db, "books", "unique", "author", "title", "publicationYears");
 
-    book.createProperty(db, "nullKey1", OType.STRING);
-    ODocument indexOptions = new ODocument();
+    book.createProperty(db, "nullKey1", YTType.STRING);
+    YTDocument indexOptions = new YTDocument();
     indexOptions.field("ignoreNullValues", true);
     book.createIndex(db,
         "indexignoresnulls", "NOTUNIQUE", null, indexOptions, new String[]{"nullKey1"});
@@ -29,12 +29,12 @@ public class OCompositeIndexSQLInsertTest extends DBTestBase {
 
   @Test
   public void testCompositeIndexWithRangeAndContains() {
-    final OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.createClass("CompositeIndexWithRangeAndConditions");
-    clazz.createProperty(db, "id", OType.INTEGER);
-    clazz.createProperty(db, "bar", OType.INTEGER);
-    clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
-    clazz.createProperty(db, "name", OType.STRING);
+    final YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.createClass("CompositeIndexWithRangeAndConditions");
+    clazz.createProperty(db, "id", YTType.INTEGER);
+    clazz.createProperty(db, "bar", YTType.INTEGER);
+    clazz.createProperty(db, "tags", YTType.EMBEDDEDLIST, YTType.STRING);
+    clazz.createProperty(db, "name", YTType.STRING);
 
     db.command(
             "create index CompositeIndexWithRangeAndConditions_id_tags_name on"

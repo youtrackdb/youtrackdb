@@ -4,7 +4,7 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
@@ -35,9 +35,9 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
       var rec = result.toElement();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
-      if (rec instanceof ODocument) {
+      if (rec instanceof YTDocument) {
         prevValue.setProperty(
-            "@class", ODocumentInternal.getImmutableSchemaClass(((ODocument) rec)).getName());
+            "@class", ODocumentInternal.getImmutableSchemaClass(((YTDocument) rec)).getName());
       }
       if (!result.toElement().getIdentity().isNew()) {
         for (String propName : result.getPropertyNames()) {

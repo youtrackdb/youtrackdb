@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE;
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT;
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.NETWORK_LOCK_TIMEOUT;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.NETWORK_LOCK_TIMEOUT;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +93,7 @@ public class ORemoteConnectionManager {
 
       if (clientConfiguration != null) {
         final Object max =
-            clientConfiguration.getValue(OGlobalConfiguration.CLIENT_CHANNEL_MAX_POOL);
+            clientConfiguration.getValue(YTGlobalConfiguration.CLIENT_CHANNEL_MAX_POOL);
         if (max != null) {
           maxPool = Integer.parseInt(max.toString());
         }

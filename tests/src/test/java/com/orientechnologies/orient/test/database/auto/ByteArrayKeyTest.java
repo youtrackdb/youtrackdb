@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -27,20 +27,20 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OClass byteArrayKeyTest =
+    final YTClass byteArrayKeyTest =
         database.getMetadata().getSchema().createClass("ByteArrayKeyTest");
-    byteArrayKeyTest.createProperty(database, "byteArrayKey", OType.BINARY);
+    byteArrayKeyTest.createProperty(database, "byteArrayKey", YTType.BINARY);
 
-    byteArrayKeyTest.createIndex(database, "byteArrayKeyIndex", OClass.INDEX_TYPE.UNIQUE,
+    byteArrayKeyTest.createIndex(database, "byteArrayKeyIndex", YTClass.INDEX_TYPE.UNIQUE,
         "byteArrayKey");
 
-    final OClass compositeByteArrayKeyTest =
+    final YTClass compositeByteArrayKeyTest =
         database.getMetadata().getSchema().createClass("CompositeByteArrayKeyTest");
-    compositeByteArrayKeyTest.createProperty(database, "byteArrayKey", OType.BINARY);
-    compositeByteArrayKeyTest.createProperty(database, "intKey", OType.INTEGER);
+    compositeByteArrayKeyTest.createProperty(database, "byteArrayKey", YTType.BINARY);
+    compositeByteArrayKeyTest.createProperty(database, "intKey", YTType.INTEGER);
 
     compositeByteArrayKeyTest.createIndex(database,
-        "compositeByteArrayKey", OClass.INDEX_TYPE.UNIQUE, "byteArrayKey", "intKey");
+        "compositeByteArrayKey", YTClass.INDEX_TYPE.UNIQUE, "byteArrayKey", "intKey");
   }
 
   public void testAutomaticUsage() {
@@ -54,7 +54,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
         };
 
     database.begin();
-    ODocument doc1 = new ODocument("ByteArrayKeyTest");
+    YTDocument doc1 = new YTDocument("ByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.save();
 
@@ -64,18 +64,18 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
             9,
             0, 2
         };
-    ODocument doc2 = new ODocument("ByteArrayKeyTest");
+    YTDocument doc2 = new YTDocument("ByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.save();
     database.commit();
 
     OIndex index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "byteArrayKeyIndex");
-    try (Stream<ORID> stream = index.getInternal().getRids(database, key1)) {
-      Assert.assertEquals(stream.findAny().map(ORID::getRecord).orElse(null), doc1);
+    try (Stream<YTRID> stream = index.getInternal().getRids(database, key1)) {
+      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc1);
     }
-    try (Stream<ORID> stream = index.getInternal().getRids(database, key2)) {
-      Assert.assertEquals(stream.findAny().map(ORID::getRecord).orElse(null), doc2);
+    try (Stream<YTRID> stream = index.getInternal().getRids(database, key2)) {
+      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc2);
     }
   }
 
@@ -86,12 +86,12 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     byte[] key2 = new byte[]{4, 5, 6};
 
     database.begin();
-    ODocument doc1 = new ODocument("CompositeByteArrayKeyTest");
+    YTDocument doc1 = new YTDocument("CompositeByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    ODocument doc2 = new ODocument("CompositeByteArrayKeyTest");
+    YTDocument doc2 = new YTDocument("CompositeByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
@@ -102,11 +102,11 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "compositeByteArrayKey");
-    try (Stream<ORID> stream = index.getInternal().getRids(database, new OCompositeKey(key1, 1))) {
-      Assert.assertEquals(stream.findAny().map(ORID::getRecord).orElse(null), doc1);
+    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey(key1, 1))) {
+      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc1);
     }
-    try (Stream<ORID> stream = index.getInternal().getRids(database, new OCompositeKey(key2, 2))) {
-      Assert.assertEquals(stream.findAny().map(ORID::getRecord).orElse(null), doc2);
+    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey(key2, 2))) {
+      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc2);
     }
   }
 
@@ -117,12 +117,12 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     byte[] key2 = new byte[]{10, 11, 12};
 
     database.begin();
-    ODocument doc1 = new ODocument("CompositeByteArrayKeyTest");
+    YTDocument doc1 = new YTDocument("CompositeByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    ODocument doc2 = new ODocument("CompositeByteArrayKeyTest");
+    YTDocument doc2 = new YTDocument("CompositeByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
@@ -133,11 +133,11 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "compositeByteArrayKey");
-    try (Stream<ORID> stream = index.getInternal().getRids(database, new OCompositeKey(key1, 1))) {
-      Assert.assertEquals(stream.findAny().map(ORID::getRecord).orElse(null), doc1);
+    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey(key1, 1))) {
+      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc1);
     }
-    try (Stream<ORID> stream = index.getInternal().getRids(database, new OCompositeKey(key2, 2))) {
-      Assert.assertEquals(stream.findAny().map(ORID::getRecord).orElse(null), doc2);
+    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey(key2, 2))) {
+      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc2);
     }
   }
 
@@ -158,10 +158,10 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
 
     OIndex autoIndex =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "byteArrayKeyIndex");
-    try (Stream<ORID> stream = autoIndex.getInternal().getRids(database, key1)) {
+    try (Stream<YTRID> stream = autoIndex.getInternal().getRids(database, key1)) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<ORID> stream = autoIndex.getInternal().getRids(database, key2)) {
+    try (Stream<YTRID> stream = autoIndex.getInternal().getRids(database, key2)) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
   }

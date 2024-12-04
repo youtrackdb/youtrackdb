@@ -89,11 +89,11 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
 
     Assert.assertEquals(1, docs.stream().count());
 
-    // docs = databaseDocumentTx.query(new OSQLSynchQuery<ODocument>(
+    // docs = databaseDocumentTx.query(new OSQLSynchQuery<YTDocument>(
     // "select * from Song where  author = 'Hornsby' and [title] LUCENE \"(title:ballad)\" "));
     // Assert.assertEquals(docs.size(), 0);
     //
-    // docs = databaseDocumentTx.query(new OSQLSynchQuery<ODocument>(
+    // docs = databaseDocumentTx.query(new OSQLSynchQuery<YTDocument>(
     // "select * from Song where  author = 'Hornsby' and title LUCENE \"(title:ballad)\" "));
     // Assert.assertEquals(docs.size(), 0);
 

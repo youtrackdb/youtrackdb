@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -13,16 +13,16 @@ public class OPushSequencesRequest implements OBinaryPushRequest<OBinaryPushResp
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
   }
 
   @Override
-  public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+  public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
       ORemotePushHandler pushHandler) {
     return pushHandler.executeUpdateSequences(this);
   }

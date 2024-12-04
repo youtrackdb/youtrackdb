@@ -2,11 +2,11 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -70,26 +70,26 @@ public class ODatabaseSuperNodeTest {
       final YouTrackDB youTrackDB,
       final OutputStream output) {
 
-    try (final ODatabaseSession session =
+    try (final YTDatabaseSession session =
         youTrackDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       session.createClassIfNotExist("SuperNodeClass", "V");
       session.createClassIfNotExist("NonSuperEdgeClass", "E");
 
       // session.begin();
-      final OVertex fromNode = session.newVertex("SuperNodeClass");
+      final YTVertex fromNode = session.newVertex("SuperNodeClass");
       fromNode.save();
-      final OVertex toNode = session.newVertex("SuperNodeClass");
+      final YTVertex toNode = session.newVertex("SuperNodeClass");
       toNode.save();
 
       for (int i = 0; i < edgeNumber; i++) {
-        final OEdge edge = session.newEdge(fromNode, toNode, "NonSuperEdgeClass");
+        final YTEdge edge = session.newEdge(fromNode, toNode, "NonSuperEdgeClass");
         edge.save();
       }
       session.commit();
 
       final ODatabaseExport export =
           new ODatabaseExport(
-              (ODatabaseSessionInternal) session,
+              (YTDatabaseSessionInternal) session,
               output,
               new OCommandOutputListener() {
                 @Override
@@ -116,7 +116,7 @@ public class ODatabaseSuperNodeTest {
       final ByteArrayOutputStream output,
       List<Long> stats) {
     try (var db =
-        (ODatabaseSessionInternal) youTrackDB.open(
+        (YTDatabaseSessionInternal) youTrackDB.open(
             databaseName + "_reImport", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       final ODatabaseImport importer =
           new ODatabaseImport(

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -20,13 +20,13 @@ import org.junit.Test;
  */
 public class HashTableDirectoryV2Test {
 
-  private static ODatabaseSessionInternal db;
+  private static YTDatabaseSessionInternal db;
 
   private static HashTableDirectory directory;
 
   @BeforeClass
   public static void beforeClass() throws IOException {
-    db = new ODatabaseDocumentTx("memory:" + HashTableDirectoryV2Test.class.getSimpleName());
+    db = new YTDatabaseDocumentTx("memory:" + HashTableDirectoryV2Test.class.getSimpleName());
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();

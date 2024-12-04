@@ -18,14 +18,14 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +42,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
   protected static final String KEYWORD_SET = "SET";
   protected static final String KEYWORD_CONTENT = "CONTENT";
 
-  protected ODocument content = null;
+  protected YTDocument content = null;
   protected int parameterCounter = 0;
 
   protected void parseContent() {
@@ -55,7 +55,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
     }
   }
 
-  protected void parseSetFields(final OClass iClass, final List<OPair<String, Object>> fields) {
+  protected void parseSetFields(final YTClass iClass, final List<OPair<String, Object>> fields) {
     String fieldName;
     String fieldValue;
 
@@ -85,7 +85,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
     }
   }
 
-  protected OClass extractClassFromTarget(String iTarget) {
+  protected YTClass extractClassFromTarget(String iTarget) {
     // CLASS
     if (!iTarget.toUpperCase(Locale.ENGLISH).startsWith(OCommandExecutorSQLAbstract.CLUSTER_PREFIX)
         && !iTarget.startsWith(OCommandExecutorSQLAbstract.INDEX_PREFIX)) {
@@ -96,11 +96,11 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
         iTarget = iTarget.substring(OCommandExecutorSQLAbstract.CLASS_PREFIX.length());
       }
 
-      if (iTarget.charAt(0) == ORID.PREFIX) {
+      if (iTarget.charAt(0) == YTRID.PREFIX) {
         return getDatabase()
             .getMetadata()
             .getImmutableSchemaSnapshot()
-            .getClassByClusterId(new ORecordId(iTarget).getClusterId());
+            .getClassByClusterId(new YTRecordId(iTarget).getClusterId());
       }
 
       return getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(iTarget);
@@ -111,16 +111,16 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
         .startsWith(OCommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
       String clusterName =
           iTarget.substring(OCommandExecutorSQLAbstract.CLUSTER_PREFIX.length()).trim();
-      ODatabaseSessionInternal db = getDatabase();
+      YTDatabaseSessionInternal db = getDatabase();
       if (clusterName.startsWith("[") && clusterName.endsWith("]")) {
         String[] clusterNames = clusterName.substring(1, clusterName.length() - 1).split(",");
-        OClass candidateClass = null;
+        YTClass candidateClass = null;
         for (String cName : clusterNames) {
           final int clusterId = db.getClusterIdByName(cName.trim());
           if (clusterId < 0) {
             return null;
           }
-          OClass aClass =
+          YTClass aClass =
               db.getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(clusterId);
           if (aClass == null) {
             return null;
@@ -144,12 +144,12 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
     return null;
   }
 
-  protected Object convertValue(OClass iClass, String fieldName, Object v) {
+  protected Object convertValue(YTClass iClass, String fieldName, Object v) {
     if (iClass != null) {
       // CHECK TYPE AND CONVERT IF NEEDED
-      final OProperty p = iClass.getProperty(fieldName);
+      final YTProperty p = iClass.getProperty(fieldName);
       if (p != null) {
-        final OClass embeddedType = p.getLinkedClass();
+        final YTClass embeddedType = p.getLinkedClass();
 
         switch (p.getType()) {
           case EMBEDDED:
@@ -168,11 +168,11 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
               for (Object o : OMultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
-                  final ODocument doc =
+                  final YTDocument doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
                   set.add(doc);
-                } else if (o instanceof OIdentifiable) {
-                  set.add(((OIdentifiable) o).getRecord());
+                } else if (o instanceof YTIdentifiable) {
+                  set.add(((YTIdentifiable) o).getRecord());
                 } else {
                   set.add(o);
                 }
@@ -191,11 +191,11 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
               for (Object o : OMultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
-                  final ODocument doc =
+                  final YTDocument doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
                   set.add(doc);
-                } else if (o instanceof OIdentifiable) {
-                  set.add(((OIdentifiable) o).getRecord());
+                } else if (o instanceof YTIdentifiable) {
+                  set.add(((YTIdentifiable) o).getRecord());
                 } else {
                   set.add(o);
                 }
@@ -212,11 +212,11 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
               for (Map.Entry<String, Object> entry : ((Map<String, Object>) v).entrySet()) {
                 if (entry.getValue() instanceof Map) {
-                  final ODocument doc =
+                  final YTDocument doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) entry.getValue());
                   map.put(entry.getKey(), doc);
-                } else if (entry.getValue() instanceof OIdentifiable) {
-                  map.put(entry.getKey(), ((OIdentifiable) entry.getValue()).getRecord());
+                } else if (entry.getValue() instanceof YTIdentifiable) {
+                  map.put(entry.getKey(), ((YTIdentifiable) entry.getValue()).getRecord());
                 } else {
                   map.put(entry.getKey(), entry.getValue());
                 }
@@ -231,8 +231,8 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
     return v;
   }
 
-  private ODocument createDocumentFromMap(OClass embeddedType, Map<String, Object> o) {
-    final ODocument doc = new ODocument();
+  private YTDocument createDocumentFromMap(YTClass embeddedType, Map<String, Object> o) {
+    final YTDocument doc = new YTDocument();
     if (embeddedType != null) {
       doc.setClassName(embeddedType.getName());
     }
@@ -245,7 +245,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
   }
 
   protected Object getFieldValueCountingParameters(String fieldValue) {
@@ -255,9 +255,9 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
     return OSQLHelper.parseValue(this, fieldValue, context, true);
   }
 
-  protected ODocument parseJSON() {
+  protected YTDocument parseJSON() {
     final String contentAsString = parserRequiredWord(false, "JSON expected").trim();
-    final ODocument json = new ODocument();
+    final YTDocument json = new YTDocument();
     json.fromJSON(contentAsString);
     parserSkipWhiteSpaces();
     return json;

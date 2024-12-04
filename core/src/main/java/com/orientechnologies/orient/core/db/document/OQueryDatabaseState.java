@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -27,14 +27,14 @@ public class OQueryDatabaseState {
     return resultSet;
   }
 
-  public void close(ODatabaseSessionInternal database) {
+  public void close(YTDatabaseSessionInternal database) {
     if (resultSet != null) {
       resultSet.close();
     }
     this.closeInternal(database);
   }
 
-  public void closeInternal(ODatabaseSessionInternal database) {
+  public void closeInternal(YTDatabaseSessionInternal database) {
     if (database.isRemote()) {
       return;
     }

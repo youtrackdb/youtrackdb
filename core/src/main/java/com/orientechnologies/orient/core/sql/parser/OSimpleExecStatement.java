@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSingleOpExecutionPlan;
@@ -28,7 +28,7 @@ public abstract class OSimpleExecStatement extends OStatement {
   public abstract OExecutionStream executeSimple(OCommandContext ctx);
 
   public OResultSet execute(
-      ODatabaseSessionInternal db,
+      YTDatabaseSessionInternal db,
       Object[] args,
       OCommandContext parentContext,
       boolean usePlanCache) {
@@ -49,7 +49,7 @@ public abstract class OSimpleExecStatement extends OStatement {
   }
 
   public OResultSet execute(
-      ODatabaseSessionInternal db,
+      YTDatabaseSessionInternal db,
       Map params,
       OCommandContext parentContext,
       boolean usePlanCache) {

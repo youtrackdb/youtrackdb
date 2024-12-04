@@ -7,9 +7,9 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +25,7 @@ public class ORidBagBasicTest extends DBTestBase {
   public void embeddedRidBagSerializationTest() {
     OEmbeddedRidBag bag = new OEmbeddedRidBag();
 
-    bag.add(new ORecordId(3, 1000));
+    bag.add(new YTRecordId(3, 1000));
     bag.convertRecords2Links();
     byte[] bytes = new byte[1024];
     UUID id = UUID.randomUUID();
@@ -36,7 +36,7 @@ public class ORidBagBasicTest extends DBTestBase {
 
     assertEquals(bag.size(), 1);
 
-    assertEquals(new ORecordId(3, 1000), bag1.iterator().next());
+    assertEquals(new YTRecordId(3, 1000), bag1.iterator().next());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -48,7 +48,7 @@ public class ORidBagBasicTest extends DBTestBase {
   @Test
   public void allowOnlyAtRoot() {
     try {
-      OVertex record = db.newVertex();
+      YTVertex record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
       valueList.add(new ORidBag(db));
       record.setProperty("emb", valueList);
@@ -59,7 +59,7 @@ public class ORidBagBasicTest extends DBTestBase {
     }
 
     try {
-      OVertex record = db.newVertex();
+      YTVertex record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
       valueSet.add(new ORidBag(db));
       record.setProperty("emb", valueSet);
@@ -70,7 +70,7 @@ public class ORidBagBasicTest extends DBTestBase {
     }
 
     try {
-      OVertex record = db.newVertex();
+      YTVertex record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
       valueSet.put("key", new ORidBag(db));
       record.setProperty("emb", valueSet);
@@ -81,9 +81,9 @@ public class ORidBagBasicTest extends DBTestBase {
     }
 
     try {
-      OVertex record = db.newVertex();
+      YTVertex record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
-      OElement nested = db.newElement();
+      YTEntity nested = db.newElement();
       nested.setProperty("bag", new ORidBag(db));
       valueSet.put("key", nested);
       record.setProperty("emb", valueSet);
@@ -94,9 +94,9 @@ public class ORidBagBasicTest extends DBTestBase {
     }
 
     try {
-      OVertex record = db.newVertex();
+      YTVertex record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
-      OElement nested = db.newElement();
+      YTEntity nested = db.newElement();
       nested.setProperty("bag", new ORidBag(db));
       valueList.add(nested);
       record.setProperty("emb", valueList);
@@ -107,9 +107,9 @@ public class ORidBagBasicTest extends DBTestBase {
     }
 
     try {
-      OVertex record = db.newVertex();
+      YTVertex record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
-      OElement nested = db.newElement();
+      YTEntity nested = db.newElement();
       nested.setProperty("bag", new ORidBag(db));
       valueSet.add(nested);
       record.setProperty("emb", valueSet);
@@ -120,8 +120,8 @@ public class ORidBagBasicTest extends DBTestBase {
     }
 
     try {
-      OVertex record = db.newVertex();
-      OElement nested = db.newElement();
+      YTVertex record = db.newVertex();
+      YTEntity nested = db.newElement();
       nested.setProperty("bag", new ORidBag(db));
       record.setProperty("emb", nested);
       db.save(record);

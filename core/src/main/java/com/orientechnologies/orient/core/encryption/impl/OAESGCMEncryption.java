@@ -6,7 +6,7 @@ import static javax.crypto.Cipher.ENCRYPT_MODE;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.thread.NonDaemonThreadFactory;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -141,7 +141,7 @@ public class OAESGCMEncryption implements OEncryption {
   private SecretKey createKey(String base64EncodedKey) {
     if (base64EncodedKey == null) {
       throw new OSecurityException(
-          format(MISSING_KEY_ERROR, OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()));
+          format(MISSING_KEY_ERROR, YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()));
     }
     try {
       final byte[] keyBytes = Base64.getDecoder().decode(base64EncodedKey.getBytes());

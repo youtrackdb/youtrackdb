@@ -6,8 +6,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.sql.query.OLiveQuery;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
@@ -41,8 +41,9 @@ public class OLiveQueryShotdownTest {
   @Test
   public void testShutDown() throws Exception {
     bootServer();
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx("remote:localhost/" + OLiveQueryShotdownTest.class.getSimpleName());
+    YTDatabaseSessionInternal db =
+        new YTDatabaseDocumentTx(
+            "remote:localhost/" + OLiveQueryShotdownTest.class.getSimpleName());
     db.open("admin", "admin");
     db.getMetadata().getSchema().createClass("Test");
     final CountDownLatch error = new CountDownLatch(1);

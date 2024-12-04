@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import java.util.stream.Stream;
 import org.junit.Assert;
@@ -39,11 +39,11 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final OClass class_ = db.getMetadata().getSchema().createClass("Person");
+    final YTClass class_ = db.getMetadata().getSchema().createClass("Person");
     index =
         class_
-            .createProperty(db, "name", OType.STRING)
-            .createIndex(db, OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+            .createProperty(db, "name", YTType.STRING)
+            .createIndex(db, YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
   }
 
   @Test
@@ -51,11 +51,11 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have null name
-    final ODocument person1 = db.newInstance("Person");
+    final YTDocument person1 = db.newInstance("Person");
     db.save(person1);
-    final ODocument person2 = db.newInstance("Person");
+    final YTDocument person2 = db.newInstance("Person");
     db.save(person2);
-    final ODocument person3 = db.newInstance("Person");
+    final YTDocument person3 = db.newInstance("Person");
     db.save(person3);
 
     // change names to unique
@@ -73,22 +73,22 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     Assert.assertEquals(person3, fetchDocumentFromIndex("Name3"));
   }
 
-  private ODocument fetchDocumentFromIndex(String o) {
-    try (Stream<ORID> stream = index.getInternal().getRids(db, o)) {
-      return (ODocument) stream.findFirst().map(ORID::getRecord).orElse(null);
+  private YTDocument fetchDocumentFromIndex(String o) {
+    try (Stream<YTRID> stream = index.getInternal().getRids(db, o)) {
+      return (YTDocument) stream.findFirst().map(YTRID::getRecord).orElse(null);
     }
   }
 
   @Test
   public void testDuplicateNullsOnUpdate() {
     db.begin();
-    ODocument person1 = db.newInstance("Person");
+    YTDocument person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    ODocument person2 = db.newInstance("Person");
+    YTDocument person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    ODocument person3 = db.newInstance("Person");
+    YTDocument person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
     db.commit();
@@ -134,13 +134,13 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have same name
-    final ODocument person1 = db.newInstance("Person");
+    final YTDocument person1 = db.newInstance("Person");
     person1.field("name", "same");
     db.save(person1);
-    final ODocument person2 = db.newInstance("Person");
+    final YTDocument person2 = db.newInstance("Person");
     person2.field("name", "same");
     db.save(person2);
-    final ODocument person3 = db.newInstance("Person");
+    final YTDocument person3 = db.newInstance("Person");
     person3.field("name", "same");
     db.save(person3);
 
@@ -162,13 +162,13 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   @Test
   public void testDuplicateValuesOnUpdate() {
     db.begin();
-    ODocument person1 = db.newInstance("Person");
+    YTDocument person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    ODocument person2 = db.newInstance("Person");
+    YTDocument person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    ODocument person3 = db.newInstance("Person");
+    YTDocument person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
     db.commit();
@@ -209,16 +209,16 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have same name
-    final ODocument person1 = db.newInstance("Person");
+    final YTDocument person1 = db.newInstance("Person");
     person1.field("name", "same");
     db.save(person1);
-    final ODocument person2 = db.newInstance("Person");
+    final YTDocument person2 = db.newInstance("Person");
     person2.field("name", "same");
     db.save(person2);
-    final ODocument person3 = db.newInstance("Person");
+    final YTDocument person3 = db.newInstance("Person");
     person3.field("name", "same");
     db.save(person3);
-    final ODocument person4 = db.newInstance("Person");
+    final YTDocument person4 = db.newInstance("Person");
     person4.field("name", "same");
     db.save(person4);
 
@@ -237,16 +237,16 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   @Test
   public void testDuplicateValuesOnUpdateDelete() {
     db.begin();
-    ODocument person1 = db.newInstance("Person");
+    YTDocument person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    ODocument person2 = db.newInstance("Person");
+    YTDocument person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    ODocument person3 = db.newInstance("Person");
+    YTDocument person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
-    ODocument person4 = db.newInstance("Person");
+    YTDocument person4 = db.newInstance("Person");
     person4.field("name", "Name4");
     db.save(person4);
     db.commit();
@@ -293,14 +293,14 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   @Test(expected = ORecordDuplicatedException.class)
   public void testDuplicateCreateThrows() {
     db.begin();
-    ODocument person1 = db.newInstance("Person");
+    YTDocument person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    ODocument person2 = db.newInstance("Person");
+    YTDocument person2 = db.newInstance("Person");
     db.save(person2);
-    ODocument person3 = db.newInstance("Person");
+    YTDocument person3 = db.newInstance("Person");
     db.save(person3);
-    ODocument person4 = db.newInstance("Person");
+    YTDocument person4 = db.newInstance("Person");
     person4.field("name", "Name1");
     db.save(person4);
     //    Assert.assertThrows(ORecordDuplicatedException.class, new Assert.ThrowingRunnable() {
@@ -315,16 +315,16 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   @Test(expected = ORecordDuplicatedException.class)
   public void testDuplicateUpdateThrows() {
     db.begin();
-    ODocument person1 = db.newInstance("Person");
+    YTDocument person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    ODocument person2 = db.newInstance("Person");
+    YTDocument person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    ODocument person3 = db.newInstance("Person");
+    YTDocument person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
-    ODocument person4 = db.newInstance("Person");
+    YTDocument person4 = db.newInstance("Person");
     person4.field("name", "Name4");
     db.save(person4);
     db.commit();

@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.Map;
@@ -75,7 +75,7 @@ public class OCommandExecutorSQLDelegate extends OCommandExecutorSQLAbstract
     return delegate.getDistributedTimeout();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     return delegate.execute(iArgs, querySession);
   }
 

@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -29,14 +29,14 @@ public class ODropClassStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     String className;
     if (name != null) {
       className = name.getStringValue();
     } else {
       className = String.valueOf(nameParam.getValue(ctx.getInputParameters()));
     }
-    OClass clazz = schema.getClass(className);
+    YTClass clazz = schema.getClass(className);
     if (clazz == null) {
       if (ifExists) {
         return OExecutionStream.empty();

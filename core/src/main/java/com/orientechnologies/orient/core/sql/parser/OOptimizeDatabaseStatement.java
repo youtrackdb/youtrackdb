@@ -4,11 +4,11 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
@@ -77,14 +77,14 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
     return result;
   }
 
-  private String optimizeEdges(ODatabaseSessionInternal db) {
+  private String optimizeEdges(YTDatabaseSessionInternal db) {
     long transformed = 0;
     final long totalEdges = db.countClass("E");
     long browsedEdges = 0;
     long lastLapBrowsed = 0;
     long lastLapTime = System.currentTimeMillis();
 
-    for (ODocument doc : db.browseClass("E")) {
+    for (YTDocument doc : db.browseClass("E")) {
       if (Thread.currentThread().isInterrupted()) {
         break;
       }
@@ -93,17 +93,17 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
 
       if (doc != null) {
         if (doc.fields() == 2) {
-          final ORID edgeIdentity = doc.getIdentity();
+          final YTRID edgeIdentity = doc.getIdentity();
 
-          final ODocument outV = doc.getPropertyInternal("out");
-          final ODocument inV = doc.getPropertyInternal("in");
+          final YTDocument outV = doc.getPropertyInternal("out");
+          final YTDocument inV = doc.getPropertyInternal("in");
 
           // OUTGOING
           final Object outField = outV.getPropertyInternal("out_" + doc.getClassName());
           if (outField instanceof ORidBag) {
-            final Iterator<OIdentifiable> it = ((ORidBag) outField).iterator();
+            final Iterator<YTIdentifiable> it = ((ORidBag) outField).iterator();
             while (it.hasNext()) {
-              OIdentifiable v = it.next();
+              YTIdentifiable v = it.next();
               if (edgeIdentity.equals(v)) {
                 // REPLACE EDGE RID WITH IN-VERTEX RID
                 it.remove();
@@ -118,9 +118,9 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
           // INCOMING
           final Object inField = inV.getPropertyInternal("in_" + doc.getClassName());
           if (outField instanceof ORidBag) {
-            final Iterator<OIdentifiable> it = ((ORidBag) inField).iterator();
+            final Iterator<YTIdentifiable> it = ((ORidBag) inField).iterator();
             while (it.hasNext()) {
-              OIdentifiable v = it.next();
+              YTIdentifiable v = it.next();
               if (edgeIdentity.equals(v)) {
                 // REPLACE EDGE RID WITH IN-VERTEX RID
                 it.remove();

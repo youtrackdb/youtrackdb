@@ -43,8 +43,8 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.compression.impl.OZIPCompressionUtil;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBEmbedded;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -54,7 +54,7 @@ import com.orientechnologies.orient.core.exception.OInvalidInstanceIdException;
 import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeMultiValueIndexEngine;
 import com.orientechnologies.orient.core.storage.OChecksumMode;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -249,8 +249,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
     storagePath = Paths.get(OIOUtils.getPathFromDatabaseName(sp)).normalize().toAbsolutePath();
 
-    deleteMaxRetries = OGlobalConfiguration.FILE_DELETE_RETRY.getValueAsInteger();
-    deleteWaitTime = OGlobalConfiguration.FILE_DELETE_DELAY.getValueAsInteger();
+    deleteMaxRetries = YTGlobalConfiguration.FILE_DELETE_RETRY.getValueAsInteger();
+    deleteWaitTime = YTGlobalConfiguration.FILE_DELETE_DELAY.getValueAsInteger();
 
     startupMetadata =
         new StorageStartupMetadata(
@@ -277,7 +277,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
     boolean fsyncAfterCreate =
         contextConfiguration.getValueAsBoolean(
-            OGlobalConfiguration.STORAGE_MAKE_FULL_CHECKPOINT_AFTER_CREATE);
+            YTGlobalConfiguration.STORAGE_MAKE_FULL_CHECKPOINT_AFTER_CREATE);
     if (fsyncAfterCreate) {
       synch();
     }
@@ -571,7 +571,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       byte[] iv)
       throws IOException {
     final String aesKeyEncoded =
-        contextConfiguration.getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
+        contextConfiguration.getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
     final byte[] aesKey =
         Optional.ofNullable(aesKeyEncoded)
             .map(keyEncoded -> Base64.getDecoder().decode(keyEncoded))
@@ -581,27 +581,27 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         name,
         storagePath,
         directory.toPath(),
-        contextConfiguration.getValueAsInteger(OGlobalConfiguration.WAL_CACHE_SIZE),
-        contextConfiguration.getValueAsInteger(OGlobalConfiguration.WAL_BUFFER_SIZE),
+        contextConfiguration.getValueAsInteger(YTGlobalConfiguration.WAL_CACHE_SIZE),
+        contextConfiguration.getValueAsInteger(YTGlobalConfiguration.WAL_BUFFER_SIZE),
         aesKey,
         iv,
-        contextConfiguration.getValueAsLong(OGlobalConfiguration.WAL_SEGMENTS_INTERVAL)
+        contextConfiguration.getValueAsLong(YTGlobalConfiguration.WAL_SEGMENTS_INTERVAL)
             * 60
             * 1_000_000_000L,
-        contextConfiguration.getValueAsInteger(OGlobalConfiguration.WAL_MAX_SEGMENT_SIZE)
+        contextConfiguration.getValueAsInteger(YTGlobalConfiguration.WAL_MAX_SEGMENT_SIZE)
             * 1024
             * 1024L,
         10,
         true,
         locale,
-        OGlobalConfiguration.WAL_MAX_SIZE.getValueAsLong() * 1024 * 1024,
-        contextConfiguration.getValueAsInteger(OGlobalConfiguration.WAL_COMMIT_TIMEOUT),
-        contextConfiguration.getValueAsBoolean(OGlobalConfiguration.WAL_KEEP_SINGLE_SEGMENT),
-        contextConfiguration.getValueAsBoolean(OGlobalConfiguration.STORAGE_CALL_FSYNC),
+        YTGlobalConfiguration.WAL_MAX_SIZE.getValueAsLong() * 1024 * 1024,
+        contextConfiguration.getValueAsInteger(YTGlobalConfiguration.WAL_COMMIT_TIMEOUT),
+        contextConfiguration.getValueAsBoolean(YTGlobalConfiguration.WAL_KEEP_SINGLE_SEGMENT),
+        contextConfiguration.getValueAsBoolean(YTGlobalConfiguration.STORAGE_CALL_FSYNC),
         contextConfiguration.getValueAsBoolean(
-            OGlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_STATISTICS),
+            YTGlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_STATISTICS),
         contextConfiguration.getValueAsInteger(
-            OGlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_INTERVAL));
+            YTGlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_INTERVAL));
   }
 
   @Override
@@ -829,7 +829,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   protected void initWalAndDiskCache(final OContextConfiguration contextConfiguration)
       throws IOException, InterruptedException {
     final String aesKeyEncoded =
-        contextConfiguration.getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
+        contextConfiguration.getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
     final byte[] aesKey =
         Optional.ofNullable(aesKeyEncoded)
             .map(keyEncoded -> Base64.getDecoder().decode(keyEncoded))
@@ -839,13 +839,13 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         fuzzyCheckpointExecutor.scheduleWithFixedDelay(
             new OPeriodicFuzzyCheckpoint(this),
             contextConfiguration.getValueAsInteger(
-                OGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL),
+                YTGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL),
             contextConfiguration.getValueAsInteger(
-                OGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL),
+                YTGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL),
             TimeUnit.SECONDS);
 
     final String configWalPath =
-        contextConfiguration.getValueAsString(OGlobalConfiguration.WAL_LOCATION);
+        contextConfiguration.getValueAsString(YTGlobalConfiguration.WAL_LOCATION);
     final Path walPath;
     if (configWalPath == null) {
       walPath = null;
@@ -858,39 +858,40 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
             name,
             storagePath,
             walPath,
-            contextConfiguration.getValueAsInteger(OGlobalConfiguration.WAL_CACHE_SIZE),
-            contextConfiguration.getValueAsInteger(OGlobalConfiguration.WAL_BUFFER_SIZE),
+            contextConfiguration.getValueAsInteger(YTGlobalConfiguration.WAL_CACHE_SIZE),
+            contextConfiguration.getValueAsInteger(YTGlobalConfiguration.WAL_BUFFER_SIZE),
             aesKey,
             iv,
-            contextConfiguration.getValueAsLong(OGlobalConfiguration.WAL_SEGMENTS_INTERVAL)
+            contextConfiguration.getValueAsLong(YTGlobalConfiguration.WAL_SEGMENTS_INTERVAL)
                 * 60
                 * 1_000_000_000L,
             walMaxSegSize,
             10,
             true,
             Locale.getDefault(),
-            contextConfiguration.getValueAsLong(OGlobalConfiguration.WAL_MAX_SIZE) * 1024 * 1024,
-            contextConfiguration.getValueAsInteger(OGlobalConfiguration.WAL_COMMIT_TIMEOUT),
-            contextConfiguration.getValueAsBoolean(OGlobalConfiguration.WAL_KEEP_SINGLE_SEGMENT),
-            contextConfiguration.getValueAsBoolean(OGlobalConfiguration.STORAGE_CALL_FSYNC),
+            contextConfiguration.getValueAsLong(YTGlobalConfiguration.WAL_MAX_SIZE) * 1024 * 1024,
+            contextConfiguration.getValueAsInteger(YTGlobalConfiguration.WAL_COMMIT_TIMEOUT),
+            contextConfiguration.getValueAsBoolean(YTGlobalConfiguration.WAL_KEEP_SINGLE_SEGMENT),
+            contextConfiguration.getValueAsBoolean(YTGlobalConfiguration.STORAGE_CALL_FSYNC),
             contextConfiguration.getValueAsBoolean(
-                OGlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_STATISTICS),
+                YTGlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_STATISTICS),
             contextConfiguration.getValueAsInteger(
-                OGlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_INTERVAL));
+                YTGlobalConfiguration.STORAGE_PRINT_WAL_PERFORMANCE_INTERVAL));
     writeAheadLog.addCheckpointListener(this);
 
     final int pageSize =
-        contextConfiguration.getValueAsInteger(OGlobalConfiguration.DISK_CACHE_PAGE_SIZE) * ONE_KB;
+        contextConfiguration.getValueAsInteger(YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE) * ONE_KB;
     final long diskCacheSize =
-        contextConfiguration.getValueAsLong(OGlobalConfiguration.DISK_CACHE_SIZE) * 1024 * 1024;
+        contextConfiguration.getValueAsLong(YTGlobalConfiguration.DISK_CACHE_SIZE) * 1024 * 1024;
     final long writeCacheSize =
         (long)
-            (contextConfiguration.getValueAsInteger(OGlobalConfiguration.DISK_WRITE_CACHE_PART)
+            (contextConfiguration.getValueAsInteger(YTGlobalConfiguration.DISK_WRITE_CACHE_PART)
                 / 100.0
                 * diskCacheSize);
 
     final DoubleWriteLog doubleWriteLog;
-    if (contextConfiguration.getValueAsBoolean(OGlobalConfiguration.STORAGE_USE_DOUBLE_WRITE_LOG)) {
+    if (contextConfiguration.getValueAsBoolean(
+        YTGlobalConfiguration.STORAGE_USE_DOUBLE_WRITE_LOG)) {
       doubleWriteLog = new DoubleWriteLogGL(doubleWriteLogMaxSegSize);
     } else {
       doubleWriteLog = new DoubleWriteLogNoOP();
@@ -899,13 +900,13 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     final OWOWCache wowCache =
         new OWOWCache(
             pageSize,
-            contextConfiguration.getValueAsBoolean(OGlobalConfiguration.FILE_LOG_DELETION),
+            contextConfiguration.getValueAsBoolean(YTGlobalConfiguration.FILE_LOG_DELETION),
             OByteBufferPool.instance(null),
             writeAheadLog,
             doubleWriteLog,
             contextConfiguration.getValueAsInteger(
-                OGlobalConfiguration.DISK_WRITE_CACHE_PAGE_FLUSH_INTERVAL),
-            contextConfiguration.getValueAsInteger(OGlobalConfiguration.WAL_SHUTDOWN_TIMEOUT),
+                YTGlobalConfiguration.DISK_WRITE_CACHE_PAGE_FLUSH_INTERVAL),
+            contextConfiguration.getValueAsInteger(YTGlobalConfiguration.WAL_SHUTDOWN_TIMEOUT),
             writeCacheSize,
             storagePath,
             getName(),
@@ -913,10 +914,10 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
             files,
             getId(),
             contextConfiguration.getValueAsEnum(
-                OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.class),
+                YTGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.class),
             iv,
             aesKey,
-            contextConfiguration.getValueAsBoolean(OGlobalConfiguration.STORAGE_CALL_FSYNC),
+            contextConfiguration.getValueAsBoolean(YTGlobalConfiguration.STORAGE_CALL_FSYNC),
             ((YouTrackDBEmbedded) context).getIoExecutor());
 
     wowCache.loadRegisteredFiles();
@@ -953,7 +954,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  public String incrementalBackup(ODatabaseSessionInternal session, final String backupDirectory,
+  public String incrementalBackup(YTDatabaseSessionInternal session, final String backupDirectory,
       OCallable<Void, Void> started) {
     return incrementalBackup(new File(backupDirectory), started);
   }
@@ -1390,7 +1391,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
             final String aesKeyEncoded =
                 getConfiguration()
                     .getContextConfiguration()
-                    .getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
+                    .getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
             final byte[] aesKey =
                 aesKeyEncoded == null ? null : Base64.getDecoder().decode(aesKeyEncoded);
 
@@ -1567,13 +1568,13 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     return lastLsn;
   }
 
-  public void restoreFromIncrementalBackup(ODatabaseSessionInternal session,
+  public void restoreFromIncrementalBackup(YTDatabaseSessionInternal session,
       final String filePath) {
     restoreFromIncrementalBackup(session, new File(filePath));
   }
 
   @Override
-  public void restoreFullIncrementalBackup(ODatabaseSessionInternal session,
+  public void restoreFullIncrementalBackup(YTDatabaseSessionInternal session,
       final InputStream stream)
       throws UnsupportedOperationException {
     stateLock.writeLock().lock();
@@ -1581,7 +1582,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       final String aesKeyEncoded =
           getConfiguration()
               .getContextConfiguration()
-              .getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
+              .getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
       final byte[] aesKey =
           aesKeyEncoded == null ? null : Base64.getDecoder().decode(aesKeyEncoded);
 
@@ -1630,7 +1631,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         serverLocale, contextConfiguration, charset, locale);
   }
 
-  private void restoreFromIncrementalBackup(ODatabaseSessionInternal session,
+  private void restoreFromIncrementalBackup(YTDatabaseSessionInternal session,
       final File backupDirectory) {
     if (!backupDirectory.exists()) {
       throw new OStorageException(
@@ -1658,7 +1659,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         final String aesKeyEncoded =
             getConfiguration()
                 .getContextConfiguration()
-                .getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
+                .getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
         final byte[] aesKey =
             aesKeyEncoded == null ? null : Base64.getDecoder().decode(aesKeyEncoded);
 
@@ -1736,7 +1737,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     }
   }
 
-  private void postProcessIncrementalRestore(ODatabaseSessionInternal session,
+  private void postProcessIncrementalRestore(YTDatabaseSessionInternal session,
       OContextConfiguration contextConfiguration)
       throws IOException {
     if (OClusterBasedStorageConfiguration.exists(writeCache)) {
@@ -2011,7 +2012,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
   @Override
   public @Nonnull ORawBuffer readRecord(
-      ODatabaseSessionInternal session, ORecordId iRid,
+      YTDatabaseSessionInternal session, YTRecordId iRid,
       boolean iIgnoreCache,
       boolean prefetchRecords,
       ORecordCallback<ORawBuffer> iCallback) {

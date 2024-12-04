@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
@@ -38,8 +38,9 @@ public class OIndexDictionary extends OIndexOneValue {
   }
 
   @Override
-  public void doPut(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
-      ORID rid)
+  public void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+      Object key,
+      YTRID rid)
       throws OInvalidIndexEngineIdException {
     if (apiVersion == 0) {
       putV0(storage, indexId, key, rid);
@@ -56,13 +57,13 @@ public class OIndexDictionary extends OIndexOneValue {
   }
 
   private static void putV0(
-      final OAbstractPaginatedStorage storage, int indexId, Object key, OIdentifiable value)
+      final OAbstractPaginatedStorage storage, int indexId, Object key, YTIdentifiable value)
       throws OInvalidIndexEngineIdException {
     throw new UnsupportedOperationException();
   }
 
   private static void putV1(
-      final OAbstractPaginatedStorage storage, int indexId, Object key, OIdentifiable value)
+      final OAbstractPaginatedStorage storage, int indexId, Object key, YTIdentifiable value)
       throws OInvalidIndexEngineIdException {
     storage.putRidIndexEntry(indexId, key, value.getIdentity());
   }

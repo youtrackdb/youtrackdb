@@ -1,17 +1,17 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Special implementation of Java Set&lt;ORID&gt; to efficiently handle memory and performance. It
+ * Special implementation of Java Set&lt;YTRID&gt; to efficiently handle memory and performance. It
  * does not store actual RIDs, but it only keeps track that a RID was stored, so the iterator will
  * return new instances.
  */
-public class ORidSet implements Set<ORID> {
+public class ORidSet implements Set<YTRID> {
 
   protected static int INITIAL_BLOCK_SIZE = 4096;
 
@@ -24,7 +24,7 @@ public class ORidSet implements Set<ORID> {
   protected long[][][] content = new long[8][][];
 
   private long size = 0;
-  protected Set<ORID> negatives = new HashSet<>();
+  protected Set<YTRID> negatives = new HashSet<>();
 
   protected int maxArraySize;
 
@@ -59,7 +59,7 @@ public class ORidSet implements Set<ORID> {
     if (size == 0L && negatives.size() == 0) {
       return false;
     }
-    if (!(o instanceof ORID identifiable)) {
+    if (!(o instanceof YTRID identifiable)) {
       throw new IllegalArgumentException();
     }
     if (identifiable == null) {
@@ -98,7 +98,7 @@ public class ORidSet implements Set<ORID> {
   }
 
   @Override
-  public Iterator<ORID> iterator() {
+  public Iterator<YTRID> iterator() {
     return new ORidSetIterator(this);
   }
 
@@ -113,7 +113,7 @@ public class ORidSet implements Set<ORID> {
   }
 
   @Override
-  public boolean add(ORID identifiable) {
+  public boolean add(YTRID identifiable) {
     if (identifiable == null) {
       throw new IllegalArgumentException();
     }
@@ -194,7 +194,7 @@ public class ORidSet implements Set<ORID> {
 
   @Override
   public boolean remove(Object o) {
-    if (!(o instanceof ORID identifiable)) {
+    if (!(o instanceof YTRID identifiable)) {
       throw new IllegalArgumentException();
     }
     if (identifiable == null) {
@@ -245,9 +245,9 @@ public class ORidSet implements Set<ORID> {
   }
 
   @Override
-  public boolean addAll(Collection<? extends ORID> c) {
+  public boolean addAll(Collection<? extends YTRID> c) {
     boolean added = false;
-    for (ORID o : c) {
+    for (YTRID o : c) {
       added = added && add(o);
     }
     return added;

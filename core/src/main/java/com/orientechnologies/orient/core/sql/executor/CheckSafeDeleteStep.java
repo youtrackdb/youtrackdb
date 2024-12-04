@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
@@ -34,7 +34,7 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result.isElement()) {
       var elem = result.toElement();
-      OClass clazz = ODocumentInternal.getImmutableSchemaClass((ODocument) elem);
+      YTClass clazz = ODocumentInternal.getImmutableSchemaClass((YTDocument) elem);
       if (clazz != null) {
         if (clazz.getName().equalsIgnoreCase("V") || clazz.isSubClassOf("V")) {
           throw new OCommandExecutionException(

@@ -18,12 +18,12 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,10 +41,10 @@ public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
   @Before
   public void init() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("City");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "name", YTType.STRING);
     //noinspection deprecation
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -53,9 +53,9 @@ public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
   @Ignore
   public void testInsertUpdateWithIndex() throws Exception {
     db.getMetadata().reload();
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
     doc.field("name", "Rome");
 
     db.begin();
@@ -64,12 +64,12 @@ public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
     OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
 
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
 
-    doc = db.load((ORID) coll.iterator().next());
+    doc = db.load((YTRID) coll.iterator().next());
     Assert.assertEquals("Rome", doc.field("name"));
 
     db.begin();
@@ -77,16 +77,16 @@ public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());
 
-    doc = db.load((ORID) coll.iterator().next());
+    doc = db.load((YTRID) coll.iterator().next());
     Assert.assertEquals("London", doc.field("name"));
 
     db.begin();
@@ -97,15 +97,15 @@ public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
     doc = db.load(doc.getIdentity());
     Assert.assertEquals("Berlin", doc.field("name"));
 
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, idx.getInternal().size(db));
@@ -121,15 +121,15 @@ public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
     idx = schema.getClass("City").getClassIndex(db, "City.name");
 
     Assert.assertEquals(1, idx.getInternal().size(db));
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(0, coll.size());
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(1, coll.size());

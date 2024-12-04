@@ -2,13 +2,13 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,23 +27,23 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
   @Test
   public void testTruncateClass() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass testClass = getOrCreateClass(schema);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass testClass = getOrCreateClass(schema);
 
     final OIndex index = getOrCreateIndex(testClass);
 
     db.command("truncate class test_class");
 
     db.begin();
-    db.save(new ODocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
-    db.save(new ODocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    db.save(new YTDocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
+    db.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     db.commit();
 
     db.command("truncate class test_class").close();
 
     db.begin();
-    db.save(new ODocument(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
-    db.save(new ODocument(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
+    db.save(new YTDocument(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
+    db.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
     db.commit();
 
     OResultSet result = db.query("select from test_class");
@@ -58,7 +58,7 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
 
     Assert.assertEquals(index.getInternal().size(db), 6);
 
-    try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream(db)) {
+    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(db)) {
       stream.forEach(
           (entry) -> {
             Assert.assertTrue(set.contains((Integer) entry.first));
@@ -164,17 +164,17 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     return result;
   }
 
-  private OIndex getOrCreateIndex(OClass testClass) {
+  private OIndex getOrCreateIndex(YTClass testClass) {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "test_class_by_data");
     if (index == null) {
-      testClass.createProperty(db, "data", OType.EMBEDDEDLIST, OType.INTEGER);
-      index = testClass.createIndex(db, "test_class_by_data", OClass.INDEX_TYPE.UNIQUE, "data");
+      testClass.createProperty(db, "data", YTType.EMBEDDEDLIST, YTType.INTEGER);
+      index = testClass.createIndex(db, "test_class_by_data", YTClass.INDEX_TYPE.UNIQUE, "data");
     }
     return index;
   }
 
-  private OClass getOrCreateClass(OSchema schema) {
-    OClass testClass;
+  private YTClass getOrCreateClass(YTSchema schema) {
+    YTClass testClass;
     if (schema.existsClass("test_class")) {
       testClass = schema.getClass("test_class");
     } else {
@@ -187,14 +187,14 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
   @Test
   public void testTruncateClassWithCommandCache() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass testClass = getOrCreateClass(schema);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass testClass = getOrCreateClass(schema);
 
     db.command("truncate class test_class");
 
     db.begin();
-    db.save(new ODocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
-    db.save(new ODocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    db.save(new YTDocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
+    db.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     db.commit();
 
     OResultSet result = db.query("select from test_class");

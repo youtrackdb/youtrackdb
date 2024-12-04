@@ -27,11 +27,11 @@ import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.cache.OAbstractWriteCache;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -137,7 +137,7 @@ public final class OSBTreeCollectionManagerShared
       final BTree bTree = new BTree(storage, FILE_NAME_PREFIX + clusterId, FILE_EXTENSION);
       atomicOperationsManager.executeInsideAtomicOperation(null, bTree::create);
 
-      final OSBTreeBonsaiLocal<OIdentifiable, Integer> bonsaiLocal =
+      final OSBTreeBonsaiLocal<YTIdentifiable, Integer> bonsaiLocal =
           new OSBTreeBonsaiLocal<>(
               fileName.substring(0, fileName.length() - ".sbc".length()), ".sbc", storage);
       bonsaiLocal.load(OLinkSerializer.INSTANCE, OIntegerSerializer.INSTANCE);
@@ -151,7 +151,7 @@ public final class OSBTreeCollectionManagerShared
                 atomicOperationsManager.executeInsideAtomicOperation(
                     null,
                     atomicOperation -> {
-                      final ORID rid = pair.first.getIdentity();
+                      final YTRID rid = pair.first.getIdentity();
 
                       bTree.put(
                           atomicOperation,
@@ -223,7 +223,7 @@ public final class OSBTreeCollectionManagerShared
   }
 
   @Override
-  public OSBTreeBonsai<OIdentifiable, Integer> createAndLoadTree(
+  public OSBTreeBonsai<YTIdentifiable, Integer> createAndLoadTree(
       final OAtomicOperation atomicOperation, final int clusterId) {
     return doCreateRidBag(atomicOperation, clusterId);
   }
@@ -282,7 +282,7 @@ public final class OSBTreeCollectionManagerShared
   }
 
   @Override
-  public OSBTreeBonsai<OIdentifiable, Integer> loadSBTree(
+  public OSBTreeBonsai<YTIdentifiable, Integer> loadSBTree(
       OBonsaiCollectionPointer collectionPointer) {
     final int intFileId = OAbstractWriteCache.extractFileId(collectionPointer.getFileId());
 
@@ -333,7 +333,7 @@ public final class OSBTreeCollectionManagerShared
     UUID ownerUUID = collection.getTemporaryId();
     if (ownerUUID != null) {
       final OBonsaiCollectionPointer pointer = collection.getPointer();
-      ODatabaseSessionInternal session = ODatabaseRecordThreadLocal.instance().get();
+      YTDatabaseSessionInternal session = ODatabaseRecordThreadLocal.instance().get();
       Map<UUID, OBonsaiCollectionPointer> changedPointers = session.getCollectionsChanges();
       if (pointer != null && pointer.isValid()) {
         changedPointers.put(ownerUUID, pointer);

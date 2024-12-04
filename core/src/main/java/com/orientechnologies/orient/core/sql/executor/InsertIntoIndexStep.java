@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -45,7 +45,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private OResultInternal produce(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = ctx.getDatabase();
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index =
         database
             .getMetadata()
@@ -127,8 +127,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     long count = 0;
     Object key = keyExp.execute((OResult) null, ctx);
     Object value = valueExp.execute((OResult) null, ctx);
-    if (value instanceof OIdentifiable) {
-      insertIntoIndex(ctx.getDatabase(), index, key, (OIdentifiable) value);
+    if (value instanceof YTIdentifiable) {
+      insertIntoIndex(ctx.getDatabase(), index, key, (YTIdentifiable) value);
       count++;
     } else if (value instanceof OResult && ((OResult) value).isElement()) {
       insertIntoIndex(ctx.getDatabase(), index, key, ((OResult) value).toElement());
@@ -139,8 +139,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       Iterator<?> iterator = OMultiValue.getMultiValueIterator(value);
       while (iterator.hasNext()) {
         Object item = iterator.next();
-        if (item instanceof OIdentifiable) {
-          insertIntoIndex(ctx.getDatabase(), index, key, (OIdentifiable) item);
+        if (item instanceof YTIdentifiable) {
+          insertIntoIndex(ctx.getDatabase(), index, key, (YTIdentifiable) item);
           count++;
         } else if (item instanceof OResult && ((OResult) item).isElement()) {
           insertIntoIndex(ctx.getDatabase(), index, key, ((OResult) item).toElement());
@@ -153,8 +153,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     return count;
   }
 
-  private void insertIntoIndex(ODatabaseSessionInternal session, final OIndex index,
-      final Object key, final OIdentifiable value) {
+  private void insertIntoIndex(YTDatabaseSessionInternal session, final OIndex index,
+      final Object key, final YTIdentifiable value) {
     index.put(session, key, value);
   }
 }

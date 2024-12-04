@@ -16,10 +16,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
@@ -36,9 +36,9 @@ import org.testng.annotations.Test;
 public class TraverseTestNew extends DocumentDBBaseTest {
 
   private int totalElements = 0;
-  private OVertex tomCruise;
-  private OVertex megRyan;
-  private OVertex nicoleKidman;
+  private YTVertex tomCruise;
+  private YTVertex megRyan;
+  private YTVertex nicoleKidman;
 
   @Parameters(value = "remote")
   public TraverseTestNew(boolean remote) {
@@ -67,7 +67,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
 
     totalElements++;
 
-    OVertex topGun = database.newVertex("Movie");
+    YTVertex topGun = database.newVertex("Movie");
     topGun.setProperty("name", "Top Gun");
     topGun.setProperty("year", 1986);
 
@@ -76,7 +76,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     database.commit();
 
     totalElements++;
-    OVertex missionImpossible = database.newVertex("Movie");
+    YTVertex missionImpossible = database.newVertex("Movie");
     missionImpossible.setProperty("name", "Mission: Impossible");
     missionImpossible.setProperty("year", 1996);
 
@@ -85,7 +85,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     database.commit();
 
     totalElements++;
-    OVertex youHaveGotMail = database.newVertex("Movie");
+    YTVertex youHaveGotMail = database.newVertex("Movie");
     youHaveGotMail.setProperty("name", "You've Got Mail");
     youHaveGotMail.setProperty("year", 1998);
 
@@ -121,7 +121,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     database.commit();
 
     totalElements++;
-    OEdge e = database.newEdge(tomCruise, nicoleKidman, "married");
+    YTEdge e = database.newEdge(tomCruise, nicoleKidman, "married");
     e.setProperty("year", 1990);
 
     database.begin();
@@ -209,7 +209,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     Assert.assertTrue(result2.hasNext());
     int size2 = 0;
     while (result2.hasNext()) {
-      ODocument d = result2.next().getElement().get().getRecord();
+      YTDocument d = result2.next().getElement().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size2++;
     }
@@ -222,7 +222,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     Assert.assertTrue(result3.hasNext());
     int size3 = 0;
     while (result3.hasNext()) {
-      ODocument d = result3.next().getElement().get().getRecord();
+      YTDocument d = result3.next().getElement().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size3++;
     }
@@ -421,7 +421,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     try {
 
       String q = "traverse in('married')  from " + nicoleKidman.getIdentity();
-      ODatabaseSessionInternal db = database.copy();
+      YTDatabaseSessionInternal db = database.copy();
       ODatabaseRecordThreadLocal.instance().set(db);
       OResultSet result1 = db.query(q);
       Assert.assertTrue(result1.hasNext());

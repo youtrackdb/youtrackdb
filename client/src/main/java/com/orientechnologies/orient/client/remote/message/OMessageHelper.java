@@ -7,17 +7,17 @@ import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -48,21 +48,21 @@ import javax.annotation.Nullable;
 public class OMessageHelper {
 
   public static void writeIdentifiable(
-      ODatabaseSessionInternal session, OChannelDataOutput channel, final OIdentifiable o,
+      YTDatabaseSessionInternal session, OChannelDataOutput channel, final YTIdentifiable o,
       ORecordSerializer serializer)
       throws IOException {
     if (o == null) {
       channel.writeShort(OChannelBinaryProtocol.RECORD_NULL);
-    } else if (o instanceof ORecordId) {
+    } else if (o instanceof YTRecordId) {
       channel.writeShort(OChannelBinaryProtocol.RECORD_RID);
-      channel.writeRID((ORID) o);
+      channel.writeRID((YTRID) o);
     } else {
       writeRecord(session, channel, o.getRecord(), serializer);
     }
   }
 
   public static void writeRecord(
-      ODatabaseSessionInternal session, OChannelDataOutput channel, ORecordAbstract iRecord,
+      YTDatabaseSessionInternal session, OChannelDataOutput channel, YTRecordAbstract iRecord,
       ORecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) 0);
@@ -81,16 +81,16 @@ public class OMessageHelper {
     }
   }
 
-  public static byte[] getRecordBytes(@Nullable ODatabaseSessionInternal session,
-      final ORecordAbstract iRecord, ORecordSerializer serializer) {
+  public static byte[] getRecordBytes(@Nullable YTDatabaseSessionInternal session,
+      final YTRecordAbstract iRecord, ORecordSerializer serializer) {
     final byte[] stream;
     String dbSerializerName = null;
     if (session != null) {
       dbSerializerName = (iRecord.getSession()).getSerializer().toString();
     }
-    if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
+    if (ORecordInternal.getRecordType(iRecord) == YTDocument.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(serializer.toString()))) {
-      ((ODocument) iRecord).deserializeFields();
+      ((YTDocument) iRecord).deserializeFields();
       stream = serializer.toStream(session, iRecord);
     } else {
       stream = iRecord.toStream();
@@ -253,7 +253,7 @@ public class OMessageHelper {
     result.setType(iNetwork.readByte());
     int clusterId = iNetwork.readInt();
     long clusterPosition = iNetwork.readLong();
-    result.setId(new ORecordId(clusterId, clusterPosition));
+    result.setId(new YTRecordId(clusterId, clusterPosition));
     result.setRecordType(iNetwork.readByte());
 
     switch (result.getType()) {
@@ -328,7 +328,7 @@ public class OMessageHelper {
       }
       for (OTransactionIndexChangesPerKey change :
           indexChange.getKeyChanges().changesPerKey.values()) {
-        OType type = OType.getTypeByValue(change.key);
+        YTType type = YTType.getTypeByValue(change.key);
         byte[] value = serializer.serializeValue(change.key, type);
         network.writeByte((byte) type.getId());
         network.writeBytes(value);
@@ -350,7 +350,7 @@ public class OMessageHelper {
   }
 
   static List<IndexChange> readTransactionIndexChanges(
-      ODatabaseSessionInternal db, OChannelDataInput channel,
+      YTDatabaseSessionInternal db, OChannelDataInput channel,
       ORecordSerializerNetworkV37 serializer) throws IOException {
     List<IndexChange> changes = new ArrayList<>();
     int val = channel.readInt();
@@ -367,7 +367,7 @@ public class OMessageHelper {
         if (bt == -1) {
           key = null;
         } else {
-          OType type = OType.getById(bt);
+          YTType type = YTType.getById(bt);
           key = serializer.deserializeValue(db, channel.readBytes(), type);
         }
         OTransactionIndexChangesPerKey changesPerKey = new OTransactionIndexChangesPerKey(key);
@@ -375,7 +375,7 @@ public class OMessageHelper {
         while (keyChangeCount-- > 0) {
           int op = channel.readInt();
           OTransactionIndexChanges.OPERATION oper = OTransactionIndexChanges.OPERATION.values()[op];
-          ORecordId id;
+          YTRecordId id;
           if (oper == OTransactionIndexChanges.OPERATION.CLEAR) {
             oper = OTransactionIndexChanges.OPERATION.REMOVE;
             id = null;
@@ -396,8 +396,8 @@ public class OMessageHelper {
     return changes;
   }
 
-  public static OIdentifiable readIdentifiable(
-      ODatabaseSessionInternal db, final OChannelDataInput network, ORecordSerializer serializer)
+  public static YTIdentifiable readIdentifiable(
+      YTDatabaseSessionInternal db, final OChannelDataInput network, ORecordSerializer serializer)
       throws IOException {
     final int classId = network.readShort();
     if (classId == OChannelBinaryProtocol.RECORD_NULL) {
@@ -407,20 +407,20 @@ public class OMessageHelper {
     if (classId == OChannelBinaryProtocol.RECORD_RID) {
       return network.readRID();
     } else {
-      final ORecord record = readRecordFromBytes(db, network, serializer);
+      final YTRecord record = readRecordFromBytes(db, network, serializer);
       return record;
     }
   }
 
-  private static ORecord readRecordFromBytes(
-      ODatabaseSessionInternal db, OChannelDataInput network, ORecordSerializer serializer)
+  private static YTRecord readRecordFromBytes(
+      YTDatabaseSessionInternal db, OChannelDataInput network, ORecordSerializer serializer)
       throws IOException {
     byte rec = network.readByte();
-    final ORecordId rid = network.readRID();
+    final YTRecordId rid = network.readRID();
     final int version = network.readVersion();
     final byte[] content = network.readBytes();
 
-    ORecordAbstract record =
+    YTRecordAbstract record =
         YouTrackDBManager.instance()
             .getRecordFactoryManager()
             .newInstance(rec, rid, db);
@@ -438,7 +438,7 @@ public class OMessageHelper {
   }
 
   private static void writeBlob(
-      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_BLOB);
@@ -446,7 +446,7 @@ public class OMessageHelper {
   }
 
   private static void writeVertex(
-      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_VERTEX);
@@ -454,7 +454,7 @@ public class OMessageHelper {
   }
 
   private static void writeElement(
-      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_ELEMENT);
@@ -462,7 +462,7 @@ public class OMessageHelper {
   }
 
   private static void writeEdge(
-      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_EDGE);
@@ -470,13 +470,13 @@ public class OMessageHelper {
   }
 
   private static void writeDocument(
-      ODatabaseSessionInternal session, OChannelDataOutput channel, ODocument doc,
+      YTDatabaseSessionInternal session, OChannelDataOutput channel, YTDocument doc,
       ORecordSerializer serializer) throws IOException {
     writeIdentifiable(session, channel, doc, serializer);
   }
 
   public static void writeResult(
-      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     if (row.isBlob()) {
@@ -492,13 +492,13 @@ public class OMessageHelper {
     }
   }
 
-  private static OResultInternal readBlob(ODatabaseSessionInternal db, OChannelDataInput channel)
+  private static OResultInternal readBlob(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37.INSTANCE;
     return new OResultInternal(db, readIdentifiable(db, channel, serializer));
   }
 
-  public static OResultInternal readResult(ODatabaseSessionInternal db, OChannelDataInput channel)
+  public static OResultInternal readResult(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     byte type = channel.readByte();
     return switch (type) {
@@ -511,28 +511,29 @@ public class OMessageHelper {
     };
   }
 
-  private static OResultInternal readElement(ODatabaseSessionInternal db, OChannelDataInput channel)
+  private static OResultInternal readElement(YTDatabaseSessionInternal db,
+      OChannelDataInput channel)
       throws IOException {
     return new OResultInternal(db, readDocument(db, channel));
   }
 
-  private static OResultInternal readVertex(ODatabaseSessionInternal db, OChannelDataInput channel)
+  private static OResultInternal readVertex(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     return new OResultInternal(db, readDocument(db, channel));
   }
 
-  private static OResultInternal readEdge(ODatabaseSessionInternal db, OChannelDataInput channel)
+  private static OResultInternal readEdge(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     return new OResultInternal(db, readDocument(db, channel));
   }
 
-  private static ORecord readDocument(ODatabaseSessionInternal db, OChannelDataInput channel)
+  private static YTRecord readDocument(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
-    return (ORecord) readIdentifiable(db, channel, serializer);
+    return (YTRecord) readIdentifiable(db, channel, serializer);
   }
 
-  private static OResultInternal readProjection(ODatabaseSessionInternal db,
+  private static OResultInternal readProjection(YTDatabaseSessionInternal db,
       OChannelDataInput channel) throws IOException {
     OResultSerializerNetwork ser = new OResultSerializerNetwork();
     return ser.fromStream(db, channel);

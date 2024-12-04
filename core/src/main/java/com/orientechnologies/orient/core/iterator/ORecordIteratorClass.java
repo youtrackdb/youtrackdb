@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.core.iterator;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.util.Arrays;
 
@@ -36,13 +36,13 @@ import java.util.Arrays;
  * insert and remove item in any cluster the iterator is browsing. If the cluster are hot removed by
  * from the database the iterator could be invalid and throw exception of cluster not found.
  */
-public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorClusters<REC> {
+public class ORecordIteratorClass<REC extends YTRecord> extends ORecordIteratorClusters<REC> {
 
-  protected final OClass targetClass;
+  protected final YTClass targetClass;
   protected boolean polymorphic;
 
   public ORecordIteratorClass(
-      final ODatabaseSessionInternal iDatabase,
+      final YTDatabaseSessionInternal iDatabase,
       final String iClassName,
       final boolean iPolymorphic,
       boolean begin) {
@@ -54,7 +54,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
 
   @Deprecated
   public ORecordIteratorClass(
-      final ODatabaseSessionInternal iDatabase,
+      final YTDatabaseSessionInternal iDatabase,
       final String iClassName,
       final boolean iPolymorphic) {
     super(iDatabase);
@@ -67,7 +67,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
 
     polymorphic = iPolymorphic;
     clusterIds = polymorphic ? targetClass.getPolymorphicClusterIds() : targetClass.getClusterIds();
-    clusterIds = OClassImpl.readableClusters(iDatabase, clusterIds, targetClass.getName());
+    clusterIds = YTClassImpl.readableClusters(iDatabase, clusterIds, targetClass.getName());
 
     checkForSystemClusters(iDatabase, clusterIds);
 
@@ -76,7 +76,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
   }
 
   protected ORecordIteratorClass(
-      final ODatabaseSessionInternal database, OClass targetClass, boolean polymorphic) {
+      final YTDatabaseSessionInternal database, YTClass targetClass, boolean polymorphic) {
     super(database, targetClass.getPolymorphicClusterIds());
     this.targetClass = targetClass;
     this.polymorphic = polymorphic;
@@ -84,7 +84,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
 
   @Override
   public REC next() {
-    final OIdentifiable rec = super.next();
+    final YTIdentifiable rec = super.next();
     if (rec == null) {
       return null;
     }
@@ -93,7 +93,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
 
   @Override
   public REC previous() {
-    final OIdentifiable rec = super.previous();
+    final YTIdentifiable rec = super.previous();
     if (rec == null) {
       return null;
     }
@@ -112,13 +112,13 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
   }
 
   @Override
-  protected boolean include(final ORecord record) {
-    return record instanceof ODocument
+  protected boolean include(final YTRecord record) {
+    return record instanceof YTDocument
         && targetClass.isSuperClassOf(
-        ODocumentInternal.getImmutableSchemaClass(((ODocument) record)));
+        ODocumentInternal.getImmutableSchemaClass(((YTDocument) record)));
   }
 
-  public OClass getTargetClass() {
+  public YTClass getTargetClass() {
     return targetClass;
   }
 

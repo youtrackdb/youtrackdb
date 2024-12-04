@@ -25,8 +25,8 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.traverse.OTraverse;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Executes a TRAVERSE crossing records. Returns a List<OIdentifiable> containing all the traversed
+ * Executes a TRAVERSE crossing records. Returns a List<YTIdentifiable> containing all the traversed
  * records that match the WHERE condition.
  *
  * <p>SYNTAX: <code>TRAVERSE <field>* FROM <target> WHERE <condition></code>
@@ -200,7 +200,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     return true;
   }
 
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     context.beginExecution(timeoutMs, timeoutStrategy);
 
     if (!assignTarget(iArgs)) {
@@ -214,8 +214,8 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
       }
 
       // BROWSE ALL THE RECORDS AND COLLECTS RESULT
-      final List<OIdentifiable> result = traverse.execute(querySession);
-      for (OIdentifiable r : result) {
+      final List<YTIdentifiable> result = traverse.execute(querySession);
+      for (YTIdentifiable r : result) {
         if (!handleResult(r, context))
         // LIMIT REACHED
         {
@@ -234,11 +234,11 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     return traverse.getContext();
   }
 
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return iterator(ODatabaseRecordThreadLocal.instance().get(), null);
   }
 
-  public Iterator<OIdentifiable> iterator(ODatabaseSessionInternal querySession,
+  public Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
       final Map<Object, Object> iArgs) {
     assignTarget(iArgs);
     return traverse;

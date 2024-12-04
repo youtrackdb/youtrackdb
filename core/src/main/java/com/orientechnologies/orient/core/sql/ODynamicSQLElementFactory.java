@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
@@ -42,7 +42,7 @@ public class ODynamicSQLElementFactory
 
 
   @Override
-  public void registerDefaultFunctions(ODatabaseSessionInternal db) {
+  public void registerDefaultFunctions(YTDatabaseSessionInternal db) {
     // DO NOTHING
   }
 

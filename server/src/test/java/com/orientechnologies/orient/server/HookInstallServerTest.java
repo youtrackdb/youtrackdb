@@ -5,7 +5,7 @@ import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import java.io.File;
@@ -36,7 +36,7 @@ public class HookInstallServerTest {
     }
 
     @Override
-    public void onRecordAfterCreate(ODocument iDocument) {
+    public void onRecordAfterCreate(YTDocument iDocument) {
       count++;
     }
   }
@@ -107,7 +107,7 @@ public class HookInstallServerTest {
           some.createClassIfNotExist("Test");
 
           some.executeInTx(() -> {
-            some.save(new ODocument("Test").field("entry", id));
+            some.save(new YTDocument("Test").field("entry", id));
             some.commit();
           });
         }

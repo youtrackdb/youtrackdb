@@ -1,23 +1,23 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.OElementInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,17 +42,17 @@ public class OResultInternal implements OResult {
   protected Map<String, Object> metadata;
 
   @Nullable
-  protected OIdentifiable identifiable;
+  protected YTIdentifiable identifiable;
 
   @Nullable
-  protected ODatabaseSessionInternal session;
+  protected YTDatabaseSessionInternal session;
 
-  public OResultInternal(@Nullable ODatabaseSessionInternal session) {
+  public OResultInternal(@Nullable YTDatabaseSessionInternal session) {
     content = new LinkedHashMap<>();
     this.session = session;
   }
 
-  public OResultInternal(@Nullable ODatabaseSessionInternal session, OIdentifiable ident) {
+  public OResultInternal(@Nullable YTDatabaseSessionInternal session, YTIdentifiable ident) {
     setIdentifiable(ident);
     this.session = session;
   }
@@ -80,7 +80,7 @@ public class OResultInternal implements OResult {
 
   @Nullable
   @Override
-  public ORID getRecordId() {
+  public YTRID getRecordId() {
     if (identifiable == null) {
       return null;
     }
@@ -92,10 +92,10 @@ public class OResultInternal implements OResult {
     if (value == null) {
       return;
     }
-    if (OType.isSimpleType(value) || value instanceof Character) {
+    if (YTType.isSimpleType(value) || value instanceof Character) {
       return;
     }
-    if (value instanceof OIdentifiable) {
+    if (value instanceof YTIdentifiable) {
       return;
     }
     if (value instanceof OResult) {
@@ -151,17 +151,18 @@ public class OResultInternal implements OResult {
     } else {
       if (isElement()) {
         result = (T) wrap(session,
-            ODocumentInternal.rawPropertyRead((OElement) identifiable, name));
+            ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name));
       }
     }
-    if (result instanceof OIdentifiable && ((OIdentifiable) result).getIdentity().isPersistent()) {
-      result = (T) ((OIdentifiable) result).getIdentity();
+    if (result instanceof YTIdentifiable && ((YTIdentifiable) result).getIdentity()
+        .isPersistent()) {
+      result = (T) ((YTIdentifiable) result).getIdentity();
     }
     return result;
   }
 
   @Override
-  public OElement getElementProperty(String name) {
+  public YTEntity getElementProperty(String name) {
     loadIdentifiable();
 
     Object result = null;
@@ -169,7 +170,7 @@ public class OResultInternal implements OResult {
       result = content.get(name);
     } else {
       if (isElement()) {
-        result = ODocumentInternal.rawPropertyRead((OElement) identifiable, name);
+        result = ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name);
       }
     }
 
@@ -177,22 +178,22 @@ public class OResultInternal implements OResult {
       result = ((OResult) result).getRecord().orElse(null);
     }
 
-    if (result instanceof ORID) {
-      result = ((ORID) result).getRecord();
+    if (result instanceof YTRID) {
+      result = ((YTRID) result).getRecord();
     }
 
-    return result instanceof OElement ? (OElement) result : null;
+    return result instanceof YTEntity ? (YTEntity) result : null;
   }
 
   @Override
-  public OVertex getVertexProperty(String name) {
+  public YTVertex getVertexProperty(String name) {
     loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
       if (isElement()) {
-        result = ODocumentInternal.rawPropertyRead((OElement) identifiable, name);
+        result = ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name);
       }
     }
 
@@ -200,22 +201,22 @@ public class OResultInternal implements OResult {
       result = ((OResult) result).getRecord().orElse(null);
     }
 
-    if (result instanceof ORID) {
-      result = ((ORID) result).getRecord();
+    if (result instanceof YTRID) {
+      result = ((YTRID) result).getRecord();
     }
 
-    return result instanceof OElement ? ((OElement) result).asVertex().orElse(null) : null;
+    return result instanceof YTEntity ? ((YTEntity) result).asVertex().orElse(null) : null;
   }
 
   @Override
-  public OEdge getEdgeProperty(String name) {
+  public YTEdge getEdgeProperty(String name) {
     loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
       if (isElement()) {
-        result = ODocumentInternal.rawPropertyRead((OElement) identifiable, name);
+        result = ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name);
       }
     }
 
@@ -223,22 +224,22 @@ public class OResultInternal implements OResult {
       result = ((OResult) result).getRecord().orElse(null);
     }
 
-    if (result instanceof ORID) {
-      result = ((ORID) result).getRecord();
+    if (result instanceof YTRID) {
+      result = ((YTRID) result).getRecord();
     }
 
-    return result instanceof OElement ? ((OElement) result).asEdge().orElse(null) : null;
+    return result instanceof YTEntity ? ((YTEntity) result).asEdge().orElse(null) : null;
   }
 
   @Override
-  public OBlob getBlobProperty(String name) {
+  public YTBlob getBlobProperty(String name) {
     loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
       if (isElement()) {
-        result = ODocumentInternal.rawPropertyRead((OElement) identifiable, name);
+        result = ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name);
       }
     }
 
@@ -246,15 +247,15 @@ public class OResultInternal implements OResult {
       result = ((OResult) result).getRecord().orElse(null);
     }
 
-    if (result instanceof ORID) {
-      result = ((ORID) result).getRecord();
+    if (result instanceof YTRID) {
+      result = ((YTRID) result).getRecord();
     }
 
-    return result instanceof OBlob ? (OBlob) result : null;
+    return result instanceof YTBlob ? (YTBlob) result : null;
   }
 
-  private static Object wrap(ODatabaseSessionInternal session, Object input) {
-    if (input instanceof OElementInternal elem && !((OElement) input).getIdentity().isValid()) {
+  private static Object wrap(YTDatabaseSessionInternal session, Object input) {
+    if (input instanceof YTEntityInternal elem && !((YTEntity) input).getIdentity().isValid()) {
       OResultInternal result = new OResultInternal(session);
       for (String prop : elem.getPropertyNamesInternal()) {
         result.setProperty(prop, elem.getPropertyInternal(prop));
@@ -287,21 +288,21 @@ public class OResultInternal implements OResult {
   }
 
   private static boolean isEmbeddedSet(Object input) {
-    return input instanceof Set && OType.getTypeByValue(input) == OType.EMBEDDEDSET;
+    return input instanceof Set && YTType.getTypeByValue(input) == YTType.EMBEDDEDSET;
   }
 
   private static boolean isEmbeddedMap(Object input) {
-    return input instanceof Map && OType.getTypeByValue(input) == OType.EMBEDDEDMAP;
+    return input instanceof Map && YTType.getTypeByValue(input) == YTType.EMBEDDEDMAP;
   }
 
   private static boolean isEmbeddedList(Object input) {
-    return input instanceof List && OType.getTypeByValue(input) == OType.EMBEDDEDLIST;
+    return input instanceof List && YTType.getTypeByValue(input) == YTType.EMBEDDEDLIST;
   }
 
   public Collection<String> getPropertyNames() {
     loadIdentifiable();
     if (isElement()) {
-      return ((OElement) identifiable).getPropertyNames();
+      return ((YTEntity) identifiable).getPropertyNames();
     } else {
       if (content != null) {
         return new LinkedHashSet<>(content.keySet());
@@ -313,7 +314,7 @@ public class OResultInternal implements OResult {
 
   public boolean hasProperty(String propName) {
     loadIdentifiable();
-    if (isElement() && ((OElement) identifiable).hasProperty(propName)) {
+    if (isElement() && ((YTEntity) identifiable).hasProperty(propName)) {
       return true;
     }
     if (content != null) {
@@ -328,7 +329,7 @@ public class OResultInternal implements OResult {
       return false;
     }
 
-    if (identifiable instanceof OElement) {
+    if (identifiable instanceof YTEntity) {
       return true;
     }
 
@@ -338,47 +339,47 @@ public class OResultInternal implements OResult {
       identifiable = null;
     }
 
-    return identifiable instanceof OElement;
+    return identifiable instanceof YTEntity;
   }
 
-  public Optional<OElement> getElement() {
+  public Optional<YTEntity> getElement() {
     loadIdentifiable();
     if (isElement()) {
-      return Optional.ofNullable((OElement) identifiable);
+      return Optional.ofNullable((YTEntity) identifiable);
     }
     return Optional.empty();
   }
 
   @Override
-  public OElement asElement() {
+  public YTEntity asElement() {
     loadIdentifiable();
     if (isElement()) {
-      return (OElement) identifiable;
+      return (YTEntity) identifiable;
     }
 
     return null;
   }
 
   @Override
-  public OElement toElement() {
+  public YTEntity toElement() {
     if (isElement()) {
       return getElement().get();
     }
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     for (String s : getPropertyNames()) {
       if (s == null) {
         continue;
       } else {
         if (s.equalsIgnoreCase("@rid")) {
           Object newRid = getProperty(s);
-          if (newRid instanceof OIdentifiable) {
-            newRid = ((OIdentifiable) newRid).getIdentity();
+          if (newRid instanceof YTIdentifiable) {
+            newRid = ((YTIdentifiable) newRid).getIdentity();
           } else {
             continue;
           }
-          ORecordId oldId = (ORecordId) doc.getIdentity();
-          oldId.setClusterId(((ORID) newRid).getClusterId());
-          oldId.setClusterPosition(((ORID) newRid).getClusterPosition());
+          YTRecordId oldId = (YTRecordId) doc.getIdentity();
+          oldId.setClusterId(((YTRID) newRid).getClusterId());
+          oldId.setClusterPosition(((YTRID) newRid).getClusterPosition());
         } else {
           if (s.equalsIgnoreCase("@version")) {
             Object v = getProperty(s);
@@ -401,7 +402,7 @@ public class OResultInternal implements OResult {
   }
 
   @Override
-  public Optional<ORID> getIdentity() {
+  public Optional<YTRID> getIdentity() {
     if (identifiable != null) {
       return Optional.of(identifiable.getIdentity());
     }
@@ -414,23 +415,23 @@ public class OResultInternal implements OResult {
   }
 
   @Override
-  public Optional<ORecord> getRecord() {
+  public Optional<YTRecord> getRecord() {
     loadIdentifiable();
-    return Optional.ofNullable((ORecord) this.identifiable);
+    return Optional.ofNullable((YTRecord) this.identifiable);
   }
 
   @Override
   public boolean isBlob() {
     loadIdentifiable();
-    return this.identifiable instanceof OBlob;
+    return this.identifiable instanceof YTBlob;
   }
 
   @Override
-  public Optional<OBlob> getBlob() {
+  public Optional<YTBlob> getBlob() {
     loadIdentifiable();
 
     if (isBlob()) {
-      return Optional.ofNullable((OBlob) this.identifiable);
+      return Optional.ofNullable((YTBlob) this.identifiable);
     }
     return Optional.empty();
   }
@@ -508,7 +509,7 @@ public class OResultInternal implements OResult {
       return;
     }
 
-    if (identifiable instanceof OElement elem) {
+    if (identifiable instanceof YTEntity elem) {
       if (elem.isUnloaded()) {
         try {
           if (session == null) {
@@ -524,8 +525,8 @@ public class OResultInternal implements OResult {
       return;
     }
 
-    if (identifiable instanceof OContextualRecordId) {
-      this.addMetadata(((OContextualRecordId) identifiable).getContext());
+    if (identifiable instanceof YTContextualRecordId) {
+      this.addMetadata(((YTContextualRecordId) identifiable).getContext());
     }
 
     try {
@@ -539,7 +540,7 @@ public class OResultInternal implements OResult {
     }
   }
 
-  public void setIdentifiable(OIdentifiable identifiable) {
+  public void setIdentifiable(YTIdentifiable identifiable) {
     this.identifiable = identifiable;
     this.content = null;
   }
@@ -594,8 +595,8 @@ public class OResultInternal implements OResult {
   }
 
 
-  public void bindToCache(ODatabaseSessionInternal db) {
-    if (identifiable instanceof ORecordAbstract record) {
+  public void bindToCache(YTDatabaseSessionInternal db) {
+    if (identifiable instanceof YTRecordAbstract record) {
       var identity = record.getIdentity();
       var tx = db.getTransaction();
 
@@ -612,7 +613,7 @@ public class OResultInternal implements OResult {
         }
       }
 
-      ORecordAbstract cached = db.getLocalCache().findRecord(identity);
+      YTRecordAbstract cached = db.getLocalCache().findRecord(identity);
 
       if (cached == record) {
         return;
@@ -621,7 +622,7 @@ public class OResultInternal implements OResult {
       if (cached != null) {
         if (!cached.isDirty()) {
           cached.fromStream(record.toStream());
-          cached.setIdentity((ORecordId) record.getIdentity());
+          cached.setIdentity((YTRecordId) record.getIdentity());
           cached.setVersion(record.getVersion());
 
           assert !cached.isDirty();

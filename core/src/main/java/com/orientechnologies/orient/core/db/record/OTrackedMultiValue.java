@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +42,7 @@ public interface OTrackedMultiValue<K, V> {
    * @param changeEvents List of operations that were performed on collection.
    * @return Original collection state.
    */
-  Object returnOriginalState(ODatabaseSessionInternal session,
+  Object returnOriginalState(YTDatabaseSessionInternal session,
       List<OMultiValueChangeEvent<K, V>> changeEvents);
 
   Class<?> getGenericClass();
@@ -73,10 +73,10 @@ public interface OTrackedMultiValue<K, V> {
       X x = iterator.next();
       if (x instanceof OTrackedMultiValue) {
         ((OTrackedMultiValue) x).disableTracking(parent);
-      } else if (x instanceof ODocument) {
-        if (((ODocument) x).isEmbedded()) {
-          ODocumentInternal.clearTrackData((ODocument) x);
-          ORecordInternal.unsetDirty((ODocument) x);
+      } else if (x instanceof YTDocument) {
+        if (((YTDocument) x).isEmbedded()) {
+          ODocumentInternal.clearTrackData((YTDocument) x);
+          ORecordInternal.unsetDirty((YTDocument) x);
         }
       }
     }
@@ -87,9 +87,9 @@ public interface OTrackedMultiValue<K, V> {
       X x = iterator.next();
       if (x instanceof OTrackedMultiValue) {
         ((OTrackedMultiValue) x).transactionClear();
-      } else if (x instanceof ODocument) {
-        if (((ODocument) x).isEmbedded()) {
-          ODocumentInternal.clearTransactionTrackData((ODocument) x);
+      } else if (x instanceof YTDocument) {
+        if (((YTDocument) x).isEmbedded()) {
+          ODocumentInternal.clearTransactionTrackData((YTDocument) x);
         }
       }
     }

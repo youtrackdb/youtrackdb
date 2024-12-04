@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.core.db.tool;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Iterator;
 import java.util.List;
 
@@ -65,23 +65,23 @@ public class ODatabaseRepair extends ODatabaseTool {
 
     message("\n- Removing broken links...");
     for (String clusterName : database.getClusterNames()) {
-      for (ORecord rec : database.browseCluster(clusterName)) {
+      for (YTRecord rec : database.browseCluster(clusterName)) {
         try {
-          if (rec instanceof ODocument doc) {
+          if (rec instanceof YTDocument doc) {
             boolean changed = false;
 
             for (String fieldName : doc.fieldNames()) {
               final Object fieldValue = doc.rawField(fieldName);
 
-              if (fieldValue instanceof OIdentifiable) {
+              if (fieldValue instanceof YTIdentifiable) {
                 if (fixLink(fieldValue)) {
-                  doc.field(fieldName, (OIdentifiable) null);
+                  doc.field(fieldName, (YTIdentifiable) null);
                   fixedLinks++;
                   changed = true;
                   if (verbose) {
                     message(
                         "\n--- reset link "
-                            + ((OIdentifiable) fieldValue).getIdentity()
+                            + ((YTIdentifiable) fieldValue).getIdentity()
                             + " in field '"
                             + fieldName
                             + "' (rid="
@@ -100,7 +100,7 @@ public class ODatabaseRepair extends ODatabaseTool {
                     if (verbose) {
                       message(
                           "\n--- reset link "
-                              + ((OIdentifiable) v).getIdentity()
+                              + ((YTIdentifiable) v).getIdentity()
                               + " as item "
                               + i
                               + " in collection of field '"
@@ -136,12 +136,12 @@ public class ODatabaseRepair extends ODatabaseTool {
   /**
    * Checks if the link must be fixed.
    *
-   * @param fieldValue Field containing the OIdentifiable (RID or Record)
+   * @param fieldValue Field containing the YTIdentifiable (RID or Record)
    * @return true to fix it, otherwise false
    */
   protected boolean fixLink(final Object fieldValue) {
-    if (fieldValue instanceof OIdentifiable) {
-      final ORID id = ((OIdentifiable) fieldValue).getIdentity();
+    if (fieldValue instanceof YTIdentifiable) {
+      final YTRID id = ((YTIdentifiable) fieldValue).getIdentity();
 
       if (id.getClusterId() == 0 && id.getClusterPosition() == 0) {
         return true;
@@ -150,7 +150,7 @@ public class ODatabaseRepair extends ODatabaseTool {
       if (id.isValid()) {
         if (id.isPersistent()) {
           try {
-            final ORecord connected = ((OIdentifiable) fieldValue).getRecord();
+            final YTRecord connected = ((YTIdentifiable) fieldValue).getRecord();
           } catch (ORecordNotFoundException rnf) {
             return true;
           }

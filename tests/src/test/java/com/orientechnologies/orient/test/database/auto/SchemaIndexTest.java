@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
@@ -25,11 +25,11 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass superTest = schema.createClass("SchemaSharedIndexSuperTest");
-    final OClass test = schema.createClass("SchemaIndexTest", superTest);
-    test.createProperty(database, "prop1", OType.DOUBLE);
-    test.createProperty(database, "prop2", OType.DOUBLE);
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass superTest = schema.createClass("SchemaSharedIndexSuperTest");
+    final YTClass test = schema.createClass("SchemaIndexTest", superTest);
+    test.createProperty(database, "prop1", YTType.DOUBLE);
+    test.createProperty(database, "prop2", YTType.DOUBLE);
   }
 
   @AfterMethod
@@ -95,21 +95,21 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
   }
 
   public void testPolymorphicIdsPropagationAfterClusterAddRemove() {
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
 
-    OClass polymorpicIdsPropagationSuperSuper =
+    YTClass polymorpicIdsPropagationSuperSuper =
         schema.getClass("polymorpicIdsPropagationSuperSuper");
 
     if (polymorpicIdsPropagationSuperSuper == null) {
       polymorpicIdsPropagationSuperSuper = schema.createClass("polymorpicIdsPropagationSuperSuper");
     }
 
-    OClass polymorpicIdsPropagationSuper = schema.getClass("polymorpicIdsPropagationSuper");
+    YTClass polymorpicIdsPropagationSuper = schema.getClass("polymorpicIdsPropagationSuper");
     if (polymorpicIdsPropagationSuper == null) {
       polymorpicIdsPropagationSuper = schema.createClass("polymorpicIdsPropagationSuper");
     }
 
-    OClass polymorpicIdsPropagation = schema.getClass("polymorpicIdsPropagation");
+    YTClass polymorpicIdsPropagation = schema.getClass("polymorpicIdsPropagation");
     if (polymorpicIdsPropagation == null) {
       polymorpicIdsPropagation = schema.createClass("polymorpicIdsPropagation");
     }
@@ -117,15 +117,15 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
     polymorpicIdsPropagation.setSuperClass(database, polymorpicIdsPropagationSuper);
     polymorpicIdsPropagationSuper.setSuperClass(database, polymorpicIdsPropagationSuperSuper);
 
-    polymorpicIdsPropagationSuperSuper.createProperty(database, "value", OType.STRING);
+    polymorpicIdsPropagationSuperSuper.createProperty(database, "value", YTType.STRING);
     polymorpicIdsPropagationSuperSuper.createIndex(database,
-        "PolymorpicIdsPropagationSuperSuperIndex", OClass.INDEX_TYPE.UNIQUE, "value");
+        "PolymorpicIdsPropagationSuperSuperIndex", YTClass.INDEX_TYPE.UNIQUE, "value");
 
     int counter = 0;
 
     for (int i = 0; i < 10; i++) {
       database.begin();
-      ODocument document = new ODocument("polymorpicIdsPropagation");
+      YTDocument document = new YTDocument("polymorpicIdsPropagation");
       document.field("value", "val" + counter);
       document.save();
       database.commit();
@@ -136,7 +136,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
     final int clusterId2 = database.addCluster("polymorpicIdsPropagationSuperSuper2");
 
     for (int i = 0; i < 10; i++) {
-      ODocument document = new ODocument();
+      YTDocument document = new YTDocument();
       document.field("value", "val" + counter);
 
       database.begin();
@@ -173,10 +173,10 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
   }
 
   public void testIndexWithNumberProperties() {
-    OClass oclass = database.getMetadata().getSchema().createClass("SchemaIndexTest_numberclass");
-    oclass.createProperty(database, "1", OType.STRING).setMandatory(database, false);
-    oclass.createProperty(database, "2", OType.STRING).setMandatory(database, false);
-    oclass.createIndex(database, "SchemaIndexTest_numberclass_1_2", OClass.INDEX_TYPE.UNIQUE, "1",
+    YTClass oclass = database.getMetadata().getSchema().createClass("SchemaIndexTest_numberclass");
+    oclass.createProperty(database, "1", YTType.STRING).setMandatory(database, false);
+    oclass.createProperty(database, "2", YTType.STRING).setMandatory(database, false);
+    oclass.createIndex(database, "SchemaIndexTest_numberclass_1_2", YTClass.INDEX_TYPE.UNIQUE, "1",
         "2");
 
     database.getMetadata().getSchema().dropClass(oclass.getName());

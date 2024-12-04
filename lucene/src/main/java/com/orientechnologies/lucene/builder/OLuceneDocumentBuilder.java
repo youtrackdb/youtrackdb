@@ -23,7 +23,7 @@ import static com.orientechnologies.lucene.builder.OLuceneIndexType.createFields
 import static com.orientechnologies.lucene.builder.OLuceneIndexType.createIdField;
 import static com.orientechnologies.lucene.builder.OLuceneIndexType.createOldIdField;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class OLuceneDocumentBuilder {
   public Document build(
       final OIndexDefinition definition,
       final Object key,
-      final OIdentifiable value,
+      final YTIdentifiable value,
       final Map<String, Boolean> fieldsToStore,
       final Map<String, ?> metadata) {
     final Document doc = new Document();
@@ -64,7 +64,7 @@ public class OLuceneDocumentBuilder {
   }
 
   private void addDefaultFieldsToDocument(
-      OIndexDefinition definition, Object key, OIdentifiable value, Document doc) {
+      OIndexDefinition definition, Object key, YTIdentifiable value, Document doc) {
     if (value != null) {
       doc.add(createOldIdField(value));
       doc.add(createIdField(value, key));

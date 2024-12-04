@@ -2,10 +2,10 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -20,16 +20,16 @@ public class IndexClusterTest extends DocumentDBBaseTest {
   @Test
   public void indexAfterRebuildShouldIncludeAllClusters() {
     // given
-    OSchema schema = database.getMetadata().getSchema();
+    YTSchema schema = database.getMetadata().getSchema();
     String className = "IndexClusterTest";
 
-    OClass oclass = schema.createClass(className);
-    oclass.createProperty(database, "key", OType.STRING);
-    oclass.createProperty(database, "value", OType.INTEGER);
-    oclass.createIndex(database, className + "index1", OClass.INDEX_TYPE.NOTUNIQUE, "key");
+    YTClass oclass = schema.createClass(className);
+    oclass.createProperty(database, "key", YTType.STRING);
+    oclass.createProperty(database, "value", YTType.INTEGER);
+    oclass.createIndex(database, className + "index1", YTClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     database.begin();
-    database.<ODocument>newInstance(className).field("key", "a").field("value", 1).save();
+    database.<YTDocument>newInstance(className).field("key", "a").field("value", 1).save();
     database.commit();
 
     int clId = database.addCluster(className + "secondCluster");
@@ -37,7 +37,7 @@ public class IndexClusterTest extends DocumentDBBaseTest {
 
     database.begin();
     database
-        .<ODocument>newInstance(className)
+        .<YTDocument>newInstance(className)
         .field("key", "a")
         .field("value", 2)
         .save(className + "secondCluster");

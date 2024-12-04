@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +27,6 @@ import java.util.Set;
  */
 public class OLuceneTxOperations {
 
-  public final Set<OIdentifiable> removed = new HashSet<OIdentifiable>();
-  public final Set<OIdentifiable> added = new HashSet<OIdentifiable>();
+  public final Set<YTIdentifiable> removed = new HashSet<YTIdentifiable>();
+  public final Set<YTIdentifiable> added = new HashSet<YTIdentifiable>();
 }

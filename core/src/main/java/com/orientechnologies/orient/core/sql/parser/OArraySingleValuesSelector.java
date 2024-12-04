@@ -4,10 +4,10 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
     }
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, Object iResult, OCommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (OArraySelector item : items) {
       Object index = item.getValue(iCurrentRecord, iResult, ctx);
@@ -67,8 +67,8 @@ public class OArraySingleValuesSelector extends SimpleNode {
       } else {
         if (iResult instanceof Map) {
           result.add(((Map) iResult).get(index));
-        } else if (iResult instanceof OElement && index instanceof String) {
-          result.add(((OElement) iResult).getProperty((String) index));
+        } else if (iResult instanceof YTEntity && index instanceof String) {
+          result.add(((YTEntity) iResult).getProperty((String) index));
         } else if (OMultiValue.isMultiValue(iResult)) {
           Iterator<?> iter = OMultiValue.getMultiValueIterator(iResult);
           while (iter.hasNext()) {
@@ -99,8 +99,8 @@ public class OArraySingleValuesSelector extends SimpleNode {
       } else {
         if (iResult instanceof Map) {
           result.add(((Map) iResult).get(index));
-        } else if (iResult instanceof OElement && index instanceof String) {
-          result.add(((OElement) iResult).getProperty((String) index));
+        } else if (iResult instanceof YTEntity && index instanceof String) {
+          result.add(((YTEntity) iResult).getProperty((String) index));
         } else if (OMultiValue.isMultiValue(iResult)) {
           Iterator<?> iter = OMultiValue.getMultiValueIterator(iResult);
           while (iter.hasNext()) {
@@ -123,8 +123,8 @@ public class OArraySingleValuesSelector extends SimpleNode {
       return OMultiValue.getValue(item, ((Integer) index).intValue());
     } else if (item instanceof Map) {
       return ((Map) item).get(index);
-    } else if (item instanceof OElement && index instanceof String) {
-      return ((OElement) item).getProperty((String) index);
+    } else if (item instanceof YTEntity && index instanceof String) {
+      return ((YTEntity) item).getProperty((String) index);
     } else if (OMultiValue.isMultiValue(item)) {
       Iterator<?> iter = OMultiValue.getMultiValueIterator(item);
       List<Object> result = new ArrayList<>();
@@ -230,9 +230,9 @@ public class OArraySingleValuesSelector extends SimpleNode {
       for (Object val : values) {
         ((Map) currentValue).remove(val);
       }
-    } else if (currentValue instanceof OElement) {
+    } else if (currentValue instanceof YTEntity) {
       for (Object val : values) {
-        ((OElement) currentValue).removeProperty("" + val);
+        ((YTEntity) currentValue).removeProperty("" + val);
       }
     } else {
       throw new OCommandExecutionException(
@@ -258,7 +258,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
     }
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (items != null) {
       result.setProperty(

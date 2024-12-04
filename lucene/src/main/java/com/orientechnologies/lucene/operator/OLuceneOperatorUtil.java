@@ -17,8 +17,8 @@
 package com.orientechnologies.lucene.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -32,7 +32,7 @@ import java.util.List;
 public class OLuceneOperatorUtil {
 
   public static OIndexSearchResult buildOIndexSearchResult(
-      OClass iSchemaClass,
+      YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
       OCommandContext context) {
@@ -99,7 +99,7 @@ public class OLuceneOperatorUtil {
   }
 
   public static boolean checkIndexExistence(
-      ODatabaseSessionInternal session, final OClass iSchemaClass,
+      YTDatabaseSessionInternal session, final YTClass iSchemaClass,
       final OIndexSearchResult result) {
     if (!iSchemaClass.areIndexed(session, result.fields())) {
       return false;
@@ -107,7 +107,7 @@ public class OLuceneOperatorUtil {
 
     if (result.lastField.isLong()) {
       final int fieldCount = result.lastField.getItemCount();
-      OClass cls = iSchemaClass.getProperty(result.lastField.getItemName(0)).getLinkedClass();
+      YTClass cls = iSchemaClass.getProperty(result.lastField.getItemName(0)).getLinkedClass();
 
       for (int i = 1; i < fieldCount; i++) {
         if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {

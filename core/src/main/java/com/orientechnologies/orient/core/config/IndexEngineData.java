@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.config;
 
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public final class IndexEngineData {
   private final byte valueSerializerId;
   private final byte keySerializedId;
   private final boolean isAutomatic;
-  private final OType[] keyTypes;
+  private final YTType[] keyTypes;
   private final boolean nullValuesSupport;
   private final int keySize;
   private final Map<String, String> engineProperties;
@@ -43,7 +43,7 @@ public final class IndexEngineData {
       final Boolean durableInNonTxMode,
       final byte valueSerializerId,
       final byte keySerializedId,
-      final OType[] keyTypes,
+      final YTType[] keyTypes,
       final int keySize,
       final String encryption,
       final String encryptionOptions,
@@ -83,7 +83,7 @@ public final class IndexEngineData {
       final byte valueSerializerId,
       final byte keySerializedId,
       final boolean isAutomatic,
-      final OType[] keyTypes,
+      final YTType[] keyTypes,
       final boolean nullValuesSupport,
       final int keySize,
       final String encryption,
@@ -159,7 +159,7 @@ public final class IndexEngineData {
     return isAutomatic;
   }
 
-  public OType[] getKeyTypes() {
+  public YTType[] getKeyTypes() {
     return keyTypes;
   }
 

@@ -19,21 +19,21 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 
 /**
- * Document entry. Used by ODocument.
+ * Document entry. Used by YTDocument.
  */
 public class ODocumentEntry {
 
   public Object value;
   public Object original;
-  public OType type;
-  public OProperty property;
+  public YTType type;
+  public YTProperty property;
   private boolean changed = false;
   private boolean exists = true;
   private boolean created = false;
@@ -112,11 +112,11 @@ public class ODocumentEntry {
     }
   }
 
-  public void replaceListener(ODocument document) {
+  public void replaceListener(YTDocument document) {
     enableTracking(document);
   }
 
-  public boolean enableTracking(ODocument document) {
+  public boolean enableTracking(YTDocument document) {
     //noinspection rawtypes
     if (value instanceof OTrackedMultiValue trackedMultiValue) {
       trackedMultiValue.enableTracking(document);
@@ -126,7 +126,7 @@ public class ODocumentEntry {
     }
   }
 
-  public void disableTracking(ODocument document, Object fieldValue) {
+  public void disableTracking(YTDocument document, Object fieldValue) {
     //noinspection rawtypes
     if (fieldValue instanceof OTrackedMultiValue trackedMultiValue) {
       trackedMultiValue.disableTracking(document);
@@ -138,7 +138,7 @@ public class ODocumentEntry {
     if (value instanceof OTrackedMultiValue trackedMultiValue) {
       return trackedMultiValue.isModified();
     }
-    if (value instanceof ODocument document && document.isEmbedded()) {
+    if (value instanceof YTDocument document && document.isEmbedded()) {
       return document.isDirty();
     }
     return false;
@@ -149,7 +149,7 @@ public class ODocumentEntry {
     if (value instanceof OTrackedMultiValue trackedMultiValue) {
       return trackedMultiValue.isTransactionModified();
     }
-    if (value instanceof ODocument document && document.isEmbedded()) {
+    if (value instanceof YTDocument document && document.isEmbedded()) {
       return document.isDirty();
     }
     return false;
@@ -194,7 +194,7 @@ public class ODocumentEntry {
     this.onLoadValue = null;
   }
 
-  public Object getOnLoadValue(ODatabaseSessionInternal session) {
+  public Object getOnLoadValue(YTDatabaseSessionInternal session) {
     if (!hasOnLoadValue && !(value instanceof OTrackedMultiValue<?, ?>)) {
       return value;
     }

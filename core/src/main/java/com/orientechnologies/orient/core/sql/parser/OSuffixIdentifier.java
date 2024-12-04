@@ -6,14 +6,14 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -67,7 +67,7 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     if (star) {
       return iCurrentRecord;
     }
@@ -81,14 +81,14 @@ public class OSuffixIdentifier extends SimpleNode {
       }
 
       if (iCurrentRecord != null) {
-        if (iCurrentRecord instanceof OContextualRecordId) {
-          Map<String, Object> meta = ((OContextualRecordId) iCurrentRecord).getContext();
+        if (iCurrentRecord instanceof YTContextualRecordId) {
+          Map<String, Object> meta = ((YTContextualRecordId) iCurrentRecord).getContext();
           if (meta != null && meta.containsKey(varName)) {
             return meta.get(varName);
           }
         }
         try {
-          OElement rec = iCurrentRecord.getRecord();
+          YTEntity rec = iCurrentRecord.getRecord();
           if (rec.isUnloaded()) {
             rec = ctx.getDatabase().bindToSession(rec);
           }
@@ -106,9 +106,9 @@ public class OSuffixIdentifier extends SimpleNode {
     }
     if (recordAttribute != null && iCurrentRecord != null) {
       try {
-        OElement rec =
-            iCurrentRecord instanceof OElement
-                ? (OElement) iCurrentRecord
+        YTEntity rec =
+            iCurrentRecord instanceof YTEntity
+                ? (YTEntity) iCurrentRecord
                 : iCurrentRecord.getRecord();
         return recordAttribute.evaluate(rec, ctx);
       } catch (ORecordNotFoundException rnf) {
@@ -236,8 +236,8 @@ public class OSuffixIdentifier extends SimpleNode {
     if (currentValue instanceof OResult) {
       return execute((OResult) currentValue, ctx);
     }
-    if (currentValue instanceof OIdentifiable) {
-      return execute((OIdentifiable) currentValue, ctx);
+    if (currentValue instanceof YTIdentifiable) {
+      return execute((YTIdentifiable) currentValue, ctx);
     }
     if (currentValue instanceof Map) {
       return execute((Map) currentValue, ctx);
@@ -349,25 +349,25 @@ public class OSuffixIdentifier extends SimpleNode {
   public void setValue(Object target, Object value, OCommandContext ctx) {
     if (target instanceof OResult) {
       setValue((OResult) target, value, ctx);
-    } else if (target instanceof OIdentifiable) {
-      setValue((OIdentifiable) target, value, ctx);
+    } else if (target instanceof YTIdentifiable) {
+      setValue((YTIdentifiable) target, value, ctx);
     } else if (target instanceof Map) {
       setValue((Map) target, value, ctx);
     }
   }
 
-  public void setValue(OIdentifiable target, Object value, OCommandContext ctx) {
+  public void setValue(YTIdentifiable target, Object value, OCommandContext ctx) {
     if (target == null) {
       return;
     }
-    OElement doc = null;
-    if (target instanceof OElement) {
-      doc = (OElement) target;
+    YTEntity doc = null;
+    if (target instanceof YTEntity) {
+      doc = (YTEntity) target;
     } else {
       try {
-        ORecord rec = target.getRecord();
-        if (rec instanceof OElement) {
-          doc = (OElement) rec;
+        YTRecord rec = target.getRecord();
+        if (rec instanceof YTEntity) {
+          doc = (YTEntity) rec;
         }
       } catch (ORecordNotFoundException rnf) {
         throw OException.wrapException(
@@ -417,15 +417,15 @@ public class OSuffixIdentifier extends SimpleNode {
     if (identifier != null) {
       if (currentValue instanceof OResultInternal) {
         ((OResultInternal) currentValue).removeProperty(identifier.getStringValue());
-      } else if (currentValue instanceof OElement) {
-        ((OElement) currentValue).removeProperty(identifier.getStringValue());
+      } else if (currentValue instanceof YTEntity) {
+        ((YTEntity) currentValue).removeProperty(identifier.getStringValue());
       } else if (currentValue instanceof Map) {
         ((Map) currentValue).remove(identifier.getStringValue());
       }
     }
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (identifier != null) {
       result.setProperty("identifier", identifier.serialize(db));
@@ -455,9 +455,9 @@ public class OSuffixIdentifier extends SimpleNode {
     return true;
   }
 
-  public boolean isDefinedFor(OElement currentRecord) {
+  public boolean isDefinedFor(YTEntity currentRecord) {
     if (identifier != null) {
-      return ((ODocument) currentRecord.getRecord()).containsField(identifier.getStringValue());
+      return ((YTDocument) currentRecord.getRecord()).containsField(identifier.getStringValue());
     }
     return true;
   }
@@ -466,7 +466,7 @@ public class OSuffixIdentifier extends SimpleNode {
     if (identifier != null && currentRecord != null) {
       return currentRecord
           .getRecord()
-          .map(x -> (OElement) x)
+          .map(x -> (YTEntity) x)
           .flatMap(elem -> elem.getSchemaType())
           .map(clazz -> clazz.getProperty(identifier.getStringValue()))
           .map(prop -> prop.getCollate())

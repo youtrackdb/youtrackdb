@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.metadata.sequence;
 
-import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * @since 3/1/2015
@@ -29,18 +29,18 @@ public class OSequenceHelper {
 
   public static final SEQUENCE_TYPE DEFAULT_SEQUENCE_TYPE = SEQUENCE_TYPE.CACHED;
 
-  public static OSequence createSequence(SEQUENCE_TYPE sequenceType, ODocument document) {
+  public static YTSequence createSequence(SEQUENCE_TYPE sequenceType, YTDocument document) {
     return switch (sequenceType) {
-      case ORDERED -> new OSequenceOrdered(document);
-      case CACHED -> new OSequenceCached(document);
+      case ORDERED -> new YTSequenceOrdered(document);
+      case CACHED -> new YTSequenceCached(document);
     };
   }
 
-  public static OSequence createSequence(
-      SEQUENCE_TYPE sequenceType, OSequence.CreateParams params, String name) {
+  public static YTSequence createSequence(
+      SEQUENCE_TYPE sequenceType, YTSequence.CreateParams params, String name) {
     return switch (sequenceType) {
-      case ORDERED -> new OSequenceOrdered(params, name);
-      case CACHED -> new OSequenceCached(params, name);
+      case ORDERED -> new YTSequenceOrdered(params, name);
+      case CACHED -> new YTSequenceCached(params, name);
     };
   }
 
@@ -48,8 +48,8 @@ public class OSequenceHelper {
     return SEQUENCE_TYPE.valueOf(typeAsString);
   }
 
-  public static OSequence createSequence(ODocument document) {
-    SEQUENCE_TYPE sequenceType = OSequence.getSequenceType(document);
+  public static YTSequence createSequence(YTDocument document) {
+    SEQUENCE_TYPE sequenceType = YTSequence.getSequenceType(document);
     return createSequence(sequenceType, document);
   }
 }

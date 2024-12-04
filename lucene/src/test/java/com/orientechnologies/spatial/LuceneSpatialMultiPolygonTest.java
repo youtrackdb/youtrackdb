@@ -15,10 +15,10 @@ package com.orientechnologies.spatial;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -119,12 +119,12 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
   @Before
   public void initMore() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass oClass = schema.createClass("Place");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OMultiPolygon"));
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OMultiPolygon"));
+    oClass.createProperty(db, "name", YTType.STRING);
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
   }
@@ -158,7 +158,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
             + " 62.27814559876582,-160.77392578125 61.53316997618228,-162.53173828125"
             + " 61.4597705702975,-162.861328125 61.762728830472696,-163.14697265625"
             + " 62.12443624549497,-162.5537109375 62.11416112594049))' ";
-    List<ODocument> docs = db.query(new OSQLSynchQuery<ODocument>(query));
+    List<YTDocument> docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
     Assert.assertEquals(docs.size(), 1);
 
@@ -206,7 +206,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
             + " 19.25929414046391,-156.0113525390625 19.54943746814108,-156.192626953125"
             + " 19.766703551716972,-155.950927734375 19.921712747556207,-155.9344482421875"
             + " 20.13847031245115,-155.928955078125 20.25704380463238)))' ";
-    docs = db.query(new OSQLSynchQuery<ODocument>(query));
+    docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
     Assert.assertEquals(docs.size(), 1);
   }
@@ -214,9 +214,9 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingMultiPolygon() throws IOException {
 
-    ODocument location = loadMultiPolygon();
+    YTDocument location = loadMultiPolygon();
 
-    ODocument italy = new ODocument("Place");
+    YTDocument italy = new YTDocument("Place");
     italy.field("name", "Italy");
     italy.field("location", location);
 

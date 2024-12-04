@@ -22,7 +22,7 @@ package com.orientechnologies.common.directmemory;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +44,7 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
    * Whether we should track memory leaks during application execution
    */
   private static final boolean TRACK =
-      OGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.getValueAsBoolean();
+      YTGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.getValueAsBoolean();
 
   /**
    * Holder for singleton instance. We use {@link AtomicReference} instead of static constructor to
@@ -69,9 +69,9 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
     int bufferSize;
     if (contextConfiguration != null) {
       bufferSize =
-          contextConfiguration.getValueAsInteger(OGlobalConfiguration.DISK_CACHE_PAGE_SIZE);
+          contextConfiguration.getValueAsInteger(YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE);
     } else {
-      bufferSize = OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger();
+      bufferSize = YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger();
     }
 
     final OByteBufferPool newInstance = new OByteBufferPool(bufferSize * 1024);
@@ -117,7 +117,7 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
   public OByteBufferPool(int pageSize) {
     this.pageSize = pageSize;
     this.allocator = ODirectMemoryAllocator.instance();
-    this.poolSize = OGlobalConfiguration.DIRECT_MEMORY_POOL_LIMIT.getValueAsInteger();
+    this.poolSize = YTGlobalConfiguration.DIRECT_MEMORY_POOL_LIMIT.getValueAsInteger();
   }
 
   /**
@@ -168,7 +168,7 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
    * Put buffer which is not used any more back to the pool or frees direct memory if pool is full.
    *
    * @param pointer Not used instance of buffer.
-   * @see OGlobalConfiguration#DIRECT_MEMORY_POOL_LIMIT
+   * @see YTGlobalConfiguration#DIRECT_MEMORY_POOL_LIMIT
    */
   public void release(OPointer pointer) {
     if (TRACK) {

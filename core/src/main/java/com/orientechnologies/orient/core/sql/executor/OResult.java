@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.OBlob;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.lang.reflect.Array;
 import java.util.Base64;
@@ -35,64 +35,64 @@ public interface OResult {
   <T> T getProperty(String name);
 
   /**
-   * returns an OElement property from the result
+   * returns an YTEntity property from the result
    *
    * @param name the property name
-   * @return the property value. Null if the property is not defined or if it's not an OElement
+   * @return the property value. Null if the property is not defined or if it's not an YTEntity
    */
-  OElement getElementProperty(String name);
+  YTEntity getElementProperty(String name);
 
   /**
-   * returns an OVertex property from the result
+   * returns an YTVertex property from the result
    *
    * @param name the property name
-   * @return the property value. Null if the property is not defined or if it's not an OVertex
+   * @return the property value. Null if the property is not defined or if it's not an YTVertex
    */
-  OVertex getVertexProperty(String name);
+  YTVertex getVertexProperty(String name);
 
   /**
-   * returns an OEdge property from the result
+   * returns an YTEdge property from the result
    *
    * @param name the property name
-   * @return the property value. Null if the property is not defined or if it's not an OEdge
+   * @return the property value. Null if the property is not defined or if it's not an YTEdge
    */
-  OEdge getEdgeProperty(String name);
+  YTEdge getEdgeProperty(String name);
 
   /**
-   * returns an OBlob property from the result
+   * returns an YTBlob property from the result
    *
    * @param name the property name
-   * @return the property value. Null if the property is not defined or if it's not an OBlob
+   * @return the property value. Null if the property is not defined or if it's not an YTBlob
    */
-  OBlob getBlobProperty(String name);
+  YTBlob getBlobProperty(String name);
 
   Collection<String> getPropertyNames();
 
-  Optional<ORID> getIdentity();
+  Optional<YTRID> getIdentity();
 
   @Nullable
-  ORID getRecordId();
+  YTRID getRecordId();
 
   boolean isElement();
 
-  Optional<OElement> getElement();
+  Optional<YTEntity> getElement();
 
   @Nullable
-  OElement asElement();
+  YTEntity asElement();
 
   @Nullable
-  OElement toElement();
+  YTEntity toElement();
 
   default boolean isVertex() {
     return getElement().map(x -> x.isVertex()).orElse(false);
   }
 
-  default Optional<OVertex> getVertex() {
+  default Optional<YTVertex> getVertex() {
     return getElement().flatMap(x -> x.asVertex());
   }
 
   @Nullable
-  default OVertex toVertex() {
+  default YTVertex toVertex() {
     var element = toElement();
     if (element == null) {
       return null;
@@ -105,12 +105,12 @@ public interface OResult {
     return getElement().map(x -> x.isEdge()).orElse(false);
   }
 
-  default Optional<OEdge> getEdge() {
+  default Optional<YTEdge> getEdge() {
     return getElement().flatMap(x -> x.asEdge());
   }
 
   @Nullable
-  default OEdge toEdge() {
+  default YTEdge toEdge() {
     var element = toElement();
     if (element == null) {
       return null;
@@ -121,9 +121,9 @@ public interface OResult {
 
   boolean isBlob();
 
-  Optional<OBlob> getBlob();
+  Optional<YTBlob> getBlob();
 
-  Optional<ORecord> getRecord();
+  Optional<YTRecord> getRecord();
 
   boolean isRecord();
 
@@ -173,16 +173,16 @@ public interface OResult {
       jsonVal = val.toString();
     } else if (val instanceof OResult) {
       jsonVal = ((OResult) val).toJSON();
-    } else if (val instanceof OElement) {
-      ORID id = ((OElement) val).getIdentity();
+    } else if (val instanceof YTEntity) {
+      YTRID id = ((YTEntity) val).getIdentity();
       if (id.isPersistent()) {
         //        jsonVal = "{\"@rid\":\"" + id + "\"}"; //TODO enable this syntax when Studio and
         // the parsing are OK
         jsonVal = "\"" + id + "\"";
       } else {
-        jsonVal = ((OElement) val).toJSON();
+        jsonVal = ((YTEntity) val).toJSON();
       }
-    } else if (val instanceof ORID) {
+    } else if (val instanceof YTRID) {
       //      jsonVal = "{\"@rid\":\"" + val + "\"}"; //TODO enable this syntax when Studio and the
       // parsing are OK
       jsonVal = "\"" + val + "\"";

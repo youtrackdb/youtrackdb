@@ -20,8 +20,8 @@
 
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 
 /**
  * Is used in together with
@@ -41,7 +41,7 @@ public interface ODocumentFieldVisitor {
    * @return New value of this field. If the same value is returned document content will not be
    * changed.
    */
-  Object visitField(ODatabaseSessionInternal db, OType type, OType linkedType, Object value);
+  Object visitField(YTDatabaseSessionInternal db, YTType type, YTType linkedType, Object value);
 
   /**
    * Indicates whether we continue to visit document fields after current one or should stop fields
@@ -51,10 +51,10 @@ public interface ODocumentFieldVisitor {
    * @param linkedType Linked type in case collection is processed. May be null if absent in DB
    *                   schema.
    * @param value      Field value.
-   * @param newValue   New value returned by {@link #visitField(ODatabaseSessionInternal, OType, OType, Object)} method.
+   * @param newValue   New value returned by {@link #visitField(YTDatabaseSessionInternal, YTType, YTType, Object)} method.
    * @return If false document processing will be stopped.
    */
-  boolean goFurther(OType type, OType linkedType, Object value, Object newValue);
+  boolean goFurther(YTType type, YTType linkedType, Object value, Object newValue);
 
   /**
    * If currently processed value is collection or map of embedded documents or embedded document
@@ -67,10 +67,10 @@ public interface ODocumentFieldVisitor {
    * @param value      Field value.
    * @return If false currently processed collection of embedded documents will not be visited.
    */
-  boolean goDeeper(OType type, OType linkedType, Object value);
+  boolean goDeeper(YTType type, YTType linkedType, Object value);
 
   /**
-   * @return If false value returned by method {@link #visitField(ODatabaseSessionInternal, OType, OType, Object)} will not be
+   * @return If false value returned by method {@link #visitField(YTDatabaseSessionInternal, YTType, YTType, Object)} will not be
    * taken in account and field value will not be updated.
    */
   boolean updateMode();

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationMetadata;
 import java.util.HashSet;
@@ -29,13 +29,13 @@ import java.util.Set;
  * This class is used inside of {@link OPaginatedCluster} class as container for the records ids
  * which were changed during active atomic operation.
  */
-public class ORecordOperationMetadata implements OAtomicOperationMetadata<Set<ORID>> {
+public class ORecordOperationMetadata implements OAtomicOperationMetadata<Set<YTRID>> {
 
   public static final String RID_METADATA_KEY = "cluster.record.rid";
 
-  private final Set<ORID> rids = new HashSet<>();
+  private final Set<YTRID> rids = new HashSet<>();
 
-  public void addRid(ORID rid) {
+  public void addRid(YTRID rid) {
     rids.add(rid);
   }
 
@@ -45,7 +45,7 @@ public class ORecordOperationMetadata implements OAtomicOperationMetadata<Set<OR
   }
 
   @Override
-  public Set<ORID> getValue() {
+  public Set<YTRID> getValue() {
     return rids;
   }
 }

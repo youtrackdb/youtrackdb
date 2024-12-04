@@ -25,15 +25,15 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
@@ -94,7 +94,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     }
   }
 
-  public OSQLFilterItemField(final String iName, final OClass iClass) {
+  public OSQLFilterItemField(final String iName, final YTClass iClass) {
     this.name = OIOUtils.getStringContent(iName);
     collate = getCollateForField(iClass, name);
     if (iClass != null) {
@@ -103,8 +103,8 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
   }
 
   public OSQLFilterItemField(
-      ODatabaseSessionInternal session, final OBaseParser iQueryToParse, final String iName,
-      final OClass iClass) {
+      YTDatabaseSessionInternal session, final OBaseParser iQueryToParse, final String iName,
+      final YTClass iClass) {
     super(session, iQueryToParse, iName);
     collate = getCollateForField(iClass, iName);
     if (iClass != null) {
@@ -113,7 +113,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
   }
 
   public Object getValue(
-      final OIdentifiable iRecord, final Object iCurrentResult, final OCommandContext iContext) {
+      final YTIdentifiable iRecord, final Object iCurrentResult, final OCommandContext iContext) {
     if (iRecord == null) {
       throw new OCommandExecutionException(
           "expression item '" + name + "' cannot be resolved because current record is NULL");
@@ -125,7 +125,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
       }
     }
 
-    final ODocument doc = iRecord.getRecord();
+    final YTDocument doc = iRecord.getRecord();
 
     if (preLoadedFieldsArray == null
         && preLoadedFields != null
@@ -145,7 +145,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     final Object v = stringValue == null ? doc.rawField(name) : stringValue;
 
     if (!collatePreset) {
-      OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(doc);
+      YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(doc);
       if (schemaClass != null) {
         collate = getCollateForField(schemaClass, name);
       }
@@ -154,7 +154,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     return transformValue(iRecord, iContext, v);
   }
 
-  public OBinaryField getBinaryField(final OIdentifiable iRecord) {
+  public OBinaryField getBinaryField(final YTIdentifiable iRecord) {
     if (iRecord == null) {
       throw new OCommandExecutionException(
           "expression item '" + name + "' cannot be resolved because current record is NULL");
@@ -166,12 +166,12 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
       return null;
     }
 
-    final ODocument rec = iRecord.getRecord();
+    final YTDocument rec = iRecord.getRecord();
     OPropertyEncryption encryption = ODocumentInternal.getPropertyEncryption(rec);
     BytesContainer serialized = new BytesContainer(rec.toStream());
     byte version = serialized.bytes[serialized.offset++];
     ODocumentSerializer serializer = ORecordSerializerBinary.INSTANCE.getSerializer(version);
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
     // check for embedded objects, they have invalid ID and they are serialized with class name
     return serializer.deserializeField(
@@ -183,11 +183,11 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
         encryption);
   }
 
-  public String getRoot(ODatabaseSession session) {
+  public String getRoot(YTDatabaseSession session) {
     return name;
   }
 
-  public void setRoot(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public void setRoot(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iRoot) {
     if (isStringLiteral(iRoot)) {
       this.stringValue = OIOUtils.getStringContent(iRoot);
@@ -258,24 +258,24 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     if (collate != null || operationsChain == null || !isFieldChain()) {
       return collate;
     }
-    if (!(doc instanceof OIdentifiable)) {
+    if (!(doc instanceof YTIdentifiable)) {
       return null;
     }
     FieldChain chain = getFieldChain();
     try {
-      ODocument lastDoc = ((OIdentifiable) doc).getRecord();
+      YTDocument lastDoc = ((YTIdentifiable) doc).getRecord();
       for (int i = 0; i < chain.getItemCount() - 1; i++) {
         Object nextDoc = lastDoc.field(chain.getItemName(i));
-        if (!(nextDoc instanceof OIdentifiable)) {
+        if (!(nextDoc instanceof YTIdentifiable)) {
           return null;
         }
-        lastDoc = ((OIdentifiable) nextDoc).getRecord();
+        lastDoc = ((YTIdentifiable) nextDoc).getRecord();
       }
-      OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(lastDoc);
+      YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(lastDoc);
       if (schemaClass == null) {
         return null;
       }
-      OProperty property = schemaClass.getProperty(chain.getItemName(chain.getItemCount() - 1));
+      YTProperty property = schemaClass.getProperty(chain.getItemName(chain.getItemCount() - 1));
       if (property == null) {
         return null;
       }

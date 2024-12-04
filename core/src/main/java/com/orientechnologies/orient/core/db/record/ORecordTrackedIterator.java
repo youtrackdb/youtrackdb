@@ -25,7 +25,7 @@ import java.util.Iterator;
  * Implementation of Iterator that keeps track of changes to the source record avoiding to call
  * setDirty() by hand.
  */
-public class ORecordTrackedIterator implements Iterator<OIdentifiable> {
+public class ORecordTrackedIterator implements Iterator<YTIdentifiable> {
 
   private final ORecordElement sourceRecord;
   private final Iterator<?> underlying;
@@ -35,8 +35,8 @@ public class ORecordTrackedIterator implements Iterator<OIdentifiable> {
     this.underlying = iIterator;
   }
 
-  public OIdentifiable next() {
-    return (OIdentifiable) underlying.next();
+  public YTIdentifiable next() {
+    return (YTIdentifiable) underlying.next();
   }
 
   public boolean hasNext() {

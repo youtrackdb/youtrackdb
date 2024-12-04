@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import org.junit.After;
 import org.junit.Assert;
@@ -19,7 +19,7 @@ public class OMoveVertexStatementExecutionTest {
   @Rule
   public TestName name = new TestName();
 
-  private ODatabaseSession db;
+  private YTDatabaseSession db;
 
   private YouTrackDB youTrackDB;
 

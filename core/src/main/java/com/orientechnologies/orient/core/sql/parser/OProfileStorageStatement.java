@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
@@ -37,7 +37,7 @@ public class OProfileStorageStatement extends OSimpleExecStatement {
   // old execution logic
   @Override
   public Object execute(
-      OSQLAsynchQuery<ODocument> request,
+      OSQLAsynchQuery<YTDocument> request,
       OCommandContext context,
       OProgressListener progressListener) {
     try {
@@ -49,9 +49,9 @@ public class OProfileStorageStatement extends OSimpleExecStatement {
     }
   }
 
-  protected static Object getResult(OSQLAsynchQuery<ODocument> request) {
+  protected static Object getResult(OSQLAsynchQuery<YTDocument> request) {
     if (request instanceof OSQLSynchQuery) {
-      return ((OSQLSynchQuery<ODocument>) request).getResult();
+      return ((OSQLSynchQuery<YTDocument>) request).getResult();
     }
 
     return null;

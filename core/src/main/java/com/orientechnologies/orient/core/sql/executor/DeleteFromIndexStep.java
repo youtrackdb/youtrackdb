@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexInternal;
@@ -78,14 +78,14 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     }
 
     var session = ctx.getDatabase();
-    Set<Stream<ORawPair<Object, ORID>>> streams = init(session, condition);
+    Set<Stream<ORawPair<Object, YTRID>>> streams = init(session, condition);
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {
-          private final Iterator<Stream<ORawPair<Object, ORID>>> iter = streams.iterator();
+          private final Iterator<Stream<ORawPair<Object, YTRID>>> iter = streams.iterator();
 
           @Override
           public OExecutionStream next(OCommandContext ctx) {
-            Stream<ORawPair<Object, ORID>> s = iter.next();
+            Stream<ORawPair<Object, YTRID>> s = iter.next();
             return OExecutionStream.resultIterator(
                 s.filter(
                         (entry) -> {
@@ -110,14 +110,14 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return new OMultipleExecutionStream(res);
   }
 
-  private OResult readResult(ODatabaseSessionInternal session, ORawPair<Object, ORID> entry) {
+  private OResult readResult(YTDatabaseSessionInternal session, ORawPair<Object, YTRID> entry) {
     OResultInternal result = new OResultInternal(session);
-    ORID value = entry.second;
+    YTRID value = entry.second;
     index.remove(session, entry.first, value);
     return result;
   }
 
-  private boolean filter(ORawPair<Object, ORID> entry, OCommandContext ctx) {
+  private boolean filter(ORawPair<Object, YTRID> entry, OCommandContext ctx) {
     if (ridCondition != null) {
       OResultInternal res = new OResultInternal(ctx.getDatabase());
       res.setProperty("rid", entry.second);
@@ -132,9 +132,9 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     super.close();
   }
 
-  private Set<Stream<ORawPair<Object, ORID>>> init(ODatabaseSessionInternal session,
+  private Set<Stream<ORawPair<Object, YTRID>>> init(YTDatabaseSessionInternal session,
       OBooleanExpression condition) {
-    Set<Stream<ORawPair<Object, ORID>>> acquiredStreams =
+    Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
     if (index.getDefinition() == null) {
       return acquiredStreams;
@@ -160,7 +160,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
    *
    * @param acquiredStreams TODO
    */
-  private void processAndBlock(Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+  private void processAndBlock(Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
     OCollection fromKey = indexKeyFrom((OAndBlock) condition, additional);
     OCollection toKey = indexKeyTo((OAndBlock) condition, additional);
     boolean fromKeyIncluded = indexKeyFromIncluded((OAndBlock) condition, additional);
@@ -168,22 +168,23 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     init(acquiredStreams, fromKey, fromKeyIncluded, toKey, toKeyIncluded);
   }
 
-  private void processFlatIteration(ODatabaseSessionInternal session,
-      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
-    Stream<ORawPair<Object, ORID>> stream =
+  private void processFlatIteration(YTDatabaseSessionInternal session,
+      Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
+    Stream<ORawPair<Object, YTRID>> stream =
         orderAsc ? index.stream(session) : index.descStream(session);
     storeAcquiredStream(stream, acquiredStreams);
   }
 
   private static void storeAcquiredStream(
-      Stream<ORawPair<Object, ORID>> stream, Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+      Stream<ORawPair<Object, YTRID>> stream,
+      Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
     if (stream != null) {
       acquiredStreams.add(stream);
     }
   }
 
   private void init(
-      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams,
+      Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams,
       OCollection fromKey,
       boolean fromKeyIncluded,
       OCollection toKey,
@@ -191,7 +192,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     Object secondValue = fromKey.execute((OResult) null, ctx);
     Object thirdValue = toKey.execute((OResult) null, ctx);
     OIndexDefinition indexDef = index.getDefinition();
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     var database = ctx.getDatabase();
     if (index.supportsOrderedIterations()) {
       stream =
@@ -227,8 +228,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return true;
   }
 
-  private void processBetweenCondition(ODatabaseSessionInternal session,
-      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+  private void processBetweenCondition(YTDatabaseSessionInternal session,
+      Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
     OIndexDefinition definition = index.getDefinition();
     OExpression key = ((OBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
@@ -240,7 +241,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
     Object secondValue = second.execute((OResult) null, ctx);
     Object thirdValue = third.execute((OResult) null, ctx);
-    Stream<ORawPair<Object, ORID>> stream =
+    Stream<ORawPair<Object, YTRID>> stream =
         index.streamEntriesBetween(session,
             toBetweenIndexKey(session, definition, secondValue),
             true,
@@ -249,7 +250,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     storeAcquiredStream(stream, acquiredStreams);
   }
 
-  private void processBinaryCondition(Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+  private void processBinaryCondition(Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
     OIndexDefinition definition = index.getDefinition();
     OBinaryCompareOperator operator = ((OBinaryCondition) condition).getOperator();
     OExpression left = ((OBinaryCondition) condition).getLeft();
@@ -258,13 +259,13 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
           "search for index for " + condition + " is not supported yet");
     }
     Object rightValue = ((OBinaryCondition) condition).getRight().execute((OResult) null, ctx);
-    Stream<ORawPair<Object, ORID>> stream =
+    Stream<ORawPair<Object, YTRID>> stream =
         createStream(ctx.getDatabase(), operator, definition, rightValue);
     storeAcquiredStream(stream, acquiredStreams);
   }
 
   private static Collection<?> toIndexKey(
-      ODatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
+      YTDatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
       rightValue = ((Collection<?>) rightValue).iterator().next();
     }
@@ -280,7 +281,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private static Object toBetweenIndexKey(
-      ODatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
+      YTDatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
       rightValue = ((Collection<?>) rightValue).iterator().next();
     }
@@ -292,8 +293,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return rightValue;
   }
 
-  private Stream<ORawPair<Object, ORID>> createStream(
-      ODatabaseSessionInternal session,
+  private Stream<ORawPair<Object, YTRID>> createStream(
+      YTDatabaseSessionInternal session,
       OBinaryCompareOperator operator,
       OIndexDefinition definition,
       Object value) {

@@ -6,16 +6,16 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.junit.Test;
 public class TransactionRidAllocationTest {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   @Before
   public void before() {
@@ -38,19 +38,19 @@ public class TransactionRidAllocationTest {
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
   public void testAllocation() {
     db.begin();
-    OVertex v = db.newVertex("V");
+    YTVertex v = db.newVertex("V");
     db.save(v);
 
     ((OAbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionInternal) db.getTransaction());
-    ORID generated = v.getIdentity();
+    YTRID generated = v.getIdentity();
     assertTrue(generated.isValid());
 
     var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -68,12 +68,12 @@ public class TransactionRidAllocationTest {
   @Test
   public void testAllocationCommit() {
     db.begin();
-    OVertex v = db.newVertex("V");
+    YTVertex v = db.newVertex("V");
     db.save(v);
 
     ((OAbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionOptimistic) db.getTransaction());
-    ORID generated = v.getIdentity();
+    YTRID generated = v.getIdentity();
     ((OAbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
@@ -85,7 +85,7 @@ public class TransactionRidAllocationTest {
 
   @Test
   public void testMultipleDbAllocationAndCommit() {
-    ODatabaseSessionInternal second;
+    YTDatabaseSessionInternal second;
     youTrackDB.execute(
         "create database "
             + "secondTest"
@@ -95,19 +95,19 @@ public class TransactionRidAllocationTest {
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
     second =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     db.activateOnCurrentThread();
     db.begin();
-    OVertex v = db.newVertex("V");
+    YTVertex v = db.newVertex("V");
     db.save(v);
 
     ((OAbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionInternal) db.getTransaction());
-    ORID generated = v.getIdentity();
+    YTRID generated = v.getIdentity();
     OTransaction transaction = db.getTransaction();
-    List<ORawPair<ORecordAbstract, Byte>> recordOperations = new ArrayList<>();
+    List<ORawPair<YTRecordAbstract, Byte>> recordOperations = new ArrayList<>();
     for (ORecordOperation operation : transaction.getRecordOperations()) {
       var record = operation.record;
       recordOperations.add(new ORawPair<>(record.copy(), operation.type));
@@ -142,7 +142,7 @@ public class TransactionRidAllocationTest {
 
   @Test(expected = OConcurrentCreateException.class)
   public void testMultipleDbAllocationNotAlignedFailure() {
-    ODatabaseSessionInternal second;
+    YTDatabaseSessionInternal second;
     youTrackDB.execute(
         "create database "
             + "secondTest"
@@ -152,7 +152,7 @@ public class TransactionRidAllocationTest {
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
     second =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     // THIS OFFSET FIRST DB FROM THE SECOND
     for (int i = 0; i < 20; i++) {
@@ -163,13 +163,13 @@ public class TransactionRidAllocationTest {
 
     db.activateOnCurrentThread();
     db.begin();
-    OVertex v = db.newVertex("V");
+    YTVertex v = db.newVertex("V");
     db.save(v);
 
     ((OAbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionOptimistic) db.getTransaction());
     OTransaction transaction = db.getTransaction();
-    List<ORawPair<ORecordAbstract, Byte>> recordOperations = new ArrayList<>();
+    List<ORawPair<YTRecordAbstract, Byte>> recordOperations = new ArrayList<>();
     for (ORecordOperation operation : transaction.getRecordOperations()) {
       var record = operation.record;
       recordOperations.add(new ORawPair<>(record.copy(), operation.type));
@@ -190,27 +190,27 @@ public class TransactionRidAllocationTest {
   public void testAllocationMultipleCommit() {
     db.begin();
 
-    List<ORecord> orecords = new ArrayList<>();
-    OVertex v0 = db.newVertex("V");
+    List<YTRecord> orecords = new ArrayList<>();
+    YTVertex v0 = db.newVertex("V");
     db.save(v0);
     for (int i = 0; i < 20; i++) {
-      OVertex v = db.newVertex("V");
-      OEdge edge = v0.addEdge(v);
+      YTVertex v = db.newVertex("V");
+      YTEdge edge = v0.addEdge(v);
       orecords.add(db.save(edge));
       orecords.add(db.save(v));
     }
 
     ((OAbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionInternal) db.getTransaction());
-    List<ORID> allocated = new ArrayList<>();
-    for (ORecord rec : orecords) {
+    List<YTRID> allocated = new ArrayList<>();
+    for (YTRecord rec : orecords) {
       allocated.add(rec.getIdentity());
     }
     ((OAbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
     var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    for (final ORID id : allocated) {
+    for (final YTRID id : allocated) {
       assertNotNull(db1.load(id));
     }
     db1.close();

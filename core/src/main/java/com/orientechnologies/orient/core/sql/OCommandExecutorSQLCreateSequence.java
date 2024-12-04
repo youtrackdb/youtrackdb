@@ -5,11 +5,11 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceHelper;
 import java.util.Arrays;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstra
 
   private String sequenceName;
   private SEQUENCE_TYPE sequenceType;
-  private OSequence.CreateParams params;
+  private YTSequence.CreateParams params;
 
   @Override
   public OCommandExecutorSQLCreateSequence parse(OCommandRequest iRequest) {
@@ -46,7 +46,7 @@ public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstra
       parserRequiredKeyword(KEYWORD_CREATE);
       parserRequiredKeyword(KEYWORD_SEQUENCE);
       this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
-      this.params = new OSequence.CreateParams().setDefaults();
+      this.params = new YTSequence.CreateParams().setDefaults();
 
       String temp;
       while ((temp = parseOptionalWord(true)) != null) {
@@ -89,7 +89,7 @@ public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstra
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

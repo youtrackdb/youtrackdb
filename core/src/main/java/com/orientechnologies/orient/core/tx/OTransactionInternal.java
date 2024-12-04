@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -61,7 +61,7 @@ public interface OTransactionInternal extends OTransaction {
    *
    * @return
    */
-  ODatabaseSessionInternal getDatabase();
+  YTDatabaseSessionInternal getDatabase();
 
   /**
    * Notify the transaction for the rid change, the changed will be tracked inside the transaction
@@ -70,7 +70,7 @@ public interface OTransactionInternal extends OTransaction {
    * @param oldRID the id old value.
    * @param rid    the id new value.
    */
-  void updateIdentityAfterCommit(ORID oldRID, ORID rid);
+  void updateIdentityAfterCommit(YTRID oldRID, YTRID rid);
 
   /**
    * Extract a single change from a specified record id.
@@ -78,9 +78,9 @@ public interface OTransactionInternal extends OTransaction {
    * @param currentRid the record id for the change.
    * @return the change or null if there is no change for the specified rid
    */
-  ORecordOperation getRecordEntry(ORID currentRid);
+  ORecordOperation getRecordEntry(YTRID currentRid);
 
-  void setDatabase(ODatabaseSessionInternal database);
+  void setDatabase(YTDatabaseSessionInternal database);
 
   @Nullable
   default byte[] getMetadata() {

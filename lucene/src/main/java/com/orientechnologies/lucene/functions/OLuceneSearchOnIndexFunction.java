@@ -5,12 +5,12 @@ import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
@@ -39,18 +39,18 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return NAME;
   }
 
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] params,
       OCommandContext ctx) {
-    OElement element = iThis instanceof OElement ? (OElement) iThis : ((OResult) iThis).toElement();
+    YTEntity element = iThis instanceof YTEntity ? (YTEntity) iThis : ((OResult) iThis).toElement();
 
     String indexName = (String) params[0];
 
@@ -102,7 +102,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "SEARCH_INDEX( indexName, [ metdatada {} ] )";
   }
 
@@ -112,7 +112,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public Iterable<OIdentifiable> searchFromTarget(
+  public Iterable<YTIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -122,13 +122,13 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
     OLuceneFullTextIndex index = searchForIndex(target, ctx, args);
 
     OExpression expression = args[1];
-    String query = (String) expression.execute((OIdentifiable) null, ctx);
+    String query = (String) expression.execute((YTIdentifiable) null, ctx);
     if (index != null && query != null) {
 
       var meta = getMetadata(args, ctx);
 
-      List<OIdentifiable> luceneResultSet;
-      try (Stream<ORID> rids =
+      List<YTIdentifiable> luceneResultSet;
+      try (Stream<YTRID> rids =
           index
               .getInternal()
               .getRids(ctx.getDatabase(),
@@ -161,9 +161,9 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   private OLuceneFullTextIndex searchForIndex(
       String className, OCommandContext ctx, OExpression... args) {
 
-    String indexName = (String) args[0].execute((OIdentifiable) null, ctx);
+    String indexName = (String) args[0].execute((YTIdentifiable) null, ctx);
 
-    final ODatabaseSessionInternal database = ctx.getDatabase();
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index =
         database
             .getMetadata()
@@ -178,7 +178,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   private OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String indexName) {
-    final ODatabaseSessionInternal database = ctx.getDatabase();
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
 
     if (index != null && index.getInternal() instanceof OLuceneFullTextIndex) {

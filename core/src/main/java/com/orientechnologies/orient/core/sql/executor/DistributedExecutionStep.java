@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -35,7 +35,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
 
   private OExecutionStream sendSerializedExecutionPlan(
       String nodeName, OExecutionPlan serializedExecutionPlan, OCommandContext ctx) {
-    ODatabaseSessionInternal db = ctx.getDatabase();
+    YTDatabaseSessionInternal db = ctx.getDatabase();
     return OExecutionStream.resultIterator(
         db.queryOnNode(nodeName, serializedExecutionPlan, ctx.getInputParameters()).stream()
             .iterator());

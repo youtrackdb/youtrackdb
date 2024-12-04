@@ -24,10 +24,10 @@ import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -36,16 +36,16 @@ import java.io.IOException;
 
 public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordResponse> {
 
-  private ORecordId rid;
+  private YTRecordId rid;
   private byte[] rawContent;
-  private ORecordAbstract content;
+  private YTRecordAbstract content;
   private int version;
   private boolean updateContent = true;
   private byte recordType;
   private byte mode;
 
   public OUpdateRecordRequest(
-      ORecordId iRid, byte[] iContent, int iVersion, boolean updateContent, byte iRecordType) {
+      YTRecordId iRid, byte[] iContent, int iVersion, boolean updateContent, byte iRecordType) {
     this.rid = iRid;
     this.rawContent = iContent;
     this.version = iVersion;
@@ -54,7 +54,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
   }
 
   public OUpdateRecordRequest(
-      ORecordId iRid, ORecordAbstract iContent, int iVersion, boolean updateContent,
+      YTRecordId iRid, YTRecordAbstract iContent, int iVersion, boolean updateContent,
       byte iRecordType) {
     this.rid = iRid;
     this.version = iVersion;
@@ -76,7 +76,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     return "Update Record";
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     rid = channel.readRID();
@@ -96,7 +96,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, final OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, final OChannelDataOutput network,
       final OStorageRemoteSession session)
       throws IOException {
     network.writeRID(rid);
@@ -107,7 +107,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     network.writeByte(mode);
   }
 
-  public ORecord getContent() {
+  public YTRecord getContent() {
     return content;
   }
 
@@ -119,7 +119,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     return recordType;
   }
 
-  public ORecordId getRid() {
+  public YTRecordId getRid() {
     return rid;
   }
 

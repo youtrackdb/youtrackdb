@@ -5,7 +5,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.nio.ByteBuffer;
 
 /**
@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 public final class OWALPageChangesPortion implements OWALChanges {
 
   private static final int PAGE_SIZE =
-      OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
+      YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
 
   private static final int CHUNK_SIZE = 32;
   private static final int PORTION_SIZE = 32;

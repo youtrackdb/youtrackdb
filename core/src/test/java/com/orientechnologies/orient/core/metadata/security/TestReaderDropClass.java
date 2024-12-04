@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,8 +10,8 @@ public class TestReaderDropClass {
 
   @Test
   public void testReaderDropClass() {
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx("memory:" + TestReaderDropClass.class.getSimpleName());
+    YTDatabaseSessionInternal db =
+        new YTDatabaseDocumentTx("memory:" + TestReaderDropClass.class.getSimpleName());
     db.create();
     try {
       db.getMetadata().getSchema().createClass("Test");

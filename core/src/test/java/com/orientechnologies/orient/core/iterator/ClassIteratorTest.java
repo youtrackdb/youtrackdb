@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.ODefaultClusterSelectionStrategy;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ public class ClassIteratorTest extends DBTestBase {
   private void createPerson(final String iClassName, final String first) {
     // Create Person document
     db.begin();
-    final ODocument personDoc = db.newInstance(iClassName);
+    final YTDocument personDoc = db.newInstance(iClassName);
     personDoc.field("First", first);
     personDoc.save();
     db.commit();
@@ -30,12 +30,12 @@ public class ClassIteratorTest extends DBTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    final OSchema schema = db.getMetadata().getSchema();
+    final YTSchema schema = db.getMetadata().getSchema();
 
     // Create Person class
-    final OClass personClass = schema.createClass("Person");
+    final YTClass personClass = schema.createClass("Person");
     personClass
-        .createProperty(db, "First", OType.STRING)
+        .createProperty(db, "First", YTType.STRING)
         .setMandatory(db, true)
         .setNotNull(db, true)
         .setMin(db, "1");
@@ -54,7 +54,7 @@ public class ClassIteratorTest extends DBTestBase {
 
   @Test
   public void testDescendentOrderIteratorWithMultipleClusters() throws Exception {
-    final OClass personClass = db.getMetadata().getSchema().getClass("Person");
+    final YTClass personClass = db.getMetadata().getSchema().getClass("Person");
 
     // empty old cluster but keep it attached
     personClass.truncate(db);
@@ -70,15 +70,15 @@ public class ClassIteratorTest extends DBTestBase {
     }
 
     // Use descending class iterator.
-    final ORecordIteratorClass<ODocument> personIter =
-        new ORecordIteratorClassDescendentOrder<ODocument>(db, db, "Person", true);
+    final ORecordIteratorClass<YTDocument> personIter =
+        new ORecordIteratorClassDescendentOrder<YTDocument>(db, db, "Person", true);
 
     personIter.setRange(null, null); // open range
 
     int docNum = 0;
     // Explicit iterator loop.
     while (personIter.hasNext()) {
-      final ODocument personDoc = personIter.next();
+      final YTDocument personDoc = personIter.next();
       Assert.assertTrue(names.contains(personDoc.field("First")));
       Assert.assertTrue(names.remove(personDoc.field("First")));
       System.out.printf("Doc %d: %s\n", docNum++, personDoc);
@@ -89,19 +89,19 @@ public class ClassIteratorTest extends DBTestBase {
 
   @Test
   public void testMultipleClusters() throws Exception {
-    final OClass personClass =
+    final YTClass personClass =
         db.getMetadata().getSchema().createClass("PersonMultipleClusters", 4, null);
     for (String name : names) {
       createPerson("PersonMultipleClusters", name);
     }
 
-    final ORecordIteratorClass<ODocument> personIter =
-        new ORecordIteratorClass<ODocument>(db, "PersonMultipleClusters", true);
+    final ORecordIteratorClass<YTDocument> personIter =
+        new ORecordIteratorClass<YTDocument>(db, "PersonMultipleClusters", true);
 
     int docNum = 0;
 
     while (personIter.hasNext()) {
-      final ODocument personDoc = personIter.next();
+      final YTDocument personDoc = personIter.next();
       Assert.assertTrue(names.contains(personDoc.field("First")));
       Assert.assertTrue(names.remove(personDoc.field("First")));
       System.out.printf("Doc %d: %s\n", docNum++, personDoc);

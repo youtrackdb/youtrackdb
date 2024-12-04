@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.core.enterprise;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 
 public interface OEnterpriseEndpoint {
 
-  void haSetDbStatus(ODatabaseSession db, String nodeName, String status);
+  void haSetDbStatus(YTDatabaseSession db, String nodeName, String status);
 
-  void haSetRole(ODatabaseSession db, String nodeName, String role);
+  void haSetRole(YTDatabaseSession db, String nodeName, String role);
 
-  void haSetOwner(ODatabaseSession db, String clusterName, String owner);
+  void haSetOwner(YTDatabaseSession db, String clusterName, String owner);
 }

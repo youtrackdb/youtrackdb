@@ -20,13 +20,13 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
 import java.util.Collection;
@@ -44,10 +44,10 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
   @Before
   public void init() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("City");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "name", YTType.STRING);
     //noinspection EmptyTryBlock
     try (OResultSet resultSet =
         db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
@@ -58,9 +58,9 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
   public void testInsertUpdateWithIndex() {
 
     db.getMetadata().reload();
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    ODocument doc = new ODocument("City");
+    YTDocument doc = new YTDocument("City");
     doc.field("name", "Rome");
 
     db.begin();
@@ -69,7 +69,7 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
 
     OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -77,13 +77,13 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
     assertThat(coll).hasSize(1);
     assertThat(idx.getInternal().size(db)).isEqualTo(1);
 
-    OIdentifiable next = (OIdentifiable) coll.iterator().next();
+    YTIdentifiable next = (YTIdentifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
 
     db.delete(doc);
     db.commit();
 
-    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(0);

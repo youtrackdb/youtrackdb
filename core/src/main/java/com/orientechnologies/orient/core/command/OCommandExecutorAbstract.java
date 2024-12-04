@@ -22,11 +22,11 @@ package com.orientechnologies.orient.core.command;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.parser.OBaseParser;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -49,7 +49,7 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
   protected Map<Object, Object> parameters;
   protected OCommandContext context;
 
-  public static ODatabaseSessionInternal getDatabase() {
+  public static YTDatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -82,7 +82,7 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_LONG_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_LONG_TASK_SYNCH_TIMEOUT);
   }
 
   public int getLimit() {
@@ -176,7 +176,7 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
       // RECEIVED EXCEPTION
       {
         throw (Exception) nodeResult;
-      } else if (nodeResult instanceof OIdentifiable) {
+      } else if (nodeResult instanceof YTIdentifiable) {
         if (aggregatedResult == null) {
           aggregatedResult = new ArrayList();
         }

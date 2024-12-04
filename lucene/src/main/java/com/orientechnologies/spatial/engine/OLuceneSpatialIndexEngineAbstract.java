@@ -19,13 +19,13 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.builder.OLuceneIndexType;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
 import com.orientechnologies.lucene.engine.OLuceneIndexWriterFactory;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
@@ -94,8 +94,8 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -105,7 +105,7 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -114,7 +114,7 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -123,7 +123,7 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(IndexEngineValuesTransformer valuesTransformer) {
+  public Stream<ORawPair<Object, YTRID>> stream(IndexEngineValuesTransformer valuesTransformer) {
     return null;
   }
 
@@ -137,7 +137,8 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
     return false;
   }
 
-  protected Document newGeoDocument(OIdentifiable oIdentifiable, Shape shape, ODocument shapeDoc) {
+  protected Document newGeoDocument(YTIdentifiable oIdentifiable, Shape shape,
+      YTDocument shapeDoc) {
 
     FieldType ft = new FieldType();
     ft.setIndexOptions(IndexOptions.DOCS);
@@ -162,7 +163,8 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   }
 
   @Override
-  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
+  public Document buildDocument(YTDatabaseSessionInternal session, Object key,
+      YTIdentifiable value) {
     throw new UnsupportedOperationException();
   }
 

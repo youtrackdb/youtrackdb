@@ -19,7 +19,7 @@
 
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey.Interpretation;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
@@ -255,13 +255,13 @@ public class IndexChangesInterpretationTest {
 
     switch (text.charAt(0)) {
       case 'p':
-        changes.add(new ORecordId(1, Integer.parseInt(text.substring(1))), OPERATION.PUT);
+        changes.add(new YTRecordId(1, Integer.parseInt(text.substring(1))), OPERATION.PUT);
         return changes.getEntriesAsList().get(0);
       case 'r':
         if (text.length() == 1) {
           return null;
         } else {
-          changes.add(new ORecordId(1, Integer.parseInt(text.substring(1))), OPERATION.REMOVE);
+          changes.add(new YTRecordId(1, Integer.parseInt(text.substring(1))), OPERATION.REMOVE);
           return changes.getEntriesAsList().get(0);
         }
 

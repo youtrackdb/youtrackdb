@@ -27,19 +27,19 @@ import com.orientechnologies.orient.core.command.OCommandRequestInternal;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
 
   public static final String NAME = "DELETE EDGE";
   private static final String KEYWORD_BATCH = "BATCH";
-  private List<ORecordId> rids;
+  private List<YTRecordId> rids;
   private String fromExpr;
   private String toExpr;
   private int removed = 0;
@@ -86,7 +86,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
       parserRequiredKeyword("DELETE");
       parserRequiredKeyword("EDGE");
 
-      OClass clazz = null;
+      YTClass clazz = null;
       String where = null;
 
       String temp = parseOptionalWord(true);
@@ -99,7 +99,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
             parserText.substring(parserGetPreviousPosition(), parserGetCurrentPosition()).trim();
       }
 
-      ODatabaseSessionInternal curDb = ODatabaseRecordThreadLocal.instance().get();
+      YTDatabaseSessionInternal curDb = ODatabaseRecordThreadLocal.instance().get();
       //      final OrientGraph graph = OGraphCommandExecutorSQLFactory.getGraph(false,
       // shutdownFlag);
       try {
@@ -120,8 +120,8 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
             }
 
           } else if (temp.startsWith("#")) {
-            rids = new ArrayList<ORecordId>();
-            rids.add(new ORecordId(temp));
+            rids = new ArrayList<YTRecordId>();
+            rids.add(new YTRecordId(temp));
             if (fromExpr != null || toExpr != null) {
               throwSyntaxErrorException(
                   "Specifying the RID " + rids + " is not allowed with FROM/TO");
@@ -129,13 +129,13 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
 
           } else if (temp.startsWith("[") && temp.endsWith("]")) {
             temp = temp.substring(1, temp.length() - 1);
-            rids = new ArrayList<ORecordId>();
+            rids = new ArrayList<YTRecordId>();
             for (String rid : temp.split(",")) {
               rid = rid.trim();
               if (!rid.startsWith("#")) {
                 throwSyntaxErrorException("Not a valid RID: " + rid);
               }
-              rids.add(new ORecordId(rid));
+              rids.add(new YTRecordId(rid));
             }
           } else if (temp.equals(KEYWORD_WHERE)) {
             if (clazz == null)
@@ -194,13 +194,13 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
           if (clazz == null)
           // DELETE ALL THE EDGES
           {
-            query = curDb.command(new OSQLAsynchQuery<ODocument>("select from E" + where, this));
+            query = curDb.command(new OSQLAsynchQuery<YTDocument>("select from E" + where, this));
           } else
           // DELETE EDGES OF CLASS X
           {
             query =
                 curDb.command(
-                    new OSQLAsynchQuery<ODocument>(
+                    new OSQLAsynchQuery<YTDocument>(
                         "select from `" + clazz.getName() + "` " + where, this));
           }
         }
@@ -215,9 +215,9 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Execute the command and return the ODocument object created.
+   * Execute the command and return the YTDocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (fromExpr == null
         && toExpr == null
         && rids == null
@@ -226,14 +226,14 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
-    ODatabaseSessionInternal db = getDatabase();
+    YTDatabaseSessionInternal db = getDatabase();
     txAlreadyBegun = db.getTransaction().isActive();
 
     if (rids != null) {
       // REMOVE PUNCTUAL RID
       db.begin();
-      for (ORecordId rid : rids) {
-        final OEdge e = toEdge(rid);
+      for (YTRecordId rid : rids) {
+        final YTEdge e = toEdge(rid);
         if (e != null) {
           e.delete();
           removed++;
@@ -243,14 +243,14 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
       return removed;
     } else {
       // MULTIPLE EDGES
-      final Set<OEdge> edges = new HashSet<OEdge>();
+      final Set<YTEdge> edges = new HashSet<YTEdge>();
       if (query == null) {
         db.begin();
-        Set<OIdentifiable> fromIds = null;
+        Set<YTIdentifiable> fromIds = null;
         if (fromExpr != null) {
           fromIds = OSQLEngine.getInstance().parseRIDTarget(db, fromExpr, context, iArgs);
         }
-        Set<OIdentifiable> toIds = null;
+        Set<YTIdentifiable> toIds = null;
         if (toExpr != null) {
           toIds = OSQLEngine.getInstance().parseRIDTarget(db, toExpr, context, iArgs);
         }
@@ -261,25 +261,25 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
         if (fromIds != null && toIds != null) {
           int fromCount = 0;
           int toCount = 0;
-          for (OIdentifiable fromId : fromIds) {
-            final OVertex v = toVertex(fromId);
+          for (YTIdentifiable fromId : fromIds) {
+            final YTVertex v = toVertex(fromId);
             if (v != null) {
               fromCount += count(v.getEdges(ODirection.OUT, label));
             }
           }
-          for (OIdentifiable toId : toIds) {
-            final OVertex v = toVertex(toId);
+          for (YTIdentifiable toId : toIds) {
+            final YTVertex v = toVertex(toId);
             if (v != null) {
               toCount += count(v.getEdges(ODirection.IN, label));
             }
           }
           if (fromCount <= toCount) {
             // REMOVE ALL THE EDGES BETWEEN VERTICES
-            for (OIdentifiable fromId : fromIds) {
-              final OVertex v = toVertex(fromId);
+            for (YTIdentifiable fromId : fromIds) {
+              final YTVertex v = toVertex(fromId);
               if (v != null) {
-                for (OEdge e : v.getEdges(ODirection.OUT, label)) {
-                  final OIdentifiable inV = e.getTo();
+                for (YTEdge e : v.getEdges(ODirection.OUT, label)) {
+                  final YTIdentifiable inV = e.getTo();
                   if (inV != null && toIds.contains(inV.getIdentity())) {
                     edges.add(e);
                   }
@@ -287,11 +287,11 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
               }
             }
           } else {
-            for (OIdentifiable toId : toIds) {
-              final OVertex v = toVertex(toId);
+            for (YTIdentifiable toId : toIds) {
+              final YTVertex v = toVertex(toId);
               if (v != null) {
-                for (OEdge e : v.getEdges(ODirection.IN, label)) {
-                  final ORID outVRid = e.getFromIdentifiable().getIdentity();
+                for (YTEdge e : v.getEdges(ODirection.IN, label)) {
+                  final YTRID outVRid = e.getFromIdentifiable().getIdentity();
                   if (outVRid != null && fromIds.contains(outVRid)) {
                     edges.add(e);
                   }
@@ -301,21 +301,21 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
           }
         } else if (fromIds != null) {
           // REMOVE ALL THE EDGES THAT START FROM A VERTEXES
-          for (OIdentifiable fromId : fromIds) {
+          for (YTIdentifiable fromId : fromIds) {
 
-            final OVertex v = toVertex(fromId);
+            final YTVertex v = toVertex(fromId);
             if (v != null) {
-              for (OEdge e : v.getEdges(ODirection.OUT, label)) {
+              for (YTEdge e : v.getEdges(ODirection.OUT, label)) {
                 edges.add(e);
               }
             }
           }
         } else if (toIds != null) {
           // REMOVE ALL THE EDGES THAT ARRIVE TO A VERTEXES
-          for (OIdentifiable toId : toIds) {
-            final OVertex v = toVertex(toId);
+          for (YTIdentifiable toId : toIds) {
+            final YTVertex v = toVertex(toId);
             if (v != null) {
-              for (OEdge e : v.getEdges(ODirection.IN, label)) {
+              for (YTEdge e : v.getEdges(ODirection.IN, label)) {
                 edges.add(e);
               }
             }
@@ -326,8 +326,8 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
 
         if (compiledFilter != null) {
           // ADDITIONAL FILTERING
-          for (Iterator<OEdge> it = edges.iterator(); it.hasNext(); ) {
-            final OEdge edge = it.next();
+          for (Iterator<YTEdge> it = edges.iterator(); it.hasNext(); ) {
+            final YTEdge edge = it.next();
             if (!(Boolean) compiledFilter.evaluate(edge.getRecord(), null, context)) {
               it.remove();
             }
@@ -336,7 +336,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
 
         // DELETE THE FOUND EDGES
         removed = edges.size();
-        for (OEdge edge : edges) {
+        for (YTEdge edge : edges) {
           edge.delete();
         }
 
@@ -354,9 +354,9 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
     }
   }
 
-  private int count(Iterable<OEdge> edges) {
+  private int count(Iterable<YTEdge> edges) {
     int result = 0;
-    for (OEdge x : edges) {
+    for (YTEdge x : edges) {
       result++;
     }
     return result;
@@ -365,8 +365,8 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   /**
    * Delete the current edge.
    */
-  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
-    final OIdentifiable id = (OIdentifiable) iRecord;
+  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
+    final YTIdentifiable id = (YTIdentifiable) iRecord;
 
     if (compiledFilter != null) {
       // ADDITIONAL FILTERING
@@ -377,7 +377,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
 
     if (id.getIdentity().isValid()) {
 
-      final OEdge e = toEdge(id);
+      final YTEdge e = toEdge(id);
 
       if (e != null) {
         e.delete();
@@ -394,10 +394,10 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
     return true;
   }
 
-  private OEdge toEdge(OIdentifiable item) {
-    if (item != null && item instanceof OElement) {
-      final OIdentifiable a = item;
-      return ((OElement) item)
+  private YTEdge toEdge(YTIdentifiable item) {
+    if (item != null && item instanceof YTEntity) {
+      final YTIdentifiable a = item;
+      return ((YTEntity) item)
           .asEdge()
           .orElseThrow(() -> new OCommandExecutionException((a.getIdentity()) + " is not an edge"));
     } else {
@@ -407,9 +407,9 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
         return null;
       }
 
-      if (item instanceof OElement) {
-        final OIdentifiable a = item;
-        return ((OElement) item)
+      if (item instanceof YTEntity) {
+        final YTIdentifiable a = item;
+        return ((YTEntity) item)
             .asEdge()
             .orElseThrow(
                 () -> new OCommandExecutionException((a.getIdentity()) + " is not an edge"));
@@ -418,17 +418,17 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
     return null;
   }
 
-  private OVertex toVertex(OIdentifiable item) {
-    if (item instanceof OElement) {
-      return ((OElement) item).asVertex().orElse(null);
+  private YTVertex toVertex(YTIdentifiable item) {
+    if (item instanceof YTEntity) {
+      return ((YTEntity) item).asVertex().orElse(null);
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
       } catch (ORecordNotFoundException rnf) {
         return null;
       }
-      if (item instanceof OElement) {
-        return ((OElement) item).asVertex().orElse(null);
+      if (item instanceof YTEntity) {
+        return ((YTEntity) item).asVertex().orElse(null);
       }
     }
     return null;
@@ -479,8 +479,8 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   public Set<String> getInvolvedClusters() {
     final HashSet<String> result = new HashSet<String>();
     if (rids != null) {
-      final ODatabaseSessionInternal database = getDatabase();
-      for (ORecordId rid : rids) {
+      final YTDatabaseSessionInternal database = getDatabase();
+      for (YTRecordId rid : rids) {
         result.add(database.getClusterNameById(rid.getClusterId()));
       }
     } else if (query != null) {

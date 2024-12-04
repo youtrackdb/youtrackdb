@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,23 +36,23 @@ public class LuceneTransactionGeoQueryTest {
   @Test
   public void testPointTransactionRollBack() {
 
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:txPoint");
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:txPoint");
 
     try {
       db.create();
 
-      OSchema schema = db.getMetadata().getSchema();
-      OClass v = schema.getClass("V");
-      OClass oClass = schema.createClass("City");
+      YTSchema schema = db.getMetadata().getSchema();
+      YTClass v = schema.getClass("V");
+      YTClass oClass = schema.createClass("City");
       oClass.setSuperClass(db, v);
-      oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OPoint"));
-      oClass.createProperty(db, "name", OType.STRING);
+      oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OPoint"));
+      oClass.createProperty(db, "name", YTType.STRING);
 
       db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
       OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-      ODocument rome = newCity("Rome", 12.5, 41.9);
-      ODocument london = newCity("London", -0.1275, 51.507222);
+      YTDocument rome = newCity("Rome", 12.5, 41.9);
+      YTDocument london = newCity("London", -0.1275, 51.507222);
 
       db.begin();
 
@@ -68,7 +68,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      List<ODocument> docs = db.query(new OSQLSynchQuery<ODocument>(query));
+      List<YTDocument> docs = db.query(new OSQLSynchQuery<YTDocument>(query));
       Assert.assertEquals(1, docs.size());
       Assert.assertEquals(3, idx.getInternal().size(db));
       db.rollback();
@@ -78,7 +78,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      docs = db.query(new OSQLSynchQuery<ODocument>(query));
+      docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
       db.begin();
       Assert.assertEquals(0, docs.size());
@@ -92,22 +92,22 @@ public class LuceneTransactionGeoQueryTest {
   @Test
   public void testPointTransactionUpdate() {
 
-    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:txPoint");
+    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:txPoint");
 
     try {
       db.create();
 
-      OSchema schema = db.getMetadata().getSchema();
-      OClass v = schema.getClass("V");
-      OClass oClass = schema.createClass("City");
+      YTSchema schema = db.getMetadata().getSchema();
+      YTClass v = schema.getClass("V");
+      YTClass oClass = schema.createClass("City");
       oClass.setSuperClass(db, v);
-      oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OPoint"));
-      oClass.createProperty(db, "name", OType.STRING);
+      oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OPoint"));
+      oClass.createProperty(db, "name", YTType.STRING);
 
       db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
       OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-      ODocument rome = newCity("Rome", 12.5, 41.9);
+      YTDocument rome = newCity("Rome", 12.5, 41.9);
 
       db.begin();
 
@@ -120,7 +120,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      List<ODocument> docs = db.query(new OSQLSynchQuery<ODocument>(query));
+      List<YTDocument> docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
       db.begin();
       Assert.assertEquals(0, docs.size());
@@ -133,7 +133,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      docs = db.query(new OSQLSynchQuery<ODocument>(query));
+      docs = db.query(new OSQLSynchQuery<YTDocument>(query));
       Assert.assertEquals(1, docs.size());
       Assert.assertEquals(1, idx.getInternal().size(db));
 
@@ -144,7 +144,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      docs = db.query(new OSQLSynchQuery<ODocument>(query));
+      docs = db.query(new OSQLSynchQuery<YTDocument>(query));
 
       db.begin();
       Assert.assertEquals(1, docs.size());
@@ -156,9 +156,9 @@ public class LuceneTransactionGeoQueryTest {
     }
   }
 
-  protected ODocument newCity(String name, final Double longitude, final Double latitude) {
+  protected YTDocument newCity(String name, final Double longitude, final Double latitude) {
 
-    ODocument location = new ODocument("OPoint");
+    YTDocument location = new YTDocument("OPoint");
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -168,7 +168,7 @@ public class LuceneTransactionGeoQueryTest {
           }
         });
 
-    ODocument city = new ODocument("City");
+    YTDocument city = new YTDocument("City");
     city.field("name", name);
     city.field("location", location);
     return city;

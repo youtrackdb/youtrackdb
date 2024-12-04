@@ -21,12 +21,12 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordFlat;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTRecordFlat;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Base64;
@@ -84,18 +84,18 @@ public class ORecordSerializerBinary implements ORecordSerializer {
   }
 
   @Override
-  public ORecordAbstract fromStream(
-      ODatabaseSessionInternal db, final byte[] iSource, ORecordAbstract iRecord,
+  public YTRecordAbstract fromStream(
+      YTDatabaseSessionInternal db, final byte[] iSource, YTRecordAbstract iRecord,
       final String[] iFields) {
     if (iSource == null || iSource.length == 0) {
       return iRecord;
     }
     if (iRecord == null) {
-      iRecord = new ODocument();
-    } else if (iRecord instanceof OBlob) {
+      iRecord = new YTDocument();
+    } else if (iRecord instanceof YTBlob) {
       iRecord.fromStream(iSource);
       return iRecord;
-    } else if (iRecord instanceof ORecordFlat) {
+    } else if (iRecord instanceof YTRecordFlat) {
       iRecord.fromStream(iSource);
       return iRecord;
     }
@@ -104,10 +104,10 @@ public class ORecordSerializerBinary implements ORecordSerializer {
 
     try {
       if (iFields != null && iFields.length > 0) {
-        serializerByVersion[iSource[0]].deserializePartial(db, (ODocument) iRecord, container,
+        serializerByVersion[iSource[0]].deserializePartial(db, (YTDocument) iRecord, container,
             iFields);
       } else {
-        serializerByVersion[iSource[0]].deserialize(db, (ODocument) iRecord, container);
+        serializerByVersion[iSource[0]].deserialize(db, (YTDocument) iRecord, container);
       }
     } catch (RuntimeException e) {
       OLogManager.instance()
@@ -122,13 +122,13 @@ public class ORecordSerializerBinary implements ORecordSerializer {
   }
 
   @Override
-  public byte[] toStream(ODatabaseSessionInternal session, ORecordAbstract record) {
-    if (record instanceof OBlob) {
+  public byte[] toStream(YTDatabaseSessionInternal session, YTRecordAbstract record) {
+    if (record instanceof YTBlob) {
       return record.toStream();
-    } else if (record instanceof ORecordFlat) {
+    } else if (record instanceof YTRecordFlat) {
       return record.toStream();
     } else {
-      ODocument documentToSerialize = (ODocument) record;
+      YTDocument documentToSerialize = (YTDocument) record;
 
       final BytesContainer container = new BytesContainer();
 
@@ -144,7 +144,7 @@ public class ORecordSerializerBinary implements ORecordSerializer {
   }
 
   @Override
-  public String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference,
+  public String[] getFieldNames(YTDatabaseSessionInternal db, YTDocument reference,
       final byte[] iSource) {
     if (iSource == null || iSource.length == 0) {
       return new String[0];
@@ -174,7 +174,7 @@ public class ORecordSerializerBinary implements ORecordSerializer {
     return NAME;
   }
 
-  public OResult getBinaryResult(ODatabaseSessionInternal db, byte[] bytes, ORecordId id) {
+  public OResult getBinaryResult(YTDatabaseSessionInternal db, byte[] bytes, YTRecordId id) {
     ODocumentSerializer serializer = getSerializer(bytes[0]);
     return new OResultBinary(db, bytes, 1, bytes.length, serializer, id);
   }

@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql.select;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class TestNullFieldQuery extends DBTestBase {
   public void testQueryNullValue() {
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    ODocument doc = new ODocument("Test");
+    YTDocument doc = new YTDocument("Test");
     doc.field("name", (Object) null);
     db.save(doc);
     db.commit();
@@ -29,11 +29,11 @@ public class TestNullFieldQuery extends DBTestBase {
 
   @Test
   public void testQueryNullValueSchemaFull() {
-    OClass clazz = db.getMetadata().getSchema().createClass("Test");
-    clazz.createProperty(db, "name", OType.ANY);
+    YTClass clazz = db.getMetadata().getSchema().createClass("Test");
+    clazz.createProperty(db, "name", YTType.ANY);
 
     db.begin();
-    ODocument doc = new ODocument("Test");
+    YTDocument doc = new YTDocument("Test");
     doc.field("name", (Object) null);
     db.save(doc);
     db.commit();

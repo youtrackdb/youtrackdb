@@ -7,9 +7,9 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import java.io.File;
@@ -63,14 +63,14 @@ public class OServerDatabaseOperationsTest {
             " memory users (admin identified by 'admin' role admin)");
     assertTrue(server.existsDatabase(OServerDatabaseOperationsTest.class.getSimpleName()));
 
-    try (ODatabaseSession session = server.openDatabase(
+    try (YTDatabaseSession session = server.openDatabase(
         OServerDatabaseOperationsTest.class.getSimpleName())) {
-      ODocument securityConfig = new ODocument();
+      YTDocument securityConfig = new YTDocument();
       securityConfig.fromJSON(
           OIOUtils.readStreamAsString(
               this.getClass().getClassLoader().getResourceAsStream("security.json")),
           "noMap");
-      server.getSecurity().reload((ODatabaseSessionInternal) session, securityConfig);
+      server.getSecurity().reload((YTDatabaseSessionInternal) session, securityConfig);
     } finally {
       server.dropDatabase(OServerDatabaseOperationsTest.class.getSimpleName());
     }
@@ -97,7 +97,7 @@ public class OServerDatabaseOperationsTest {
         .execute("create database " + OServerDatabaseOperationsTest.class.getSimpleName()
             + " memory users (admin identified by 'admin' role admin)");
     assertTrue(server.existsDatabase(OServerDatabaseOperationsTest.class.getSimpleName()));
-    ODatabaseSession session = server.openDatabase(
+    YTDatabaseSession session = server.openDatabase(
         OServerDatabaseOperationsTest.class.getSimpleName());
     assertNotNull(session);
     session.close();

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -60,7 +60,7 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final ODocument doc = new ODocument();
+        final YTDocument doc = new YTDocument();
         doc.fromJSON(iRequest.getContent());
         text = doc.field("command");
         params = doc.field("parameters");

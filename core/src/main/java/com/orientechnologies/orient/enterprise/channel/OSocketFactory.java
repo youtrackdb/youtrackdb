@@ -18,7 +18,7 @@ package com.orientechnologies.orient.enterprise.channel;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -51,12 +51,13 @@ public class OSocketFactory {
   private OSocketFactory(final OContextConfiguration iConfig) {
     config = iConfig;
 
-    useSSL = iConfig.getValueAsBoolean(OGlobalConfiguration.CLIENT_USE_SSL);
-    keyStorePath = (String) iConfig.getValue(OGlobalConfiguration.CLIENT_SSL_KEYSTORE);
-    keyStorePassword = (String) iConfig.getValue(OGlobalConfiguration.CLIENT_SSL_KEYSTORE_PASSWORD);
-    trustStorePath = (String) iConfig.getValue(OGlobalConfiguration.CLIENT_SSL_TRUSTSTORE);
+    useSSL = iConfig.getValueAsBoolean(YTGlobalConfiguration.CLIENT_USE_SSL);
+    keyStorePath = (String) iConfig.getValue(YTGlobalConfiguration.CLIENT_SSL_KEYSTORE);
+    keyStorePassword = (String) iConfig.getValue(
+        YTGlobalConfiguration.CLIENT_SSL_KEYSTORE_PASSWORD);
+    trustStorePath = (String) iConfig.getValue(YTGlobalConfiguration.CLIENT_SSL_TRUSTSTORE);
     trustStorePassword =
-        (String) iConfig.getValue(OGlobalConfiguration.CLIENT_SSL_TRUSTSTORE_PASSWORD);
+        (String) iConfig.getValue(YTGlobalConfiguration.CLIENT_SSL_TRUSTSTORE_PASSWORD);
   }
 
   public static OSocketFactory instance(final OContextConfiguration iConfig) {

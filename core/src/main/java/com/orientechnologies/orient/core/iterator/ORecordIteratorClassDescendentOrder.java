@@ -19,18 +19,18 @@
  */
 package com.orientechnologies.orient.core.iterator;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.YTRecord;
 
 /**
  * Record iterator to browse records in inverse order: from last to the first.
  */
-public class ORecordIteratorClassDescendentOrder<REC extends ORecord>
+public class ORecordIteratorClassDescendentOrder<REC extends YTRecord>
     extends ORecordIteratorClass<REC> {
 
   public ORecordIteratorClassDescendentOrder(
-      ODatabaseSessionInternal iDatabase,
-      ODatabaseSessionInternal iLowLevelDatabase,
+      YTDatabaseSessionInternal iDatabase,
+      YTDatabaseSessionInternal iLowLevelDatabase,
       String iClassName,
       boolean iPolymorphic) {
     super(iDatabase, iClassName, iPolymorphic);

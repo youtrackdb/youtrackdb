@@ -2,8 +2,8 @@ package com.orientechnologies.orient.server.distributed.operation;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
@@ -61,7 +61,7 @@ public class NodeOperationTask implements ORemoteTask {
       ODistributedRequestId requestId,
       OServer iServer,
       ODistributedServerManager iManager,
-      ODatabaseSessionInternal database)
+      YTDatabaseSessionInternal database)
       throws Exception {
 
     if (task != null) {
@@ -79,7 +79,7 @@ public class NodeOperationTask implements ORemoteTask {
 
   @Override
   public long getDistributedTimeout() {
-    return OGlobalConfiguration.DISTRIBUTED_HEARTBEAT_TIMEOUT.getValueAsLong();
+    return YTGlobalConfiguration.DISTRIBUTED_HEARTBEAT_TIMEOUT.getValueAsLong();
   }
 
   @Override

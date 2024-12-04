@@ -25,13 +25,13 @@ import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
@@ -53,7 +53,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
   public Object[] configuredParameters;
   public Object[] runtimeParameters;
 
-  public OSQLFunctionRuntime(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public OSQLFunctionRuntime(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iText) {
     super(session, iQueryToParse, iText);
   }
@@ -80,7 +80,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
    */
   public Object execute(
       final Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       @Nonnull final OCommandContext iContext) {
     // RESOLVE VALUES USING THE CURRENT RECORD
@@ -110,8 +110,8 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
           final OSQLPredicate pred = new OSQLPredicate(iContext, text);
           runtimeParameters[i] =
               pred.evaluate(
-                  iCurrentRecord instanceof ORecord ? iCurrentRecord : null,
-                  (ODocument) iCurrentResult,
+                  iCurrentRecord instanceof YTRecord ? iCurrentRecord : null,
+                  (YTDocument) iCurrentResult,
                   iContext);
           // REPLACE ORIGINAL PARAM
           configuredParameters[i] = pred;
@@ -121,7 +121,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
             ((OSQLPredicate) configuredParameters[i])
                 .evaluate(
                     iCurrentRecord.getRecord(),
-                    (iCurrentRecord instanceof ODocument ? (ODocument) iCurrentResult : null),
+                    (iCurrentRecord instanceof YTDocument ? (YTDocument) iCurrentResult : null),
                     iContext);
       } else if (configuredParameters[i] instanceof String) {
         if (configuredParameters[i].toString().startsWith("\"")
@@ -158,7 +158,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
     return transformValue(iCurrentRecord, iContext, functionResult);
   }
 
-  public Object getResult(ODatabaseSessionInternal session) {
+  public Object getResult(YTDatabaseSessionInternal session) {
     var context = new OBasicCommandContext();
     context.setDatabase(session);
 
@@ -171,9 +171,9 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
 
   @Override
   public Object getValue(
-      final OIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
+      final YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
     try {
-      final ODocument current = iRecord != null ? (ODocument) iRecord.getRecord() : null;
+      final YTDocument current = iRecord != null ? (YTDocument) iRecord.getRecord() : null;
       return execute(current, current, null, iContext);
     } catch (ORecordNotFoundException rnf) {
       return null;
@@ -181,7 +181,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
   }
 
   @Override
-  public String getRoot(ODatabaseSession session) {
+  public String getRoot(YTDatabaseSession session) {
     return function.getName(session);
   }
 
@@ -237,7 +237,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
   }
 
   @Override
-  protected void setRoot(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  protected void setRoot(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iText) {
     final int beginParenthesis = iText.indexOf('(');
 

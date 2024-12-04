@@ -27,8 +27,8 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("INSERT INTO company SET name = 'MyCompany'").close();
     db.commit();
 
-    final OElement r = db.query("SELECT FROM company").next().getElement().get();
+    final YTEntity r = db.query("SELECT FROM company").next().getElement().get();
 
     db.begin();
     db.command("INSERT INTO employee SET name = 'Philipp'").close();
@@ -225,7 +225,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("test");
 
     db.begin();
-    ODocument doc = new ODocument("test");
+    YTDocument doc = new YTDocument("test");
     doc.field("id", 1);
     doc.field("boolean", false);
     doc.field("integerList", Collections.EMPTY_LIST);
@@ -269,7 +269,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final ODocument test = new ODocument("test");
+    final YTDocument test = new YTDocument("test");
     test.field("id", "id1");
     test.field("count", 20);
 
@@ -280,7 +280,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.save(test);
     db.commit();
 
-    OElement queried = db.query("SELECT FROM test WHERE id = \"id1\"").next().getElement().get();
+    YTEntity queried = db.query("SELECT FROM test WHERE id = \"id1\"").next().getElement().get();
 
     db.begin();
     db.command("UPDATE test set count += 2").close();
@@ -308,12 +308,12 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final ODocument test = new ODocument("test");
+    final YTDocument test = new YTDocument("test");
     test.field("text", "initial value");
     db.save(test);
     db.commit();
 
-    OElement queried = db.query("SELECT FROM test").next().getElement().get();
+    YTEntity queried = db.query("SELECT FROM test").next().getElement().get();
     assertEquals(queried.getProperty("text"), "initial value");
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -332,13 +332,13 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("CREATE class test").close();
 
     db.begin();
-    final ODocument test = new ODocument("test");
+    final YTDocument test = new YTDocument("test");
     test.field("text", "initial value");
 
     db.save(test);
     db.commit();
 
-    OElement queried = db.query("SELECT FROM test").next().getElement().get();
+    YTEntity queried = db.query("SELECT FROM test").next().getElement().get();
     assertEquals(queried.getProperty("text"), "initial value");
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -362,7 +362,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
         .close();
     db.commit();
 
-    OElement queried = db.query("SELECT FROM testquotesinjson").next().getElement().get();
+    YTEntity queried = db.query("SELECT FROM testquotesinjson").next().getElement().get();
     assertEquals(((Map) queried.getProperty("value")).get("f12"), "test\\");
   }
 
@@ -497,7 +497,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("CREATE class Foo").close();
 
     db.begin();
-    ODocument d = new ODocument("Foo");
+    YTDocument d = new YTDocument("Foo");
     d.field("name", "foo");
     d.save();
 
@@ -519,13 +519,13 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("CREATE class Foo").close();
 
     db.begin();
-    ODocument d = new ODocument("Foo");
+    YTDocument d = new YTDocument("Foo");
     d.field("name", "foo");
     d.save();
     db.commit();
 
     db.begin();
-    d = new ODocument("Foo");
+    d = new YTDocument("Foo");
     d.field("name", "bar");
     d.save();
     db.commit();
@@ -546,13 +546,13 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
         .close();
 
     db.begin();
-    ODocument state = new ODocument("TestLinked");
+    YTDocument state = new YTDocument("TestLinked");
     state.setProperty("id", "idvalue");
     db.save(state);
     db.commit();
 
     db.begin();
-    ODocument d = new ODocument("TestSource");
+    YTDocument d = new YTDocument("TestSource");
     state = db.bindToSession(state);
     d.setProperty("name", "foo");
     d.setProperty("linked", state);

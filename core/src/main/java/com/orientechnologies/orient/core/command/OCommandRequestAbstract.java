@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.command.OCommandContext.TIMEOUT_STRATEGY;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.replication.OAsyncReplicationError;
 import com.orientechnologies.orient.core.replication.OAsyncReplicationOk;
 import java.util.Collections;
@@ -42,7 +42,7 @@ public abstract class OCommandRequestAbstract
   protected OCommandResultListener resultListener;
   protected OProgressListener progressListener;
   protected int limit = -1;
-  protected long timeoutMs = OGlobalConfiguration.COMMAND_TIMEOUT.getValueAsLong();
+  protected long timeoutMs = YTGlobalConfiguration.COMMAND_TIMEOUT.getValueAsLong();
   protected TIMEOUT_STRATEGY timeoutStrategy = TIMEOUT_STRATEGY.EXCEPTION;
   protected Map<Object, Object> parameters;
   protected String fetchPlan = null;
@@ -94,10 +94,10 @@ public abstract class OCommandRequestAbstract
       for (int i = 0; i < iArgs.length; ++i) {
         Object par = iArgs[i];
 
-        if (par instanceof OIdentifiable && ((OIdentifiable) par).getIdentity().isValid())
+        if (par instanceof YTIdentifiable && ((YTIdentifiable) par).getIdentity().isValid())
         // USE THE RID ONLY
         {
-          par = ((OIdentifiable) par).getIdentity();
+          par = ((YTIdentifiable) par).getIdentity();
         }
 
         params.put(i, par);

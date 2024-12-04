@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.index.engine;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexUnique;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 
-public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, ORID> {
+public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, YTRID> {
 
   /**
    *
@@ -20,7 +20,7 @@ public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, 
   }
 
   @Override
-  public Object validate(Object key, ORID oldValue, ORID newValue) {
+  public Object validate(Object key, YTRID oldValue, YTRID newValue) {
     if (oldValue != null) {
       var metadata = indexUnique.getMetadata();
       // CHECK IF THE ID IS THE SAME OF CURRENT: THIS IS THE UPDATE CASE

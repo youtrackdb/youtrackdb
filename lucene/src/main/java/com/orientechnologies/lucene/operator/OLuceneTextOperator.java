@@ -23,14 +23,14 @@ import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -60,7 +60,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
     super(iKeyword, iPrecedence, iLogical);
   }
 
-  protected static ODatabaseSessionInternal getDatabase() {
+  protected static YTDatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -71,7 +71,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
 
   @Override
   public OIndexSearchResult getOIndexSearchResult(
-      OClass iSchemaClass,
+      YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
       OCommandContext context) {
@@ -82,7 +82,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     if (!index.getType().toLowerCase().contains("fulltext")) {
       return null;
@@ -100,12 +100,12 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
@@ -116,8 +116,8 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
 
   @Override
   public Object evaluateRecord(
-      OIdentifiable iRecord,
-      ODocument iCurrentResult,
+      YTIdentifiable iRecord,
+      YTDocument iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
@@ -158,7 +158,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   }
 
   private boolean matchField(
-      ODatabaseSessionInternal session, Object iLeft, Object iRight, OLuceneFullTextIndex index,
+      YTDatabaseSessionInternal session, Object iLeft, Object iRight, OLuceneFullTextIndex index,
       MemoryIndex memoryIndex)
       throws IOException, ParseException {
     for (IndexableField field : index.buildDocument(session, iLeft).getFields()) {
@@ -168,7 +168,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   }
 
   private boolean matchCollectionIndex(
-      ODatabaseSessionInternal session, List iLeft, Object iRight, OLuceneFullTextIndex index,
+      YTDatabaseSessionInternal session, List iLeft, Object iRight, OLuceneFullTextIndex index,
       MemoryIndex memoryIndex)
       throws IOException, ParseException {
     boolean match = false;
@@ -228,23 +228,23 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   }
 
   protected OLuceneFullTextIndex involvedIndex(
-      ODatabaseSessionInternal session, OIdentifiable iRecord,
-      ODocument iCurrentResult,
+      YTDatabaseSessionInternal session, YTIdentifiable iRecord,
+      YTDocument iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight) {
 
     try {
-      ODocument doc = iRecord.getRecord();
+      YTDocument doc = iRecord.getRecord();
       if (doc.getClassName() != null) {
-        OClass cls = getDatabase().getMetadata().getSchema().getClass(doc.getClassName());
+        YTClass cls = getDatabase().getMetadata().getSchema().getClass(doc.getClassName());
 
         if (isChained(iCondition.getLeft())) {
 
           OSQLFilterItemField chained = (OSQLFilterItemField) iCondition.getLeft();
 
           OSQLFilterItemField.FieldChain fieldChain = chained.getFieldChain();
-          OClass oClass = cls;
+          YTClass oClass = cls;
           for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
             oClass = oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
           }

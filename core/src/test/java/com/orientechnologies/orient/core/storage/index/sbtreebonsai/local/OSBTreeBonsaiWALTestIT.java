@@ -1,9 +1,9 @@
 // package com.orientechnologies.orient.core.storage.index.sbtreebonsai.local;
 //
 // import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-// import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-// import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-// import com.orientechnologies.orient.core.db.record.OIdentifiable;
+// import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+// import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+// import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 // import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 // import com.orientechnologies.orient.core.storage.OStorage;
 // import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -32,7 +32,7 @@
 // */
 // public class OSBTreeBonsaiWALTestIT extends OSBTreeBonsaiLocalTestIT {
 //  static {
-//    OGlobalConfiguration.FILE_LOCK.setValue(false);
+//    YTGlobalConfiguration.FILE_LOCK.setValue(false);
 //  }
 //
 //  private String buildDirectory;
@@ -40,7 +40,7 @@
 //  private String actualStorageDir;
 //  private String expectedStorageDir;
 //
-//  private ODatabaseDocumentTx expectedDatabaseDocumentTx;
+//  private YTDatabaseDocumentTx expectedDatabaseDocumentTx;
 //
 //  private OReadCache  expectedReadCache;
 //  private OWriteCache expectedWriteCache;
@@ -101,7 +101,7 @@
 //    if (!actualStorageDirFile.exists())
 //      actualStorageDirFile.mkdirs();
 //
-//    databaseDocumentTx = new ODatabaseDocumentTx("plocal:" + actualStorageDirFile);
+//    databaseDocumentTx = new YTDatabaseDocumentTx("plocal:" + actualStorageDirFile);
 //    if (databaseDocumentTx.exists()) {
 //      databaseDocumentTx.open("admin", "admin");
 //      databaseDocumentTx.drop();
@@ -116,7 +116,7 @@
 //    actualStorage.synch();
 //    writeAheadLog.addCutTillLimit(writeAheadLog.getFlushedLsn());
 //
-//    sbTree = new OSBTreeBonsaiLocal<Integer, OIdentifiable>("actualSBTree", ".sbt",
+//    sbTree = new OSBTreeBonsaiLocal<Integer, YTIdentifiable>("actualSBTree", ".sbt",
 // actualStorage);
 //    sbTree.create(OIntegerSerializer.INSTANCE, OLinkSerializer.INSTANCE);
 //  }
@@ -132,7 +132,7 @@
 //    if (!expectedStorageDirFile.exists())
 //      expectedStorageDirFile.mkdirs();
 //
-//    expectedDatabaseDocumentTx = new ODatabaseDocumentTx("plocal:" + expectedStorageDir);
+//    expectedDatabaseDocumentTx = new YTDatabaseDocumentTx("plocal:" + expectedStorageDir);
 //    if (expectedDatabaseDocumentTx.exists()) {
 //      expectedDatabaseDocumentTx.open("admin", "admin");
 //      expectedDatabaseDocumentTx.drop();

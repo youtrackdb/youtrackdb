@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,18 +30,18 @@ public class IndexTxTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass cls = schema.createClass("IndexTxTestClass");
-    cls.createProperty(database, "name", OType.STRING);
-    cls.createIndex(database, "IndexTxTestIndex", OClass.INDEX_TYPE.UNIQUE, "name");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass cls = schema.createClass("IndexTxTestClass");
+    cls.createProperty(database, "name", YTType.STRING);
+    cls.createIndex(database, "IndexTxTestIndex", YTClass.INDEX_TYPE.UNIQUE, "name");
   }
 
   @BeforeMethod
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass cls = schema.getClass("IndexTxTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass cls = schema.getClass("IndexTxTestClass");
     if (cls != null) {
       cls.truncate(database);
     }
@@ -53,8 +53,8 @@ public class IndexTxTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final ODocument doc1 = new ODocument("IndexTxTestClass");
-    final ODocument doc2 = new ODocument("IndexTxTestClass");
+    final YTDocument doc1 = new YTDocument("IndexTxTestClass");
+    final YTDocument doc2 = new YTDocument("IndexTxTestClass");
 
     doc1.save();
     doc2.save();
@@ -69,7 +69,7 @@ public class IndexTxTest extends DocumentDBBaseTest {
 
     database.commit();
 
-    Map<String, ORID> expectedResult = new HashMap<>();
+    Map<String, YTRID> expectedResult = new HashMap<>();
     expectedResult.put("doc1", doc1.getIdentity());
     expectedResult.put("doc2", doc2.getIdentity());
 
@@ -81,9 +81,9 @@ public class IndexTxTest extends DocumentDBBaseTest {
       while (keyIterator.hasNext()) {
         String key = (String) keyIterator.next();
 
-        final ORID expectedValue = expectedResult.get(key);
-        final ORID value;
-        try (Stream<ORID> stream = index.getInternal().getRids(database, key)) {
+        final YTRID expectedValue = expectedResult.get(key);
+        final YTRID value;
+        try (Stream<YTRID> stream = index.getInternal().getRids(database, key)) {
           value = stream.findAny().orElse(null);
         }
 

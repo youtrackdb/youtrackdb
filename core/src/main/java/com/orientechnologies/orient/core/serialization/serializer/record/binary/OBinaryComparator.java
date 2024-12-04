@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 
 /**
  * Compares types at binary level: super fast, using of literals as much as it can.
@@ -51,5 +51,5 @@ public interface OBinaryComparator {
    * @param iType
    * @return
    */
-  boolean isBinaryComparable(OType iType);
+  boolean isBinaryComparable(YTType iType);
 }

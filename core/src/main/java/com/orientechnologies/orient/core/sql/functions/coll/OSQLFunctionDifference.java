@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,7 +41,7 @@ public class OSQLFunctionDifference extends OSQLFunctionMultiValueAbstract<Set<O
   @SuppressWarnings("unchecked")
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -74,7 +74,7 @@ public class OSQLFunctionDifference extends OSQLFunctionMultiValueAbstract<Set<O
     return result;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "difference(<field>, <field> [, <field]*)";
   }
 }

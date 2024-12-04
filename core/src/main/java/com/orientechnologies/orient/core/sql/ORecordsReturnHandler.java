@@ -21,8 +21,8 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,30 +50,30 @@ public abstract class ORecordsReturnHandler implements OReturnHandler {
     return results;
   }
 
-  protected void storeResult(final ODocument result) {
-    final ODocument processedResult = preprocess(result);
+  protected void storeResult(final YTDocument result) {
+    final YTDocument processedResult = preprocess(result);
 
     results.add(evaluateExpression(processedResult));
   }
 
-  protected abstract ODocument preprocess(final ODocument result);
+  protected abstract YTDocument preprocess(final YTDocument result);
 
-  private Object evaluateExpression(final ODocument record) {
+  private Object evaluateExpression(final YTDocument record) {
     if (returnExpression == null) {
       return record;
     } else {
       final Object itemResult;
-      final ODocument wrappingDoc;
+      final YTDocument wrappingDoc;
       context.setVariable("current", record);
 
       itemResult =
-          OSQLHelper.getValue(returnExpression, ((OIdentifiable) record).getRecord(), context);
-      if (itemResult instanceof OIdentifiable) {
+          OSQLHelper.getValue(returnExpression, ((YTIdentifiable) record).getRecord(), context);
+      if (itemResult instanceof YTIdentifiable) {
         return itemResult;
       }
 
       // WRAP WITH ODOCUMENT TO BE TRANSFERRED THROUGH BINARY DRIVER
-      return new ODocument("value", itemResult);
+      return new YTDocument("value", itemResult);
     }
   }
 }

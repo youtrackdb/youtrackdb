@@ -20,10 +20,10 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OStringCache;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
@@ -33,13 +33,13 @@ import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidB
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordSerializationContext;
@@ -68,7 +68,7 @@ import java.util.UUID;
 public class HelperClasses {
 
   public static final String CHARSET_UTF_8 = "UTF-8";
-  protected static final ORecordId NULL_RECORD_ID = new ORecordId(-2, ORID.CLUSTER_POS_INVALID);
+  protected static final YTRecordId NULL_RECORD_ID = new YTRecordId(-2, YTRID.CLUSTER_POS_INVALID);
   public static final long MILLISEC_PER_DAY = 86400000;
 
   public static class Tuple<T1, T2> {
@@ -94,38 +94,38 @@ public class HelperClasses {
 
     public int fieldStartOffset;
     public int fieldLength;
-    public OType fieldType;
+    public YTType fieldType;
   }
 
   protected static class MapRecordInfo extends RecordInfo {
 
     public String key;
-    public OType keyType;
+    public YTType keyType;
   }
 
-  public static OType readOType(final BytesContainer bytes, boolean justRunThrough) {
+  public static YTType readOType(final BytesContainer bytes, boolean justRunThrough) {
     if (justRunThrough) {
       bytes.offset++;
       return null;
     }
-    return OType.getById(readByte(bytes));
+    return YTType.getById(readByte(bytes));
   }
 
-  public static void writeOType(BytesContainer bytes, int pos, OType type) {
+  public static void writeOType(BytesContainer bytes, int pos, YTType type) {
     bytes.bytes[pos] = (byte) type.getId();
   }
 
-  public static void writeType(BytesContainer bytes, OType type) {
+  public static void writeType(BytesContainer bytes, YTType type) {
     int pos = bytes.alloc(1);
     bytes.bytes[pos] = (byte) type.getId();
   }
 
-  public static OType readType(BytesContainer bytes) {
+  public static YTType readType(BytesContainer bytes) {
     byte typeId = bytes.bytes[bytes.offset++];
     if (typeId == -1) {
       return null;
     }
-    return OType.getById(typeId);
+    return YTType.getById(typeId);
   }
 
   public static byte[] readBinary(final BytesContainer bytes) {
@@ -164,13 +164,13 @@ public class HelperClasses {
     return value;
   }
 
-  public static ORecordId readOptimizedLink(final BytesContainer bytes, boolean justRunThrough) {
+  public static YTRecordId readOptimizedLink(final BytesContainer bytes, boolean justRunThrough) {
     int clusterId = OVarIntSerializer.readAsInteger(bytes);
     long clusterPos = OVarIntSerializer.readAsLong(bytes);
     if (justRunThrough) {
       return null;
     } else {
-      return new ORecordId(clusterId, clusterPos);
+      return new YTRecordId(clusterId, clusterPos);
     }
   }
 
@@ -180,7 +180,7 @@ public class HelperClasses {
 
   public static String stringFromBytesIntern(final byte[] bytes, final int offset, final int len) {
     try {
-      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
         OSharedContext context = db.getSharedContext();
         if (context != null) {
@@ -216,7 +216,7 @@ public class HelperClasses {
     return toCalendar.getTimeInMillis();
   }
 
-  public static OGlobalProperty getGlobalProperty(final ODocument document, final int len) {
+  public static OGlobalProperty getGlobalProperty(final YTDocument document, final int len) {
     final int id = (len * -1) - 1;
     return ODocumentInternal.getGlobalPropertyById(document, id);
   }
@@ -228,7 +228,7 @@ public class HelperClasses {
     return pointer;
   }
 
-  public static int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
+  public static int writeOptimizedLink(final BytesContainer bytes, YTIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
       try {
         link = link.getRecord();
@@ -251,21 +251,21 @@ public class HelperClasses {
     return pos;
   }
 
-  public static OType getTypeFromValueEmbedded(final Object fieldValue) {
-    OType type = OType.getTypeByValue(fieldValue);
-    if (type == OType.LINK
-        && fieldValue instanceof ODocument
-        && !((ODocument) fieldValue).getIdentity().isValid()) {
-      type = OType.EMBEDDED;
+  public static YTType getTypeFromValueEmbedded(final Object fieldValue) {
+    YTType type = YTType.getTypeByValue(fieldValue);
+    if (type == YTType.LINK
+        && fieldValue instanceof YTDocument
+        && !((YTDocument) fieldValue).getIdentity().isValid()) {
+      type = YTType.EMBEDDED;
     }
     return type;
   }
 
   public static int writeLinkCollection(
-      final BytesContainer bytes, final Collection<OIdentifiable> value) {
+      final BytesContainer bytes, final Collection<YTIdentifiable> value) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
 
-    for (OIdentifiable itemValue : value) {
+    for (YTIdentifiable itemValue : value) {
       // TODO: handle the null links
       if (itemValue == null) {
         writeNullLink(bytes);
@@ -277,11 +277,11 @@ public class HelperClasses {
     return pos;
   }
 
-  public static <T extends OTrackedMultiValue<?, OIdentifiable>> T readLinkCollection(
+  public static <T extends OTrackedMultiValue<?, YTIdentifiable>> T readLinkCollection(
       final BytesContainer bytes, final T found, boolean justRunThrough) {
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
-      ORecordId id = readOptimizedLink(bytes, justRunThrough);
+      YTRecordId id = readOptimizedLink(bytes, justRunThrough);
       if (!justRunThrough) {
         if (id.equals(NULL_RECORD_ID)) {
           found.addInternal(null);
@@ -301,9 +301,10 @@ public class HelperClasses {
     return pointer;
   }
 
-  public static int writeLinkMap(final BytesContainer bytes, final Map<Object, OIdentifiable> map) {
+  public static int writeLinkMap(final BytesContainer bytes,
+      final Map<Object, YTIdentifiable> map) {
     final int fullPos = OVarIntSerializer.write(bytes, map.size());
-    for (Map.Entry<Object, OIdentifiable> entry : map.entrySet()) {
+    for (Map.Entry<Object, YTIdentifiable> entry : map.entrySet()) {
       writeString(bytes, entry.getKey().toString());
       if (entry.getValue() == null) {
         writeNullLink(bytes);
@@ -314,7 +315,7 @@ public class HelperClasses {
     return fullPos;
   }
 
-  public static Map<Object, OIdentifiable> readLinkMap(
+  public static Map<Object, YTIdentifiable> readLinkMap(
       final BytesContainer bytes, final ORecordElement owner, boolean justRunThrough) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     OMap result = null;
@@ -323,7 +324,7 @@ public class HelperClasses {
     }
     while ((size--) > 0) {
       final String key = readString(bytes);
-      final ORecordId value = readOptimizedLink(bytes, justRunThrough);
+      final YTRecordId value = readOptimizedLink(bytes, justRunThrough);
       if (value.equals(NULL_RECORD_ID)) {
         result.putInternal(key, null);
       } else {
@@ -374,12 +375,12 @@ public class HelperClasses {
   }
 
   protected static void writeEmbeddedRidbag(BytesContainer bytes, ORidBag ridbag) {
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     int size = ridbag.size();
     Object[] entries = ((OEmbeddedRidBag) ridbag.getDelegate()).getEntries();
     for (int i = 0; i < entries.length; i++) {
       Object entry = entries[i];
-      if (entry instanceof OIdentifiable itemValue) {
+      if (entry instanceof YTIdentifiable itemValue) {
         if (db != null
             && !db.isClosed()
             && db.getTransaction().isActive()
@@ -400,8 +401,8 @@ public class HelperClasses {
     for (int i = 0; i < entries.length; i++) {
       Object entry = entries[i];
       // Obviously this exclude nulls as well
-      if (entry instanceof OIdentifiable) {
-        writeLinkOptimized(bytes, ((OIdentifiable) entry).getIdentity());
+      if (entry instanceof YTIdentifiable) {
+        writeLinkOptimized(bytes, ((YTIdentifiable) entry).getIdentity());
       }
     }
   }
@@ -472,19 +473,19 @@ public class HelperClasses {
     }
 
     if (owner != null) {
-      return ((OIdentifiable) owner).getIdentity().getClusterId();
+      return ((YTIdentifiable) owner).getIdentity().getClusterId();
     }
 
     return -1;
   }
 
-  public static void writeLinkOptimized(final BytesContainer bytes, OIdentifiable link) {
-    ORID id = link.getIdentity();
+  public static void writeLinkOptimized(final BytesContainer bytes, YTIdentifiable link) {
+    YTRID id = link.getIdentity();
     OVarIntSerializer.write(bytes, id.getClusterId());
     OVarIntSerializer.write(bytes, id.getClusterPosition());
   }
 
-  public static ORidBag readRidbag(ODatabaseSessionInternal session, BytesContainer bytes) {
+  public static ORidBag readRidbag(YTDatabaseSessionInternal session, BytesContainer bytes) {
     byte configByte = OByteSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset++);
     boolean isEmbedded = (configByte & 1) != 0;
 
@@ -497,7 +498,7 @@ public class HelperClasses {
       int size = OVarIntSerializer.readAsInteger(bytes);
       ridbag.getDelegate().setSize(size);
       for (int i = 0; i < size; i++) {
-        OIdentifiable record = readLinkOptimizedEmbedded(bytes);
+        YTIdentifiable record = readLinkOptimizedEmbedded(bytes);
         ridbag.getDelegate().addInternal(record);
       }
     } else {
@@ -513,11 +514,11 @@ public class HelperClasses {
             new OBonsaiCollectionPointer(fileId, new OBonsaiBucketPointer(pageIndex, pageOffset));
       }
 
-      Map<OIdentifiable, Change> changes = new HashMap<>();
+      Map<YTIdentifiable, Change> changes = new HashMap<>();
 
       int changesSize = OVarIntSerializer.readAsInteger(bytes);
       for (int i = 0; i < changesSize; i++) {
-        OIdentifiable recId = readLinkOptimizedSBTree(bytes);
+        YTIdentifiable recId = readLinkOptimizedSBTree(bytes);
         Change change = deserializeChange(bytes);
         changes.put(recId, change);
       }
@@ -528,10 +529,10 @@ public class HelperClasses {
     return ridbag;
   }
 
-  private static OIdentifiable readLinkOptimizedEmbedded(final BytesContainer bytes) {
-    ORID rid =
-        new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
-    OIdentifiable identifiable = null;
+  private static YTIdentifiable readLinkOptimizedEmbedded(final BytesContainer bytes) {
+    YTRID rid =
+        new YTRecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
+    YTIdentifiable identifiable = null;
     if (rid.isTemporary()) {
       try {
         identifiable = rid.getRecord();
@@ -547,10 +548,10 @@ public class HelperClasses {
     return identifiable;
   }
 
-  private static OIdentifiable readLinkOptimizedSBTree(final BytesContainer bytes) {
-    ORID rid =
-        new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
-    OIdentifiable identifiable;
+  private static YTIdentifiable readLinkOptimizedSBTree(final BytesContainer bytes) {
+    YTRID rid =
+        new YTRecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
+    YTIdentifiable identifiable;
     if (rid.isTemporary()) {
       try {
         identifiable = rid.getRecord();
@@ -571,12 +572,12 @@ public class HelperClasses {
     return ChangeSerializationHelper.createChangeInstance(type, change);
   }
 
-  public static OType getLinkedType(OClass clazz, OType type, String key) {
-    if (type != OType.EMBEDDEDLIST && type != OType.EMBEDDEDSET && type != OType.EMBEDDEDMAP) {
+  public static YTType getLinkedType(YTClass clazz, YTType type, String key) {
+    if (type != YTType.EMBEDDEDLIST && type != YTType.EMBEDDEDSET && type != YTType.EMBEDDEDMAP) {
       return null;
     }
     if (clazz != null) {
-      OProperty prop = clazz.getProperty(key);
+      YTProperty prop = clazz.getProperty(key);
       if (prop != null) {
         return prop.getLinkedType();
       }

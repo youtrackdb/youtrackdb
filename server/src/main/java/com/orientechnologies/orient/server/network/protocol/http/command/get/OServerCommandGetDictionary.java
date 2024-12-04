@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
@@ -37,12 +37,12 @@ public class OServerCommandGetDictionary extends OServerCommandAuthenticatedDbAb
     String[] urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: dictionary/<database>/<key>");
 
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      final ORecord record = db.getDictionary().get(urlParts[2]);
+      final YTRecord record = db.getDictionary().get(urlParts[2]);
       if (record == null) {
         throw new ORecordNotFoundException(
             null, "Key '" + urlParts[2] + "' was not found in the database dictionary");

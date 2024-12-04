@@ -19,33 +19,33 @@
  */
 package com.orientechnologies.orient.core.command.traverse;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class OTraverseRecordSetProcess extends OTraverseAbstractProcess<Iterator<OIdentifiable>> {
+public class OTraverseRecordSetProcess extends OTraverseAbstractProcess<Iterator<YTIdentifiable>> {
 
   private final OTraversePath path;
-  protected OIdentifiable record;
+  protected YTIdentifiable record;
   protected int index = -1;
 
   public OTraverseRecordSetProcess(
-      final OTraverse iCommand, final Iterator<OIdentifiable> iTarget, OTraversePath parentPath) {
+      final OTraverse iCommand, final Iterator<YTIdentifiable> iTarget, OTraversePath parentPath) {
     super(iCommand, iTarget);
     this.path = parentPath.appendRecordSet();
     command.getContext().push(this);
   }
 
   @SuppressWarnings("unchecked")
-  public OIdentifiable process() {
+  public YTIdentifiable process() {
     while (target.hasNext()) {
       record = target.next();
       index++;
 
-      final ORecord rec = record.getRecord();
-      if (rec instanceof ODocument doc) {
+      final YTRecord rec = record.getRecord();
+      if (rec instanceof YTDocument doc) {
         if (!doc.getIdentity().isPersistent() && doc.fields() == 1) {
           // EXTRACT THE FIELD CONTEXT
           Object fieldvalue = doc.field(doc.fieldNames()[0]);
@@ -54,9 +54,9 @@ public class OTraverseRecordSetProcess extends OTraverseAbstractProcess<Iterator
                 .getContext()
                 .push(
                     new OTraverseRecordSetProcess(
-                        command, ((Collection<OIdentifiable>) fieldvalue).iterator(), path));
+                        command, ((Collection<YTIdentifiable>) fieldvalue).iterator(), path));
 
-          } else if (fieldvalue instanceof ODocument) {
+          } else if (fieldvalue instanceof YTDocument) {
             command.getContext().push(new OTraverseRecordProcess(command, rec, path));
           }
         } else {

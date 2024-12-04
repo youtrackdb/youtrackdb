@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -53,7 +53,7 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
       f.setLanguage(database, language.getStringValue());
     }
     f.save(database);
-    ORID functionId = f.getId(database);
+    YTRID functionId = f.getId(database);
     OResultInternal result = new OResultInternal(database);
     result.setProperty("operation", "create function");
     result.setProperty("functionName", name.getStringValue());

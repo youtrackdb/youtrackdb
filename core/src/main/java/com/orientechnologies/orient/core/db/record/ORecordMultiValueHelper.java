@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecord;
 
 /**
- * Lazy implementation of ArrayList. It's bound to a source ORecord object to keep track of changes.
+ * Lazy implementation of ArrayList. It's bound to a source YTRecord object to keep track of changes.
  * This avoid to call the makeDirty() by hand when the list is changed.
  */
 public class ORecordMultiValueHelper {
@@ -41,21 +41,21 @@ public class ORecordMultiValueHelper {
       // DO NOTHING
 
     } else if (iPreviousStatus == MULTIVALUE_CONTENT_TYPE.EMPTY) {
-      if (iValue instanceof ORID) {
+      if (iValue instanceof YTRID) {
         return MULTIVALUE_CONTENT_TYPE.ALL_RIDS;
-      } else if (iValue instanceof ORecord) {
+      } else if (iValue instanceof YTRecord) {
         return MULTIVALUE_CONTENT_TYPE.ALL_RECORDS;
       } else {
         return MULTIVALUE_CONTENT_TYPE.HYBRID;
       }
 
     } else if (iPreviousStatus == MULTIVALUE_CONTENT_TYPE.ALL_RECORDS) {
-      if (iValue instanceof ORID) {
+      if (iValue instanceof YTRID) {
         return MULTIVALUE_CONTENT_TYPE.HYBRID;
       }
 
     } else if (iPreviousStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS) {
-      if (!(iValue instanceof ORID)) {
+      if (!(iValue instanceof YTRID)) {
         return MULTIVALUE_CONTENT_TYPE.HYBRID;
       }
     }

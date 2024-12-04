@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +28,7 @@ public interface OExecutionStep {
     return -1L;
   }
 
-  default OResult toResult(ODatabaseSessionInternal db) {
+  default OResult toResult(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("name", getName());
     result.setProperty("type", getType());

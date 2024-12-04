@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
     implements OCommandResultListener, Iterable<T> {
 
   private final OLegacyResultSet<T> result = new OConcurrentLegacyResultSet<T>();
-  private ORID nextPageRID;
+  private YTRID nextPageRID;
   private Map<Object, Object> previousQueryParams = new HashMap<Object, Object>();
 
   public OSQLSynchQuery() {
@@ -65,7 +65,7 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
     result.clear();
   }
 
-  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
+  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
     if (iRecord != null) {
       result.add((T) iRecord);
     }
@@ -99,8 +99,8 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
 
     if (!result.isEmpty()) {
       previousQueryParams = new HashMap<>(queryParams);
-      final ORID lastRid = ((OIdentifiable) result.get(result.size() - 1)).getIdentity();
-      nextPageRID = new ORecordId(lastRid.next());
+      final YTRID lastRid = ((YTIdentifiable) result.get(result.size() - 1)).getIdentity();
+      nextPageRID = new YTRecordId(lastRid.next());
     }
 
     return result;
@@ -118,7 +118,7 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
   /**
    * @return RID of the record that will be processed first during pagination mode.
    */
-  public ORID getNextPageRID() {
+  public YTRID getNextPageRID() {
     return nextPageRID;
   }
 
@@ -149,7 +149,7 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
   }
 
   @Override
-  protected void queryFromStream(ODatabaseSessionInternal db, final OMemoryStream buffer,
+  protected void queryFromStream(YTDatabaseSessionInternal db, final OMemoryStream buffer,
       ORecordSerializer serializer) {
     super.queryFromStream(db, buffer, serializer);
 
@@ -157,7 +157,7 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
     if ("".equals(rid)) {
       nextPageRID = null;
     } else {
-      nextPageRID = new ORecordId(rid);
+      nextPageRID = new YTRecordId(rid);
     }
 
     final byte[] serializedPrevParams = buffer.getAsByteArray();

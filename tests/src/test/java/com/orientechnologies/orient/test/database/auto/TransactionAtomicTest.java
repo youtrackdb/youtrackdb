@@ -18,14 +18,14 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import java.io.IOException;
@@ -44,10 +44,10 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Test
   public void testTransactionAtomic() {
-    ODatabaseSessionInternal db1 = acquireSession();
-    ODatabaseSessionInternal db2 = acquireSession();
+    YTDatabaseSessionInternal db1 = acquireSession();
+    YTDatabaseSessionInternal db2 = acquireSession();
 
-    ODocument record1 = new ODocument();
+    YTDocument record1 = new YTDocument();
 
     db2.begin();
     record1
@@ -58,7 +58,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     // RE-READ THE RECORD
     db2.activateOnCurrentThread();
     db2.begin();
-    ODocument record2 = db2.load(record1.getIdentity());
+    YTDocument record2 = db2.load(record1.getIdentity());
 
     record2.field("value", "This is the second version").save();
     db2.commit();
@@ -82,7 +82,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
   @Test
   public void testMVCC() throws IOException {
 
-    ODocument doc = new ODocument("Account");
+    YTDocument doc = new YTDocument("Account");
     database.begin();
     doc.field("version", 0);
     doc.save();
@@ -104,7 +104,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Test
   public void testTransactionPreListenerRollback() throws IOException {
-    ODocument record1 = new ODocument();
+    YTDocument record1 = new YTDocument();
 
     database.begin();
     record1
@@ -116,28 +116,28 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
         new ODatabaseListener() {
 
           @Override
-          public void onAfterTxCommit(ODatabaseSession iDatabase) {
+          public void onAfterTxCommit(YTDatabaseSession iDatabase) {
           }
 
           @Override
-          public void onAfterTxRollback(ODatabaseSession iDatabase) {
+          public void onAfterTxRollback(YTDatabaseSession iDatabase) {
           }
 
           @Override
-          public void onBeforeTxBegin(ODatabaseSession iDatabase) {
+          public void onBeforeTxBegin(YTDatabaseSession iDatabase) {
           }
 
           @Override
-          public void onBeforeTxCommit(ODatabaseSession iDatabase) {
+          public void onBeforeTxCommit(YTDatabaseSession iDatabase) {
             throw new RuntimeException("Rollback test");
           }
 
           @Override
-          public void onBeforeTxRollback(ODatabaseSession iDatabase) {
+          public void onBeforeTxRollback(YTDatabaseSession iDatabase) {
           }
 
           @Override
-          public void onClose(ODatabaseSession iDatabase) {
+          public void onClose(YTDatabaseSession iDatabase) {
           }
 
           @Override
@@ -150,20 +150,20 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
           }
 
           @Override
-          public void onCreate(ODatabaseSession iDatabase) {
+          public void onCreate(YTDatabaseSession iDatabase) {
           }
 
           @Override
-          public void onDelete(ODatabaseSession iDatabase) {
+          public void onDelete(YTDatabaseSession iDatabase) {
           }
 
           @Override
-          public void onOpen(ODatabaseSession iDatabase) {
+          public void onOpen(YTDatabaseSession iDatabase) {
           }
 
           @Override
           public boolean onCorruptionRepairDatabase(
-              ODatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
+              YTDatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
             return true;
           }
         };
@@ -183,20 +183,20 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Test
   public void testTransactionWithDuplicateUniqueIndexValues() {
-    OClass fruitClass = database.getMetadata().getSchema().getClass("Fruit");
+    YTClass fruitClass = database.getMetadata().getSchema().getClass("Fruit");
 
     if (fruitClass == null) {
       fruitClass = database.getMetadata().getSchema().createClass("Fruit");
 
-      fruitClass.createProperty(database, "name", OType.STRING);
-      fruitClass.createProperty(database, "color", OType.STRING);
+      fruitClass.createProperty(database, "name", YTType.STRING);
+      fruitClass.createProperty(database, "color", YTType.STRING);
 
       database
           .getMetadata()
           .getSchema()
           .getClass("Fruit")
           .getProperty("color")
-          .createIndex(database, OClass.INDEX_TYPE.UNIQUE);
+          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE);
     }
 
     Assert.assertEquals(database.countClusterElements("Fruit"), 0);
@@ -204,10 +204,11 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     try {
       database.begin();
 
-      ODocument apple = new ODocument("Fruit").field("name", "Apple").field("color", "Red");
-      ODocument orange = new ODocument("Fruit").field("name", "Orange").field("color", "Orange");
-      ODocument banana = new ODocument("Fruit").field("name", "Banana").field("color", "Yellow");
-      ODocument kumquat = new ODocument("Fruit").field("name", "Kumquat").field("color", "Orange");
+      YTDocument apple = new YTDocument("Fruit").field("name", "Apple").field("color", "Red");
+      YTDocument orange = new YTDocument("Fruit").field("name", "Orange").field("color", "Orange");
+      YTDocument banana = new YTDocument("Fruit").field("name", "Banana").field("color", "Yellow");
+      YTDocument kumquat = new YTDocument("Fruit").field("name", "Kumquat")
+          .field("color", "Orange");
 
       apple.save();
       orange.save();

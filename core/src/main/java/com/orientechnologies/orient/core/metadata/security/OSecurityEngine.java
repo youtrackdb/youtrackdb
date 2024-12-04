@@ -2,16 +2,16 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
@@ -22,7 +22,7 @@ import java.util.Set;
 public class OSecurityEngine {
 
   private static final OPredicateCache cache =
-      new OPredicateCache(OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger());
+      new OPredicateCache(YTGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger());
 
   /**
    * Calculates a predicate for a security resource. It also takes into consideration the security
@@ -45,7 +45,7 @@ public class OSecurityEngine {
    * @return always returns a valid predicate (it is never supposed to be null)
    */
   static OBooleanExpression getPredicateForSecurityResource(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       String resourceString,
       OSecurityPolicy.Scope scope) {
@@ -73,7 +73,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForFunction(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceFunction resource,
       OSecurityPolicy.Scope scope) {
@@ -103,11 +103,11 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForProperty(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceProperty resource,
       OSecurityPolicy.Scope scope) {
-    OClass clazz =
+    YTClass clazz =
         session
             .getMetadata()
             .getImmutableSchemaSnapshot()
@@ -144,11 +144,11 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForClass(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceClass resource,
       OSecurityPolicy.Scope scope) {
-    OClass clazz =
+    YTClass clazz =
         session
             .getMetadata()
             .getImmutableSchemaSnapshot()
@@ -179,7 +179,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForRoleHierarchy(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       OFunction function,
@@ -198,7 +198,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForFunction(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       OFunction clazz,
@@ -221,10 +221,10 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForRoleHierarchy(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
-      OClass clazz,
+      YTClass clazz,
       OSecurityPolicy.Scope scope) {
     OBooleanExpression result;
     if (role != null) {
@@ -250,10 +250,10 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForRoleHierarchy(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
-      OClass clazz,
+      YTClass clazz,
       String propertyName,
       OSecurityPolicy.Scope scope) {
     String cacheKey = "$CLASS$" + clazz.getName() + "$PROP$" + propertyName + "$" + scope;
@@ -281,10 +281,10 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForClassHierarchy(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
-      OClass clazz,
+      YTClass clazz,
       OSecurityPolicy.Scope scope) {
     String resource = "database.class." + clazz.getName();
     Map<String, OSecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
@@ -297,7 +297,7 @@ public class OSecurityEngine {
             session, security, role, clazz.getSuperClasses().iterator().next(), scope);
       }
       OAndBlock result = new OAndBlock(-1);
-      for (OClass superClass : clazz.getSuperClasses()) {
+      for (YTClass superClass : clazz.getSuperClasses()) {
         OBooleanExpression superClassPredicate =
             getPredicateForClassHierarchy(session, security, role, superClass, scope);
         if (superClassPredicate == null) {
@@ -324,10 +324,10 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForClassHierarchy(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
-      OClass clazz,
+      YTClass clazz,
       String propertyName,
       OSecurityPolicy.Scope scope) {
     String resource = "database.class." + clazz.getName() + "." + propertyName;
@@ -346,7 +346,7 @@ public class OSecurityEngine {
             scope);
       }
       OAndBlock result = new OAndBlock(-1);
-      for (OClass superClass : clazz.getSuperClasses()) {
+      for (YTClass superClass : clazz.getSuperClasses()) {
         OBooleanExpression superClassPredicate =
             getPredicateForClassHierarchy(session, security, role, superClass, propertyName, scope);
         if (superClassPredicate == null) {
@@ -386,7 +386,7 @@ public class OSecurityEngine {
   }
 
   public static OBooleanExpression parsePredicate(
-      ODatabaseSession session, String predicateString) {
+      YTDatabaseSession session, String predicateString) {
     if ("true".equalsIgnoreCase(predicateString)) {
       return OBooleanExpression.TRUE;
     }
@@ -403,7 +403,7 @@ public class OSecurityEngine {
   }
 
   static boolean evaluateSecuirtyPolicyPredicate(
-      ODatabaseSessionInternal session, OBooleanExpression predicate, ORecord record) {
+      YTDatabaseSessionInternal session, OBooleanExpression predicate, YTRecord record) {
     if (OBooleanExpression.TRUE.equals(predicate)) {
       return true;
     }
@@ -414,12 +414,12 @@ public class OSecurityEngine {
       return true; // TODO check!
     }
     try {
-      // Create a new instance of ODocument with a user record id, this will lazy load the user data
+      // Create a new instance of YTDocument with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      OIdentifiable user = session.getUser().getIdentity(session);
+      YTIdentifiable user = session.getUser().getIdentity(session);
 
       var sessionInternal = session;
-      var recordCopy = ((ORecordAbstract) record).copy();
+      var recordCopy = ((YTRecordAbstract) record).copy();
       return sessionInternal
           .getSharedContext()
           .getYouTrackDB()
@@ -440,7 +440,7 @@ public class OSecurityEngine {
   }
 
   static boolean evaluateSecuirtyPolicyPredicate(
-      ODatabaseSessionInternal session, OBooleanExpression predicate, OResult record) {
+      YTDatabaseSessionInternal session, OBooleanExpression predicate, OResult record) {
     if (OBooleanExpression.TRUE.equals(predicate)) {
       return true;
     }
@@ -448,9 +448,9 @@ public class OSecurityEngine {
       return false;
     }
     try {
-      // Create a new instance of ODocument with a user record id, this will lazy load the user data
+      // Create a new instance of YTDocument with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      final ODocument user = session.getUser().getIdentity(session).getRecordSilently();
+      final YTDocument user = session.getUser().getIdentity(session).getRecordSilently();
       return session
           .getSharedContext()
           .getYouTrackDB()
@@ -474,7 +474,7 @@ public class OSecurityEngine {
   }
 
   /**
-   * returns a resource from a resource string, eg. an OUser OClass from "database.class.OUser"
+   * returns a resource from a resource string, eg. an OUser YTClass from "database.class.OUser"
    * string
    *
    * @param resource a resource string

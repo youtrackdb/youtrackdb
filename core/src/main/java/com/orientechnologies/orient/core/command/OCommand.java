@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 /**
  * Generic GOF command pattern implementation.
@@ -31,7 +31,7 @@ public interface OCommand {
    *
    * @return The result of command if any, otherwise null
    */
-  Object execute(ODatabaseSessionInternal session);
+  Object execute(YTDatabaseSessionInternal session);
 
   OCommandContext getContext();
 }

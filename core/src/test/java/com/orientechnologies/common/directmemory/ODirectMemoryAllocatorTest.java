@@ -1,7 +1,7 @@
 package com.orientechnologies.common.directmemory;
 
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.nio.ByteBuffer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -12,12 +12,12 @@ public class ODirectMemoryAllocatorTest {
 
   @BeforeClass
   public static void beforeClass() {
-    OGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.setValue(true);
+    YTGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.setValue(true);
   }
 
   @AfterClass
   public static void afterClass() {
-    OGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.setValue(false);
+    YTGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.setValue(false);
   }
 
   @Test

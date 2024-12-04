@@ -24,7 +24,7 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandRequest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -54,7 +54,7 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
     return this;
   }
 
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     return executeInContext(null, iArgs);
   }
 
@@ -62,7 +62,7 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
 
     parserText = request.getText();
 
-    ODatabaseSessionInternal db = iContext.getDatabase();
+    YTDatabaseSessionInternal db = iContext.getDatabase();
     final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(parserText);
 
     db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName(db));

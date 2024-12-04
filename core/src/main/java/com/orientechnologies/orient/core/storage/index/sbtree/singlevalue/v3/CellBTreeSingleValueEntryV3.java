@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v3;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -13,10 +13,10 @@ public final class CellBTreeSingleValueEntryV3<K>
   private final int leftChild;
   private final int rightChild;
   public final K key;
-  public final ORID value;
+  public final YTRID value;
 
   public CellBTreeSingleValueEntryV3(
-      final int leftChild, final int rightChild, final K key, final ORID value) {
+      final int leftChild, final int rightChild, final K key, final YTRID value) {
     this.leftChild = leftChild;
     this.rightChild = rightChild;
     this.key = key;

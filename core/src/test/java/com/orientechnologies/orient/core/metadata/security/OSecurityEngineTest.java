@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -18,7 +18,7 @@ import org.junit.Test;
 public class OSecurityEngineTest {
 
   static YouTrackDB orient;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
   private static final String DB_NAME = "test";
 
   @BeforeClass
@@ -27,7 +27,7 @@ public class OSecurityEngineTest {
         new YouTrackDB(
             "plocal:./target/securityEngineTest",
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
   }
 
@@ -47,7 +47,7 @@ public class OSecurityEngineTest {
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
     this.db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
@@ -219,7 +219,7 @@ public class OSecurityEngineTest {
     db.commit();
     db.close();
     db =
-        (ODatabaseSessionInternal)
+        (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     OSecurityInternal security = db.getSharedContext().getSecurity();
@@ -257,7 +257,7 @@ public class OSecurityEngineTest {
     var rec1 =
         db.computeInTx(
             () -> {
-              OElement record1 = db.newElement("Person");
+              YTEntity record1 = db.newElement("Person");
               record1.setProperty("name", "foo");
               record1.save();
               return record1;
@@ -266,7 +266,7 @@ public class OSecurityEngineTest {
     var rec2 =
         db.computeInTx(
             () -> {
-              OElement record2 = db.newElement("Person");
+              YTEntity record2 = db.newElement("Person");
               record2.setProperty("name", "bar");
               record2.save();
               return record2;

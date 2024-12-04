@@ -2,16 +2,16 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.File;
 import java.io.IOException;
@@ -46,14 +46,14 @@ import org.junit.Test;
 public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
 
   private static File buildDir;
-  private ODatabaseSessionInternal testDocumentTx;
-  private ODatabaseSessionInternal baseDocumentTx;
+  private YTDatabaseSessionInternal testDocumentTx;
+  private YTDatabaseSessionInternal baseDocumentTx;
   private final ExecutorService executorService = Executors.newCachedThreadPool();
 
   @BeforeClass
   public static void beforeClass() {
-    OGlobalConfiguration.STORAGE_COMPRESSION_METHOD.setValue("nothing");
-    OGlobalConfiguration.FILE_LOCK.setValue(false);
+    YTGlobalConfiguration.STORAGE_COMPRESSION_METHOD.setValue("nothing");
+    YTGlobalConfiguration.FILE_LOCK.setValue(false);
 
     String buildDirectory = System.getProperty("buildDirectory", ".");
     buildDirectory += "/localPaginatedStorageRestoreFromWALAndAddAdditionalRecords";
@@ -77,7 +77,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     OFileUtils.deleteRecursively(buildDir);
 
     baseDocumentTx =
-        new ODatabaseDocumentTx(
+        new YTDatabaseDocumentTx(
             "plocal:"
                 + buildDir.getAbsolutePath()
                 + "/baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords");
@@ -130,7 +130,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     storage.close(baseDocumentTx);
 
     testDocumentTx =
-        new ODatabaseDocumentTx(
+        new YTDatabaseDocumentTx(
             "plocal:"
                 + buildDir.getAbsolutePath()
                 + "/testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords");
@@ -261,36 +261,37 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
         });
   }
 
-  private void createSchema(ODatabaseSessionInternal databaseDocumentTx) {
+  private void createSchema(YTDatabaseSessionInternal databaseDocumentTx) {
     ODatabaseRecordThreadLocal.instance().set(databaseDocumentTx);
 
-    OSchema schema = databaseDocumentTx.getMetadata().getSchema();
-    OClass testOneClass = schema.createClass("TestOne");
+    YTSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    YTClass testOneClass = schema.createClass("TestOne");
 
-    testOneClass.createProperty(databaseDocumentTx, "intProp", OType.INTEGER);
-    testOneClass.createProperty(databaseDocumentTx, "stringProp", OType.STRING);
-    testOneClass.createProperty(databaseDocumentTx, "stringSet", OType.EMBEDDEDSET, OType.STRING);
-    testOneClass.createProperty(databaseDocumentTx, "linkMap", OType.LINKMAP);
+    testOneClass.createProperty(databaseDocumentTx, "intProp", YTType.INTEGER);
+    testOneClass.createProperty(databaseDocumentTx, "stringProp", YTType.STRING);
+    testOneClass.createProperty(databaseDocumentTx, "stringSet", YTType.EMBEDDEDSET, YTType.STRING);
+    testOneClass.createProperty(databaseDocumentTx, "linkMap", YTType.LINKMAP);
 
-    OClass testTwoClass = schema.createClass("TestTwo");
+    YTClass testTwoClass = schema.createClass("TestTwo");
 
-    testTwoClass.createProperty(databaseDocumentTx, "stringList", OType.EMBEDDEDLIST, OType.STRING);
+    testTwoClass.createProperty(databaseDocumentTx, "stringList", YTType.EMBEDDEDLIST,
+        YTType.STRING);
   }
 
   public class DataPropagationTask implements Callable<Void> {
 
-    private final ODatabaseSessionInternal baseDB;
-    private ODatabaseSessionInternal testDB;
+    private final YTDatabaseSessionInternal baseDB;
+    private YTDatabaseSessionInternal testDB;
     private final long seed;
 
     public DataPropagationTask(long seed) {
       this.seed = seed;
 
-      baseDB = new ODatabaseDocumentTx(baseDocumentTx.getURL());
+      baseDB = new YTDatabaseDocumentTx(baseDocumentTx.getURL());
       baseDB.open("admin", "admin");
 
       if (testDocumentTx != null) {
-        testDB = new ODatabaseDocumentTx(testDocumentTx.getURL());
+        testDB = new YTDatabaseDocumentTx(testDocumentTx.getURL());
         testDB.open("admin", "admin");
       }
     }
@@ -303,14 +304,14 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
       ODatabaseRecordThreadLocal.instance().set(baseDB);
 
       try {
-        List<ORID> testTwoList = new ArrayList<ORID>();
-        List<ORID> firstDocs = new ArrayList<ORID>();
+        List<YTRID> testTwoList = new ArrayList<YTRID>();
+        List<YTRID> firstDocs = new ArrayList<YTRID>();
 
-        OClass classOne = baseDB.getMetadata().getSchema().getClass("TestOne");
-        OClass classTwo = baseDB.getMetadata().getSchema().getClass("TestTwo");
+        YTClass classOne = baseDB.getMetadata().getSchema().getClass("TestOne");
+        YTClass classTwo = baseDB.getMetadata().getSchema().getClass("TestTwo");
 
         for (int i = 0; i < 10000; i++) {
-          ODocument docOne = new ODocument(classOne);
+          YTDocument docOne = new YTDocument(classOne);
           docOne.field("intProp", random.nextInt());
 
           byte[] stringData = new byte[256];
@@ -330,7 +331,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
           firstDocs.add(docOne.getIdentity());
 
           if (random.nextBoolean()) {
-            ODocument docTwo = new ODocument(classTwo);
+            YTDocument docTwo = new YTDocument(classTwo);
 
             List<String> stringList = new ArrayList<String>();
 
@@ -347,10 +348,10 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
             int startIndex = random.nextInt(testTwoList.size());
             int endIndex = random.nextInt(testTwoList.size() - startIndex) + startIndex;
 
-            Map<String, ORID> linkMap = new HashMap<String, ORID>();
+            Map<String, YTRID> linkMap = new HashMap<String, YTRID>();
 
             for (int n = startIndex; n < endIndex; n++) {
-              ORID docTwoRid = testTwoList.get(n);
+              YTRID docTwoRid = testTwoList.get(n);
               linkMap.put(docTwoRid.toString(), docTwoRid);
             }
 
@@ -361,7 +362,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
 
           boolean deleteDoc = random.nextDouble() <= 0.2;
           if (deleteDoc) {
-            ORID rid = firstDocs.remove(random.nextInt(firstDocs.size()));
+            YTRID rid = firstDocs.remove(random.nextInt(firstDocs.size()));
 
             deleteDoc(rid);
           }
@@ -376,10 +377,10 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
       return null;
     }
 
-    private void saveDoc(ODocument document) {
+    private void saveDoc(YTDocument document) {
       ODatabaseRecordThreadLocal.instance().set(baseDB);
 
-      ODocument testDoc = new ODocument();
+      YTDocument testDoc = new YTDocument();
       document.copyTo(testDoc);
       document.save();
 
@@ -393,7 +394,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
       }
     }
 
-    private void deleteDoc(ORID rid) {
+    private void deleteDoc(YTRID rid) {
       baseDB.delete(rid);
 
       if (testDB != null) {

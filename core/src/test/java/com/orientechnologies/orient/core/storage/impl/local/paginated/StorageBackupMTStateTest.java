@@ -4,19 +4,19 @@ import com.orientechnologies.common.concur.lock.OModificationOperationProhibited
 import com.orientechnologies.common.concur.lock.OReadersWriterSpinLock;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -43,8 +43,8 @@ import org.junit.Test;
 public class StorageBackupMTStateTest {
 
   static {
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
-    OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(10);
+    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
+    YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(10);
   }
 
   private final OReadersWriterSpinLock flowLock = new OReadersWriterSpinLock();
@@ -87,11 +87,11 @@ public class StorageBackupMTStateTest {
     dbURL = "plocal:" + dbDirectory;
 
     System.out.println("Create database");
-    ODatabaseSessionInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
+    YTDatabaseSessionInternal databaseDocumentTx = new YTDatabaseDocumentTx(dbURL);
     databaseDocumentTx.create();
 
     System.out.println("Create schema");
-    final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final YTSchema schema = databaseDocumentTx.getMetadata().getSchema();
 
     for (int i = 0; i < 3; i++) {
       createClass(schema, databaseDocumentTx);
@@ -153,7 +153,7 @@ public class StorageBackupMTStateTest {
     pool.close();
 
     System.out.println("Final incremental  backup");
-    databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
+    databaseDocumentTx = new YTDatabaseDocumentTx(dbURL);
     databaseDocumentTx.open("admin", "admin");
     databaseDocumentTx.incrementalBackup(backupDir.getAbsolutePath());
 
@@ -163,8 +163,8 @@ public class StorageBackupMTStateTest {
     storage.shutdown();
 
     System.out.println("Create backup database");
-    final ODatabaseSessionInternal backedUpDb =
-        new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
+    final YTDatabaseSessionInternal backedUpDb =
+        new YTDatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
     final OStorage backupStorage = backedUpDb.getStorage();
@@ -200,17 +200,17 @@ public class StorageBackupMTStateTest {
     OFileUtils.deleteRecursively(backupDir);
   }
 
-  private OClass createClass(OSchema schema, ODatabaseSession db) {
-    OClass cls = schema.createClass(CLASS_PREFIX + classCounter.getAndIncrement());
+  private YTClass createClass(YTSchema schema, YTDatabaseSession db) {
+    YTClass cls = schema.createClass(CLASS_PREFIX + classCounter.getAndIncrement());
 
-    cls.createProperty(db, "id", OType.LONG);
-    cls.createProperty(db, "intValue", OType.INTEGER);
-    cls.createProperty(db, "stringValue", OType.STRING);
-    cls.createProperty(db, "linkedDocuments", OType.LINKBAG);
+    cls.createProperty(db, "id", YTType.LONG);
+    cls.createProperty(db, "intValue", YTType.INTEGER);
+    cls.createProperty(db, "stringValue", YTType.STRING);
+    cls.createProperty(db, "linkedDocuments", YTType.LINKBAG);
 
-    cls.createIndex(db, cls.getName() + "IdIndex", OClass.INDEX_TYPE.UNIQUE, "id");
+    cls.createIndex(db, cls.getName() + "IdIndex", YTClass.INDEX_TYPE.UNIQUE, "id");
     cls.createIndex(db,
-        cls.getName() + "IntValueIndex", OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "intValue");
+        cls.getName() + "IntValueIndex", YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "intValue");
 
     classInstancesCounters.put(cls.getName(), new AtomicInteger());
 
@@ -225,7 +225,7 @@ public class StorageBackupMTStateTest {
     public Void call() throws Exception {
       while (!stop) {
         while (true) {
-          ODatabaseSessionInternal db = pool.acquire();
+          YTDatabaseSessionInternal db = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -262,7 +262,7 @@ public class StorageBackupMTStateTest {
 
       while (!stop) {
         while (true) {
-          ODatabaseSessionInternal db = pool.acquire();
+          YTDatabaseSessionInternal db = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -298,7 +298,7 @@ public class StorageBackupMTStateTest {
 
     protected final Random random = new Random();
 
-    protected void insertRecord(ODatabaseSessionInternal db) {
+    protected void insertRecord(YTDatabaseSessionInternal db) {
       final int docId;
       final int classes = classCounter.get();
 
@@ -310,7 +310,7 @@ public class StorageBackupMTStateTest {
         classCounter = classInstancesCounters.get(className);
       } while (classCounter == null);
 
-      final ODocument doc = new ODocument(className);
+      final YTDocument doc = new YTDocument(className);
       docId = classCounter.getAndIncrement();
 
       doc.field("id", docId);
@@ -367,7 +367,7 @@ public class StorageBackupMTStateTest {
 
     @Override
     public void run() {
-      ODatabaseSessionInternal db = new ODatabaseDocumentTx(dbURL);
+      YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(dbURL);
       db.open("admin", "admin");
       try {
         flowLock.acquireReadLock();
@@ -390,12 +390,12 @@ public class StorageBackupMTStateTest {
 
     @Override
     public void run() {
-      ODatabaseSessionInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
+      YTDatabaseSessionInternal databaseDocumentTx = new YTDatabaseDocumentTx(dbURL);
       databaseDocumentTx.open("admin", "admin");
       try {
         flowLock.acquireReadLock();
         try {
-          OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+          YTSchema schema = databaseDocumentTx.getMetadata().getSchema();
           createClass(schema, databaseDocumentTx);
         } finally {
           flowLock.releaseReadLock();
@@ -417,7 +417,7 @@ public class StorageBackupMTStateTest {
       int counter = 0;
       while (!stop) {
         while (true) {
-          ODatabaseSessionInternal databaseDocumentTx = pool.acquire();
+          YTDatabaseSessionInternal databaseDocumentTx = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -496,7 +496,7 @@ public class StorageBackupMTStateTest {
       try {
         flowLock.acquireWriteLock();
         try {
-          final OSchema schema = db.getMetadata().getSchema();
+          final YTSchema schema = db.getMetadata().getSchema();
           final int classes = classCounter.get();
 
           String className;

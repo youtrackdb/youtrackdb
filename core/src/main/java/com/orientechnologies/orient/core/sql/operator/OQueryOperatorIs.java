@@ -21,15 +21,15 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
@@ -47,7 +47,7 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
 
   @Override
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       Object iRight,
@@ -76,9 +76,9 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
     }
   }
 
-  protected boolean evaluateDefined(final OIdentifiable iRecord, final String iFieldName) {
-    if (iRecord instanceof ODocument) {
-      return ((ODocument) iRecord).containsField(iFieldName);
+  protected boolean evaluateDefined(final YTIdentifiable iRecord, final String iFieldName) {
+    if (iRecord instanceof YTDocument) {
+      return ((YTDocument) iRecord).containsField(iFieldName);
     }
     return false;
   }
@@ -93,13 +93,13 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
 
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     final OIndexInternal internalIndex = index.getInternal();
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
     }
@@ -147,12 +147,12 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

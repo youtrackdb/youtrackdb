@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 
@@ -12,42 +12,42 @@ public class ODatabaseDocumentTxInternal {
   private ODatabaseDocumentTxInternal() {
   }
 
-  public static ODatabaseSessionInternal getInternal(ODatabaseSessionInternal db) {
-    if (db instanceof ODatabaseDocumentTx) {
-      db = ((ODatabaseDocumentTx) db).internal;
+  public static YTDatabaseSessionInternal getInternal(YTDatabaseSessionInternal db) {
+    if (db instanceof YTDatabaseDocumentTx) {
+      db = ((YTDatabaseDocumentTx) db).internal;
     }
     return db;
   }
 
-  public static ODatabaseDocumentTx wrap(ODatabaseSessionInternal database) {
-    return new ODatabaseDocumentTx(database, null);
+  public static YTDatabaseDocumentTx wrap(YTDatabaseSessionInternal database) {
+    return new YTDatabaseDocumentTx(database, null);
   }
 
   public static YouTrackDBInternal getOrCreateEmbeddedFactory(
       String databaseDirectory, YouTrackDBConfig config) {
-    return ODatabaseDocumentTx.getOrCreateEmbeddedFactory(databaseDirectory, config);
+    return YTDatabaseDocumentTx.getOrCreateEmbeddedFactory(databaseDirectory, config);
   }
 
   public static YouTrackDBInternal getOrCreateRemoteFactory(String url) {
-    return ODatabaseDocumentTx.getOrCreateRemoteFactory(url);
+    return YTDatabaseDocumentTx.getOrCreateRemoteFactory(url);
   }
 
   public static void closeAllOnShutdown() {
-    ODatabaseDocumentTx.embeddedLock.lock();
+    YTDatabaseDocumentTx.embeddedLock.lock();
     try {
-      for (YouTrackDBInternal factory : ODatabaseDocumentTx.embedded.values()) {
+      for (YouTrackDBInternal factory : YTDatabaseDocumentTx.embedded.values()) {
         factory.internalClose();
       }
-      ODatabaseDocumentTx.embedded.clear();
+      YTDatabaseDocumentTx.embedded.clear();
     } finally {
-      ODatabaseDocumentTx.embeddedLock.unlock();
+      YTDatabaseDocumentTx.embeddedLock.unlock();
     }
 
-    ODatabaseDocumentTx.remoteLock.lock();
+    YTDatabaseDocumentTx.remoteLock.lock();
     try {
-      ODatabaseDocumentTx.remote.clear();
+      YTDatabaseDocumentTx.remote.clear();
     } finally {
-      ODatabaseDocumentTx.remoteLock.unlock();
+      YTDatabaseDocumentTx.remoteLock.unlock();
     }
   }
 }

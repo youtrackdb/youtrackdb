@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor.metadata;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +54,8 @@ public class ORequiredIndexCanditate implements OIndexCandidate {
   }
 
   @Override
-  public List<OProperty> properties() {
-    List<OProperty> props = new ArrayList<>();
+  public List<YTProperty> properties() {
+    List<YTProperty> props = new ArrayList<>();
     for (OIndexCandidate cand : this.canditates) {
       props.addAll(cand.properties());
     }

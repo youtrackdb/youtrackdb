@@ -27,16 +27,16 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysLessKey;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -93,12 +93,12 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     implements OCellBTreeSingleValue<K> {
 
   private static final int MAX_KEY_SIZE =
-      OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+      YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
   private static final OAlwaysLessKey ALWAYS_LESS_KEY = new OAlwaysLessKey();
   private static final OAlwaysGreaterKey ALWAYS_GREATER_KEY = new OAlwaysGreaterKey();
 
   private static final int MAX_PATH_LENGTH =
-      OGlobalConfiguration.SBTREE_MAX_DEPTH.getValueAsInteger();
+      YTGlobalConfiguration.SBTREE_MAX_DEPTH.getValueAsInteger();
 
   private static final int ENTRY_POINT_INDEX = 0;
   private static final long ROOT_INDEX = 1;
@@ -109,7 +109,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   private long nullBucketFileId = -1;
   private int keySize;
   private OBinarySerializer<K> keySerializer;
-  private OType[] keyTypes;
+  private YTType[] keyTypes;
   private OEncryption encryption;
 
   public CellBTreeSingleValueV1(
@@ -130,7 +130,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   public void create(
       OAtomicOperation atomicOperation,
       final OBinarySerializer<K> keySerializer,
-      final OType[] keyTypes,
+      final YTType[] keyTypes,
       final int keySize,
       final OEncryption encryption) {
     assert keySerializer != null;
@@ -178,7 +178,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   @Override
-  public ORID get(K key) {
+  public YTRID get(K key) {
     atomicOperationsManager.acquireReadLock(this);
     try {
       acquireSharedLock();
@@ -222,7 +222,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, final K key, final ORID value) {
+  public void put(OAtomicOperation atomicOperation, final K key, final YTRID value) {
     update(atomicOperation, key, value, null);
   }
 
@@ -230,23 +230,23 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       final K key,
-      final ORID value,
-      final IndexEngineValidator<K, ORID> validator) {
+      final YTRID value,
+      final IndexEngineValidator<K, YTRID> validator) {
     return update(atomicOperation, key, value, validator);
   }
 
   private boolean update(
       final OAtomicOperation atomicOperation,
       K k,
-      ORID rid,
-      final IndexEngineValidator<K, ORID> validator) {
+      YTRID rid,
+      final IndexEngineValidator<K, YTRID> validator) {
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
           acquireExclusiveLock();
           try {
             K key = k;
-            ORID value = rid;
+            YTRID value = rid;
             if (key != null) {
 
               key = keySerializer.preprocess(key, (Object[]) keyTypes);
@@ -276,7 +276,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
               } else {
                 oldRawValue = null;
               }
-              final ORID oldValue;
+              final YTRID oldValue;
               if (oldRawValue == null) {
                 oldValue = null;
               } else {
@@ -284,7 +284,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
                 final long clusterPosition =
                     OLongSerializer.INSTANCE.deserializeNative(
                         oldRawValue, OShortSerializer.SHORT_SIZE);
-                oldValue = new ORecordId(clusterId, clusterPosition);
+                oldValue = new YTRecordId(clusterId, clusterPosition);
               }
 
               if (validator != null) {
@@ -300,7 +300,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
                     return false;
                   }
 
-                  value = (ORID) result;
+                  value = (YTRID) result;
                   failure = false;
                 } finally {
                   if (failure || ignored) {
@@ -369,7 +369,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
             } else {
 
               int sizeDiff = 0;
-              final ORID oldValue;
+              final YTRID oldValue;
               try (final OCacheEntry cacheEntry =
                   loadPageForWrite(atomicOperation, nullBucketFileId, 0, true)) {
                 final CellBTreeNullBucketSingleValueV1 nullBucket =
@@ -430,7 +430,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   public void load(
       final String name,
       final int keySize,
-      final OType[] keyTypes,
+      final YTType[] keyTypes,
       final OBinarySerializer<K> keySerializer,
       final OEncryption encryption) {
     acquireExclusiveLock();
@@ -481,13 +481,13 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   @Override
-  public ORID remove(OAtomicOperation atomicOperation, K k) {
+  public YTRID remove(OAtomicOperation atomicOperation, K k) {
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
           acquireExclusiveLock();
           try {
-            final ORID removedValue;
+            final YTRID removedValue;
 
             K key = k;
             if (key != null) {
@@ -513,7 +513,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
                     OLongSerializer.INSTANCE.deserializeNative(
                         rawRemovedValue, OShortSerializer.SHORT_SIZE);
 
-                removedValue = new ORecordId(clusterId, clusterPosition);
+                removedValue = new YTRecordId(clusterId, clusterPosition);
 
                 keyBucket.removeLeafEntry(bucketSearchResult.itemIndex, rawKey, rawRemovedValue);
                 updateSize(-1, atomicOperation);
@@ -532,8 +532,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
         });
   }
 
-  private ORID removeNullBucket(final OAtomicOperation atomicOperation) throws IOException {
-    ORID removedValue;
+  private YTRID removeNullBucket(final OAtomicOperation atomicOperation) throws IOException {
+    YTRID removedValue;
     try (final OCacheEntry nullCacheEntry =
         loadPageForWrite(atomicOperation, nullBucketFileId, 0, true)) {
       final CellBTreeNullBucketSingleValueV1 nullBucket =
@@ -553,7 +553,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   @Override
-  public Stream<ORawPair<K, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<K, YTRID>> iterateEntriesMinor(
       final K key, final boolean inclusive, final boolean ascSortOrder) {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -573,7 +573,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   @Override
-  public Stream<ORawPair<K, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<K, YTRID>> iterateEntriesMajor(
       final K key, final boolean inclusive, final boolean ascSortOrder) {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -684,7 +684,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
   }
 
-  public Stream<ORawPair<K, ORID>> allEntries() {
+  public Stream<ORawPair<K, YTRID>> allEntries() {
     atomicOperationsManager.acquireReadLock(this);
     try {
       acquireSharedLock();
@@ -700,7 +700,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   @Override
-  public Stream<ORawPair<K, ORID>> iterateEntriesBetween(
+  public Stream<ORawPair<K, YTRID>> iterateEntriesBetween(
       final K keyFrom,
       final boolean fromInclusive,
       final K keyTo,
@@ -744,14 +744,14 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
   }
 
-  private Spliterator<ORawPair<K, ORID>> iterateEntriesMinorDesc(K key, final boolean inclusive) {
+  private Spliterator<ORawPair<K, YTRID>> iterateEntriesMinorDesc(K key, final boolean inclusive) {
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMinorDesc(key, inclusive);
 
     return new CellBTreeSpliteratorBackward(null, key, false, inclusive);
   }
 
-  private Spliterator<ORawPair<K, ORID>> iterateEntriesMinorAsc(K key, final boolean inclusive) {
+  private Spliterator<ORawPair<K, YTRID>> iterateEntriesMinorAsc(K key, final boolean inclusive) {
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMinorAsc(key, inclusive);
 
@@ -782,14 +782,14 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     return key;
   }
 
-  private Spliterator<ORawPair<K, ORID>> iterateEntriesMajorAsc(K key, final boolean inclusive) {
+  private Spliterator<ORawPair<K, YTRID>> iterateEntriesMajorAsc(K key, final boolean inclusive) {
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMajorAsc(key, inclusive);
 
     return new CellBTreeSpliteratorForward(key, null, inclusive, false);
   }
 
-  private Spliterator<ORawPair<K, ORID>> iterateEntriesMajorDesc(K key, final boolean inclusive) {
+  private Spliterator<ORawPair<K, YTRID>> iterateEntriesMajorDesc(K key, final boolean inclusive) {
     acquireSharedLock();
     try {
       key = keySerializer.preprocess(key, (Object[]) keyTypes);
@@ -949,7 +949,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
   }
 
-  private Spliterator<ORawPair<K, ORID>> iterateEntriesBetweenAscOrder(
+  private Spliterator<ORawPair<K, YTRID>> iterateEntriesBetweenAscOrder(
       K keyFrom, final boolean fromInclusive, K keyTo, final boolean toInclusive) {
     keyFrom = keySerializer.preprocess(keyFrom, (Object[]) keyTypes);
     keyTo = keySerializer.preprocess(keyTo, (Object[]) keyTypes);
@@ -960,7 +960,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     return new CellBTreeSpliteratorForward(keyFrom, keyTo, fromInclusive, toInclusive);
   }
 
-  private Spliterator<ORawPair<K, ORID>> iterateEntriesBetweenDescOrder(
+  private Spliterator<ORawPair<K, YTRID>> iterateEntriesBetweenDescOrder(
       K keyFrom, final boolean fromInclusive, K keyTo, final boolean toInclusive) {
     keyFrom = keySerializer.preprocess(keyFrom, (Object[]) keyTypes);
     keyTo = keySerializer.preprocess(keyTo, (Object[]) keyTypes);
@@ -1432,10 +1432,10 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     return key;
   }
 
-  private ORawPair<K, ORID> convertToMapEntry(
+  private ORawPair<K, YTRID> convertToMapEntry(
       final CellBTreeBucketSingleValueV1.SBTreeEntry<K> treeEntry) {
     final K key = treeEntry.key;
-    final ORID value = treeEntry.value;
+    final YTRID value = treeEntry.value;
 
     return new ORawPair<>(key, value);
   }
@@ -1500,15 +1500,15 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
   }
 
-  private final class CellBTreeSpliteratorForward implements Spliterator<ORawPair<K, ORID>> {
+  private final class CellBTreeSpliteratorForward implements Spliterator<ORawPair<K, YTRID>> {
 
     private K fromKey;
     private final K toKey;
     private boolean fromKeyInclusive;
     private final boolean toKeyInclusive;
 
-    private final List<ORawPair<K, ORID>> dataCache = new ArrayList<>();
-    private Iterator<ORawPair<K, ORID>> dataCacheIterator = Collections.emptyIterator();
+    private final List<ORawPair<K, YTRID>> dataCache = new ArrayList<>();
+    private Iterator<ORawPair<K, YTRID>> dataCacheIterator = Collections.emptyIterator();
 
     private CellBTreeSpliteratorForward(
         final K fromKey,
@@ -1526,13 +1526,13 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
 
     @Override
-    public boolean tryAdvance(Consumer<? super ORawPair<K, ORID>> action) {
+    public boolean tryAdvance(Consumer<? super ORawPair<K, YTRID>> action) {
       if (dataCacheIterator == null) {
         return false;
       }
 
       if (dataCacheIterator.hasNext()) {
-        final ORawPair<K, ORID> entry = dataCacheIterator.next();
+        final ORawPair<K, YTRID> entry = dataCacheIterator.next();
 
         fromKey = entry.first;
         fromKeyInclusive = false;
@@ -1543,7 +1543,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
 
       dataCache.clear();
 
-      final int prefetchSize = OGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
+      final int prefetchSize = YTGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
 
       atomicOperationsManager.acquireReadLock(CellBTreeSingleValueV1.this);
       try {
@@ -1593,7 +1593,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
               }
 
               while (itemIndex < bucketSize && dataCache.size() < prefetchSize) {
-                @SuppressWarnings("ObjectAllocationInLoop") final ORawPair<K, ORID> entry =
+                @SuppressWarnings("ObjectAllocationInLoop") final ORawPair<K, YTRID> entry =
                     convertToMapEntry(bucket.getEntry(itemIndex, encryption, keySerializer));
                 itemIndex++;
 
@@ -1640,7 +1640,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
 
       dataCacheIterator = dataCache.iterator();
 
-      final ORawPair<K, ORID> entry = dataCacheIterator.next();
+      final ORawPair<K, YTRID> entry = dataCacheIterator.next();
 
       fromKey = entry.first;
       fromKeyInclusive = false;
@@ -1650,7 +1650,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
 
     @Override
-    public Spliterator<ORawPair<K, ORID>> trySplit() {
+    public Spliterator<ORawPair<K, YTRID>> trySplit() {
       return null;
     }
 
@@ -1665,20 +1665,20 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
 
     @Override
-    public Comparator<? super ORawPair<K, ORID>> getComparator() {
+    public Comparator<? super ORawPair<K, YTRID>> getComparator() {
       return (pairOne, pairTwo) -> comparator.compare(pairOne.first, pairTwo.first);
     }
   }
 
-  private final class CellBTreeSpliteratorBackward implements Spliterator<ORawPair<K, ORID>> {
+  private final class CellBTreeSpliteratorBackward implements Spliterator<ORawPair<K, YTRID>> {
 
     private final K fromKey;
     private K toKey;
     private final boolean fromKeyInclusive;
     private boolean toKeyInclusive;
 
-    private final List<ORawPair<K, ORID>> dataCache = new ArrayList<>();
-    private Iterator<ORawPair<K, ORID>> dataCacheIterator = Collections.emptyIterator();
+    private final List<ORawPair<K, YTRID>> dataCache = new ArrayList<>();
+    private Iterator<ORawPair<K, YTRID>> dataCacheIterator = Collections.emptyIterator();
 
     private CellBTreeSpliteratorBackward(
         final K fromKey,
@@ -1696,13 +1696,13 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
 
     @Override
-    public boolean tryAdvance(Consumer<? super ORawPair<K, ORID>> action) {
+    public boolean tryAdvance(Consumer<? super ORawPair<K, YTRID>> action) {
       if (dataCacheIterator == null) {
         return false;
       }
 
       if (dataCacheIterator.hasNext()) {
-        final ORawPair<K, ORID> entry = dataCacheIterator.next();
+        final ORawPair<K, YTRID> entry = dataCacheIterator.next();
         toKey = entry.first;
 
         toKeyInclusive = false;
@@ -1712,7 +1712,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
 
       dataCache.clear();
 
-      final int prefetchSize = OGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
+      final int prefetchSize = YTGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
 
       atomicOperationsManager.acquireReadLock(CellBTreeSingleValueV1.this);
       try {
@@ -1765,7 +1765,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
               }
 
               while (itemIndex >= 0 && dataCache.size() < prefetchSize) {
-                @SuppressWarnings("ObjectAllocationInLoop") final ORawPair<K, ORID> entry =
+                @SuppressWarnings("ObjectAllocationInLoop") final ORawPair<K, YTRID> entry =
                     convertToMapEntry(bucket.getEntry(itemIndex, encryption, keySerializer));
                 itemIndex--;
 
@@ -1812,7 +1812,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
 
       dataCacheIterator = dataCache.iterator();
 
-      final ORawPair<K, ORID> entry = dataCacheIterator.next();
+      final ORawPair<K, YTRID> entry = dataCacheIterator.next();
 
       toKey = entry.first;
       toKeyInclusive = false;
@@ -1822,7 +1822,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
 
     @Override
-    public Spliterator<ORawPair<K, ORID>> trySplit() {
+    public Spliterator<ORawPair<K, YTRID>> trySplit() {
       return null;
     }
 
@@ -1837,7 +1837,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
 
     @Override
-    public Comparator<? super ORawPair<K, ORID>> getComparator() {
+    public Comparator<? super ORawPair<K, YTRID>> getComparator() {
       return (pairOne, pairTwo) -> -comparator.compare(pairOne.first, pairTwo.first);
     }
   }

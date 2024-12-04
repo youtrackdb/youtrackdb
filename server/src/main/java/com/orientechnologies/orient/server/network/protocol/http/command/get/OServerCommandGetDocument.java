@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -42,14 +42,14 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
 
     iRequest.getData().commandInfo = "Load document";
 
-    final ORecord rec;
+    final YTRecord rec;
 
     final int parametersPos = urlParts[2].indexOf('?');
     final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
 
-    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       try {
-        rec = db.load(new ORecordId(rid));
+        rec = db.load(new YTRecordId(rid));
       } catch (ORecordNotFoundException e) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,

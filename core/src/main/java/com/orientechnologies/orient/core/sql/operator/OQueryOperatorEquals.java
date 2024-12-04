@@ -23,18 +23,18 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
@@ -57,23 +57,23 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
   public OQueryOperatorEquals() {
     super("=", 5, false);
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) {
       binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
     }
   }
 
-  public static boolean equals(ODatabaseSession session, final Object iLeft, final Object iRight,
-      OType type) {
+  public static boolean equals(YTDatabaseSession session, final Object iLeft, final Object iRight,
+      YTType type) {
     if (type == null) {
       return equals(session, iLeft, iRight);
     }
-    Object left = OType.convert(session, iLeft, type.getDefaultJavaType());
-    Object right = OType.convert(session, iRight, type.getDefaultJavaType());
+    Object left = YTType.convert(session, iLeft, type.getDefaultJavaType());
+    Object right = YTType.convert(session, iRight, type.getDefaultJavaType());
     return equals(session, left, right);
   }
 
-  public static boolean equals(@Nullable ODatabaseSession session, Object iLeft, Object iRight) {
+  public static boolean equals(@Nullable YTDatabaseSession session, Object iLeft, Object iRight) {
     if (iLeft == null || iRight == null) {
       return false;
     }
@@ -82,12 +82,12 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
       return true;
     }
 
-    // RECORD & ORID
+    // RECORD & YTRID
     /*from this is only legacy query engine */
-    if (iLeft instanceof ORecord) {
-      return comparesValues(iRight, (ORecord) iLeft, true);
-    } else if (iRight instanceof ORecord) {
-      return comparesValues(iLeft, (ORecord) iRight, true);
+    if (iLeft instanceof YTRecord) {
+      return comparesValues(iRight, (YTRecord) iLeft, true);
+    } else if (iRight instanceof YTRecord) {
+      return comparesValues(iLeft, (YTRecord) iRight, true);
     }
     /*till this is only legacy query engine */
     else if (iRight instanceof OResult) {
@@ -98,13 +98,13 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
     // NUMBERS
     if (iLeft instanceof Number && iRight instanceof Number) {
-      Number[] couple = OType.castComparableNumber((Number) iLeft, (Number) iRight);
+      Number[] couple = YTType.castComparableNumber((Number) iLeft, (Number) iRight);
       return couple[0].equals(couple[1]);
     }
 
     // ALL OTHER CASES
     try {
-      final Object right = OType.convert(session, iRight, iLeft.getClass());
+      final Object right = YTType.convert(session, iRight, iLeft.getClass());
 
       if (right == null) {
         return false;
@@ -119,15 +119,15 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   protected static boolean comparesValues(
-      final Object iValue, final ORecord iRecord, final boolean iConsiderIn) {
-    // ORID && RECORD
-    final ORID other = iRecord.getIdentity();
+      final Object iValue, final YTRecord iRecord, final boolean iConsiderIn) {
+    // YTRID && RECORD
+    final YTRID other = iRecord.getIdentity();
 
-    if (!other.isPersistent() && iRecord instanceof ODocument) {
+    if (!other.isPersistent() && iRecord instanceof YTDocument) {
       // ODOCUMENT AS RESULT OF SUB-QUERY: GET THE FIRST FIELD IF ANY
-      final Set<String> firstFieldName = ((ODocument) iRecord).getPropertyNames();
+      final Set<String> firstFieldName = ((YTDocument) iRecord).getPropertyNames();
       if (firstFieldName.size() > 0) {
-        Object fieldValue = ((ODocument) iRecord).getProperty(firstFieldName.iterator().next());
+        Object fieldValue = ((YTDocument) iRecord).getProperty(firstFieldName.iterator().next());
         if (fieldValue != null) {
           if (iConsiderIn && OMultiValue.isMultiValue(fieldValue)) {
             for (Object o : OMultiValue.getMultiValueIterable(fieldValue)) {
@@ -173,7 +173,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
   @Override
   public OIndexReuseType getIndexReuseType(final Object iLeft, final Object iRight) {
-    if (iLeft instanceof OIdentifiable && iRight instanceof OIdentifiable) {
+    if (iLeft instanceof YTIdentifiable && iRight instanceof YTIdentifiable) {
       return OIndexReuseType.NO_INDEX;
     }
     if (iRight == null || iLeft == null) {
@@ -184,12 +184,12 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     final OIndexInternal internalIndex = index.getInternal();
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
     }
@@ -246,27 +246,28 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, final Object iLeft,
+      final Object iRight) {
     if (iLeft instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot(session))) {
-      if (iRight instanceof ORID) {
-        return (ORID) iRight;
+      if (iRight instanceof YTRID) {
+        return (YTRID) iRight;
       } else {
         if (iRight instanceof OSQLFilterItemParameter
-            && ((OSQLFilterItemParameter) iRight).getValue(null, null, null) instanceof ORID) {
-          return (ORID) ((OSQLFilterItemParameter) iRight).getValue(null, null, null);
+            && ((OSQLFilterItemParameter) iRight).getValue(null, null, null) instanceof YTRID) {
+          return (YTRID) ((OSQLFilterItemParameter) iRight).getValue(null, null, null);
         }
       }
     }
 
     if (iRight instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot(session))) {
-      if (iLeft instanceof ORID) {
-        return (ORID) iLeft;
+      if (iLeft instanceof YTRID) {
+        return (YTRID) iLeft;
       } else {
         if (iLeft instanceof OSQLFilterItemParameter
-            && ((OSQLFilterItemParameter) iLeft).getValue(null, null, null) instanceof ORID) {
-          return (ORID) ((OSQLFilterItemParameter) iLeft).getValue(null, null, null);
+            && ((OSQLFilterItemParameter) iLeft).getValue(null, null, null) instanceof YTRID) {
+          return (YTRID) ((OSQLFilterItemParameter) iLeft).getValue(null, null, null);
         }
       }
     }
@@ -275,13 +276,13 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, final Object iLeft, final Object iRight) {
     return getBeginRidRange(session, iLeft, iRight);
   }
 
   @Override
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,

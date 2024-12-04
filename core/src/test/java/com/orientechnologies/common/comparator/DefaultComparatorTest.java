@@ -1,7 +1,7 @@
 package com.orientechnologies.common.comparator;
 
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.Comparator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,8 +15,8 @@ public class DefaultComparatorTest {
 
   @Test
   public void testCompareStrings() {
-    final OCompositeKey keyOne = new OCompositeKey("name4", OType.STRING);
-    final OCompositeKey keyTwo = new OCompositeKey("name5", OType.STRING);
+    final OCompositeKey keyOne = new OCompositeKey("name4", YTType.STRING);
+    final OCompositeKey keyTwo = new OCompositeKey("name5", YTType.STRING);
 
     assertCompareTwoKeys(comparator, keyOne, keyTwo);
   }

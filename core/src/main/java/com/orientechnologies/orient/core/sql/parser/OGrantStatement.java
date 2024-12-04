@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
@@ -30,7 +30,7 @@ public class OGrantStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    ODatabaseSessionInternal db = ctx.getDatabase();
+    YTDatabaseSessionInternal db = ctx.getDatabase();
     ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null) {
       throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());

@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
   @Test
   public void testQuery() {
     createSchema(db);
-    ODocument doc = new ODocument("C2");
+    YTDocument doc = new YTDocument("C2");
     doc.field("name", "abc");
     db.begin();
     db.save(doc);
@@ -48,9 +48,9 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
     Assert.assertEquals(1, vertices.stream().count());
   }
 
-  protected void createSchema(ODatabaseSessionInternal db) {
-    final OClass c1 = db.createVertexClass("C1");
-    c1.createProperty(db, "name", OType.STRING);
+  protected void createSchema(YTDatabaseSessionInternal db) {
+    final YTClass c1 = db.createVertexClass("C1");
+    c1.createProperty(db, "name", YTType.STRING);
     c1.createIndex(db, "C1.name", "FULLTEXT", null, null, "LUCENE", new String[]{"name"});
 
     db.createClass("C2", "C1");

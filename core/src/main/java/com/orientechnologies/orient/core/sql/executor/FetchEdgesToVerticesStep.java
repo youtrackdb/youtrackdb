@@ -2,12 +2,12 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStreamProducer;
 import com.orientechnologies.orient.core.sql.executor.resultset.OMultipleExecutionStream;
@@ -73,7 +73,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     Object toValues;
 
     toValues = ctx.getVariable(toAlias);
-    if (toValues instanceof Iterable && !(toValues instanceof OIdentifiable)) {
+    if (toValues instanceof Iterable && !(toValues instanceof YTIdentifiable)) {
       toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator)) {
       toValues = Collections.singleton(toValues).iterator();
@@ -83,17 +83,17 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
         Spliterators.spliteratorUnknownSize((Iterator<?>) toValues, 0), false);
   }
 
-  private OExecutionStream edges(ODatabaseSessionInternal db, Object from) {
+  private OExecutionStream edges(YTDatabaseSessionInternal db, Object from) {
     if (from instanceof OResult) {
       from = ((OResult) from).toElement();
     }
-    if (from instanceof OIdentifiable && !(from instanceof OElement)) {
-      from = ((OIdentifiable) from).getRecord();
+    if (from instanceof YTIdentifiable && !(from instanceof YTEntity)) {
+      from = ((YTIdentifiable) from).getRecord();
     }
-    if (from instanceof OElement && ((OElement) from).isVertex()) {
-      var vertex = ((OElement) from).toVertex();
+    if (from instanceof YTEntity && ((YTEntity) from).isVertex()) {
+      var vertex = ((YTEntity) from).toVertex();
       assert vertex != null;
-      Iterable<OEdge> edges = vertex.getEdges(ODirection.IN);
+      Iterable<YTEdge> edges = vertex.getEdges(ODirection.IN);
       Stream<OResult> stream =
           StreamSupport.stream(edges.spliterator(), false)
               .filter((edge) -> matchesClass(edge) && matchesCluster(edge))
@@ -104,7 +104,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     }
   }
 
-  private boolean matchesCluster(OEdge edge) {
+  private boolean matchesCluster(YTEdge edge) {
     if (targetCluster == null) {
       return true;
     }
@@ -113,7 +113,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     return clusterName.equals(targetCluster.getStringValue());
   }
 
-  private boolean matchesClass(OEdge edge) {
+  private boolean matchesClass(YTEdge edge) {
     if (targetClass == null) {
       return true;
     }

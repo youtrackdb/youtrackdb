@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OMoveVertexExecutionPlanner;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlan;
@@ -30,7 +30,8 @@ public class OMoveVertexStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSessionInternal db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
+      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      boolean usePlanCache) {
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
       for (int i = 0; i < args.length; i++) {
@@ -42,7 +43,7 @@ public class OMoveVertexStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
+      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);

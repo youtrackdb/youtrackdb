@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.exception;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 
 /**
  * Exception thrown when MVCC is enabled and a record cannot be updated or deleted because versions
@@ -29,7 +29,7 @@ public class OFastConcurrentModificationException extends OConcurrentModificatio
 
   private static final long serialVersionUID = 1L;
 
-  private static final OGlobalConfiguration CONFIG = OGlobalConfiguration.DB_MVCC_THROWFAST;
+  private static final YTGlobalConfiguration CONFIG = YTGlobalConfiguration.DB_MVCC_THROWFAST;
   private static final boolean ENABLED = CONFIG.getValueAsBoolean();
   private static final String MESSAGE =
       "This is a fast-thrown exception. Disable "

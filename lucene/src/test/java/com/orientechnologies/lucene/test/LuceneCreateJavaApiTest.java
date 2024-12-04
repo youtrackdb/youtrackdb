@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,25 +43,25 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass v = schema.getClass("V");
-    final OClass song = schema.createClass(SONG_CLASS);
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass v = schema.getClass("V");
+    final YTClass song = schema.createClass(SONG_CLASS);
     song.setSuperClass(db, v);
-    song.createProperty(db, "title", OType.STRING);
-    song.createProperty(db, "author", OType.STRING);
-    song.createProperty(db, "description", OType.STRING);
+    song.createProperty(db, "title", YTType.STRING);
+    song.createProperty(db, "author", YTType.STRING);
+    song.createProperty(db, "description", YTType.STRING);
   }
 
   @Test
   public void testCreateIndex() {
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass song = schema.getClass(SONG_CLASS);
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass song = schema.getClass(SONG_CLASS);
 
-    final ODocument meta = new ODocument().field("analyzer", StandardAnalyzer.class.getName());
+    final YTDocument meta = new YTDocument().field("analyzer", StandardAnalyzer.class.getName());
     final OIndex lucene =
         song.createIndex(db,
             "Song.title",
-            OClass.INDEX_TYPE.FULLTEXT.toString(),
+            YTClass.INDEX_TYPE.FULLTEXT.toString(),
             null,
             meta,
             "LUCENE", new String[]{"title"});
@@ -74,12 +74,12 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
 
   @Test
   public void testCreateIndexCompositeWithDefaultAnalyzer() {
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass song = schema.getClass(SONG_CLASS);
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass song = schema.getClass(SONG_CLASS);
     final OIndex lucene =
         song.createIndex(db,
             "Song.author_description",
-            OClass.INDEX_TYPE.FULLTEXT.toString(),
+            YTClass.INDEX_TYPE.FULLTEXT.toString(),
             null,
             null,
             "LUCENE", new String[]{"author", "description"});
@@ -92,27 +92,27 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testCreateIndexWithUnsupportedEmbedded() {
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass song = schema.getClass(SONG_CLASS);
-    song.createProperty(db, OType.EMBEDDED.getName(), OType.EMBEDDED);
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass song = schema.getClass(SONG_CLASS);
+    song.createProperty(db, YTType.EMBEDDED.getName(), YTType.EMBEDDED);
     song.createIndex(db,
-        SONG_CLASS + "." + OType.EMBEDDED.getName(),
-        OClass.INDEX_TYPE.FULLTEXT.toString(),
+        SONG_CLASS + "." + YTType.EMBEDDED.getName(),
+        YTClass.INDEX_TYPE.FULLTEXT.toString(),
         null,
         null,
-        "LUCENE", new String[]{"description", OType.EMBEDDED.getName()});
+        "LUCENE", new String[]{"description", YTType.EMBEDDED.getName()});
     Assert.assertEquals(1, song.getIndexes(db).size());
   }
 
   @Test
   public void testCreateIndexEmbeddedMapJSON() {
     db.begin();
-    var songDoc = new ODocument(SONG_CLASS);
+    var songDoc = new YTDocument(SONG_CLASS);
     songDoc.fromJSON(
         "{\n"
             + "    \"description\": \"Capital\",\n"
             + "    \"String"
-            + OType.EMBEDDEDMAP.getName()
+            + YTType.EMBEDDEDMAP.getName()
             + "\": {\n"
             + "    \"text\": \"Hello Rome how are you today?\",\n"
             + "    \"text2\": \"Hello Bolzano how are you today?\",\n"
@@ -120,7 +120,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
             + "}");
     db.save(songDoc);
     db.commit();
-    final OClass song = createEmbeddedMapIndex();
+    final YTClass song = createEmbeddedMapIndex();
     checkCreatedEmbeddedMapIndex(song, "LUCENE");
 
     queryIndexEmbeddedMapClass("Bolzano", 1);
@@ -130,7 +130,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   public void testCreateIndexEmbeddedMapApi() {
     addDocumentViaAPI();
 
-    final OClass song = createEmbeddedMapIndex();
+    final YTClass song = createEmbeddedMapIndex();
     checkCreatedEmbeddedMapIndex(song, "LUCENE");
 
     queryIndexEmbeddedMapClass("Bolzano", 1);
@@ -140,7 +140,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   public void testCreateIndexEmbeddedMapApiSimpleTree() {
     addDocumentViaAPI();
 
-    final OClass song = createEmbeddedMapIndexSimple();
+    final YTClass song = createEmbeddedMapIndexSimple();
     checkCreatedEmbeddedMapIndex(song, "CELL_BTREE");
 
     queryIndexEmbeddedMapClass("Hello Bolzano how are you today?", 0);
@@ -151,9 +151,9 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     entries.put("text", "Hello Rome how are you today?");
     entries.put("text2", "Hello Bolzano how are you today?");
 
-    final ODocument doc = new ODocument(SONG_CLASS);
-    doc.field("description", "Capital", OType.STRING);
-    doc.field("String" + OType.EMBEDDEDMAP.getName(), entries, OType.EMBEDDEDMAP, OType.STRING);
+    final YTDocument doc = new YTDocument(SONG_CLASS);
+    doc.field("description", "Capital", YTType.STRING);
+    doc.field("String" + YTType.EMBEDDEDMAP.getName(), entries, YTType.EMBEDDEDMAP, YTType.STRING);
     db.begin();
     db.save(doc);
     db.commit();
@@ -163,7 +163,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   public void testCreateIndexEmbeddedMapApiSimpleDoesNotReturnResult() {
     addDocumentViaAPI();
 
-    final OClass song = createEmbeddedMapIndexSimple();
+    final YTClass song = createEmbeddedMapIndexSimple();
     checkCreatedEmbeddedMapIndex(song, "CELL_BTREE");
 
     queryIndexEmbeddedMapClass("Bolzano", 0);
@@ -183,47 +183,47 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     Assert.assertEquals(expectedCount, result.stream().count());
   }
 
-  private void checkCreatedEmbeddedMapIndex(final OClass clazz, final String expectedAlgorithm) {
+  private void checkCreatedEmbeddedMapIndex(final YTClass clazz, final String expectedAlgorithm) {
     final OIndex index = clazz.getIndexes(db).iterator().next();
     System.out.println(
         "key-name: " + ((OIndexInternal) index).getIndexId() + "-" + index.getName());
 
     Assert.assertEquals("index algorithm", expectedAlgorithm, index.getAlgorithm());
     Assert.assertEquals("index type", "FULLTEXT", index.getType());
-    Assert.assertEquals("Key type", OType.STRING, index.getKeyTypes()[0]);
+    Assert.assertEquals("Key type", YTType.STRING, index.getKeyTypes()[0]);
     Assert.assertEquals(
         "Definition field", "StringEmbeddedMap", index.getDefinition().getFields().get(0));
     Assert.assertEquals(
         "Definition field to index",
         "StringEmbeddedMap by value",
         index.getDefinition().getFieldsToIndex().get(0));
-    Assert.assertEquals("Definition type", OType.STRING, index.getDefinition().getTypes()[0]);
+    Assert.assertEquals("Definition type", YTType.STRING, index.getDefinition().getTypes()[0]);
   }
 
-  private OClass createEmbeddedMapIndex() {
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass song = schema.getClass(SONG_CLASS);
-    song.createProperty(db, "String" + OType.EMBEDDEDMAP.getName(), OType.EMBEDDEDMAP,
-        OType.STRING);
+  private YTClass createEmbeddedMapIndex() {
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass song = schema.getClass(SONG_CLASS);
+    song.createProperty(db, "String" + YTType.EMBEDDEDMAP.getName(), YTType.EMBEDDEDMAP,
+        YTType.STRING);
     song.createIndex(db,
-        SONG_CLASS + "." + OType.EMBEDDEDMAP.getName(),
-        OClass.INDEX_TYPE.FULLTEXT.toString(),
+        SONG_CLASS + "." + YTType.EMBEDDEDMAP.getName(),
+        YTClass.INDEX_TYPE.FULLTEXT.toString(),
         null,
         null,
-        "LUCENE", new String[]{"String" + OType.EMBEDDEDMAP.getName() + " by value"});
+        "LUCENE", new String[]{"String" + YTType.EMBEDDEDMAP.getName() + " by value"});
     Assert.assertEquals(1, song.getIndexes(db).size());
     return song;
   }
 
-  private OClass createEmbeddedMapIndexSimple() {
-    final OSchema schema = db.getMetadata().getSchema();
-    final OClass song = schema.getClass(SONG_CLASS);
-    song.createProperty(db, "String" + OType.EMBEDDEDMAP.getName(), OType.EMBEDDEDMAP,
-        OType.STRING);
+  private YTClass createEmbeddedMapIndexSimple() {
+    final YTSchema schema = db.getMetadata().getSchema();
+    final YTClass song = schema.getClass(SONG_CLASS);
+    song.createProperty(db, "String" + YTType.EMBEDDEDMAP.getName(), YTType.EMBEDDEDMAP,
+        YTType.STRING);
     song.createIndex(db,
-        SONG_CLASS + "." + OType.EMBEDDEDMAP.getName(),
-        OClass.INDEX_TYPE.FULLTEXT.toString(),
-        "String" + OType.EMBEDDEDMAP.getName() + " by value");
+        SONG_CLASS + "." + YTType.EMBEDDEDMAP.getName(),
+        YTClass.INDEX_TYPE.FULLTEXT.toString(),
+        "String" + YTType.EMBEDDEDMAP.getName() + " by value");
     Assert.assertEquals(1, song.getIndexes(db).size());
     return song;
   }

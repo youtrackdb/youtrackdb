@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -106,10 +106,10 @@ public class OInputParameter extends SimpleNode {
       }
       return json;
     }
-    if (value instanceof OIdentifiable) {
+    if (value instanceof YTIdentifiable) {
       // TODO if invalid build a JSON
       ORid rid = new ORid(-1);
-      String stringVal = ((OIdentifiable) value).getIdentity().toString().substring(1);
+      String stringVal = ((YTIdentifiable) value).getIdentity().toString().substring(1);
       String[] splitted = stringVal.split(":");
       OInteger c = new OInteger(-1);
       c.setValue(Integer.parseInt(splitted[0]));
@@ -174,7 +174,7 @@ public class OInputParameter extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;

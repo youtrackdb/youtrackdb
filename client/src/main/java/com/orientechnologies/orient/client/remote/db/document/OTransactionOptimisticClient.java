@@ -3,17 +3,17 @@ package com.orientechnologies.orient.client.remote.db.document;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
@@ -30,13 +30,13 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
   private final Set<String> indexChanged = new HashSet<>();
 
-  public OTransactionOptimisticClient(ODatabaseSessionInternal iDatabase) {
+  public OTransactionOptimisticClient(YTDatabaseSessionInternal iDatabase) {
     super(iDatabase);
   }
 
   public void replaceContent(List<ORecordOperation38Response> operations) {
 
-    Map<ORID, ORecordOperation> oldEntries = this.recordOperations;
+    Map<YTRID, ORecordOperation> oldEntries = this.recordOperations;
     this.recordOperations = new LinkedHashMap<>();
     int createCount = -2; // Start from -2 because temporary rids start from -2
     var db = getDatabase();
@@ -45,7 +45,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         txGeneratedRealRecordIdMap.put(operation.getId().copy(), operation.getOldId());
       }
 
-      ORecordAbstract record = null;
+      YTRecordAbstract record = null;
       ORecordOperation op = oldEntries.get(operation.getOldId());
       if (op != null) {
         record = op.record;
@@ -65,7 +65,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         ORecordInternal.unsetDirty(record);
       }
       if (operation.getType() == ORecordOperation.UPDATED
-          && operation.getRecordType() == ODocument.RECORD_TYPE) {
+          && operation.getRecordType() == YTDocument.RECORD_TYPE) {
         record.incrementLoading();
         try {
           record.setup(db);
@@ -73,7 +73,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           record.fromStream(operation.getOriginal());
           ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
           deltaSerializer.deserializeDelta(db, operation.getRecord(),
-              (ODocument) record);
+              (YTDocument) record);
         } finally {
           record.decrementLoading();
         }
@@ -82,7 +82,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         record.fromStream(operation.getRecord());
       }
 
-      var rid = (ORecordId) record.getIdentity();
+      var rid = (YTRecordId) record.getIdentity();
       var operationId = operation.getId();
       rid.setClusterId(operationId.getClusterId());
       rid.setClusterPosition(operationId.getClusterPosition());
@@ -107,28 +107,28 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
     newRecordsPositionsGenerator = createCount;
   }
 
-  private boolean checkCallHook(Map<ORID, ORecordOperation> oldEntries, ORID rid, byte type) {
+  private boolean checkCallHook(Map<YTRID, ORecordOperation> oldEntries, YTRID rid, byte type) {
     ORecordOperation val = oldEntries.get(rid);
     return val == null || val.type != type;
   }
 
   public void addRecord(
-      ORecordAbstract iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
+      YTRecordAbstract iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
     try {
       if (callHook) {
         switch (iStatus) {
           case ORecordOperation.CREATED: {
-            OIdentifiable res = database.beforeCreateOperations(iRecord, iClusterName);
+            YTIdentifiable res = database.beforeCreateOperations(iRecord, iClusterName);
             if (res != null) {
-              iRecord = (ORecordAbstract) res;
+              iRecord = (YTRecordAbstract) res;
               changed = true;
             }
           }
           break;
           case ORecordOperation.UPDATED: {
-            OIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
+            YTIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
             if (res != null) {
-              iRecord = (ORecordAbstract) res;
+              iRecord = (YTRecordAbstract) res;
               changed = true;
             }
           }
@@ -140,7 +140,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         }
       }
       try {
-        final ORecordId rid = (ORecordId) iRecord.getIdentity();
+        final YTRecordId rid = (YTRecordId) iRecord.getIdentity();
         ORecordOperation txEntry = getRecordEntry(rid);
 
         if (txEntry == null) {
@@ -223,7 +223,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
   @Override
   public void addIndexEntry(
-      OIndex delegate, String iIndexName, OPERATION iOperation, Object key, OIdentifiable iValue) {
+      OIndex delegate, String iIndexName, OPERATION iOperation, Object key, YTIdentifiable iValue) {
     this.indexChanged.add(delegate.getName());
   }
 }

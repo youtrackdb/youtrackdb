@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import org.junit.Assert;
@@ -19,7 +19,7 @@ public class CountFromClassStepTest extends TestUtilsFixture {
     String className = createClassInstance().getName();
     for (int i = 0; i < 20; i++) {
       db.begin();
-      ODocument document = new ODocument(className);
+      YTDocument document = new YTDocument(className);
       document.save();
       db.commit();
     }

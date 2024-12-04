@@ -21,8 +21,8 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.config.ONodeConfiguration;
 import com.orientechnologies.orient.core.db.config.ONodeConfigurationBuilder;
 import com.orientechnologies.orient.core.security.OGlobalUser;
@@ -45,8 +45,8 @@ public class YouTrackDBConfigBuilder {
   private OSecurityConfig securityConfig;
   private final List<OGlobalUser> users = new ArrayList<OGlobalUser>();
 
-  public YouTrackDBConfigBuilder fromGlobalMap(Map<OGlobalConfiguration, Object> values) {
-    for (Map.Entry<OGlobalConfiguration, Object> entry : values.entrySet()) {
+  public YouTrackDBConfigBuilder fromGlobalMap(Map<YTGlobalConfiguration, Object> values) {
+    for (Map.Entry<YTGlobalConfiguration, Object> entry : values.entrySet()) {
       addConfig(entry.getKey(), entry.getValue());
     }
     return this;
@@ -65,7 +65,7 @@ public class YouTrackDBConfigBuilder {
   }
 
   public YouTrackDBConfigBuilder addConfig(
-      final OGlobalConfiguration configuration, final Object value) {
+      final YTGlobalConfiguration configuration, final Object value) {
     configurations.setValue(configuration, value);
     return this;
   }

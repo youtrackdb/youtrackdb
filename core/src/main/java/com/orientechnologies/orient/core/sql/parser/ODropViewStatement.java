@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OView;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -27,8 +27,8 @@ public class ODropViewStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    OSchema schema = db.getMetadata().getSchema();
-    OView view = schema.getView(name.getStringValue());
+    YTSchema schema = db.getMetadata().getSchema();
+    YTView view = schema.getView(name.getStringValue());
     if (view == null) {
       if (ifExists) {
         return OExecutionStream.empty();

@@ -6,8 +6,8 @@ import static org.junit.Assert.assertFalse;
 import com.orientechnologies.orient.client.remote.ORemoteConnectionManager;
 import com.orientechnologies.orient.client.remote.ORemoteConnectionPool;
 import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
@@ -49,12 +49,12 @@ public class SocketIdleCleanupIT {
   public void test() throws InterruptedException {
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(OGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE, true)
-            .addConfig(OGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT, 1)
+            .addConfig(YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE, true)
+            .addConfig(YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT, 1)
             .build();
     YouTrackDB orientdb = new YouTrackDB("remote:localhost", "root", "root", config);
     orientdb.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession session = orientdb.open("test", "admin", "admin");
+    YTDatabaseSession session = orientdb.open("test", "admin", "admin");
     session.save(session.newVertex("V"));
     Thread.sleep(2000);
     YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(orientdb);

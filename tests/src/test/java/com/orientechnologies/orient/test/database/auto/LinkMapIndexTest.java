@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,14 +34,14 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
 
   @BeforeClass
   public void setupSchema() {
-    final OClass linkMapIndexTestClass =
+    final YTClass linkMapIndexTestClass =
         database.getMetadata().getSchema().createClass("LinkMapIndexTestClass");
-    linkMapIndexTestClass.createProperty(database, "linkMap", OType.LINKMAP);
+    linkMapIndexTestClass.createProperty(database, "linkMap", YTType.LINKMAP);
 
-    linkMapIndexTestClass.createIndex(database, "mapIndexTestKey", OClass.INDEX_TYPE.NOTUNIQUE,
+    linkMapIndexTestClass.createIndex(database, "mapIndexTestKey", YTClass.INDEX_TYPE.NOTUNIQUE,
         "linkMap");
     linkMapIndexTestClass.createIndex(database,
-        "mapIndexTestValue", OClass.INDEX_TYPE.NOTUNIQUE, "linkMap by value");
+        "mapIndexTestValue", YTClass.INDEX_TYPE.NOTUNIQUE, "linkMap by value");
   }
 
   @AfterClass
@@ -64,18 +64,18 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -104,7 +104,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -117,21 +117,21 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     try {
       database.begin();
-      Map<String, ORID> map = new HashMap<>();
+      Map<String, YTRID> map = new HashMap<>();
 
       map.put("key1", docOne.getIdentity());
       map.put("key2", docTwo.getIdentity());
 
-      final ODocument document = new ODocument("LinkMapIndexTestClass");
+      final YTDocument document = new YTDocument("LinkMapIndexTestClass");
       document.field("linkMap", map);
       document.save();
       database.commit();
@@ -163,7 +163,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -177,25 +177,25 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> mapOne = new HashMap<>();
+    Map<String, YTRID> mapOne = new HashMap<>();
 
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", mapOne);
     document.save();
 
-    final Map<String, ORID> mapTwo = new HashMap<>();
+    final Map<String, YTRID> mapTwo = new HashMap<>();
     mapTwo.put("key2", docOne.getIdentity());
     mapTwo.put("key3", docThree.getIdentity());
 
@@ -227,7 +227,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -240,19 +240,19 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     try {
-      final Map<String, ORID> mapTwo = new HashMap<>();
+      final Map<String, YTRID> mapTwo = new HashMap<>();
 
       mapTwo.put("key3", docOne.getIdentity());
       mapTwo.put("key2", docTwo.getIdentity());
 
-      final ODocument document = new ODocument("LinkMapIndexTestClass");
+      final YTDocument document = new YTDocument("LinkMapIndexTestClass");
       document.field("linkMap", mapTwo);
       document.save();
 
@@ -285,7 +285,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -298,28 +298,28 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> mapOne = new HashMap<>();
+    Map<String, YTRID> mapOne = new HashMap<>();
 
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    ODocument document = new ODocument("LinkMapIndexTestClass");
+    YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", mapOne);
     document.save();
     database.commit();
 
     database.begin();
     document = database.bindToSession(document);
-    final Map<String, ORID> mapTwo = new HashMap<>();
+    final Map<String, YTRID> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", docTwo.getIdentity());
     mapTwo.put("key2", docThree.getIdentity());
@@ -351,7 +351,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docTwo.getIdentity())
             && !value.equals(docOne.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -364,21 +364,21 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -413,7 +413,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docTwo.getIdentity())
             && !value.getIdentity().equals(docThree.getIdentity())) {
@@ -427,29 +427,29 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     try {
       database.begin();
-      final ODocument loadedDocument = database.load(document.getIdentity());
-      loadedDocument.<Map<String, ORID>>field("linkMap").put("key3", docThree.getIdentity());
+      final YTDocument loadedDocument = database.load(document.getIdentity());
+      loadedDocument.<Map<String, YTRID>>field("linkMap").put("key3", docThree.getIdentity());
       loadedDocument.save();
       database.commit();
     } catch (Exception e) {
@@ -481,7 +481,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docTwo.getIdentity())
             && !value.getIdentity().equals(docThree.getIdentity())) {
@@ -495,28 +495,28 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     database.begin();
-    final ODocument loadedDocument = database.load(document.getIdentity());
-    loadedDocument.<Map<String, ORID>>field("linkMap").put("key3", docThree.getIdentity());
+    final YTDocument loadedDocument = database.load(document.getIdentity());
+    loadedDocument.<Map<String, YTRID>>field("linkMap").put("key3", docThree.getIdentity());
     loadedDocument.save();
     database.rollback();
 
@@ -543,7 +543,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docTwo.getIdentity())
             && !value.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -556,21 +556,21 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -605,7 +605,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -618,29 +618,29 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     try {
       database.begin();
-      final ODocument loadedDocument = database.load(document.getIdentity());
-      loadedDocument.<Map<String, ORID>>field("linkMap").put("key2", docThree.getIdentity());
+      final YTDocument loadedDocument = database.load(document.getIdentity());
+      loadedDocument.<Map<String, YTRID>>field("linkMap").put("key2", docThree.getIdentity());
       loadedDocument.save();
       database.commit();
     } catch (Exception e) {
@@ -672,7 +672,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + value);
@@ -685,28 +685,28 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     database.begin();
-    final ODocument loadedDocument = database.load(document.getIdentity());
-    loadedDocument.<Map<String, ORID>>field("linkMap").put("key2", docThree.getIdentity());
+    final YTDocument loadedDocument = database.load(document.getIdentity());
+    loadedDocument.<Map<String, YTRID>>field("linkMap").put("key2", docThree.getIdentity());
     loadedDocument.save();
     database.rollback();
 
@@ -733,7 +733,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -746,22 +746,22 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -793,7 +793,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -806,30 +806,30 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     try {
       database.begin();
-      final ODocument loadedDocument = database.load(document.getIdentity());
-      loadedDocument.<Map<String, ORID>>field("linkMap").remove("key2");
+      final YTDocument loadedDocument = database.load(document.getIdentity());
+      loadedDocument.<Map<String, YTRID>>field("linkMap").remove("key2");
       loadedDocument.save();
       database.commit();
     } catch (Exception e) {
@@ -860,7 +860,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -873,29 +873,29 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     database.begin();
-    final ODocument loadedDocument = database.load(document.getIdentity());
-    loadedDocument.<Map<String, ORID>>field("linkMap").remove("key2");
+    final YTDocument loadedDocument = database.load(document.getIdentity());
+    loadedDocument.<Map<String, YTRID>>field("linkMap").remove("key2");
     loadedDocument.save();
     database.rollback();
 
@@ -922,7 +922,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docTwo.getIdentity())
             && !value.getIdentity().equals(docThree.getIdentity())) {
@@ -936,21 +936,21 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -970,18 +970,18 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -1006,18 +1006,18 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    final YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -1049,7 +1049,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       valuesIterator = valueStream.iterator();
 
       while (valuesIterator.hasNext()) {
-        OIdentifiable value = (OIdentifiable) valuesIterator.next();
+        YTIdentifiable value = (YTIdentifiable) valuesIterator.next();
         if (!value.getIdentity().equals(docOne.getIdentity())
             && !value.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown value found: " + value);
@@ -1061,25 +1061,25 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapSQL() {
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    Map<String, ORID> map = new HashMap<>();
+    Map<String, YTRID> map = new HashMap<>();
 
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    ODocument document = new ODocument("LinkMapIndexTestClass");
+    YTDocument document = new YTDocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
-    final List<ODocument> resultByKey =
+    final List<YTDocument> resultByKey =
         database.query(
-            new OSQLSynchQuery<ODocument>(
+            new OSQLSynchQuery<YTDocument>(
                 "select * from LinkMapIndexTestClass where linkMap containskey ?"),
             "key1");
     Assert.assertNotNull(resultByKey);
@@ -1088,7 +1088,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     document = database.bindToSession(document);
     Assert.assertEquals(map, document.field("linkMap"));
 
-    final List<ODocument> resultByValue =
+    final List<YTDocument> resultByValue =
         executeQuery(
             "select * from LinkMapIndexTestClass where linkMap  containsvalue ?",
             docOne.getIdentity());

@@ -3,18 +3,18 @@ package com.orientechnologies.orient.client.remote.metadata.schema;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
-import com.orientechnologies.orient.core.metadata.schema.OView;
+import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
-import com.orientechnologies.orient.core.metadata.schema.OViewImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTViewImpl;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -35,15 +35,15 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   @Override
-  public OClass getOrCreateClass(
-      ODatabaseSessionInternal database, String iClassName, OClass... superClasses) {
+  public YTClass getOrCreateClass(
+      YTDatabaseSessionInternal database, String iClassName, YTClass... superClasses) {
     if (iClassName == null) {
       return null;
     }
 
     acquireSchemaReadLock();
     try {
-      OClass cls = classes.get(iClassName.toLowerCase(Locale.ENGLISH));
+      YTClass cls = classes.get(iClassName.toLowerCase(Locale.ENGLISH));
       if (cls != null) {
         return cls;
       }
@@ -51,7 +51,7 @@ public class OSchemaRemote extends OSchemaShared {
       releaseSchemaReadLock();
     }
 
-    OClass cls;
+    YTClass cls;
 
     int[] clusterIds = null;
 
@@ -72,19 +72,19 @@ public class OSchemaRemote extends OSchemaShared {
     return cls;
   }
 
-  protected OClassImpl createClassInstance(String name) {
-    return new OClassRemote(this, name);
+  protected YTClassImpl createClassInstance(String name) {
+    return new YTClassRemote(this, name);
   }
 
-  protected OViewImpl createViewInstance(String name) {
-    return new OViewRemote(this, name);
+  protected YTViewImpl createViewInstance(String name) {
+    return new YTViewRemote(this, name);
   }
 
-  public OClass createClass(
-      ODatabaseSessionInternal database,
+  public YTClass createClass(
+      YTDatabaseSessionInternal database,
       final String className,
       int[] clusterIds,
-      OClass... superClasses) {
+      YTClass... superClasses) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
     if (wrongCharacter != null) {
       throw new OSchemaException(
@@ -94,11 +94,11 @@ public class OSchemaRemote extends OSchemaShared {
               + className
               + "'");
     }
-    OClass result;
+    YTClass result;
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
     if (superClasses != null) {
-      OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+      YTClassImpl.checkParametersConflict(Arrays.asList(superClasses));
     }
 
     acquireSchemaWriteLock(database);
@@ -116,10 +116,10 @@ public class OSchemaRemote extends OSchemaShared {
       cmd.append(className);
       cmd.append('`');
 
-      List<OClass> superClassesList = new ArrayList<OClass>();
+      List<YTClass> superClassesList = new ArrayList<YTClass>();
       if (superClasses != null && superClasses.length > 0) {
         boolean first = true;
-        for (OClass superClass : superClasses) {
+        for (YTClass superClass : superClasses) {
           // Filtering for null
           if (superClass != null) {
             if (first) {
@@ -174,11 +174,11 @@ public class OSchemaRemote extends OSchemaShared {
     return result;
   }
 
-  public OClass createClass(
-      ODatabaseSessionInternal database,
+  public YTClass createClass(
+      YTDatabaseSessionInternal database,
       final String className,
       int clusters,
-      OClass... superClasses) {
+      YTClass... superClasses) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
     if (wrongCharacter != null) {
       throw new OSchemaException(
@@ -189,11 +189,11 @@ public class OSchemaRemote extends OSchemaShared {
               + "'");
     }
 
-    OClass result;
+    YTClass result;
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
     if (superClasses != null) {
-      OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+      YTClassImpl.checkParametersConflict(Arrays.asList(superClasses));
     }
     acquireSchemaWriteLock(database);
     try {
@@ -208,10 +208,10 @@ public class OSchemaRemote extends OSchemaShared {
       cmd.append(className);
       cmd.append('`');
 
-      List<OClass> superClassesList = new ArrayList<OClass>();
+      List<YTClass> superClassesList = new ArrayList<YTClass>();
       if (superClasses != null && superClasses.length > 0) {
         boolean first = true;
-        for (OClass superClass : superClasses) {
+        for (YTClass superClass : superClasses) {
           // Filtering for null
           if (superClass != null) {
             if (first) {
@@ -255,14 +255,14 @@ public class OSchemaRemote extends OSchemaShared {
     return result;
   }
 
-  public OView createView(
-      ODatabaseSessionInternal database, OViewConfig cfg, ViewCreationListener listener)
+  public YTView createView(
+      YTDatabaseSessionInternal database, OViewConfig cfg, ViewCreationListener listener)
       throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OView createView(ODatabaseSessionInternal database, OViewConfig cfg) {
+  public YTView createView(YTDatabaseSessionInternal database, OViewConfig cfg) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(cfg.getName());
     if (wrongCharacter != null) {
       throw new OSchemaException(
@@ -273,7 +273,7 @@ public class OSchemaRemote extends OSchemaShared {
               + "'");
     }
 
-    OView result;
+    YTView result;
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
     acquireSchemaWriteLock(database);
@@ -318,8 +318,8 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   @Override
-  public OView createView(
-      ODatabaseSessionInternal database,
+  public YTView createView(
+      YTDatabaseSessionInternal database,
       String name,
       String statement,
       Map<String, Object> metadata) {
@@ -333,7 +333,7 @@ public class OSchemaRemote extends OSchemaShared {
               + "'");
     }
 
-    OView result;
+    YTView result;
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
     acquireSchemaWriteLock(database);
@@ -391,7 +391,7 @@ public class OSchemaRemote extends OSchemaShared {
     }
   }
 
-  public void dropClass(ODatabaseSessionInternal database, final String className) {
+  public void dropClass(YTDatabaseSessionInternal database, final String className) {
 
     acquireSchemaWriteLock(database);
     try {
@@ -407,7 +407,7 @@ public class OSchemaRemote extends OSchemaShared {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
 
-      OClass cls = classes.get(key);
+      YTClass cls = classes.get(key);
 
       if (cls == null) {
         throw new OSchemaException("Class '" + className + "' was not found in current database");
@@ -434,7 +434,7 @@ public class OSchemaRemote extends OSchemaShared {
     }
   }
 
-  public void dropView(ODatabaseSessionInternal database, final String name) {
+  public void dropView(YTDatabaseSessionInternal database, final String name) {
 
     acquireSchemaWriteLock(database);
     try {
@@ -450,7 +450,7 @@ public class OSchemaRemote extends OSchemaShared {
 
       final String key = name.toLowerCase(Locale.ENGLISH);
 
-      OClass cls = views.get(key);
+      YTClass cls = views.get(key);
 
       if (cls == null) {
         throw new OSchemaException("View '" + name + "' was not found in current database");
@@ -478,12 +478,12 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   @Override
-  public void acquireSchemaWriteLock(ODatabaseSessionInternal database) {
+  public void acquireSchemaWriteLock(YTDatabaseSessionInternal database) {
     skipPush.set(true);
   }
 
   @Override
-  public void releaseSchemaWriteLock(ODatabaseSessionInternal database, final boolean iSave) {
+  public void releaseSchemaWriteLock(YTDatabaseSessionInternal database, final boolean iSave) {
     skipPush.set(false);
   }
 
@@ -493,7 +493,7 @@ public class OSchemaRemote extends OSchemaShared {
         "'Internal' schema modification methods can be used only inside of embedded database");
   }
 
-  public void update(ODatabaseSessionInternal session, ODocument schema) {
+  public void update(YTDatabaseSessionInternal session, YTDocument schema) {
     if (!skipPush.get()) {
       fromStream(session, schema);
       this.snapshot = null;
@@ -501,13 +501,13 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   @Override
-  public int addBlobCluster(ODatabaseSessionInternal database, int clusterId) {
+  public int addBlobCluster(YTDatabaseSessionInternal database, int clusterId) {
     throw new OSchemaException(
-        "Not supported operation use instead ODatabaseSession.addBlobCluster");
+        "Not supported operation use instead YTDatabaseSession.addBlobCluster");
   }
 
   @Override
-  public void removeBlobCluster(ODatabaseSessionInternal database, String clusterName) {
-    throw new OSchemaException("Not supported operation use instead ODatabaseSession.dropCluster");
+  public void removeBlobCluster(YTDatabaseSessionInternal database, String clusterName) {
+    throw new OSchemaException("Not supported operation use instead YTDatabaseSession.dropCluster");
   }
 }

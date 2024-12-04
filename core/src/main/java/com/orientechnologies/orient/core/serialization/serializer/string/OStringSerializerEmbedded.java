@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.serialization.serializer.string;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
@@ -41,14 +41,14 @@ public class OStringSerializerEmbedded implements OStringSerializer {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public Object fromStream(ODatabaseSessionInternal db, final String iStream) {
+  public Object fromStream(YTDatabaseSessionInternal db, final String iStream) {
     if (iStream == null || iStream.isEmpty())
     // NULL VALUE
     {
       return null;
     }
 
-    final ODocument instance = new ODocumentEmbedded();
+    final YTDocument instance = new YTDocumentEmbedded();
     ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(db,
         iStream.getBytes(StandardCharsets.UTF_8), instance, null);
 
@@ -76,7 +76,7 @@ public class OStringSerializerEmbedded implements OStringSerializer {
       try {
         final ODocumentSerializable documentSerializable =
             (ODocumentSerializable) clazz.newInstance();
-        final ODocument docClone = new ODocumentEmbedded();
+        final YTDocument docClone = new YTDocumentEmbedded();
         instance.copyTo(docClone);
         docClone.removeField(ODocumentSerializable.CLASS_NAME);
         documentSerializable.fromDocument(docClone);

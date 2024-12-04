@@ -1,7 +1,7 @@
 // package com.orientechnologies.orient.core.storage.impl.local.paginated;
 //
-// import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-// import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+// import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+// import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 // import com.orientechnologies.orient.core.storage.OStorage;
 // import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 // import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -31,10 +31,10 @@
 //
 // public class LocalPaginatedClusterWithWALTestIT extends LocalPaginatedClusterTestIT {
 //  static {
-//    OGlobalConfiguration.FILE_LOCK.setValue(false);
+//    YTGlobalConfiguration.FILE_LOCK.setValue(false);
 //  }
 //
-//  private ODatabaseDocumentTx expectedDatabase;
+//  private YTDatabaseDocumentTx expectedDatabase;
 //
 //  private OReadCache  readCache;
 //  private OWriteCache writeCache;
@@ -71,7 +71,7 @@
 //  }
 //
 //  private void createExpectedStorage() {
-//    expectedDatabase = new ODatabaseDocumentTx("plocal:" + buildDirectory + File.separator +
+//    expectedDatabase = new YTDatabaseDocumentTx("plocal:" + buildDirectory + File.separator +
 // "localPaginatedClusterWithWALTestTwo");
 //    if (expectedDatabase.exists()) {
 //      expectedDatabase.open("admin", "admin");
@@ -88,7 +88,7 @@
 //  }
 //
 //  private void createActualStorage() throws IOException {
-//    databaseDocumentTx = new ODatabaseDocumentTx(
+//    databaseDocumentTx = new YTDatabaseDocumentTx(
 //        "plocal:" + buildDirectory + File.separator + "localPaginatedClusterWithWALTestOne");
 //    if (databaseDocumentTx.exists()) {
 //      databaseDocumentTx.open("admin", "admin");

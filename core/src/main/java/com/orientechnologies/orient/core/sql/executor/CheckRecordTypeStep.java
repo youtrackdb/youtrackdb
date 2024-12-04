@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Optional;
 
@@ -32,11 +32,11 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
     if (!result.isElement()) {
       throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    OElement doc = result.toElement();
+    YTEntity doc = result.toElement();
     if (doc == null) {
       throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    Optional<OClass> schema = doc.getSchemaType();
+    Optional<YTClass> schema = doc.getSchemaType();
 
     if (schema.isEmpty() || !schema.get().isSubClassOf(clazz)) {
       throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);

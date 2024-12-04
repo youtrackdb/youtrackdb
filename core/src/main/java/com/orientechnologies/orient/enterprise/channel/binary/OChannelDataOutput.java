@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.enterprise.channel.binary;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -25,7 +25,7 @@ public interface OChannelDataOutput {
 
   OChannelDataOutput writeBytes(final byte[] iContent, final int iLength) throws IOException;
 
-  void writeRID(final ORID iRID) throws IOException;
+  void writeRID(final YTRID iRID) throws IOException;
 
   void writeVersion(final int version) throws IOException;
 

@@ -27,14 +27,14 @@ import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.SimpleValueFetchPlanCommandListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
@@ -55,7 +55,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
   private final boolean asynch;
   private final OCommandResultListener listener;
-  private final ODatabaseSessionInternal database;
+  private final YTDatabaseSessionInternal database;
   private boolean live;
   private Object result;
   private boolean isRecordResultSet;
@@ -67,7 +67,7 @@ public final class OCommandResponse implements OBinaryResponse {
       SimpleValueFetchPlanCommandListener listener,
       boolean isRecordResultSet,
       boolean async,
-      ODatabaseSessionInternal database,
+      YTDatabaseSessionInternal database,
       OCommandRequestText command,
       Map<Object, Object> params) {
     this.result = result;
@@ -82,7 +82,7 @@ public final class OCommandResponse implements OBinaryResponse {
   public OCommandResponse(
       boolean asynch,
       OCommandResultListener listener,
-      ODatabaseSessionInternal database,
+      YTDatabaseSessionInternal database,
       boolean live) {
     this.asynch = asynch;
     this.listener = listener;
@@ -90,7 +90,7 @@ public final class OCommandResponse implements OBinaryResponse {
     this.live = live;
   }
 
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     if (asynch) {
@@ -114,7 +114,7 @@ public final class OCommandResponse implements OBinaryResponse {
           serializer);
       if (listener instanceof OFetchPlanResults) {
         // SEND FETCHED RECORDS TO LOAD IN CLIENT CACHE
-        for (ORecord rec : ((OFetchPlanResults) listener).getFetchedRecordsToSend()) {
+        for (YTRecord rec : ((OFetchPlanResults) listener).getFetchedRecordsToSend()) {
           channel.writeByte((byte) 2); // CLIENT CACHE RECORD. IT
           // ISN'T PART OF THE
           // RESULT SET
@@ -127,7 +127,7 @@ public final class OCommandResponse implements OBinaryResponse {
   }
 
   public void serializeValue(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       OChannelDataOutput channel,
       final SimpleValueFetchPlanCommandListener listener,
       Object result,
@@ -140,17 +140,17 @@ public final class OCommandResponse implements OBinaryResponse {
       // NULL VALUE
       channel.writeByte((byte) 'n');
     } else {
-      if (result instanceof OIdentifiable identifiable) {
+      if (result instanceof YTIdentifiable identifiable) {
         // RECORD
         channel.writeByte((byte) 'r');
-        if (load && result instanceof ORecordId) {
-          result = ((ORecordId) result).getRecord();
+        if (load && result instanceof YTRecordId) {
+          result = ((YTRecordId) result).getRecord();
         }
 
         if (listener != null) {
           listener.result(session, result);
         }
-        if (identifiable instanceof ORecord record) {
+        if (identifiable instanceof YTRecord record) {
           if (record.isNotBound(session)) {
             identifiable = session.bindToSession(record);
           }
@@ -161,7 +161,7 @@ public final class OCommandResponse implements OBinaryResponse {
         if (result instanceof ODocumentWrapper) {
           // RECORD
           channel.writeByte((byte) 'r');
-          final ODocument doc = ((ODocumentWrapper) result).getDocument(session);
+          final YTDocument doc = ((ODocumentWrapper) result).getDocument(session);
           if (listener != null) {
             listener.result(session, doc);
           }
@@ -176,14 +176,14 @@ public final class OCommandResponse implements OBinaryResponse {
               channel.writeInt(OMultiValue.getSize(result));
               for (Object o : OMultiValue.getMultiValueIterable(result)) {
                 try {
-                  if (load && o instanceof ORecordId) {
-                    o = ((ORecordId) o).getRecord();
+                  if (load && o instanceof YTRecordId) {
+                    o = ((YTRecordId) o).getRecord();
                   }
                   if (listener != null) {
                     listener.result(session, o);
                   }
 
-                  OMessageHelper.writeIdentifiable(session, channel, (OIdentifiable) o,
+                  OMessageHelper.writeIdentifiable(session, channel, (YTIdentifiable) o,
                       recordSerializer);
                 } catch (Exception e) {
                   OLogManager.instance().warn(this, "Cannot serialize record: " + o);
@@ -197,8 +197,8 @@ public final class OCommandResponse implements OBinaryResponse {
                   channel.writeByte((byte) 'i');
                   for (Object o : OMultiValue.getMultiValueIterable(result)) {
                     try {
-                      if (load && o instanceof ORecordId) {
-                        o = ((ORecordId) o).getRecord();
+                      if (load && o instanceof YTRecordId) {
+                        o = ((YTRecordId) o).getRecord();
                       }
                       if (listener != null) {
                         listener.result(session, o);
@@ -206,7 +206,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
                       channel.writeByte((byte) 1); // ONE MORE RECORD
                       OMessageHelper.writeIdentifiable(session,
-                          channel, (OIdentifiable) o, recordSerializer);
+                          channel, (YTIdentifiable) o, recordSerializer);
                     } catch (Exception e) {
                       OLogManager.instance().warn(this, "Cannot serialize record: " + o);
                     }
@@ -219,15 +219,15 @@ public final class OCommandResponse implements OBinaryResponse {
                   channel.writeInt(OMultiValue.getSize(result));
                   for (Object o : OMultiValue.getMultiValueIterable(result)) {
                     try {
-                      if (load && o instanceof ORecordId) {
-                        o = ((ORecordId) o).getRecord();
+                      if (load && o instanceof YTRecordId) {
+                        o = ((YTRecordId) o).getRecord();
                       }
                       if (listener != null) {
                         listener.result(session, o);
                       }
 
                       OMessageHelper.writeIdentifiable(session,
-                          channel, (OIdentifiable) o, recordSerializer);
+                          channel, (YTIdentifiable) o, recordSerializer);
                     } catch (Exception e) {
                       OLogManager.instance().warn(this, "Cannot serialize record: " + o);
                     }
@@ -247,7 +247,7 @@ public final class OCommandResponse implements OBinaryResponse {
   }
 
   private static void writeSimpleValue(
-      ODatabaseSessionInternal session, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, OChannelDataOutput channel,
       SimpleValueFetchPlanCommandListener listener,
       Object result,
       int protocolVersion,
@@ -256,7 +256,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
     if (protocolVersion >= OChannelBinaryProtocol.PROTOCOL_VERSION_35) {
       channel.writeByte((byte) 'w');
-      ODocument document = new ODocument();
+      YTDocument document = new YTDocument();
       document.field("result", result);
       OMessageHelper.writeIdentifiable(session, channel, document, recordSerializer);
       if (listener != null) {
@@ -266,24 +266,24 @@ public final class OCommandResponse implements OBinaryResponse {
       channel.writeByte((byte) 'a');
       final StringBuilder value = new StringBuilder(64);
       if (listener != null) {
-        ODocument document = new ODocument();
+        YTDocument document = new YTDocument();
         document.field("result", result);
         listener.linkdedBySimpleValue(document);
       }
       ORecordSerializerStringAbstract.fieldTypeToString(
-          value, OType.getTypeByClass(result.getClass()), result);
+          value, YTType.getTypeByClass(result.getClass()), result);
       channel.writeString(value.toString());
     }
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     try {
       // Collection of prefetched temporary record (nested projection record), to refer for avoid
       // garbage collection.
-      List<ORecord> temporaryResults = new ArrayList<ORecord>();
+      List<YTRecord> temporaryResults = new ArrayList<YTRecord>();
 
       boolean addNextRecord = true;
       if (asynch) {
@@ -291,8 +291,8 @@ public final class OCommandResponse implements OBinaryResponse {
 
         // ASYNCH: READ ONE RECORD AT TIME
         while ((status = network.readByte()) > 0) {
-          final ORecordAbstract record =
-              (ORecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
+          final YTRecordAbstract record =
+              (YTRecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
           if (record == null) {
             continue;
           }
@@ -330,7 +330,7 @@ public final class OCommandResponse implements OBinaryResponse {
       } else {
         result = readSynchResult(network, database, temporaryResults);
         if (live) {
-          final ODocument doc = ((List<ODocument>) result).get(0);
+          final YTDocument doc = ((List<YTDocument>) result).get(0);
           final Integer token = doc.field("token");
           final Boolean unsubscribe = doc.field("unsubscribe");
           if (token != null) {
@@ -390,8 +390,8 @@ public final class OCommandResponse implements OBinaryResponse {
 
   private Object readSynchResult(
       final OChannelDataInput network,
-      final ODatabaseSessionInternal database,
-      List<ORecord> temporaryResults)
+      final YTDatabaseSessionInternal database,
+      List<YTRecord> temporaryResults)
       throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     final Object result;
@@ -404,7 +404,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
       case 'r':
         result = OMessageHelper.readIdentifiable(database, network, serializer);
-        if (result instanceof ORecordAbstract record) {
+        if (result instanceof YTRecordAbstract record) {
           var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
           if (cachedRecord != record) {
             if (cachedRecord != null) {
@@ -419,12 +419,12 @@ public final class OCommandResponse implements OBinaryResponse {
       case 'l':
       case 's':
         final int tot = network.readInt();
-        Collection<OIdentifiable> coll =
+        Collection<YTIdentifiable> coll =
             type == 's' ? new HashSet<>(tot) : new OBasicLegacyResultSet<>(tot);
         for (int i = 0; i < tot; ++i) {
-          final OIdentifiable resultItem = OMessageHelper.readIdentifiable(database, network,
+          final YTIdentifiable resultItem = OMessageHelper.readIdentifiable(database, network,
               serializer);
-          if (resultItem instanceof ORecordAbstract record) {
+          if (resultItem instanceof YTRecordAbstract record) {
             var rid = record.getIdentity();
             var cacheRecord = database.getLocalCache().findRecord(rid);
 
@@ -445,16 +445,16 @@ public final class OCommandResponse implements OBinaryResponse {
         result = coll;
         break;
       case 'i':
-        coll = new OBasicLegacyResultSet<OIdentifiable>();
+        coll = new OBasicLegacyResultSet<YTIdentifiable>();
         byte status;
         while ((status = network.readByte()) > 0) {
-          final OIdentifiable record = OMessageHelper.readIdentifiable(database, network,
+          final YTIdentifiable record = OMessageHelper.readIdentifiable(database, network,
               serializer);
           if (record == null) {
             continue;
           }
           if (status == 1) {
-            if (record instanceof ORecordAbstract rec) {
+            if (record instanceof YTRecordAbstract rec) {
               var cachedRecord = database.getLocalCache().findRecord(rec.getIdentity());
 
               if (cachedRecord != rec) {
@@ -474,9 +474,10 @@ public final class OCommandResponse implements OBinaryResponse {
         result = coll;
         break;
       case 'w':
-        final OIdentifiable record = OMessageHelper.readIdentifiable(database, network, serializer);
-        // ((ODocument) record).setLazyLoad(false);
-        result = ((ODocument) record).field("result");
+        final YTIdentifiable record = OMessageHelper.readIdentifiable(database, network,
+            serializer);
+        // ((YTDocument) record).setLazyLoad(false);
+        result = ((YTDocument) record).field("result");
         break;
 
       default:
@@ -487,8 +488,8 @@ public final class OCommandResponse implements OBinaryResponse {
     // LOAD THE FETCHED RECORDS IN CACHE
     byte status;
     while ((status = network.readByte()) > 0) {
-      ORecordAbstract record =
-          (ORecordAbstract) OMessageHelper.readIdentifiable(database, network, serializer);
+      YTRecordAbstract record =
+          (YTRecordAbstract) OMessageHelper.readIdentifiable(database, network, serializer);
       if (record != null && status == 2) {
         // PUT IN THE CLIENT LOCAL CACHE
         var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());

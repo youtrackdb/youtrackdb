@@ -4,9 +4,9 @@ import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBin
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -15,17 +15,17 @@ import java.io.IOException;
 
 public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  private ODocument schema;
+  private YTDocument schema;
 
   public OPushSchemaRequest() {
   }
 
-  public OPushSchemaRequest(ODocument schema) {
+  public OPushSchemaRequest(YTDocument schema) {
     this.schema = schema;
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
     try {
       schema.setup(session);
@@ -37,14 +37,14 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
-    this.schema = (ODocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
+    this.schema = (YTDocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
         null);
   }
 
   @Override
-  public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+  public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
       ORemotePushHandler pushHandler) {
     return pushHandler.executeUpdateSchema(this);
   }
@@ -59,7 +59,7 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
     return REQUEST_PUSH_SCHEMA;
   }
 
-  public ODocument getSchema() {
+  public YTDocument getSchema() {
     return schema;
   }
 }

@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btree.BTree;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btree.EdgeKey;
@@ -22,20 +22,20 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> {
+public class BTreeBonsaiGlobal implements OSBTreeBonsai<YTIdentifiable, Integer> {
 
   private final BTree bTree;
   private final int intFileId;
   private final long ridBagId;
 
-  private final OBinarySerializer<OIdentifiable> keySerializer;
+  private final OBinarySerializer<YTIdentifiable> keySerializer;
   private final OBinarySerializer<Integer> valueSerializer;
 
   public BTreeBonsaiGlobal(
       final BTree bTree,
       final int intFileId,
       final long ridBagId,
-      OBinarySerializer<OIdentifiable> keySerializer,
+      OBinarySerializer<YTIdentifiable> keySerializer,
       OBinarySerializer<Integer> valueSerializer) {
     this.bTree = bTree;
     this.intFileId = intFileId;
@@ -60,8 +60,8 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   @Override
-  public Integer get(OIdentifiable key) {
-    final ORID rid = key.getIdentity();
+  public Integer get(YTIdentifiable key) {
+    final YTRID rid = key.getIdentity();
 
     final int result;
 
@@ -75,8 +75,8 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   @Override
-  public boolean put(OAtomicOperation atomicOperation, OIdentifiable key, Integer value) {
-    final ORID rid = key.getIdentity();
+  public boolean put(OAtomicOperation atomicOperation, YTIdentifiable key, Integer value) {
+    final YTRID rid = key.getIdentity();
 
     return bTree.put(
         atomicOperation,
@@ -116,8 +116,8 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   @Override
-  public Integer remove(OAtomicOperation atomicOperation, OIdentifiable key) {
-    final ORID rid = key.getIdentity();
+  public Integer remove(OAtomicOperation atomicOperation, YTIdentifiable key) {
+    final YTRID rid = key.getIdentity();
     final int result;
     result =
         bTree.remove(
@@ -132,8 +132,8 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public Collection<Integer> getValuesMinor(
-      OIdentifiable key, boolean inclusive, int maxValuesToFetch) {
-    final ORID rid = key.getIdentity();
+      YTIdentifiable key, boolean inclusive, int maxValuesToFetch) {
+    final YTRID rid = key.getIdentity();
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
@@ -148,8 +148,9 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public void loadEntriesMinor(
-      OIdentifiable key, boolean inclusive, RangeResultListener<OIdentifiable, Integer> listener) {
-    final ORID rid = key.getIdentity();
+      YTIdentifiable key, boolean inclusive,
+      RangeResultListener<YTIdentifiable, Integer> listener) {
+    final YTRID rid = key.getIdentity();
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
@@ -163,8 +164,8 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public Collection<Integer> getValuesMajor(
-      OIdentifiable key, boolean inclusive, int maxValuesToFetch) {
-    final ORID rid = key.getIdentity();
+      YTIdentifiable key, boolean inclusive, int maxValuesToFetch) {
+    final YTRID rid = key.getIdentity();
 
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
@@ -179,11 +180,11 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public void loadEntriesMajor(
-      OIdentifiable key,
+      YTIdentifiable key,
       boolean inclusive,
       boolean ascSortOrder,
-      RangeResultListener<OIdentifiable, Integer> listener) {
-    final ORID rid = key.getIdentity();
+      RangeResultListener<YTIdentifiable, Integer> listener) {
+    final YTRID rid = key.getIdentity();
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
@@ -197,13 +198,13 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public Collection<Integer> getValuesBetween(
-      OIdentifiable keyFrom,
+      YTIdentifiable keyFrom,
       boolean fromInclusive,
-      OIdentifiable keyTo,
+      YTIdentifiable keyTo,
       boolean toInclusive,
       int maxValuesToFetch) {
-    final ORID ridFrom = keyFrom.getIdentity();
-    final ORID ridTo = keyTo.getIdentity();
+    final YTRID ridFrom = keyFrom.getIdentity();
+    final YTRID ridTo = keyTo.getIdentity();
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, ridFrom.getClusterId(), ridFrom.getClusterPosition()),
@@ -216,7 +217,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   @Override
-  public OIdentifiable firstKey() {
+  public YTIdentifiable firstKey() {
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
@@ -227,7 +228,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
       final Iterator<ORawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
       if (iterator.hasNext()) {
         final ORawPairObjectInteger<EdgeKey> entry = iterator.next();
-        return new ORecordId(entry.first.targetCluster, entry.first.targetPosition);
+        return new YTRecordId(entry.first.targetCluster, entry.first.targetPosition);
       }
     }
 
@@ -235,7 +236,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   @Override
-  public OIdentifiable lastKey() {
+  public YTIdentifiable lastKey() {
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
@@ -246,7 +247,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
       final Iterator<ORawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
       if (iterator.hasNext()) {
         final ORawPairObjectInteger<EdgeKey> entry = iterator.next();
-        return new ORecordId(entry.first.targetCluster, entry.first.targetPosition);
+        return new YTRecordId(entry.first.targetCluster, entry.first.targetPosition);
       }
     }
 
@@ -255,11 +256,11 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public void loadEntriesBetween(
-      OIdentifiable keyFrom,
+      YTIdentifiable keyFrom,
       boolean fromInclusive,
-      OIdentifiable keyTo,
+      YTIdentifiable keyTo,
       boolean toInclusive,
-      RangeResultListener<OIdentifiable, Integer> listener) {
+      RangeResultListener<YTIdentifiable, Integer> listener) {
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
@@ -272,8 +273,8 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   @Override
-  public int getRealBagSize(Map<OIdentifiable, Change> changes) {
-    final Map<OIdentifiable, Change> notAppliedChanges = new HashMap<>(changes);
+  public int getRealBagSize(Map<YTIdentifiable, Change> changes) {
+    final Map<YTIdentifiable, Change> notAppliedChanges = new HashMap<>(changes);
     final OModifiableInteger size = new OModifiableInteger(0);
 
     try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
@@ -286,8 +287,8 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
       forEachEntry(
           stream,
           entry -> {
-            final ORecordId rid =
-                new ORecordId(entry.first.targetCluster, entry.first.targetPosition);
+            final YTRecordId rid =
+                new YTRecordId(entry.first.targetCluster, entry.first.targetPosition);
             final Change change = notAppliedChanges.remove(rid);
             final int result;
 
@@ -312,7 +313,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   @Override
-  public OBinarySerializer<OIdentifiable> getKeySerializer() {
+  public OBinarySerializer<YTIdentifiable> getKeySerializer() {
     return keySerializer;
   }
 
@@ -354,15 +355,15 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   private static void listenStream(
       final Stream<ORawPairObjectInteger<EdgeKey>> stream,
-      final RangeResultListener<OIdentifiable, Integer> listener) {
+      final RangeResultListener<YTIdentifiable, Integer> listener) {
     forEachEntry(
         stream,
         entry ->
             listener.addResult(
-                new Entry<OIdentifiable, Integer>() {
+                new Entry<YTIdentifiable, Integer>() {
                   @Override
-                  public OIdentifiable getKey() {
-                    return new ORecordId(entry.first.targetCluster, entry.first.targetPosition);
+                  public YTIdentifiable getKey() {
+                    return new YTRecordId(entry.first.targetCluster, entry.first.targetPosition);
                   }
 
                   @Override

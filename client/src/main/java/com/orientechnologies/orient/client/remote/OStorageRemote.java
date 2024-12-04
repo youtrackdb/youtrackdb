@@ -29,7 +29,7 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.client.ONotSendRequestException;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
+import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.client.remote.db.document.OLiveQueryMonitorRemote;
 import com.orientechnologies.orient.client.remote.db.document.OTransactionOptimisticClient;
 import com.orientechnologies.orient.client.remote.message.OAddClusterRequest;
@@ -108,12 +108,12 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestAsynch;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
@@ -124,12 +124,12 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OTokenException;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -200,7 +200,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   private final ORemoteURLs serverURLs;
   private final Map<String, OCluster> clusterMap = new ConcurrentHashMap<String, OCluster>();
   private final ExecutorService asynchExecutor;
-  private final ODocument clusterConfiguration = new ODocument();
+  private final YTDocument clusterConfiguration = new YTDocument();
   private final AtomicInteger users = new AtomicInteger(0);
   private final OContextConfiguration clientConfiguration;
   private final int connectionRetry;
@@ -273,9 +273,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       clientConfiguration = new OContextConfiguration();
     }
     connectionRetry =
-        clientConfiguration.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_RETRY);
+        clientConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_RETRY);
     connectionRetryDelay =
-        clientConfiguration.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_RETRY_DELAY);
+        clientConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_RETRY_DELAY);
     serverURLs = hosts;
 
     asynchExecutor = OThreadPoolExecutors.newSingleThreadScheduledPool("OStorageRemote Async");
@@ -326,18 +326,18 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public <T extends OBinaryResponse> T asyncNetworkOperationNoRetry(
-      ODatabaseSessionRemote database, final OBinaryAsyncRequest<T> request,
+      YTDatabaseSessionRemote database, final OBinaryAsyncRequest<T> request,
       int mode,
-      final ORecordId recordId,
+      final YTRecordId recordId,
       final ORecordCallback<T> callback,
       final String errorMessage) {
     return asyncNetworkOperationRetry(database, request, mode, recordId, callback, errorMessage, 0);
   }
 
   public <T extends OBinaryResponse> T asyncNetworkOperationRetry(
-      ODatabaseSessionRemote database, final OBinaryAsyncRequest<T> request,
+      YTDatabaseSessionRemote database, final OBinaryAsyncRequest<T> request,
       int mode,
-      final ORecordId recordId,
+      final YTRecordId recordId,
       final ORecordCallback<T> callback,
       final String errorMessage,
       int retry) {
@@ -409,7 +409,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public <T extends OBinaryResponse> T networkOperationRetryTimeout(
-      ODatabaseSessionRemote database, final OBinaryRequest<T> request, final String errorMessage,
+      YTDatabaseSessionRemote database, final OBinaryRequest<T> request, final String errorMessage,
       int retry, int timeout) {
     return baseNetworkOperation(database,
         (network, session) -> {
@@ -448,19 +448,19 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public <T extends OBinaryResponse> T networkOperationNoRetry(
-      ODatabaseSessionRemote database, final OBinaryRequest<T> request,
+      YTDatabaseSessionRemote database, final OBinaryRequest<T> request,
       final String errorMessage) {
     return networkOperationRetryTimeout(database, request, errorMessage, 0, 0);
   }
 
   public <T extends OBinaryResponse> T networkOperation(
-      ODatabaseSessionRemote database, final OBinaryRequest<T> request,
+      YTDatabaseSessionRemote database, final OBinaryRequest<T> request,
       final String errorMessage) {
     return networkOperationRetryTimeout(database, request, errorMessage, connectionRetry, 0);
   }
 
   public <T> T baseNetworkOperation(
-      ODatabaseSessionRemote remoteSession, final OStorageRemoteOperation<T> operation,
+      YTDatabaseSessionRemote remoteSession, final OStorageRemoteOperation<T> operation,
       final String errorMessage, int retry) {
     OStorageRemoteSession session = getCurrentSession(remoteSession);
     if (session.commandExecuting) {
@@ -613,15 +613,15 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         "Supported only in embedded storage. Use 'SELECT FROM metadata:storage' instead.");
   }
 
-  public int getSessionId(ODatabaseSessionRemote database) {
+  public int getSessionId(YTDatabaseSessionRemote database) {
     OStorageRemoteSession session = getCurrentSession(database);
     return session != null ? session.getSessionId() : -1;
   }
 
   public void open(
-      ODatabaseSessionInternal db, final String iUserName, final String iUserPassword,
+      YTDatabaseSessionInternal db, final String iUserName, final String iUserPassword,
       final OContextConfiguration conf) {
-    var remoteDb = (ODatabaseSessionRemote) db;
+    var remoteDb = (YTDatabaseSessionRemote) db;
     addUser();
     try {
       OStorageRemoteSession session = getCurrentSession(remoteDb);
@@ -642,7 +642,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           session.connectionUserPassword = iUserPassword;
         }
 
-        String strategy = conf.getValueAsString(OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY);
+        String strategy = conf.getValueAsString(YTGlobalConfiguration.CLIENT_CONNECTION_STRATEGY);
         if (strategy != null) {
           connectionStrategy = CONNECTION_STRATEGY.valueOf(strategy.toUpperCase(Locale.ENGLISH));
         }
@@ -674,9 +674,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return sbTreeCollectionManager;
   }
 
-  public void reload(ODatabaseSessionInternal database) {
+  public void reload(YTDatabaseSessionInternal database) {
     OReloadResponse37 res =
-        networkOperation((ODatabaseSessionRemote) database, new OReloadRequest37(),
+        networkOperation((YTDatabaseSessionRemote) database, new OReloadRequest37(),
             "error loading storage configuration");
     final OStorageConfiguration storageConfiguration =
         new OStorageConfigurationRemote(
@@ -699,12 +699,12 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             + " OServerAdmin class.");
   }
 
-  public void close(ODatabaseSessionInternal database, final boolean iForce) {
+  public void close(YTDatabaseSessionInternal database, final boolean iForce) {
     if (status == STATUS.CLOSED) {
       return;
     }
 
-    final OStorageRemoteSession session = getCurrentSession((ODatabaseSessionRemote) database);
+    final OStorageRemoteSession session = getCurrentSession((YTDatabaseSessionRemote) database);
     if (session != null) {
       final Collection<OStorageRemoteNodeSession> nodes = session.getAllServerSessions();
       if (!nodes.isEmpty()) {
@@ -829,18 +829,18 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
   }
 
-  public ORecordMetadata getRecordMetadata(ODatabaseSessionInternal session, final ORID rid) {
+  public ORecordMetadata getRecordMetadata(YTDatabaseSessionInternal session, final YTRID rid) {
     OGetRecordMetadataRequest request = new OGetRecordMetadataRequest(rid);
     OGetRecordMetadataResponse response =
-        networkOperation((ODatabaseSessionRemote) session, request,
+        networkOperation((YTDatabaseSessionRemote) session, request,
             "Error on record metadata read " + rid);
 
     return response.getMetadata();
   }
 
   @Override
-  public boolean recordExists(ODatabaseSessionInternal session, ORID rid) {
-    var remoteSession = (ODatabaseSessionRemote) session;
+  public boolean recordExists(YTDatabaseSessionInternal session, YTRID rid) {
+    var remoteSession = (YTDatabaseSessionRemote) session;
     if (getCurrentSession(remoteSession).commandExecuting)
     // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
     {
@@ -857,12 +857,12 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public @Nonnull ORawBuffer readRecord(
-      ODatabaseSessionInternal session, final ORecordId iRid,
+      YTDatabaseSessionInternal session, final YTRecordId iRid,
       final boolean iIgnoreCache,
       boolean prefetchRecords,
       final ORecordCallback<ORawBuffer> iCallback) {
 
-    var remoteSession = (ODatabaseSessionRemote) session;
+    var remoteSession = (YTDatabaseSessionRemote) session;
     if (getCurrentSession(remoteSession).commandExecuting)
     // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
     {
@@ -878,11 +878,11 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return response.getResult();
   }
 
-  public String incrementalBackup(ODatabaseSessionInternal session, final String backupDirectory,
+  public String incrementalBackup(YTDatabaseSessionInternal session, final String backupDirectory,
       OCallable<Void, Void> started) {
     OIncrementalBackupRequest request = new OIncrementalBackupRequest(backupDirectory);
     OIncrementalBackupResponse response =
-        networkOperationNoRetry((ODatabaseSessionRemote) session, request,
+        networkOperationNoRetry((YTDatabaseSessionRemote) session, request,
             "Error on incremental backup");
     return response.getFileName();
   }
@@ -898,13 +898,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         "This operations is part of internal API and is not supported in remote storage");
   }
 
-  public void restoreFromIncrementalBackup(ODatabaseSessionInternal session,
+  public void restoreFromIncrementalBackup(YTDatabaseSessionInternal session,
       final String filePath) {
     throw new UnsupportedOperationException(
         "This operations is part of internal API and is not supported in remote storage");
   }
 
-  public void restoreFullIncrementalBackup(ODatabaseSessionInternal session,
+  public void restoreFullIncrementalBackup(YTDatabaseSessionInternal session,
       final InputStream stream)
       throws UnsupportedOperationException {
     throw new UnsupportedOperationException(
@@ -912,7 +912,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public boolean cleanOutRecord(
-      ODatabaseSessionInternal session, final ORecordId recordId,
+      YTDatabaseSessionInternal session, final YTRecordId recordId,
       final int recordVersion,
       final int iMode,
       final ORecordCallback<Boolean> callback) {
@@ -924,7 +924,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     final OCleanOutRecordRequest request = new OCleanOutRecordRequest(recordVersion, recordId);
     final OCleanOutRecordResponse response =
-        asyncNetworkOperationNoRetry((ODatabaseSessionRemote) session,
+        asyncNetworkOperationNoRetry((YTDatabaseSessionRemote) session,
             request, iMode, recordId, realCallback, "Error on delete record " + recordId);
     Boolean result = null;
     if (response != null) {
@@ -961,97 +961,97 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return clientConfiguration;
   }
 
-  public long count(ODatabaseSessionInternal session, final int iClusterId) {
+  public long count(YTDatabaseSessionInternal session, final int iClusterId) {
     return count(session, new int[]{iClusterId});
   }
 
-  public long count(ODatabaseSessionInternal session, int iClusterId, boolean countTombstones) {
+  public long count(YTDatabaseSessionInternal session, int iClusterId, boolean countTombstones) {
     return count(session, new int[]{iClusterId}, countTombstones);
   }
 
-  public long[] getClusterDataRange(ODatabaseSessionInternal session, final int iClusterId) {
+  public long[] getClusterDataRange(YTDatabaseSessionInternal session, final int iClusterId) {
     OGetClusterDataRangeRequest request = new OGetClusterDataRangeRequest(iClusterId);
     OGetClusterDataRangeResponse response =
-        networkOperation((ODatabaseSessionRemote) session,
+        networkOperation((YTDatabaseSessionRemote) session,
             request, "Error on getting last entry position count in cluster: " + iClusterId);
     return response.getPos();
   }
 
   public OPhysicalPosition[] higherPhysicalPositions(
-      ODatabaseSessionInternal session, final int iClusterId,
+      YTDatabaseSessionInternal session, final int iClusterId,
       final OPhysicalPosition iClusterPosition) {
     OHigherPhysicalPositionsRequest request =
         new OHigherPhysicalPositionsRequest(iClusterId, iClusterPosition);
 
     OHigherPhysicalPositionsResponse response =
-        networkOperation((ODatabaseSessionRemote) session,
+        networkOperation((YTDatabaseSessionRemote) session,
             request,
             "Error on retrieving higher positions after " + iClusterPosition.clusterPosition);
     return response.getNextPositions();
   }
 
   public OPhysicalPosition[] ceilingPhysicalPositions(
-      ODatabaseSessionInternal session, final int clusterId,
+      YTDatabaseSessionInternal session, final int clusterId,
       final OPhysicalPosition physicalPosition) {
 
     OCeilingPhysicalPositionsRequest request =
         new OCeilingPhysicalPositionsRequest(clusterId, physicalPosition);
 
     OCeilingPhysicalPositionsResponse response =
-        networkOperation((ODatabaseSessionRemote) session,
+        networkOperation((YTDatabaseSessionRemote) session,
             request,
             "Error on retrieving ceiling positions after " + physicalPosition.clusterPosition);
     return response.getPositions();
   }
 
   public OPhysicalPosition[] lowerPhysicalPositions(
-      ODatabaseSessionInternal session, final int iClusterId,
+      YTDatabaseSessionInternal session, final int iClusterId,
       final OPhysicalPosition physicalPosition) {
     OLowerPhysicalPositionsRequest request =
         new OLowerPhysicalPositionsRequest(physicalPosition, iClusterId);
     OLowerPhysicalPositionsResponse response =
-        networkOperation((ODatabaseSessionRemote) session,
+        networkOperation((YTDatabaseSessionRemote) session,
             request,
             "Error on retrieving lower positions after " + physicalPosition.clusterPosition);
     return response.getPreviousPositions();
   }
 
   public OPhysicalPosition[] floorPhysicalPositions(
-      ODatabaseSessionInternal session, final int clusterId,
+      YTDatabaseSessionInternal session, final int clusterId,
       final OPhysicalPosition physicalPosition) {
     OFloorPhysicalPositionsRequest request =
         new OFloorPhysicalPositionsRequest(physicalPosition, clusterId);
     OFloorPhysicalPositionsResponse response =
-        networkOperation((ODatabaseSessionRemote) session,
+        networkOperation((YTDatabaseSessionRemote) session,
             request,
             "Error on retrieving floor positions after " + physicalPosition.clusterPosition);
     return response.getPositions();
   }
 
-  public long getSize(ODatabaseSessionInternal session) {
+  public long getSize(YTDatabaseSessionInternal session) {
     OGetSizeRequest request = new OGetSizeRequest();
-    OGetSizeResponse response = networkOperation((ODatabaseSessionRemote) session, request,
+    OGetSizeResponse response = networkOperation((YTDatabaseSessionRemote) session, request,
         "Error on read database size");
     return response.getSize();
   }
 
-  public long countRecords(ODatabaseSessionInternal session) {
+  public long countRecords(YTDatabaseSessionInternal session) {
     OCountRecordsRequest request = new OCountRecordsRequest();
     OCountRecordsResponse response =
-        networkOperation((ODatabaseSessionRemote) session, request,
+        networkOperation((YTDatabaseSessionRemote) session, request,
             "Error on read database record count");
     return response.getCountRecords();
   }
 
-  public long count(ODatabaseSessionInternal session, final int[] iClusterIds) {
+  public long count(YTDatabaseSessionInternal session, final int[] iClusterIds) {
     return count(session, iClusterIds, false);
   }
 
-  public long count(ODatabaseSessionInternal session, final int[] iClusterIds,
+  public long count(YTDatabaseSessionInternal session, final int[] iClusterIds,
       final boolean countTombstones) {
     OCountRequest request = new OCountRequest(iClusterIds, countTombstones);
     OCountResponse response =
-        networkOperation((ODatabaseSessionRemote) session,
+        networkOperation((YTDatabaseSessionRemote) session,
             request, "Error on read record count in clusters: " + Arrays.toString(iClusterIds));
     return response.getCount();
   }
@@ -1059,7 +1059,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   /**
    * Execute the command remotely and get the results back.
    */
-  public Object command(ODatabaseSessionInternal database, final OCommandRequestText iCommand) {
+  public Object command(YTDatabaseSessionInternal database, final OCommandRequestText iCommand) {
 
     final boolean live = iCommand instanceof OLiveQuery;
     final boolean asynch =
@@ -1068,23 +1068,23 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     OCommandRequest request = new OCommandRequest(database, asynch, iCommand, live);
     OCommandResponse response =
-        networkOperation((ODatabaseSessionRemote) database, request,
+        networkOperation((YTDatabaseSessionRemote) database, request,
             "Error on executing command: " + iCommand);
     return response.getResult();
   }
 
-  public void stickToSession(ODatabaseSessionRemote database) {
+  public void stickToSession(YTDatabaseSessionRemote database) {
     OStorageRemoteSession session = getCurrentSession(database);
     session.stickToSession();
   }
 
-  public void unstickToSession(ODatabaseSessionRemote database) {
+  public void unstickToSession(YTDatabaseSessionRemote database) {
     OStorageRemoteSession session = getCurrentSession(database);
     session.unStickToSession();
   }
 
-  public ORemoteQueryResult query(ODatabaseSessionRemote db, String query, Object[] args) {
-    int recordsPerPage = OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+  public ORemoteQueryResult query(YTDatabaseSessionRemote db, String query, Object[] args) {
+    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1118,8 +1118,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
   }
 
-  public ORemoteQueryResult query(ODatabaseSessionRemote db, String query, Map args) {
-    int recordsPerPage = OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+  public ORemoteQueryResult query(YTDatabaseSessionRemote db, String query, Map args) {
+    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1154,8 +1154,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
   }
 
-  public ORemoteQueryResult command(ODatabaseSessionRemote db, String query, Object[] args) {
-    int recordsPerPage = OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+  public ORemoteQueryResult command(YTDatabaseSessionRemote db, String query, Object[] args) {
+    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1190,8 +1190,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
   }
 
-  public ORemoteQueryResult command(ODatabaseSessionRemote db, String query, Map args) {
-    int recordsPerPage = OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+  public ORemoteQueryResult command(YTDatabaseSessionRemote db, String query, Map args) {
+    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1226,8 +1226,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public ORemoteQueryResult execute(
-      ODatabaseSessionRemote db, String language, String query, Object[] args) {
-    int recordsPerPage = OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+      YTDatabaseSessionRemote db, String language, String query, Object[] args) {
+    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1265,8 +1265,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public ORemoteQueryResult execute(
-      ODatabaseSessionRemote db, String language, String query, Map args) {
-    int recordsPerPage = OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+      YTDatabaseSessionRemote db, String language, String query, Map args) {
+    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1301,14 +1301,14 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
   }
 
-  public void closeQuery(ODatabaseSessionRemote database, String queryId) {
+  public void closeQuery(YTDatabaseSessionRemote database, String queryId) {
     unstickToSession(database);
     OCloseQueryRequest request = new OCloseQueryRequest(queryId);
     networkOperation(database, request, "Error closing query: " + queryId);
   }
 
-  public void fetchNextPage(ODatabaseSessionRemote database, ORemoteResultSet rs) {
-    int recordsPerPage = OGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+  public void fetchNextPage(YTDatabaseSessionRemote database, ORemoteResultSet rs) {
+    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1329,7 +1329,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public List<ORecordOperation> commit(final OTransactionOptimistic iTx) {
-    var remoteSession = (ODatabaseSessionRemote) iTx.getDatabase();
+    var remoteSession = (YTDatabaseSessionRemote) iTx.getDatabase();
     unstickToSession(remoteSession);
 
     final OCommit38Request request =
@@ -1355,7 +1355,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public void rollback(OTransactionInternal iTx) {
-    var remoteSession = (ODatabaseSessionRemote) iTx.getDatabase();
+    var remoteSession = (YTDatabaseSessionRemote) iTx.getDatabase();
     try {
       if (((OTransactionOptimistic) iTx).isStartedOnServer()
           && !getCurrentSession(remoteSession).getAllServerSessions().isEmpty()) {
@@ -1399,15 +1399,15 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     this.defaultClusterId = defaultClusterId;
   }
 
-  public int addCluster(ODatabaseSessionInternal database, final String iClusterName,
+  public int addCluster(YTDatabaseSessionInternal database, final String iClusterName,
       final Object... iArguments) {
     return addCluster(database, iClusterName, -1);
   }
 
-  public int addCluster(ODatabaseSessionInternal database, final String iClusterName,
+  public int addCluster(YTDatabaseSessionInternal database, final String iClusterName,
       final int iRequestedId) {
     OAddClusterRequest request = new OAddClusterRequest(iRequestedId, iClusterName);
-    OAddClusterResponse response = networkOperationNoRetry((ODatabaseSessionRemote) database,
+    OAddClusterResponse response = networkOperationNoRetry((YTDatabaseSessionRemote) database,
         request,
         "Error on add new cluster");
     addNewClusterToConfiguration(response.getClusterId(), iClusterName);
@@ -1456,16 +1456,16 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     throw new UnsupportedOperationException();
   }
 
-  public OPaginatedCluster.RECORD_STATUS getRecordStatus(ORID rid) {
+  public OPaginatedCluster.RECORD_STATUS getRecordStatus(YTRID rid) {
     throw new UnsupportedOperationException();
   }
 
-  public boolean dropCluster(ODatabaseSessionInternal database, final int iClusterId) {
+  public boolean dropCluster(YTDatabaseSessionInternal database, final int iClusterId) {
 
     ODropClusterRequest request = new ODropClusterRequest(iClusterId);
 
     ODropClusterResponse response =
-        networkOperationNoRetry((ODatabaseSessionRemote) database, request,
+        networkOperationNoRetry((YTDatabaseSessionRemote) database, request,
             "Error on removing of cluster");
     if (response.getResult()) {
       removeClusterFromConfiguration(iClusterId);
@@ -1473,10 +1473,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return response.getResult();
   }
 
-  public String getClusterName(ODatabaseSessionInternal database, int clusterId) {
+  public String getClusterName(YTDatabaseSessionInternal database, int clusterId) {
     stateLock.readLock().lock();
     try {
-      if (clusterId == ORID.CLUSTER_ID_INVALID)
+      if (clusterId == YTRID.CLUSTER_ID_INVALID)
       // GET THE DEFAULT CLUSTER
       {
         clusterId = defaultClusterId;
@@ -1563,7 +1563,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     throw new UnsupportedOperationException("getVersion");
   }
 
-  public ODocument getClusterConfiguration() {
+  public YTDocument getClusterConfiguration() {
     return clusterConfiguration;
   }
 
@@ -1619,15 +1619,15 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return OEngineRemote.NAME;
   }
 
-  public String getUserName(ODatabaseSessionInternal database) {
-    final OStorageRemoteSession session = getCurrentSession((ODatabaseSessionRemote) database);
+  public String getUserName(YTDatabaseSessionInternal database) {
+    final OStorageRemoteSession session = getCurrentSession((YTDatabaseSessionRemote) database);
     if (session == null) {
       return null;
     }
     return session.connectionUserName;
   }
 
-  protected void reopenRemoteDatabase(ODatabaseSessionRemote database) {
+  protected void reopenRemoteDatabase(YTDatabaseSessionRemote database) {
     String currentURL = getCurrentServerURL(database);
     do {
       do {
@@ -1732,12 +1732,12 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         "Cannot create a connection to remote server address(es): " + serverURLs.getUrls());
   }
 
-  protected void openRemoteDatabase(ODatabaseSessionRemote database) throws IOException {
+  protected void openRemoteDatabase(YTDatabaseSessionRemote database) throws IOException {
     final String currentURL = getNextAvailableServerURL(true, getCurrentSession(database));
     openRemoteDatabase(database, currentURL);
   }
 
-  public void openRemoteDatabase(ODatabaseSessionRemote database,
+  public void openRemoteDatabase(YTDatabaseSessionRemote database,
       OChannelBinaryAsynchClient network) throws IOException {
 
     OStorageRemoteSession session = getCurrentSession(database);
@@ -1787,7 +1787,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
   }
 
-  private void initPush(ODatabaseSessionRemote database, OStorageRemoteSession session) {
+  private void initPush(YTDatabaseSessionRemote database, OStorageRemoteSession session) {
     if (pushThread == null) {
       stateLock.writeLock().lock();
       try {
@@ -1799,7 +1799,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
                   connectionRetryDelay,
                   configuration
                       .getContextConfiguration()
-                      .getValueAsLong(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
+                      .getValueAsLong(YTGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
           pushThread.start();
           subscribeStorageConfiguration(session);
           subscribeDistributedConfiguration(session);
@@ -1838,7 +1838,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     pushThread.subscribe(new OSubscribeIndexManagerRequest(), nodeSession);
   }
 
-  protected void openRemoteDatabase(ODatabaseSessionRemote database, String currentURL) {
+  protected void openRemoteDatabase(YTDatabaseSessionRemote database, String currentURL) {
     do {
       do {
         OChannelBinaryAsynchClient network = null;
@@ -1896,7 +1896,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         "Cannot create a connection to remote server address(es): " + serverURLs.getUrls());
   }
 
-  protected String useNewServerURL(ODatabaseSessionRemote database, final String iUrl) {
+  protected String useNewServerURL(YTDatabaseSessionRemote database, final String iUrl) {
     int pos = iUrl.indexOf('/');
     if (pos >= iUrl.length() - 1)
     // IGNORE ENDING /
@@ -1946,7 +1946,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         iIsConnectOperation, session, config, connectionStrategy);
   }
 
-  protected String getCurrentServerURL(ODatabaseSessionRemote database) {
+  protected String getCurrentServerURL(YTDatabaseSessionRemote database) {
     return serverURLs.getServerURFromList(
         false, getCurrentSession(database), configuration.getContextConfiguration());
   }
@@ -1987,7 +1987,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public static void beginResponse(
-      ODatabaseSessionInternal db, OChannelBinaryAsynchClient iNetwork,
+      YTDatabaseSessionInternal db, OChannelBinaryAsynchClient iNetwork,
       OStorageRemoteSession session) throws IOException {
     OStorageRemoteNodeSession nodeSession = session.getServerSession(iNetwork.getServerURL());
     byte[] newToken = iNetwork.beginResponse(db, nodeSession.getSessionId(), true);
@@ -2003,13 +2003,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         .warn(
             this,
             "DB is frozen will wait for "
-                + clientConfiguration.getValue(OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT)
+                + clientConfiguration.getValue(YTGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT)
                 + " ms. and then retry.");
     retry = true;
     try {
       Thread.sleep(
           clientConfiguration.getValueAsInteger(
-              OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT));
+              YTGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT));
     } catch (InterruptedException ie) {
       retry = false;
 
@@ -2063,7 +2063,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   @Nullable
-  protected OStorageRemoteSession getCurrentSession(@Nullable ODatabaseSessionRemote db) {
+  protected OStorageRemoteSession getCurrentSession(@Nullable YTDatabaseSessionRemote db) {
     if (db == null) {
       return null;
     }
@@ -2078,11 +2078,11 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return session;
   }
 
-  public boolean isClosed(ODatabaseSessionInternal database) {
+  public boolean isClosed(YTDatabaseSessionInternal database) {
     if (status == STATUS.CLOSED) {
       return true;
     }
-    final OStorageRemoteSession session = getCurrentSession((ODatabaseSessionRemote) database);
+    final OStorageRemoteSession session = getCurrentSession((YTDatabaseSessionRemote) database);
     if (session == null) {
       return false;
     }
@@ -2090,8 +2090,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public OStorageRemote copy(
-      final ODatabaseSessionRemote source, final ODatabaseSessionRemote dest) {
-    ODatabaseSessionInternal origin = null;
+      final YTDatabaseSessionRemote source, final YTDatabaseSessionRemote dest) {
+    YTDatabaseSessionInternal origin = null;
     if (ODatabaseRecordThreadLocal.instance() != null) {
       origin = ODatabaseRecordThreadLocal.instance().getIfDefined();
     }
@@ -2119,7 +2119,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public void importDatabase(
-      ODatabaseSessionRemote database, final String options,
+      YTDatabaseSessionRemote database, final String options,
       final InputStream inputStream,
       final String name,
       final OCommandOutputListener listener) {
@@ -2129,7 +2129,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         networkOperationRetryTimeout(database,
             request,
             "Error sending import request",
-            0, clientConfiguration.getValueAsInteger(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
+            0,
+            clientConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
 
     for (String message : response.getMessages()) {
       listener.onMessage(message);
@@ -2157,7 +2158,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public void beginTransaction(OTransactionOptimistic transaction) {
-    var database = (ODatabaseSessionRemote) transaction.getDatabase();
+    var database = (YTDatabaseSessionRemote) transaction.getDatabase();
     OBeginTransaction38Request request =
         new OBeginTransaction38Request(database,
             transaction.getId(),
@@ -2166,7 +2167,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             transaction.getRecordOperations(), Collections.emptyMap());
     OBeginTransactionResponse response =
         networkOperationNoRetry(database, request, "Error on remote transaction begin");
-    for (Map.Entry<ORID, ORID> entry : response.getUpdatedIds().entrySet()) {
+    for (Map.Entry<YTRID, YTRID> entry : response.getUpdatedIds().entrySet()) {
       transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
 
@@ -2174,7 +2175,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public void sendTransactionState(OTransactionOptimistic transaction) {
-    var database = (ODatabaseSessionRemote) transaction.getDatabase();
+    var database = (YTDatabaseSessionRemote) transaction.getDatabase();
     OSendTransactionStateRequest request =
         new OSendTransactionStateRequest(database, transaction.getId(),
             transaction.getRecordOperations());
@@ -2183,7 +2184,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         networkOperationNoRetry(database, request,
             "Error on remote transaction state send");
 
-    for (Map.Entry<ORID, ORID> entry : response.getUpdatedIds().entrySet()) {
+    for (Map.Entry<YTRID, YTRID> entry : response.getUpdatedIds().entrySet()) {
       transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
 
@@ -2191,7 +2192,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
 
-  public void fetchTransaction(ODatabaseSessionRemote remote) {
+  public void fetchTransaction(YTDatabaseSessionRemote remote) {
     OTransactionOptimisticClient transaction = remote.getActiveTx();
     OFetchTransaction38Request request = new OFetchTransaction38Request(transaction.getId());
     OFetchTransaction38Response response =
@@ -2222,12 +2223,12 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public OBinaryPushResponse executeUpdateFunction(OPushFunctionsRequest request) {
-    ODatabaseSessionRemote.updateFunction(this);
+    YTDatabaseSessionRemote.updateFunction(this);
     return null;
   }
 
   public OBinaryPushResponse executeUpdateSequences(OPushSequencesRequest request) {
-    ODatabaseSessionRemote.updateSequences(this);
+    YTDatabaseSessionRemote.updateSequences(this);
     return null;
   }
 
@@ -2243,21 +2244,21 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public OBinaryPushResponse executeUpdateSchema(OPushSchemaRequest request) {
-    ODocument schema = request.getSchema();
-    ORecordInternal.setIdentity(schema, new ORecordId(configuration.getSchemaRecordId()));
-    ODatabaseSessionRemote.updateSchema(this, schema);
+    YTDocument schema = request.getSchema();
+    ORecordInternal.setIdentity(schema, new YTRecordId(configuration.getSchemaRecordId()));
+    YTDatabaseSessionRemote.updateSchema(this, schema);
     return null;
   }
 
   public OBinaryPushResponse executeUpdateIndexManager(OPushIndexManagerRequest request) {
-    ODocument indexManager = request.getIndexManager();
-    ORecordInternal.setIdentity(indexManager, new ORecordId(configuration.getIndexMgrRecordId()));
-    ODatabaseSessionRemote.updateIndexManager(this, indexManager);
+    YTDocument indexManager = request.getIndexManager();
+    ORecordInternal.setIdentity(indexManager, new YTRecordId(configuration.getIndexMgrRecordId()));
+    YTDatabaseSessionRemote.updateIndexManager(this, indexManager);
     return null;
   }
 
   public OLiveQueryMonitor liveQuery(
-      ODatabaseSessionRemote database,
+      YTDatabaseSessionRemote database,
       String query,
       OLiveQueryClientListener listener,
       Object[] params) {
@@ -2274,7 +2275,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public OLiveQueryMonitor liveQuery(
-      ODatabaseSessionRemote database,
+      YTDatabaseSessionRemote database,
       String query,
       OLiveQueryClientListener listener,
       Map<String, ?> params) {
@@ -2290,7 +2291,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return new OLiveQueryMonitorRemote(database, response.getMonitorId());
   }
 
-  public void unsubscribeLive(ODatabaseSessionRemote database, int monitorId) {
+  public void unsubscribeLive(YTDatabaseSessionRemote database, int monitorId) {
     OUnsubscribeRequest request =
         new OUnsubscribeRequest(new OUnsubscribeLiveQueryRequest(monitorId));
     networkOperation(database, request, "Error on unsubscribe of live query");
@@ -2452,11 +2453,11 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return status;
   }
 
-  public void close(ODatabaseSessionInternal session) {
+  public void close(YTDatabaseSessionInternal session) {
     close(session, false);
   }
 
-  public boolean dropCluster(ODatabaseSessionInternal session, final String iClusterName) {
+  public boolean dropCluster(YTDatabaseSessionInternal session, final String iClusterName) {
     return dropCluster(session, getClusterIdByName(iClusterName));
   }
 

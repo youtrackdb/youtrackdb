@@ -16,15 +16,15 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,8 +40,8 @@ import org.testng.annotations.Test;
 @Test
 public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
-  protected ODatabaseSessionInternal database1;
-  protected ODatabaseSessionInternal database2;
+  protected YTDatabaseSessionInternal database1;
+  protected YTDatabaseSessionInternal database2;
 
   public static final String NAME = "name";
 
@@ -57,20 +57,20 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.begin();
 
     // Create docA.
-    ODocument vDocA_db1 = database1.newInstance();
+    YTDocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.save(vDocA_db1);
 
     // Create docB.
-    ODocument vDocB_db1 = database1.newInstance();
+    YTDocument vDocB_db1 = database1.newInstance();
     vDocB_db1.field(NAME, "docB");
 
     database1.save(vDocB_db1);
     database1.commit();
 
     // Keep the IDs.
-    ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
-    ORID vDocB_Rid = vDocB_db1.getIdentity().copy();
+    YTRID vDocA_Rid = vDocA_db1.getIdentity().copy();
+    YTRID vDocB_Rid = vDocB_db1.getIdentity().copy();
 
     int vDocA_version = -1;
     int vDocB_version = -1;
@@ -79,7 +79,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      ODocument vDocA_db2 = database2.load(vDocA_Rid);
+      YTDocument vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -108,7 +108,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       // Update docB in db2 transaction context -> should be rollbacked.
       database2.activateOnCurrentThread();
-      ODocument vDocB_db2 = database2.load(vDocB_Rid);
+      YTDocument vDocB_db2 = database2.load(vDocB_Rid);
       vDocB_db2.field(NAME, "docB_UpdatedInTranscationThatWillBeRollbacked");
       database2.save(vDocB_db2);
 
@@ -126,12 +126,12 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.activateOnCurrentThread();
     database2 = acquireSession();
 
-    ODocument vDocA_db2 = database2.load(vDocA_Rid);
+    YTDocument vDocA_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocA_db2.field(NAME), "docA_v3");
     Assert.assertEquals(vDocA_db2.getVersion(), vDocA_version);
 
     // docB should be in the first state : "docB"
-    ODocument vDocB_db2 = database2.load(vDocB_Rid);
+    YTDocument vDocB_db2 = database2.load(vDocB_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docB");
     Assert.assertEquals(vDocB_db2.getVersion(), vDocB_version);
 
@@ -143,20 +143,20 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1 = acquireSession();
 
     // Create docA.
-    ODocument vDocA_db1 = database1.newInstance();
+    YTDocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
     database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the IDs.
-    ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
+    YTRID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     database2 = acquireSession();
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      ODocument vDocA_db2 = database2.load(vDocA_Rid);
+      YTDocument vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -190,7 +190,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2 = acquireSession();
 
     // docB should be in the last state : "docA_v3"
-    ODocument vDocB_db2 = database2.load(vDocA_Rid);
+    YTDocument vDocB_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docA_v3");
 
     database1.activateOnCurrentThread();
@@ -205,20 +205,20 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1 = acquireSession();
 
     // Create docA.
-    ODocument vDocA_db1 = database1.newInstance();
+    YTDocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
     database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the IDs.
-    ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
+    YTRID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     database2 = acquireSession();
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      ODocument vDocA_db2 = database2.load(vDocA_Rid);
+      YTDocument vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -253,7 +253,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2 = acquireSession();
 
     // docB should be in the last state : "docA_v3"
-    ODocument vDocB_db2 = database2.load(vDocA_Rid);
+    YTDocument vDocB_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docA_v3");
 
     database1.activateOnCurrentThread();
@@ -268,18 +268,18 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     // Create docA in db1
     database1.begin();
-    ODocument vDocA_db1 = database1.newInstance();
+    YTDocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the ID.
-    ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
+    YTRID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     // Update docA in db2
     database2 = acquireSession();
     database2.begin();
-    ODocument vDocA_db2 = database2.load(vDocA_Rid);
+    YTDocument vDocA_db2 = database2.load(vDocA_Rid);
     vDocA_db2.field(NAME, "docA_v2");
     database2.save(vDocA_db2);
     database2.commit();
@@ -287,7 +287,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Later... read docA with db1.
     database1.activateOnCurrentThread();
     database1.begin();
-    ODocument vDocA_db1_later = database1.load(vDocA_Rid);
+    YTDocument vDocA_db1_later = database1.load(vDocA_Rid);
     Assert.assertEquals(vDocA_db1_later.field(NAME), "docA_v2");
     database1.commit();
 
@@ -303,15 +303,15 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database = acquireSession();
     database.begin();
 
-    ODocument kim = new ODocument("Profile").field("name", "Kim").field("surname", "Bauer");
-    ODocument teri = new ODocument("Profile").field("name", "Teri").field("surname", "Bauer");
-    ODocument jack = new ODocument("Profile").field("name", "Jack").field("surname", "Bauer");
+    YTDocument kim = new YTDocument("Profile").field("name", "Kim").field("surname", "Bauer");
+    YTDocument teri = new YTDocument("Profile").field("name", "Teri").field("surname", "Bauer");
+    YTDocument jack = new YTDocument("Profile").field("name", "Jack").field("surname", "Bauer");
 
-    ((HashSet<ODocument>) jack.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) jack.field("following", new HashSet<YTDocument>()).field("following"))
         .add(kim);
-    ((HashSet<ODocument>) kim.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) kim.field("following", new HashSet<YTDocument>()).field("following"))
         .add(teri);
-    ((HashSet<ODocument>) teri.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) teri.field("following", new HashSet<YTDocument>()).field("following"))
         .add(jack);
 
     jack.save();
@@ -321,7 +321,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
-    ODocument loadedJack = database.load(jack.getIdentity());
+    YTDocument loadedJack = database.load(jack.getIdentity());
 
     int jackLastVersion = loadedJack.getVersion();
     database.begin();
@@ -347,30 +347,30 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void createLinkInTx() {
     database = createSessionInstance();
 
-    OClass profile = database.getMetadata().getSchema().createClass("MyProfile", 1);
-    OClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1);
+    YTClass profile = database.getMetadata().getSchema().createClass("MyProfile", 1);
+    YTClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1);
     profile
-        .createProperty(database, "name", OType.STRING)
+        .createProperty(database, "name", YTType.STRING)
         .setMin(database, "3")
         .setMax(database, "30")
-        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
-    profile.createProperty(database, "surname", OType.STRING).setMin(database, "3")
+        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+    profile.createProperty(database, "surname", YTType.STRING).setMin(database, "3")
         .setMax(database, "30");
-    profile.createProperty(database, "in", OType.LINKSET, edge);
-    profile.createProperty(database, "out", OType.LINKSET, edge);
-    edge.createProperty(database, "in", OType.LINK, profile);
-    edge.createProperty(database, "out", OType.LINK, profile);
+    profile.createProperty(database, "in", YTType.LINKSET, edge);
+    profile.createProperty(database, "out", YTType.LINKSET, edge);
+    edge.createProperty(database, "in", YTType.LINK, profile);
+    edge.createProperty(database, "out", YTType.LINK, profile);
 
     database.begin();
 
-    ODocument kim = new ODocument("MyProfile").field("name", "Kim").field("surname", "Bauer");
-    ODocument teri = new ODocument("MyProfile").field("name", "Teri").field("surname", "Bauer");
-    ODocument jack = new ODocument("MyProfile").field("name", "Jack").field("surname", "Bauer");
+    YTDocument kim = new YTDocument("MyProfile").field("name", "Kim").field("surname", "Bauer");
+    YTDocument teri = new YTDocument("MyProfile").field("name", "Teri").field("surname", "Bauer");
+    YTDocument jack = new YTDocument("MyProfile").field("name", "Jack").field("surname", "Bauer");
 
-    ODocument myedge = new ODocument("MyEdge").field("in", kim).field("out", jack);
+    YTDocument myedge = new YTDocument("MyEdge").field("in", kim).field("out", jack);
     myedge.save();
-    ((HashSet<ODocument>) kim.field("out", new HashSet<ORID>()).field("out")).add(myedge);
-    ((HashSet<ODocument>) jack.field("in", new HashSet<ORID>()).field("in")).add(myedge);
+    ((HashSet<YTDocument>) kim.field("out", new HashSet<YTRID>()).field("out")).add(myedge);
+    ((HashSet<YTDocument>) jack.field("in", new HashSet<YTRID>()).field("in")).add(myedge);
 
     jack.save();
     kim.save();
@@ -387,22 +387,22 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void loadRecordTest() {
     database.begin();
 
-    ODocument kim = new ODocument("Profile").field("name", "Kim").field("surname", "Bauer");
-    ODocument teri = new ODocument("Profile").field("name", "Teri").field("surname", "Bauer");
-    ODocument jack = new ODocument("Profile").field("name", "Jack").field("surname", "Bauer");
-    ODocument chloe = new ODocument("Profile").field("name", "Chloe").field("surname", "O'Brien");
+    YTDocument kim = new YTDocument("Profile").field("name", "Kim").field("surname", "Bauer");
+    YTDocument teri = new YTDocument("Profile").field("name", "Teri").field("surname", "Bauer");
+    YTDocument jack = new YTDocument("Profile").field("name", "Jack").field("surname", "Bauer");
+    YTDocument chloe = new YTDocument("Profile").field("name", "Chloe").field("surname", "O'Brien");
 
-    ((HashSet<ODocument>) jack.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) jack.field("following", new HashSet<YTDocument>()).field("following"))
         .add(kim);
-    ((HashSet<ODocument>) kim.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) kim.field("following", new HashSet<YTDocument>()).field("following"))
         .add(teri);
-    ((HashSet<ODocument>) teri.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) teri.field("following", new HashSet<YTDocument>()).field("following"))
         .add(jack);
-    ((HashSet<ODocument>) teri.field("following")).add(kim);
-    ((HashSet<ODocument>) chloe.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) teri.field("following")).add(kim);
+    ((HashSet<YTDocument>) chloe.field("following", new HashSet<YTDocument>()).field("following"))
         .add(jack);
-    ((HashSet<ODocument>) chloe.field("following")).add(teri);
-    ((HashSet<ODocument>) chloe.field("following")).add(kim);
+    ((HashSet<YTDocument>) chloe.field("following")).add(teri);
+    ((HashSet<YTDocument>) chloe.field("following")).add(kim);
 
     var schema = database.getSchema();
     var profileClusterIds =
@@ -430,29 +430,29 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   @Test
   public void testTransactionPopulateDelete() {
     if (!database.getMetadata().getSchema().existsClass("MyFruit")) {
-      OClass fruitClass = database.getMetadata().getSchema().createClass("MyFruit");
-      fruitClass.createProperty(database, "name", OType.STRING);
-      fruitClass.createProperty(database, "color", OType.STRING);
-      fruitClass.createProperty(database, "flavor", OType.STRING);
+      YTClass fruitClass = database.getMetadata().getSchema().createClass("MyFruit");
+      fruitClass.createProperty(database, "name", YTType.STRING);
+      fruitClass.createProperty(database, "color", YTType.STRING);
+      fruitClass.createProperty(database, "flavor", YTType.STRING);
 
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("name")
-          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("color")
-          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("flavor")
-          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
     }
 
     int chunkSize = 10;
@@ -467,11 +467,11 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
               + ")");
 
       // do insert
-      List<ODocument> v = new ArrayList<>();
+      List<YTDocument> v = new ArrayList<>();
       database.begin();
       for (int i = initialValue * chunkSize; i < (initialValue * chunkSize) + chunkSize; i++) {
-        ODocument d =
-            new ODocument("MyFruit")
+        YTDocument d =
+            new YTDocument("MyFruit")
                 .field("name", "" + i)
                 .field("color", "FOO")
                 .field("flavor", "BAR" + i);
@@ -493,7 +493,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       // do delete
       database.begin();
-      for (ODocument entries : v) {
+      for (YTDocument entries : v) {
         database.delete(database.bindToSession(entries));
       }
       database.commit();
@@ -599,19 +599,19 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   }
 
   public void transactionRollbackConstistencyTest() {
-    OClass vertexClass = database.getMetadata().getSchema().createClass("TRVertex");
-    OClass edgeClass = database.getMetadata().getSchema().createClass("TREdge");
-    vertexClass.createProperty(database, "in", OType.LINKSET, edgeClass);
-    vertexClass.createProperty(database, "out", OType.LINKSET, edgeClass);
-    edgeClass.createProperty(database, "in", OType.LINK, vertexClass);
-    edgeClass.createProperty(database, "out", OType.LINK, vertexClass);
+    YTClass vertexClass = database.getMetadata().getSchema().createClass("TRVertex");
+    YTClass edgeClass = database.getMetadata().getSchema().createClass("TREdge");
+    vertexClass.createProperty(database, "in", YTType.LINKSET, edgeClass);
+    vertexClass.createProperty(database, "out", YTType.LINKSET, edgeClass);
+    edgeClass.createProperty(database, "in", YTType.LINK, vertexClass);
+    edgeClass.createProperty(database, "out", YTType.LINK, vertexClass);
 
-    OClass personClass = database.getMetadata().getSchema().createClass("TRPerson", vertexClass);
-    personClass.createProperty(database, "name", OType.STRING)
-        .createIndex(database, OClass.INDEX_TYPE.UNIQUE);
-    personClass.createProperty(database, "surname", OType.STRING)
-        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
-    personClass.createProperty(database, "version", OType.INTEGER);
+    YTClass personClass = database.getMetadata().getSchema().createClass("TRPerson", vertexClass);
+    personClass.createProperty(database, "name", YTType.STRING)
+        .createIndex(database, YTClass.INDEX_TYPE.UNIQUE);
+    personClass.createProperty(database, "surname", YTType.STRING)
+        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+    personClass.createProperty(database, "version", YTType.INTEGER);
 
     database.close();
 
@@ -619,22 +619,22 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<OElement> inserted = new ArrayList<>();
+    List<YTEntity> inserted = new ArrayList<>();
 
     for (int i = 0; i < cnt; i++) {
-      ODocument person = new ODocument("TRPerson");
+      YTDocument person = new YTDocument("TRPerson");
       person.field("name", Character.toString((char) ('A' + i)));
       person.field("surname", Character.toString((char) ('A' + (i % 3))));
       person.field("myversion", 0);
-      person.field("in", new HashSet<ODocument>());
-      person.field("out", new HashSet<ODocument>());
+      person.field("in", new HashSet<YTDocument>());
+      person.field("out", new HashSet<YTDocument>());
 
       if (i >= 1) {
-        ODocument edge = new ODocument("TREdge");
+        YTDocument edge = new YTDocument("TREdge");
         edge.field("in", person.getIdentity());
         edge.field("out", inserted.get(i - 1));
-        (person.<Set<ODocument>>getProperty("out")).add(edge);
-        (database.bindToSession(inserted.get(i - 1)).<Set<ODocument>>getProperty("in")).add(edge);
+        (person.<Set<YTDocument>>getProperty("out")).add(edge);
+        (database.bindToSession(inserted.get(i - 1)).<Set<YTDocument>>getProperty("in")).add(edge);
         edge.save();
       }
       inserted.add(person);
@@ -648,22 +648,22 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     try {
       database.executeInTx(
           () -> {
-            List<OElement> inserted2 = new ArrayList<>();
+            List<YTEntity> inserted2 = new ArrayList<>();
 
             for (int i = 0; i < cnt; i++) {
-              ODocument person = new ODocument("TRPerson");
+              YTDocument person = new YTDocument("TRPerson");
               person.field("name", Character.toString((char) ('a' + i)));
               person.field("surname", Character.toString((char) ('a' + (i % 3))));
               person.field("myversion", 0);
-              person.field("in", new HashSet<ODocument>());
-              person.field("out", new HashSet<ODocument>());
+              person.field("in", new HashSet<YTDocument>());
+              person.field("out", new HashSet<YTDocument>());
 
               if (i >= 1) {
-                ODocument edge = new ODocument("TREdge");
+                YTDocument edge = new YTDocument("TREdge");
                 edge.field("in", person.getIdentity());
                 edge.field("out", inserted2.get(i - 1));
-                (person.<Set<ODocument>>getProperty("out")).add(edge);
-                ((inserted2.get(i - 1)).<Set<ODocument>>getProperty("in")).add(edge);
+                (person.<Set<YTDocument>>getProperty("out")).add(edge);
+                ((inserted2.get(i - 1)).<Set<YTDocument>>getProperty("in")).add(edge);
                 edge.save();
               }
 
@@ -673,13 +673,13 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
             for (int i = 0; i < cnt; i++) {
               if (i != cnt - 1) {
-                var doc = database.bindToSession((ODocument) inserted.get(i));
+                var doc = database.bindToSession((YTDocument) inserted.get(i));
                 doc.setProperty("myversion", 2);
                 doc.save();
               }
             }
 
-            var doc = ((ODocument) inserted.get(cnt - 1));
+            var doc = ((YTDocument) inserted.get(cnt - 1));
             database.bindToSession(doc).delete();
 
             throw new IllegalStateException();
@@ -743,7 +743,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     var address2 = database.newElement("Address");
     address2.setProperty("street", "Via Veneto");
 
-    List<OElement> addresses = new ArrayList<>();
+    List<YTEntity> addresses = new ArrayList<>();
     addresses.add(address1);
     addresses.add(address2);
 
@@ -755,24 +755,24 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database.begin();
     account = database.bindToSession(account);
     String originalName = account.getProperty("name");
-    Assert.assertEquals(account.<List<OIdentifiable>>getProperty("addresses").size(), 2);
+    Assert.assertEquals(account.<List<YTIdentifiable>>getProperty("addresses").size(), 2);
     account
-        .<List<OIdentifiable>>getProperty("addresses")
+        .<List<YTIdentifiable>>getProperty("addresses")
         .remove(1); // delete one of the objects in the Books collection to see how rollback behaves
-    Assert.assertEquals(account.<List<OIdentifiable>>getProperty("addresses").size(), 1);
+    Assert.assertEquals(account.<List<YTIdentifiable>>getProperty("addresses").size(), 1);
     account.setProperty(
         "name", "New Name"); // change an attribute to see if the change is rolled back
     account = database.save(account);
 
     Assert.assertEquals(
-        account.<List<OIdentifiable>>getProperty("addresses").size(),
+        account.<List<YTIdentifiable>>getProperty("addresses").size(),
         1); // before rollback this is fine because one of the books was removed
 
     database.rollback(); // rollback the transaction
 
     account = database.bindToSession(account);
     Assert.assertEquals(
-        account.<List<OIdentifiable>>getProperty("addresses").size(),
+        account.<List<YTIdentifiable>>getProperty("addresses").size(),
         2); // this is fine, author still linked to 2 books
     Assert.assertEquals(account.getProperty("name"), originalName); // name is restored
 
@@ -789,16 +789,16 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
   public void testTransactionsCache() {
     Assert.assertFalse(database.getTransaction().isActive());
-    OSchema schema = database.getMetadata().getSchema();
-    OClass classA = schema.createClass("TransA");
-    classA.createProperty(database, "name", OType.STRING);
-    ODocument doc = new ODocument(classA);
+    YTSchema schema = database.getMetadata().getSchema();
+    YTClass classA = schema.createClass("TransA");
+    classA.createProperty(database, "name", YTType.STRING);
+    YTDocument doc = new YTDocument(classA);
     doc.field("name", "test1");
 
     database.begin();
     doc.save();
     database.commit();
-    ORID orid = doc.getIdentity();
+    YTRID orid = doc.getIdentity();
     database.begin();
     Assert.assertTrue(database.getTransaction().isActive());
     doc = orid.getRecord();

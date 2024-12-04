@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.client.remote.message.sequence;
 
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
 import java.io.DataInput;
@@ -126,7 +126,7 @@ public class OSequenceActionRequest {
       serializeLong(action.getCurrentValue(), out);
       out.writeByte(action.getSequenceType().getVal());
 
-      OSequence.CreateParams params = action.getParameters();
+      YTSequence.CreateParams params = action.getParameters();
       if (params == null) {
         out.writeByte(0);
       } else {
@@ -154,15 +154,15 @@ public class OSequenceActionRequest {
       String sequenceName = new String(nameBytes, StandardCharsets.UTF_8);
       Long currentValue = deserializeLong(in);
       byte sequenceTypeByte = in.readByte();
-      OSequence.SEQUENCE_TYPE sequenceType = OSequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);
+      YTSequence.SEQUENCE_TYPE sequenceType = YTSequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);
       if (sequenceType == null) {
         throw new IOException("Inavlid sequnce type value: " + sequenceTypeByte);
       }
 
-      OSequence.CreateParams params = null;
+      YTSequence.CreateParams params = null;
       byte paramsNullFlag = in.readByte();
       if (paramsNullFlag > 0) {
-        params = new OSequence.CreateParams();
+        params = new YTSequence.CreateParams();
         params.resetNull();
         params.setStart(deserializeLong(in));
         params.setIncrement(deserializeInt(in));

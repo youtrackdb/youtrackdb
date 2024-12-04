@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.query;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ import org.junit.Test;
 public class RemoteDropClusterTest extends BaseServerMemoryDatabase {
 
   public void beforeTest() {
-    OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.setValue(1);
+    YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.setValue(1);
     super.beforeTest();
   }
 

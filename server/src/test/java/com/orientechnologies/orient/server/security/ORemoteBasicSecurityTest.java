@@ -2,11 +2,11 @@ package com.orientechnologies.orient.server.security;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class ORemoteBasicSecurityTest {
       NotCompliantMBeanException,
       ClassNotFoundException,
       MalformedObjectNameException {
-    OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
 
     YouTrackDB youTrackDB =
@@ -43,10 +43,10 @@ public class ORemoteBasicSecurityTest {
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin, reader"
             + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
-    try (ODatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
+    try (YTDatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
       session.createClass("one");
       session.begin();
-      session.save(new ODocument("one"));
+      session.save(new YTDocument("one"));
       session.commit();
     }
     youTrackDB.close();
@@ -57,9 +57,9 @@ public class ORemoteBasicSecurityTest {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (ODatabaseSession writer = writerOrient.open("test", "writer", "writer")) {
+      try (YTDatabaseSession writer = writerOrient.open("test", "writer", "writer")) {
         writer.begin();
-        writer.save(new ODocument("one"));
+        writer.save(new YTDocument("one"));
         writer.commit();
         try (OResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 2);
@@ -73,7 +73,7 @@ public class ORemoteBasicSecurityTest {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (ODatabaseSession writer = writerOrient.open("test", "reader", "reader")) {
+      try (YTDatabaseSession writer = writerOrient.open("test", "reader", "reader")) {
         try (OResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 1);
         }

@@ -21,14 +21,14 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
@@ -45,18 +45,18 @@ import java.util.Set;
 public class OClassIndexManager {
 
   public static void checkIndexesAfterCreate(
-      ODocument document, ODatabaseSessionInternal database) {
+      YTDocument document, YTDatabaseSessionInternal database) {
     document = checkForLoading(database, document);
     processIndexOnCreate(database, document);
   }
 
-  public static void reIndex(ODatabaseSessionInternal session, ODocument document, OIndex index) {
+  public static void reIndex(YTDatabaseSessionInternal session, YTDocument document, OIndex index) {
     document = checkForLoading(session, document);
     addIndexEntry(session, document, document.getIdentity(), index);
   }
 
-  public static void processIndexOnCreate(ODatabaseSessionInternal database, ODocument document) {
-    final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, document);
+  public static void processIndexOnCreate(YTDatabaseSessionInternal database, YTDocument document) {
+    final YTImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, document);
     if (cls != null) {
       final Collection<OIndex> indexes = cls.getRawIndexes();
       addIndexesEntries(database, document, indexes);
@@ -64,13 +64,14 @@ public class OClassIndexManager {
   }
 
   public static void checkIndexesAfterUpdate(
-      ODocument iDocument, ODatabaseSessionInternal database) {
+      YTDocument iDocument, YTDatabaseSessionInternal database) {
     iDocument = checkForLoading(database, iDocument);
     processIndexOnUpdate(database, iDocument);
   }
 
-  public static void processIndexOnUpdate(ODatabaseSessionInternal database, ODocument iDocument) {
-    final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
+  public static void processIndexOnUpdate(YTDatabaseSessionInternal database,
+      YTDocument iDocument) {
+    final YTImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls == null) {
       return;
     }
@@ -87,15 +88,15 @@ public class OClassIndexManager {
   }
 
   public static void checkIndexesAfterDelete(
-      ODocument iDocument, ODatabaseSessionInternal database) {
+      YTDocument iDocument, YTDatabaseSessionInternal database) {
     processIndexOnDelete(database, iDocument);
   }
 
   private static void processCompositeIndexUpdate(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OIndex index,
       final Set<String> dirtyFields,
-      final ODocument iRecord) {
+      final YTDocument iRecord) {
     final OCompositeIndexDefinition indexDefinition =
         (OCompositeIndexDefinition) index.getDefinition();
 
@@ -192,8 +193,8 @@ public class OClassIndexManager {
   private static void processSingleIndexUpdate(
       final OIndex index,
       final Set<String> dirtyFields,
-      final ODocument iRecord,
-      ODatabaseSessionInternal session) {
+      final YTDocument iRecord,
+      YTDatabaseSessionInternal session) {
     final OIndexDefinition indexDefinition = index.getDefinition();
     final List<String> indexFields = indexDefinition.getFields();
 
@@ -239,7 +240,7 @@ public class OClassIndexManager {
   }
 
   private static void processIndexUpdateFieldAssignment(
-      ODatabaseSessionInternal session, OIndex index, ODocument iRecord, final Object origValue,
+      YTDatabaseSessionInternal session, OIndex index, YTDocument iRecord, final Object origValue,
       final Object newValue) {
     final OIndexDefinition indexDefinition = index.getDefinition();
     if ((origValue instanceof Collection) && (newValue instanceof Collection)) {
@@ -273,10 +274,10 @@ public class OClassIndexManager {
   }
 
   private static boolean processCompositeIndexDelete(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OIndex index,
       final Set<String> dirtyFields,
-      final ODocument iRecord) {
+      final YTDocument iRecord) {
     final OCompositeIndexDefinition indexDefinition =
         (OCompositeIndexDefinition) index.getDefinition();
 
@@ -327,7 +328,7 @@ public class OClassIndexManager {
   }
 
   private static void deleteIndexKey(
-      ODatabaseSessionInternal session, final OIndex index, final ODocument iRecord,
+      YTDatabaseSessionInternal session, final OIndex index, final YTDocument iRecord,
       final Object origValue) {
     final OIndexDefinition indexDefinition = index.getDefinition();
     if (origValue instanceof Collection) {
@@ -343,10 +344,10 @@ public class OClassIndexManager {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static boolean processSingleIndexDelete(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OIndex index,
       final Set<String> dirtyFields,
-      final ODocument iRecord) {
+      final YTDocument iRecord) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     final List<String> indexFields = indexDefinition.getFields();
@@ -375,8 +376,8 @@ public class OClassIndexManager {
     return false;
   }
 
-  private static ODocument checkForLoading(ODatabaseSessionInternal session,
-      final ODocument iRecord) {
+  private static YTDocument checkForLoading(YTDatabaseSessionInternal session,
+      final YTDocument iRecord) {
     if (iRecord.isUnloaded()) {
       try {
         return session.load(iRecord.getIdentity());
@@ -390,8 +391,8 @@ public class OClassIndexManager {
   }
 
   public static void processIndexUpdate(
-      ODatabaseSessionInternal session,
-      ODocument iDocument,
+      YTDatabaseSessionInternal session,
+      YTDocument iDocument,
       Set<String> dirtyFields,
       OIndex index) {
     if (index.getDefinition() instanceof OCompositeIndexDefinition) {
@@ -402,9 +403,9 @@ public class OClassIndexManager {
   }
 
   public static void addIndexesEntries(
-      ODatabaseSessionInternal session, ODocument document, final Collection<OIndex> indexes) {
+      YTDatabaseSessionInternal session, YTDocument document, final Collection<OIndex> indexes) {
     // STORE THE RECORD IF NEW, OTHERWISE ITS RID
-    final OIdentifiable rid = document.getIdentity();
+    final YTIdentifiable rid = document.getIdentity();
 
     for (final OIndex index : indexes) {
       addIndexEntry(session, document, rid, index);
@@ -412,7 +413,7 @@ public class OClassIndexManager {
   }
 
   private static void addIndexEntry(
-      ODatabaseSessionInternal session, ODocument document, OIdentifiable rid, OIndex index) {
+      YTDatabaseSessionInternal session, YTDocument document, YTIdentifiable rid, OIndex index) {
     final OIndexDefinition indexDefinition = index.getDefinition();
     final Object key = indexDefinition.getDocumentValueToIndex(session, document);
     if (key instanceof Collection) {
@@ -426,8 +427,9 @@ public class OClassIndexManager {
     }
   }
 
-  public static void processIndexOnDelete(ODatabaseSessionInternal database, ODocument iDocument) {
-    final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
+  public static void processIndexOnDelete(YTDatabaseSessionInternal database,
+      YTDocument iDocument) {
+    final YTImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls == null) {
       return;
     }
@@ -465,13 +467,13 @@ public class OClassIndexManager {
     }
   }
 
-  private static void addPut(ODatabaseSessionInternal session, OIndex index, Object key,
-      OIdentifiable value) {
+  private static void addPut(YTDatabaseSessionInternal session, OIndex index, Object key,
+      YTIdentifiable value) {
     index.put(session, key, value);
   }
 
-  private static void addRemove(ODatabaseSessionInternal session, OIndex index, Object key,
-      OIdentifiable value) {
+  private static void addRemove(YTDatabaseSessionInternal session, OIndex index, Object key,
+      YTIdentifiable value) {
     index.remove(session, key, value);
   }
 }

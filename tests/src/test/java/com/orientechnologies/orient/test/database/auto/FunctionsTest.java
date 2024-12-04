@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void createFunctionBug2415() {
-    OIdentifiable result =
+    YTIdentifiable result =
         database
             .command(
                 new OCommandSQL(
@@ -48,7 +48,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
             .execute(database);
 
     database.begin();
-    final ODocument record = result.getRecord();
+    final YTDocument record = result.getRecord();
     final List<String> parameters = record.field("parameters");
 
     Assert.assertNotNull(parameters);
@@ -66,7 +66,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void testFunctionCacheAndReload() {
-    OIdentifiable f =
+    YTIdentifiable f =
         database
             .command(new OCommandSQL("create function testCache \"return 1;\" LANGUAGE Javascript"))
             .execute(database);
@@ -77,7 +77,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    ODocument func = f.getRecord();
+    YTDocument func = f.getRecord();
     func.field("code", "return 2;");
     func.save();
     database.commit();
@@ -92,7 +92,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     database.command("create function testMTCall \"return 3;\" LANGUAGE Javascript").close();
 
     final int TOT = 1000;
-    final int threadNum = OGlobalConfiguration.SCRIPT_POOL.getValueAsInteger() * 3;
+    final int threadNum = YTGlobalConfiguration.SCRIPT_POOL.getValueAsInteger() * 3;
     final AtomicLong counter = new AtomicLong();
 
     final Thread[] threads = new Thread[threadNum];

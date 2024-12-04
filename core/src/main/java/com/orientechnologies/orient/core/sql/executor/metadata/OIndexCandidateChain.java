@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor.metadata;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +58,7 @@ public class OIndexCandidateChain implements OIndexCandidate {
   }
 
   @Override
-  public List<OProperty> properties() {
+  public List<YTProperty> properties() {
     return Collections.emptyList();
   }
 }

@@ -32,7 +32,7 @@ public class OContextConfiguration implements Serializable {
   private final Map<String, Object> config = new ConcurrentHashMap<String, Object>();
 
   /**
-   * Empty constructor to create just a proxy for the OGlobalConfiguration. No values are setted.
+   * Empty constructor to create just a proxy for the YTGlobalConfiguration. No values are setted.
    */
   public OContextConfiguration() {
   }
@@ -52,7 +52,7 @@ public class OContextConfiguration implements Serializable {
     }
   }
 
-  public Object setValue(final OGlobalConfiguration iConfig, final Object iValue) {
+  public Object setValue(final YTGlobalConfiguration iConfig, final Object iValue) {
     if (iValue == null) {
       return config.remove(iConfig.getKey());
     }
@@ -68,7 +68,7 @@ public class OContextConfiguration implements Serializable {
     return config.put(iName, iValue);
   }
 
-  public Object getValue(final OGlobalConfiguration iConfig) {
+  public Object getValue(final YTGlobalConfiguration iConfig) {
     if (config != null && config.containsKey(iConfig.getKey())) {
       return config.get(iConfig.getKey());
     }
@@ -78,7 +78,7 @@ public class OContextConfiguration implements Serializable {
   /**
    * @param config Global configuration parameter.
    * @return Value of configuration parameter stored in this context as enumeration if such one
-   * exists, otherwise value stored in passed in {@link OGlobalConfiguration} instance.
+   * exists, otherwise value stored in passed in {@link YTGlobalConfiguration} instance.
    * @throws ClassCastException       if stored value can not be casted and parsed from string to
    *                                  passed in enumeration class.
    * @throws IllegalArgumentException if value associated with configuration parameter is a string
@@ -86,7 +86,7 @@ public class OContextConfiguration implements Serializable {
    *                                  class.
    */
   public <T extends Enum<T>> T getValueAsEnum(
-      final OGlobalConfiguration config, Class<T> enumType) {
+      final YTGlobalConfiguration config, Class<T> enumType) {
     final Object value;
     if (this.config != null && this.config.containsKey(config.getKey())) {
       value = this.config.get(config.getKey());
@@ -123,7 +123,7 @@ public class OContextConfiguration implements Serializable {
     return iDefaultValue;
   }
 
-  public boolean getValueAsBoolean(final OGlobalConfiguration iConfig) {
+  public boolean getValueAsBoolean(final YTGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
     if (v == null) {
       return false;
@@ -135,7 +135,7 @@ public class OContextConfiguration implements Serializable {
     return getValue(iName, iDefaultValue);
   }
 
-  public String getValueAsString(final OGlobalConfiguration iConfig) {
+  public String getValueAsString(final YTGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
     if (v == null) {
       return null;
@@ -143,7 +143,7 @@ public class OContextConfiguration implements Serializable {
     return v.toString();
   }
 
-  public int getValueAsInteger(final OGlobalConfiguration iConfig) {
+  public int getValueAsInteger(final YTGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
     if (v == null) {
       return 0;
@@ -151,7 +151,7 @@ public class OContextConfiguration implements Serializable {
     return v instanceof Integer ? ((Integer) v).intValue() : Integer.parseInt(v.toString());
   }
 
-  public long getValueAsLong(final OGlobalConfiguration iConfig) {
+  public long getValueAsLong(final YTGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
     if (v == null) {
       return 0;
@@ -159,7 +159,7 @@ public class OContextConfiguration implements Serializable {
     return v instanceof Long ? ((Long) v).intValue() : Long.parseLong(v.toString());
   }
 
-  public float getValueAsFloat(final OGlobalConfiguration iConfig) {
+  public float getValueAsFloat(final YTGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
     if (v == null) {
       return 0;

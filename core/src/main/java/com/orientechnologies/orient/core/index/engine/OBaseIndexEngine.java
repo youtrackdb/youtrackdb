@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.index.engine;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
@@ -27,29 +27,29 @@ public interface OBaseIndexEngine {
 
   void close();
 
-  Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
       boolean ascSortOrder,
       IndexEngineValuesTransformer transformer);
 
-  Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
       IndexEngineValuesTransformer transformer);
 
-  Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       final Object toKey,
       final boolean isInclusive,
       boolean ascSortOrder,
       IndexEngineValuesTransformer transformer);
 
-  Stream<ORawPair<Object, ORID>> stream(IndexEngineValuesTransformer valuesTransformer);
+  Stream<ORawPair<Object, YTRID>> stream(IndexEngineValuesTransformer valuesTransformer);
 
-  Stream<ORawPair<Object, ORID>> descStream(IndexEngineValuesTransformer valuesTransformer);
+  Stream<ORawPair<Object, YTRID>> descStream(IndexEngineValuesTransformer valuesTransformer);
 
   Stream<Object> keyStream();
 

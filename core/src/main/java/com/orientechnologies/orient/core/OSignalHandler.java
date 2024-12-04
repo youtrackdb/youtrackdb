@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -73,7 +73,7 @@ public class OSignalHandler implements SignalHandler {
       System.exit(1);
     } else if (s.equals("SIGTRAP")) {
       System.out.println();
-      OGlobalConfiguration.dumpConfiguration(System.out);
+      YTGlobalConfiguration.dumpConfiguration(System.out);
       System.out.println();
       YouTrackDBManager.instance().getProfiler().dump(System.out);
       System.out.println();

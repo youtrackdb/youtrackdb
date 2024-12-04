@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.exception;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.exception.OHighLevelException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.Objects;
 
 /**
@@ -32,8 +32,8 @@ public class OConcurrentCreateException extends ONeedRetryException implements O
 
   private static final long serialVersionUID = 1L;
 
-  private ORID expectedRid;
-  private ORID actualRid;
+  private YTRID expectedRid;
+  private YTRID actualRid;
 
   public OConcurrentCreateException(OConcurrentCreateException exception) {
     super(exception, null);
@@ -46,7 +46,7 @@ public class OConcurrentCreateException extends ONeedRetryException implements O
     super(message);
   }
 
-  public OConcurrentCreateException(final ORID expectedRID, final ORID actualRid) {
+  public OConcurrentCreateException(final YTRID expectedRID, final YTRID actualRid) {
     super(makeMessage(expectedRID, actualRid));
 
     this.expectedRid = expectedRID;
@@ -67,15 +67,15 @@ public class OConcurrentCreateException extends ONeedRetryException implements O
     return Objects.hash(expectedRid, actualRid);
   }
 
-  public ORID getExpectedRid() {
+  public YTRID getExpectedRid() {
     return expectedRid;
   }
 
-  public ORID getActualRid() {
+  public YTRID getActualRid() {
     return actualRid;
   }
 
-  private static String makeMessage(ORID expectedRid, ORID actualRid) {
+  private static String makeMessage(YTRID expectedRid, YTRID actualRid) {
     String sb =
         "Cannot create the record "
             + expectedRid

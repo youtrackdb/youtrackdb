@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed.task;
 
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedDatabase;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest;
@@ -54,7 +54,7 @@ public interface ORemoteTask {
       ODistributedRequestId requestId,
       OServer iServer,
       ODistributedServerManager iManager,
-      ODatabaseSessionInternal database)
+      YTDatabaseSessionInternal database)
       throws Exception;
 
   long getDistributedTimeout();

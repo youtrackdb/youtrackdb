@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionSequenceStatus;
 import com.orientechnologies.orient.core.tx.OTxMetadataHolder;
@@ -39,7 +39,7 @@ public interface ODistributedDatabase {
 
   String dump();
 
-  void unlockResourcesOfServer(ODatabaseSessionInternal database, String serverName);
+  void unlockResourcesOfServer(YTDatabaseSessionInternal database, String serverName);
 
   /**
    * Unlocks all the record locked by node iNodeName
@@ -77,7 +77,7 @@ public interface ODistributedDatabase {
 
   ODistributedServerManager getManager();
 
-  ODatabaseSessionInternal getDatabaseInstance();
+  YTDatabaseSessionInternal getDatabaseInstance();
 
   long getReceivedRequests();
 

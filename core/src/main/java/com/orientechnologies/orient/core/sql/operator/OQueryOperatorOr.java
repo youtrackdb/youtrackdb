@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 
@@ -38,8 +38,8 @@ public class OQueryOperatorOr extends OQueryOperator {
 
   @Override
   public Object evaluateRecord(
-      final OIdentifiable iRecord,
-      ODocument iCurrentResult,
+      final YTIdentifiable iRecord,
+      YTDocument iCurrentResult,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -60,9 +60,10 @@ public class OQueryOperatorOr extends OQueryOperator {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
-    final ORID leftRange;
-    final ORID rightRange;
+  public YTRID getBeginRidRange(YTDatabaseSession session, final Object iLeft,
+      final Object iRight) {
+    final YTRID leftRange;
+    final YTRID rightRange;
 
     if (iLeft instanceof OSQLFilterCondition) {
       leftRange = ((OSQLFilterCondition) iLeft).getBeginRidRange(session);
@@ -84,9 +85,9 @@ public class OQueryOperatorOr extends OQueryOperator {
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
-    final ORID leftRange;
-    final ORID rightRange;
+  public YTRID getEndRidRange(YTDatabaseSession session, final Object iLeft, final Object iRight) {
+    final YTRID leftRange;
+    final YTRID rightRange;
 
     if (iLeft instanceof OSQLFilterCondition) {
       leftRange = ((OSQLFilterCondition) iLeft).getEndRidRange(session);

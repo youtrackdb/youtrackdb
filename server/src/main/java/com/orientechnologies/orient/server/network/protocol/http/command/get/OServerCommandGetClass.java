@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -40,13 +40,13 @@ public class OServerCommandGetClass extends OServerCommandAuthenticatedDbAbstrac
     iRequest.getData().commandInfo = "Returns the information of a class in the schema";
     iRequest.getData().commandDetail = urlParts[2];
 
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
       if (db.getMetadata().getSchema().existsClass(urlParts[2])) {
-        final OClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
+        final YTClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
         final StringWriter buffer = new StringWriter();
         final OJSONWriter json = new OJSONWriter(buffer, OHttpResponse.JSON_FORMAT);
         OServerCommandGetDatabase.exportClass(db, json, cls);

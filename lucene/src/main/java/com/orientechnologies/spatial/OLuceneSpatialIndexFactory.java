@@ -20,16 +20,16 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexEngineDelegator;
 import com.orientechnologies.spatial.index.OLuceneSpatialIndex;
@@ -46,7 +46,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
 
   static {
     final Set<String> types = new HashSet<String>();
-    types.add(OClass.INDEX_TYPE.SPATIAL.toString());
+    types.add(YTClass.INDEX_TYPE.SPATIAL.toString());
     TYPES = Collections.unmodifiableSet(types);
   }
 
@@ -102,16 +102,16 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
       storage
           .getComponentsFactory()
           .binarySerializerFactory
-          .registerSerializer(OLuceneMockSpatialSerializer.INSTANCE, OType.EMBEDDED);
+          .registerSerializer(OLuceneMockSpatialSerializer.INSTANCE, YTType.EMBEDDED);
     }
 
     if (metadata == null) {
-      var metadataDoc = new ODocument();
+      var metadataDoc = new YTDocument();
       metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
       im.setMetadata(metadataDoc);
     }
 
-    if (OClass.INDEX_TYPE.SPATIAL.toString().equals(indexType)) {
+    if (YTClass.INDEX_TYPE.SPATIAL.toString().equals(indexType)) {
       return new OLuceneSpatialIndex(im, storage);
     }
     throw new OConfigurationException("Unsupported type : " + algorithm);
@@ -129,27 +129,27 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public void onCreate(ODatabaseSessionInternal iDatabase) {
+  public void onCreate(YTDatabaseSessionInternal iDatabase) {
     spatialManager.init(iDatabase);
   }
 
   @Override
-  public void onOpen(ODatabaseSessionInternal iDatabase) {
+  public void onOpen(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {
+  public void onClose(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onDrop(final ODatabaseSessionInternal db) {
+  public void onDrop(final YTDatabaseSessionInternal db) {
     try {
       if (db.isClosed()) {
         return;
       }
 
       OLogManager.instance().debug(this, "Dropping spatial indexes...");
-      final ODatabaseSessionInternal internalDb = db;
+      final YTDatabaseSessionInternal internalDb = db;
       for (OIndex idx : internalDb.getMetadata().getIndexManagerInternal().getIndexes(internalDb)) {
 
         if (idx.getInternal() instanceof OLuceneSpatialIndex) {
@@ -163,14 +163,14 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  public void onCreateClass(YTDatabaseSessionInternal iDatabase, YTClass iClass) {
   }
 
   @Override
-  public void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  public void onDropClass(YTDatabaseSessionInternal iDatabase, YTClass iClass) {
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
   }
 }

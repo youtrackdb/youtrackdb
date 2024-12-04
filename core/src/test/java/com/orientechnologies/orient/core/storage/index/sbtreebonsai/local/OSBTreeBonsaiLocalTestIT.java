@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.storage.index.sbtreebonsai.local;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -31,8 +31,8 @@ import org.junit.Test;
 public class OSBTreeBonsaiLocalTestIT {
 
   private static final int KEYS_COUNT = 500000;
-  protected static OSBTreeBonsaiLocal<Integer, OIdentifiable> sbTree;
-  protected static ODatabaseSessionInternal db;
+  protected static OSBTreeBonsaiLocal<Integer, YTIdentifiable> sbTree;
+  protected static YTDatabaseSessionInternal db;
   private static OAtomicOperationsManager atomicOperationsManager;
 
   @BeforeClass
@@ -42,7 +42,7 @@ public class OSBTreeBonsaiLocalTestIT {
       buildDirectory = "./target";
     }
 
-    db = new ODatabaseDocumentTx("plocal:" + buildDirectory + "/localSBTreeBonsaiTest");
+    db = new YTDatabaseDocumentTx("plocal:" + buildDirectory + "/localSBTreeBonsaiTest");
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -97,12 +97,12 @@ public class OSBTreeBonsaiLocalTestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     for (int i = 0; i < KEYS_COUNT; i++) {
-      //      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i), i + " key is absent");
-      Assertions.assertThat(sbTree.get(i)).isEqualTo(new ORecordId(i % 32000, i));
+      //      Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i), i + " key is absent");
+      Assertions.assertThat(sbTree.get(i)).isEqualTo(new YTRecordId(i % 32000, i));
     }
 
     Assert.assertEquals(0, (int) sbTree.firstKey());
@@ -122,17 +122,17 @@ public class OSBTreeBonsaiLocalTestIT {
       int key = random.nextInt(Integer.MAX_VALUE);
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
       keys.add(key);
 
-      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+      Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
     }
 
     Assert.assertEquals(sbTree.firstKey(), keys.first());
     Assert.assertEquals(sbTree.lastKey(), keys.last());
 
     for (int key : keys) {
-      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+      Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
     }
   }
 
@@ -153,17 +153,17 @@ public class OSBTreeBonsaiLocalTestIT {
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
       keys.add(key);
 
-      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+      Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
     }
 
     Assert.assertEquals(sbTree.firstKey(), keys.first());
     Assert.assertEquals(sbTree.lastKey(), keys.last());
 
     for (int key : keys) {
-      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+      Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
     }
   }
 
@@ -174,7 +174,7 @@ public class OSBTreeBonsaiLocalTestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
       keys.add(i);
     }
 
@@ -195,7 +195,7 @@ public class OSBTreeBonsaiLocalTestIT {
       if (key % 3 == 0) {
         Assert.assertNull(sbTree.get(key));
       } else {
-        Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+        Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
       }
     }
   }
@@ -217,10 +217,10 @@ public class OSBTreeBonsaiLocalTestIT {
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
       keys.add(key);
 
-      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+      Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
     }
 
     Iterator<Integer> keysIterator = keys.iterator();
@@ -242,7 +242,7 @@ public class OSBTreeBonsaiLocalTestIT {
       if (key % 3 == 0) {
         Assert.assertNull(sbTree.get(key));
       } else {
-        Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+        Assert.assertEquals(sbTree.get(key), new YTRecordId(key % 32000, key));
       }
     }
   }
@@ -253,7 +253,7 @@ public class OSBTreeBonsaiLocalTestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     for (int i = 0; i < KEYS_COUNT; i++) {
@@ -263,7 +263,7 @@ public class OSBTreeBonsaiLocalTestIT {
             null,
             atomicOperation ->
                 Assert.assertEquals(
-                    sbTree.remove(atomicOperation, key), new ORecordId(key % 32000, key)));
+                    sbTree.remove(atomicOperation, key), new YTRecordId(key % 32000, key)));
       }
     }
 
@@ -275,7 +275,7 @@ public class OSBTreeBonsaiLocalTestIT {
       if (i % 3 == 0) {
         Assert.assertNull(sbTree.get(i));
       } else {
-        Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+        Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
       }
     }
   }
@@ -286,9 +286,9 @@ public class OSBTreeBonsaiLocalTestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
 
-      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
     }
 
     for (int i = 0; i < KEYS_COUNT; i++) {
@@ -298,7 +298,7 @@ public class OSBTreeBonsaiLocalTestIT {
             null,
             atomicOperation ->
                 Assert.assertEquals(
-                    sbTree.remove(atomicOperation, key), new ORecordId(key % 32000, key)));
+                    sbTree.remove(atomicOperation, key), new YTRecordId(key % 32000, key)));
       }
 
       if (i % 2 == 0) {
@@ -309,7 +309,7 @@ public class OSBTreeBonsaiLocalTestIT {
                 sbTree.put(
                     atomicOperation,
                     KEYS_COUNT + key,
-                    new ORecordId((KEYS_COUNT + key) % 32000, KEYS_COUNT + key)));
+                    new YTRecordId((KEYS_COUNT + key) % 32000, KEYS_COUNT + key)));
       }
     }
 
@@ -320,19 +320,19 @@ public class OSBTreeBonsaiLocalTestIT {
       if (i % 3 == 0) {
         Assert.assertNull(sbTree.get(i));
       } else {
-        Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+        Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
       }
 
       if (i % 2 == 0) {
         Assert.assertEquals(
-            sbTree.get(KEYS_COUNT + i), new ORecordId((KEYS_COUNT + i) % 32000, KEYS_COUNT + i));
+            sbTree.get(KEYS_COUNT + i), new YTRecordId((KEYS_COUNT + i) % 32000, KEYS_COUNT + i));
       }
     }
   }
 
   @Test
   public void testValuesMajor() throws Exception {
-    NavigableMap<Integer, ORID> keyValues = new TreeMap<>();
+    NavigableMap<Integer, YTRID> keyValues = new TreeMap<>();
     Random random = new Random();
 
     while (keyValues.size() < KEYS_COUNT) {
@@ -340,8 +340,8 @@ public class OSBTreeBonsaiLocalTestIT {
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
-      keyValues.put(key, new ORecordId(key % 32000, key));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
+      keyValues.put(key, new YTRecordId(key % 32000, key));
     }
 
     assertMajorValues(keyValues, random, true);
@@ -353,7 +353,7 @@ public class OSBTreeBonsaiLocalTestIT {
 
   @Test
   public void testValuesMinor() throws Exception {
-    NavigableMap<Integer, ORID> keyValues = new TreeMap<>();
+    NavigableMap<Integer, YTRID> keyValues = new TreeMap<>();
     Random random = new Random();
 
     while (keyValues.size() < KEYS_COUNT) {
@@ -361,8 +361,8 @@ public class OSBTreeBonsaiLocalTestIT {
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
-      keyValues.put(key, new ORecordId(key % 32000, key));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
+      keyValues.put(key, new YTRecordId(key % 32000, key));
     }
 
     assertMinorValues(keyValues, random, true);
@@ -374,7 +374,7 @@ public class OSBTreeBonsaiLocalTestIT {
 
   @Test
   public void testValuesBetween() throws Exception {
-    NavigableMap<Integer, ORID> keyValues = new TreeMap<>();
+    NavigableMap<Integer, YTRID> keyValues = new TreeMap<>();
     Random random = new Random();
 
     while (keyValues.size() < KEYS_COUNT) {
@@ -382,8 +382,8 @@ public class OSBTreeBonsaiLocalTestIT {
 
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
-      keyValues.put(key, new ORecordId(key % 32000, key));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
+      keyValues.put(key, new YTRecordId(key % 32000, key));
     }
 
     assertBetweenValues(keyValues, random, true, true);
@@ -401,7 +401,7 @@ public class OSBTreeBonsaiLocalTestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     for (int i = 0; i < 56; i++) {
@@ -417,7 +417,7 @@ public class OSBTreeBonsaiLocalTestIT {
     }
 
     for (int i = 56; i < 110; i++) {
-      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
     }
   }
 
@@ -427,7 +427,7 @@ public class OSBTreeBonsaiLocalTestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     for (int i = 110; i > 50; i--) {
@@ -443,7 +443,7 @@ public class OSBTreeBonsaiLocalTestIT {
     }
 
     for (int i = 50; i >= 0; i--) {
-      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      Assert.assertEquals(sbTree.get(i), new YTRecordId(i % 32000, i));
     }
   }
 
@@ -453,7 +453,7 @@ public class OSBTreeBonsaiLocalTestIT {
       final int key = i;
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
-          atomicOperation -> sbTree.put(atomicOperation, key, new ORecordId(key % 32000, key)));
+          atomicOperation -> sbTree.put(atomicOperation, key, new YTRecordId(key % 32000, key)));
     }
 
     for (int i = 0; i < 60; i++) {
@@ -477,16 +477,16 @@ public class OSBTreeBonsaiLocalTestIT {
     Assert.assertEquals((int) sbTree.firstKey(), 60);
     Assert.assertEquals((int) sbTree.lastKey(), 259);
 
-    Collection<OIdentifiable> result = sbTree.getValuesMinor(250, true, -1);
+    Collection<YTIdentifiable> result = sbTree.getValuesMinor(250, true, -1);
 
-    Set<OIdentifiable> identifiables = new HashSet<>(result);
+    Set<YTIdentifiable> identifiables = new HashSet<>(result);
     for (int i = 250; i >= 220; i--) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 99; i >= 60; i--) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -496,12 +496,12 @@ public class OSBTreeBonsaiLocalTestIT {
     identifiables = new HashSet<>(result);
 
     for (int i = 70; i < 100; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 220; i < 260; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -511,12 +511,12 @@ public class OSBTreeBonsaiLocalTestIT {
     identifiables = new HashSet<>(result);
 
     for (int i = 70; i < 100; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
     for (int i = 220; i <= 250; i++) {
-      boolean removed = identifiables.remove(new ORecordId(i % 32000, i));
+      boolean removed = identifiables.remove(new YTRecordId(i % 32000, i));
       Assert.assertTrue(removed);
     }
 
@@ -532,7 +532,7 @@ public class OSBTreeBonsaiLocalTestIT {
   }
 
   private static void assertMajorValues(
-      NavigableMap<Integer, ORID> keyValues, Random random, boolean keyInclusive) {
+      NavigableMap<Integer, YTRID> keyValues, Random random, boolean keyInclusive) {
     for (int i = 0; i < 100; i++) {
       int upperBorder = keyValues.lastKey() + 5000;
       int fromKey;
@@ -552,16 +552,16 @@ public class OSBTreeBonsaiLocalTestIT {
       }
 
       int maxValuesToFetch = 10000;
-      Collection<OIdentifiable> orids =
+      Collection<YTIdentifiable> orids =
           sbTree.getValuesMajor(fromKey, keyInclusive, maxValuesToFetch);
 
-      Set<OIdentifiable> result = new HashSet<>(orids);
+      Set<YTIdentifiable> result = new HashSet<>(orids);
 
-      Iterator<ORID> valuesIterator = keyValues.tailMap(fromKey, keyInclusive).values().iterator();
+      Iterator<YTRID> valuesIterator = keyValues.tailMap(fromKey, keyInclusive).values().iterator();
 
       int fetchedValues = 0;
       while (valuesIterator.hasNext() && fetchedValues < maxValuesToFetch) {
-        ORID value = valuesIterator.next();
+        YTRID value = valuesIterator.next();
         Assert.assertTrue(result.remove(value));
 
         fetchedValues++;
@@ -576,7 +576,7 @@ public class OSBTreeBonsaiLocalTestIT {
   }
 
   private static void assertMinorValues(
-      NavigableMap<Integer, ORID> keyValues, Random random, boolean keyInclusive) {
+      NavigableMap<Integer, YTRID> keyValues, Random random, boolean keyInclusive) {
     for (int i = 0; i < 100; i++) {
       int upperBorder = keyValues.lastKey() + 5000;
       int toKey;
@@ -596,17 +596,17 @@ public class OSBTreeBonsaiLocalTestIT {
       }
 
       int maxValuesToFetch = 10000;
-      Collection<OIdentifiable> orids =
+      Collection<YTIdentifiable> orids =
           sbTree.getValuesMinor(toKey, keyInclusive, maxValuesToFetch);
 
-      Set<OIdentifiable> result = new HashSet<>(orids);
+      Set<YTIdentifiable> result = new HashSet<>(orids);
 
-      Iterator<ORID> valuesIterator =
+      Iterator<YTRID> valuesIterator =
           keyValues.headMap(toKey, keyInclusive).descendingMap().values().iterator();
 
       int fetchedValues = 0;
       while (valuesIterator.hasNext() && fetchedValues < maxValuesToFetch) {
-        ORID value = valuesIterator.next();
+        YTRID value = valuesIterator.next();
         Assert.assertTrue(result.remove(value));
 
         fetchedValues++;
@@ -621,7 +621,7 @@ public class OSBTreeBonsaiLocalTestIT {
   }
 
   private static void assertBetweenValues(
-      NavigableMap<Integer, ORID> keyValues,
+      NavigableMap<Integer, YTRID> keyValues,
       Random random,
       boolean fromInclusive,
       boolean toInclusive) {
@@ -663,16 +663,16 @@ public class OSBTreeBonsaiLocalTestIT {
 
       int maxValuesToFetch = 10000;
 
-      Collection<OIdentifiable> orids =
+      Collection<YTIdentifiable> orids =
           sbTree.getValuesBetween(fromKey, fromInclusive, toKey, toInclusive, maxValuesToFetch);
-      Set<OIdentifiable> result = new HashSet<>(orids);
+      Set<YTIdentifiable> result = new HashSet<>(orids);
 
-      Iterator<ORID> valuesIterator =
+      Iterator<YTRID> valuesIterator =
           keyValues.subMap(fromKey, fromInclusive, toKey, toInclusive).values().iterator();
 
       int fetchedValues = 0;
       while (valuesIterator.hasNext() && fetchedValues < maxValuesToFetch) {
-        ORID value = valuesIterator.next();
+        YTRID value = valuesIterator.next();
         Assert.assertTrue(result.remove(value));
 
         fetchedValues++;

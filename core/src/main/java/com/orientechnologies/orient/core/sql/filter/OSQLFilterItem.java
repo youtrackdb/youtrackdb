@@ -20,12 +20,12 @@
 package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 /**
  * Represent a value inside a query condition.
  */
 public interface OSQLFilterItem {
 
-  Object getValue(OIdentifiable iRecord, Object iCurrentResult, OCommandContext iContetx);
+  Object getValue(YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContetx);
 }

@@ -4,13 +4,13 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
 import com.orientechnologies.orient.core.query.live.OLiveQueryListenerV2;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -30,11 +30,11 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
 
   public static final String BEFORE_METADATA_KEY = "$$before$$";
   private final OLiveQueryResultListener clientListener;
-  private ODatabaseSessionInternal execDb;
+  private YTDatabaseSessionInternal execDb;
 
   private final OSelectStatement statement;
   private String className;
-  private List<ORecordId> rids;
+  private List<YTRecordId> rids;
 
   private final Map<Object, Object> params;
 
@@ -42,7 +42,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   private static final Random random = new Random();
 
   public LiveQueryListenerImpl(
-      OLiveQueryResultListener clientListener, String query, ODatabaseSessionInternal db,
+      OLiveQueryResultListener clientListener, String query, YTDatabaseSessionInternal db,
       Object[] iArgs) {
     this(clientListener, query, db, toPositionalParams(iArgs));
   }
@@ -50,7 +50,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   public LiveQueryListenerImpl(
       OLiveQueryResultListener clientListener,
       String query,
-      ODatabaseSessionInternal db,
+      YTDatabaseSessionInternal db,
       Map<Object, Object> iArgs) {
     this.clientListener = clientListener;
     this.params = iArgs;
@@ -105,7 +105,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
   }
 
-  private void validateStatement(OSelectStatement statement, ODatabaseSessionInternal db) {
+  private void validateStatement(OSelectStatement statement, YTDatabaseSessionInternal db) {
     if (statement.getProjection() != null) {
       if (statement.getProjection().getItems().stream().anyMatch(x -> x.isAggregate(db))) {
         throw new OCommandExecutionException(
@@ -193,7 +193,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
       if (filterClass == null) {
         return false;
       } else if (!(className.equalsIgnoreCase(recordClassName))) {
-        OClass recordClass =
+        YTClass recordClass =
             this.execDb.getMetadata().getImmutableSchemaSnapshot().getClass(recordClassName);
         if (recordClass == null) {
           return false;
@@ -206,7 +206,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
     if (rids != null && rids.size() > 0) {
       boolean found = false;
-      for (ORecordId rid : rids) {
+      for (YTRecordId rid : rids) {
         if (rid.equals(record.getIdentity().orElse(null))) {
           found = true;
           break;
@@ -230,7 +230,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     return where.matchesFilters(record, ctx);
   }
 
-  private OResultInternal copy(ODatabaseSessionInternal db, OResult item) {
+  private OResultInternal copy(YTDatabaseSessionInternal db, OResult item) {
     if (item == null) {
       return null;
     }
@@ -256,7 +256,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   }
 
   protected void execInSeparateDatabase(final OCallable iCallback) {
-    final ODatabaseSessionInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final YTDatabaseSessionInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
     } finally {

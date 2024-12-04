@@ -10,7 +10,7 @@ public class ODatabaseDocumentSTUsageTest {
 
   @Test
   public void testShareBetweenThreads() {
-    final ODatabaseDocumentTx db = new ODatabaseDocumentTx("memory:ODatabaseDocumentSTUsageTest");
+    final YTDatabaseDocumentTx db = new YTDatabaseDocumentTx("memory:ODatabaseDocumentSTUsageTest");
     db.create();
     db.close();
 

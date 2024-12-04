@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testFromMapNotSaved() {
-    final ODocument doc = new ODocument();
+    final YTDocument doc = new YTDocument();
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     Map<String, Object> map = doc.toMap();
@@ -44,7 +44,7 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testFromMapWithClass() {
-    final ODocument doc = new ODocument("OUser");
+    final YTDocument doc = new YTDocument("OUser");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     Map<String, Object> map = doc.toMap();
@@ -58,7 +58,7 @@ public class DocumentTest extends DBTestBase {
   @Test
   public void testFromMapWithClassAndRid() {
     db.begin();
-    final ODocument doc = new ODocument("V");
+    final YTDocument doc = new YTDocument("V");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     doc.save();
@@ -75,17 +75,17 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testConversionOnTypeSet() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
 
     doc.field("some", 3);
-    doc.setFieldType("some", OType.STRING);
-    Assert.assertEquals(doc.fieldType("some"), OType.STRING);
+    doc.setFieldType("some", YTType.STRING);
+    Assert.assertEquals(doc.fieldType("some"), YTType.STRING);
     Assert.assertEquals(doc.field("some"), "3");
   }
 
   @Test
   public void testEval() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
 
     doc.field("amount", 300);
 
@@ -96,7 +96,7 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testEvalInContext() {
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
 
     doc.field("amount", 300);
 

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.OElementInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 
 /**
  *
@@ -12,7 +12,7 @@ public class OUpdatableResult extends OResultInternal {
 
   protected OResultInternal previousValue = null;
 
-  public OUpdatableResult(ODatabaseSessionInternal session, OElement element) {
+  public OUpdatableResult(YTDatabaseSessionInternal session, YTEntity element) {
     super(session, element);
   }
 
@@ -27,25 +27,26 @@ public class OUpdatableResult extends OResultInternal {
     if (content != null && content.containsKey(name)) {
       result = (T) content.get(name);
     } else if (isElement()) {
-      result = ((OElement) identifiable).getProperty(name);
+      result = ((YTEntity) identifiable).getProperty(name);
     }
-    if (result instanceof OIdentifiable && ((OIdentifiable) result).getIdentity().isPersistent()) {
-      result = (T) ((OIdentifiable) result).getIdentity();
+    if (result instanceof YTIdentifiable && ((YTIdentifiable) result).getIdentity()
+        .isPersistent()) {
+      result = (T) ((YTIdentifiable) result).getIdentity();
     }
     return result;
   }
 
   @Override
-  public OElement toElement() {
-    return (OElement) identifiable;
+  public YTEntity toElement() {
+    return (YTEntity) identifiable;
   }
 
   @Override
   public void setProperty(String name, Object value) {
-    ((OElementInternal) identifiable).setPropertyInternal(name, value);
+    ((YTEntityInternal) identifiable).setPropertyInternal(name, value);
   }
 
   public void removeProperty(String name) {
-    ((OElement) identifiable).removeProperty(name);
+    ((YTEntity) identifiable).removeProperty(name);
   }
 }

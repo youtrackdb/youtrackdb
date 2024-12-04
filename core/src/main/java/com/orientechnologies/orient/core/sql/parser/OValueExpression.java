@@ -4,10 +4,10 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -26,7 +26,7 @@ public class OValueExpression extends OExpression {
     this.value = val;
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     return value;
   }
 
@@ -54,7 +54,7 @@ public class OValueExpression extends OExpression {
     return true;
   }
 
-  public boolean isIndexedFunctionCal(ODatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCal(YTDatabaseSessionInternal session) {
     return false;
   }
 
@@ -85,7 +85,7 @@ public class OValueExpression extends OExpression {
     return false;
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     return false;
   }
 
@@ -145,7 +145,7 @@ public class OValueExpression extends OExpression {
     return false;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     throw new UnsupportedOperationException(
         "Cannot serialize value expression (not supported yet)");
   }
@@ -159,7 +159,7 @@ public class OValueExpression extends OExpression {
     return true;
   }
 
-  public boolean isDefinedFor(OElement currentRecord) {
+  public boolean isDefinedFor(YTEntity currentRecord) {
     return true;
   }
 
@@ -167,7 +167,7 @@ public class OValueExpression extends OExpression {
     return null;
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     return true;
   }
 }

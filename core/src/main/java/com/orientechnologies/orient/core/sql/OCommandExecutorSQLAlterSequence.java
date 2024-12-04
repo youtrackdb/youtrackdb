@@ -4,10 +4,10 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import java.util.Map;
 
 /**
@@ -23,7 +23,7 @@ public class OCommandExecutorSQLAlterSequence extends OCommandExecutorSQLAbstrac
   public static final String KEYWORD_CACHE = "CACHE";
 
   private String sequenceName;
-  private OSequence.CreateParams params;
+  private YTSequence.CreateParams params;
 
   @Override
   public OCommandExecutorSQLAlterSequence parse(OCommandRequest iRequest) {
@@ -37,13 +37,13 @@ public class OCommandExecutorSQLAlterSequence extends OCommandExecutorSQLAbstrac
 
       init((OCommandRequestText) iRequest);
 
-      final ODatabaseSessionInternal database = getDatabase();
+      final YTDatabaseSessionInternal database = getDatabase();
       final StringBuilder word = new StringBuilder();
 
       parserRequiredKeyword(KEYWORD_ALTER);
       parserRequiredKeyword(KEYWORD_SEQUENCE);
       this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
-      this.params = new OSequence.CreateParams();
+      this.params = new YTSequence.CreateParams();
 
       String temp;
       while ((temp = parseOptionalWord(true)) != null) {
@@ -69,14 +69,15 @@ public class OCommandExecutorSQLAlterSequence extends OCommandExecutorSQLAbstrac
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final var database = getDatabase();
-    OSequence sequence = database.getMetadata().getSequenceLibrary().getSequence(this.sequenceName);
+    YTSequence sequence = database.getMetadata().getSequenceLibrary()
+        .getSequence(this.sequenceName);
 
     boolean result;
     try {

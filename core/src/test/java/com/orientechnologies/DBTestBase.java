@@ -1,8 +1,8 @@
 package com.orientechnologies;
 
 import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
@@ -21,7 +21,7 @@ public class DBTestBase {
   private static final AtomicLong counter = new AtomicLong();
   private static final ConcurrentHashMap<Class<?>, Long> ids = new ConcurrentHashMap<>();
 
-  protected ODatabaseSessionInternal db;
+  protected YTDatabaseSessionInternal db;
   protected ODatabasePool pool;
   protected YouTrackDB context;
   @Rule
@@ -59,7 +59,7 @@ public class DBTestBase {
 
     context.create(this.databaseName, dbType, user, password, "admin");
     pool = context.cachedPool(this.databaseName, user, password);
-    db = (ODatabaseSessionInternal) context.open(this.databaseName, "admin", "adminpwd");
+    db = (YTDatabaseSessionInternal) context.open(this.databaseName, "admin", "adminpwd");
   }
 
   public static String embeddedDBUrl(Class<?> testClass) {
@@ -105,12 +105,12 @@ public class DBTestBase {
     if (!db.isClosed()) {
       db.activateOnCurrentThread();
       db.close();
-      this.db = (ODatabaseSessionInternal) context.open(this.databaseName, user, password);
+      this.db = (YTDatabaseSessionInternal) context.open(this.databaseName, user, password);
     }
   }
 
-  public ODatabaseSessionInternal openDatabase() {
-    return (ODatabaseSessionInternal) context.open(this.databaseName, user, password);
+  public YTDatabaseSessionInternal openDatabase() {
+    return (YTDatabaseSessionInternal) context.open(this.databaseName, user, password);
   }
 
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
@@ -137,7 +137,7 @@ public class DBTestBase {
     }
   }
 
-  public static void assertWithTimeout(ODatabaseSession session, Runnable runnable)
+  public static void assertWithTimeout(YTDatabaseSession session, Runnable runnable)
       throws Exception {
     for (int i = 0; i < 30 * 60 * 10; i++) {
       try {

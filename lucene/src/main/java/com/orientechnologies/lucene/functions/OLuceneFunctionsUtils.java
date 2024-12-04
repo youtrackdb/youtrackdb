@@ -2,8 +2,8 @@ package com.orientechnologies.lucene.functions;
 
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import org.apache.lucene.index.memory.MemoryIndex;
@@ -16,13 +16,13 @@ public class OLuceneFunctionsUtils {
   public static final String MEMORY_INDEX = "_memoryIndex";
 
   protected static OLuceneFullTextIndex searchForIndex(OExpression[] args, OCommandContext ctx) {
-    final String indexName = (String) args[0].execute((OIdentifiable) null, ctx);
+    final String indexName = (String) args[0].execute((YTIdentifiable) null, ctx);
     return getLuceneFullTextIndex(ctx, indexName);
   }
 
   protected static OLuceneFullTextIndex getLuceneFullTextIndex(
       final OCommandContext ctx, final String indexName) {
-    final ODatabaseSessionInternal documentDatabase = ctx.getDatabase();
+    final YTDatabaseSessionInternal documentDatabase = ctx.getDatabase();
     documentDatabase.activateOnCurrentThread();
     final OMetadataInternal metadata = documentDatabase.getMetadata();
 

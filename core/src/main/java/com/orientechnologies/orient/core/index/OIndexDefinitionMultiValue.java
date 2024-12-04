@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
@@ -38,7 +38,7 @@ public interface OIndexDefinitionMultiValue extends OIndexDefinition {
    * @param param   Value to convert.
    * @return Index key.
    */
-  Object createSingleValue(ODatabaseSessionInternal session, final Object... param);
+  Object createSingleValue(YTDatabaseSessionInternal session, final Object... param);
 
   /**
    * Process event that contains operation on collection and extract values that should be added
@@ -50,7 +50,7 @@ public interface OIndexDefinitionMultiValue extends OIndexDefinition {
    * @param keysToRemove Values that should be removed to related index.
    */
   void processChangeEvent(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove);

@@ -22,14 +22,14 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassEmbedded;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OPropertyImpl;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassEmbedded;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -59,7 +59,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
 
   private boolean ifNotExists = false;
 
-  private OType type;
+  private YTType type;
   private String linked;
 
   private boolean readonly = false;
@@ -145,7 +145,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       }
 
-      type = OType.valueOf(word.toString());
+      type = YTType.valueOf(word.toString());
 
       // Use a REGEX for the rest because we know exactly what we are looking for.
       // If we are in strict mode, the parser took care of strict matching.
@@ -281,26 +281,26 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
   /**
    * Execute the CREATE PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (type == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final var database = getDatabase();
-    final OClassEmbedded sourceClass =
-        (OClassEmbedded) database.getMetadata().getSchema().getClass(className);
+    final YTClassEmbedded sourceClass =
+        (YTClassEmbedded) database.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
       throw new OCommandExecutionException("Source class '" + className + "' not found");
     }
 
-    OPropertyImpl prop = (OPropertyImpl) sourceClass.getProperty(fieldName);
+    YTPropertyImpl prop = (YTPropertyImpl) sourceClass.getProperty(fieldName);
 
     if (prop != null) {
       if (ifNotExists) {
@@ -315,8 +315,8 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
     }
 
     // CREATE THE PROPERTY
-    OClass linkedClass = null;
-    OType linkedType = null;
+    YTClass linkedClass = null;
+    YTType linkedType = null;
     if (linked != null) {
       // FIRST SEARCH BETWEEN CLASSES
       linkedClass = database.getMetadata().getSchema().getClass(linked);
@@ -324,12 +324,12 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
       if (linkedClass == null)
       // NOT FOUND: SEARCH BETWEEN TYPES
       {
-        linkedType = OType.valueOf(linked.toUpperCase(Locale.ENGLISH));
+        linkedType = YTType.valueOf(linked.toUpperCase(Locale.ENGLISH));
       }
     }
 
     // CREATE IT LOCALLY
-    OProperty internalProp =
+    YTProperty internalProp =
         sourceClass.addProperty(database, fieldName, type, linkedType, linkedClass, unsafe);
     if (readonly) {
       internalProp.setReadonly(database, true);

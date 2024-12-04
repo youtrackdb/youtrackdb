@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,21 +16,21 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
 
-  private ODocument owner1;
-  private ODocument owner2;
+  private YTDocument owner1;
+  private YTDocument owner2;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    final OSchema schema = db.getMetadata().getSchema();
+    final YTSchema schema = db.getMetadata().getSchema();
     schema.createClass("Owner", schema.getClass("V"));
     schema.createClass("link", schema.getClass("E"));
 
     db.begin();
-    owner1 = new ODocument("Owner");
+    owner1 = new YTDocument("Owner");
     owner1.field("id", 1);
     owner1.save();
-    owner2 = new ODocument("Owner");
+    owner2 = new YTDocument("Owner");
     owner2.field("id", 2);
     owner2.save();
     db.commit();

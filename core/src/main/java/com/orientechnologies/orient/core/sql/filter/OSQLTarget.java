@@ -24,12 +24,12 @@ import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLAbstract;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLResultsetDelegate;
@@ -53,7 +53,7 @@ public class OSQLTarget extends OBaseParser {
   protected final OCommandContext context;
   protected String targetVariable;
   protected String targetQuery;
-  protected Iterable<? extends OIdentifiable> targetRecords;
+  protected Iterable<? extends YTIdentifiable> targetRecords;
   protected Map<String, String> targetClusters;
   protected Map<String, String> targetClasses;
 
@@ -100,7 +100,7 @@ public class OSQLTarget extends OBaseParser {
     return targetClasses;
   }
 
-  public Iterable<? extends OIdentifiable> getTargetRecords() {
+  public Iterable<? extends YTIdentifiable> getTargetRecords() {
     return targetRecords;
   }
 
@@ -168,9 +168,9 @@ public class OSQLTarget extends OBaseParser {
       targetVariable = targetVariable.substring(1);
     } else if (c == OStringSerializerHelper.LINK || Character.isDigit(c)) {
       // UNIQUE RID
-      targetRecords = new ArrayList<OIdentifiable>();
-      ((List<OIdentifiable>) targetRecords)
-          .add(new ORecordId(parserRequiredWord(true, "No valid RID")));
+      targetRecords = new ArrayList<YTIdentifiable>();
+      ((List<YTIdentifiable>) targetRecords)
+          .add(new YTRecordId(parserRequiredWord(true, "No valid RID")));
 
     } else if (c == OStringSerializerHelper.EMBEDDED_BEGIN) {
       // SUB QUERY
@@ -180,7 +180,7 @@ public class OSQLTarget extends OBaseParser {
               + 1);
       final OCommandSQL subCommand = new OCommandSQLResultset(subText.toString());
 
-      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OCommandExecutorSQLResultsetDelegate executor =
           (OCommandExecutorSQLResultsetDelegate)
               db.getSharedContext()
@@ -215,9 +215,9 @@ public class OSQLTarget extends OBaseParser {
       parserSetCurrentPosition(
           OStringSerializerHelper.getCollection(parserText, parserGetCurrentPosition(), rids));
 
-      targetRecords = new ArrayList<OIdentifiable>();
+      targetRecords = new ArrayList<YTIdentifiable>();
       for (String rid : rids) {
-        ((List<OIdentifiable>) targetRecords).add(new ORecordId(rid));
+        ((List<YTIdentifiable>) targetRecords).add(new YTRecordId(rid));
       }
 
       parserMoveCurrentPosition(1);
@@ -265,21 +265,21 @@ public class OSQLTarget extends OBaseParser {
           // METADATA
           final String metadataTarget =
               subjectName.substring(OCommandExecutorSQLAbstract.METADATA_PREFIX.length());
-          targetRecords = new ArrayList<OIdentifiable>();
+          targetRecords = new ArrayList<YTIdentifiable>();
 
           if (metadataTarget.equals(OCommandExecutorSQLAbstract.METADATA_SCHEMA)) {
-            ((ArrayList<OIdentifiable>) targetRecords)
+            ((ArrayList<YTIdentifiable>) targetRecords)
                 .add(
-                    new ORecordId(
+                    new YTRecordId(
                         ODatabaseRecordThreadLocal.instance()
                             .get()
                             .getStorageInfo()
                             .getConfiguration()
                             .getSchemaRecordId()));
           } else if (metadataTarget.equals(OCommandExecutorSQLAbstract.METADATA_INDEXMGR)) {
-            ((ArrayList<OIdentifiable>) targetRecords)
+            ((ArrayList<YTIdentifiable>) targetRecords)
                 .add(
-                    new ORecordId(
+                    new YTRecordId(
                         ODatabaseRecordThreadLocal.instance()
                             .get()
                             .getStorageInfo()
@@ -293,12 +293,12 @@ public class OSQLTarget extends OBaseParser {
           // DICTIONARY
           final String key =
               originalSubjectName.substring(OCommandExecutorSQLAbstract.DICTIONARY_PREFIX.length());
-          targetRecords = new ArrayList<OIdentifiable>();
+          targetRecords = new ArrayList<YTIdentifiable>();
 
-          final OIdentifiable value =
+          final YTIdentifiable value =
               ODatabaseRecordThreadLocal.instance().get().getDictionary().get(key);
           if (value != null) {
-            ((List<OIdentifiable>) targetRecords).add(value);
+            ((List<YTIdentifiable>) targetRecords).add(value);
           }
 
         } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.INDEX_VALUES_PREFIX)) {
@@ -329,7 +329,7 @@ public class OSQLTarget extends OBaseParser {
             targetClasses = new HashMap<String, String>();
           }
 
-          final OClass cls =
+          final YTClass cls =
               ODatabaseRecordThreadLocal.instance()
                   .get()
                   .getMetadata()

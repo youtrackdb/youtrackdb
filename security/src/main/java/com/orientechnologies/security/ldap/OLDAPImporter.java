@@ -14,13 +14,13 @@
 package com.orientechnologies.security.ldap;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityAuthenticator;
 import com.orientechnologies.orient.core.security.OSecurityComponent;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -68,7 +68,7 @@ public class OLDAPImporter implements OSecurityComponent {
     for (Map.Entry<String, Database> dbEntry : databaseMap.entrySet()) {
       Database db = dbEntry.getValue();
 
-      try (ODatabaseSessionInternal odb = context.openNoAuthenticate(db.getName(), "internal")) {
+      try (YTDatabaseSessionInternal odb = context.openNoAuthenticate(db.getName(), "internal")) {
         verifySchema(odb);
       } catch (Exception ex) {
         OLogManager.instance().error(this, "OLDAPImporter.active() Database: %s", ex, db.getName());
@@ -86,7 +86,7 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   // OSecurityComponent
-  public void config(ODatabaseSessionInternal session, final ODocument importDoc,
+  public void config(YTDatabaseSessionInternal session, final YTDocument importDoc,
       OSecuritySystem security) {
     try {
       context = security.getContext();
@@ -111,9 +111,9 @@ public class OLDAPImporter implements OSecurityComponent {
       }
 
       if (importDoc.containsField("databases")) {
-        List<ODocument> list = importDoc.field("databases");
+        List<YTDocument> list = importDoc.field("databases");
 
-        for (ODocument dbDoc : list) {
+        for (YTDocument dbDoc : list) {
           if (dbDoc.containsField("database")) {
             String dbName = dbDoc.field("database");
 
@@ -130,9 +130,9 @@ public class OLDAPImporter implements OSecurityComponent {
             if (dbDoc.containsField("domains")) {
               final List<DatabaseDomain> dbDomainsList = new ArrayList<DatabaseDomain>();
 
-              final List<ODocument> dbdList = dbDoc.field("domains");
+              final List<YTDocument> dbdList = dbDoc.field("domains");
 
-              for (ODocument dbDomainDoc : dbdList) {
+              for (YTDocument dbDomainDoc : dbdList) {
                 String domain = null;
 
                 // "domain" is mandatory.
@@ -150,9 +150,9 @@ public class OLDAPImporter implements OSecurityComponent {
                   if (dbDomainDoc.containsField("servers")) {
                     final List<OLDAPServer> ldapServerList = new ArrayList<OLDAPServer>();
 
-                    final List<ODocument> ldapServers = dbDomainDoc.field("servers");
+                    final List<YTDocument> ldapServers = dbDomainDoc.field("servers");
 
-                    for (ODocument ldapServerDoc : ldapServers) {
+                    for (YTDocument ldapServerDoc : ldapServers) {
                       final String url = ldapServerDoc.field("url");
 
                       boolean isAlias = false;
@@ -181,12 +181,12 @@ public class OLDAPImporter implements OSecurityComponent {
                     //
                     final List<User> userList = new ArrayList<User>();
 
-                    final List<ODocument> userDocList = dbDomainDoc.field("users");
+                    final List<YTDocument> userDocList = dbDomainDoc.field("users");
 
                     // userDocList can be null if only the oldapUserClass is used instead
                     // security.json.
                     if (userDocList != null) {
-                      for (ODocument userDoc : userDocList) {
+                      for (YTDocument userDoc : userDocList) {
                         if (userDoc.containsField("baseDN") && userDoc.containsField("filter")) {
                           if (userDoc.containsField("roles")) {
                             final String baseDN = userDoc.field("baseDN");
@@ -282,33 +282,33 @@ public class OLDAPImporter implements OSecurityComponent {
     return enabled;
   }
 
-  private void verifySchema(ODatabaseSessionInternal odb) {
+  private void verifySchema(YTDatabaseSessionInternal odb) {
     try {
       System.out.println("calling existsClass odb = " + odb);
 
       if (!odb.getMetadata().getSchema().existsClass(oldapUserClass)) {
         System.out.println("calling createClass");
 
-        OClass ldapUser = odb.getMetadata().getSchema().createClass(oldapUserClass);
+        YTClass ldapUser = odb.getMetadata().getSchema().createClass(oldapUserClass);
 
         System.out.println("calling createProperty");
 
-        OProperty prop = ldapUser.createProperty(odb, "Domain", OType.STRING);
+        YTProperty prop = ldapUser.createProperty(odb, "Domain", YTType.STRING);
 
         System.out.println("calling setMandatory");
 
         prop.setMandatory(odb, true);
         prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty(odb, "BaseDN", OType.STRING);
+        prop = ldapUser.createProperty(odb, "BaseDN", YTType.STRING);
         prop.setMandatory(odb, true);
         prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty(odb, "Filter", OType.STRING);
+        prop = ldapUser.createProperty(odb, "Filter", YTType.STRING);
         prop.setMandatory(odb, true);
         prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty(odb, "Roles", OType.STRING);
+        prop = ldapUser.createProperty(odb, "Roles", YTType.STRING);
         prop.setMandatory(odb, true);
         prop.setNotNull(odb, true);
       }
@@ -615,7 +615,7 @@ public class OLDAPImporter implements OSecurityComponent {
   // Loads the User object from the oldapUserClass class for each domain.
   // This is equivalent to the "users" objects in "ldapImporter" of security.json.
   private void retrieveLDAPUsers(
-      final ODatabaseSession odb, final String domain, final List<User> userList) {
+      final YTDatabaseSession odb, final String domain, final List<User> userList) {
     try {
       String sql = String.format("SELECT FROM `%s` WHERE Domain = ?", oldapUserClass);
 
@@ -660,7 +660,7 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   private void retrieveAllUsers(
-      final ODatabaseSession odb, final boolean ignoreLocal, final Set<String> usersToBeDeleted) {
+      final YTDatabaseSession odb, final boolean ignoreLocal, final Set<String> usersToBeDeleted) {
     try {
       String sql = "SELECT FROM OUser";
 
@@ -692,7 +692,7 @@ public class OLDAPImporter implements OSecurityComponent {
     }
   }
 
-  private void deleteUsers(final ODatabaseSession odb, final Set<String> usersToBeDeleted) {
+  private void deleteUsers(final YTDatabaseSession odb, final Set<String> usersToBeDeleted) {
     try {
       for (String user : usersToBeDeleted) {
         odb.command("DELETE FROM OUser WHERE name = ?", user);
@@ -710,7 +710,7 @@ public class OLDAPImporter implements OSecurityComponent {
     }
   }
 
-  private void importUsers(final ODatabaseSession odb, final Map<String, DatabaseUser> usersMap) {
+  private void importUsers(final YTDatabaseSession odb, final Map<String, DatabaseUser> usersMap) {
     try {
       for (Map.Entry<String, DatabaseUser> entry : usersMap.entrySet()) {
         String upn = entry.getKey();
@@ -735,14 +735,14 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   /*
-   * private boolean dbUserExists(ODatabase<?> db, String upn) { try { List<ODocument> list = new OSQLSynchQuery<ODocument>(
+   * private boolean dbUserExists(ODatabase<?> db, String upn) { try { List<YTDocument> list = new OSQLSynchQuery<YTDocument>(
    * "SELECT FROM OUser WHERE name = ?").run(upn);
    *
    * return !list.isEmpty(); } catch(Exception ex) { OLogManager.instance().debug(this, "dbUserExists() Exception: ", ex); }
    *
    * return true; // Better to not add a user than to overwrite one. }
    */
-  private boolean upsertDbUser(ODatabaseSession db, String upn, Set<String> roles) {
+  private boolean upsertDbUser(YTDatabaseSession db, String upn, Set<String> roles) {
     try {
       // Create a random password to set for each imported user in case allowDefault is set to true.
       // We don't want blank or simple passwords set on the imported users, just in case.

@@ -3,14 +3,14 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.OElementInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OInputParameter;
 import com.orientechnologies.orient.core.sql.parser.OJson;
@@ -47,31 +47,31 @@ public class UpdateContentStep extends AbstractExecutionStep {
     if (result instanceof OResultInternal) {
       var elem = result.toElement();
       assert elem != null;
-      handleContent((OElementInternal) elem, ctx);
+      handleContent((YTEntityInternal) elem, ctx);
     }
     return result;
   }
 
-  private void handleContent(OElementInternal record, OCommandContext ctx) {
+  private void handleContent(YTEntityInternal record, OCommandContext ctx) {
     // REPLACE ALL THE CONTENT
-    ODocument fieldsToPreserve = null;
+    YTDocument fieldsToPreserve = null;
 
-    OClass clazz = record.getSchemaType().orElse(null);
-    if (clazz != null && ((OImmutableClass) clazz).isRestricted()) {
-      fieldsToPreserve = new ODocument();
+    YTClass clazz = record.getSchemaType().orElse(null);
+    if (clazz != null && ((YTImmutableClass) clazz).isRestricted()) {
+      fieldsToPreserve = new YTDocument();
 
-      final OClass restricted =
+      final YTClass restricted =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(OSecurity.RESTRICTED_CLASSNAME);
-      for (OProperty prop : restricted.properties(ctx.getDatabase())) {
+      for (YTProperty prop : restricted.properties(ctx.getDatabase())) {
         fieldsToPreserve.field(prop.getName(), record.<Object>getProperty(prop.getName()));
       }
     }
     Map<String, Object> preDefaultValues = null;
     if (clazz != null) {
-      for (OProperty prop : clazz.properties(ctx.getDatabase())) {
+      for (YTProperty prop : clazz.properties(ctx.getDatabase())) {
         if (prop.getDefaultValue() != null) {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();
@@ -81,13 +81,13 @@ public class UpdateContentStep extends AbstractExecutionStep {
       }
     }
 
-    OClass recordClass =
+    YTClass recordClass =
         ODocumentInternal.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord());
     if (recordClass != null && recordClass.isSubClassOf("V")) {
       for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
           if (fieldsToPreserve == null) {
-            fieldsToPreserve = new ODocument();
+            fieldsToPreserve = new YTDocument();
           }
           fieldsToPreserve.field(fieldName, record.<Object>getPropertyInternal(fieldName));
         }
@@ -96,21 +96,21 @@ public class UpdateContentStep extends AbstractExecutionStep {
       for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.equals("in") || fieldName.equals("out")) {
           if (fieldsToPreserve == null) {
-            fieldsToPreserve = new ODocument();
+            fieldsToPreserve = new YTDocument();
           }
           fieldsToPreserve.field(fieldName, record.<Object>getPropertyInternal(fieldName));
         }
       }
     }
-    ODocument doc = record.getRecord();
+    YTDocument doc = record.getRecord();
     if (json != null) {
       doc.merge(json.toDocument(record, ctx), false, false);
     } else if (inputParameter != null) {
       Object val = inputParameter.getValue(ctx.getInputParameters());
-      if (val instanceof OElement) {
-        doc.merge(((OElement) val).getRecord(), false, false);
+      if (val instanceof YTEntity) {
+        doc.merge(((YTEntity) val).getRecord(), false, false);
       } else if (val instanceof Map<?, ?> map) {
-        var mapDoc = new ODocument();
+        var mapDoc = new YTDocument();
         //noinspection unchecked
         mapDoc.fromMap((Map<String, ?>) map);
         doc.merge(mapDoc, false, false);

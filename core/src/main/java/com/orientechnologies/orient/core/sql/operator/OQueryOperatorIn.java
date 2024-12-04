@@ -22,15 +22,15 @@ package com.orientechnologies.orient.core.sql.operator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -62,12 +62,12 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     final OIndexInternal internalIndex = index.getInternal();
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
     }
@@ -87,7 +87,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       if (inParams instanceof OLegacyResultSet) { // manage IN (subquery)
         Set newInParams = new HashSet();
         for (Object o : inParams) {
-          if (o instanceof ODocument doc && doc.getIdentity().getClusterId() < -1) {
+          if (o instanceof YTDocument doc && doc.getIdentity().getClusterId() < -1) {
             String[] fieldNames = doc.fieldNames();
             if (fieldNames.length == 1) {
               newInParams.add(doc.field(fieldNames[0]));
@@ -177,7 +177,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     final Iterable<?> ridCollection;
     final int ridSize;
     if (iRight instanceof OSQLFilterItemField
@@ -199,13 +199,13 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       return null;
     }
 
-    final List<ORID> rids = addRangeResults(ridCollection, ridSize);
+    final List<YTRID> rids = addRangeResults(ridCollection, ridSize);
 
     return rids == null ? null : Collections.min(rids);
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     final Iterable<?> ridCollection;
     final int ridSize;
     if (iRight instanceof OSQLFilterItemField
@@ -228,7 +228,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       return null;
     }
 
-    final List<ORID> rids = addRangeResults(ridCollection, ridSize);
+    final List<YTRID> rids = addRangeResults(ridCollection, ridSize);
 
     return rids == null ? null : Collections.max(rids);
   }
@@ -236,7 +236,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
   @Override
   @SuppressWarnings("unchecked")
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -299,24 +299,24 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
     return iLeft.equals(iRight);
   }
 
-  protected List<ORID> addRangeResults(final Iterable<?> ridCollection, final int ridSize) {
+  protected List<YTRID> addRangeResults(final Iterable<?> ridCollection, final int ridSize) {
     if (ridCollection == null) {
       return null;
     }
 
-    List<ORID> rids = null;
+    List<YTRID> rids = null;
     for (Object rid : ridCollection) {
       if (rid instanceof OSQLFilterItemParameter) {
         rid = ((OSQLFilterItemParameter) rid).getValue(null, null, null);
       }
 
-      if (rid instanceof OIdentifiable) {
-        final ORID r = ((OIdentifiable) rid).getIdentity();
+      if (rid instanceof YTIdentifiable) {
+        final YTRID r = ((YTIdentifiable) rid).getIdentity();
         if (r.isPersistent()) {
           if (rids == null)
           // LAZY CREATE IT
           {
-            rids = new ArrayList<ORID>(ridSize);
+            rids = new ArrayList<YTRID>(ridSize);
           }
           rids.add(r);
         }

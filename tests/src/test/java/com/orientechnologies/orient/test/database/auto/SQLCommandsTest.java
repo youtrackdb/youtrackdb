@@ -17,10 +17,10 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.cache.local.OWOWCache;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMap;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
@@ -42,7 +42,7 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
   }
 
   public void createProperty() {
-    OSchema schema = database.getMetadata().getSchema();
+    YTSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("account")) {
       schema.createClass("account");
     }
@@ -51,7 +51,7 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(
         database.getMetadata().getSchema().getClass("account").getProperty("timesheet").getType(),
-        OType.STRING);
+        YTType.STRING);
   }
 
   @Test(dependsOnMethods = "createProperty")
@@ -60,7 +60,7 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(
         database.getMetadata().getSchema().getClass("account").getProperty("knows").getType(),
-        OType.EMBEDDEDMAP);
+        YTType.EMBEDDEDMAP);
     Assert.assertEquals(
         database
             .getMetadata()
@@ -77,10 +77,10 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(
         database.getMetadata().getSchema().getClass("account").getProperty("tags").getType(),
-        OType.EMBEDDEDLIST);
+        YTType.EMBEDDEDLIST);
     Assert.assertEquals(
         database.getMetadata().getSchema().getClass("account").getProperty("tags").getLinkedType(),
-        OType.STRING);
+        YTType.STRING);
   }
 
   @Test(dependsOnMethods = "createLinkedTypeProperty")
@@ -106,10 +106,10 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Object result = database.command(new OCommandScript("sql", cmd)).execute(database);
 
-    Assert.assertTrue(result instanceof OIdentifiable);
-    Assert.assertTrue(((OIdentifiable) result).getRecord() instanceof ODocument);
+    Assert.assertTrue(result instanceof YTIdentifiable);
+    Assert.assertTrue(((YTIdentifiable) result).getRecord() instanceof YTDocument);
     Assert.assertTrue(
-        database.bindToSession((ODocument) ((OIdentifiable) result).getRecord()).field("script"));
+        database.bindToSession((YTDocument) ((YTIdentifiable) result).getRecord()).field("script"));
   }
 
   public void testClusterRename() {

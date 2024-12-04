@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashSet;
@@ -76,10 +76,10 @@ public class OTraverseProjectionItem extends SimpleNode {
   }
 
   private boolean isValidIdentifiable(Object val) {
-    if (!(val instanceof OIdentifiable)) {
+    if (!(val instanceof YTIdentifiable)) {
       return false;
     }
-    return ((OIdentifiable) val).getIdentity().isPersistent();
+    return ((YTIdentifiable) val).getIdentity().isPersistent();
   }
 
   private boolean isOResult(Object val) {

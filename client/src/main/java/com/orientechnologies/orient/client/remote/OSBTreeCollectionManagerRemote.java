@@ -25,7 +25,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
@@ -67,13 +67,13 @@ public class OSBTreeCollectionManagerRemote
     }
   }
 
-  protected OSBTreeBonsai<OIdentifiable, Integer> createEdgeTree(
+  protected OSBTreeBonsai<YTIdentifiable, Integer> createEdgeTree(
       OAtomicOperation atomicOperation, final int clusterId) {
     throw new UnsupportedOperationException(
         "Creation of SB-Tree from remote storage is not allowed");
   }
 
-  protected OSBTreeBonsai<OIdentifiable, Integer> loadTree(
+  protected OSBTreeBonsai<YTIdentifiable, Integer> loadTree(
       OBonsaiCollectionPointer collectionPointer) {
     throw new UnsupportedOperationException();
   }
@@ -131,7 +131,7 @@ public class OSBTreeCollectionManagerRemote
   }
 
   @Override
-  public OSBTreeBonsai<OIdentifiable, Integer> createAndLoadTree(
+  public OSBTreeBonsai<YTIdentifiable, Integer> createAndLoadTree(
       OAtomicOperation atomicOperation, int clusterId) throws IOException {
     return loadSBTree(createSBTree(clusterId, atomicOperation, null));
   }
@@ -139,15 +139,15 @@ public class OSBTreeCollectionManagerRemote
   @Override
   public OBonsaiCollectionPointer createSBTree(
       int clusterId, OAtomicOperation atomicOperation, UUID ownerUUID) throws IOException {
-    OSBTreeBonsai<OIdentifiable, Integer> tree = createEdgeTree(atomicOperation, clusterId);
+    OSBTreeBonsai<YTIdentifiable, Integer> tree = createEdgeTree(atomicOperation, clusterId);
     return tree.getCollectionPointer();
   }
 
   @Override
-  public OSBTreeBonsai<OIdentifiable, Integer> loadSBTree(
+  public OSBTreeBonsai<YTIdentifiable, Integer> loadSBTree(
       OBonsaiCollectionPointer collectionPointer) {
 
-    final OSBTreeBonsai<OIdentifiable, Integer> tree;
+    final OSBTreeBonsai<YTIdentifiable, Integer> tree;
     tree = loadTree(collectionPointer);
 
     return tree;

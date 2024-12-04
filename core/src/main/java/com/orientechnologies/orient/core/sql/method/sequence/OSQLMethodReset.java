@@ -18,10 +18,10 @@ package com.orientechnologies.orient.core.sql.method.sequence;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 
@@ -44,7 +44,7 @@ public class OSQLMethodReset extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
@@ -53,7 +53,7 @@ public class OSQLMethodReset extends OAbstractSQLMethod {
           "Method 'reset()' can be invoked only on OSequence instances, while NULL was found");
     }
 
-    if (!(iThis instanceof OSequence)) {
+    if (!(iThis instanceof YTSequence)) {
       throw new OCommandSQLParsingException(
           "Method 'reset()' can be invoked only on OSequence instances, while '"
               + iThis.getClass()
@@ -61,7 +61,7 @@ public class OSQLMethodReset extends OAbstractSQLMethod {
     }
 
     try {
-      return ((OSequence) iThis).reset();
+      return ((YTSequence) iThis).reset();
     } catch (ODatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       OLogManager.instance().error(this, message, exc, (Object) null);

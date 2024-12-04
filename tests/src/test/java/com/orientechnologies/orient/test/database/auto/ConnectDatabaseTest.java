@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -57,15 +57,15 @@ public class ConnectDatabaseTest {
       return;
     }
 
-    OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED.setValue(true);
+    YTGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED.setValue(true);
     try {
-      final ODatabaseSessionInternal database =
-          new ODatabaseDocumentTx("remote:orientechnologies.com/" + databaseName);
+      final YTDatabaseSessionInternal database =
+          new YTDatabaseDocumentTx("remote:orientechnologies.com/" + databaseName);
       database.open("admin", "admin");
       Assert.assertFalse(database.isClosed());
       database.close();
     } finally {
-      OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED.setValue(false);
+      YTGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED.setValue(false);
     }
   }
 

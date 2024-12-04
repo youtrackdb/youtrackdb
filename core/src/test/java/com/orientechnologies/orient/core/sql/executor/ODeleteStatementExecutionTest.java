@@ -4,9 +4,9 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -53,14 +53,14 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
   @Test
   public void testUnsafe1() {
     String className = "testUnsafe1";
-    OClass v = db.getMetadata().getSchema().getClass("V");
+    YTClass v = db.getMetadata().getSchema().getClass("V");
     if (v == null) {
       db.getMetadata().getSchema().createClass("V");
     }
     db.getMetadata().getSchema().createClass(className, v);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -78,14 +78,14 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
   @Test
   public void testUnsafe2() {
     String className = "testUnsafe2";
-    OClass v = db.getMetadata().getSchema().getClass("V");
+    YTClass v = db.getMetadata().getSchema().getClass("V");
     if (v == null) {
       db.getMetadata().getSchema().createClass("V");
     }
     db.getMetadata().getSchema().createClass(className, v);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -119,11 +119,11 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
   public void testReturnBefore() {
     String className = "testReturnBefore";
     db.getMetadata().getSchema().createClass(className);
-    ORID fourthId = null;
+    YTRID fourthId = null;
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       if (i == 4) {
         fourthId = doc.getIdentity();
@@ -163,7 +163,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      ODocument doc = db.newInstance(className);
+      YTDocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();

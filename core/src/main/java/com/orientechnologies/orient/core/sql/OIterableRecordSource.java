@@ -20,8 +20,8 @@
 
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -30,6 +30,6 @@ import java.util.Map;
  */
 public interface OIterableRecordSource {
 
-  Iterator<OIdentifiable> iterator(ODatabaseSessionInternal querySession,
+  Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
       final Map<Object, Object> iArgs);
 }

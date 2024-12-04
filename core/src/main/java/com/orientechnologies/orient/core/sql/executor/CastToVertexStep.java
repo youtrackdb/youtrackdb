@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -23,7 +23,7 @@ public class CastToVertexStep extends AbstractExecutionStep {
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
-    if (result.getElement().orElse(null) instanceof OVertex) {
+    if (result.getElement().orElse(null) instanceof YTVertex) {
       return result;
     }
     var db = ctx.getDatabase();

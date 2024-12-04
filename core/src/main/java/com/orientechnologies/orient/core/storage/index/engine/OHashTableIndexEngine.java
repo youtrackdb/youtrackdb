@@ -24,10 +24,10 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
@@ -252,18 +252,19 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Object get(ODatabaseSessionInternal session, Object key) {
+  public Object get(YTDatabaseSessionInternal session, Object key) {
     return hashTable.get(key);
   }
 
   @Override
-  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  public void put(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       Object value) throws IOException {
     hashTable.put(atomicOperation, key, value);
   }
 
   @Override
-  public void update(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  public void update(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation,
+      Object key,
       OIndexKeyUpdater<Object> updater)
       throws IOException {
     Object value = get(session, key);
@@ -283,8 +284,8 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator)
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator)
       throws IOException {
     return hashTable.validatedPut(atomicOperation, key, value, (IndexEngineValidator) validator);
   }
@@ -328,8 +329,8 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      ODatabaseSessionInternal session, Object rangeFrom,
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesBetween(
+      YTDatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -339,7 +340,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMajor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMajor(
       Object fromKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -348,7 +349,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> iterateEntriesMinor(
+  public Stream<ORawPair<Object, YTRID>> iterateEntriesMinor(
       Object toKey,
       boolean isInclusive,
       boolean ascSortOrder,
@@ -357,14 +358,14 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream(
+  public Stream<ORawPair<Object, YTRID>> stream(
       final IndexEngineValuesTransformer valuesTransformer) {
     return StreamSupport.stream(
-        new Spliterator<ORawPair<Object, ORID>>() {
+        new Spliterator<ORawPair<Object, YTRID>>() {
           private int nextEntriesIndex;
           private OHashTable.Entry<Object, Object>[] entries;
 
-          private Iterator<ORID> currentIterator = new OEmptyIterator<>();
+          private Iterator<YTRID> currentIterator = new OEmptyIterator<>();
           private Object currentKey;
 
           {
@@ -382,13 +383,13 @@ public final class OHashTableIndexEngine implements OIndexEngine {
           }
 
           @Override
-          public boolean tryAdvance(Consumer<? super ORawPair<Object, ORID>> action) {
+          public boolean tryAdvance(Consumer<? super ORawPair<Object, YTRID>> action) {
             if (currentIterator == null) {
               return false;
             }
 
             if (currentIterator.hasNext()) {
-              final OIdentifiable identifiable = currentIterator.next();
+              final YTIdentifiable identifiable = currentIterator.next();
               action.accept(new ORawPair<>(currentKey, identifiable.getIdentity()));
               return true;
             }
@@ -407,7 +408,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
               if (valuesTransformer != null) {
                 currentIterator = valuesTransformer.transformFromValue(value).iterator();
               } else {
-                currentIterator = Collections.singletonList((ORID) value).iterator();
+                currentIterator = Collections.singletonList((YTRID) value).iterator();
               }
 
               nextEntriesIndex++;
@@ -420,7 +421,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
             }
 
             if (currentIterator != null) {
-              final OIdentifiable identifiable = currentIterator.next();
+              final YTIdentifiable identifiable = currentIterator.next();
               action.accept(new ORawPair<>(currentKey, identifiable.getIdentity()));
               return true;
             }
@@ -429,7 +430,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
           }
 
           @Override
-          public Spliterator<ORawPair<Object, ORID>> trySplit() {
+          public Spliterator<ORawPair<Object, YTRID>> trySplit() {
             return null;
           }
 
@@ -447,14 +448,14 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream(
+  public Stream<ORawPair<Object, YTRID>> descStream(
       final IndexEngineValuesTransformer valuesTransformer) {
     return StreamSupport.stream(
-        new Spliterator<ORawPair<Object, ORID>>() {
+        new Spliterator<ORawPair<Object, YTRID>>() {
           private int nextEntriesIndex;
           private OHashTable.Entry<Object, Object>[] entries;
 
-          private Iterator<ORID> currentIterator = new OEmptyIterator<>();
+          private Iterator<YTRID> currentIterator = new OEmptyIterator<>();
           private Object currentKey;
 
           {
@@ -472,13 +473,13 @@ public final class OHashTableIndexEngine implements OIndexEngine {
           }
 
           @Override
-          public boolean tryAdvance(Consumer<? super ORawPair<Object, ORID>> action) {
+          public boolean tryAdvance(Consumer<? super ORawPair<Object, YTRID>> action) {
             if (currentIterator == null) {
               return false;
             }
 
             if (currentIterator.hasNext()) {
-              final OIdentifiable identifiable = currentIterator.next();
+              final YTIdentifiable identifiable = currentIterator.next();
               action.accept(new ORawPair<>(currentKey, identifiable.getIdentity()));
               return true;
             }
@@ -497,7 +498,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
               if (valuesTransformer != null) {
                 currentIterator = valuesTransformer.transformFromValue(value).iterator();
               } else {
-                currentIterator = Collections.singletonList((ORID) value).iterator();
+                currentIterator = Collections.singletonList((YTRID) value).iterator();
               }
 
               nextEntriesIndex--;
@@ -510,7 +511,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
             }
 
             if (currentIterator != null) {
-              final OIdentifiable identifiable = currentIterator.next();
+              final YTIdentifiable identifiable = currentIterator.next();
               action.accept(new ORawPair<>(currentKey, identifiable.getIdentity()));
               return true;
             }
@@ -519,7 +520,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
           }
 
           @Override
-          public Spliterator<ORawPair<Object, ORID>> trySplit() {
+          public Spliterator<ORawPair<Object, YTRID>> trySplit() {
             return null;
           }
 

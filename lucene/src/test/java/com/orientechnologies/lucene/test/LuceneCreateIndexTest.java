@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -50,7 +50,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
                 + "\"}")
         .close();
 
-    ODocument doc = new ODocument("Song");
+    YTDocument doc = new YTDocument("Song");
 
     doc.field("title", "Local");
     doc.field("author", "Local");
@@ -66,7 +66,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
 
     db.close();
 
-    db = (ODatabaseSessionInternal) openDatabase();
+    db = (YTDatabaseSessionInternal) openDatabase();
 
     assertQuery();
 

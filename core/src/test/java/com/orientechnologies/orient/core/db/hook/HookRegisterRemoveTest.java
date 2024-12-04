@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class HookRegisterRemoveTest extends DBTestBase {
           }
 
           @Override
-          public RESULT onTrigger(TYPE iType, ORecord iRecord) {
+          public RESULT onTrigger(TYPE iType, YTRecord iRecord) {
             integer.incrementAndGet();
             return null;
           }
@@ -35,13 +35,14 @@ public class HookRegisterRemoveTest extends DBTestBase {
     db.registerHook(iHookImpl);
 
     db.begin();
-    db.save(new ODocument().field("test", "test"), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new YTDocument().field("test", "test"),
+        db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     assertEquals(3, integer.get());
     db.unregisterHook(iHookImpl);
 
     db.begin();
-    db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
     assertEquals(3, integer.get());

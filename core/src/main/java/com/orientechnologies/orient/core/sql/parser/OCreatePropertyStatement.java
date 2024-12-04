@@ -4,10 +4,10 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassEmbedded;
-import com.orientechnologies.orient.core.metadata.schema.OPropertyImpl;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassEmbedded;
+import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
@@ -55,8 +55,8 @@ public class OCreatePropertyStatement extends ODDLStatement {
 
   private void executeInternal(OCommandContext ctx, OResultInternal result) {
     var db = ctx.getDatabase();
-    OClassEmbedded clazz =
-        (OClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());
+    YTClassEmbedded clazz =
+        (YTClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());
     if (clazz == null) {
       throw new OCommandExecutionException("Class not found: " + className.getStringValue());
     }
@@ -71,13 +71,13 @@ public class OCreatePropertyStatement extends ODDLStatement {
               + propertyName.getStringValue()
               + " already exists");
     }
-    OType type = OType.valueOf(propertyType.getStringValue().toUpperCase(Locale.ENGLISH));
+    YTType type = YTType.valueOf(propertyType.getStringValue().toUpperCase(Locale.ENGLISH));
     if (type == null) {
       throw new OCommandExecutionException(
           "Invalid property type: " + propertyType.getStringValue());
     }
-    OClass linkedClass = null;
-    OType linkedType = null;
+    YTClass linkedClass = null;
+    YTType linkedType = null;
     if (this.linkedType != null) {
       String linked = this.linkedType.getStringValue();
       // FIRST SEARCH BETWEEN CLASSES
@@ -85,12 +85,12 @@ public class OCreatePropertyStatement extends ODDLStatement {
       if (linkedClass == null)
       // NOT FOUND: SEARCH BETWEEN TYPES
       {
-        linkedType = OType.valueOf(linked.toUpperCase(Locale.ENGLISH));
+        linkedType = YTType.valueOf(linked.toUpperCase(Locale.ENGLISH));
       }
     }
     // CREATE IT LOCALLY
-    OPropertyImpl internalProp =
-        (OPropertyImpl)
+    YTPropertyImpl internalProp =
+        (YTPropertyImpl)
             clazz.addProperty(ctx.getDatabase(), propertyName.getStringValue(), type, linkedType,
                 linkedClass,
                 unsafe);

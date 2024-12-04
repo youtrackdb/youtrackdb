@@ -23,7 +23,7 @@ import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -36,7 +36,7 @@ public class OConcurrentModificationException extends ONeedRetryException
 
   private static final long serialVersionUID = 1L;
 
-  private ORID rid;
+  private YTRID rid;
   private int databaseVersion = 0;
   private int recordVersion = 0;
   private int recordOperation;
@@ -55,7 +55,7 @@ public class OConcurrentModificationException extends ONeedRetryException
   }
 
   public OConcurrentModificationException(
-      final ORID iRID,
+      final YTRID iRID,
       final int iDatabaseVersion,
       final int iRecordVersion,
       final int iRecordOperation) {
@@ -102,12 +102,12 @@ public class OConcurrentModificationException extends ONeedRetryException
     return recordVersion;
   }
 
-  public ORID getRid() {
+  public YTRID getRid() {
     return rid;
   }
 
   private static String makeMessage(
-      int recordOperation, ORID rid, int databaseVersion, int recordVersion) {
+      int recordOperation, YTRID rid, int databaseVersion, int recordVersion) {
     final String operation = ORecordOperation.getName(recordOperation);
 
     String sb =

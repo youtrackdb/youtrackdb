@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.sql.executor.ORidSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,7 +14,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testPut() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 100);
+    YTRID rid = new YTRecordId(12, 100);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -23,7 +23,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testPut0() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 0);
+    YTRID rid = new YTRecordId(12, 0);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -32,7 +32,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testPut31() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 31);
+    YTRID rid = new YTRecordId(12, 31);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -41,7 +41,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testPut32() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 32);
+    YTRID rid = new YTRecordId(12, 32);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -50,7 +50,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testPut63() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 63);
+    YTRID rid = new YTRecordId(12, 63);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -59,7 +59,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testPut64() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 64);
+    YTRID rid = new YTRecordId(12, 64);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -68,7 +68,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testPut65() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 65);
+    YTRID rid = new YTRecordId(12, 65);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -77,7 +77,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testRemove() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 31);
+    YTRID rid = new YTRecordId(12, 31);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -88,7 +88,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testBigClusterId() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(1200, 100);
+    YTRID rid = new YTRecordId(1200, 100);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -99,7 +99,7 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testBigClusterPosition() {
     ORidSet set = new ORidSet();
-    ORID rid = new ORecordId(12, 200L * 1000 * 1000);
+    YTRID rid = new YTRecordId(12, 200L * 1000 * 1000);
     Assert.assertFalse(set.contains(rid));
     set.add(rid);
     Assert.assertTrue(set.contains(rid));
@@ -110,25 +110,25 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testIterator() {
 
-    Set<ORID> set = new ORidSet();
+    Set<YTRID> set = new ORidSet();
     int clusters = 100;
     int idsPerCluster = 10;
 
     for (int cluster = 0; cluster < clusters; cluster++) {
       for (long id = 0; id < idsPerCluster; id++) {
-        set.add(new ORecordId(cluster, id));
+        set.add(new YTRecordId(cluster, id));
       }
     }
-    Iterator<ORID> iterator = set.iterator();
+    Iterator<YTRID> iterator = set.iterator();
 
     System.out.println("stating");
     long begin = System.currentTimeMillis();
     for (int cluster = 0; cluster < clusters; cluster++) {
       for (long id = 0; id < idsPerCluster; id++) {
         Assert.assertTrue(iterator.hasNext());
-        ORID next = iterator.next();
+        YTRID next = iterator.next();
         Assert.assertNotNull(next);
-        //        Assert.assertEquals(new ORecordId(cluster, id), next);
+        //        Assert.assertEquals(new YTRecordId(cluster, id), next);
       }
     }
     System.out.println("elapsed: " + (System.currentTimeMillis() - begin));
@@ -138,23 +138,23 @@ public class ORidSetTest extends OParserTestAbstract {
   @Test
   public void testIteratorOffset() {
 
-    Set<ORID> control = new HashSet<>();
-    Set<ORID> set = new ORidSet();
+    Set<YTRID> control = new HashSet<>();
+    Set<YTRID> set = new ORidSet();
 
     long offset = (((long) Integer.MAX_VALUE)) * 63;
     long idsPerCluster = 10;
 
     int cluster = 1;
     for (long id = 0; id < idsPerCluster; id++) {
-      ORecordId rid = new ORecordId(cluster, offset + id);
+      YTRecordId rid = new YTRecordId(cluster, offset + id);
       set.add(rid);
       control.add(rid);
     }
-    Iterator<ORID> iterator = set.iterator();
+    Iterator<YTRID> iterator = set.iterator();
 
     for (long id = 0; id < idsPerCluster; id++) {
       Assert.assertTrue(iterator.hasNext());
-      ORID next = iterator.next();
+      YTRID next = iterator.next();
       Assert.assertNotNull(next);
       control.remove(next);
     }

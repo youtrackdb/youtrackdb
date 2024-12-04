@@ -4,8 +4,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.binary.OBinaryToken;
 import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenPayloadImpl;
 import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenSerializer;
@@ -30,7 +30,7 @@ public class OBinaryTokenSerializerTest {
     OBinaryTokenPayloadImpl payload = new OBinaryTokenPayloadImpl();
     payload.setDatabase("test");
     payload.setDatabaseType("plocal");
-    payload.setUserRid(new ORecordId(43, 234));
+    payload.setUserRid(new YTRecordId(43, 234));
     OrientJwtHeader header = new OrientJwtHeader();
     header.setKeyId("key");
     header.setAlgorithm("HmacSHA256");
@@ -49,7 +49,7 @@ public class OBinaryTokenSerializerTest {
 
     assertEquals("test", token.getDatabase());
     assertEquals("plocal", token.getDatabaseType());
-    ORID id = token.getUserId();
+    YTRID id = token.getUserId();
     assertEquals(43, id.getClusterId());
     assertEquals(20L, tok.getExpiry());
 
@@ -69,7 +69,7 @@ public class OBinaryTokenSerializerTest {
     OBinaryTokenPayloadImpl payload = new OBinaryTokenPayloadImpl();
     payload.setDatabase("test");
     payload.setDatabaseType("plocal");
-    payload.setUserRid(new ORecordId(43, 234));
+    payload.setUserRid(new YTRecordId(43, 234));
     OrientJwtHeader header = new OrientJwtHeader();
     header.setKeyId("key");
     header.setAlgorithm("HmacSHA256");
@@ -90,7 +90,7 @@ public class OBinaryTokenSerializerTest {
 
     assertEquals("test", token.getDatabase());
     assertEquals("plocal", token.getDatabaseType());
-    ORID id = token.getUserId();
+    YTRID id = token.getUserId();
     assertEquals(43, id.getClusterId());
     assertEquals(20L, tok.getExpiry());
     assertTrue(token.isServerUser());
@@ -133,7 +133,7 @@ public class OBinaryTokenSerializerTest {
 
     assertNull(token.getDatabase());
     assertNull(token.getDatabaseType());
-    ORID id = token.getUserId();
+    YTRID id = token.getUserId();
     assertNull(id);
     assertEquals(20L, tok.getExpiry());
     assertTrue(token.isServerUser());

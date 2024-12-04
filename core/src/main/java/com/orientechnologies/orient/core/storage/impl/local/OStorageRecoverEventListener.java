@@ -1,22 +1,22 @@
 package com.orientechnologies.orient.core.storage.impl.local;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Event Listener interface invoked during storage recovering.
  */
 public interface OStorageRecoverEventListener {
 
-  void onScannedEdge(ODocument edge);
+  void onScannedEdge(YTDocument edge);
 
-  void onRemovedEdge(ODocument edge);
+  void onRemovedEdge(YTDocument edge);
 
-  void onScannedVertex(ODocument vertex);
+  void onScannedVertex(YTDocument vertex);
 
-  void onScannedLink(OIdentifiable link);
+  void onScannedLink(YTIdentifiable link);
 
-  void onRemovedLink(OIdentifiable link);
+  void onRemovedLink(YTIdentifiable link);
 
-  void onRepairedVertex(ODocument vertex);
+  void onRepairedVertex(YTDocument vertex);
 }

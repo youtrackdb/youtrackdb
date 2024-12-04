@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
@@ -28,5 +28,5 @@ import javax.script.ScriptEngine;
  */
 public interface OScriptResultHandler {
 
-  Object handle(Object result, ScriptEngine engine, Bindings binding, ODatabaseSession database);
+  Object handle(Object result, ScriptEngine engine, Bindings binding, YTDatabaseSession database);
 }

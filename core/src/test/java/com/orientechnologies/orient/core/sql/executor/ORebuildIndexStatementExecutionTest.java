@@ -3,10 +3,10 @@ package com.orientechnologies.orient.core.sql.executor;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,16 +18,16 @@ public class ORebuildIndexStatementExecutionTest extends DBTestBase {
   @Test
   public void indexAfterRebuildShouldIncludeAllClusters() {
     // given
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     String className = "IndexClusterTest";
 
-    OClass oclass = schema.createClass(className);
-    oclass.createProperty(db, "key", OType.STRING);
-    oclass.createProperty(db, "value", OType.INTEGER);
-    oclass.createIndex(db, className + "index1", OClass.INDEX_TYPE.NOTUNIQUE, "key");
+    YTClass oclass = schema.createClass(className);
+    oclass.createProperty(db, "key", YTType.STRING);
+    oclass.createProperty(db, "value", YTType.INTEGER);
+    oclass.createIndex(db, className + "index1", YTClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     db.begin();
-    OElement ele = db.newInstance(className);
+    YTEntity ele = db.newInstance(className);
     ele.setProperty("key", "a");
     ele.setProperty("value", 1);
     db.save(ele);
@@ -37,7 +37,7 @@ public class ORebuildIndexStatementExecutionTest extends DBTestBase {
     oclass.addClusterId(db, clId);
 
     db.begin();
-    OElement ele1 = db.newInstance(className);
+    YTEntity ele1 = db.newInstance(className);
     ele1.setProperty("key", "a");
     ele1.setProperty("value", 2);
     db.save(ele1, className + "secondCluster");

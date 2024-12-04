@@ -26,19 +26,19 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
@@ -82,8 +82,8 @@ public class OSQLFilterCondition {
   }
 
   public Object evaluate(
-      final OIdentifiable iCurrentRecord,
-      final ODocument iCurrentResult,
+      final YTIdentifiable iCurrentRecord,
+      final YTDocument iCurrentResult,
       final OCommandContext iContext) {
     var db = iContext.getDatabase();
     boolean binaryEvaluation =
@@ -111,12 +111,12 @@ public class OSQLFilterCondition {
     }
 
     Object r = evaluate(iCurrentRecord, iCurrentResult, right, iContext, binaryEvaluation);
-    OImmutableSchema schema =
+    YTImmutableSchema schema =
         ODatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
 
     if (binaryEvaluation && l instanceof OBinaryField) {
       if (r != null && !(r instanceof OBinaryField)) {
-        final OType type = OType.getTypeByValue(r);
+        final YTType type = YTType.getTypeByValue(r);
 
         if (ORecordSerializerBinary.INSTANCE
             .getCurrentSerializer()
@@ -147,7 +147,7 @@ public class OSQLFilterCondition {
 
     if (binaryEvaluation && r instanceof OBinaryField) {
       if (l != null && !(l instanceof OBinaryField)) {
-        final OType type = OType.getTypeByValue(l);
+        final YTType type = YTType.getTypeByValue(l);
         if (ORecordSerializerBinary.INSTANCE
             .getCurrentSerializer()
             .getComparator()
@@ -223,7 +223,7 @@ public class OSQLFilterCondition {
     return null;
   }
 
-  public OCollate getCollate(OIdentifiable doc) {
+  public OCollate getCollate(YTIdentifiable doc) {
     if (left instanceof OSQLFilterItemField) {
       return ((OSQLFilterItemField) left).getCollate(doc);
     } else if (right instanceof OSQLFilterItemField) {
@@ -232,7 +232,7 @@ public class OSQLFilterCondition {
     return null;
   }
 
-  public ORID getBeginRidRange(ODatabaseSession session) {
+  public YTRID getBeginRidRange(YTDatabaseSession session) {
     if (operator == null) {
       if (left instanceof OSQLFilterCondition) {
         return ((OSQLFilterCondition) left).getBeginRidRange(session);
@@ -244,7 +244,7 @@ public class OSQLFilterCondition {
     return operator.getBeginRidRange(session, left, right);
   }
 
-  public ORID getEndRidRange(ODatabaseSession session) {
+  public YTRID getEndRidRange(YTDatabaseSession session) {
     if (operator == null) {
       if (left instanceof OSQLFilterCondition) {
         return ((OSQLFilterCondition) left).getEndRidRange(session);
@@ -411,8 +411,8 @@ public class OSQLFilterCondition {
   }
 
   protected Object evaluate(
-      OIdentifiable iCurrentRecord,
-      final ODocument iCurrentResult,
+      YTIdentifiable iCurrentRecord,
+      final YTDocument iCurrentResult,
       final Object iValue,
       final OCommandContext iContext,
       final boolean binaryEvaluation) {
@@ -427,7 +427,7 @@ public class OSQLFilterCondition {
     try {
       if (iCurrentRecord != null) {
         iCurrentRecord = iCurrentRecord.getRecord();
-        if (((ORecordAbstract) iCurrentRecord).getInternalStatus()
+        if (((YTRecordAbstract) iCurrentRecord).getInternalStatus()
             == ORecordElement.STATUS.NOT_LOADED) {
           var db = iContext.getDatabase();
           iCurrentRecord = db.bindToSession(iCurrentRecord);
@@ -440,7 +440,7 @@ public class OSQLFilterCondition {
     if (binaryEvaluation
         && iValue instanceof OSQLFilterItemField
         && iCurrentRecord != null
-        && !((ODocument) iCurrentRecord).isDirty()
+        && !((YTDocument) iCurrentRecord).isDirty()
         && !iCurrentRecord.getIdentity().isTemporary()) {
       final OBinaryField bField = ((OSQLFilterItemField) iValue).getBinaryField(iCurrentRecord);
       if (bField != null) {
@@ -483,7 +483,8 @@ public class OSQLFilterCondition {
   }
 
   private Object[] checkForConversion(
-      ODatabaseSession session, final OIdentifiable o, Object l, Object r, final OCollate collate) {
+      YTDatabaseSession session, final YTIdentifiable o, Object l, Object r,
+      final OCollate collate) {
     Object[] result = null;
 
     final Object oldL = l;
@@ -549,12 +550,12 @@ public class OSQLFilterCondition {
         } else if (l instanceof Float && !(r instanceof Float || r instanceof Collection)) {
           // FLOATS
           result = new Object[]{l, getFloat(r)};
-        } else if (r instanceof ORID && l instanceof String && !oldL.equals(OSQLHelper.NOT_NULL)) {
+        } else if (r instanceof YTRID && l instanceof String && !oldL.equals(OSQLHelper.NOT_NULL)) {
           // RIDS
-          result = new Object[]{new ORecordId((String) l), r};
-        } else if (l instanceof ORID && r instanceof String && !oldR.equals(OSQLHelper.NOT_NULL)) {
+          result = new Object[]{new YTRecordId((String) l), r};
+        } else if (l instanceof YTRID && r instanceof String && !oldR.equals(OSQLHelper.NOT_NULL)) {
           // RIDS
-          result = new Object[]{l, new ORecordId((String) r)};
+          result = new Object[]{l, new YTRecordId((String) r)};
         }
       }
     } catch (Exception ignore) {

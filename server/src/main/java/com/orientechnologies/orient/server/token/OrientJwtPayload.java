@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.token;
 
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenMetaInfo;
 import java.io.DataOutputStream;
@@ -18,7 +18,7 @@ public class OrientJwtPayload implements OJwtPayload {
   public long exp;
   public long iat;
   public long nbf;
-  public ORID userRid;
+  public YTRID userRid;
   public String database;
   public String databaseType;
 
@@ -92,11 +92,11 @@ public class OrientJwtPayload implements OJwtPayload {
     this.jti = jti;
   }
 
-  public ORID getUserRid() {
+  public YTRID getUserRid() {
     return userRid;
   }
 
-  public void setUserRid(ORID userRid) {
+  public void setUserRid(YTRID userRid) {
     this.userRid = userRid;
   }
 

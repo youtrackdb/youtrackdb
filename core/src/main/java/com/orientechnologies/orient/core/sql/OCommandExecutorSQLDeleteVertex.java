@@ -27,18 +27,18 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestInternal;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import java.util.ArrayList;
@@ -55,12 +55,12 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
 
   public static final String NAME = "DELETE VERTEX";
   private static final String KEYWORD_BATCH = "BATCH";
-  private ORecordId rid;
+  private YTRecordId rid;
   private int removed = 0;
-  private ODatabaseSessionInternal database;
+  private YTDatabaseSessionInternal database;
   private OCommandRequest query;
   private String returning = "COUNT";
-  private List<ORecord> allDeletedRecords;
+  private List<YTRecord> allDeletedRecords;
   private final OModifiableBoolean shutdownFlag = new OModifiableBoolean();
   private boolean txAlreadyBegun;
   private int batch = 100;
@@ -81,7 +81,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
       parserRequiredKeyword("DELETE");
       parserRequiredKeyword("VERTEX");
 
-      OClass clazz = null;
+      YTClass clazz = null;
       String where = null;
 
       int limit = -1;
@@ -89,14 +89,14 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
       while (word != null) {
 
         if (word.startsWith("#")) {
-          rid = new ORecordId(word);
+          rid = new YTRecordId(word);
 
         } else if (word.equalsIgnoreCase("from")) {
           final StringBuilder q = new StringBuilder();
           final int newPos =
               OStringSerializerHelper.getEmbedded(parserText, parserGetCurrentPosition(), -1, q);
 
-          query = database.command(new OSQLAsynchQuery<ODocument>(q.toString(), this));
+          query = database.command(new OSQLAsynchQuery<YTDocument>(q.toString(), this));
 
           parserSetCurrentPosition(newPos);
 
@@ -113,7 +113,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
                   : "";
           query =
               database.command(
-                  new OSQLAsynchQuery<ODocument>(
+                  new OSQLAsynchQuery<YTDocument>(
                       "select from `" + clazz.getName() + "`" + where, this));
           break;
 
@@ -168,7 +168,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
         if (limit > -1) {
           queryString.append(" LIMIT ").append(limit);
         }
-        query = database.command(new OSQLAsynchQuery<ODocument>(queryString.toString(), this));
+        query = database.command(new OSQLAsynchQuery<YTDocument>(queryString.toString(), this));
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -178,25 +178,25 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
   }
 
   /**
-   * Execute the command and return the ODocument object created.
+   * Execute the command and return the YTDocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (rid == null && query == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     if (!returning.equalsIgnoreCase("COUNT")) {
-      allDeletedRecords = new ArrayList<ORecord>();
+      allDeletedRecords = new ArrayList<YTRecord>();
     }
 
     txAlreadyBegun = getDatabase().getTransaction().isActive();
 
-    ODatabaseSessionInternal db = getDatabase();
+    YTDatabaseSessionInternal db = getDatabase();
     if (rid != null) {
       // REMOVE PUNCTUAL RID
       db.begin();
-      final OVertex v = toVertex(rid);
+      final YTVertex v = toVertex(rid);
       if (v != null) {
         v.delete();
         removed = 1;
@@ -230,13 +230,13 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
   /**
    * Delete the current vertex.
    */
-  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
-    final OIdentifiable id = (OIdentifiable) iRecord;
+  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
+    final YTIdentifiable id = (YTIdentifiable) iRecord;
     if (id.getIdentity().isValid()) {
-      final ODocument record = id.getRecord();
-      ODatabaseSessionInternal db = getDatabase();
+      final YTDocument record = id.getRecord();
+      YTDatabaseSessionInternal db = getDatabase();
 
-      final OVertex v = toVertex(record);
+      final YTVertex v = toVertex(record);
       if (v != null) {
         v.delete();
 
@@ -258,7 +258,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
 
   @Override
   public long getDistributedTimeout() {
-    return OGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT.getValueAsLong();
+    return YTGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT.getValueAsLong();
   }
 
   @Override
@@ -269,7 +269,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
 
   @Override
   public void end() {
-    ODatabaseSessionInternal db = getDatabase();
+    YTDatabaseSessionInternal db = getDatabase();
     if (!txAlreadyBegun) {
       db.commit();
     }
@@ -355,9 +355,9 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
     return (RET) this;
   }
 
-  private static OVertex toVertex(OIdentifiable item) {
-    if (item instanceof OElement) {
-      return ((OElement) item).asVertex().orElse(null);
+  private static YTVertex toVertex(YTIdentifiable item) {
+    if (item instanceof YTEntity) {
+      return ((YTEntity) item).asVertex().orElse(null);
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
@@ -365,8 +365,8 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
         return null;
       }
 
-      if (item instanceof OElement) {
-        return ((OElement) item).asVertex().orElse(null);
+      if (item instanceof YTEntity) {
+        return ((YTEntity) item).asVertex().orElse(null);
       }
     }
     return null;

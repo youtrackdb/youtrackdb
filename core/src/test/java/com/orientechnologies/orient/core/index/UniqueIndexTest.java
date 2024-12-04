@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.Assert;
@@ -23,11 +23,11 @@ public class UniqueIndexTest extends DBTestBase {
     var linkClass = db.createLightweightEdgeClass("Link");
 
     var entityClass = db.createVertexClass("Entity");
-    var edgeOutPropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(db, edgeOutPropertyName, OType.LINKBAG);
+    var edgeOutPropertyName = YTVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
+    entityClass.createProperty(db, edgeOutPropertyName, YTType.LINKBAG);
 
-    entityClass.createProperty(db, "type", OType.STRING);
-    entityClass.createIndex(db, "typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", YTType.STRING);
+    entityClass.createIndex(db, "typeLink", YTClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -64,11 +64,11 @@ public class UniqueIndexTest extends DBTestBase {
     var linkClass = db.createLightweightEdgeClass("Link");
 
     var entityClass = db.createVertexClass("Entity");
-    var edgeOutPropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(db, edgeOutPropertyName, OType.LINKBAG);
+    var edgeOutPropertyName = YTVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
+    entityClass.createProperty(db, edgeOutPropertyName, YTType.LINKBAG);
 
-    entityClass.createProperty(db, "type", OType.STRING);
-    entityClass.createIndex(db, "typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", YTType.STRING);
+    entityClass.createIndex(db, "typeLink", YTClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -93,11 +93,11 @@ public class UniqueIndexTest extends DBTestBase {
     var linkClass = db.createLightweightEdgeClass("Link");
 
     var entityClass = db.createVertexClass("Entity");
-    var edgeOutPropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(db, edgeOutPropertyName, OType.LINKBAG);
+    var edgeOutPropertyName = YTVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
+    entityClass.createProperty(db, edgeOutPropertyName, YTType.LINKBAG);
 
-    entityClass.createProperty(db, "type", OType.STRING);
-    entityClass.createIndex(db, "typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", YTType.STRING);
+    entityClass.createIndex(db, "typeLink", YTClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -118,28 +118,28 @@ public class UniqueIndexTest extends DBTestBase {
 
   @Test()
   public void testUniqueOnUpdate() {
-    final OSchema schema = db.getMetadata().getSchema();
-    OClass userClass = schema.createClass("User");
-    userClass.createProperty(db, "MailAddress", OType.STRING)
-        .createIndex(db, OClass.INDEX_TYPE.UNIQUE);
+    final YTSchema schema = db.getMetadata().getSchema();
+    YTClass userClass = schema.createClass("User");
+    userClass.createProperty(db, "MailAddress", YTType.STRING)
+        .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    ODocument john = new ODocument("User");
+    YTDocument john = new YTDocument("User");
     john.field("MailAddress", "john@doe.com");
     db.save(john);
     db.commit();
 
     db.begin();
-    ODocument jane = new ODocument("User");
+    YTDocument jane = new YTDocument("User");
     jane.field("MailAddress", "jane@doe.com");
-    ODocument id = jane;
+    YTDocument id = jane;
     jane.save();
     db.save(jane);
     db.commit();
 
     try {
       db.begin();
-      ODocument toUp = db.load(id.getIdentity());
+      YTDocument toUp = db.load(id.getIdentity());
       toUp.field("MailAddress", "john@doe.com");
       db.save(toUp);
       db.commit();
@@ -147,29 +147,29 @@ public class UniqueIndexTest extends DBTestBase {
     } catch (ORecordDuplicatedException ex) {
       // ignore
     }
-    ODocument fromDb = db.load(id.getIdentity());
+    YTDocument fromDb = db.load(id.getIdentity());
     Assert.assertEquals(fromDb.field("MailAddress"), "jane@doe.com");
   }
 
   @Test
   public void testUniqueOnUpdateNegativeVersion() {
-    final OSchema schema = db.getMetadata().getSchema();
-    OClass userClass = schema.createClass("User");
-    userClass.createProperty(db, "MailAddress", OType.STRING)
-        .createIndex(db, OClass.INDEX_TYPE.UNIQUE);
+    final YTSchema schema = db.getMetadata().getSchema();
+    YTClass userClass = schema.createClass("User");
+    userClass.createProperty(db, "MailAddress", YTType.STRING)
+        .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    ODocument jane = new ODocument("User");
+    YTDocument jane = new YTDocument("User");
     jane.field("MailAddress", "jane@doe.com");
     jane.save();
     db.commit();
 
-    final ORID rid = jane.getIdentity();
+    final YTRID rid = jane.getIdentity();
 
     reOpen("admin", "adminpwd");
 
     db.begin();
-    ODocument joneJane = db.load(rid);
+    YTDocument joneJane = db.load(rid);
 
     joneJane.field("MailAddress", "john@doe.com");
     joneJane.field("@version", -1);
@@ -181,7 +181,7 @@ public class UniqueIndexTest extends DBTestBase {
 
     try {
       db.begin();
-      ODocument toUp = new ODocument("User");
+      YTDocument toUp = new YTDocument("User");
       toUp.field("MailAddress", "john@doe.com");
 
       db.save(toUp);

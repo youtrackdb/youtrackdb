@@ -5,10 +5,10 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -38,7 +38,7 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     return operator.execute(left.execute(currentRecord, ctx), right.execute(currentRecord, ctx));
   }
 
@@ -146,7 +146,7 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   public OBinaryCondition isIndexedFunctionCondition(
-      OClass iSchemaClass, ODatabaseSessionInternal database) {
+      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
     if (left.isIndexedFunctionCal(database)) {
       return this;
     }
@@ -158,7 +158,7 @@ public class OBinaryCondition extends OBooleanExpression {
         target, context, operator, right.execute((OResult) null, context));
   }
 
-  public Iterable<OIdentifiable> executeIndexedFunction(
+  public Iterable<YTIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext context) {
     return left.executeIndexedFunction(
         target, context, operator, right.execute((OResult) null, context));
@@ -212,7 +212,7 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   public List<OBinaryCondition> getIndexedFunctionConditions(
-      OClass iSchemaClass, ODatabaseSessionInternal database) {
+      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
     if (left.isIndexedFunctionCal(database)) {
       return Collections.singletonList(this);
     }
@@ -422,7 +422,7 @@ public class OBinaryCondition extends OBooleanExpression {
     return result;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("left", left.serialize(db));
     result.setProperty("operator", operator.getClass().getName());
@@ -445,12 +445,12 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     return left.isCacheable(session) && right.isCacheable(session);
   }
 
   @Override
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, OClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
     if (operator instanceof OEqualsCompareOperator
         && right.isEarlyCalculated(ctx)
         && left.isIndexChain(ctx, clazz)) {
@@ -467,7 +467,7 @@ public class OBinaryCondition extends OBooleanExpression {
 
       result.operator = new OInOperator(-1);
 
-      OClass nextClazz =
+      YTClass nextClazz =
           clazz
               .getProperty(base.getIdentifier().suffix.getIdentifier().getStringValue())
               .getLinkedClass();
@@ -480,8 +480,8 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   public static OSelectStatement indexChainToStatement(
-      OModifier modifier, OClass clazz, OExpression right, OCommandContext ctx) {
-    OClass queryClass = clazz;
+      OModifier modifier, YTClass clazz, OExpression right, OCommandContext ctx) {
+    YTClass queryClass = clazz;
 
     OSelectStatement result = new OSelectStatement(-1);
     result.target = new OFromClause(-1);

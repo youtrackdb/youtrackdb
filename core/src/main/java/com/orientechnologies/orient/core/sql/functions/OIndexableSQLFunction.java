@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
@@ -48,7 +48,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * @return an iterable of records that match the condition; null means that the execution could
    * not be performed for some reason.
    */
-  Iterable<OIdentifiable> searchFromTarget(
+  Iterable<YTIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,

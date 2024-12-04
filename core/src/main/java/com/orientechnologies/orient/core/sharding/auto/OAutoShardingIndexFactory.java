@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.index.OIndexNotUnique;
 import com.orientechnologies.orient.core.index.OIndexUnique;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.index.engine.ORemoteIndexEngine;
@@ -53,8 +53,8 @@ public class OAutoShardingIndexFactory implements OIndexFactory {
 
   static {
     final Set<String> types = new HashSet<>();
-    types.add(OClass.INDEX_TYPE.UNIQUE.toString());
-    types.add(OClass.INDEX_TYPE.NOTUNIQUE.toString());
+    types.add(YTClass.INDEX_TYPE.UNIQUE.toString());
+    types.add(YTClass.INDEX_TYPE.NOTUNIQUE.toString());
     TYPES = Collections.unmodifiableSet(types);
   }
 
@@ -92,9 +92,9 @@ public class OAutoShardingIndexFactory implements OIndexFactory {
     }
 
     if (AUTOSHARDING_ALGORITHM.equals(algorithm)) {
-      if (OClass.INDEX_TYPE.UNIQUE.toString().equals(indexType)) {
+      if (YTClass.INDEX_TYPE.UNIQUE.toString().equals(indexType)) {
         return new OIndexUnique(im, storage);
-      } else if (OClass.INDEX_TYPE.NOTUNIQUE.toString().equals(indexType)) {
+      } else if (YTClass.INDEX_TYPE.NOTUNIQUE.toString().equals(indexType)) {
         return new OIndexNotUnique(im, storage);
       }
 

@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -20,7 +20,7 @@ public class ODatabasePoolRemoteTest {
 
   @Before
   public void before() throws Exception {
-    OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = new OServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(
@@ -38,7 +38,7 @@ public class ODatabasePoolRemoteTest {
             "remote:localhost:",
             "root",
             "root",
-            YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
+            YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.DB_POOL_MAX, 1).build());
 
     if (!youTrackDb.exists("test")) {
       youTrackDb.execute(
@@ -46,12 +46,12 @@ public class ODatabasePoolRemoteTest {
     }
 
     ODatabasePool pool = new ODatabasePool(youTrackDb, "test", "admin", "admin");
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
+    YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
-    db.save(new ODocument("Test"));
+    db.save(new YTDocument("Test"));
     db.close();
-    db = (ODatabaseSessionInternal) pool.acquire();
+    db = (YTDatabaseSessionInternal) pool.acquire();
     assertEquals(0, db.countClass("Test"));
 
     pool.close();
@@ -63,7 +63,7 @@ public class ODatabasePoolRemoteTest {
     YouTrackDB youTrackDb =
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
+            YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.DB_POOL_MAX, 1).build());
 
     if (!youTrackDb.exists("test")) {
       youTrackDb.execute(

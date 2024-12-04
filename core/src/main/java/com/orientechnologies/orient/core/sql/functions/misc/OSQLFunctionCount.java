@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.math.OSQLFunctionMathAbstract;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class OSQLFunctionCount extends OSQLFunctionMathAbstract {
 
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -57,7 +57,7 @@ public class OSQLFunctionCount extends OSQLFunctionMathAbstract {
     return true;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "count(<field>|*)";
   }
 

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 /**
  *
@@ -13,7 +13,7 @@ public class ODeleteExecutionPlan extends OUpdateExecutionPlan {
   }
 
   @Override
-  public OResult toResult(ODatabaseSessionInternal db) {
+  public OResult toResult(YTDatabaseSessionInternal db) {
     OResultInternal res = (OResultInternal) super.toResult(db);
     res.setProperty("type", "DeleteExecutionPlan");
     return res;

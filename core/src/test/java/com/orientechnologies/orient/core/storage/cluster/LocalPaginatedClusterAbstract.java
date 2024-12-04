@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.storage.cluster;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.types.OModifiableInteger;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -30,7 +30,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
   protected static String buildDirectory;
   protected static OPaginatedCluster paginatedCluster;
-  protected static ODatabaseSessionInternal databaseDocumentTx;
+  protected static YTDatabaseSessionInternal databaseDocumentTx;
   protected static YouTrackDB youTrackDB;
   protected static String dbName;
   protected static OAbstractPaginatedStorage storage;

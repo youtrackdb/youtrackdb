@@ -24,18 +24,18 @@ import static com.orientechnologies.orient.core.record.impl.ODocumentHelper.make
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper.ODbRelatedCall;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -52,8 +52,8 @@ import java.util.stream.Stream;
 
 public class ODatabaseCompare extends ODatabaseImpExpAbstract {
 
-  private final ODatabaseSessionInternal databaseOne;
-  private final ODatabaseSessionInternal databaseTwo;
+  private final YTDatabaseSessionInternal databaseOne;
+  private final YTDatabaseSessionInternal databaseTwo;
 
   private boolean compareEntriesForAutomaticIndexes = false;
   private boolean autoDetectExportImportMap = true;
@@ -66,8 +66,8 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
   private int clusterDifference = 0;
 
   public ODatabaseCompare(
-      ODatabaseSessionInternal databaseOne,
-      ODatabaseSessionInternal databaseTwo,
+      YTDatabaseSessionInternal databaseOne,
+      YTDatabaseSessionInternal databaseTwo,
       final OCommandOutputListener iListener) {
     super(null, null, iListener);
 
@@ -85,8 +85,8 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     // exclude automatically generated clusters
     excludeIndexes.add(ODatabaseImport.EXPORT_IMPORT_INDEX_NAME);
 
-    final OSchema schema = databaseTwo.getMetadata().getSchema();
-    final OClass cls = schema.getClass(ODatabaseImport.EXPORT_IMPORT_CLASS_NAME);
+    final YTSchema schema = databaseTwo.getMetadata().getSchema();
+    final YTClass cls = schema.getClass(ODatabaseImport.EXPORT_IMPORT_CLASS_NAME);
 
     if (cls != null) {
       final int[] clusterIds = cls.getClusterIds();
@@ -128,7 +128,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                             + " where key = ?",
                         rid.toString())) {
                   if (resultSet.hasNext()) {
-                    return new ORecordId(resultSet.next().<String>getProperty("value"));
+                    return new YTRecordId(resultSet.next().<String>getProperty("value"));
                   }
                   return null;
                 }
@@ -185,11 +185,11 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
   }
 
   private void compareSchema() {
-    OSchema schema1 = databaseOne.getMetadata().getImmutableSchemaSnapshot();
-    OSchema schema2 = databaseTwo.getMetadata().getImmutableSchemaSnapshot();
+    YTSchema schema1 = databaseOne.getMetadata().getImmutableSchemaSnapshot();
+    YTSchema schema2 = databaseTwo.getMetadata().getImmutableSchemaSnapshot();
     boolean ok = true;
-    for (OClass clazz : schema1.getClasses()) {
-      OClass clazz2 = schema2.getClass(clazz.getName());
+    for (YTClass clazz : schema1.getClasses()) {
+      YTClass clazz2 = schema2.getClass(clazz.getName());
 
       if (clazz2 == null) {
         listener.onMessage("\n- ERR: Class definition " + clazz.getName() + " for DB2 is null.");
@@ -251,8 +251,8 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       // ok = false;
       // }
 
-      for (OProperty prop : clazz.declaredProperties()) {
-        OProperty prop2 = clazz2.getProperty(prop.getName());
+      for (YTProperty prop : clazz.declaredProperties()) {
+        YTProperty prop2 = clazz2.getProperty(prop.getName());
         if (prop2 == null) {
           listener.onMessage(
               "\n- ERR: Class definition for "
@@ -563,10 +563,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
           while (makeDbCall(databaseOne, database -> indexKeyIteratorOne.hasNext())) {
             final Object indexKey = makeDbCall(databaseOne, database -> indexKeyIteratorOne.next());
 
-            try (Stream<ORID> indexOneStream =
+            try (Stream<YTRID> indexOneStream =
                 makeDbCall(databaseOne,
                     database -> indexOne.getInternal().getRids(database, indexKey))) {
-              try (Stream<ORID> indexTwoValue =
+              try (Stream<YTRID> indexTwoValue =
                   makeDbCall(databaseTwo,
                       database -> indexTwo.getInternal().getRids(database, indexKey))) {
                 differences +=
@@ -587,22 +587,22 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
 
   private static int compareIndexStreams(
       final Object indexKey,
-      final Stream<ORID> streamOne,
-      final Stream<ORID> streamTwo,
+      final Stream<YTRID> streamOne,
+      final Stream<YTRID> streamTwo,
       final ODocumentHelper.RIDMapper ridMapper,
       final OCommandOutputListener listener) {
-    final Set<ORID> streamTwoSet = new HashSet<>();
+    final Set<YTRID> streamTwoSet = new HashSet<>();
 
-    final Iterator<ORID> streamOneIterator = streamOne.iterator();
-    final Iterator<ORID> streamTwoIterator = streamTwo.iterator();
+    final Iterator<YTRID> streamOneIterator = streamOne.iterator();
+    final Iterator<YTRID> streamTwoIterator = streamTwo.iterator();
 
     int differences = 0;
     while (streamOneIterator.hasNext()) {
-      ORID rid;
+      YTRID rid;
       if (ridMapper == null) {
         rid = streamOneIterator.next();
       } else {
-        final ORID streamOneRid = streamOneIterator.next();
+        final YTRID streamOneRid = streamOneIterator.next();
         rid = ridMapper.map(streamOneRid);
         if (rid == null) {
           rid = streamOneRid;
@@ -617,7 +617,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
         } else {
           boolean found = false;
           while (streamTwoIterator.hasNext()) {
-            final ORID streamRid = streamTwoIterator.next();
+            final YTRID streamRid = streamTwoIterator.next();
             if (streamRid.equals(rid)) {
               found = true;
               break;
@@ -635,14 +635,14 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     }
 
     while (streamTwoIterator.hasNext()) {
-      final ORID rid = streamTwoIterator.next();
+      final YTRID rid = streamTwoIterator.next();
       listener.onMessage(
           "\r\nEntry " + indexKey + ":" + rid + " is present in DB2 but absent in DB1");
 
       differences++;
     }
 
-    for (final ORID rid : streamTwoSet) {
+    for (final YTRID rid : streamTwoSet) {
       listener.onMessage(
           "\r\nEntry " + indexKey + ":" + rid + " is present in DB2 but absent in DB1");
 
@@ -658,10 +658,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     listener.onMessage("\nChecking the number of clusters...");
 
     Collection<String> clusterNames1 =
-        makeDbCall(databaseOne, ODatabaseSessionInternal::getClusterNames);
+        makeDbCall(databaseOne, YTDatabaseSessionInternal::getClusterNames);
 
     Collection<String> clusterNames2 =
-        makeDbCall(databaseTwo, ODatabaseSessionInternal::getClusterNames);
+        makeDbCall(databaseTwo, YTDatabaseSessionInternal::getClusterNames);
 
     if (clusterNames1.size() != clusterNames2.size() - clusterDifference) {
       listener.onMessage(
@@ -740,16 +740,17 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
         "\nStarting deep comparison record by record. This may take a few minutes. Wait please...");
 
     Collection<String> clusterNames1 =
-        makeDbCall(databaseOne, ODatabaseSessionInternal::getClusterNames);
+        makeDbCall(databaseOne, YTDatabaseSessionInternal::getClusterNames);
 
     for (final String clusterName : clusterNames1) {
       // CHECK IF THE CLUSTER IS INCLUDED
       final int clusterId1 =
           makeDbCall(databaseOne, database -> database.getClusterIdByName(clusterName));
 
-      @SuppressWarnings("ObjectAllocationInLoop") final ORecordId rid1 = new ORecordId(clusterId1);
+      @SuppressWarnings("ObjectAllocationInLoop") final YTRecordId rid1 = new YTRecordId(
+          clusterId1);
 
-      ODatabaseSessionInternal selectedDatabase = databaseOne;
+      YTDatabaseSessionInternal selectedDatabase = databaseOne;
 
       OPhysicalPosition[] physicalPositions =
           makeDbCall(
@@ -774,25 +775,25 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             recordsCounter++;
 
             databaseOne.activateOnCurrentThread();
-            @SuppressWarnings("ObjectAllocationInLoop") final ODocument doc1 = new ODocument();
+            @SuppressWarnings("ObjectAllocationInLoop") final YTDocument doc1 = new YTDocument();
             databaseTwo.activateOnCurrentThread();
 
-            @SuppressWarnings("ObjectAllocationInLoop") final ODocument doc2 = new ODocument();
+            @SuppressWarnings("ObjectAllocationInLoop") final YTDocument doc2 = new YTDocument();
 
             final long position = physicalPosition.clusterPosition;
             rid1.setClusterPosition(position);
 
-            final ORecordId rid2;
+            final YTRecordId rid2;
             if (ridMapper == null) {
               rid2 = rid1;
             } else {
-              final ORID newRid = ridMapper.map(rid1);
+              final YTRID newRid = ridMapper.map(rid1);
               if (newRid == null) {
                 rid2 = rid1;
               } else
               //noinspection ObjectAllocationInLoop
               {
-                rid2 = new ORecordId(newRid);
+                rid2 = new YTRecordId(newRid);
               }
             }
 
@@ -868,7 +869,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                         ++differences;
 
                       } else {
-                        if (buffer1.recordType == ODocument.RECORD_TYPE) {
+                        if (buffer1.recordType == YTDocument.RECORD_TYPE) {
                           // DOCUMENT: TRY TO INSTANTIATE AND COMPARE
 
                           makeDbCall(
@@ -938,10 +939,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                                       + " <-> "
                                       + buffer2.buffer.length);
 
-                              if (buffer1.recordType == ODocument.RECORD_TYPE) {
+                              if (buffer1.recordType == YTDocument.RECORD_TYPE) {
                                 listener.onMessage("\n--- REC1: " + rec1);
                               }
-                              if (buffer2.recordType == ODocument.RECORD_TYPE) {
+                              if (buffer2.recordType == YTDocument.RECORD_TYPE) {
                                 listener.onMessage("\n--- REC2: " + rec2);
                               }
                               listener.onMessage("\n");
@@ -1013,18 +1014,18 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
   }
 
   private static boolean skipRecord(
-      ORecordId rid1,
-      ORecordId rid2,
+      YTRecordId rid1,
+      YTRecordId rid2,
       OStorageConfiguration configuration1,
       OStorageConfiguration configuration2,
       String storageType1,
       String storageType2) {
-    if (rid1.equals(new ORecordId(configuration1.getIndexMgrRecordId()))
-        || rid2.equals(new ORecordId(configuration2.getIndexMgrRecordId()))) {
+    if (rid1.equals(new YTRecordId(configuration1.getIndexMgrRecordId()))
+        || rid2.equals(new YTRecordId(configuration2.getIndexMgrRecordId()))) {
       return true;
     }
-    if (rid1.equals(new ORecordId(configuration1.getSchemaRecordId()))
-        || rid2.equals(new ORecordId(configuration2.getSchemaRecordId()))) {
+    if (rid1.equals(new YTRecordId(configuration1.getSchemaRecordId()))
+        || rid2.equals(new YTRecordId(configuration2.getSchemaRecordId()))) {
       return true;
     }
     if ((rid1.getClusterId() == 0 && rid1.getClusterPosition() == 0)
@@ -1048,11 +1049,11 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     this.autoDetectExportImportMap = autoDetectExportImportMap;
   }
 
-  private static void convertSchemaDoc(final ODocument document) {
+  private static void convertSchemaDoc(final YTDocument document) {
     if (document.field("classes") != null) {
-      document.setFieldType("classes", OType.EMBEDDEDSET);
-      for (ODocument classDoc : document.<Set<ODocument>>field("classes")) {
-        classDoc.setFieldType("properties", OType.EMBEDDEDSET);
+      document.setFieldType("classes", YTType.EMBEDDEDSET);
+      for (YTDocument classDoc : document.<Set<YTDocument>>field("classes")) {
+        classDoc.setFieldType("properties", YTType.EMBEDDEDSET);
       }
     }
   }

@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
@@ -25,11 +25,11 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -53,36 +53,36 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
   @Test
   public void checkSchema() {
-    OSchema schema = database.getMetadata().getSchema();
+    YTSchema schema = database.getMetadata().getSchema();
 
     assert schema != null;
     assert schema.getClass("Profile") != null;
-    assert schema.getClass("Profile").getProperty("nick").getType() == OType.STRING;
-    assert schema.getClass("Profile").getProperty("name").getType() == OType.STRING;
-    assert schema.getClass("Profile").getProperty("surname").getType() == OType.STRING;
-    assert schema.getClass("Profile").getProperty("registeredOn").getType() == OType.DATETIME;
-    assert schema.getClass("Profile").getProperty("lastAccessOn").getType() == OType.DATETIME;
+    assert schema.getClass("Profile").getProperty("nick").getType() == YTType.STRING;
+    assert schema.getClass("Profile").getProperty("name").getType() == YTType.STRING;
+    assert schema.getClass("Profile").getProperty("surname").getType() == YTType.STRING;
+    assert schema.getClass("Profile").getProperty("registeredOn").getType() == YTType.DATETIME;
+    assert schema.getClass("Profile").getProperty("lastAccessOn").getType() == YTType.DATETIME;
 
     assert schema.getClass("Whiz") != null;
-    assert schema.getClass("whiz").getProperty("account").getType() == OType.LINK;
+    assert schema.getClass("whiz").getProperty("account").getType() == YTType.LINK;
     assert schema
         .getClass("whiz")
         .getProperty("account")
         .getLinkedClass()
         .getName()
         .equalsIgnoreCase("Account");
-    assert schema.getClass("WHIZ").getProperty("date").getType() == OType.DATE;
-    assert schema.getClass("WHIZ").getProperty("text").getType() == OType.STRING;
+    assert schema.getClass("WHIZ").getProperty("date").getType() == YTType.DATE;
+    assert schema.getClass("WHIZ").getProperty("text").getType() == YTType.STRING;
     assert schema.getClass("WHIZ").getProperty("text").isMandatory();
     assert schema.getClass("WHIZ").getProperty("text").getMin().equals("1");
     assert schema.getClass("WHIZ").getProperty("text").getMax().equals("140");
-    assert schema.getClass("whiz").getProperty("replyTo").getType() == OType.LINK;
+    assert schema.getClass("whiz").getProperty("replyTo").getType() == YTType.LINK;
     assert schema
         .getClass("Whiz")
         .getProperty("replyTo")
@@ -94,7 +94,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkSchema")
   public void checkInvalidNamesBefore30() {
 
-    OSchema schema = database.getMetadata().getSchema();
+    YTSchema schema = database.getMetadata().getSchema();
 
     schema.createClass("TestInvalidName,");
     Assert.assertNotNull(schema.getClass("TestInvalidName,"));
@@ -109,7 +109,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkSchema")
   public void checkSchemaApi() {
 
-    OSchema schema = database.getMetadata().getSchema();
+    YTSchema schema = database.getMetadata().getSchema();
 
     try {
       Assert.assertNull(schema.getClass("Animal33"));
@@ -120,7 +120,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkSchemaApi")
   public void checkClusters() {
 
-    for (OClass cls : database.getMetadata().getSchema().getClasses()) {
+    for (YTClass cls : database.getMetadata().getSchema().getClasses()) {
       assert cls.isAbstract() || database.getClusterNameById(cls.getDefaultClusterId()) != null;
     }
   }
@@ -148,7 +148,7 @@ public class SchemaTest extends DocumentDBBaseTest {
               @Override
               public void run() {
                 ODatabaseRecordThreadLocal.instance().set(database);
-                ODocument doc = new ODocument("NewClass");
+                YTDocument doc = new YTDocument("NewClass");
 
                 database.begin();
                 database.save(doc);
@@ -172,7 +172,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     final String testClassName = "dropTestClass";
     final int clusterId;
-    OClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
+    YTClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
     clusterId = dropTestClass.getDefaultClusterId();
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
@@ -200,7 +200,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     final String testClassName = "dropTestClass";
     final int clusterId;
-    OClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
+    YTClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
     clusterId = dropTestClass.getDefaultClusterId();
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
@@ -330,12 +330,12 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test
   public void alterAttributes() {
 
-    OClass company = database.getMetadata().getSchema().getClass("Company");
-    OClass superClass = company.getSuperClass();
+    YTClass company = database.getMetadata().getSchema().getClass("Company");
+    YTClass superClass = company.getSuperClass();
 
     Assert.assertNotNull(superClass);
     boolean found = false;
-    for (OClass c : superClass.getSubclasses()) {
+    for (YTClass c : superClass.getSubclasses()) {
       if (c.equals(company)) {
         found = true;
         break;
@@ -345,7 +345,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     company.setSuperClass(database, null);
     Assert.assertNull(company.getSuperClass());
-    for (OClass c : superClass.getSubclasses()) {
+    for (YTClass c : superClass.getSubclasses()) {
       Assert.assertNotSame(c, company);
     }
 
@@ -358,7 +358,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(company.getSuperClass());
     found = false;
-    for (OClass c : superClass.getSubclasses()) {
+    for (YTClass c : superClass.getSubclasses()) {
       if (c.equals(company)) {
         found = true;
         break;
@@ -404,13 +404,13 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test
   public void testRenameClass() {
 
-    OClass oClass = database.getMetadata().getSchema().createClass("RenameClassTest");
+    YTClass oClass = database.getMetadata().getSchema().createClass("RenameClassTest");
 
     database.begin();
-    ODocument document = new ODocument("RenameClassTest");
+    YTDocument document = new YTDocument("RenameClassTest");
     document.save();
 
-    document = new ODocument("RenameClassTest");
+    document = new YTDocument("RenameClassTest");
 
     document.setClassName("RenameClassTest");
     document.save();
@@ -421,7 +421,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.stream().count(), 2);
     database.commit();
 
-    oClass.set(database, OClass.ATTRIBUTES.NAME, "RenameClassTest2");
+    oClass.set(database, YTClass.ATTRIBUTES.NAME, "RenameClassTest2");
 
     database.begin();
     result = database.query("select from RenameClassTest2");
@@ -444,7 +444,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
       for (int i = 0; i < 6; ++i) {
         database.begin();
-        new ODocument("multipleclusters").field("num", i).save();
+        new YTDocument("multipleclusters").field("num", i).save();
         database.commit();
       }
 
@@ -470,7 +470,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
       for (int i = 0; i < 2; ++i) {
         database.begin();
-        new ODocument("multipleclusters").field("num", i).save();
+        new YTDocument("multipleclusters").field("num", i).save();
         database.commit();
       }
 
@@ -514,10 +514,10 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   @Test
   public void testDeletionOfDependentClass() {
-    OSchema schema = database.getMetadata().getSchema();
-    OClass oRestricted = schema.getClass(OSecurityShared.RESTRICTED_CLASSNAME);
-    OClass classA = schema.createClass("TestDeletionOfDependentClassA", oRestricted);
-    OClass classB = schema.createClass("TestDeletionOfDependentClassB", classA);
+    YTSchema schema = database.getMetadata().getSchema();
+    YTClass oRestricted = schema.getClass(OSecurityShared.RESTRICTED_CLASSNAME);
+    YTClass classA = schema.createClass("TestDeletionOfDependentClassA", oRestricted);
+    YTClass classB = schema.createClass("TestDeletionOfDependentClassB", classA);
     schema.dropClass(classB.getName());
   }
 
@@ -629,8 +629,8 @@ public class SchemaTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    OSchema schema = database.getSchema();
-    OClass clazz = schema.getClass(className);
+    YTSchema schema = database.getSchema();
+    YTClass clazz = schema.getClass(className);
     Set<OIndex> idx = clazz.getIndexes(database);
     Set<String> indexes = new HashSet<>();
     for (OIndex id : idx) {
@@ -641,7 +641,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     schema.dropClass(className);
   }
 
-  private void swapClusters(ODatabaseSessionInternal databaseDocumentTx, int i) {
+  private void swapClusters(YTDatabaseSessionInternal databaseDocumentTx, int i) {
     databaseDocumentTx
         .command("CREATE CLASS TestRenameClusterNew extends TestRenameClusterOriginal clusters 2")
         .close();
@@ -669,12 +669,12 @@ public class SchemaTest extends DocumentDBBaseTest {
         .execute(database);
 
     database.begin();
-    List<ODocument> result =
+    List<YTDocument> result =
         databaseDocumentTx.query(
-            new OSQLSynchQuery<ODocument>("select * from TestRenameClusterOriginal"));
+            new OSQLSynchQuery<YTDocument>("select * from TestRenameClusterOriginal"));
     Assert.assertEquals(result.size(), 1);
 
-    ODocument document = result.get(0);
+    YTDocument document = result.get(0);
     Assert.assertEquals(document.<Object>field("iteration"), i);
     database.commit();
   }

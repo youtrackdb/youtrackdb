@@ -40,7 +40,7 @@ import com.orientechnologies.common.types.OModifiableBoolean;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.common.util.ORawPairLongObject;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -261,7 +261,7 @@ public final class OWOWCache extends OAbstractWriteCache
    * Limit of free space on disk after which database will be switched to "read only" mode
    */
   private final long freeSpaceLimit =
-      OGlobalConfiguration.DISK_CACHE_FREE_SPACE_LIMIT.getValueAsLong() * 1024L * 1024L;
+      YTGlobalConfiguration.DISK_CACHE_FREE_SPACE_LIMIT.getValueAsLong() * 1024L * 1024L;
 
   /**
    * Listeners which are called once we detect that some of the pages of files are broken.

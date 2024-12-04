@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.security.symmetrickey;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import org.junit.Test;
 
 /**
@@ -11,7 +11,7 @@ import org.junit.Test;
  */
 public class OSymmetricKeyTest extends DBTestBase {
 
-  private void command(ODatabaseSession db, String sql, Object... params) {
+  private void command(YTDatabaseSession db, String sql, Object... params) {
     db.command(sql, params).close();
   }
 
@@ -65,7 +65,7 @@ public class OSymmetricKeyTest extends DBTestBase {
   /* Fails under develop
   @Test
   public void shouldTestOSymmetricKeySecurity() throws Exception {
-    ODatabaseDocumentTx db = new ODatabaseDocumentTx("memory:" + OSymmetricKeyTest.class.getSimpleName());
+    YTDatabaseDocumentTx db = new YTDatabaseDocumentTx("memory:" + OSymmetricKeyTest.class.getSimpleName());
 
     if (db.exists()) {
       db.open("admin", "admin");

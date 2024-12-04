@@ -3,13 +3,13 @@ package com.orientechnologies.orient.core.storage.index.hashindex.local.v3;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.exception.OLocalHashTableV3Exception;
 import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -80,7 +80,7 @@ import java.util.List;
 public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashTable<K, V> {
 
   private static final int MAX_KEY_SIZE =
-      OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+      YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
 
   private static final long HASH_CODE_MIN_VALUE = 0;
   private static final long HASH_CODE_MAX_VALUE = 0xFFFFFFFFFFFFFFFFL;
@@ -99,7 +99,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
 
   private OBinarySerializer<K> keySerializer;
   private OBinarySerializer<V> valueSerializer;
-  private OType[] keyTypes;
+  private YTType[] keyTypes;
 
   private KeyHashCodeComparator<K> comparator;
 
@@ -132,7 +132,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
       OAtomicOperation atomicOperation,
       final OBinarySerializer<K> keySerializer,
       final OBinarySerializer<V> valueSerializer,
-      final OType[] keyTypes,
+      final YTType[] keyTypes,
       final OEncryption encryption,
       final OHashFunction<K> keyHashFunction,
       final boolean nullKeyIsSupported)
@@ -451,7 +451,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
   @Override
   public void load(
       final String name,
-      final OType[] keyTypes,
+      final YTType[] keyTypes,
       final boolean nullKeyIsSupported,
       final OEncryption encryption,
       final OHashFunction<K> keyHashFunction,

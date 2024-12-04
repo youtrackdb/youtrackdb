@@ -19,10 +19,10 @@
 package com.orientechnologies.spatial;
 
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
@@ -37,34 +37,34 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Before
   public void init() {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass v = schema.getClass("V");
-    OClass oClass = schema.createClass("City");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass v = schema.getClass("V");
+    YTClass oClass = schema.createClass("City");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OPoint"));
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OPoint"));
+    oClass.createProperty(db, "name", YTType.STRING);
 
-    OClass place = schema.createClass("Place");
+    YTClass place = schema.createClass("Place");
     place.setSuperClass(db, v);
-    place.createProperty(db, "latitude", OType.DOUBLE);
-    place.createProperty(db, "longitude", OType.DOUBLE);
-    place.createProperty(db, "name", OType.STRING);
+    place.createProperty(db, "latitude", YTType.DOUBLE);
+    place.createProperty(db, "longitude", YTType.DOUBLE);
+    place.createProperty(db, "name", YTType.STRING);
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
   }
 
-  protected ODocument newCity(String name, final Double longitude, final Double latitude) {
+  protected YTDocument newCity(String name, final Double longitude, final Double latitude) {
 
-    ODocument location = newPoint(longitude, latitude);
+    YTDocument location = newPoint(longitude, latitude);
 
-    ODocument city = new ODocument("City");
+    YTDocument city = new YTDocument("City");
     city.field("name", name);
     city.field("location", location);
     return city;
   }
 
-  private ODocument newPoint(final Double longitude, final Double latitude) {
-    ODocument location = new ODocument("OPoint");
+  private YTDocument newPoint(final Double longitude, final Double latitude) {
+    YTDocument location = new YTDocument("OPoint");
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -79,7 +79,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingTxPoint() {
 
-    ODocument rome = newCity("Rome", 12.5, 41.9);
+    YTDocument rome = newCity("Rome", 12.5, 41.9);
 
     db.begin();
 
@@ -105,7 +105,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingUpdateTxPoint() {
 
-    ODocument rome = newCity("Rome", -0.1275, 51.507222);
+    YTDocument rome = newCity("Rome", -0.1275, 51.507222);
 
     db.begin();
     rome = db.save(rome);
@@ -137,8 +137,8 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingComplexUpdateTxPoint() {
 
-    ODocument rome = newCity("Rome", 12.5, 41.9);
-    ODocument london = newCity("London", -0.1275, 51.507222);
+    YTDocument rome = newCity("Rome", 12.5, 41.9);
+    YTDocument london = newCity("London", -0.1275, 51.507222);
 
     db.begin();
     rome = db.save(rome);

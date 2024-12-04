@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -57,14 +57,14 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testCreate")
   public void queryByBaseType() {
-    final List<ODocument> result = executeQuery("select from Company where name.length() > 0");
+    final List<YTDocument> result = executeQuery("select from Company where name.length() > 0");
 
     Assert.assertFalse(result.isEmpty());
     Assert.assertEquals(result.size(), TOT_COMPANY_RECORDS);
 
     int companyRecords = 0;
-    ODocument account;
-    for (ODocument entries : result) {
+    YTDocument account;
+    for (YTDocument entries : result) {
       account = entries;
 
       if ("Company".equals(account.getClassName())) {
@@ -79,12 +79,12 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "queryByBaseType")
   public void queryPerSuperType() {
-    final List<ODocument> result = executeQuery("select * from Company where name.length() > 0");
+    final List<YTDocument> result = executeQuery("select * from Company where name.length() > 0");
 
     Assert.assertEquals(result.size(), TOT_COMPANY_RECORDS);
 
-    OElement account;
-    for (ODocument entries : result) {
+    YTEntity account;
+    for (YTDocument entries : result) {
       account = entries;
       Assert.assertNotSame(account.<String>getProperty("name").length(), 0);
     }
@@ -95,7 +95,7 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
     // DELETE ALL THE RECORD IN THE CLUSTER
     database.begin();
     var companyClusterIterator = database.browseClass("Company");
-    for (OElement obj : companyClusterIterator) {
+    for (YTEntity obj : companyClusterIterator) {
       if (obj.<Integer>getProperty("id") == 1) {
         database.delete(obj);
         break;
@@ -113,10 +113,10 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
 
     createInheritanceTestClass();
 
-    OClass abstractClass =
+    YTClass abstractClass =
         database.getMetadata().getSchema().getClass("InheritanceTestAbstractClass");
-    OClass baseClass = database.getMetadata().getSchema().getClass("InheritanceTestBaseClass");
-    OClass testClass = database.getMetadata().getSchema().getClass("InheritanceTestClass");
+    YTClass baseClass = database.getMetadata().getSchema().getClass("InheritanceTestBaseClass");
+    YTClass testClass = database.getMetadata().getSchema().getClass("InheritanceTestClass");
 
     Assert.assertTrue(baseClass.getSuperClasses().contains(abstractClass));
     Assert.assertTrue(testClass.getSuperClasses().contains(baseClass));
@@ -126,23 +126,23 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
   public void testIdFieldInheritanceFirstSubClass() {
     createInheritanceTestClass();
 
-    OElement a = database.newInstance("InheritanceTestBaseClass");
-    OElement b = database.newInstance("InheritanceTestClass");
+    YTEntity a = database.newInstance("InheritanceTestBaseClass");
+    YTEntity b = database.newInstance("InheritanceTestClass");
 
     database.begin();
     database.save(a);
     database.save(b);
     database.commit();
 
-    final List<ODocument> result1 = executeQuery("select from InheritanceTestBaseClass");
+    final List<YTDocument> result1 = executeQuery("select from InheritanceTestBaseClass");
     Assert.assertEquals(2, result1.size());
   }
 
   @Test
   public void testKeywordClass() {
-    OClass klass = database.getMetadata().getSchema().createClass("Not");
+    YTClass klass = database.getMetadata().getSchema().createClass("Not");
 
-    OClass klass1 = database.getMetadata().getSchema().createClass("Extends_Not", klass);
+    YTClass klass1 = database.getMetadata().getSchema().createClass("Extends_Not", klass);
     Assert.assertEquals(1, klass1.getSuperClasses().size(), 1);
     Assert.assertEquals("Not", klass1.getSuperClasses().get(0).getName());
   }
@@ -150,84 +150,84 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
   @Test
   public void testSchemaGeneration() {
     var schema = database.getMetadata().getSchema();
-    OClass testSchemaClass = schema.createClass("JavaTestSchemaGeneration");
-    OClass childClass = schema.createClass("TestSchemaGenerationChild");
+    YTClass testSchemaClass = schema.createClass("JavaTestSchemaGeneration");
+    YTClass childClass = schema.createClass("TestSchemaGenerationChild");
 
-    testSchemaClass.createProperty(database, "text", OType.STRING);
-    testSchemaClass.createProperty(database, "enumeration", OType.STRING);
-    testSchemaClass.createProperty(database, "numberSimple", OType.INTEGER);
-    testSchemaClass.createProperty(database, "longSimple", OType.LONG);
-    testSchemaClass.createProperty(database, "doubleSimple", OType.DOUBLE);
-    testSchemaClass.createProperty(database, "floatSimple", OType.FLOAT);
-    testSchemaClass.createProperty(database, "byteSimple", OType.BYTE);
-    testSchemaClass.createProperty(database, "flagSimple", OType.BOOLEAN);
-    testSchemaClass.createProperty(database, "dateField", OType.DATETIME);
+    testSchemaClass.createProperty(database, "text", YTType.STRING);
+    testSchemaClass.createProperty(database, "enumeration", YTType.STRING);
+    testSchemaClass.createProperty(database, "numberSimple", YTType.INTEGER);
+    testSchemaClass.createProperty(database, "longSimple", YTType.LONG);
+    testSchemaClass.createProperty(database, "doubleSimple", YTType.DOUBLE);
+    testSchemaClass.createProperty(database, "floatSimple", YTType.FLOAT);
+    testSchemaClass.createProperty(database, "byteSimple", YTType.BYTE);
+    testSchemaClass.createProperty(database, "flagSimple", YTType.BOOLEAN);
+    testSchemaClass.createProperty(database, "dateField", YTType.DATETIME);
 
-    testSchemaClass.createProperty(database, "stringListMap", OType.EMBEDDEDMAP,
-        OType.EMBEDDEDLIST);
-    testSchemaClass.createProperty(database, "enumList", OType.EMBEDDEDLIST, OType.STRING);
-    testSchemaClass.createProperty(database, "enumSet", OType.EMBEDDEDSET, OType.STRING);
-    testSchemaClass.createProperty(database, "stringSet", OType.EMBEDDEDSET, OType.STRING);
-    testSchemaClass.createProperty(database, "stringMap", OType.EMBEDDEDMAP, OType.STRING);
+    testSchemaClass.createProperty(database, "stringListMap", YTType.EMBEDDEDMAP,
+        YTType.EMBEDDEDLIST);
+    testSchemaClass.createProperty(database, "enumList", YTType.EMBEDDEDLIST, YTType.STRING);
+    testSchemaClass.createProperty(database, "enumSet", YTType.EMBEDDEDSET, YTType.STRING);
+    testSchemaClass.createProperty(database, "stringSet", YTType.EMBEDDEDSET, YTType.STRING);
+    testSchemaClass.createProperty(database, "stringMap", YTType.EMBEDDEDMAP, YTType.STRING);
 
-    testSchemaClass.createProperty(database, "list", OType.LINKLIST, childClass);
-    testSchemaClass.createProperty(database, "set", OType.LINKSET, childClass);
-    testSchemaClass.createProperty(database, "children", OType.LINKMAP, childClass);
-    testSchemaClass.createProperty(database, "child", OType.LINK, childClass);
+    testSchemaClass.createProperty(database, "list", YTType.LINKLIST, childClass);
+    testSchemaClass.createProperty(database, "set", YTType.LINKSET, childClass);
+    testSchemaClass.createProperty(database, "children", YTType.LINKMAP, childClass);
+    testSchemaClass.createProperty(database, "child", YTType.LINK, childClass);
 
-    testSchemaClass.createProperty(database, "embeddedSet", OType.EMBEDDEDSET, childClass);
-    testSchemaClass.createProperty(database, "embeddedChildren", OType.EMBEDDEDMAP, childClass);
-    testSchemaClass.createProperty(database, "embeddedChild", OType.EMBEDDED, childClass);
-    testSchemaClass.createProperty(database, "embeddedList", OType.EMBEDDEDLIST, childClass);
+    testSchemaClass.createProperty(database, "embeddedSet", YTType.EMBEDDEDSET, childClass);
+    testSchemaClass.createProperty(database, "embeddedChildren", YTType.EMBEDDEDMAP, childClass);
+    testSchemaClass.createProperty(database, "embeddedChild", YTType.EMBEDDED, childClass);
+    testSchemaClass.createProperty(database, "embeddedList", YTType.EMBEDDEDLIST, childClass);
 
     // Test simple types
-    checkProperty(testSchemaClass, "text", OType.STRING);
-    checkProperty(testSchemaClass, "enumeration", OType.STRING);
-    checkProperty(testSchemaClass, "numberSimple", OType.INTEGER);
-    checkProperty(testSchemaClass, "longSimple", OType.LONG);
-    checkProperty(testSchemaClass, "doubleSimple", OType.DOUBLE);
-    checkProperty(testSchemaClass, "floatSimple", OType.FLOAT);
-    checkProperty(testSchemaClass, "byteSimple", OType.BYTE);
-    checkProperty(testSchemaClass, "flagSimple", OType.BOOLEAN);
-    checkProperty(testSchemaClass, "dateField", OType.DATETIME);
+    checkProperty(testSchemaClass, "text", YTType.STRING);
+    checkProperty(testSchemaClass, "enumeration", YTType.STRING);
+    checkProperty(testSchemaClass, "numberSimple", YTType.INTEGER);
+    checkProperty(testSchemaClass, "longSimple", YTType.LONG);
+    checkProperty(testSchemaClass, "doubleSimple", YTType.DOUBLE);
+    checkProperty(testSchemaClass, "floatSimple", YTType.FLOAT);
+    checkProperty(testSchemaClass, "byteSimple", YTType.BYTE);
+    checkProperty(testSchemaClass, "flagSimple", YTType.BOOLEAN);
+    checkProperty(testSchemaClass, "dateField", YTType.DATETIME);
 
     // Test complex types
-    checkProperty(testSchemaClass, "stringListMap", OType.EMBEDDEDMAP, OType.EMBEDDEDLIST);
-    checkProperty(testSchemaClass, "enumList", OType.EMBEDDEDLIST, OType.STRING);
-    checkProperty(testSchemaClass, "enumSet", OType.EMBEDDEDSET, OType.STRING);
-    checkProperty(testSchemaClass, "stringSet", OType.EMBEDDEDSET, OType.STRING);
-    checkProperty(testSchemaClass, "stringMap", OType.EMBEDDEDMAP, OType.STRING);
+    checkProperty(testSchemaClass, "stringListMap", YTType.EMBEDDEDMAP, YTType.EMBEDDEDLIST);
+    checkProperty(testSchemaClass, "enumList", YTType.EMBEDDEDLIST, YTType.STRING);
+    checkProperty(testSchemaClass, "enumSet", YTType.EMBEDDEDSET, YTType.STRING);
+    checkProperty(testSchemaClass, "stringSet", YTType.EMBEDDEDSET, YTType.STRING);
+    checkProperty(testSchemaClass, "stringMap", YTType.EMBEDDEDMAP, YTType.STRING);
 
     // Test linked types
-    checkProperty(testSchemaClass, "list", OType.LINKLIST, childClass);
-    checkProperty(testSchemaClass, "set", OType.LINKSET, childClass);
-    checkProperty(testSchemaClass, "children", OType.LINKMAP, childClass);
-    checkProperty(testSchemaClass, "child", OType.LINK, childClass);
+    checkProperty(testSchemaClass, "list", YTType.LINKLIST, childClass);
+    checkProperty(testSchemaClass, "set", YTType.LINKSET, childClass);
+    checkProperty(testSchemaClass, "children", YTType.LINKMAP, childClass);
+    checkProperty(testSchemaClass, "child", YTType.LINK, childClass);
 
     // Test embedded types
-    checkProperty(testSchemaClass, "embeddedSet", OType.EMBEDDEDSET, childClass);
-    checkProperty(testSchemaClass, "embeddedChildren", OType.EMBEDDEDMAP, childClass);
-    checkProperty(testSchemaClass, "embeddedChild", OType.EMBEDDED, childClass);
-    checkProperty(testSchemaClass, "embeddedList", OType.EMBEDDEDLIST, childClass);
+    checkProperty(testSchemaClass, "embeddedSet", YTType.EMBEDDEDSET, childClass);
+    checkProperty(testSchemaClass, "embeddedChildren", YTType.EMBEDDEDMAP, childClass);
+    checkProperty(testSchemaClass, "embeddedChild", YTType.EMBEDDED, childClass);
+    checkProperty(testSchemaClass, "embeddedList", YTType.EMBEDDEDLIST, childClass);
   }
 
-  protected void checkProperty(OClass iClass, String iPropertyName, OType iType) {
-    OProperty prop = iClass.getProperty(iPropertyName);
+  protected void checkProperty(YTClass iClass, String iPropertyName, YTType iType) {
+    YTProperty prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
   }
 
   protected void checkProperty(
-      OClass iClass, String iPropertyName, OType iType, OClass iLinkedClass) {
-    OProperty prop = iClass.getProperty(iPropertyName);
+      YTClass iClass, String iPropertyName, YTType iType, YTClass iLinkedClass) {
+    YTProperty prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
     Assert.assertEquals(prop.getLinkedClass(), iLinkedClass);
   }
 
   protected void checkProperty(
-      OClass iClass, String iPropertyName, OType iType, OType iLinkedType) {
-    OProperty prop = iClass.getProperty(iPropertyName);
+      YTClass iClass, String iPropertyName, YTType iType, YTType iLinkedType) {
+    YTProperty prop = iClass.getProperty(iPropertyName);
     Assert.assertNotNull(prop);
     Assert.assertEquals(prop.getType(), iType);
     Assert.assertEquals(prop.getLinkedType(), iLinkedType);

@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -52,8 +52,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
           "create database "
               + databaseName
               + " plocal users (admin identified by 'adminpwd' role admin)");
-      ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
+      YTDatabaseSessionInternal db =
+          (YTDatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(NIOFSDirectory.class);
       assertThat(new File(
@@ -74,8 +74,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
           "create database "
               + databaseName
               + " plocal users (admin identified by 'adminpwd' role admin)");
-      ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
+      YTDatabaseSessionInternal db =
+          (YTDatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(MMapDirectory.class);
       assertThat(new File(
@@ -95,8 +95,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
           "create database "
               + databaseName
               + " plocal users (admin identified by 'adminpwd' role admin)");
-      ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
+      YTDatabaseSessionInternal db =
+          (YTDatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(RAMDirectory.class);
       ctx.drop(databaseName);
@@ -112,8 +112,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
           "create database "
               + databaseName
               + " memory users (admin identified by 'adminpwd' role admin)");
-      ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
+      YTDatabaseSessionInternal db =
+          (YTDatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       final Directory directory =
           fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       // 'ODatabaseType.MEMORY' and 'DIRECTORY_RAM' determines the RAMDirectory.
@@ -131,8 +131,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
           "create database "
               + databaseName
               + " memory users (admin identified by 'adminpwd' role admin)");
-      ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
+      YTDatabaseSessionInternal db =
+          (YTDatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       final Directory directory =
           fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       // 'ODatabaseType.MEMORY' plus 'DIRECTORY_MMAP' leads to the same result as just

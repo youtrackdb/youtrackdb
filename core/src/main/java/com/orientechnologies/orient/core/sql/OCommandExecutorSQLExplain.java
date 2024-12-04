@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Map;
 
@@ -59,20 +59,20 @@ public class OCommandExecutorSQLExplain extends OCommandExecutorSQLDelegate {
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     delegate.getContext().setRecordingMetrics(true);
 
     final long startTime = System.nanoTime();
 
     final Object result = super.execute(iArgs, querySession);
-    final ODocument report = new ODocument(delegate.getContext().getVariables());
+    final YTDocument report = new YTDocument(delegate.getContext().getVariables());
 
     report.field("elapsed", (System.nanoTime() - startTime) / 1000000f);
 
     if (result instanceof Collection<?>) {
       report.field("resultType", "collection");
       report.field("resultSize", ((Collection<?>) result).size());
-    } else if (result instanceof ODocument) {
+    } else if (result instanceof YTDocument) {
       report.field("resultType", "document");
       report.field("resultSize", 1);
     } else if (result instanceof Number) {

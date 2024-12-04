@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class ODeleteVertexStatementExecutionTest extends DBTestBase {
     db.createVertexClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(className);
+      YTVertex v1 = db.newVertex(className);
       v1.setProperty("name", "a" + i);
       v1.save();
       db.commit();
@@ -36,7 +36,7 @@ public class ODeleteVertexStatementExecutionTest extends DBTestBase {
     db.createVertexClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(className);
+      YTVertex v1 = db.newVertex(className);
       v1.setProperty("name", "a" + i);
       v1.save();
       db.commit();
@@ -56,7 +56,7 @@ public class ODeleteVertexStatementExecutionTest extends DBTestBase {
     db.createVertexClass(className1);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(className1);
+      YTVertex v1 = db.newVertex(className1);
       v1.setProperty("name", "a" + i);
       v1.save();
       db.commit();
@@ -66,7 +66,7 @@ public class ODeleteVertexStatementExecutionTest extends DBTestBase {
     db.createVertexClass(className2);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      OVertex v1 = db.newVertex(className2);
+      YTVertex v1 = db.newVertex(className2);
       v1.setProperty("name", "a" + i);
       v1.save();
       db.commit();

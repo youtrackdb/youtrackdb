@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.common.concur.resource.OResourcePoolFactory;
 import com.orientechnologies.common.concur.resource.OResourcePoolListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -76,7 +76,7 @@ public class ODatabaseScriptManager {
                 };
               }
             });
-    pooledEngines.setMaxPoolSize(OGlobalConfiguration.SCRIPT_POOL.getValueAsInteger());
+    pooledEngines.setMaxPoolSize(YTGlobalConfiguration.SCRIPT_POOL.getValueAsInteger());
     pooledEngines.setMaxPartitions(1);
   }
 

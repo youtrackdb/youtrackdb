@@ -4,13 +4,13 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -57,7 +57,7 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     if (levelZero != null) {
       return levelZero.execute(iCurrentRecord, ctx);
     }
@@ -91,7 +91,7 @@ public class OBaseIdentifier extends SimpleNode {
     return false;
   }
 
-  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
     if (levelZero != null) {
       return levelZero.isIndexedFunctionCall(session);
     }
@@ -107,7 +107,7 @@ public class OBaseIdentifier extends SimpleNode {
     return -1;
   }
 
-  public Iterable<OIdentifiable> executeIndexedFunction(
+  public Iterable<YTIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
     if (levelZero != null) {
       return levelZero.executeIndexedFunction(target, context, operator, right);
@@ -195,7 +195,7 @@ public class OBaseIdentifier extends SimpleNode {
     return suffix != null && suffix.needsAliases(aliases);
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     if (levelZero != null && levelZero.isAggregate(session)) {
       return true;
     }
@@ -311,7 +311,7 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (levelZero != null) {
       result.setProperty("levelZero", levelZero.serialize(db));
@@ -340,7 +340,7 @@ public class OBaseIdentifier extends SimpleNode {
     return true;
   }
 
-  public boolean isDefinedFor(OElement currentRecord) {
+  public boolean isDefinedFor(YTEntity currentRecord) {
     if (suffix != null) {
       return suffix.isDefinedFor(currentRecord);
     }
@@ -363,7 +363,7 @@ public class OBaseIdentifier extends SimpleNode {
     return suffix == null ? null : suffix.getCollate(currentRecord, ctx);
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (levelZero != null) {
       return levelZero.isCacheable(session);
     }
@@ -375,9 +375,9 @@ public class OBaseIdentifier extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexChain(OCommandContext ctx, OClass clazz) {
+  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
-      OProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
+      YTProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
       if (prop == null) {
         return false;
       }

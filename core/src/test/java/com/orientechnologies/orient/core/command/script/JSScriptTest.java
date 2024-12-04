@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -92,7 +92,7 @@ public class JSScriptTest extends DBTestBase {
       Assert.fail("It should receive a class not found exception");
     } catch (RuntimeException e) {
       Assert.assertEquals(
-          OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
+          YTGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
               ? ScriptException.class
               : ClassNotFoundException.class,
           e.getCause().getClass());
@@ -158,7 +158,7 @@ public class JSScriptTest extends DBTestBase {
         Assert.fail("It should receive a class not found exception");
       } catch (RuntimeException e) {
         Assert.assertEquals(
-            OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
+            YTGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
                 ? ScriptException.class
                 : ClassNotFoundException.class,
             e.getCause().getClass());
@@ -193,7 +193,7 @@ public class JSScriptTest extends DBTestBase {
       Assert.assertEquals(1, resultSet.stream().count());
     } catch (Exception e) {
       Assert.assertEquals(
-          OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
+          YTGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
               ? ScriptException.class
               : ClassNotFoundException.class,
           e.getCause().getClass());
@@ -206,7 +206,7 @@ public class JSScriptTest extends DBTestBase {
       Assert.assertEquals(1, resultSet.stream().count());
     } catch (Exception e) {
       Assert.assertEquals(
-          OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
+          YTGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
               ? ScriptException.class
               : ClassNotFoundException.class,
           e.getCause().getClass());

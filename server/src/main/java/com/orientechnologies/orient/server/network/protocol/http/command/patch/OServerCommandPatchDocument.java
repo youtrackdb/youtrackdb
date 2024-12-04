@@ -20,13 +20,13 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -42,18 +42,18 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: document/<database>[/<record-id>]");
 
     iRequest.getData().commandInfo = "Edit Document";
-    try (ODatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
-      ORawPair<Boolean, ORID> result =
+    try (YTDatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+      ORawPair<Boolean, YTRID> result =
           db.computeInTx(
               () -> {
-                ORecordId recordId;
+                YTRecordId recordId;
 
                 if (urlParts.length > 2) {
                   // EXTRACT RID
                   final int parametersPos = urlParts[2].indexOf('?');
                   final String rid =
                       parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
-                  recordId = new ORecordId(rid);
+                  recordId = new YTRecordId(rid);
 
                   if (!recordId.isValid()) {
                     throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
@@ -63,7 +63,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                 }
 
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                var doc = new ODocument();
+                var doc = new YTDocument();
                 doc.fromJSON(iRequest.getContent());
 
                 if (iRequest.getIfMatch() != null)
@@ -73,7 +73,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                 }
 
                 if (!recordId.isValid()) {
-                  recordId = (ORecordId) doc.getIdentity();
+                  recordId = (YTRecordId) doc.getIdentity();
                 } else {
                   ORecordInternal.setIdentity(doc, recordId);
                 }
@@ -82,7 +82,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                   throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
                 }
 
-                final ODocument currentDocument;
+                final YTDocument currentDocument;
 
                 try {
                   currentDocument = db.load(recordId);

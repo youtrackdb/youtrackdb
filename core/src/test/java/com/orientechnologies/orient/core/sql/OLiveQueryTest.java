@@ -20,17 +20,17 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
@@ -56,7 +56,7 @@ import org.junit.Test;
 public class OLiveQueryTest {
 
   private YouTrackDB odb;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   @Before
   public void before() {
@@ -64,7 +64,7 @@ public class OLiveQueryTest {
     odb.execute(
         "create database OLiveQueryTest memory users ( admin identified by 'admin' role admin,"
             + " reader identified by 'reader' role reader)");
-    db = (ODatabaseSessionInternal) odb.open("OLiveQueryTest", "admin", "admin");
+    db = (YTDatabaseSessionInternal) odb.open("OLiveQueryTest", "admin", "admin");
   }
 
   @After
@@ -100,25 +100,25 @@ public class OLiveQueryTest {
     }
 
     @Override
-    public void onCreate(ODatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, OResult data) {
       created.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
     }
 
     @Override
-    public void onDelete(ODatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, OResult data) {
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, OException exception) {
     }
 
     @Override
-    public void onEnd(ODatabaseSession database) {
+    public void onEnd(YTDatabaseSession database) {
     }
   }
 
@@ -158,7 +158,7 @@ public class OLiveQueryTest {
   @Test
   public void testLiveInsertOnCluster() {
 
-    OClass clazz = db.getMetadata().getSchema().createClass("test");
+    YTClass clazz = db.getMetadata().getSchema().createClass("test");
 
     int defaultCluster = clazz.getDefaultClusterId();
     final OStorage storage = db.getStorage();
@@ -183,7 +183,7 @@ public class OLiveQueryTest {
     Assert.assertEquals(listener.created.size(), 1);
     for (OResult doc : listener.created) {
       Assert.assertEquals(doc.getProperty("name"), "foo");
-      ORID rid = doc.getProperty("@rid");
+      YTRID rid = doc.getProperty("@rid");
       Assert.assertNotNull(rid);
       Assert.assertTrue(rid.getClusterPosition() >= 0);
     }
@@ -192,15 +192,15 @@ public class OLiveQueryTest {
   @Test
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oRestricted = schema.getClass("ORestricted");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oRestricted = schema.getClass("ORestricted");
     schema.createClass("test", oRestricted);
 
     int liveMatch = 2;
     OResultSet query = db.query("select from OUSer where name = 'reader'");
 
-    final OIdentifiable reader = query.next().getIdentity().get();
-    final OIdentifiable current = db.getUser().getIdentity(db);
+    final YTIdentifiable reader = query.next().getIdentity().get();
+    final YTIdentifiable current = db.getUser().getIdentity(db);
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -211,7 +211,7 @@ public class OLiveQueryTest {
             new Callable<Integer>() {
               @Override
               public Integer call() throws Exception {
-                ODatabaseSession otherDb = odb.open("OLiveQueryTest", "reader", "reader");
+                YTDatabaseSession otherDb = odb.open("OLiveQueryTest", "reader", "reader");
 
                 final AtomicInteger integer = new AtomicInteger(0);
                 try {
@@ -220,26 +220,26 @@ public class OLiveQueryTest {
                       new OLiveQueryResultListener() {
 
                         @Override
-                        public void onCreate(ODatabaseSession database, OResult data) {
+                        public void onCreate(YTDatabaseSession database, OResult data) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
 
                         @Override
                         public void onUpdate(
-                            ODatabaseSession database, OResult before, OResult after) {
+                            YTDatabaseSession database, OResult before, OResult after) {
                         }
 
                         @Override
-                        public void onDelete(ODatabaseSession database, OResult data) {
+                        public void onDelete(YTDatabaseSession database, OResult data) {
                         }
 
                         @Override
-                        public void onError(ODatabaseSession database, OException exception) {
+                        public void onError(YTDatabaseSession database, OException exception) {
                         }
 
                         @Override
-                        public void onEnd(ODatabaseSession database) {
+                        public void onEnd(YTDatabaseSession database) {
                         }
                       });
                 } catch (RuntimeException e) {
@@ -259,7 +259,7 @@ public class OLiveQueryTest {
 
     db.command(
             "insert into test set name = 'foo', surname = 'bar', _allow=?",
-            new ArrayList<OIdentifiable>() {
+            new ArrayList<YTIdentifiable>() {
               {
                 add(current);
                 add(reader);

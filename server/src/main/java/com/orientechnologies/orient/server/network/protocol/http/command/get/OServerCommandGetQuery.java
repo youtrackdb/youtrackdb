@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -53,7 +53,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
     iRequest.getData().commandInfo = "Query";
     iRequest.getData().commandDetail = text;
 
-    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       OStatement stm = OServerCommandPostCommand.parseStatement("SQL", text, db);
       OResultSet result = db.query(text);
       limit = OServerCommandPostCommand.getLimitFromStatement(stm, limit);

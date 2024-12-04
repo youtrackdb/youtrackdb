@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v1;
 
 import com.orientechnologies.common.serialization.types.OShortSerializer;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 
@@ -48,21 +48,21 @@ public final class CellBTreeNullBucketSingleValueV1 extends ODurablePage {
     setByteValue(NEXT_FREE_POSITION, (byte) 0);
   }
 
-  public void setValue(final ORID value) {
+  public void setValue(final YTRID value) {
     setByteValue(NEXT_FREE_POSITION, (byte) 1);
 
     setShortValue(NEXT_FREE_POSITION + 1, (short) value.getClusterId());
     setLongValue(NEXT_FREE_POSITION + 1 + OShortSerializer.SHORT_SIZE, value.getClusterPosition());
   }
 
-  public ORID getValue() {
+  public YTRID getValue() {
     if (getByteValue(NEXT_FREE_POSITION) == 0) {
       return null;
     }
 
     final int clusterId = getShortValue(NEXT_FREE_POSITION + 1);
     final long clusterPosition = getLongValue(NEXT_FREE_POSITION + 1 + OShortSerializer.SHORT_SIZE);
-    return new ORecordId(clusterId, clusterPosition);
+    return new YTRecordId(clusterId, clusterPosition);
   }
 
   public void removeValue() {

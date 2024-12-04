@@ -183,7 +183,7 @@ public class YouTrackDB implements AutoCloseable {
    *
    * @param url           the url for the specific environment.
    * @param configuration configuration for the specific environment for the list of option
-   *                      {@see OGlobalConfiguration}.
+   *                      {@see YTGlobalConfiguration}.
    * @see #embedded(String, YouTrackDBConfig)
    * @see #remote(String, String, String, YouTrackDBConfig)
    * @see #remote(String, String, String)
@@ -229,7 +229,7 @@ public class YouTrackDB implements AutoCloseable {
    * @param serverUser     the server user allowed to manipulate databases.
    * @param serverPassword relative to the server user.
    * @param configuration  configuration for the specific environment for the list of option
-   *                       {@see OGlobalConfiguration}.
+   *                       {@see YTGlobalConfiguration}.
    * @see #embedded(String, YouTrackDBConfig)
    * @see #remote(String, String, String, YouTrackDBConfig)
    * @see #remote(String, String, String)
@@ -272,7 +272,7 @@ public class YouTrackDB implements AutoCloseable {
    * @param password related to the specified username
    * @return the opened database
    */
-  public ODatabaseSession open(String database, String user, String password) {
+  public YTDatabaseSession open(String database, String user, String password) {
     return open(database, user, password, YouTrackDBConfig.defaultConfig());
   }
 
@@ -285,7 +285,7 @@ public class YouTrackDB implements AutoCloseable {
    * @param config   custom configuration for current database
    * @return the opened database
    */
-  public ODatabaseSession open(
+  public YTDatabaseSession open(
       String database, String user, String password, YouTrackDBConfig config) {
     return internal.open(database, user, password, config);
   }

@@ -9,9 +9,9 @@ import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyListIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyRidBagIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import java.util.Arrays;
@@ -26,8 +26,8 @@ import org.testng.annotations.Test;
 @Test
 public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
-  private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
-  private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
+  private static final YTType EXPECTED_PROP1_TYPE = YTType.DOUBLE;
+  private static final YTType EXPECTED_PROP2_TYPE = YTType.INTEGER;
 
   @Parameters(value = "remote")
   public SQLCreateIndexTest(@Optional Boolean remote) {
@@ -38,16 +38,16 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.createClass("sqlCreateIndexTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.createClass("sqlCreateIndexTestClass");
     oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
-    oClass.createProperty(database, "prop3", OType.EMBEDDEDMAP, OType.INTEGER);
-    oClass.createProperty(database, "prop5", OType.EMBEDDEDLIST, OType.INTEGER);
-    oClass.createProperty(database, "prop6", OType.EMBEDDEDLIST);
-    oClass.createProperty(database, "prop7", OType.EMBEDDEDMAP);
-    oClass.createProperty(database, "prop8", OType.INTEGER);
-    oClass.createProperty(database, "prop9", OType.LINKBAG);
+    oClass.createProperty(database, "prop3", YTType.EMBEDDEDMAP, YTType.INTEGER);
+    oClass.createProperty(database, "prop5", YTType.EMBEDDEDLIST, YTType.INTEGER);
+    oClass.createProperty(database, "prop6", YTType.EMBEDDEDLIST);
+    oClass.createProperty(database, "prop7", YTType.EMBEDDEDMAP);
+    oClass.createProperty(database, "prop8", YTType.INTEGER);
+    oClass.createProperty(database, "prop9", YTType.LINKBAG);
   }
 
   @AfterClass
@@ -105,7 +105,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
     Assert.assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
     Assert.assertEquals(
-        indexDefinition.getTypes(), new OType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
+        indexDefinition.getTypes(), new YTType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
   }
 
@@ -129,7 +129,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyMapIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop3"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.STRING});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.STRING});
     Assert.assertEquals(index.getType(), "UNIQUE");
     Assert.assertEquals(
         ((OPropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -153,7 +153,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyMapIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop3"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.STRING});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.STRING});
     Assert.assertEquals(index.getType(), "UNIQUE");
     Assert.assertEquals(
         ((OPropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -246,7 +246,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyMapIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop3"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.STRING});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.STRING});
     Assert.assertEquals(index.getType(), "UNIQUE");
     Assert.assertEquals(
         ((OPropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -274,7 +274,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyMapIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop3"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.INTEGER});
     Assert.assertEquals(index.getType(), "UNIQUE");
     Assert.assertEquals(
         ((OPropertyMapIndexDefinition) indexDefinition).getIndexBy(),
@@ -302,7 +302,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyListIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop5"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.INTEGER});
     Assert.assertEquals(index.getType(), "NOTUNIQUE");
   }
 
@@ -325,7 +325,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyRidBagIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop9"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.LINK});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.LINK});
     Assert.assertEquals(index.getType(), "NOTUNIQUE");
   }
 
@@ -345,7 +345,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyListIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop5"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.INTEGER});
     Assert.assertEquals(index.getType(), "NOTUNIQUE");
   }
 
@@ -365,7 +365,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyRidBagIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop9"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.LINK});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.LINK});
     Assert.assertEquals(index.getType(), "NOTUNIQUE");
   }
 
@@ -446,7 +446,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
     Assert.assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
     Assert.assertEquals(
-        indexDefinition.getTypes(), new OType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
+        indexDefinition.getTypes(), new YTType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
   }
 
@@ -507,7 +507,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
     Assert.assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
     Assert.assertEquals(
-        indexDefinition.getTypes(), new OType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
+        indexDefinition.getTypes(), new YTType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
 
     var metadata = index.getMetadata();
@@ -535,7 +535,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(indexDefinition instanceof OPropertyIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), List.of("prop8"));
-    Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER});
+    Assert.assertEquals(indexDefinition.getTypes(), new YTType[]{YTType.INTEGER});
     Assert.assertEquals(index.getType(), "NOTUNIQUE");
 
     var metadata = index.getMetadata();
@@ -569,7 +569,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
     Assert.assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
     Assert.assertEquals(
-        indexDefinition.getTypes(), new OType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
+        indexDefinition.getTypes(), new YTType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
 
     var metadata = index.getMetadata();

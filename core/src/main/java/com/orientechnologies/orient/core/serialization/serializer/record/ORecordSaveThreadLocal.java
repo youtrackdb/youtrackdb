@@ -22,13 +22,13 @@ package com.orientechnologies.orient.core.serialization.serializer.record;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 
 /**
  * Thread local to store last document to save. This is used by Auto Merge Conflict Strategy o get
  * he pending record (not visible at storage level).
  */
-public class ORecordSaveThreadLocal extends ThreadLocal<ORecord> {
+public class ORecordSaveThreadLocal extends ThreadLocal<YTRecord> {
 
   public static ORecordSaveThreadLocal INSTANCE = new ORecordSaveThreadLocal();
 
@@ -50,11 +50,11 @@ public class ORecordSaveThreadLocal extends ThreadLocal<ORecord> {
             });
   }
 
-  public static ORecord getLast() {
+  public static YTRecord getLast() {
     return INSTANCE.get();
   }
 
-  public static void setLast(final ORecord document) {
+  public static void setLast(final YTRecord document) {
     INSTANCE.set(document);
   }
 

@@ -6,14 +6,14 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTEdge;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,7 +25,7 @@ import org.junit.Test;
 public class TestGraphElementDelete {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSession database;
+  private YTDatabaseSession database;
 
   @Before
   public void before() {
@@ -44,9 +44,9 @@ public class TestGraphElementDelete {
   @Test
   public void testDeleteVertex() {
     database.begin();
-    OVertex vertex = database.newVertex("V");
-    OVertex vertex1 = database.newVertex("V");
-    OEdge edge = vertex.addEdge(vertex1, "E");
+    YTVertex vertex = database.newVertex("V");
+    YTVertex vertex1 = database.newVertex("V");
+    YTEdge edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
     database.commit();
 
@@ -66,9 +66,9 @@ public class TestGraphElementDelete {
   public void testDeleteEdge() {
 
     database.begin();
-    OVertex vertex = database.newVertex("V");
-    OVertex vertex1 = database.newVertex("V");
-    OEdge edge = vertex.addEdge(vertex1, "E");
+    YTVertex vertex = database.newVertex("V");
+    YTVertex vertex1 = database.newVertex("V");
+    YTEdge edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
     database.commit();
 
@@ -82,14 +82,14 @@ public class TestGraphElementDelete {
   @Test
   public void testDeleteEdgeConcurrentModification() throws Exception {
     database.begin();
-    OVertex vertex = database.newVertex("V");
-    OVertex vertex1 = database.newVertex("V");
-    OEdge edge = vertex.addEdge(vertex1, "E");
+    YTVertex vertex = database.newVertex("V");
+    YTVertex vertex1 = database.newVertex("V");
+    YTEdge edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
     database.commit();
 
     database.begin();
-    OElement instance = database.load(edge.getIdentity());
+    YTEntity instance = database.load(edge.getIdentity());
 
     var th =
         new Thread(
@@ -97,7 +97,7 @@ public class TestGraphElementDelete {
               try (var database =
                   youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
                 database.begin();
-                OElement element = database.load(edge.getIdentity());
+                YTEntity element = database.load(edge.getIdentity());
                 element.setProperty("one", "two");
                 database.save(element);
                 database.commit();
@@ -117,12 +117,12 @@ public class TestGraphElementDelete {
     assertNotNull(database.load(vertex.getIdentity()));
     assertNotNull(database.load(vertex1.getIdentity()));
     assertTrue(
-        ((OVertex) database.load(vertex.getIdentity()))
+        ((YTVertex) database.load(vertex.getIdentity()))
             .getEdges(ODirection.OUT, "E")
             .iterator()
             .hasNext());
     assertTrue(
-        ((OVertex) database.load(vertex1.getIdentity()))
+        ((YTVertex) database.load(vertex1.getIdentity()))
             .getEdges(ODirection.IN, "E")
             .iterator()
             .hasNext());

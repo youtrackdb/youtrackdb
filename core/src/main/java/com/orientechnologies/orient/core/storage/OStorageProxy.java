@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.storage;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 
 /**
@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.tx.OTransactionInternal;
  */
 public interface OStorageProxy {
 
-  String getUserName(ODatabaseSessionInternal database);
+  String getUserName(YTDatabaseSessionInternal database);
 
   int getUsers();
 

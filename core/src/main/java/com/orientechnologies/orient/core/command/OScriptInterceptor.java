@@ -1,8 +1,9 @@
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 
 public interface OScriptInterceptor {
 
-  void preExecute(ODatabaseSessionInternal database, String language, String script, Object params);
+  void preExecute(YTDatabaseSessionInternal database, String language, String script,
+      Object params);
 }

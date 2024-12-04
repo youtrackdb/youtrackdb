@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.Map;
 
@@ -52,7 +52,7 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final ODatabaseSessionInternal database = getDatabase();
+      final YTDatabaseSessionInternal database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 
@@ -95,7 +95,7 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
   @Override
@@ -106,7 +106,7 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
   /**
    * Execute the CREATE CLUSTER.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clusterName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.metadata.function;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import java.util.Set;
 
 /**
@@ -33,9 +33,9 @@ public interface OFunctionLibrary {
 
   OFunction createFunction(String iName);
 
-  void dropFunction(ODatabaseSession session, String iName);
+  void dropFunction(YTDatabaseSession session, String iName);
 
-  void dropFunction(ODatabaseSession session, OFunction function);
+  void dropFunction(YTDatabaseSession session, OFunction function);
 
   @Deprecated
   void create();

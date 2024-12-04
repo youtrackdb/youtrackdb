@@ -2,16 +2,16 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OCluster;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
@@ -49,8 +49,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     var db = ctx.getDatabase();
-    Set<ORID> rids = fetchRidsToFind(ctx);
-    List<ORecordIteratorCluster<ORecord>> clustersIterators = initClusterIterators(ctx);
+    Set<YTRID> rids = fetchRidsToFind(ctx);
+    List<ORecordIteratorCluster<YTRecord>> clustersIterators = initClusterIterators(ctx);
     Stream<OResult> stream =
         clustersIterators.stream()
             .flatMap(
@@ -62,11 +62,12 @@ public class FindReferencesStep extends AbstractExecutionStep {
     return OExecutionStream.resultIterator(stream.iterator());
   }
 
-  private static Stream<? extends OResult> findMatching(ODatabaseSessionInternal db, Set<ORID> rids,
-      ORecord record) {
+  private static Stream<? extends OResult> findMatching(YTDatabaseSessionInternal db,
+      Set<YTRID> rids,
+      YTRecord record) {
     OResultInternal rec = new OResultInternal(db, record);
     List<OResult> results = new ArrayList<>();
-    for (ORID rid : rids) {
+    for (YTRID rid : rids) {
       List<String> resultForRecord = checkObject(Collections.singleton(rid), rec, record, "");
       if (!resultForRecord.isEmpty()) {
         OResultInternal nextResult = new OResultInternal(db);
@@ -79,7 +80,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     return results.stream();
   }
 
-  private List<ORecordIteratorCluster<ORecord>> initClusterIterators(OCommandContext ctx) {
+  private List<ORecordIteratorCluster<YTRecord>> initClusterIterators(OCommandContext ctx) {
     var db = ctx.getDatabase();
     Collection<String> targetClusterNames = new HashSet<>();
 
@@ -99,10 +100,10 @@ public class FindReferencesStep extends AbstractExecutionStep {
             targetClusterNames.add(clusterName);
           }
         }
-        OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+        YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
         assert this.classes != null;
         for (OIdentifier className : this.classes) {
-          OClass clazz = schema.getClass(className.getStringValue());
+          YTClass clazz = schema.getClass(className.getStringValue());
           if (clazz == null) {
             throw new OCommandExecutionException("Class not found: " + className);
           }
@@ -118,8 +119,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
         .collect(Collectors.toList());
   }
 
-  private Set<ORID> fetchRidsToFind(OCommandContext ctx) {
-    Set<ORID> ridsToFind = new HashSet<>();
+  private Set<YTRID> fetchRidsToFind(OCommandContext ctx) {
+    Set<YTRID> ridsToFind = new HashSet<>();
 
     OExecutionStepInternal prevStep = prev;
     assert prevStep != null;
@@ -135,13 +136,13 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkObject(
-      final Set<ORID> iSourceRIDs, final Object value, final ORecord iRootObject, String prefix) {
+      final Set<YTRID> iSourceRIDs, final Object value, final YTRecord iRootObject, String prefix) {
     if (value instanceof OResult) {
       return checkRoot(iSourceRIDs, (OResult) value, iRootObject, prefix).stream()
           .map(y -> value + "." + y)
           .collect(Collectors.toList());
-    } else if (value instanceof OIdentifiable) {
-      return checkRecord(iSourceRIDs, (OIdentifiable) value, iRootObject, prefix).stream()
+    } else if (value instanceof YTIdentifiable) {
+      return checkRecord(iSourceRIDs, (YTIdentifiable) value, iRootObject, prefix).stream()
           .map(y -> value + "." + y)
           .collect(Collectors.toList());
     } else if (value instanceof Collection<?>) {
@@ -158,9 +159,9 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkCollection(
-      final Set<ORID> iSourceRIDs,
+      final Set<YTRID> iSourceRIDs,
       final Collection<?> values,
-      final ORecord iRootObject,
+      final YTRecord iRootObject,
       String prefix) {
     final Iterator<?> it = values.iterator();
     List<String> result = new ArrayList<>();
@@ -171,9 +172,9 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkMap(
-      final Set<ORID> iSourceRIDs,
+      final Set<YTRID> iSourceRIDs,
       final Map<?, ?> values,
-      final ORecord iRootObject,
+      final YTRecord iRootObject,
       String prefix) {
     final Iterator<?> it;
     if (values instanceof OMap) {
@@ -189,16 +190,16 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkRecord(
-      final Set<ORID> iSourceRIDs,
-      final OIdentifiable value,
-      final ORecord iRootObject,
+      final Set<YTRID> iSourceRIDs,
+      final YTIdentifiable value,
+      final YTRecord iRootObject,
       String prefix) {
     List<String> result = new ArrayList<>();
     if (iSourceRIDs.contains(value.getIdentity())) {
       result.add(prefix);
-    } else if (!value.getIdentity().isValid() && value.getRecord() instanceof ODocument) {
+    } else if (!value.getIdentity().isValid() && value.getRecord() instanceof YTDocument) {
       // embedded document
-      ODocument doc = value.getRecord();
+      YTDocument doc = value.getRecord();
       for (String fieldName : doc.fieldNames()) {
         Object fieldValue = doc.field(fieldName);
         result.addAll(checkObject(iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));
@@ -208,7 +209,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkRoot(
-      final Set<ORID> iSourceRIDs, final OResult value, final ORecord iRootObject, String prefix) {
+      final Set<YTRID> iSourceRIDs, final OResult value, final YTRecord iRootObject,
+      String prefix) {
     List<String> result = new ArrayList<>();
     for (String fieldName : value.getPropertyNames()) {
       Object fieldValue = value.getProperty(fieldName);

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.security;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import java.io.File;
@@ -29,7 +29,7 @@ public class SystemUsersTest {
           "create database " + "test" + " memory users ( admin identified by 'admin' role admin)");
 
       orient.execute("create system user systemxx identified by systemxx role admin").close();
-      ODatabaseSession db = orient.open("test", "systemxx", "systemxx");
+      YTDatabaseSession db = orient.open("test", "systemxx", "systemxx");
 
       db.close();
     } finally {

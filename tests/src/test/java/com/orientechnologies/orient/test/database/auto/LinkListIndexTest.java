@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,13 +33,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
   @BeforeClass
   public void setupSchema() {
-    final OClass linkListIndexTestClass =
+    final YTClass linkListIndexTestClass =
         database.getMetadata().getSchema().createClass("LinkListIndexTestClass");
 
-    linkListIndexTestClass.createProperty(database, "linkCollection", OType.LINKLIST);
+    linkListIndexTestClass.createProperty(database, "linkCollection", YTType.LINKLIST);
 
     linkListIndexTestClass.createIndex(database,
-        "linkCollectionIndex", OClass.INDEX_TYPE.NOTUNIQUE, "linkCollection");
+        "linkCollectionIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "linkCollection");
   }
 
   @AfterClass
@@ -69,13 +69,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -90,7 +90,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
@@ -104,16 +104,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     try {
       database.begin();
-      final ODocument document = new ODocument("LinkListIndexTestClass");
+      final YTDocument document = new YTDocument("LinkListIndexTestClass");
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -132,7 +132,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity()) && !key.equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -145,16 +145,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
 
     document.field(
         "linkCollection",
@@ -175,7 +175,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -188,16 +188,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument document = new ODocument("LinkListIndexTestClass");
+    YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -226,7 +226,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -240,16 +240,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument document = new ODocument("LinkListIndexTestClass");
+    YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -273,7 +273,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -286,16 +286,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -320,7 +320,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -334,16 +334,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -352,8 +352,8 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      ODocument loadedDocument = database.load(document.getIdentity());
-      loadedDocument.<List<OIdentifiable>>field("linkCollection").add(docThree.getIdentity());
+      YTDocument loadedDocument = database.load(document.getIdentity());
+      loadedDocument.<List<YTIdentifiable>>field("linkCollection").add(docThree.getIdentity());
       loadedDocument.save();
       database.commit();
     } catch (Exception e) {
@@ -369,7 +369,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -383,16 +383,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -400,8 +400,8 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    ODocument loadedDocument = database.load(document.getIdentity());
-    loadedDocument.<List<OIdentifiable>>field("linkCollection").add(docThree.getIdentity());
+    YTDocument loadedDocument = database.load(document.getIdentity());
+    loadedDocument.<List<YTIdentifiable>>field("linkCollection").add(docThree.getIdentity());
     loadedDocument.save();
     database.rollback();
 
@@ -413,7 +413,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -426,13 +426,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -441,7 +441,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      ODocument loadedDocument = database.load(document.getIdentity());
+      YTDocument loadedDocument = database.load(document.getIdentity());
       loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
       loadedDocument.save();
       database.commit();
@@ -458,7 +458,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -470,13 +470,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -484,7 +484,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    ODocument loadedDocument = database.load(document.getIdentity());
+    YTDocument loadedDocument = database.load(document.getIdentity());
     loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
     loadedDocument.save();
     database.rollback();
@@ -497,7 +497,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -510,13 +510,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -536,7 +536,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -549,13 +549,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument document = new ODocument("LinkListIndexTestClass");
+    YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -576,13 +576,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument document = new ODocument("LinkListIndexTestClass");
+    YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -607,13 +607,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -633,7 +633,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       keyIterator = indexKeyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -644,13 +644,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
   public void testIndexCollectionSQL() {
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    final YTDocument document = new YTDocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));

@@ -3,10 +3,10 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -32,9 +32,9 @@ public class OTruncateClassStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    ODatabaseSessionInternal db = ctx.getDatabase();
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.getClass(className.getStringValue());
+    YTDatabaseSessionInternal db = ctx.getDatabase();
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.getClass(className.getStringValue());
     if (clazz == null) {
       throw new OCommandExecutionException("Schema Class not found: " + className);
     }
@@ -53,9 +53,9 @@ public class OTruncateClassStatement extends ODDLStatement {
     }
 
     List<OResult> rs = new ArrayList<>();
-    Collection<OClass> subclasses = clazz.getAllSubclasses();
+    Collection<YTClass> subclasses = clazz.getAllSubclasses();
     if (polymorphic && !unsafe) { // for multiple inheritance
-      for (OClass subclass : subclasses) {
+      for (YTClass subclass : subclasses) {
         long subclassRecs = clazz.count(db);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
@@ -80,7 +80,7 @@ public class OTruncateClassStatement extends ODDLStatement {
     result.setProperty("count", count);
     rs.add(result);
     if (polymorphic) {
-      for (OClass subclass : subclasses) {
+      for (YTClass subclass : subclasses) {
         count = db.truncateClass(subclass.getName(), false);
         result = new OResultInternal(db);
         result.setProperty("operation", "truncate class");

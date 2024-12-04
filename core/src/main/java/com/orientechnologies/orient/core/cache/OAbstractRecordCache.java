@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.cache;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,16 +74,16 @@ public abstract class OAbstractRecordCache {
    * @param cid identifier of cluster
    */
   public void freeCluster(final int cid) {
-    final Set<ORID> toRemove = new HashSet<ORID>(underlying.size() / 2);
+    final Set<YTRID> toRemove = new HashSet<YTRID>(underlying.size() / 2);
 
-    final Set<ORID> keys = new HashSet<ORID>(underlying.keys());
-    for (final ORID id : keys) {
+    final Set<YTRID> keys = new HashSet<YTRID>(underlying.keys());
+    for (final YTRID id : keys) {
       if (id.getClusterId() == cid) {
         toRemove.add(id);
       }
     }
 
-    for (final ORID ridToRemove : toRemove) {
+    for (final YTRID ridToRemove : toRemove) {
       underlying.remove(ridToRemove);
     }
   }
@@ -93,7 +93,7 @@ public abstract class OAbstractRecordCache {
    *
    * @param rid unique record identifier
    */
-  public void deleteRecord(final ORID rid) {
+  public void deleteRecord(final YTRID rid) {
     underlying.remove(rid);
   }
 

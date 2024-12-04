@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial.sandbox;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.spatial.shape.OMultiPolygonShapeBuilder;
 import java.io.IOException;
 import java.io.InputStream;
@@ -174,7 +174,7 @@ public class LuceneGeoTest extends BaseLuceneTest {
     final RAMDirectory directory = new RAMDirectory();
     final IndexWriter writer = new IndexWriter(directory, conf);
 
-    ODocument entries = loadMultiPolygon(db);
+    YTDocument entries = loadMultiPolygon(db);
 
     OMultiPolygonShapeBuilder builder = new OMultiPolygonShapeBuilder();
 
@@ -192,16 +192,16 @@ public class LuceneGeoTest extends BaseLuceneTest {
     writer.close();
   }
 
-  protected static ODocument loadMultiPolygon(ODatabaseSessionInternal session) {
+  protected static YTDocument loadMultiPolygon(YTDatabaseSessionInternal session) {
     try {
       InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 
-      ODocument doc = new ODocument(session).fromJSON(systemResourceAsStream);
+      YTDocument doc = new YTDocument(session).fromJSON(systemResourceAsStream);
 
       Map geometry = doc.field("geometry");
 
       String type = (String) geometry.get("type");
-      ODocument location = new ODocument(session, "O" + type);
+      YTDocument location = new YTDocument(session, "O" + type);
       location.field("coordinates", geometry.get("coordinates"));
       return location;
     } catch (Exception e) {

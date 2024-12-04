@@ -10,12 +10,12 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.HashSet;
@@ -85,7 +85,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     int nodes = 1000;
     for (int i = 0; i < nodes; i++) {
       db.begin();
-      ODocument doc = new ODocument("IndexedVertex");
+      YTDocument doc = new YTDocument("IndexedVertex");
       doc.field("uid", i);
       doc.save();
       db.commit();
@@ -273,12 +273,13 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimple() throws Exception {
-    List<ODocument> qResult = collect(db.command("match {class:Person, as: person} return person"));
+    List<YTDocument> qResult = collect(
+        db.command("match {class:Person, as: person} return person"));
     assertEquals(6, qResult.size());
-    for (ODocument doc : qResult) {
+    for (YTDocument doc : qResult) {
       assertEquals(1, doc.fieldNames().length);
-      OIdentifiable personId = doc.field("person");
-      ODocument person = personId.getRecord();
+      YTIdentifiable personId = doc.field("person");
+      YTDocument person = personId.getRecord();
       String name = person.field("name");
       assertTrue(name.startsWith("n"));
     }
@@ -286,17 +287,17 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimpleWhere() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
                     + " person"));
 
     assertEquals(2, qResult.size());
-    for (ODocument doc : qResult) {
+    for (YTDocument doc : qResult) {
       assertEquals(1, doc.fieldNames().length);
-      OIdentifiable personId = doc.field("person");
-      ODocument person = personId.getRecord();
+      YTIdentifiable personId = doc.field("person");
+      YTDocument person = personId.getRecord();
       String name = person.field("name");
       assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -304,7 +305,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimpleLimit() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -315,7 +316,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimpleLimit2() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -326,7 +327,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimpleLimit3() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return"
@@ -337,7 +338,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimpleUnnamedParams() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person, where: (name = ? or name = ?)} return person",
@@ -345,10 +346,10 @@ public class OMatchStatementExecutionTest extends DBTestBase {
                 "n2"));
 
     assertEquals(2, qResult.size());
-    for (ODocument doc : qResult) {
+    for (YTDocument doc : qResult) {
       assertEquals(1, doc.fieldNames().length);
-      OIdentifiable personId = doc.field("person");
-      ODocument person = personId.getRecord();
+      YTIdentifiable personId = doc.field("person");
+      YTDocument person = personId.getRecord();
       String name = person.field("name");
       assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -357,7 +358,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testCommonFriends() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -370,7 +371,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testCommonFriendsArrows() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -383,7 +384,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testCommonFriends2() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
@@ -396,7 +397,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testCommonFriends2Arrows() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
@@ -407,7 +408,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testReturnMethod() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
@@ -419,7 +420,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testReturnMethodArrows() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
@@ -431,7 +432,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testReturnExpression() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
@@ -443,7 +444,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testReturnExpressionArrows() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
@@ -455,7 +456,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testReturnDefaultAlias() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name ="
@@ -467,7 +468,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testReturnDefaultAliasArrows() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class:"
@@ -479,7 +480,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testFriendsOfFriends() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -491,7 +492,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testFriendsOfFriendsArrows() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -503,14 +504,14 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testFriendsOfFriends2() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                     + " me}.both('Friend').both('Friend'){as:friend, where: ($matched.me !="
                     + " $currentMatch)} return $matches)"));
 
-    for (ODocument doc : qResult) {
+    for (YTDocument doc : qResult) {
       assertNotEquals(doc.field("name"), "n1");
     }
   }
@@ -518,14 +519,14 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testFriendsOfFriends2Arrows() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                     + " me}-Friend-{}-Friend-{as:friend, where: ($matched.me != $currentMatch)}"
                     + " return $matches)"));
 
-    for (ODocument doc : qResult) {
+    for (YTDocument doc : qResult) {
       assertNotEquals(doc.field("name"), "n1");
     }
   }
@@ -533,7 +534,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testFriendsWithName() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1"
@@ -546,7 +547,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testFriendsWithNameArrows() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1"
@@ -559,7 +560,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testWhile() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -607,7 +608,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testWhileArrows() throws Exception {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -640,7 +641,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testMaxDepth() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -673,7 +674,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testMaxDepthArrow() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, where:(name ="
@@ -719,7 +720,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     assertEquals("b", getManagerArrows("p11").field("name"));
   }
 
-  private ODocument getManager(String personName) {
+  private YTDocument getManager(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -734,12 +735,12 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  return manager"
             + ")";
 
-    List<OIdentifiable> qResult = collectIdentifiable(db.command(query));
+    List<YTIdentifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
     return qResult.get(0).getRecord();
   }
 
-  private ODocument getManagerArrows(String personName) {
+  private YTDocument getManagerArrows(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -752,7 +753,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  return manager"
             + ")";
 
-    List<OIdentifiable> qResult = collectIdentifiable(db.command(query));
+    List<YTIdentifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
     return qResult.get(0).getRecord();
   }
@@ -772,7 +773,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     assertEquals("b", getManager2Arrows("p11").field("name"));
   }
 
-  private ODocument getManager2(String personName) {
+  private YTDocument getManager2(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -788,12 +789,12 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  return manager"
             + ")";
 
-    List<OIdentifiable> qResult = collectIdentifiable(db.command(query));
+    List<YTIdentifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
     return qResult.get(0).getRecord();
   }
 
-  private ODocument getManager2Arrows(String personName) {
+  private YTDocument getManager2Arrows(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -807,7 +808,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  return manager"
             + ")";
 
-    List<OIdentifiable> qResult = collectIdentifiable(db.command(query));
+    List<YTIdentifiable> qResult = collectIdentifiable(db.command(query));
     assertEquals(1, qResult.size());
     return qResult.get(0).getRecord();
   }
@@ -816,11 +817,11 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   public void testManaged() {
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    List<OIdentifiable> managedByA = getManagedBy("a");
+    List<YTIdentifiable> managedByA = getManagedBy("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((ODocument) managedByA.get(0).getRecord()).field("name"));
+    assertEquals("p1", ((YTDocument) managedByA.get(0).getRecord()).field("name"));
 
-    List<OIdentifiable> managedByB = getManagedBy("b");
+    List<YTIdentifiable> managedByB = getManagedBy("b");
     assertEquals(5, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -829,15 +830,15 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (OIdentifiable id : managedByB) {
-      ODocument doc = id.getRecord();
+    for (YTIdentifiable id : managedByB) {
+      YTDocument doc = id.getRecord();
       String name = doc.field("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
   }
 
-  private List<OIdentifiable> getManagedBy(String managerName) {
+  private List<YTIdentifiable> getManagedBy(String managerName) {
     String query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
@@ -859,11 +860,11 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   public void testManagedArrows() {
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    List<OIdentifiable> managedByA = getManagedByArrows("a");
+    List<YTIdentifiable> managedByA = getManagedByArrows("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((ODocument) managedByA.get(0).getRecord()).field("name"));
+    assertEquals("p1", ((YTDocument) managedByA.get(0).getRecord()).field("name"));
 
-    List<OIdentifiable> managedByB = getManagedByArrows("b");
+    List<YTIdentifiable> managedByB = getManagedByArrows("b");
     assertEquals(5, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -872,15 +873,15 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (OIdentifiable id : managedByB) {
-      ODocument doc = id.getRecord();
+    for (YTIdentifiable id : managedByB) {
+      YTDocument doc = id.getRecord();
       String name = doc.field("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
   }
 
-  private List<OIdentifiable> getManagedByArrows(String managerName) {
+  private List<YTIdentifiable> getManagedByArrows(String managerName) {
     String query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
@@ -900,11 +901,11 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   public void testManaged2() {
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    List<OIdentifiable> managedByA = getManagedBy2("a");
+    List<YTIdentifiable> managedByA = getManagedBy2("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((ODocument) managedByA.get(0).getRecord()).field("name"));
+    assertEquals("p1", ((YTDocument) managedByA.get(0).getRecord()).field("name"));
 
-    List<OIdentifiable> managedByB = getManagedBy2("b");
+    List<YTIdentifiable> managedByB = getManagedBy2("b");
     assertEquals(5, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -913,15 +914,15 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (OIdentifiable id : managedByB) {
-      ODocument doc = id.getRecord();
+    for (YTIdentifiable id : managedByB) {
+      YTDocument doc = id.getRecord();
       String name = doc.field("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
   }
 
-  private List<OIdentifiable> getManagedBy2(String managerName) {
+  private List<YTIdentifiable> getManagedBy2(String managerName) {
     String query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
@@ -943,11 +944,11 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   public void testManaged2Arrows() {
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    List<OIdentifiable> managedByA = getManagedBy2Arrows("a");
+    List<YTIdentifiable> managedByA = getManagedBy2Arrows("a");
     assertEquals(1, managedByA.size());
-    assertEquals("p1", ((ODocument) managedByA.get(0).getRecord()).field("name"));
+    assertEquals("p1", ((YTDocument) managedByA.get(0).getRecord()).field("name"));
 
-    List<OIdentifiable> managedByB = getManagedBy2Arrows("b");
+    List<YTIdentifiable> managedByB = getManagedBy2Arrows("b");
     assertEquals(5, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -956,15 +957,15 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (OIdentifiable id : managedByB) {
-      ODocument doc = id.getRecord();
+    for (YTIdentifiable id : managedByB) {
+      YTDocument doc = id.getRecord();
       String name = doc.field("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
   }
 
-  private List<OIdentifiable> getManagedBy2Arrows(String managerName) {
+  private List<YTIdentifiable> getManagedBy2Arrows(String managerName) {
     String query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
@@ -1018,12 +1019,12 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    List<ODocument> result = collect(db.command(query));
+    List<YTDocument> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = result.get(0);
-    ODocument friend1 = ((OIdentifiable) doc.field("friend1")).getRecord();
-    ODocument friend2 = ((OIdentifiable) doc.field("friend2")).getRecord();
-    ODocument friend3 = ((OIdentifiable) doc.field("friend3")).getRecord();
+    YTDocument doc = result.get(0);
+    YTDocument friend1 = ((YTIdentifiable) doc.field("friend1")).getRecord();
+    YTDocument friend2 = ((YTIdentifiable) doc.field("friend2")).getRecord();
+    YTDocument friend3 = ((YTIdentifiable) doc.field("friend3")).getRecord();
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1040,12 +1041,12 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $patterns";
 
-    List<ODocument> result = collect(db.command(query));
+    List<YTDocument> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = result.get(0);
-    ODocument friend1 = ((OIdentifiable) doc.field("friend1")).getRecord();
-    ODocument friend2 = ((OIdentifiable) doc.field("friend2")).getRecord();
-    ODocument friend3 = ((OIdentifiable) doc.field("friend3")).getRecord();
+    YTDocument doc = result.get(0);
+    YTDocument friend1 = ((YTIdentifiable) doc.field("friend1")).getRecord();
+    YTDocument friend2 = ((YTIdentifiable) doc.field("friend2")).getRecord();
+    YTDocument friend3 = ((YTIdentifiable) doc.field("friend3")).getRecord();
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1062,12 +1063,12 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    List<ODocument> result = collect(db.command(query));
+    List<YTDocument> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = result.get(0);
-    ODocument friend1 = ((OIdentifiable) doc.field("friend1")).getRecord();
-    ODocument friend2 = ((OIdentifiable) doc.field("friend2")).getRecord();
-    ODocument friend3 = ((OIdentifiable) doc.field("friend3")).getRecord();
+    YTDocument doc = result.get(0);
+    YTDocument friend1 = ((YTIdentifiable) doc.field("friend1")).getRecord();
+    YTDocument friend2 = ((YTIdentifiable) doc.field("friend2")).getRecord();
+    YTDocument friend3 = ((YTIdentifiable) doc.field("friend3")).getRecord();
     assertEquals(0, friend1.<Object>field("uid"));
     assertEquals(1, friend2.<Object>field("uid"));
     assertEquals(2, friend3.<Object>field("uid"));
@@ -1084,7 +1085,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    List<ODocument> result = collect(db.command(query));
+    List<YTDocument> result = collect(db.command(query));
     assertEquals(1, result.size());
   }
 
@@ -1141,11 +1142,11 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches";
 
-    List<OIdentifiable> result = collectIdentifiable(db.command(query));
+    List<YTIdentifiable> result = collectIdentifiable(db.command(query));
     assertEquals(2, result.size());
-    for (OIdentifiable d : result) {
+    for (YTIdentifiable d : result) {
       assertEquals(
-          ((ODocument) ((ODocument) d.getRecord()).field("friend1")).<Object>field("uid"), 1);
+          ((YTDocument) ((YTDocument) d.getRecord()).field("friend1")).<Object>field("uid"), 1);
     }
   }
 
@@ -1157,11 +1158,11 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches LIMIT 1";
 
-    List<OIdentifiable> result = collectIdentifiable(db.command(query));
+    List<YTIdentifiable> result = collectIdentifiable(db.command(query));
     assertEquals(1, result.size());
-    for (OIdentifiable d : result) {
+    for (YTIdentifiable d : result) {
       assertEquals(
-          ((ODocument) ((ODocument) d.getRecord()).field("friend1")).<Object>field("uid"), 1);
+          ((YTDocument) ((YTDocument) d.getRecord()).field("friend1")).<Object>field("uid"), 1);
     }
   }
 
@@ -1174,10 +1175,10 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
     List<?> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = (ODocument) result.get(0);
+    YTDocument doc = (YTDocument) result.get(0);
     Object foo = doc.field("foo");
     assertNotNull(foo);
-    Assert.assertTrue(((OElement) foo).isVertex());
+    Assert.assertTrue(((YTEntity) foo).isVertex());
   }
 
   @Test
@@ -1189,7 +1190,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
     List<?> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = (ODocument) result.get(0);
+    YTDocument doc = (YTDocument) result.get(0);
     Object foo = doc.field("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
@@ -1205,7 +1206,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
     List<?> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = (ODocument) result.get(0);
+    YTDocument doc = (YTDocument) result.get(0);
     Object foo = doc.field("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
@@ -1221,7 +1222,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
     List<?> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = (ODocument) result.get(0);
+    YTDocument doc = (YTDocument) result.get(0);
     Object foo = doc.field("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
@@ -1237,7 +1238,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
     List<?> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = (ODocument) result.get(0);
+    YTDocument doc = (YTDocument) result.get(0);
     Object foo = doc.field("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
@@ -1253,12 +1254,12 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
     List<?> result = collect(db.command(query));
     assertEquals(1, result.size());
-    ODocument doc = (ODocument) result.get(0);
+    YTDocument doc = (YTDocument) result.get(0);
     Object foo = doc.field("foo");
     assertNotNull(foo);
     assertTrue(foo instanceof List);
     assertEquals(1, ((List) foo).size());
-    OVertex resultVertex = (OVertex) ((List) foo).get(0);
+    YTVertex resultVertex = (YTVertex) ((List) foo).get(0);
     assertEquals(2, resultVertex.<Object>getProperty("uid"));
   }
 
@@ -1293,9 +1294,9 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'uuid':one.uid}";
 
-    List<ODocument> result = collect(db.command(query));
+    List<YTDocument> result = collect(db.command(query));
     assertEquals(1, result.size());
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("uuid"));
   }
@@ -1307,9 +1308,9 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': {'uuid':one.uid}}";
 
-    List<ODocument> result = collect(db.command(query));
+    List<YTDocument> result = collect(db.command(query));
     assertEquals(1, result.size());
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub.uuid"));
   }
@@ -1321,9 +1322,9 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': [{'uuid':one.uid}]}";
 
-    List<ODocument> result = collect(db.command(query));
+    List<YTDocument> result = collect(db.command(query));
     assertEquals(1, result.size());
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub[0].uuid"));
   }
@@ -1336,7 +1337,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return one, two");
 
-    List<ODocument> result = db.command(new OCommandSQL(query.toString())).execute(db);
+    List<YTDocument> result = db.command(new OCommandSQL(query.toString())).execute(db);
     assertEquals(1, result.size());
 
     query = new StringBuilder();
@@ -1347,14 +1348,14 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
     result = db.command(new OCommandSQL(query.toString())).execute(db);
     assertEquals(1, result.size());
-    //    ODocument doc = result.get(0);
+    //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub[0].uuid"));
   }
 
   @Test
   public void testManagedElements() {
-    List<OIdentifiable> managedByB = getManagedElements("b");
+    List<YTIdentifiable> managedByB = getManagedElements("b");
     assertEquals(6, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("b");
@@ -1364,15 +1365,15 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (OIdentifiable id : managedByB) {
-      ODocument doc = id.getRecord();
+    for (YTIdentifiable id : managedByB) {
+      YTDocument doc = id.getRecord();
       String name = doc.field("name");
       names.add(name);
     }
     assertEquals(expectedNames, names);
   }
 
-  private List<OIdentifiable> getManagedElements(String managerName) {
+  private List<YTIdentifiable> getManagedElements(String managerName) {
     String query =
         "  match {class:Employee, as:boss, where: (name = '"
             + managerName
@@ -1388,7 +1389,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testManagedPathElements() {
-    List<OIdentifiable> managedByB = getManagedPathElements("b");
+    List<YTIdentifiable> managedByB = getManagedPathElements("b");
     assertEquals(10, managedByB.size());
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("department1");
@@ -1402,8 +1403,8 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     expectedNames.add("p7");
     expectedNames.add("p11");
     Set<String> names = new HashSet<String>();
-    for (OIdentifiable id : managedByB) {
-      ODocument doc = id.getRecord();
+    for (YTIdentifiable id : managedByB) {
+      YTDocument doc = id.getRecord();
       String name = doc.field("name");
       names.add(name);
     }
@@ -1412,16 +1413,16 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testOptional() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person} -NonExistingEdge-> {as:b, optional:true} return"
                     + " person, b.name"));
     assertEquals(6, qResult.size());
-    for (ODocument doc : qResult) {
+    for (YTDocument doc : qResult) {
       assertEquals(2, doc.fieldNames().length);
-      OIdentifiable personId = doc.field("person");
-      ODocument person = personId.getRecord();
+      YTIdentifiable personId = doc.field("person");
+      YTDocument person = personId.getRecord();
       String name = person.field("name");
       assertTrue(name.startsWith("n"));
     }
@@ -1429,16 +1430,16 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testOptional2() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "match {class:Person, as: person} --> {as:b, optional:true, where:(nonExisting ="
                     + " 12)} return person, b.name"));
     assertEquals(6, qResult.size());
-    for (ODocument doc : qResult) {
+    for (YTDocument doc : qResult) {
       assertEquals(2, doc.fieldNames().length);
-      OIdentifiable personId = doc.field("person");
-      ODocument person = personId.getRecord();
+      YTIdentifiable personId = doc.field("person");
+      YTDocument person = personId.getRecord();
       String name = person.field("name");
       assertTrue(name.startsWith("n"));
     }
@@ -1446,7 +1447,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testOptional3() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select friend.name as name from (match {class:Person, as:a, where:(name = 'n1' and"
@@ -1459,7 +1460,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testAliasesWithSubquery() throws Exception {
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "select from ( match {class:Person, as:A} return A.name as namexx ) limit 1"));
@@ -1479,7 +1480,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     db.command("CREATE VERTEX testEvalInReturn SET name = 'bar'").close();
     db.commit();
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "MATCH {class: testEvalInReturn, as: p} RETURN if(eval(\"p.name = 'foo'\"), 1, 2)"
@@ -1487,7 +1488,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
 
     assertEquals(2, qResult.size());
     int sum = 0;
-    for (ODocument doc : qResult) {
+    for (YTDocument doc : qResult) {
       sum += ((Number) doc.field("b")).intValue();
     }
     assertEquals(3, sum);
@@ -1524,7 +1525,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "MATCH {class: testCheckClassAsCondition, as: p} -E- {class:"
@@ -1536,7 +1537,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   @Test
   public void testInstanceof() {
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "MATCH {class: Person, as: p, where: ($currentMatch instanceof 'Person')} return"
@@ -1584,25 +1585,25 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   public void testBigEntryPoint() {
     // issue #6890
 
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
     schema.createClass("testBigEntryPoint1");
     schema.createClass("testBigEntryPoint2");
 
     for (int i = 0; i < 1000; i++) {
       db.begin();
-      ODocument doc = db.newInstance("testBigEntryPoint1");
+      YTDocument doc = db.newInstance("testBigEntryPoint1");
       doc.field("a", i);
       doc.save();
       db.commit();
     }
 
     db.begin();
-    ODocument doc = db.newInstance("testBigEntryPoint2");
+    YTDocument doc = db.newInstance("testBigEntryPoint2");
     doc.field("b", "b");
     doc.save();
     db.commit();
 
-    List<ODocument> qResult =
+    List<YTDocument> qResult =
         collect(
             db.command(
                 "MATCH {class: testBigEntryPoint1, as: a}, {class: testBigEntryPoint2, as: b}"
@@ -1871,7 +1872,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     assertEquals(1, result.stream().count());
   }
 
-  private List<OIdentifiable> getManagedPathElements(String managerName) {
+  private List<YTIdentifiable> getManagedPathElements(String managerName) {
     String query =
         "  match {class:Employee, as:boss, where: (name = '"
             + managerName
@@ -1885,21 +1886,21 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     return db.command(new OCommandSQL(query)).execute(db);
   }
 
-  private List<ODocument> collect(OResultSet set) {
+  private List<YTDocument> collect(OResultSet set) {
     return set.stream()
         .map(
             (r) -> {
               if (r.isElement()) {
-                return (ODocument) r.getElement().get();
+                return (YTDocument) r.getElement().get();
               } else {
-                return (ODocument) r.toElement();
+                return (YTDocument) r.toElement();
               }
             })
         .collect(Collectors.toList());
   }
 
-  private List<OIdentifiable> collectIdentifiable(OResultSet set) {
-    return set.stream().map((r) -> (ODocument) r.toElement()).collect(Collectors.toList());
+  private List<YTIdentifiable> collectIdentifiable(OResultSet set) {
+    return set.stream().map((r) -> (YTDocument) r.toElement()).collect(Collectors.toList());
   }
 
   private OProfiler getProfilerInstance() {

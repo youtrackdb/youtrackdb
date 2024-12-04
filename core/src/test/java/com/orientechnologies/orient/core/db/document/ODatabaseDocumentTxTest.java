@@ -3,19 +3,19 @@ package com.orientechnologies.orient.core.db.document;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommitSerializationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClassDescendentOrder;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Collection;
@@ -28,11 +28,11 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   @Test
   public void testCountClass() throws Exception {
 
-    OClass testSuperclass = db.getMetadata().getSchema().createClass("TestSuperclass");
+    YTClass testSuperclass = db.getMetadata().getSchema().createClass("TestSuperclass");
     db.getMetadata().getSchema().createClass("TestSubclass", testSuperclass);
 
     db.begin();
-    ODocument toDelete = new ODocument("TestSubclass").field("id", 1);
+    YTDocument toDelete = new YTDocument("TestSubclass").field("id", 1);
     toDelete.save();
     db.commit();
 
@@ -44,8 +44,8 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
 
     db.begin();
     try {
-      new ODocument("TestSuperclass").field("id", 1).save();
-      new ODocument("TestSubclass").field("id", 1).save();
+      new YTDocument("TestSuperclass").field("id", 1).save();
+      new YTDocument("TestSubclass").field("id", 1).save();
       // 2 SUB, 1 SUPER
 
       Assert.assertEquals(db.countClass("TestSuperclass", false), 1);
@@ -80,18 +80,18 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   @Test(expected = OCommitSerializationException.class)
   public void testSaveInvalidRid() {
     db.begin();
-    ODocument doc = new ODocument();
-    doc.field("test", new ORecordId(-2, 10));
+    YTDocument doc = new YTDocument();
+    doc.field("test", new YTRecordId(-2, 10));
     db.save(doc);
     db.commit();
   }
 
   @Test
   public void testCreateClass() {
-    OClass clazz = db.createClass("TestCreateClass");
+    YTClass clazz = db.createClass("TestCreateClass");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestCreateClass", clazz.getName());
-    List<OClass> superclasses = clazz.getSuperClasses();
+    List<YTClass> superclasses = clazz.getSuperClasses();
     if (superclasses != null) {
       assertTrue(superclasses.isEmpty());
     }
@@ -102,10 +102,10 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     } catch (OSchemaException ex) {
     }
 
-    OClass subclazz = db.createClass("TestCreateClass_subclass", "TestCreateClass");
+    YTClass subclazz = db.createClass("TestCreateClass_subclass", "TestCreateClass");
     Assert.assertNotNull(subclazz);
     Assert.assertEquals("TestCreateClass_subclass", subclazz.getName());
-    List<OClass> sub_superclasses = subclazz.getSuperClasses();
+    List<YTClass> sub_superclasses = subclazz.getSuperClasses();
     Assert.assertEquals(1, sub_superclasses.size());
     Assert.assertEquals("TestCreateClass", sub_superclasses.get(0).getName());
   }
@@ -114,30 +114,30 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   public void testGetClass() {
     db.createClass("TestGetClass");
 
-    OClass clazz = db.getClass("TestGetClass");
+    YTClass clazz = db.getClass("TestGetClass");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestGetClass", clazz.getName());
-    List<OClass> superclasses = clazz.getSuperClasses();
+    List<YTClass> superclasses = clazz.getSuperClasses();
     if (superclasses != null) {
       assertTrue(superclasses.isEmpty());
     }
 
-    OClass clazz2 = db.getClass("TestGetClass_non_existing");
+    YTClass clazz2 = db.getClass("TestGetClass_non_existing");
     Assert.assertNull(clazz2);
   }
 
   @Test
   public void testDocFromJsonEmbedded() {
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
-    OClass c0 = schema.createClass("testDocFromJsonEmbedded_Class0");
+    YTClass c0 = schema.createClass("testDocFromJsonEmbedded_Class0");
 
-    OClass c1 = schema.createClass("testDocFromJsonEmbedded_Class1");
-    c1.createProperty(db, "account", OType.STRING);
-    c1.createProperty(db, "meta", OType.EMBEDDED, c0);
+    YTClass c1 = schema.createClass("testDocFromJsonEmbedded_Class1");
+    c1.createProperty(db, "account", YTType.STRING);
+    c1.createProperty(db, "meta", YTType.EMBEDDED, c0);
 
     db.begin();
-    ODocument doc = new ODocument("testDocFromJsonEmbedded_Class1");
+    YTDocument doc = new YTDocument("testDocFromJsonEmbedded_Class1");
 
     doc.fromJSON(
         "{\n"
@@ -161,8 +161,8 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
 
     try (OResultSet result = db.query("select from testDocFromJsonEmbedded_Class1")) {
       Assert.assertTrue(result.hasNext());
-      OElement item = result.next().getElement().get();
-      ODocument meta = item.getProperty("meta");
+      YTEntity item = result.next().getElement().get();
+      YTDocument meta = item.getProperty("meta");
       Assert.assertEquals(meta.getClassName(), "testDocFromJsonEmbedded_Class0");
       Assert.assertEquals(meta.field("ip"), "0:0:0:0:0:0:0:1");
     }
@@ -172,18 +172,18 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   public void testCreateClassIfNotExists() {
     db.createClass("TestCreateClassIfNotExists");
 
-    OClass clazz = db.createClassIfNotExist("TestCreateClassIfNotExists");
+    YTClass clazz = db.createClassIfNotExist("TestCreateClassIfNotExists");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestCreateClassIfNotExists", clazz.getName());
-    List<OClass> superclasses = clazz.getSuperClasses();
+    List<YTClass> superclasses = clazz.getSuperClasses();
     if (superclasses != null) {
       assertTrue(superclasses.isEmpty());
     }
 
-    OClass clazz2 = db.createClassIfNotExist("TestCreateClassIfNotExists_non_existing");
+    YTClass clazz2 = db.createClassIfNotExist("TestCreateClassIfNotExists_non_existing");
     Assert.assertNotNull(clazz2);
     Assert.assertEquals("TestCreateClassIfNotExists_non_existing", clazz2.getName());
-    List<OClass> superclasses2 = clazz2.getSuperClasses();
+    List<YTClass> superclasses2 = clazz2.getSuperClasses();
     if (superclasses2 != null) {
       assertTrue(superclasses2.isEmpty());
     }
@@ -191,26 +191,26 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
 
   @Test
   public void testCreateVertexClass() {
-    OClass clazz = db.createVertexClass("TestCreateVertexClass");
+    YTClass clazz = db.createVertexClass("TestCreateVertexClass");
     Assert.assertNotNull(clazz);
 
     clazz = db.getClass("TestCreateVertexClass");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestCreateVertexClass", clazz.getName());
-    List<OClass> superclasses = clazz.getSuperClasses();
+    List<YTClass> superclasses = clazz.getSuperClasses();
     Assert.assertEquals(1, superclasses.size());
     Assert.assertEquals("V", superclasses.get(0).getName());
   }
 
   @Test
   public void testCreateEdgeClass() {
-    OClass clazz = db.createEdgeClass("TestCreateEdgeClass");
+    YTClass clazz = db.createEdgeClass("TestCreateEdgeClass");
     Assert.assertNotNull(clazz);
 
     clazz = db.getClass("TestCreateEdgeClass");
     Assert.assertNotNull(clazz);
     Assert.assertEquals("TestCreateEdgeClass", clazz.getName());
-    List<OClass> superclasses = clazz.getSuperClasses();
+    List<YTClass> superclasses = clazz.getSuperClasses();
     Assert.assertEquals(1, superclasses.size());
     Assert.assertEquals("E", superclasses.get(0).getName());
   }
@@ -221,11 +221,11 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     db.createClass(className, "V");
 
     db.begin();
-    OVertex doc1 = db.newVertex(className);
+    YTVertex doc1 = db.newVertex(className);
     doc1.setProperty("name", "a");
     doc1.save();
 
-    OVertex doc2 = db.newVertex(className);
+    YTVertex doc2 = db.newVertex(className);
     doc2.setProperty("name", "b");
     doc2.setProperty("linked", doc1);
     doc2.save();
@@ -236,11 +236,11 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
       OResult res = rs.next();
 
       Object linkedVal = res.getProperty("linked");
-      Assert.assertTrue(linkedVal instanceof OIdentifiable);
+      Assert.assertTrue(linkedVal instanceof YTIdentifiable);
       Assert.assertTrue(
-          db.load(((OIdentifiable) linkedVal).getIdentity()) instanceof OIdentifiable);
+          db.load(((YTIdentifiable) linkedVal).getIdentity()) instanceof YTIdentifiable);
 
-      Assert.assertTrue(res.toElement().getProperty("linked") instanceof OVertex);
+      Assert.assertTrue(res.toElement().getProperty("linked") instanceof YTVertex);
     }
   }
 
@@ -248,19 +248,19 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   public void testLinkEdges() {
     String vertexClass = "testVertex";
     String edgeClass = "testEdge";
-    OClass vc = db.createClass(vertexClass, "V");
+    YTClass vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
-    vc.createProperty(db, "out_testEdge", OType.LINK);
-    vc.createProperty(db, "in_testEdge", OType.LINK);
+    vc.createProperty(db, "out_testEdge", YTType.LINK);
+    vc.createProperty(db, "in_testEdge", YTType.LINK);
 
     db.begin();
-    OVertex doc1 = db.newVertex(vertexClass);
+    YTVertex doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();
     db.commit();
 
     db.begin();
-    OVertex doc2 = db.newVertex(vertexClass);
+    YTVertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
     db.newEdge(db.bindToSession(doc1), doc2, "testEdge").save();
@@ -280,22 +280,22 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   public void testLinkOneSide() {
     String vertexClass = "testVertex";
     String edgeClass = "testEdge";
-    OClass vc = db.createClass(vertexClass, "V");
+    YTClass vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
 
-    vc.createProperty(db, "out_testEdge", OType.LINKBAG);
-    vc.createProperty(db, "in_testEdge", OType.LINK);
+    vc.createProperty(db, "out_testEdge", YTType.LINKBAG);
+    vc.createProperty(db, "in_testEdge", YTType.LINK);
 
     db.begin();
-    OVertex doc1 = db.newVertex(vertexClass);
+    YTVertex doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();
 
-    OVertex doc2 = db.newVertex(vertexClass);
+    YTVertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
 
-    OVertex doc3 = db.newVertex(vertexClass);
+    YTVertex doc3 = db.newVertex(vertexClass);
     doc3.setProperty("name", "third");
     doc3.save();
 
@@ -317,19 +317,19 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   public void testLinkDuplicate() {
     String vertexClass = "testVertex";
     String edgeClass = "testEdge";
-    OClass vc = db.createClass(vertexClass, "V");
+    YTClass vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
-    vc.createProperty(db, "out_testEdge", OType.LINK);
-    vc.createProperty(db, "in_testEdge", OType.LINK);
-    OVertex doc1 = db.newVertex(vertexClass);
+    vc.createProperty(db, "out_testEdge", YTType.LINK);
+    vc.createProperty(db, "in_testEdge", YTType.LINK);
+    YTVertex doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();
 
-    OVertex doc2 = db.newVertex(vertexClass);
+    YTVertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
 
-    OVertex doc3 = db.newVertex(vertexClass);
+    YTVertex doc3 = db.newVertex(vertexClass);
     doc3.setProperty("name", "third");
     doc3.save();
 
@@ -340,14 +340,14 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   @Test
   public void selectDescTest() {
     String className = "bar";
-    OSchema schema = db.getMetadata().getSchema();
-    schema.createClass(className, 1, schema.getClass(OClass.VERTEX_CLASS_NAME));
+    YTSchema schema = db.getMetadata().getSchema();
+    schema.createClass(className, 1, schema.getClass(YTClass.VERTEX_CLASS_NAME));
     db.begin();
 
-    ODocument document = new ODocument(className);
+    YTDocument document = new YTDocument(className);
     document.save();
-    ORecordIteratorClassDescendentOrder<ODocument> reverseIterator =
-        new ORecordIteratorClassDescendentOrder<ODocument>(db, db, className, true);
+    ORecordIteratorClassDescendentOrder<YTDocument> reverseIterator =
+        new ORecordIteratorClassDescendentOrder<YTDocument>(db, db, className, true);
     Assert.assertTrue(reverseIterator.hasNext());
     Assert.assertEquals(document, reverseIterator.next());
   }

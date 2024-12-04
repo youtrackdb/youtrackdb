@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.functions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
 import org.junit.Before;
@@ -25,7 +25,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchMoreLikeThisWithRid() throws Exception {
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE ");
-    OClass clazz = db.getMetadata().getSchema().getClass("Song");
+    YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
     try (OResultSet resultSet =
@@ -44,7 +44,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
     db.command("create index Song.multi on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
-    OClass clazz = db.getMetadata().getSchema().getClass("Song");
+    YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
     try (OResultSet resultSet =
@@ -62,7 +62,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnFieldAndMoreLikeThisWithRidOnMultiFieldsIndex() throws Exception {
     db.command("create index Song.multi on Song (title) FULLTEXT ENGINE LUCENE ");
 
-    OClass clazz = db.getMetadata().getSchema().getClass("Song");
+    YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
     try (OResultSet resultSet =
@@ -85,7 +85,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
     db.command("create index Song.multi on Song (title) FULLTEXT ENGINE LUCENE ");
 
-    OClass clazz = db.getMetadata().getSchema().getClass("Song");
+    YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
     try (OResultSet resultSet =
@@ -105,7 +105,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
     db.command("create index Song.multi on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
-    OClass clazz = db.getMetadata().getSchema().getClass("Song");
+    YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
     try (OResultSet resultSet =

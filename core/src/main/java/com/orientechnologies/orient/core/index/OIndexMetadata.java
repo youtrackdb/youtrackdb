@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.stream.OMixedIndexRIDContainerSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.stream.OStreamSerializerRID;
 import com.orientechnologies.orient.core.serialization.serializer.stream.OStreamSerializerSBTreeIndexRIDContainer;
@@ -55,15 +55,15 @@ public class OIndexMetadata {
       String algorithm,
       String valueContainerAlgorithm,
       int version,
-      ODocument metadata) {
+      YTDocument metadata) {
     assert metadata == null || metadata.getIdentity().isNew();
     this.name = name;
     this.indexDefinition = indexDefinition;
     this.clustersToIndex = clustersToIndex;
     this.type = type;
-    if (type.equalsIgnoreCase(OClass.INDEX_TYPE.UNIQUE_HASH_INDEX.name())
-        || type.equalsIgnoreCase(OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.name())
-        || type.equalsIgnoreCase(OClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.name())) {
+    if (type.equalsIgnoreCase(YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX.name())
+        || type.equalsIgnoreCase(YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.name())
+        || type.equalsIgnoreCase(YTClass.INDEX_TYPE.DICTIONARY_HASH_INDEX.name())) {
       if (!algorithm.equalsIgnoreCase("autosharding")) {
         algorithm = OHashIndexFactory.HASH_INDEX_ALGORITHM;
       }
@@ -76,7 +76,7 @@ public class OIndexMetadata {
   }
 
   @Nullable
-  private static Map<String, ?> initMetadata(ODocument metadataDoc) {
+  private static Map<String, ?> initMetadata(YTDocument metadataDoc) {
     if (metadataDoc == null) {
       return null;
     }
@@ -154,17 +154,17 @@ public class OIndexMetadata {
 
   public boolean isMultivalue() {
     String t = type.toUpperCase();
-    return OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(t)
-        || OClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t)
-        || OClass.INDEX_TYPE.FULLTEXT.toString().equals(t);
+    return YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(t)
+        || YTClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t)
+        || YTClass.INDEX_TYPE.FULLTEXT.toString().equals(t);
   }
 
   public byte getValueSerializerId(int binaryFormatVersion) {
     String t = type.toUpperCase();
-    if (OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(t)
-        || OClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t)
-        || OClass.INDEX_TYPE.FULLTEXT.toString().equals(t)
-        || OClass.INDEX_TYPE.SPATIAL.toString().equals(t)) {
+    if (YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(t)
+        || YTClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t)
+        || YTClass.INDEX_TYPE.FULLTEXT.toString().equals(t)
+        || YTClass.INDEX_TYPE.SPATIAL.toString().equals(t)) {
       // TODO: Hard Coded Lucene maybe fix
       if (binaryFormatVersion >= 13 && !"LUCENE".equalsIgnoreCase(algorithm)) {
         return OMixedIndexRIDContainerSerializer.ID;
@@ -188,7 +188,7 @@ public class OIndexMetadata {
     return metadata;
   }
 
-  public void setMetadata(ODocument metadata) {
+  public void setMetadata(YTDocument metadata) {
     this.metadata = initMetadata(metadata);
   }
 }

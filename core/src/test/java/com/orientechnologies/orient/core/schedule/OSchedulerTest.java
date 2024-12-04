@@ -7,11 +7,11 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseThreadLocalFactory;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
@@ -34,7 +34,7 @@ public class OSchedulerTest {
   public void scheduleSQLFunction() throws Exception {
     try (YouTrackDB context = createContext()) {
       var db =
-          (ODatabaseSessionInternal) context.cachedPool("test", "admin",
+          (YTDatabaseSessionInternal) context.cachedPool("test", "admin",
               OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
       createLogEvent(db);
 
@@ -51,7 +51,7 @@ public class OSchedulerTest {
   public void scheduleWithDbClosed() throws Exception {
     YouTrackDB context = createContext();
     {
-      var db = (ODatabaseSessionInternal) context.open("test", "admin",
+      var db = (YTDatabaseSessionInternal) context.open("test", "admin",
           OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       createLogEvent(db);
       db.close();
@@ -73,7 +73,7 @@ public class OSchedulerTest {
   public void eventLifecycle() throws Exception {
     try (YouTrackDB context = createContext()) {
       var db =
-          (ODatabaseSessionInternal) context.cachedPool("test", "admin",
+          (YTDatabaseSessionInternal) context.cachedPool("test", "admin",
               OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
       createLogEvent(db);
 
@@ -100,14 +100,14 @@ public class OSchedulerTest {
   public void eventSavedAndLoaded() throws Exception {
     YouTrackDB context = createContext();
     var db =
-        (ODatabaseSessionInternal) context.open("test", "admin",
+        (YTDatabaseSessionInternal) context.open("test", "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     createLogEvent(db);
     db.close();
 
     Thread.sleep(1000);
 
-    final ODatabaseSession db2 =
+    final YTDatabaseSession db2 =
         context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       Thread.sleep(4000);
@@ -126,8 +126,8 @@ public class OSchedulerTest {
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1)
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.DB_POOL_MAX, 1)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     if (!youTrackDb.exists("test")) {
       youTrackDb.execute(
@@ -141,7 +141,7 @@ public class OSchedulerTest {
     }
     final ODatabasePool pool =
         youTrackDb.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    var db = (ODatabaseSessionInternal) pool.acquire();
+    var db = (YTDatabaseSessionInternal) pool.acquire();
 
     assertEquals(db, ODatabaseRecordThreadLocal.instance().getIfDefined());
     createLogEvent(db);
@@ -155,7 +155,7 @@ public class OSchedulerTest {
     YouTrackDB context = createContext();
     try (context;
         var db =
-            (ODatabaseSessionInternal) context.open("test", "admin",
+            (YTDatabaseSessionInternal) context.open("test", "admin",
                 OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       OFunction func = createFunction(db);
       db.begin();
@@ -240,7 +240,7 @@ public class OSchedulerTest {
     return youTrackDB;
   }
 
-  private void createLogEvent(ODatabaseSessionInternal db) {
+  private void createLogEvent(YTDatabaseSessionInternal db) {
     OFunction func = createFunction(db);
 
     db.executeInTx(() -> {
@@ -256,7 +256,7 @@ public class OSchedulerTest {
     });
   }
 
-  private OFunction createFunction(ODatabaseSessionInternal db) {
+  private OFunction createFunction(YTDatabaseSessionInternal db) {
     db.getMetadata().getSchema().createClass("scheduler_log");
 
     return db.computeInTx(
@@ -272,7 +272,7 @@ public class OSchedulerTest {
         });
   }
 
-  private Long getLogCounter(final ODatabaseSession db) {
+  private Long getLogCounter(final YTDatabaseSession db) {
     OResultSet resultSet =
         db.query("select count(*) as count from scheduler_log where note = 'test'");
     OResult result = resultSet.stream().findFirst().orElseThrow();
@@ -297,8 +297,8 @@ public class OSchedulerTest {
     }
 
     @Override
-    public ODatabaseSessionInternal getThreadDatabase() {
-      return (ODatabaseSessionInternal) context.cachedPool(database, username, password).acquire();
+    public YTDatabaseSessionInternal getThreadDatabase() {
+      return (YTDatabaseSessionInternal) context.cachedPool(database, username, password).acquire();
     }
   }
 }

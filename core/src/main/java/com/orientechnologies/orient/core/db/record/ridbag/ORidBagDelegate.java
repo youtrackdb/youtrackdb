@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.db.record.ridbag;
 
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
@@ -31,16 +31,16 @@ import java.util.NavigableMap;
 import java.util.UUID;
 
 public interface ORidBagDelegate
-    extends Iterable<OIdentifiable>,
+    extends Iterable<YTIdentifiable>,
     OSizeable,
-    OTrackedMultiValue<OIdentifiable, OIdentifiable>,
+    OTrackedMultiValue<YTIdentifiable, YTIdentifiable>,
     ORecordElement {
 
-  void addAll(Collection<OIdentifiable> values);
+  void addAll(Collection<YTIdentifiable> values);
 
-  void add(OIdentifiable identifiable);
+  void add(YTIdentifiable identifiable);
 
-  void remove(OIdentifiable identifiable);
+  void remove(YTIdentifiable identifiable);
 
   boolean isEmpty();
 
@@ -70,7 +70,7 @@ public interface ORidBagDelegate
    * @return true if ridbag contains at leas one instance with the same rid as passed in
    * identifiable.
    */
-  boolean contains(OIdentifiable identifiable);
+  boolean contains(YTIdentifiable identifiable);
 
   void setOwner(ORecordElement owner);
 
@@ -78,13 +78,13 @@ public interface ORidBagDelegate
 
   String toString();
 
-  NavigableMap<OIdentifiable, Change> getChanges();
+  NavigableMap<YTIdentifiable, Change> getChanges();
 
   void setSize(int size);
 
-  OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> getTracker();
+  OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> getTracker();
 
-  void setTracker(OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> tracker);
+  void setTracker(OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> tracker);
 
   void setTransactionModified(boolean transactionModified);
 }

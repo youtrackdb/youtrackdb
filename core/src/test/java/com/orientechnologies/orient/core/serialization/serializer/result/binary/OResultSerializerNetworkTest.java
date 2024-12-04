@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.serialization.serializer.result.binary;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class OResultSerializerNetworkTest {
   public void test() {
     try (var orientDB = new YouTrackDB("memory", YouTrackDBConfig.defaultConfig())) {
       orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
-      try (var db = (ODatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
+      try (var db = (YTDatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
         OResultSerializerNetwork serializer = new OResultSerializerNetwork();
 
         OResultInternal original = new OResultInternal(db);
@@ -32,7 +32,7 @@ public class OResultSerializerNetworkTest {
         original.setProperty("float", 12.4f);
         original.setProperty("double", 12.4d);
         original.setProperty("boolean", true);
-        original.setProperty("rid", new ORecordId("#12:0"));
+        original.setProperty("rid", new YTRecordId("#12:0"));
 
         OResultInternal embeddedProj = new OResultInternal(db);
         embeddedProj.setProperty("name", "bar");

@@ -36,5 +36,5 @@ public interface ORecordListener {
     IDENTITY_CHANGED
   }
 
-  void onEvent(ORecord iDocument, EVENT iEvent);
+  void onEvent(YTRecord iDocument, EVENT iEvent);
 }

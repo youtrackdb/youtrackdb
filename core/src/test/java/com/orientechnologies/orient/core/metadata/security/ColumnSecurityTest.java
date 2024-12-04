@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.index.OIndexException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -26,7 +26,7 @@ public class ColumnSecurityTest {
 
   static String DB_NAME = "test";
   static YouTrackDB context;
-  private ODatabaseSessionInternal db;
+  private YTDatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
@@ -34,7 +34,7 @@ public class ColumnSecurityTest {
         new YouTrackDB(
             "plocal:.",
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+                .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
   }
 
@@ -53,7 +53,7 @@ public class ColumnSecurityTest {
             + " users ( admin identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
-    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "admin",
+    this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "admin",
         OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
@@ -68,8 +68,8 @@ public class ColumnSecurityTest {
   public void testIndexWithPolicy() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
@@ -85,9 +85,9 @@ public class ColumnSecurityTest {
   public void testIndexWithPolicy1() throws InterruptedException {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
-    person.createProperty(db, "surname", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
+    person.createProperty(db, "surname", YTType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
@@ -109,8 +109,8 @@ public class ColumnSecurityTest {
   public void testIndexWithPolicy2() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
@@ -130,8 +130,8 @@ public class ColumnSecurityTest {
   public void testIndexWithPolicy3() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(db, true);
@@ -147,9 +147,9 @@ public class ColumnSecurityTest {
   public void testIndexWithPolicy4() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
-    person.createProperty(db, "address", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
+    person.createProperty(db, "address", YTType.STRING);
 
     db.command("create index Person.name_address on Person (name, address) NOTUNIQUE");
 
@@ -165,9 +165,9 @@ public class ColumnSecurityTest {
   public void testIndexWithPolicy5() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
-    person.createProperty(db, "surname", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
+    person.createProperty(db, "surname", YTType.STRING);
 
     db.command("create index Person.name_surname on Person (name, surname) NOTUNIQUE");
 
@@ -188,8 +188,8 @@ public class ColumnSecurityTest {
   public void testIndexWithPolicy6() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass person = db.createClass("Person");
-    person.createProperty(db, "name", OType.STRING);
+    YTClass person = db.createClass("Person");
+    person.createProperty(db, "name", YTType.STRING);
 
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
@@ -214,7 +214,7 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -223,7 +223,7 @@ public class ColumnSecurityTest {
     db.save(elem);
 
     db.close();
-    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
+    this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     OResultSet rs = db.query("select from Person");
     boolean fooFound = false;
     boolean nullFound = false;
@@ -249,8 +249,8 @@ public class ColumnSecurityTest {
   public void testReadFilterOnePropertyWithIndex() {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
-    OClass clazz = db.createClass("Person");
-    clazz.createProperty(db, "name", OType.STRING);
+    YTClass clazz = db.createClass("Person");
+    clazz.createProperty(db, "name", YTType.STRING);
 
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
@@ -261,7 +261,7 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -270,7 +270,7 @@ public class ColumnSecurityTest {
     db.save(elem);
 
     db.close();
-    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
+    this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     OResultSet rs = db.query("select from Person where name = 'foo'");
     Assert.assertTrue(rs.hasNext());
     rs.next();
@@ -298,7 +298,7 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
@@ -329,7 +329,7 @@ public class ColumnSecurityTest {
     db.close();
     Thread.sleep(200);
 
-    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
+    this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     rs = db.query("select from Person");
     fooFound = false;
     boolean nullFound = false;
@@ -364,7 +364,7 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -376,7 +376,7 @@ public class ColumnSecurityTest {
 
     db.close();
 
-    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
+    this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     OResultSet rs = db.query("select from Person where name = 'foo' OR name = 'bar'");
 
     OResult item = rs.next();
@@ -400,9 +400,9 @@ public class ColumnSecurityTest {
         db, security.getRole(db, "writer"), "database.class.Person.name", policy);
 
     db.close();
-    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
+    this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -431,7 +431,7 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "writer"), "database.class.Person.name", policy);
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -443,7 +443,7 @@ public class ColumnSecurityTest {
 
     db.close();
 
-    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
+    this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
 
     db.command("UPDATE Person SET name = 'foo1' WHERE name = 'foo'");
 
@@ -474,13 +474,13 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "writer"), "database.class.Person.name", policy);
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
 
     db.close();
-    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
+    this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
 
     db.command("UPDATE Person SET name = 'foo1' WHERE name = 'foo'");
 
@@ -504,14 +504,14 @@ public class ColumnSecurityTest {
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'bar')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person.name");
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
 
     db.close();
 
-    db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
+    db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     try (final OResultSet resultSet = db.query("SELECT from Person")) {
       OResult item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
@@ -525,18 +525,18 @@ public class ColumnSecurityTest {
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'bar')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person.name");
 
-    OElement elem = db.newElement("Person");
+    YTEntity elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
 
     db.close();
 
-    db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
+    db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     try (final OResultSet resultSet = db.query("SELECT from Person")) {
       OResult item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
-      OElement doc = item.getElement().get();
+      YTEntity doc = item.getElement().get();
       doc.setProperty("name", "bar");
       try {
         doc.save();

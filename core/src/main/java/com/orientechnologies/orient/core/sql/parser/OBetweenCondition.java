@@ -3,10 +3,10 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,7 @@ public class OBetweenCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     Object firstValue = first.execute(currentRecord, ctx);
     if (firstValue == null) {
       return false;
@@ -42,13 +42,13 @@ public class OBetweenCondition extends OBooleanExpression {
     }
 
     var db = ctx.getDatabase();
-    secondValue = OType.convert(db, secondValue, firstValue.getClass());
+    secondValue = YTType.convert(db, secondValue, firstValue.getClass());
 
     Object thirdValue = third.execute(currentRecord, ctx);
     if (thirdValue == null) {
       return false;
     }
-    thirdValue = OType.convert(db, thirdValue, firstValue.getClass());
+    thirdValue = YTType.convert(db, thirdValue, firstValue.getClass());
 
     final int leftResult = ((Comparable<Object>) firstValue).compareTo(secondValue);
     final int rightResult = ((Comparable<Object>) firstValue).compareTo(thirdValue);
@@ -75,7 +75,7 @@ public class OBetweenCondition extends OBooleanExpression {
     return evaluate(db, firstValue, secondValue, thirdValue);
   }
 
-  private static boolean evaluate(ODatabaseSession session, Object firstValue, Object secondValue,
+  private static boolean evaluate(YTDatabaseSession session, Object firstValue, Object secondValue,
       Object thirdValue) {
     if (firstValue == null) {
       return false;
@@ -85,12 +85,12 @@ public class OBetweenCondition extends OBooleanExpression {
       return false;
     }
 
-    secondValue = OType.convert(session, secondValue, firstValue.getClass());
+    secondValue = YTType.convert(session, secondValue, firstValue.getClass());
 
     if (thirdValue == null) {
       return false;
     }
-    thirdValue = OType.convert(session, thirdValue, firstValue.getClass());
+    thirdValue = YTType.convert(session, thirdValue, firstValue.getClass());
 
     final int leftResult = ((Comparable<Object>) firstValue).compareTo(secondValue);
     final int rightResult = ((Comparable<Object>) firstValue).compareTo(thirdValue);
@@ -98,7 +98,7 @@ public class OBetweenCondition extends OBooleanExpression {
     return leftResult >= 0 && rightResult <= 0;
   }
 
-  private boolean evaluateAny(ODatabaseSession session, OResult currentRecord,
+  private boolean evaluateAny(YTDatabaseSession session, OResult currentRecord,
       OCommandContext ctx) {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
@@ -268,7 +268,7 @@ public class OBetweenCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (first != null && !first.isCacheable(session)) {
       return false;
     }

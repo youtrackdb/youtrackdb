@@ -6,11 +6,11 @@ import static org.mockito.Mockito.atLeastOnce;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryListener;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryServer;
 import com.orientechnologies.orient.server.network.protocol.binary.OLiveCommandResultListener;
@@ -42,7 +42,7 @@ public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   private static class TestResultListener implements OCommandResultListener {
 
     @Override
-    public boolean result(ODatabaseSessionInternal querySession, Object iRecord) {
+    public boolean result(YTDatabaseSessionInternal querySession, Object iRecord) {
       return false;
     }
 
@@ -78,7 +78,7 @@ public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   public void testSimpleMessageSend() throws IOException {
     OLiveCommandResultListener listener =
         new OLiveCommandResultListener(server, connection, new TestResultListener());
-    ORecordOperation op = new ORecordOperation(new ODocument(), ORecordOperation.CREATED);
+    ORecordOperation op = new ORecordOperation(new YTDocument(), ORecordOperation.CREATED);
     listener.onLiveResult(10, op);
     Mockito.verify(channelBinary, atLeastOnce()).writeBytes(Mockito.any(byte[].class));
   }
@@ -91,7 +91,7 @@ public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
         new OLiveCommandResultListener(server, connection, new TestResultListener());
     OLiveQueryHook.subscribe(10, rawListener, db);
     assertTrue(OLiveQueryHook.getOpsReference(db).getQueueThread().hasToken(10));
-    ORecordOperation op = new ORecordOperation(new ODocument(), ORecordOperation.CREATED);
+    ORecordOperation op = new ORecordOperation(new YTDocument(), ORecordOperation.CREATED);
     listener.onLiveResult(10, op);
     assertFalse(OLiveQueryHook.getOpsReference(db).getQueueThread().hasToken(10));
   }

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,71 +30,71 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass oClass = schema.createClass("sqlSelectIndexReuseTestClass");
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass oClass = schema.createClass("sqlSelectIndexReuseTestClass");
 
-    oClass.createProperty(database, "prop1", OType.INTEGER);
-    oClass.createProperty(database, "prop2", OType.INTEGER);
-    oClass.createProperty(database, "prop3", OType.INTEGER);
-    oClass.createProperty(database, "prop4", OType.INTEGER);
-    oClass.createProperty(database, "prop5", OType.INTEGER);
-    oClass.createProperty(database, "prop6", OType.INTEGER);
-    oClass.createProperty(database, "prop7", OType.STRING);
-    oClass.createProperty(database, "prop8", OType.INTEGER);
-    oClass.createProperty(database, "prop9", OType.INTEGER);
+    oClass.createProperty(database, "prop1", YTType.INTEGER);
+    oClass.createProperty(database, "prop2", YTType.INTEGER);
+    oClass.createProperty(database, "prop3", YTType.INTEGER);
+    oClass.createProperty(database, "prop4", YTType.INTEGER);
+    oClass.createProperty(database, "prop5", YTType.INTEGER);
+    oClass.createProperty(database, "prop6", YTType.INTEGER);
+    oClass.createProperty(database, "prop7", YTType.STRING);
+    oClass.createProperty(database, "prop8", YTType.INTEGER);
+    oClass.createProperty(database, "prop9", YTType.INTEGER);
 
-    oClass.createProperty(database, "fEmbeddedMap", OType.EMBEDDEDMAP, OType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedMapTwo", OType.EMBEDDEDMAP, OType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedMap", YTType.EMBEDDEDMAP, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedMapTwo", YTType.EMBEDDEDMAP, YTType.INTEGER);
 
-    oClass.createProperty(database, "fLinkMap", OType.LINKMAP);
+    oClass.createProperty(database, "fLinkMap", YTType.LINKMAP);
 
-    oClass.createProperty(database, "fEmbeddedList", OType.EMBEDDEDLIST, OType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedListTwo", OType.EMBEDDEDLIST, OType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedList", YTType.EMBEDDEDLIST, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedListTwo", YTType.EMBEDDEDLIST, YTType.INTEGER);
 
-    oClass.createProperty(database, "fLinkList", OType.LINKLIST);
+    oClass.createProperty(database, "fLinkList", YTType.LINKLIST);
 
-    oClass.createProperty(database, "fEmbeddedSet", OType.EMBEDDEDSET, OType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedSetTwo", OType.EMBEDDEDSET, OType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedSet", YTType.EMBEDDEDSET, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedSetTwo", YTType.EMBEDDEDSET, YTType.INTEGER);
 
-    oClass.createIndex(database, "indexone", OClass.INDEX_TYPE.UNIQUE, "prop1", "prop2");
-    oClass.createIndex(database, "indextwo", OClass.INDEX_TYPE.UNIQUE, "prop3");
-    oClass.createIndex(database, "indexthree", OClass.INDEX_TYPE.NOTUNIQUE, "prop1", "prop2",
+    oClass.createIndex(database, "indexone", YTClass.INDEX_TYPE.UNIQUE, "prop1", "prop2");
+    oClass.createIndex(database, "indextwo", YTClass.INDEX_TYPE.UNIQUE, "prop3");
+    oClass.createIndex(database, "indexthree", YTClass.INDEX_TYPE.NOTUNIQUE, "prop1", "prop2",
         "prop4");
-    oClass.createIndex(database, "indexfour", OClass.INDEX_TYPE.NOTUNIQUE, "prop4", "prop1",
+    oClass.createIndex(database, "indexfour", YTClass.INDEX_TYPE.NOTUNIQUE, "prop4", "prop1",
         "prop3");
-    oClass.createIndex(database, "indexfive", OClass.INDEX_TYPE.NOTUNIQUE, "prop6", "prop1",
+    oClass.createIndex(database, "indexfive", YTClass.INDEX_TYPE.NOTUNIQUE, "prop6", "prop1",
         "prop3");
 
     oClass.createIndex(database,
-        "sqlSelectIndexReuseTestEmbeddedMapByKey", OClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMap");
+        "sqlSelectIndexReuseTestEmbeddedMapByKey", YTClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMap");
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedMapByValue",
-        OClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMap by value");
+        YTClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMap by value");
     oClass.createIndex(database,
-        "sqlSelectIndexReuseTestEmbeddedList", OClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedList");
+        "sqlSelectIndexReuseTestEmbeddedList", YTClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedList");
 
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedMapByKeyProp8",
-        OClass.INDEX_TYPE.NOTUNIQUE,
+        YTClass.INDEX_TYPE.NOTUNIQUE,
         "fEmbeddedMapTwo", "prop8");
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedMapByValueProp8",
-        OClass.INDEX_TYPE.NOTUNIQUE,
+        YTClass.INDEX_TYPE.NOTUNIQUE,
         "fEmbeddedMapTwo by value", "prop8");
 
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedSetProp8",
-        OClass.INDEX_TYPE.NOTUNIQUE,
+        YTClass.INDEX_TYPE.NOTUNIQUE,
         "fEmbeddedSetTwo", "prop8");
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestProp9EmbeddedSetProp8",
-        OClass.INDEX_TYPE.NOTUNIQUE,
+        YTClass.INDEX_TYPE.NOTUNIQUE,
         "prop9",
         "fEmbeddedSetTwo", "prop8");
 
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedListTwoProp8",
-        OClass.INDEX_TYPE.NOTUNIQUE,
+        YTClass.INDEX_TYPE.NOTUNIQUE,
         "fEmbeddedListTwo", "prop8");
 
     final String[] fullTextIndexStrings = {
@@ -131,7 +131,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
       for (int j = 0; j < 10; j++) {
         database.begin();
-        final ODocument document = new ODocument("sqlSelectIndexReuseTestClass");
+        final YTDocument document = new YTDocument("sqlSelectIndexReuseTestClass");
         document.field("prop1", i);
         document.field("prop2", j);
         document.field("prop3", i * 10 + j);
@@ -189,16 +189,16 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 = 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);
@@ -212,17 +212,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchHasChainOperatorsEquals() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1.asInteger() = 1 and"
                         + " prop2 = 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
@@ -249,17 +249,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -296,17 +296,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop3 = 18"
                         + " limit 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
     document.field("prop1", 1);
     document.field("prop3", 18);
 
@@ -343,10 +343,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedMapTwo containsKey"
                         + " 'key11'"))
             .execute(database);
@@ -361,7 +361,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     embeddedMap.put("key14", 11);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop8", 1);
       document.field("fEmbeddedMapTwo", embeddedMap);
 
@@ -398,10 +398,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed22 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedMapTwo containsKey 'key11'"))
             .execute(database);
@@ -415,7 +415,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
     document.field("prop8", 1);
     document.field("fEmbeddedMap", embeddedMap);
 
@@ -450,10 +450,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where fEmbeddedMapTwo containsValue 22"))
             .execute(database);
@@ -468,7 +468,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop8", i);
       document.field("fEmbeddedMapTwo", embeddedMap);
 
@@ -504,10 +504,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed22 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedMapTwo containsValue 22"))
             .execute(database);
@@ -521,7 +521,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
     document.field("prop8", 1);
     document.field("fEmbeddedMap", embeddedMap);
 
@@ -557,10 +557,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed22 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedSetTwo contains 12"))
             .execute(database);
@@ -572,7 +572,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
     document.field("prop8", 1);
     document.field("fEmbeddedSet", embeddedSet);
 
@@ -614,10 +614,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed33 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where prop9 = 0 and fEmbeddedSetTwo contains 92 and prop8 > 2"))
             .execute(database);
@@ -630,7 +630,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i < 3; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop8", i * 2 + 4);
       document.field("prop9", 0);
       document.field("fEmbeddedSet", embeddedSet);
@@ -671,10 +671,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedListTwo contains 4"))
             .execute(database);
 
@@ -686,7 +686,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     embeddedList.add(5);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop8", i);
       document.field("fEmbeddedListTwo", embeddedList);
 
@@ -722,10 +722,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed22 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where"
                         + " prop8 = 1 and fEmbeddedListTwo contains 4"))
             .execute(database);
@@ -737,7 +737,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     embeddedList.add(4);
     embeddedList.add(5);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
     document.field("prop8", 1);
     document.field("fEmbeddedListTwo", embeddedList);
 
@@ -755,10 +755,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testNoCompositeSearchEquals() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 = 1"))
             .execute(database);
 
@@ -766,7 +766,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", i);
       document.field("prop2", 1);
 
@@ -790,16 +790,16 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 = ?"))
             .execute(database, 1, 2);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);
@@ -825,17 +825,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ?"))
             .execute(database, 1);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -853,10 +853,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testNoCompositeSearchEqualsWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 = ?"))
             .execute(database, 1);
 
@@ -864,7 +864,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", i);
       document.field("prop2", 1);
 
@@ -888,17 +888,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 > 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 7);
 
     for (int i = 3; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -928,10 +928,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 > 7"))
             .execute(database);
 
@@ -939,7 +939,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 8; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -958,10 +958,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchGTOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 > 7"))
             .execute(database);
 
@@ -969,7 +969,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 8; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -996,17 +996,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 > ?"))
             .execute(database, 1, 2);
 
     Assert.assertEquals(result.size(), 7);
 
     for (int i = 3; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1036,10 +1036,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 > ?"))
             .execute(database, 7);
 
@@ -1047,7 +1047,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 8; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1066,10 +1066,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchGTOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 > ?"))
             .execute(database, 7);
 
@@ -1077,7 +1077,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 8; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1104,17 +1104,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 >= 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 8);
 
     for (int i = 2; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1144,10 +1144,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 >= 7"))
             .execute(database);
 
@@ -1155,7 +1155,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 7; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1174,10 +1174,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchGTQOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 >= 7"))
             .execute(database);
 
@@ -1185,7 +1185,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 7; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1212,17 +1212,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 >= ?"))
             .execute(database, 1, 2);
 
     Assert.assertEquals(result.size(), 8);
 
     for (int i = 2; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1252,10 +1252,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 >= ?"))
             .execute(database, 7);
 
@@ -1263,7 +1263,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 7; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1282,10 +1282,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchGTQOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 >= ?"))
             .execute(database, 7);
 
@@ -1293,7 +1293,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 7; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1320,17 +1320,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 <= 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i <= 2; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1360,10 +1360,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 <= 7"))
             .execute(database);
 
@@ -1371,7 +1371,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1390,10 +1390,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchLTQOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 <= 7"))
             .execute(database);
 
@@ -1401,7 +1401,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1428,17 +1428,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 <= ?"))
             .execute(database, 1, 2);
 
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i <= 2; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1468,10 +1468,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 <= ?"))
             .execute(database, 7);
 
@@ -1479,7 +1479,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1498,10 +1498,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchLTQOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 <= ?"))
             .execute(database, 7);
 
@@ -1509,7 +1509,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1536,17 +1536,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 < 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 2);
 
     for (int i = 0; i < 2; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1576,10 +1576,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 < 7"))
             .execute(database);
 
@@ -1587,7 +1587,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1606,10 +1606,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchLTOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 < 7"))
             .execute(database);
 
@@ -1617,7 +1617,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1644,17 +1644,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 < ?"))
             .execute(database, 1, 2);
 
     Assert.assertEquals(result.size(), 2);
 
     for (int i = 0; i < 2; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1684,10 +1684,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 < ?"))
             .execute(database, 7);
 
@@ -1695,7 +1695,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1714,10 +1714,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchLTOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 < ?"))
             .execute(database, 7);
 
@@ -1725,7 +1725,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1752,10 +1752,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 between 1"
                         + " and 3"))
             .execute(database);
@@ -1763,7 +1763,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 1; i <= 3; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1793,10 +1793,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 between 1 and 3"))
             .execute(database);
 
@@ -1804,7 +1804,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1823,10 +1823,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchBetweenOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 between 1 and 3"))
             .execute(database);
 
@@ -1834,7 +1834,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1861,10 +1861,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 between ?"
                         + " and ?"))
             .execute(database, 1, 3);
@@ -1872,7 +1872,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 1; i <= 3; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1902,10 +1902,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 between ? and ?"))
             .execute(database, 1, 3);
 
@@ -1913,7 +1913,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1932,10 +1932,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchBetweenOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 between ? and ?"))
             .execute(database, 1, 3);
 
@@ -1943,7 +1943,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 0; j < 10; j++) {
-        final ODocument document = new ODocument();
+        final YTDocument document = new YTDocument();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1963,16 +1963,16 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 = 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 1);
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);
     Assert.assertEquals(
@@ -1988,16 +1988,16 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 = ?"))
             .execute(database, 1);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 1);
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);
     Assert.assertEquals(
@@ -2013,17 +2013,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 > 90"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 9);
 
     for (int i = 91; i < 100; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2042,17 +2042,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 > ?"))
             .execute(database, 90);
 
     Assert.assertEquals(result.size(), 9);
 
     for (int i = 91; i < 100; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2071,17 +2071,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 >= 90"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 90; i < 100; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2100,17 +2100,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 >= ?"))
             .execute(database, 90);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 90; i < 100; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2129,17 +2129,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 <= 10"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 11);
 
     for (int i = 0; i <= 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2158,17 +2158,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 <= ?"))
             .execute(database, 10);
 
     Assert.assertEquals(result.size(), 11);
 
     for (int i = 0; i <= 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2187,17 +2187,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 < 10"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2216,17 +2216,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 < ?"))
             .execute(database, 10);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2245,17 +2245,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 between 1 and 10"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 1; i <= 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2274,17 +2274,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 between ? and ?"))
             .execute(database, 1, 10);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 1; i <= 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2303,17 +2303,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 in [0, 5, 10]"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i <= 10; i += 5) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2332,17 +2332,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 in [?, ?, ?]"))
             .execute(database, 0, 5, 10);
 
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i <= 10; i += 5) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2368,17 +2368,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 = 1 and"
                         + " prop3 = 11"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 11);
@@ -2406,17 +2406,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed3 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 = 1 and"
                         + " prop4 >= 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
@@ -2444,17 +2444,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 = 1 and"
                         + " prop5 >= 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop5").intValue(), 1);
@@ -2482,17 +2482,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop4 >= 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
       document.field("prop4", 1);
@@ -2523,17 +2523,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed3 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop4 = 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop1", 1);
       document.field("prop2", i);
       document.field("prop4", 1);
@@ -2564,17 +2564,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed3 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop6 <= 1 and prop4 < 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 2);
 
     for (int i = 0; i < 2; i++) {
-      final ODocument document = new ODocument();
+      final YTDocument document = new YTDocument();
       document.field("prop6", i);
       document.field("prop4", 0);
 
@@ -2604,16 +2604,16 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 + 1 = 3"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);
@@ -2633,17 +2633,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedMap containskey"
                         + " 'key12'"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -2673,17 +2673,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where ( fEmbeddedMap containskey"
                         + " 'key12' ) and ( fEmbeddedMap['key12'] = 12 )"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -2713,17 +2713,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedMap containsvalue"
                         + " 11"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -2753,10 +2753,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedList contains 7"))
             .execute(database);
 
@@ -2765,7 +2765,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     embeddedList.add(7);
     embeddedList.add(8);
 
-    final ODocument document = new ODocument();
+    final YTDocument document = new YTDocument();
     document.field("fEmbeddedList", embeddedList);
 
     Assert.assertEquals(containsDocument(result, document), 10);
@@ -2793,17 +2793,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2  = 2 and"
                         + " ( prop4 = 3 or prop4 = 1 )"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
@@ -2821,17 +2821,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldIndexUsage = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where ( prop1 = 1 and prop2 = 2 )"
                         + " or ( prop4  = 1 and prop6 = 2 )"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
@@ -2856,10 +2856,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed2 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1777 and prop2  ="
                         + " 2777"))
             .execute(database);
@@ -2875,15 +2875,15 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testReuseOfIndexOnSeveralClassesFields() {
-    final OSchema schema = database.getMetadata().getSchema();
-    final OClass superClass = schema.createClass("sqlSelectIndexReuseTestSuperClass");
-    superClass.createProperty(database, "prop0", OType.INTEGER);
-    final OClass oClass = schema.createClass("sqlSelectIndexReuseTestChildClass", superClass);
-    oClass.createProperty(database, "prop1", OType.INTEGER);
+    final YTSchema schema = database.getMetadata().getSchema();
+    final YTClass superClass = schema.createClass("sqlSelectIndexReuseTestSuperClass");
+    superClass.createProperty(database, "prop0", YTType.INTEGER);
+    final YTClass oClass = schema.createClass("sqlSelectIndexReuseTestChildClass", superClass);
+    oClass.createProperty(database, "prop1", YTType.INTEGER);
 
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestOnPropertiesFromClassAndSuperclass",
-        OClass.INDEX_TYPE.UNIQUE,
+        YTClass.INDEX_TYPE.UNIQUE,
         "prop0", "prop1");
 
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
@@ -2891,23 +2891,23 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
     database.begin();
-    final ODocument docOne = new ODocument("sqlSelectIndexReuseTestChildClass");
+    final YTDocument docOne = new YTDocument("sqlSelectIndexReuseTestChildClass");
     docOne.field("prop0", 0);
     docOne.field("prop1", 1);
     docOne.save();
     database.commit();
 
     database.begin();
-    final ODocument docTwo = new ODocument("sqlSelectIndexReuseTestChildClass");
+    final YTDocument docTwo = new YTDocument("sqlSelectIndexReuseTestChildClass");
     docTwo.field("prop0", 2);
     docTwo.field("prop1", 3);
     docTwo.save();
     database.commit();
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestChildClass where prop0 = 0 and prop1 ="
                         + " 1"))
             .execute(database);
@@ -2926,31 +2926,31 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    OClass klazz =
+    YTClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithNotUniqueIndexTest");
     if (!klazz.existsProperty("a")) {
-      klazz.createProperty(database, "a", OType.STRING);
+      klazz.createProperty(database, "a", YTType.STRING);
       klazz.createIndex(database, "a", "NOTUNIQUE", "a");
     }
 
     database.begin();
     database
-        .<ODocument>newInstance("CountFunctionWithNotUniqueIndexTest")
+        .<YTDocument>newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "a")
         .field("b", "b")
         .save();
     database
-        .<ODocument>newInstance("CountFunctionWithNotUniqueIndexTest")
+        .<YTDocument>newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "a")
         .field("b", "b")
         .save();
     database
-        .<ODocument>newInstance("CountFunctionWithNotUniqueIndexTest")
+        .<YTDocument>newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "a")
         .field("b", "e")
         .save();
     database
-        .<ODocument>newInstance("CountFunctionWithNotUniqueIndexTest")
+        .<YTDocument>newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "c")
         .field("b", "c")
         .save();
@@ -2968,32 +2968,32 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCountFunctionWithUniqueIndex() {
-    OClass klazz =
+    YTClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithUniqueIndexTest");
     if (!klazz.existsProperty("a")) {
-      klazz.createProperty(database, "a", OType.STRING);
+      klazz.createProperty(database, "a", YTType.STRING);
       klazz.createIndex(database, "testCountFunctionWithUniqueIndex", "NOTUNIQUE", "a");
     }
 
     database.begin();
     database
-        .<ODocument>newInstance("CountFunctionWithUniqueIndexTest")
+        .<YTDocument>newInstance("CountFunctionWithUniqueIndexTest")
         .field("a", "a")
         .field("b", "c")
         .save();
     database
-        .<ODocument>newInstance("CountFunctionWithUniqueIndexTest")
+        .<YTDocument>newInstance("CountFunctionWithUniqueIndexTest")
         .field("a", "a")
         .field("b", "c")
         .save();
     database
-        .<ODocument>newInstance("CountFunctionWithUniqueIndexTest")
+        .<YTDocument>newInstance("CountFunctionWithUniqueIndexTest")
         .field("a", "a")
         .field("b", "e")
         .save();
-    ODocument doc =
+    YTDocument doc =
         database
-            .<ODocument>newInstance("CountFunctionWithUniqueIndexTest")
+            .<YTDocument>newInstance("CountFunctionWithUniqueIndexTest")
             .field("a", "a")
             .field("b", "b");
     doc.save();
@@ -3013,9 +3013,9 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     database.commit();
   }
 
-  private static int containsDocument(final List<ODocument> docList, final ODocument document) {
+  private static int containsDocument(final List<YTDocument> docList, final YTDocument document) {
     int count = 0;
-    for (final ODocument docItem : docList) {
+    for (final YTDocument docItem : docList) {
       boolean containsAllFields = true;
       for (final String fieldName : document.fieldNames()) {
         if (!document.field(fieldName).equals(docItem.field(fieldName))) {
@@ -3050,17 +3050,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed33 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop4 = 1 and prop1 = 1 and"
                         + " prop3 in [13, 113]"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);
@@ -3094,17 +3094,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed33 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop4 = 1 and prop1 in [1, 2]"
                         + " and prop3 = 13"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);
@@ -3138,17 +3138,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed33 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop4 = 1 and prop1 in [1, 2]"
                         + " and prop3 in [13, 15]"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 2);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertTrue(
@@ -3183,17 +3183,17 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed33 = 0;
     }
 
-    final List<ODocument> result =
+    final List<YTDocument> result =
         database
             .command(
-                new OSQLSynchQuery<ODocument>(
+                new OSQLSynchQuery<YTDocument>(
                     "select * from sqlSelectIndexReuseTestClass where prop4 in [1, 2] and prop1 = 1"
                         + " and prop3 = 13"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final ODocument document = result.get(0);
+    final YTDocument document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);

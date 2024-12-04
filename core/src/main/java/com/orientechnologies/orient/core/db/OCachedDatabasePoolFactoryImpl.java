@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import java.util.TimerTask;
 
@@ -102,7 +102,8 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
     }
 
     YouTrackDBConfig config =
-        YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, maxPoolSize).build();
+        YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.DB_POOL_MAX, maxPoolSize)
+            .build();
 
     if (parentConfig != null) {
       config.setParent(parentConfig);

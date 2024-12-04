@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -30,7 +30,7 @@ public class CreateLightWeightEdgesSQLTest {
 
   @Test
   public void test() {
-    ODatabaseSession session =
+    YTDatabaseSession session =
         youTrackDB.open(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
@@ -61,7 +61,7 @@ public class CreateLightWeightEdgesSQLTest {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    ODatabaseSession session = pool.acquire();
+    YTDatabaseSession session = pool.acquire();
 
     session.command("ALTER DATABASE CUSTOM useLightweightEdges = true");
 
@@ -79,7 +79,7 @@ public class CreateLightWeightEdgesSQLTest {
             (i) -> {
               new Thread(
                   () -> {
-                    try (ODatabaseSession session1 = pool.acquire()) {
+                    try (YTDatabaseSession session1 = pool.acquire()) {
                       for (int j = 0; j < 100; j++) {
 
                         try {

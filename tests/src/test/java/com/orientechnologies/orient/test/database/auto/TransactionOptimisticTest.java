@@ -16,15 +16,15 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.OBlob;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.tx.ORollbackException;
 import java.io.IOException;
 import java.util.Collection;
@@ -56,8 +56,8 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    OBlob recordBytes = new ORecordBytes("This is the first version".getBytes());
-    ((ORecordAbstract) recordBytes).save("binary");
+    YTBlob recordBytes = new YTRecordBytes("This is the first version".getBytes());
+    ((YTRecordAbstract) recordBytes).save("binary");
 
     database.rollback();
 
@@ -74,8 +74,8 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    OBlob recordBytes = new ORecordBytes("This is the first version".getBytes());
-    ((ORecordAbstract) recordBytes).save("binary");
+    YTBlob recordBytes = new YTRecordBytes("This is the first version".getBytes());
+    ((YTRecordAbstract) recordBytes).save("binary");
 
     database.commit();
 
@@ -88,12 +88,12 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    ODatabaseSessionInternal db2 = acquireSession();
+    YTDatabaseSessionInternal db2 = acquireSession();
     database.activateOnCurrentThread();
-    OBlob record1 = new ORecordBytes("This is the first version".getBytes());
+    YTBlob record1 = new YTRecordBytes("This is the first version".getBytes());
 
     database.begin();
-    ((ORecordAbstract) record1).save("binary");
+    ((YTRecordAbstract) record1).save("binary");
     database.commit();
 
     try {
@@ -103,7 +103,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       record1 = database.load(record1.getIdentity());
 
       ODatabaseRecordThreadLocal.instance().set(db2);
-      OBlob record2 = db2.load(record1.getIdentity());
+      YTBlob record2 = db2.load(record1.getIdentity());
       ORecordInternal.fill(
           record2,
           record2.getIdentity(),
@@ -145,7 +145,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    OBlob record = new ORecordBytes("This is the first version".getBytes());
+    YTBlob record = new YTRecordBytes("This is the first version".getBytes());
     database.begin();
     record.save();
     database.commit();
@@ -175,8 +175,8 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    ODatabaseSessionInternal db2 = acquireSession();
-    OBlob record1 = new ORecordBytes("This is the first version".getBytes());
+    YTDatabaseSessionInternal db2 = acquireSession();
+    YTBlob record1 = new YTRecordBytes("This is the first version".getBytes());
     db2.begin();
     record1.save();
     db2.commit();
@@ -196,7 +196,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       db2.activateOnCurrentThread();
 
-      OBlob record2 = db2.load(record1.getIdentity());
+      YTBlob record2 = db2.load(record1.getIdentity());
       Assert.assertEquals(record2.getVersion(), v1 + 1);
       Assert.assertTrue(new String(record2.toStream()).contains("second"));
 
@@ -212,7 +212,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testTransactionOptimisticCacheMgmt2Db")
   public void testTransactionMultipleRecords() throws IOException {
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
 
     if (!schema.existsClass("Account")) {
       schema.createClass("Account");
@@ -225,7 +225,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
     for (int g = 0; g < 1000; g++) {
-      ODocument doc = new ODocument("Account");
+      YTDocument doc = new YTDocument("Account");
       doc.fromJSON(json);
       doc.field("nr", g);
 
@@ -240,7 +240,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
   @SuppressWarnings("unchecked")
   public void createGraphInTx() {
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
 
     if (!schema.existsClass("Profile")) {
       schema.createClass("Profile");
@@ -248,15 +248,15 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    ODocument kim = new ODocument("Profile").field("name", "Kim").field("surname", "Bauer");
-    ODocument teri = new ODocument("Profile").field("name", "Teri").field("surname", "Bauer");
-    ODocument jack = new ODocument("Profile").field("name", "Jack").field("surname", "Bauer");
+    YTDocument kim = new YTDocument("Profile").field("name", "Kim").field("surname", "Bauer");
+    YTDocument teri = new YTDocument("Profile").field("name", "Teri").field("surname", "Bauer");
+    YTDocument jack = new YTDocument("Profile").field("name", "Jack").field("surname", "Bauer");
 
-    ((HashSet<ODocument>) jack.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) jack.field("following", new HashSet<YTDocument>()).field("following"))
         .add(kim);
-    ((HashSet<ODocument>) kim.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) kim.field("following", new HashSet<YTDocument>()).field("following"))
         .add(teri);
-    ((HashSet<ODocument>) teri.field("following", new HashSet<ODocument>()).field("following"))
+    ((HashSet<YTDocument>) teri.field("following", new HashSet<YTDocument>()).field("following"))
         .add(jack);
 
     jack.save();
@@ -266,21 +266,21 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
-    ODocument loadedJack = database.load(jack.getIdentity());
+    YTDocument loadedJack = database.load(jack.getIdentity());
     Assert.assertEquals(loadedJack.field("name"), "Jack");
-    Collection<OIdentifiable> jackFollowings = loadedJack.field("following");
+    Collection<YTIdentifiable> jackFollowings = loadedJack.field("following");
     Assert.assertNotNull(jackFollowings);
     Assert.assertEquals(jackFollowings.size(), 1);
 
     var loadedKim = jackFollowings.iterator().next().getElement();
     Assert.assertEquals(loadedKim.getProperty("name"), "Kim");
-    Collection<OIdentifiable> kimFollowings = loadedKim.getProperty("following");
+    Collection<YTIdentifiable> kimFollowings = loadedKim.getProperty("following");
     Assert.assertNotNull(kimFollowings);
     Assert.assertEquals(kimFollowings.size(), 1);
 
     var loadedTeri = kimFollowings.iterator().next().getElement();
     Assert.assertEquals(loadedTeri.getProperty("name"), "Teri");
-    Collection<OIdentifiable> teriFollowings = loadedTeri.getProperty("following");
+    Collection<YTIdentifiable> teriFollowings = loadedTeri.getProperty("following");
     Assert.assertNotNull(teriFollowings);
     Assert.assertEquals(teriFollowings.size(), 1);
 
@@ -296,7 +296,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final ODatabaseSessionInternal db = acquireSession();
+            final YTDatabaseSessionInternal db = acquireSession();
             try {
               Assert.assertEquals(db.countClass("NestedTxClass"), 0);
             } finally {
@@ -307,14 +307,14 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
           }
         };
 
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxClass")) {
       schema.createClass("NestedTxClass");
     }
 
     database.begin();
 
-    final ODocument externalDocOne = new ODocument("NestedTxClass");
+    final YTDocument externalDocOne = new YTDocument("NestedTxClass");
     externalDocOne.field("v", "val1");
     externalDocOne.save();
 
@@ -323,7 +323,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final ODocument externalDocTwo = new ODocument("NestedTxClass");
+    final YTDocument externalDocTwo = new YTDocument("NestedTxClass");
     externalDocTwo.field("v", "val2");
     externalDocTwo.save();
 
@@ -335,7 +335,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
 
-    final ODocument externalDocThree = new ODocument("NestedTxClass");
+    final YTDocument externalDocThree = new YTDocument("NestedTxClass");
     externalDocThree.field("v", "val3");
     externalDocThree.save();
 
@@ -352,7 +352,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final ODatabaseSessionInternal db = acquireSession();
+            final YTDatabaseSessionInternal db = acquireSession();
             try {
               Assert.assertEquals(db.countClass("NestedTxRollbackOne"), 1);
             } finally {
@@ -363,19 +363,19 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
           }
         };
 
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxRollbackOne")) {
       schema.createClass("NestedTxRollbackOne");
     }
 
-    ODocument brokenDocOne = new ODocument("NestedTxRollbackOne");
+    YTDocument brokenDocOne = new YTDocument("NestedTxRollbackOne");
     database.begin();
     brokenDocOne.save();
     database.commit();
     try {
       database.begin();
 
-      final ODocument externalDocOne = new ODocument("NestedTxRollbackOne");
+      final YTDocument externalDocOne = new YTDocument("NestedTxRollbackOne");
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
@@ -383,7 +383,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       assertFuture.get();
 
       database.begin();
-      ODocument externalDocTwo = new ODocument("NestedTxRollbackOne");
+      YTDocument externalDocTwo = new YTDocument("NestedTxRollbackOne");
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 
@@ -399,7 +399,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
-      final ODocument externalDocThree = new ODocument("NestedTxRollbackOne");
+      final YTDocument externalDocThree = new YTDocument("NestedTxRollbackOne");
       externalDocThree.field("v", "val3");
 
       database.begin();
@@ -410,9 +410,9 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       executorService
           .submit(
               () -> {
-                try (ODatabaseSessionInternal db = acquireSession()) {
+                try (YTDatabaseSessionInternal db = acquireSession()) {
                   db.executeInTx(() -> {
-                    ODocument brokenDocTwo = db.load(brokenRid);
+                    YTDocument brokenDocTwo = db.load(brokenRid);
                     brokenDocTwo.field("v", "vstr");
 
                     brokenDocTwo.save();
@@ -431,20 +431,20 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
   }
 
   public void testNestedTxRollbackTwo() {
-    final OSchema schema = database.getMetadata().getSchema();
+    final YTSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxRollbackTwo")) {
       schema.createClass("NestedTxRollbackTwo");
     }
 
     database.begin();
     try {
-      final ODocument externalDocOne = new ODocument("NestedTxRollbackTwo");
+      final YTDocument externalDocOne = new YTDocument("NestedTxRollbackTwo");
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
       database.begin();
 
-      final ODocument externalDocTwo = new ODocument("NestedTxRollbackTwo");
+      final YTDocument externalDocTwo = new YTDocument("NestedTxRollbackTwo");
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 

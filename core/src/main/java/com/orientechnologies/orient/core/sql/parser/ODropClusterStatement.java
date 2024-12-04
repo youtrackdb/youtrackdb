@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class ODropClusterStatement extends ODDLStatement {
         }
       }
     }
-    for (OClass iClass : database.getMetadata().getSchema().getClasses()) {
+    for (YTClass iClass : database.getMetadata().getSchema().getClasses()) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId) {
           // IN USE

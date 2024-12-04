@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -17,7 +17,7 @@ public class OPushEventType {
       new ConcurrentHashMap<>();
 
   public synchronized void send(
-      ODatabaseSessionInternal session, String database, OBinaryPushRequest<?> request,
+      YTDatabaseSessionInternal session, String database, OBinaryPushRequest<?> request,
       OPushManager pushManager) {
     OBinaryPushRequest<?> prev = databases.put(database, request);
     if (prev == null) {

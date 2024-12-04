@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class OInsertExecutionPlan extends OSelectExecutionPlan {
   }
 
   @Override
-  public OResult toResult(ODatabaseSessionInternal db) {
+  public OResult toResult(YTDatabaseSessionInternal db) {
     OResultInternal res = (OResultInternal) super.toResult(db);
     res.setProperty("type", "InsertExecutionPlan");
     return res;

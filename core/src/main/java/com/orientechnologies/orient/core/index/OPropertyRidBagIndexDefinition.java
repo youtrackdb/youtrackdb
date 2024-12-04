@@ -20,18 +20,18 @@
 
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Index definition for index which is bound to field with type {@link OType#LINKBAG} .
+ * Index definition for index which is bound to field with type {@link YTType#LINKBAG} .
  *
  * @since 1/30/14
  */
@@ -42,16 +42,16 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
   }
 
   public OPropertyRidBagIndexDefinition(String className, String field) {
-    super(className, field, OType.LINK);
+    super(className, field, YTType.LINK);
   }
 
   @Override
-  public Object createSingleValue(ODatabaseSessionInternal session, Object... param) {
-    return OType.convert(session, refreshRid(session, param[0]), keyType.getDefaultJavaType());
+  public Object createSingleValue(YTDatabaseSessionInternal session, Object... param) {
+    return YTType.convert(session, refreshRid(session, param[0]), keyType.getDefaultJavaType());
   }
 
   public void processChangeEvent(
-      ODatabaseSessionInternal session,
+      YTDatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
@@ -71,17 +71,17 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object getDocumentValueToIndex(ODatabaseSessionInternal session, ODocument iDocument) {
+  public Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTDocument iDocument) {
     return createValue(session, iDocument.<Object>field(field));
   }
 
   @Override
-  public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
+  public Object createValue(YTDatabaseSessionInternal session, final List<?> params) {
     if (!(params.get(0) instanceof ORidBag ridBag)) {
       return null;
     }
     final List<Object> values = new ArrayList<>();
-    for (final OIdentifiable item : ridBag) {
+    for (final YTIdentifiable item : ridBag) {
       values.add(createSingleValue(session, item.getIdentity()));
     }
 
@@ -89,12 +89,12 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
+  public Object createValue(YTDatabaseSessionInternal session, final Object... params) {
     if (!(params[0] instanceof ORidBag ridBag)) {
       return null;
     }
     final List<Object> values = new ArrayList<>();
-    for (final OIdentifiable item : ridBag) {
+    for (final YTIdentifiable item : ridBag) {
       values.add(createSingleValue(session, item.getIdentity()));
     }
 

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
@@ -56,10 +56,10 @@ public class OClientConnectionTest extends BaseMemoryInternalDatabase {
   @Test(expected = OTokenSecurityException.class)
   public void testExpiredToken() throws IOException, InterruptedException {
     OClientConnection conn = new OClientConnection(1, protocol);
-    long sessionTimeout = OGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.getValueAsLong();
-    OGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(0);
+    long sessionTimeout = YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.getValueAsLong();
+    YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(0);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());
-    OGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(sessionTimeout);
+    YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(sessionTimeout);
     byte[] tokenBytes = handler.getSignedBinaryToken(db, db.getUser(), conn.getData());
     Thread.sleep(1);
     conn.validateSession(tokenBytes, handler, protocol);

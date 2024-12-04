@@ -19,16 +19,16 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -53,15 +53,15 @@ public interface OTransaction {
 
   void rollback(boolean force, int commitLevelDiff);
 
-  ODatabaseSession getDatabase();
+  YTDatabaseSession getDatabase();
 
   @Deprecated
   void clearRecordEntries();
 
   @Nonnull
-  ORecord loadRecord(ORID rid) throws ORecordNotFoundException;
+  YTRecord loadRecord(YTRID rid) throws ORecordNotFoundException;
 
-  boolean exists(ORID rid);
+  boolean exists(YTRID rid);
 
   TXSTATUS getStatus();
 
@@ -70,15 +70,15 @@ public interface OTransaction {
 
   Iterable<? extends ORecordOperation> getRecordOperations();
 
-  List<ORecordOperation> getNewRecordEntriesByClass(OClass iClass, boolean iPolymorphic);
+  List<ORecordOperation> getNewRecordEntriesByClass(YTClass iClass, boolean iPolymorphic);
 
   List<ORecordOperation> getNewRecordEntriesByClusterIds(int[] iIds);
 
-  ORecordOperation getRecordEntry(ORID rid);
+  ORecordOperation getRecordEntry(YTRID rid);
 
   List<String> getInvolvedIndexes();
 
-  ODocument getIndexChanges();
+  YTDocument getIndexChanges();
 
   @Deprecated
   void clearIndexEntries();
@@ -93,7 +93,7 @@ public interface OTransaction {
    * @param oldRid Record identity before commit.
    * @param newRid Record identity after commit.
    */
-  void updateIdentityAfterCommit(final ORID oldRid, final ORID newRid);
+  void updateIdentityAfterCommit(final YTRID oldRid, final YTRID newRid);
 
   int amountOfNestedTxs();
 
@@ -111,14 +111,14 @@ public interface OTransaction {
    * @param clusterName record's cluster name.
    * @return the record saved.
    */
-  ORecord saveRecord(ORecordAbstract record, String clusterName);
+  YTRecord saveRecord(YTRecordAbstract record, String clusterName);
 
   /**
    * Deletes the given record in this transaction.
    *
    * @param record the record to delete.
    */
-  void deleteRecord(ORecordAbstract record);
+  void deleteRecord(YTRecordAbstract record);
 
   /**
    * Resolves a record with the given RID in the context of this transaction.
@@ -127,7 +127,7 @@ public interface OTransaction {
    * @return the resolved record, or {@code null} if no record is found, or
    * {@link OTransactionAbstract#DELETED_RECORD} if the record was deleted in this transaction.
    */
-  ORecordAbstract getRecord(ORID rid);
+  YTRecordAbstract getRecord(YTRID rid);
 
   /**
    * Adds the transactional index entry in this transaction.
@@ -143,7 +143,7 @@ public interface OTransaction {
       String indexName,
       OTransactionIndexChanges.OPERATION operation,
       Object key,
-      OIdentifiable value);
+      YTIdentifiable value);
 
   /**
    * Obtains the index changes done in the context of this transaction.

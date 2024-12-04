@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,8 +15,8 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   public void testPlain() {
     String className = "testPlain";
     OResultSet result = db.command("create class " + className);
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.getClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
     Assert.assertFalse(clazz.isAbstract());
     result.close();
@@ -26,8 +26,8 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   public void testAbstract() {
     String className = "testAbstract";
     OResultSet result = db.command("create class " + className + " abstract ");
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.getClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
     Assert.assertTrue(clazz.isAbstract());
     result.close();
@@ -37,8 +37,8 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   public void testCluster() {
     String className = "testCluster";
     OResultSet result = db.command("create class " + className + " cluster 1235, 1236, 1255");
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.getClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
     Assert.assertFalse(clazz.isAbstract());
     Assert.assertEquals(3, clazz.getClusterIds().length);
@@ -49,8 +49,8 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   public void testClusters() {
     String className = "testClusters";
     OResultSet result = db.command("create class " + className + " clusters 32");
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.getClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
     Assert.assertFalse(clazz.isAbstract());
     Assert.assertEquals(32, clazz.getClusterIds().length);
@@ -61,8 +61,8 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   public void testIfNotExists() {
     String className = "testIfNotExists";
     OResultSet result = db.command("create class " + className + " if not exists");
-    OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.getClass(className);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
     result.close();
 

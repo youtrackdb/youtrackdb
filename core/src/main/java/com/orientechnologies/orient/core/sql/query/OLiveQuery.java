@@ -21,13 +21,13 @@ package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import javax.annotation.Nonnull;
 
@@ -58,15 +58,15 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
   }
 
   @Override
-  public <RET> RET execute(@Nonnull ODatabaseSessionInternal querySession, Object... iArgs) {
-    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
+  public <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, Object... iArgs) {
+    YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     if (database.isRemote()) {
       BackwardOLiveQueryResultListener listener = new BackwardOLiveQueryResultListener();
       OLiveQueryMonitor monitor = database.live(getText(), listener, iArgs);
       listener.token = monitor.getMonitorId();
-      ODocument doc = new ODocument();
+      YTDocument doc = new YTDocument();
       doc.setProperty("token", listener.token);
-      OLegacyResultSet<ODocument> result = new OBasicLegacyResultSet<>();
+      OLegacyResultSet<YTDocument> result = new OBasicLegacyResultSet<>();
       result.add(doc);
       return (RET) result;
     }
@@ -78,36 +78,36 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
     protected int token;
 
     @Override
-    public void onCreate(ODatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, OResult data) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((ORecordAbstract) data.toElement(), ORecordOperation.CREATED));
+              new ORecordOperation((YTRecordAbstract) data.toElement(), ORecordOperation.CREATED));
     }
 
     @Override
-    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((ORecordAbstract) after.toElement(), ORecordOperation.UPDATED));
+              new ORecordOperation((YTRecordAbstract) after.toElement(), ORecordOperation.UPDATED));
     }
 
     @Override
-    public void onDelete(ODatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, OResult data) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((ORecordAbstract) data.toElement(), ORecordOperation.DELETED));
+              new ORecordOperation((YTRecordAbstract) data.toElement(), ORecordOperation.DELETED));
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, OException exception) {
       ((OLocalLiveResultListener) getResultListener()).onError(token);
     }
 
     @Override
-    public void onEnd(ODatabaseSession database) {
+    public void onEnd(YTDatabaseSession database) {
       ((OLocalLiveResultListener) getResultListener()).onUnsubscribe(token);
     }
   }

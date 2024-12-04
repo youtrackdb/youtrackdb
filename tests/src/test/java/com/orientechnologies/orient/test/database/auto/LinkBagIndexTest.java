@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
@@ -34,12 +34,12 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
   @BeforeClass
   public void setupSchema() {
-    final OClass ridBagIndexTestClass =
+    final YTClass ridBagIndexTestClass =
         database.getMetadata().getSchema().createClass("RidBagIndexTestClass");
 
-    ridBagIndexTestClass.createProperty(database, "ridBag", OType.LINKBAG);
+    ridBagIndexTestClass.createProperty(database, "ridBag", YTType.LINKBAG);
 
-    ridBagIndexTestClass.createIndex(database, "ridBagIndex", OClass.INDEX_TYPE.NOTUNIQUE,
+    ridBagIndexTestClass.createIndex(database, "ridBagIndex", YTClass.INDEX_TYPE.NOTUNIQUE,
         "ridBag");
 
     database.close();
@@ -74,13 +74,13 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
@@ -98,7 +98,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -111,13 +111,13 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     try {
-      final ODocument document = new ODocument("RidBagIndexTestClass");
+      final YTDocument document = new YTDocument("RidBagIndexTestClass");
       final ORidBag ridBag = new ORidBag(database);
       ridBag.add(docOne);
       ridBag.add(docTwo);
@@ -138,7 +138,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -151,16 +151,16 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument document = new ODocument("RidBagIndexTestClass");
+    YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBagOne = new ORidBag(database);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
@@ -189,7 +189,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -202,16 +202,16 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument document = new ODocument("RidBagIndexTestClass");
+    YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBagOne = new ORidBag(database);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
@@ -245,7 +245,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -258,20 +258,20 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ORidBag ridBagOne = new ORidBag(database);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
-    ODocument document = new ODocument("RidBagIndexTestClass");
+    YTDocument document = new YTDocument("RidBagIndexTestClass");
     document.field("ridBag", ridBagOne);
     document.save();
     Assert.assertTrue(database.commit());
@@ -294,7 +294,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -307,16 +307,16 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
@@ -343,7 +343,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -357,16 +357,16 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument docThree = new ODocument();
+    YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
@@ -379,7 +379,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     try {
       database.begin();
       docThree = database.bindToSession(docThree);
-      ODocument loadedDocument = database.load(document.getIdentity());
+      YTDocument loadedDocument = database.load(document.getIdentity());
       loadedDocument.<ORidBag>field("ridBag").add(docThree);
       loadedDocument.save();
       database.commit();
@@ -396,7 +396,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -410,16 +410,16 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument docThree = new ODocument();
+    YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
@@ -431,7 +431,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
     database.begin();
     docThree = database.bindToSession(docThree);
-    ODocument loadedDocument = database.load(document.getIdentity());
+    YTDocument loadedDocument = database.load(document.getIdentity());
     loadedDocument.<ORidBag>field("ridBag").add(docThree);
     loadedDocument.save();
     database.rollback();
@@ -444,7 +444,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -457,13 +457,13 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
@@ -474,7 +474,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      ODocument loadedDocument = database.load(document.getIdentity());
+      YTDocument loadedDocument = database.load(document.getIdentity());
       loadedDocument.<ORidBag>field("ridBag").remove(docTwo);
       loadedDocument.save();
       database.commit();
@@ -491,7 +491,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -503,13 +503,13 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
@@ -518,7 +518,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    ODocument loadedDocument = database.load(document.getIdentity());
+    YTDocument loadedDocument = database.load(document.getIdentity());
     loadedDocument.<ORidBag>field("ridBag").remove(docTwo);
     loadedDocument.save();
     database.rollback();
@@ -531,7 +531,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -544,13 +544,13 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
@@ -574,7 +574,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -586,13 +586,13 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
 
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
@@ -611,13 +611,13 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
 
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
@@ -644,13 +644,13 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("RidBagIndexTestClass");
+    final YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
@@ -671,7 +671,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       keyIterator = keyStream.iterator();
 
       while (keyIterator.hasNext()) {
-        OIdentifiable key = (OIdentifiable) keyIterator.next();
+        YTIdentifiable key = (YTIdentifiable) keyIterator.next();
 
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
@@ -683,16 +683,16 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
   public void testIndexRidBagSQL() {
     database.begin();
-    final ODocument docOne = new ODocument();
+    final YTDocument docOne = new YTDocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docTwo = new ODocument();
+    final YTDocument docTwo = new YTDocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument docThree = new ODocument();
+    final YTDocument docThree = new YTDocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    ODocument document = new ODocument("RidBagIndexTestClass");
+    YTDocument document = new YTDocument("RidBagIndexTestClass");
     final ORidBag ridBagOne = new ORidBag(database);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
@@ -700,7 +700,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     document.field("ridBag", ridBagOne);
     document.save();
 
-    document = new ODocument("RidBagIndexTestClass");
+    document = new YTDocument("RidBagIndexTestClass");
     ORidBag ridBag = new ORidBag(database);
     ridBag.add(docThree);
     ridBag.add(docTwo);
@@ -714,8 +714,8 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
             "select * from RidBagIndexTestClass where ridBag contains ?", docOne.getIdentity());
     OResult res = result.next();
 
-    List<OIdentifiable> listResult = new ArrayList<>();
-    for (OIdentifiable identifiable : res.<ORidBag>getProperty("ridBag")) {
+    List<YTIdentifiable> listResult = new ArrayList<>();
+    for (YTIdentifiable identifiable : res.<ORidBag>getProperty("ridBag")) {
       listResult.add(identifiable);
     }
     result.close();

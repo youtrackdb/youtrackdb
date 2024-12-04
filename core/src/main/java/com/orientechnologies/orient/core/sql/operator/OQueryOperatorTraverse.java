@@ -21,12 +21,12 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemFieldAny;
 import java.util.Arrays;
@@ -65,7 +65,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
 
   @Override
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -81,7 +81,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
       target = iLeft;
     }
 
-    final Set<ORID> evaluatedRecords = new HashSet<ORID>();
+    final Set<YTRID> evaluatedRecords = new HashSet<YTRID>();
     return traverse(target, condition, 0, evaluatedRecords, iContext);
   }
 
@@ -90,24 +90,24 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
       Object iTarget,
       final OSQLFilterCondition iCondition,
       final int iLevel,
-      final Set<ORID> iEvaluatedRecords,
+      final Set<YTRID> iEvaluatedRecords,
       final OCommandContext iContext) {
     if (endDeepLevel > -1 && iLevel > endDeepLevel) {
       return false;
     }
 
-    if (iTarget instanceof OIdentifiable) {
-      if (iEvaluatedRecords.contains(((OIdentifiable) iTarget).getIdentity()))
+    if (iTarget instanceof YTIdentifiable) {
+      if (iEvaluatedRecords.contains(((YTIdentifiable) iTarget).getIdentity()))
       // ALREADY EVALUATED
       {
         return false;
       }
 
-      // TRANSFORM THE ORID IN ODOCUMENT
-      iTarget = ((OIdentifiable) iTarget).getRecord();
+      // TRANSFORM THE YTRID IN ODOCUMENT
+      iTarget = ((YTIdentifiable) iTarget).getRecord();
     }
 
-    if (iTarget instanceof ODocument target) {
+    if (iTarget instanceof YTDocument target) {
 
       iEvaluatedRecords.add(target.getIdentity());
 
@@ -241,12 +241,12 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

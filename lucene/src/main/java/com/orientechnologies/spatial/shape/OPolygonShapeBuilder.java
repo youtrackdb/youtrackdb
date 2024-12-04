@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,20 +45,20 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public void initClazz(ODatabaseSessionInternal db) {
+  public void initClazz(YTDatabaseSessionInternal db) {
 
-    OSchema schema = db.getMetadata().getSchema();
-    OClass polygon = schema.createAbstractClass(getName(), superClass(db));
-    polygon.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass polygon = schema.createAbstractClass(getName(), superClass(db));
+    polygon.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
 
-    if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      OClass polygonZ = schema.createAbstractClass(getName() + "Z", superClass(db));
-      polygonZ.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    if (YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
+      YTClass polygonZ = schema.createAbstractClass(getName() + "Z", superClass(db));
+      polygonZ.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
     }
   }
 
   @Override
-  public JtsGeometry fromDoc(ODocument document) {
+  public JtsGeometry fromDoc(YTDocument document) {
     validate(document);
     List<List<List<Number>>> coordinates = document.field("coordinates");
 
@@ -99,9 +99,9 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public ODocument toDoc(JtsGeometry shape) {
+  public YTDocument toDoc(JtsGeometry shape) {
 
-    ODocument doc = new ODocument(getName());
+    YTDocument doc = new YTDocument(getName());
     Polygon polygon = (Polygon) shape.getGeom();
     List<List<List<Double>>> polyCoordinates = coordinatesFromPolygon(polygon);
     doc.field(COORDINATES, polyCoordinates);
@@ -109,12 +109,12 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  protected ODocument toDoc(JtsGeometry shape, Geometry geometry) {
+  protected YTDocument toDoc(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
       return toDoc(shape);
     }
 
-    ODocument doc = new ODocument(getName() + "Z");
+    YTDocument doc = new YTDocument(getName() + "Z");
     Polygon polygon = (Polygon) shape.getGeom();
     List<List<List<Double>>> polyCoordinates = coordinatesFromPolygonZ(geometry);
     doc.field(COORDINATES, polyCoordinates);
@@ -142,7 +142,7 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public String asText(ODocument document) {
+  public String asText(YTDocument document) {
     if (document.getClassName().equals("OPolygonZ")) {
       List<List<List<Double>>> coordinates = document.getProperty("coordinates");
 

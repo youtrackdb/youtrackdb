@@ -23,13 +23,13 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.server.OClientConnection;
@@ -84,7 +84,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   private boolean jsonErrorResponse = true;
   private boolean sameSiteCookie = true;
   private OClientConnection connection;
-  private boolean streaming = OGlobalConfiguration.NETWORK_HTTP_STREAMING.getValueAsBoolean();
+  private boolean streaming = YTGlobalConfiguration.NETWORK_HTTP_STREAMING.getValueAsBoolean();
 
   public OHttpResponseAbstract(
       final OutputStream iOutStream,
@@ -97,7 +97,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final boolean iKeepAlive,
       OClientConnection connection,
       OContextConfiguration contextConfiguration) {
-    streaming = contextConfiguration.getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_STREAMING);
+    streaming = contextConfiguration.getValueAsBoolean(
+        YTGlobalConfiguration.NETWORK_HTTP_STREAMING);
     out = iOutStream;
     httpVersion = iHttpVersion;
     additionalHeaders = iAdditionalHeaders;
@@ -166,7 +167,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public void writeResult(final Object result, ODatabaseSessionInternal databaseDocumentInternal)
+  public void writeResult(final Object result, YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(result, null, null, null, databaseDocumentInternal);
   }
@@ -176,7 +177,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       Object iResult,
       final String iFormat,
       final String iAccept,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(iResult, iFormat, iAccept, null, databaseDocumentInternal);
   }
@@ -187,7 +188,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iFormat,
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(iResult, iFormat, iAccept, iAdditionalProperties, null, databaseDocumentInternal);
   }
@@ -199,7 +200,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     if (iResult == null) {
       send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -207,7 +208,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final Object newResult;
 
       if (iResult instanceof Map) {
-        ODocument doc = new ODocument();
+        YTDocument doc = new YTDocument();
         for (Map.Entry<?, ?> entry : ((Map<?, ?>) iResult).entrySet()) {
           String key = keyFromMapObject(entry.getKey());
           doc.field(key, entry.getValue());
@@ -215,18 +216,18 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
         newResult = Collections.singleton(doc).iterator();
       } else if (OMultiValue.isMultiValue(iResult)
           && (OMultiValue.getSize(iResult) > 0
-          && !((OMultiValue.getFirstValue(iResult) instanceof OIdentifiable)
+          && !((OMultiValue.getFirstValue(iResult) instanceof YTIdentifiable)
           || ((OMultiValue.getFirstValue(iResult) instanceof OResult))))) {
-        newResult = Collections.singleton(new ODocument().field("value", iResult)).iterator();
-      } else if (iResult instanceof OIdentifiable) {
+        newResult = Collections.singleton(new YTDocument().field("value", iResult)).iterator();
+      } else if (iResult instanceof YTIdentifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
         newResult = Collections.singleton(iResult).iterator();
       } else if (iResult instanceof Iterable<?>) {
-        newResult = ((Iterable<OIdentifiable>) iResult).iterator();
+        newResult = ((Iterable<YTIdentifiable>) iResult).iterator();
       } else if (OMultiValue.isMultiValue(iResult)) {
         newResult = OMultiValue.getMultiValueIterator(iResult);
       } else {
-        newResult = Collections.singleton(new ODocument().field("value", iResult)).iterator();
+        newResult = Collections.singleton(new YTDocument().field("value", iResult)).iterator();
       }
 
       if (newResult == null) {
@@ -245,7 +246,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public void writeRecords(final Object iRecords, ODatabaseSessionInternal databaseDocumentInternal)
+  public void writeRecords(final Object iRecords,
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, null, null, null, null, databaseDocumentInternal);
   }
@@ -254,7 +256,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   public void writeRecords(
       final Object iRecords,
       final String iFetchPlan,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, iFetchPlan, null, null, null, databaseDocumentInternal);
   }
@@ -265,7 +267,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iFetchPlan,
       String iFormat,
       final String accept,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, iFetchPlan, iFormat, accept, null, databaseDocumentInternal);
   }
@@ -277,7 +279,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       String iFormat,
       final String accept,
       final Map<String, Object> iAdditionalProperties,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(
         iRecords,
@@ -297,7 +299,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     if (iRecords == null) {
       send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -317,7 +319,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             @Override
             public Void call(final OChunkedResponse iArgument) {
               final LinkedHashSet<String> colNames = new LinkedHashSet<String>();
-              final List<OElement> records = new ArrayList<OElement>();
+              final List<YTEntity> records = new ArrayList<YTEntity>();
 
               // BROWSE ALL THE RECORD TO HAVE THE COMPLETE COLUMN
               // NAMES LIST
@@ -337,10 +339,10 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                     colNames.add(fieldName);
                   }
 
-                } else if (r instanceof OIdentifiable) {
+                } else if (r instanceof YTIdentifiable) {
                   try {
-                    final ORecord rec = ((OIdentifiable) r).getRecord();
-                    if (rec instanceof ODocument doc) {
+                    final YTRecord rec = ((YTIdentifiable) r).getRecord();
+                    if (rec instanceof YTDocument doc) {
                       records.add(doc);
                       Collections.addAll(colNames, doc.fieldNames());
                     }
@@ -364,7 +366,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                 iArgument.write(OHttpUtils.EOL);
 
                 // WRITE EACH RECORD
-                for (OElement doc : records) {
+                for (YTEntity doc : records) {
                   for (int col = 0; col < orderedColumns.size(); ++col) {
                     if (col > 0) {
                       iArgument.write(',');
@@ -442,7 +444,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       Map<String, Object> iAdditionalProperties,
       Iterator<?> it,
       Writer buffer,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     final OJSONWriter json = new OJSONWriter(buffer, iFormat);
     json.beginObject();
@@ -481,7 +483,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final Iterator<?> iIterator,
       final Writer buffer,
       final String format,
-      ODatabaseSessionInternal databaseDocumentInternal)
+      YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     if (iIterator != null) {
       int counter = 0;
@@ -497,9 +499,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
           if (entry instanceof OResult) {
             objectJson = ((OResult) entry).toJSON();
             buffer.append(objectJson);
-          } else if (entry instanceof OIdentifiable identifiable) {
+          } else if (entry instanceof YTIdentifiable identifiable) {
             try {
-              ORecord rec = identifiable.getRecord();
+              YTRecord rec = identifiable.getRecord();
               if (rec.isNotBound(databaseDocumentInternal)) {
                 rec = databaseDocumentInternal.bindToSession(rec);
               }
@@ -526,12 +528,12 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public void writeRecord(final ORecord iRecord) throws IOException {
+  public void writeRecord(final YTRecord iRecord) throws IOException {
     writeRecord(iRecord, null, null);
   }
 
   @Override
-  public void writeRecord(final ORecord iRecord, final String iFetchPlan, String iFormat)
+  public void writeRecord(final YTRecord iRecord, final String iFetchPlan, String iFormat)
       throws IOException {
     if (iFormat == null) {
       iFormat = OHttpResponse.JSON_FORMAT;

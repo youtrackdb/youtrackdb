@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.common.parser.OBaseParser;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 
 /**
@@ -34,18 +34,18 @@ public class OSQLFilterItemFieldAll extends OSQLFilterItemFieldMultiAbstract {
   public static final String FULL_NAME = "ALL()";
 
   public OSQLFilterItemFieldAll(
-      ODatabaseSessionInternal session, final OSQLPredicate iQueryCompiled, final String iName,
-      final OClass iClass) {
+      YTDatabaseSessionInternal session, final OSQLPredicate iQueryCompiled, final String iName,
+      final YTClass iClass) {
     super(session, iQueryCompiled, iName, iClass, OStringSerializerHelper.getParameters(iName));
   }
 
   @Override
-  public String getRoot(ODatabaseSession session) {
+  public String getRoot(YTDatabaseSession session) {
     return FULL_NAME;
   }
 
   @Override
-  protected void setRoot(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  protected void setRoot(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iRoot) {
   }
 }

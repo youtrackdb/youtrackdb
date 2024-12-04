@@ -22,14 +22,14 @@ package com.orientechnologies.orient.core.storage;
 
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.orient.core.exception.OCoreException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 
 /**
  * @since 9/5/12
  */
 public class ORecordDuplicatedException extends OCoreException implements OHighLevelException {
 
-  private final ORID rid;
+  private final YTRID rid;
   private final String indexName;
   private final Object key;
 
@@ -41,14 +41,14 @@ public class ORecordDuplicatedException extends OCoreException implements OHighL
   }
 
   public ORecordDuplicatedException(
-      final String message, final String indexName, final ORID iRid, Object key) {
+      final String message, final String indexName, final YTRID iRid, Object key) {
     super(message);
     this.indexName = indexName;
     this.rid = iRid;
     this.key = key;
   }
 
-  public ORID getRid() {
+  public YTRID getRid() {
     return rid;
   }
 

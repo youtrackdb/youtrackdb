@@ -5,7 +5,7 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -16,7 +16,7 @@ public interface OSBTree<K, V> {
       OAtomicOperation atomicOperation,
       OBinarySerializer<K> keySerializer,
       OBinarySerializer<V> valueSerializer,
-      OType[] keyTypes,
+      YTType[] keyTypes,
       int keySize,
       boolean nullPointerSupport,
       OEncryption encryption)
@@ -49,7 +49,7 @@ public interface OSBTree<K, V> {
       String name,
       OBinarySerializer<K> keySerializer,
       OBinarySerializer<V> valueSerializer,
-      OType[] keyTypes,
+      YTType[] keyTypes,
       int keySize,
       boolean nullPointerSupport,
       OEncryption encryption);

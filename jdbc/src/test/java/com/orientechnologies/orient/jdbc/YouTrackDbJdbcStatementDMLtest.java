@@ -15,9 +15,9 @@ package com.orientechnologies.orient.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -101,13 +101,13 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
     stmt.close();
 
     // double value test pattern?
-    var database = (ODatabaseSessionInternal) conn.getDatabase();
+    var database = (YTDatabaseSessionInternal) conn.getDatabase();
     assertThat(database.getClusterIdByName("account")).isNotNull();
-    OClass account = database.getMetadata().getSchema().getClass("Account");
+    YTClass account = database.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();
-    assertThat(account.getProperty("id").getType()).isEqualTo(OType.INTEGER);
-    assertThat(account.getProperty("birthDate").getType()).isEqualTo(OType.DATE);
-    assertThat(account.getProperty("binary").getType()).isEqualTo(OType.BINARY);
+    assertThat(account.getProperty("id").getType()).isEqualTo(YTType.INTEGER);
+    assertThat(account.getProperty("birthDate").getType()).isEqualTo(YTType.DATE);
+    assertThat(account.getProperty("binary").getType()).isEqualTo(YTType.BINARY);
   }
 
   @Test
@@ -123,12 +123,12 @@ public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTem
     stmt.close();
 
     // double value test pattern?
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) conn.getDatabase();
+    YTDatabaseSessionInternal database = (YTDatabaseSessionInternal) conn.getDatabase();
     assertThat(database.getClusterIdByName("account")).isNotNull();
-    OClass account = database.getMetadata().getSchema().getClass("Account");
+    YTClass account = database.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();
-    assertThat(account.getProperty("id").getType()).isEqualTo(OType.INTEGER);
-    assertThat(account.getProperty("birthDate").getType()).isEqualTo(OType.DATE);
-    assertThat(account.getProperty("binary").getType()).isEqualTo(OType.BINARY);
+    assertThat(account.getProperty("id").getType()).isEqualTo(YTType.INTEGER);
+    assertThat(account.getProperty("birthDate").getType()).isEqualTo(YTType.DATE);
+    assertThat(account.getProperty("binary").getType()).isEqualTo(YTType.BINARY);
   }
 }

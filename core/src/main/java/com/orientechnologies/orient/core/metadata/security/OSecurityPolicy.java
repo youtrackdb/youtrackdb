@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import javax.annotation.Nonnull;
 
 public interface OSecurityPolicy {
@@ -15,25 +15,25 @@ public interface OSecurityPolicy {
     EXECUTE
   }
 
-  ORID getIdentity();
+  YTRID getIdentity();
 
-  String getName(@Nonnull ODatabaseSessionInternal db);
+  String getName(@Nonnull YTDatabaseSessionInternal db);
 
-  boolean isActive(@Nonnull ODatabaseSessionInternal db);
+  boolean isActive(@Nonnull YTDatabaseSessionInternal db);
 
-  String getCreateRule(@Nonnull ODatabaseSessionInternal db);
+  String getCreateRule(@Nonnull YTDatabaseSessionInternal db);
 
-  String getReadRule(@Nonnull ODatabaseSessionInternal db);
+  String getReadRule(@Nonnull YTDatabaseSessionInternal db);
 
-  String getBeforeUpdateRule(@Nonnull ODatabaseSessionInternal db);
+  String getBeforeUpdateRule(@Nonnull YTDatabaseSessionInternal db);
 
-  String getAfterUpdateRule(@Nonnull ODatabaseSessionInternal db);
+  String getAfterUpdateRule(@Nonnull YTDatabaseSessionInternal db);
 
-  String getDeleteRule(@Nonnull ODatabaseSessionInternal db);
+  String getDeleteRule(@Nonnull YTDatabaseSessionInternal db);
 
-  String getExecuteRule(@Nonnull ODatabaseSessionInternal db);
+  String getExecuteRule(@Nonnull YTDatabaseSessionInternal db);
 
-  default String get(Scope scope, @Nonnull ODatabaseSessionInternal db) {
+  default String get(Scope scope, @Nonnull YTDatabaseSessionInternal db) {
     return switch (scope) {
       case CREATE -> getCreateRule(db);
       case READ -> getReadRule(db);

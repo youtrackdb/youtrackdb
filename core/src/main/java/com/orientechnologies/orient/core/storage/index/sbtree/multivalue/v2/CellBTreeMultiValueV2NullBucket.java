@@ -23,8 +23,8 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
     setIntValue(RIDS_SIZE_OFFSET, 0);
   }
 
-  public long addValue(final ORID rid) {
+  public long addValue(final YTRID rid) {
     final int embeddedSize = getByteValue(EMBEDDED_RIDS_SIZE_OFFSET);
 
     if (embeddedSize < EMBEDDED_RIDS_BOUNDARY) {
@@ -95,9 +95,9 @@ public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
     setIntValue(RIDS_SIZE_OFFSET, size - 1);
   }
 
-  public List<ORID> getValues() {
+  public List<YTRID> getValues() {
     final int size = getIntValue(RIDS_SIZE_OFFSET);
-    final List<ORID> rids = new ArrayList<>(size);
+    final List<YTRID> rids = new ArrayList<>(size);
 
     final int embeddedSize = getByteValue(EMBEDDED_RIDS_SIZE_OFFSET);
     final int end = embeddedSize * RID_SIZE + RIDS_OFFSET;
@@ -106,7 +106,7 @@ public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
       final int clusterId = getShortValue(position);
       final long clusterPosition = getLongValue(position + OShortSerializer.SHORT_SIZE);
 
-      rids.add(new ORecordId(clusterId, clusterPosition));
+      rids.add(new YTRecordId(clusterId, clusterPosition));
     }
 
     return rids;
@@ -120,7 +120,7 @@ public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
     return getIntValue(RIDS_SIZE_OFFSET);
   }
 
-  public int removeValue(final ORID rid) {
+  public int removeValue(final YTRID rid) {
     final int size = getIntValue(RIDS_SIZE_OFFSET);
 
     final int embeddedSize = getByteValue(EMBEDDED_RIDS_SIZE_OFFSET);

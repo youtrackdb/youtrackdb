@@ -18,7 +18,7 @@ public class OViewIndexConfig {
   }
 
   public void addProperty(
-      String name, OType type, OType linkedType, OCollate collate, INDEX_BY indexBy) {
+      String name, YTType type, YTType linkedType, OCollate collate, INDEX_BY indexBy) {
     this.props.add(new OIndexConfigProperty(name, type, linkedType, collate, indexBy));
   }
 

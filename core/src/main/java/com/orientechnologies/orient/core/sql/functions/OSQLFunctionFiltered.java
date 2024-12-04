@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 
 /**
  *
@@ -44,9 +44,9 @@ public interface OSQLFunctionFiltered extends OSQLFunction {
    */
   Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
-      Iterable<OIdentifiable> iPossibleResults,
+      Iterable<YTIdentifiable> iPossibleResults,
       OCommandContext iContext);
 }

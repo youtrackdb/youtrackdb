@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Set;
 
@@ -37,9 +37,9 @@ public class OIndexRemoteOneValue extends OIndexRemote {
       final String iName,
       final String iWrappedType,
       final String algorithm,
-      final ORID iRid,
+      final YTRID iRid,
       final OIndexDefinition iIndexDefinition,
-      final ODocument iConfiguration,
+      final YTDocument iConfiguration,
       final Set<String> clustersToIndex,
       String database) {
     super(
@@ -54,7 +54,7 @@ public class OIndexRemoteOneValue extends OIndexRemote {
   }
 
   @Deprecated
-  public OIdentifiable get(ODatabaseSessionInternal session, final Object key) {
+  public YTIdentifiable get(YTDatabaseSessionInternal session, final Object key) {
     try (OResultSet result =
         getDatabase().indexQuery(getName(), String.format(QUERY_GET, name), key)) {
       if (result != null && result.hasNext()) {

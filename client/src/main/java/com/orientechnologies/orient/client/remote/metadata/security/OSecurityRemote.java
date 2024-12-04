@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
@@ -19,8 +19,8 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Collections;
@@ -36,18 +36,18 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public boolean isAllowed(
-      ODatabaseSessionInternal session, Set<OIdentifiable> iAllowAll,
-      Set<OIdentifiable> iAllowOperation) {
+      YTDatabaseSessionInternal session, Set<YTIdentifiable> iAllowAll,
+      Set<YTIdentifiable> iAllowOperation) {
     return true;
   }
 
   @Override
-  public OIdentifiable allowRole(
-      final ODatabaseSession session,
-      final ODocument iDocument,
+  public YTIdentifiable allowRole(
+      final YTDatabaseSession session,
+      final YTDocument iDocument,
       final ORestrictedOperation iOperation,
       final String iRoleName) {
-    final ORID role = getRoleRID(session, iRoleName);
+    final YTRID role = getRoleRID(session, iRoleName);
     if (role == null) {
       throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
     }
@@ -56,12 +56,12 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable allowUser(
-      final ODatabaseSession session,
-      final ODocument iDocument,
+  public YTIdentifiable allowUser(
+      final YTDatabaseSession session,
+      final YTDocument iDocument,
       final ORestrictedOperation iOperation,
       final String iUserName) {
-    final ORID user = getUserRID(session, iUserName);
+    final YTRID user = getUserRID(session, iUserName);
     if (user == null) {
       throw new IllegalArgumentException("User '" + iUserName + "' not found");
     }
@@ -70,12 +70,12 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable denyUser(
-      final ODatabaseSessionInternal session,
-      final ODocument iDocument,
+  public YTIdentifiable denyUser(
+      final YTDatabaseSessionInternal session,
+      final YTDocument iDocument,
       final ORestrictedOperation iOperation,
       final String iUserName) {
-    final ORID user = getUserRID(session, iUserName);
+    final YTRID user = getUserRID(session, iUserName);
     if (user == null) {
       throw new IllegalArgumentException("User '" + iUserName + "' not found");
     }
@@ -84,12 +84,12 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable denyRole(
-      final ODatabaseSessionInternal session,
-      final ODocument iDocument,
+  public YTIdentifiable denyRole(
+      final YTDatabaseSessionInternal session,
+      final YTDocument iDocument,
       final ORestrictedOperation iOperation,
       final String iRoleName) {
-    final ORID role = getRoleRID(session, iRoleName);
+    final YTRID role = getRoleRID(session, iRoleName);
     if (role == null) {
       throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
     }
@@ -98,9 +98,9 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable allowIdentity(
-      ODatabaseSession session, ODocument iDocument, String iAllowFieldName, OIdentifiable iId) {
-    Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
+  public YTIdentifiable allowIdentity(
+      YTDatabaseSession session, YTDocument iDocument, String iAllowFieldName, YTIdentifiable iId) {
+    Set<YTIdentifiable> field = iDocument.field(iAllowFieldName);
     if (field == null) {
       field = new OTrackedSet<>(iDocument);
       iDocument.field(iAllowFieldName, field);
@@ -110,7 +110,7 @@ public class OSecurityRemote implements OSecurityInternal {
     return iId;
   }
 
-  public ORID getRoleRID(final ODatabaseSession session, final String iRoleName) {
+  public YTRID getRoleRID(final YTDatabaseSession session, final String iRoleName) {
     if (iRoleName == null) {
       return null;
     }
@@ -125,7 +125,7 @@ public class OSecurityRemote implements OSecurityInternal {
     return null;
   }
 
-  public ORID getUserRID(final ODatabaseSession session, final String userName) {
+  public YTRID getUserRID(final YTDatabaseSession session, final String userName) {
     try (OResultSet result =
         session.query("select @rid as rid from OUser where name = ? limit 1", userName)) {
 
@@ -138,10 +138,10 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OIdentifiable disallowIdentity(
-      ODatabaseSessionInternal session, ODocument iDocument, String iAllowFieldName,
-      OIdentifiable iId) {
-    Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
+  public YTIdentifiable disallowIdentity(
+      YTDatabaseSessionInternal session, YTDocument iDocument, String iAllowFieldName,
+      YTIdentifiable iId) {
+    Set<YTIdentifiable> field = iDocument.field(iAllowFieldName);
     if (field != null) {
       field.remove(iId);
     }
@@ -149,14 +149,14 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser authenticate(ODatabaseSessionInternal session, String iUsername,
+  public OUser authenticate(YTDatabaseSessionInternal session, String iUsername,
       String iUserPassword) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OUser createUser(
-      final ODatabaseSessionInternal session,
+      final YTDatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
@@ -171,7 +171,7 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public OUser createUser(
-      final ODatabaseSessionInternal session,
+      final YTDatabaseSessionInternal session,
       final String userName,
       final String userPassword,
       final ORole... roles) {
@@ -187,20 +187,20 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser authenticate(ODatabaseSessionInternal session, OToken authToken) {
+  public OUser authenticate(YTDatabaseSessionInternal session, OToken authToken) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public ORole createRole(
-      final ODatabaseSessionInternal session, final String iRoleName,
+      final YTDatabaseSessionInternal session, final String iRoleName,
       final ALLOW_MODES iAllowMode) {
     return createRole(session, iRoleName, null, iAllowMode);
   }
 
   @Override
   public ORole createRole(
-      final ODatabaseSessionInternal session,
+      final YTDatabaseSessionInternal session,
       final String iRoleName,
       final ORole iParent,
       final ALLOW_MODES iAllowMode) {
@@ -209,21 +209,21 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser getUser(final ODatabaseSession session, final String iUserName) {
+  public OUser getUser(final YTDatabaseSession session, final String iUserName) {
     try (OResultSet result = session.query("select from OUser where name = ? limit 1", iUserName)) {
       if (result.hasNext()) {
-        return new OUser(session, (ODocument) result.next().getElement().get());
+        return new OUser(session, (YTDocument) result.next().getElement().get());
       }
     }
     return null;
   }
 
-  public OUser getUser(final ODatabaseSession session, final ORID iRecordId) {
+  public OUser getUser(final YTDatabaseSession session, final YTRID iRecordId) {
     if (iRecordId == null) {
       return null;
     }
 
-    ODocument result;
+    YTDocument result;
     result = session.load(iRecordId);
     if (!result.getClassName().equals(OUser.CLASS_NAME)) {
       result = null;
@@ -231,9 +231,9 @@ public class OSecurityRemote implements OSecurityInternal {
     return new OUser(session, result);
   }
 
-  public ORole getRole(final ODatabaseSession session, final OIdentifiable iRole) {
-    final ODocument doc = session.load(iRole.getIdentity());
-    OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+  public ORole getRole(final YTDatabaseSession session, final YTIdentifiable iRole) {
+    final YTDocument doc = session.load(iRole.getIdentity());
+    YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz != null && clazz.isOrole()) {
       return new ORole(session, doc);
     }
@@ -241,7 +241,7 @@ public class OSecurityRemote implements OSecurityInternal {
     return null;
   }
 
-  public ORole getRole(final ODatabaseSession session, final String iRoleName) {
+  public ORole getRole(final YTDatabaseSession session, final String iRoleName) {
     if (iRoleName == null) {
       return null;
     }
@@ -249,71 +249,71 @@ public class OSecurityRemote implements OSecurityInternal {
     try (final OResultSet result =
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
-        return new ORole(session, (ODocument) result.next().getElement().get());
+        return new ORole(session, (YTDocument) result.next().getElement().get());
       }
     }
 
     return null;
   }
 
-  public List<ODocument> getAllUsers(final ODatabaseSession session) {
+  public List<YTDocument> getAllUsers(final YTDatabaseSession session) {
     try (OResultSet rs = session.query("select from OUser")) {
-      return rs.stream().map((e) -> (ODocument) e.getElement().get()).collect(Collectors.toList());
+      return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
     }
   }
 
-  public List<ODocument> getAllRoles(final ODatabaseSession session) {
+  public List<YTDocument> getAllRoles(final YTDatabaseSession session) {
     try (OResultSet rs = session.query("select from ORole")) {
-      return rs.stream().map((e) -> (ODocument) e.getElement().get()).collect(Collectors.toList());
+      return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
     }
   }
 
   @Override
   public Map<String, OSecurityPolicy> getSecurityPolicies(
-      ODatabaseSession session, OSecurityRole role) {
+      YTDatabaseSession session, OSecurityRole role) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OSecurityPolicy getSecurityPolicy(
-      ODatabaseSession session, OSecurityRole role, String resource) {
+      YTDatabaseSession session, OSecurityRole role, String resource) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public void setSecurityPolicy(
-      ODatabaseSessionInternal session, OSecurityRole role, String resource,
+      YTDatabaseSessionInternal session, OSecurityRole role, String resource,
       OSecurityPolicyImpl policy) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OSecurityPolicyImpl createSecurityPolicy(ODatabaseSession session, String name) {
+  public OSecurityPolicyImpl createSecurityPolicy(YTDatabaseSession session, String name) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OSecurityPolicyImpl getSecurityPolicy(ODatabaseSession session, String name) {
+  public OSecurityPolicyImpl getSecurityPolicy(YTDatabaseSession session, String name) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void saveSecurityPolicy(ODatabaseSession session, OSecurityPolicyImpl policy) {
+  public void saveSecurityPolicy(YTDatabaseSession session, OSecurityPolicyImpl policy) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void deleteSecurityPolicy(ODatabaseSession session, String name) {
+  public void deleteSecurityPolicy(YTDatabaseSession session, String name) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void removeSecurityPolicy(ODatabaseSession session, ORole role, String resource) {
+  public void removeSecurityPolicy(YTDatabaseSession session, ORole role, String resource) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public boolean dropUser(final ODatabaseSession session, final String iUserName) {
+  public boolean dropUser(final YTDatabaseSession session, final String iUserName) {
     final Number removed =
         session.command("delete from OUser where name = ?", iUserName).next().getProperty("count");
 
@@ -321,7 +321,7 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public boolean dropRole(final ODatabaseSession session, final String iRoleName) {
+  public boolean dropRole(final YTDatabaseSession session, final String iRoleName) {
     final Number removed =
         session
             .command("delete from ORole where name = '" + iRoleName + "'")
@@ -332,27 +332,27 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public void createClassTrigger(ODatabaseSessionInternal session) {
+  public void createClassTrigger(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public long getVersion(ODatabaseSession session) {
+  public long getVersion(YTDatabaseSession session) {
     return 0;
   }
 
   @Override
-  public void incrementVersion(ODatabaseSession session) {
+  public void incrementVersion(YTDatabaseSession session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OUser create(ODatabaseSessionInternal session) {
+  public OUser create(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void load(ODatabaseSessionInternal session) {
+  public void load(YTDatabaseSessionInternal session) {
   }
 
   @Override
@@ -360,61 +360,61 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public Set<String> getFilteredProperties(ODatabaseSessionInternal session, ODocument document) {
+  public Set<String> getFilteredProperties(YTDatabaseSessionInternal session, YTDocument document) {
     return Collections.emptySet();
   }
 
   @Override
-  public boolean isAllowedWrite(ODatabaseSessionInternal session, ODocument document,
+  public boolean isAllowedWrite(YTDatabaseSessionInternal session, YTDocument document,
       String propertyName) {
     return true;
   }
 
   @Override
-  public boolean canCreate(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canCreate(YTDatabaseSessionInternal session, YTRecord record) {
     return true;
   }
 
   @Override
-  public boolean canRead(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canRead(YTDatabaseSessionInternal session, YTRecord record) {
     return true;
   }
 
   @Override
-  public boolean canUpdate(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canUpdate(YTDatabaseSessionInternal session, YTRecord record) {
     return true;
   }
 
   @Override
-  public boolean canDelete(ODatabaseSessionInternal session, ORecord record) {
+  public boolean canDelete(YTDatabaseSessionInternal session, YTRecord record) {
     return true;
   }
 
   @Override
-  public boolean canExecute(ODatabaseSessionInternal session, OFunction function) {
+  public boolean canExecute(YTDatabaseSessionInternal session, OFunction function) {
     return true;
   }
 
   @Override
-  public boolean isReadRestrictedBySecurityPolicy(ODatabaseSession session, String resource) {
+  public boolean isReadRestrictedBySecurityPolicy(YTDatabaseSession session, String resource) {
     return false;
   }
 
   @Override
   public Set<OSecurityResourceProperty> getAllFilteredProperties(
-      ODatabaseSessionInternal database) {
+      YTDatabaseSessionInternal database) {
     return Collections.EMPTY_SET;
   }
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSessionInternal session, String userName, String password) {
+      YTDatabaseSessionInternal session, String userName, String password) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
+      YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     throw new UnsupportedOperationException();
   }
 }

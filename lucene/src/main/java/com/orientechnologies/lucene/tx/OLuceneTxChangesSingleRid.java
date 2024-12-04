@@ -22,8 +22,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.lucene.builder.OLuceneIndexType;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.exception.OLuceneIndexException;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,7 +45,7 @@ public class OLuceneTxChangesSingleRid extends OLuceneTxChangesAbstract {
     super(engine, writer, deletedIdx);
   }
 
-  public void put(final Object key, final OIdentifiable value, final Document doc) {
+  public void put(final Object key, final YTIdentifiable value, final Document doc) {
     if (deleted.remove(value.getIdentity().toString())) {
       doc.add(OLuceneIndexType.createField(TMP, value.getIdentity().toString(), Field.Store.YES));
       updated.add(value.getIdentity().toString());
@@ -58,8 +58,8 @@ public class OLuceneTxChangesSingleRid extends OLuceneTxChangesAbstract {
     }
   }
 
-  public void remove(ODatabaseSessionInternal session, final Object key,
-      final OIdentifiable value) {
+  public void remove(YTDatabaseSessionInternal session, final Object key,
+      final YTIdentifiable value) {
     try {
       if (value == null) {
         writer.deleteDocuments(engine.deleteQuery(key, value));
@@ -87,11 +87,11 @@ public class OLuceneTxChangesSingleRid extends OLuceneTxChangesAbstract {
     return deletedDocs;
   }
 
-  public boolean isDeleted(Document document, Object key, OIdentifiable value) {
+  public boolean isDeleted(Document document, Object key, YTIdentifiable value) {
     return deleted.contains(value.getIdentity().toString());
   }
 
-  public boolean isUpdated(Document document, Object key, OIdentifiable value) {
+  public boolean isUpdated(Document document, Object key, YTIdentifiable value) {
     return updated.contains(value.getIdentity().toString());
   }
 }

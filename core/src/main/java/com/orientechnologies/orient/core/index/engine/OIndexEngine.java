@@ -20,8 +20,8 @@
 
 package com.orientechnologies.orient.core.index.engine;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
@@ -33,12 +33,12 @@ public interface OIndexEngine extends OBaseIndexEngine {
 
   int VERSION = 0;
 
-  Object get(ODatabaseSessionInternal session, Object key);
+  Object get(YTDatabaseSessionInternal session, Object key);
 
-  void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  void put(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       Object value) throws IOException;
 
-  void update(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  void update(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       OIndexKeyUpdater<Object> updater)
       throws IOException;
 
@@ -58,8 +58,8 @@ public interface OIndexEngine extends OBaseIndexEngine {
   boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator)
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator)
       throws IOException;
 
   @Override

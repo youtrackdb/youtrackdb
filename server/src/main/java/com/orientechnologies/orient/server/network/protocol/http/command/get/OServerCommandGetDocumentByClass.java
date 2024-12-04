@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -44,14 +44,14 @@ public class OServerCommandGetDocumentByClass extends OServerCommandAuthenticate
 
     iRequest.getData().commandInfo = "Load document";
 
-    final ORecord rec;
-    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    final YTRecord rec;
+    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       if (db.getMetadata().getImmutableSchemaSnapshot().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
       }
       final String rid = db.getClusterIdByName(urlParts[2]) + ":" + urlParts[3];
       try {
-        rec = db.load(new ORecordId(rid));
+        rec = db.load(new YTRecordId(rid));
       } catch (ORecordNotFoundException e) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,

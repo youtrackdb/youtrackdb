@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.tx.OTransaction;
@@ -77,17 +77,17 @@ public class OIndexFullText extends OIndexMultiValues {
    * of the index is responsibility of the caller.
    */
   @Override
-  public OIndexFullText put(ODatabaseSessionInternal session, Object key,
-      final OIdentifiable value) {
+  public OIndexFullText put(YTDatabaseSessionInternal session, Object key,
+      final YTIdentifiable value) {
     if (key == null) {
       return this;
     }
-    final ORID rid = value.getIdentity();
+    final YTRID rid = value.getIdentity();
 
     if (!rid.isValid()) {
-      if (value instanceof ORecord) {
+      if (value instanceof YTRecord) {
         // EARLY SAVE IT
-        ((ORecord) value).save();
+        ((YTRecord) value).save();
       } else {
         throw new IllegalArgumentException(
             "Cannot store non persistent RID as index value for key '" + key + "'");
@@ -117,7 +117,7 @@ public class OIndexFullText extends OIndexMultiValues {
    * @return <code>true</code> if at least one record is removed.
    */
   @Override
-  public boolean remove(ODatabaseSessionInternal session, Object key, final OIdentifiable rid) {
+  public boolean remove(YTDatabaseSessionInternal session, Object key, final YTIdentifiable rid) {
     if (key == null) {
       return false;
     }
@@ -133,7 +133,7 @@ public class OIndexFullText extends OIndexMultiValues {
 
   @Override
   public OIndexMultiValues create(
-      ODatabaseSessionInternal session, OIndexMetadata metadata, boolean rebuild,
+      YTDatabaseSessionInternal session, OIndexMetadata metadata, boolean rebuild,
       OProgressListener progressListener) {
     if (metadata.getIndexDefinition().getFields().size() > 1) {
       throw new OIndexException(getType() + " indexes cannot be used as composite ones.");
@@ -143,8 +143,8 @@ public class OIndexFullText extends OIndexMultiValues {
   }
 
   @Override
-  public ODocument updateConfiguration(ODatabaseSessionInternal session) {
-    ODocument document = super.updateConfiguration(session);
+  public YTDocument updateConfiguration(YTDatabaseSessionInternal session) {
+    YTDocument document = super.updateConfiguration(session);
     document.field(CONFIG_SEPARATOR_CHARS, separatorChars);
     document.field(CONFIG_IGNORE_CHARS, ignoreChars);
     document.field(CONFIG_STOP_WORDS, stopWords);

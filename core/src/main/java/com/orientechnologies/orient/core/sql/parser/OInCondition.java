@@ -5,8 +5,8 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -43,7 +43,7 @@ public class OInCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     Object leftVal = evaluateLeft(currentRecord, ctx);
     Object rightVal = evaluateRight(currentRecord, ctx);
     if (rightVal == null) {
@@ -52,7 +52,7 @@ public class OInCondition extends OBooleanExpression {
     return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
-  public Object evaluateRight(OIdentifiable currentRecord, OCommandContext ctx) {
+  public Object evaluateRight(YTIdentifiable currentRecord, OCommandContext ctx) {
     Object rightVal = null;
     if (rightStatement != null) {
       rightVal = executeQuery(rightStatement, ctx);
@@ -64,7 +64,7 @@ public class OInCondition extends OBooleanExpression {
     return rightVal;
   }
 
-  public Object evaluateLeft(OIdentifiable currentRecord, OCommandContext ctx) {
+  public Object evaluateLeft(YTIdentifiable currentRecord, OCommandContext ctx) {
     return left.execute(currentRecord, ctx);
   }
 
@@ -130,7 +130,7 @@ public class OInCondition extends OBooleanExpression {
     return result.stream().collect(Collectors.toSet());
   }
 
-  protected static boolean evaluateExpression(ODatabaseSessionInternal session, final Object iLeft,
+  protected static boolean evaluateExpression(YTDatabaseSessionInternal session, final Object iLeft,
       final Object iRight) {
     if (OMultiValue.isMultiValue(iRight)) {
       if (iRight instanceof Set<?> set) {
@@ -184,7 +184,7 @@ public class OInCondition extends OBooleanExpression {
     return false;
   }
 
-  private static boolean compareItems(ODatabaseSessionInternal session, Object rightItem,
+  private static boolean compareItems(YTDatabaseSessionInternal session, Object rightItem,
       Object leftItem) {
     if (OQueryOperatorEquals.equals(session, leftItem, rightItem)) {
       return true;
@@ -391,7 +391,7 @@ public class OInCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (left != null && !left.isCacheable(session)) {
       return false;
     }

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
@@ -66,7 +66,7 @@ public class OLocalResultSet implements OResultSet {
   private void logProfiling() {
     if (executionPlan.getStatement() != null && YouTrackDBManager.instance().getProfiler()
         .isRecording()) {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
         final OSecurityUser user = db.getUser();
         final String userString = user != null ? user.toString() : null;

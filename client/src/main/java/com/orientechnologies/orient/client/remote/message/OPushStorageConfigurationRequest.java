@@ -5,7 +5,7 @@ import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBin
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
@@ -23,18 +23,18 @@ public class OPushStorageConfigurationRequest implements OBinaryPushRequest<OBin
   }
 
   @Override
-  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
     payload.write(channel);
   }
 
   @Override
-  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     payload.read(network);
   }
 
   @Override
-  public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+  public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
       ORemotePushHandler pushHandler) {
     return pushHandler.executeUpdateStorageConfig(this);
   }

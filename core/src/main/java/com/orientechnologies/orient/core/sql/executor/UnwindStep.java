@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OUnwind;
@@ -41,11 +41,11 @@ public class UnwindStep extends AbstractExecutionStep {
     return resultSet.flatMap((res, res2) -> fetchNextResults(db, res));
   }
 
-  private OExecutionStream fetchNextResults(ODatabaseSessionInternal db, OResult res) {
+  private OExecutionStream fetchNextResults(YTDatabaseSessionInternal db, OResult res) {
     return OExecutionStream.resultIterator(unwind(db, res, unwindFields).iterator());
   }
 
-  private static Collection<OResult> unwind(ODatabaseSessionInternal db, final OResult doc,
+  private static Collection<OResult> unwind(YTDatabaseSessionInternal db, final OResult doc,
       final List<String> unwindFields) {
     final List<OResult> result = new ArrayList<>();
 
@@ -56,7 +56,7 @@ public class UnwindStep extends AbstractExecutionStep {
       final List<String> nextFields = unwindFields.subList(1, unwindFields.size());
 
       Object fieldValue = doc.getProperty(firstField);
-      if (fieldValue == null || fieldValue instanceof ODocument) {
+      if (fieldValue == null || fieldValue instanceof YTDocument) {
         result.addAll(unwind(db, doc, nextFields));
         return result;
       }

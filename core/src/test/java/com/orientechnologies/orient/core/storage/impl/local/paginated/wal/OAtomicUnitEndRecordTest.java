@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordOperationMetadata;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationMetadata;
 import java.util.LinkedHashMap;
@@ -13,8 +13,8 @@ public class OAtomicUnitEndRecordTest {
   @Test
   public void recordMetadataSerializationTest() {
     ORecordOperationMetadata recordOperationMetadata = new ORecordOperationMetadata();
-    recordOperationMetadata.addRid(new ORecordId(10, 42));
-    recordOperationMetadata.addRid(new ORecordId(42, 10));
+    recordOperationMetadata.addRid(new YTRecordId(10, 42));
+    recordOperationMetadata.addRid(new YTRecordId(42, 10));
 
     Map<String, OAtomicOperationMetadata<?>> metadata = new LinkedHashMap<>();
     metadata.put(recordOperationMetadata.getKey(), recordOperationMetadata);

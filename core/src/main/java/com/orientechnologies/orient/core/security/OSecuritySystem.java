@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +43,7 @@ public interface OSecuritySystem {
   // Some token-based authentication (e.g., SPNEGO tokens have the user's name embedded in the
   // service ticket).
   OSecurityUser authenticate(
-      ODatabaseSessionInternal session, final String username, final String password);
+      YTDatabaseSessionInternal session, final String username, final String password);
 
   // Used for generating the appropriate HTTP authentication mechanism. The chain of authenticators
   // is used for this.
@@ -53,9 +53,9 @@ public interface OSecuritySystem {
     return new HashMap<>();
   }
 
-  ODocument getConfig();
+  YTDocument getConfig();
 
-  ODocument getComponentConfig(final String name);
+  YTDocument getComponentConfig(final String name);
 
   /**
    * Returns the "System User" associated with 'username' from the system database. If not found,
@@ -64,7 +64,7 @@ public interface OSecuritySystem {
   OSecurityUser getSystemUser(final String username, final String dbName);
 
   // Walks through the list of Authenticators.
-  boolean isAuthorized(ODatabaseSessionInternal session, final String username,
+  boolean isAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource);
 
   boolean isEnabled();
@@ -83,19 +83,19 @@ public interface OSecuritySystem {
    * @param user    May be null or empty.
    */
   void log(
-      ODatabaseSessionInternal session, final OAuditingOperation operation,
+      YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       OSecurityUser user,
       final String message);
 
   void registerSecurityClass(final Class<?> cls);
 
-  void reload(ODatabaseSessionInternal session, final ODocument jsonConfig);
+  void reload(YTDatabaseSessionInternal session, final YTDocument jsonConfig);
 
-  void reload(ODatabaseSessionInternal session, OSecurityUser user, final ODocument jsonConfig);
+  void reload(YTDatabaseSessionInternal session, OSecurityUser user, final YTDocument jsonConfig);
 
-  void reloadComponent(ODatabaseSessionInternal session, OSecurityUser user, final String name,
-      final ODocument jsonConfig);
+  void reloadComponent(YTDatabaseSessionInternal session, OSecurityUser user, final String name,
+      final YTDocument jsonConfig);
 
   void unregisterSecurityClass(final Class<?> cls);
 
@@ -123,24 +123,24 @@ public interface OSecuritySystem {
    * Some authenticators support maintaining a list of users and associated resources (and sometimes
    * passwords).
    */
-  OSecurityUser getUser(final String username, ODatabaseSessionInternal session);
+  OSecurityUser getUser(final String username, YTDatabaseSessionInternal session);
 
-  void onAfterDynamicPlugins(ODatabaseSessionInternal session);
+  void onAfterDynamicPlugins(YTDatabaseSessionInternal session);
 
-  default void onAfterDynamicPlugins(ODatabaseSessionInternal session, OSecurityUser user) {
+  default void onAfterDynamicPlugins(YTDatabaseSessionInternal session, OSecurityUser user) {
     onAfterDynamicPlugins(session);
   }
 
   OSecurityUser authenticateAndAuthorize(
-      ODatabaseSessionInternal session, String iUserName, String iPassword,
+      YTDatabaseSessionInternal session, String iUserName, String iPassword,
       String iResourceToCheck);
 
-  OSecurityUser authenticateServerUser(ODatabaseSessionInternal session, String username,
+  OSecurityUser authenticateServerUser(YTDatabaseSessionInternal session, String username,
       String password);
 
-  OSecurityUser getServerUser(ODatabaseSessionInternal session, String username);
+  OSecurityUser getServerUser(YTDatabaseSessionInternal session, String username);
 
-  boolean isServerUserAuthorized(ODatabaseSessionInternal session, String username,
+  boolean isServerUserAuthorized(YTDatabaseSessionInternal session, String username,
       String resource);
 
   YouTrackDBInternal getContext();
@@ -151,7 +151,7 @@ public interface OSecuritySystem {
 
   OSecurityInternal newSecurity(String database);
 
-  OSecurityUser authenticate(ODatabaseSessionInternal session,
+  OSecurityUser authenticate(YTDatabaseSessionInternal session,
       OAuthenticationInfo authenticationInfo);
 
   OTokenSign getTokenSign();

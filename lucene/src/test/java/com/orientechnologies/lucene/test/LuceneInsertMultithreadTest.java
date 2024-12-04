@@ -18,19 +18,19 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
@@ -83,15 +83,15 @@ public class LuceneInsertMultithreadTest {
     YOU_TRACK_DB.execute(
         "create database ? " + databaseType + " users(admin identified by 'admin' role admin)",
         dbName);
-    OSchema schema;
-    try (ODatabaseSessionInternal databaseDocumentTx = (ODatabaseSessionInternal) YOU_TRACK_DB.open(
+    YTSchema schema;
+    try (YTDatabaseSessionInternal databaseDocumentTx = (YTDatabaseSessionInternal) YOU_TRACK_DB.open(
         dbName, "admin", "admin")) {
       schema = databaseDocumentTx.getMetadata().getSchema();
 
       if (schema.getClass("City") == null) {
-        OClass oClass = schema.createClass("City");
+        YTClass oClass = schema.createClass("City");
 
-        oClass.createProperty(databaseDocumentTx, "name", OType.STRING);
+        oClass.createProperty(databaseDocumentTx, "name", YTType.STRING);
         oClass.createIndex(databaseDocumentTx, "City.name", "FULLTEXT", null, null, "LUCENE",
             new String[]{"name"});
       }
@@ -134,10 +134,10 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
 
-      try (ODatabaseSession db = YOU_TRACK_DB.open(dbName, "admin", "admin")) {
+      try (YTDatabaseSession db = YOU_TRACK_DB.open(dbName, "admin", "admin")) {
         db.begin();
         for (int i = 0; i < cycle; i++) {
-          ODocument doc = new ODocument("City");
+          YTDocument doc = new YTDocument("City");
 
           doc.field("name", "Rome");
 
@@ -165,15 +165,15 @@ public class LuceneInsertMultithreadTest {
 
     @Override
     public void run() {
-      OSchema schema;
-      try (ODatabaseSessionInternal databaseDocumentTx = (ODatabaseSessionInternal) YOU_TRACK_DB.open(
+      YTSchema schema;
+      try (YTDatabaseSessionInternal databaseDocumentTx = (YTDatabaseSessionInternal) YOU_TRACK_DB.open(
           dbName, "admin", "admin")) {
         schema = databaseDocumentTx.getMetadata().getSchema();
 
         OIndex idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
 
         for (int i = 0; i < cycle; i++) {
-          try (Stream<ORID> stream = idx.getInternal()
+          try (Stream<YTRID> stream = idx.getInternal()
               .getRids(databaseDocumentTx, "Rome")) {
             //noinspection ResultOfMethodCallIgnored
             stream.collect(Collectors.toList());

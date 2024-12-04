@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -25,7 +25,7 @@ public abstract class OBooleanExpression extends SimpleNode {
   public static final OBooleanExpression TRUE =
       new OBooleanExpression(0) {
         @Override
-        public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+        public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
           return true;
         }
 
@@ -69,7 +69,7 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public boolean isCacheable(ODatabaseSessionInternal session) {
+        public boolean isCacheable(YTDatabaseSessionInternal session) {
           return true;
         }
 
@@ -110,7 +110,7 @@ public abstract class OBooleanExpression extends SimpleNode {
   public static final OBooleanExpression FALSE =
       new OBooleanExpression(0) {
         @Override
-        public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+        public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
           return false;
         }
 
@@ -154,7 +154,7 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public boolean isCacheable(ODatabaseSessionInternal session) {
+        public boolean isCacheable(YTDatabaseSessionInternal session) {
           return true;
         }
 
@@ -195,7 +195,7 @@ public abstract class OBooleanExpression extends SimpleNode {
     super(p, id);
   }
 
-  public abstract boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx);
+  public abstract boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx);
 
   public abstract boolean evaluate(OResult currentRecord, OCommandContext ctx);
 
@@ -217,7 +217,7 @@ public abstract class OBooleanExpression extends SimpleNode {
   protected abstract List<Object> getExternalCalculationConditions();
 
   public List<OBinaryCondition> getIndexedFunctionConditions(
-      OClass iSchemaClass, ODatabaseSessionInternal database) {
+      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
     return null;
   }
 
@@ -280,7 +280,7 @@ public abstract class OBooleanExpression extends SimpleNode {
     return null;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
@@ -290,9 +290,9 @@ public abstract class OBooleanExpression extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public abstract boolean isCacheable(ODatabaseSessionInternal session);
+  public abstract boolean isCacheable(YTDatabaseSessionInternal session);
 
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, OClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
     return this;
   }
 

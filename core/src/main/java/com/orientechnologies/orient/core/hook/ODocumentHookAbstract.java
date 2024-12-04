@@ -20,16 +20,16 @@
 package com.orientechnologies.orient.core.hook;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSession.STATUS;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession.STATUS;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 
 /**
- * Hook abstract class that calls separate methods for ODocument records.
+ * Hook abstract class that calls separate methods for YTDocument records.
  *
  * @see ORecordHook
  */
@@ -38,14 +38,14 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
   private String[] includeClasses;
   private String[] excludeClasses;
 
-  protected ODatabaseSession database;
+  protected YTDatabaseSession database;
 
   @Deprecated
   public ODocumentHookAbstract() {
     this.database = ODatabaseRecordThreadLocal.instance().get();
   }
 
-  public ODocumentHookAbstract(ODatabaseSession database) {
+  public ODocumentHookAbstract(YTDatabaseSession database) {
     this.database = database;
   }
 
@@ -60,7 +60,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    * @return True if the document has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeCreate(final ODocument iDocument) {
+  public RESULT onRecordBeforeCreate(final YTDocument iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -69,7 +69,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document is going to be created
    */
-  public void onRecordAfterCreate(final ODocument iDocument) {
+  public void onRecordAfterCreate(final YTDocument iDocument) {
   }
 
   /**
@@ -77,7 +77,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just created
    */
-  public void onRecordCreateFailed(final ODocument iDocument) {
+  public void onRecordCreateFailed(final YTDocument iDocument) {
   }
 
   /**
@@ -85,7 +85,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just created
    */
-  public void onRecordCreateReplicated(final ODocument iDocument) {
+  public void onRecordCreateReplicated(final YTDocument iDocument) {
   }
 
   /**
@@ -95,7 +95,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    * @return True if the document has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeRead(final ODocument iDocument) {
+  public RESULT onRecordBeforeRead(final YTDocument iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -104,7 +104,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just read
    */
-  public void onRecordAfterRead(final ODocument iDocument) {
+  public void onRecordAfterRead(final YTDocument iDocument) {
   }
 
   /**
@@ -112,7 +112,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just created
    */
-  public void onRecordReadFailed(final ODocument iDocument) {
+  public void onRecordReadFailed(final YTDocument iDocument) {
   }
 
   /**
@@ -120,7 +120,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just created
    */
-  public void onRecordReadReplicated(final ODocument iDocument) {
+  public void onRecordReadReplicated(final YTDocument iDocument) {
   }
 
   /**
@@ -130,7 +130,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    * @return True if the document has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeUpdate(final ODocument iDocument) {
+  public RESULT onRecordBeforeUpdate(final YTDocument iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -139,7 +139,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just updated
    */
-  public void onRecordAfterUpdate(final ODocument iDocument) {
+  public void onRecordAfterUpdate(final YTDocument iDocument) {
   }
 
   /**
@@ -147,7 +147,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document is going to be updated
    */
-  public void onRecordUpdateFailed(final ODocument iDocument) {
+  public void onRecordUpdateFailed(final YTDocument iDocument) {
   }
 
   /**
@@ -155,7 +155,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document is going to be updated
    */
-  public void onRecordUpdateReplicated(final ODocument iDocument) {
+  public void onRecordUpdateReplicated(final YTDocument iDocument) {
   }
 
   /**
@@ -165,7 +165,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    * @return True if the document has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeDelete(final ODocument iDocument) {
+  public RESULT onRecordBeforeDelete(final YTDocument iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -174,7 +174,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just deleted
    */
-  public void onRecordAfterDelete(final ODocument iDocument) {
+  public void onRecordAfterDelete(final YTDocument iDocument) {
   }
 
   /**
@@ -182,7 +182,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document is going to be deleted
    */
-  public void onRecordDeleteFailed(final ODocument iDocument) {
+  public void onRecordDeleteFailed(final YTDocument iDocument) {
   }
 
   /**
@@ -190,24 +190,24 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document is going to be deleted
    */
-  public void onRecordDeleteReplicated(final ODocument iDocument) {
+  public void onRecordDeleteReplicated(final YTDocument iDocument) {
   }
 
-  public void onRecordFinalizeUpdate(final ODocument document) {
+  public void onRecordFinalizeUpdate(final YTDocument document) {
   }
 
-  public void onRecordFinalizeCreation(final ODocument document) {
+  public void onRecordFinalizeCreation(final YTDocument document) {
   }
 
-  public void onRecordFinalizeDeletion(final ODocument document) {
+  public void onRecordFinalizeDeletion(final YTDocument document) {
   }
 
-  public RESULT onTrigger(final TYPE iType, final ORecord iRecord) {
+  public RESULT onTrigger(final TYPE iType, final YTRecord iRecord) {
     if (database.getStatus() != STATUS.OPEN) {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
-    if (!(iRecord instanceof ODocument document)) {
+    if (!(iRecord instanceof YTDocument document)) {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
@@ -319,13 +319,13 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
     return this;
   }
 
-  protected boolean filterBySchemaClass(final ODocument iDocument) {
+  protected boolean filterBySchemaClass(final YTDocument iDocument) {
     if (includeClasses == null && excludeClasses == null) {
       return true;
     }
 
-    final OClass clazz =
-        ODocumentInternal.getImmutableSchemaClass((ODatabaseSessionInternal) database, iDocument);
+    final YTClass clazz =
+        ODocumentInternal.getImmutableSchemaClass((YTDatabaseSessionInternal) database, iDocument);
     if (clazz == null) {
       return false;
     }

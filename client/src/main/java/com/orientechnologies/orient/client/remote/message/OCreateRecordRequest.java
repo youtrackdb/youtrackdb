@@ -24,11 +24,11 @@ import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -37,9 +37,9 @@ import java.io.IOException;
 
 public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordResponse> {
 
-  private ORecordAbstract content;
+  private YTRecordAbstract content;
   private byte[] rawContent;
-  private ORecordId rid;
+  private YTRecordId rid;
   private byte recordType;
   private byte mode;
 
@@ -60,20 +60,20 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     return "Create Record";
   }
 
-  public OCreateRecordRequest(byte[] iContent, ORecordId iRid, byte iRecordType) {
+  public OCreateRecordRequest(byte[] iContent, YTRecordId iRid, byte iRecordType) {
     this.rawContent = iContent;
     this.rid = iRid;
     this.recordType = iRecordType;
   }
 
-  public OCreateRecordRequest(ORecordAbstract iContent, ORecordId iRid, byte iRecordType) {
+  public OCreateRecordRequest(YTRecordAbstract iContent, YTRecordId iRid, byte iRecordType) {
     this.content = iContent;
     this.rid = iRid;
     this.recordType = iRecordType;
   }
 
   @Override
-  public void write(ODatabaseSessionInternal database, final OChannelDataOutput network,
+  public void write(YTDatabaseSessionInternal database, final OChannelDataOutput network,
       final OStorageRemoteSession session)
       throws IOException {
     network.writeShort((short) rid.getClusterId());
@@ -82,12 +82,12 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     network.writeByte(mode);
   }
 
-  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
     final int dataSegmentId = protocolVersion < 24 ? channel.readInt() : 0;
 
-    rid = new ORecordId(channel.readShort(), ORID.CLUSTER_POS_INVALID);
+    rid = new YTRecordId(channel.readShort(), YTRID.CLUSTER_POS_INVALID);
     byte[] rec = channel.readBytes();
     recordType = channel.readByte();
     mode = channel.readByte();
@@ -98,11 +98,11 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     serializer.fromStream(db, rec, content, null);
   }
 
-  public ORecordId getRid() {
+  public YTRecordId getRid() {
     return rid;
   }
 
-  public ORecord getContent() {
+  public YTRecord getContent() {
     return content;
   }
 

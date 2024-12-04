@@ -26,9 +26,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import org.junit.Test;
 
@@ -52,12 +52,12 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
-    assertEquals(nameProperty.getType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.STRING);
     assertFalse(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
     assertFalse(nameProperty.isReadonly());
@@ -69,12 +69,12 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING UNSAFE").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
-    assertEquals(nameProperty.getType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.STRING);
     assertFalse(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
     assertFalse(nameProperty.isReadonly());
@@ -87,12 +87,12 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE class company").close();
     db.command("CREATE property company.division LINK division").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_DIVISION);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_DIVISION);
 
     assertEquals(nameProperty.getName(), PROP_DIVISION);
     assertEquals(nameProperty.getFullName(), PROP_FULL_DIVISION);
-    assertEquals(nameProperty.getType(), OType.LINK);
+    assertEquals(nameProperty.getType(), YTType.LINK);
     assertEquals(nameProperty.getLinkedClass().getName(), "division");
     assertFalse(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
@@ -105,13 +105,13 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE Class company").close();
     db.command("CREATE Property company.officers EMBEDDEDLIST STRING").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
-    assertEquals(nameProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(nameProperty.getLinkedType(), YTType.STRING);
     assertFalse(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
     assertFalse(nameProperty.isReadonly());
@@ -123,8 +123,8 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING (MANDATORY)").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -139,8 +139,8 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING (NOTNULL)").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -155,8 +155,8 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING (READONLY)").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -171,8 +171,8 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE class company").close();
     db.command("CREATE property company.name STRING (READONLY false)").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_NAME);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_NAME);
 
     assertEquals(nameProperty.getName(), PROP_NAME);
     assertEquals(nameProperty.getFullName(), PROP_FULL_NAME);
@@ -185,13 +185,13 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE Class company").close();
     db.command("CREATE Property company.officers EMBEDDEDLIST STRING (MANDATORY)").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
-    assertEquals(nameProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(nameProperty.getLinkedType(), YTType.STRING);
     assertTrue(nameProperty.isMandatory());
     assertFalse(nameProperty.isNotNull());
     assertFalse(nameProperty.isReadonly());
@@ -203,13 +203,13 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE Class company").close();
     db.command("CREATE Property company.officers EMBEDDEDLIST STRING UNSAFE").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
-    assertEquals(nameProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(nameProperty.getLinkedType(), YTType.STRING);
   }
 
   @Test
@@ -221,13 +221,13 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
                 + " UNSAFE")
         .close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty nameProperty = companyClass.getProperty(PROP_OFFICERS);
 
     assertEquals(nameProperty.getName(), PROP_OFFICERS);
     assertEquals(nameProperty.getFullName(), PROP_FULL_OFFICERS);
-    assertEquals(nameProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(nameProperty.getLinkedType(), OType.STRING);
+    assertEquals(nameProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(nameProperty.getLinkedType(), YTType.STRING);
     assertTrue(nameProperty.isMandatory());
     assertTrue(nameProperty.isNotNull());
     assertTrue(nameProperty.isReadonly());
@@ -240,13 +240,13 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE PROPERTY company.id EMBEDDEDLIST Integer (DEFAULT 5, MIN 1, MAX 10) UNSAFE")
         .close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), OType.EMBEDDEDLIST);
-    assertEquals(idProperty.getLinkedType(), OType.INTEGER);
+    assertEquals(idProperty.getType(), YTType.EMBEDDEDLIST);
+    assertEquals(idProperty.getLinkedType(), YTType.INTEGER);
     assertFalse(idProperty.isMandatory());
     assertFalse(idProperty.isNotNull());
     assertFalse(idProperty.isReadonly());
@@ -261,12 +261,12 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE CLASS company").close();
     db.command("CREATE PROPERTY company.id INTEGER (DEFAULT 5, MIN 1, MAX 10) UNSAFE").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), OType.INTEGER);
+    assertEquals(idProperty.getType(), YTType.INTEGER);
     assertNull(idProperty.getLinkedType());
     assertFalse(idProperty.isMandatory());
     assertFalse(idProperty.isNotNull());
@@ -282,12 +282,12 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE CLASS company").close();
     db.command("CREATE PROPERTY company.id INTEGER  ( DEFAULT  5 ,  MANDATORY  )  UNSAFE ").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), OType.INTEGER);
+    assertEquals(idProperty.getType(), YTType.INTEGER);
     assertNull(idProperty.getLinkedType());
     assertTrue(idProperty.isMandatory());
     assertEquals(idProperty.getDefaultValue(), "5");
@@ -304,12 +304,12 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
                 + " MIN 4, DEFAULT 6)  UNSAFE")
         .close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), OType.INTEGER);
+    assertEquals(idProperty.getType(), YTType.INTEGER);
     assertNull(idProperty.getLinkedType());
     assertTrue(idProperty.isMandatory());
     assertFalse(idProperty.isNotNull());
@@ -345,13 +345,13 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE CLASS Mandatory").close();
     db.command("CREATE PROPERTY company.id EMBEDDEDLIST Mandatory UNSAFE").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("company");
-    OClass mandatoryClass = db.getMetadata().getSchema().getClass("Mandatory");
-    OProperty idProperty = companyClass.getProperty(PROP_ID);
+    YTClass companyClass = db.getMetadata().getSchema().getClass("company");
+    YTClass mandatoryClass = db.getMetadata().getSchema().getClass("Mandatory");
+    YTProperty idProperty = companyClass.getProperty(PROP_ID);
 
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
-    assertEquals(idProperty.getType(), OType.EMBEDDEDLIST);
+    assertEquals(idProperty.getType(), YTType.EMBEDDEDLIST);
     assertEquals(idProperty.getLinkedClass(), mandatoryClass);
     assertFalse(idProperty.isMandatory());
   }
@@ -362,8 +362,8 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     db.command("CREATE class testIfNotExists").close();
     db.command("CREATE property testIfNotExists.name if not exists STRING").close();
 
-    OClass companyClass = db.getMetadata().getSchema().getClass("testIfNotExists");
-    OProperty property = companyClass.getProperty("name");
+    YTClass companyClass = db.getMetadata().getSchema().getClass("testIfNotExists");
+    YTProperty property = companyClass.getProperty("name");
     assertEquals(property.getName(), PROP_NAME);
 
     db.command("CREATE property testIfNotExists.name if not exists STRING").close();

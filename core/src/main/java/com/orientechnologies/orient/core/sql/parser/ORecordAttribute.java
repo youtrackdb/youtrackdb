@@ -3,16 +3,16 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
@@ -72,7 +72,7 @@ public class ORecordAttribute extends SimpleNode {
     this.name = name;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     result.setProperty("name", name);
     return result;
@@ -84,7 +84,7 @@ public class ORecordAttribute extends SimpleNode {
 
   public Object evaluate(OResult iCurrentRecord, OCommandContext ctx) {
     if (name.equalsIgnoreCase("@rid")) {
-      ORID identity = iCurrentRecord.getIdentity().orElse(null);
+      YTRID identity = iCurrentRecord.getIdentity().orElse(null);
       if (identity == null) {
         identity = iCurrentRecord.getProperty(name);
       }
@@ -92,20 +92,20 @@ public class ORecordAttribute extends SimpleNode {
     } else if (name.equalsIgnoreCase("@class")) {
       var element = iCurrentRecord.toElement();
       if (element != null) {
-        return element.getSchemaType().map(OClass::getName).orElse(null);
+        return element.getSchemaType().map(YTClass::getName).orElse(null);
       }
       return null;
     } else if (name.equalsIgnoreCase("@version")) {
-      return iCurrentRecord.getRecord().map(ORecord::getVersion).orElse(null);
+      return iCurrentRecord.getRecord().map(YTRecord::getVersion).orElse(null);
     } else if (name.equals("@type")) {
       return iCurrentRecord
           .getRecord()
           .map(
               r -> {
                 var recordType = ORecordInternal.getRecordType(r);
-                if (recordType == ODocument.RECORD_TYPE) {
+                if (recordType == YTDocument.RECORD_TYPE) {
                   return "document";
-                } else if (recordType == ORecordBytes.RECORD_TYPE) {
+                } else if (recordType == YTRecordBytes.RECORD_TYPE) {
                   return "bytes";
                 } else {
                   return "unknown";
@@ -115,10 +115,10 @@ public class ORecordAttribute extends SimpleNode {
     } else if (name.equals("@size")) {
       return iCurrentRecord
           .getRecord()
-          .map(r -> ((ORecordAbstract) r).toStream().length)
+          .map(r -> ((YTRecordAbstract) r).toStream().length)
           .orElse(null);
     } else if (name.equals("@raw")) {
-      return iCurrentRecord.getRecord().map(r -> ((ORecordAbstract) r).toStream()).orElse(null);
+      return iCurrentRecord.getRecord().map(r -> ((YTRecordAbstract) r).toStream()).orElse(null);
     } else if (name.equals("@rid")) {
       return iCurrentRecord.getIdentity().orElse(null);
     }
@@ -126,17 +126,17 @@ public class ORecordAttribute extends SimpleNode {
     return null;
   }
 
-  public Object evaluate(OElement iCurrentRecord, OCommandContext ctx) {
+  public Object evaluate(YTEntity iCurrentRecord, OCommandContext ctx) {
     if (iCurrentRecord == null) {
       return null;
     }
     if (name.equalsIgnoreCase("@rid")) {
       return iCurrentRecord.getIdentity();
     } else if (name.equalsIgnoreCase("@class")) {
-      return iCurrentRecord.getSchemaType().map(OClass::getName).orElse(null);
+      return iCurrentRecord.getSchemaType().map(YTClass::getName).orElse(null);
     } else if (name.equalsIgnoreCase("@version")) {
       try {
-        ORecord record = iCurrentRecord.getRecord();
+        YTRecord record = iCurrentRecord.getRecord();
         return record.getVersion();
       } catch (ORecordNotFoundException e) {
         return null;

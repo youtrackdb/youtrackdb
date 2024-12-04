@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,7 +16,7 @@ import org.junit.Test;
 public class TransactionTest {
 
   private YouTrackDB youTrackDB;
-  private ODatabaseSession db;
+  private YTDatabaseSession db;
 
   @Before
   public void before() {
@@ -29,7 +29,7 @@ public class TransactionTest {
   @Test
   public void test() {
     db.begin();
-    OVertex v = db.newVertex("V");
+    YTVertex v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
     db.commit();

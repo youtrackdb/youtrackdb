@@ -23,12 +23,12 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLSelect;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
@@ -52,7 +52,7 @@ import javax.annotation.Nonnull;
  */
 public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
 
-  protected Set<OProperty> properties = new HashSet<OProperty>();
+  protected Set<YTProperty> properties = new HashSet<YTProperty>();
   protected OSQLFilterCondition rootCondition;
   protected List<String> recordTransformed;
   protected List<OSQLFilterItemParameter> parameterItems;
@@ -94,7 +94,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return result.toString();
   }
 
-  public OSQLPredicate text(ODatabaseSessionInternal session, final String iText) {
+  public OSQLPredicate text(YTDatabaseSessionInternal session, final String iText) {
     if (iText == null) {
       throw new OCommandSQLParsingException("Query text is null");
     }
@@ -137,7 +137,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
   }
 
   public Object evaluate(
-      final OIdentifiable iRecord, ODocument iCurrentResult, final OCommandContext iContext) {
+      final YTIdentifiable iRecord, YTDocument iCurrentResult, final OCommandContext iContext) {
     if (rootCondition == null) {
       return true;
     }
@@ -145,7 +145,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return rootCondition.evaluate(iRecord, iCurrentResult, iContext);
   }
 
-  protected Object extractConditions(ODatabaseSessionInternal session,
+  protected Object extractConditions(YTDatabaseSessionInternal session,
       final OSQLFilterCondition iParentCondition) {
     final int oldPosition = parserGetCurrentPosition();
     parserNextWord(true, " )=><,\r\n");
@@ -198,7 +198,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return currentCondition;
   }
 
-  protected OSQLFilterCondition extractCondition(ODatabaseSessionInternal session) {
+  protected OSQLFilterCondition extractCondition(YTDatabaseSessionInternal session) {
 
     if (!parserSkipWhiteSpaces())
     // END OF TEXT
@@ -313,7 +313,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return op;
   }
 
-  private Object extractConditionItem(ODatabaseSessionInternal session,
+  private Object extractConditionItem(YTDatabaseSessionInternal session,
       final boolean iAllowOperator,
       final int iExpectedWords) {
     final Object[] result = new Object[iExpectedWords];
@@ -479,14 +479,14 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     rootCondition = iCondition;
   }
 
-  protected void optimize(ODatabaseSession session) {
+  protected void optimize(YTDatabaseSession session) {
     if (rootCondition != null) {
       computePrefetchFieldList(session, rootCondition, new HashSet<String>());
     }
   }
 
   protected Set<String> computePrefetchFieldList(
-      ODatabaseSession session, final OSQLFilterCondition iCondition, final Set<String> iFields) {
+      YTDatabaseSession session, final OSQLFilterCondition iCondition, final Set<String> iFields) {
     Object left = iCondition.getLeft();
     Object right = iCondition.getRight();
     if (left instanceof OSQLFilterItemField) {

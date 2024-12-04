@@ -21,9 +21,9 @@ package com.orientechnologies.orient.server.plugin.mail;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.script.OScriptInjection;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -42,7 +42,7 @@ public class OMailPlugin extends OServerPluginAbstract
   private static final String CONFIG_PROFILE_PREFIX = "profile.";
   private static final String CONFIG_MAIL_PREFIX = "mail.";
 
-  private ODocument configuration;
+  private YTDocument configuration;
 
   private final Map<String, OMailProfile> profiles = new HashMap<String, OMailProfile>();
 
@@ -72,7 +72,7 @@ public class OMailPlugin extends OServerPluginAbstract
   }
 
   @Override
-  public void bind(ScriptEngine engine, Bindings binding, ODatabaseSession database) {
+  public void bind(ScriptEngine engine, Bindings binding, YTDatabaseSession database) {
     binding.put("mail", this);
   }
 
@@ -99,11 +99,11 @@ public class OMailPlugin extends OServerPluginAbstract
   }
 
   @Override
-  public ODocument getConfig() {
+  public YTDocument getConfig() {
     return configuration;
   }
 
   @Override
-  public void changeConfig(ODocument document) {
+  public void changeConfig(YTDocument document) {
   }
 }

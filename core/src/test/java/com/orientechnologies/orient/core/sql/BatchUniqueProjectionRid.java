@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ public class BatchUniqueProjectionRid extends DBTestBase {
 
   @Test
   public void testBatchUniqueRid() {
-    List<List<ODocument>> res =
+    List<List<YTDocument>> res =
         db.command(
                 new OCommandScript(
                     "begin;let $a = select \"a\" as a ; let $b = select \"a\" as b; return"

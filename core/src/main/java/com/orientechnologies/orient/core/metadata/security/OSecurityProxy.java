@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import java.util.Set;
 
@@ -31,41 +31,41 @@ import java.util.Set;
  */
 public class OSecurityProxy implements OSecurity {
 
-  private final ODatabaseSessionInternal session;
+  private final YTDatabaseSessionInternal session;
   private final OSecurityInternal security;
 
-  public OSecurityProxy(OSecurityInternal security, ODatabaseSessionInternal session) {
+  public OSecurityProxy(OSecurityInternal security, YTDatabaseSessionInternal session) {
     this.security = security;
     this.session = session;
   }
 
   @Override
   public boolean isAllowed(
-      final Set<OIdentifiable> iAllowAll, final Set<OIdentifiable> iAllowOperation) {
+      final Set<YTIdentifiable> iAllowAll, final Set<YTIdentifiable> iAllowOperation) {
     return security.isAllowed(session, iAllowAll, iAllowOperation);
   }
 
   @Override
-  public OIdentifiable allowUser(
-      ODocument iDocument, ORestrictedOperation iOperationType, String iUserName) {
+  public YTIdentifiable allowUser(
+      YTDocument iDocument, ORestrictedOperation iOperationType, String iUserName) {
     return security.allowUser(session, iDocument, iOperationType, iUserName);
   }
 
   @Override
-  public OIdentifiable allowRole(
-      ODocument iDocument, ORestrictedOperation iOperationType, String iRoleName) {
+  public YTIdentifiable allowRole(
+      YTDocument iDocument, ORestrictedOperation iOperationType, String iRoleName) {
     return security.allowRole(session, iDocument, iOperationType, iRoleName);
   }
 
   @Override
-  public OIdentifiable denyUser(
-      ODocument iDocument, ORestrictedOperation iOperationType, String iUserName) {
+  public YTIdentifiable denyUser(
+      YTDocument iDocument, ORestrictedOperation iOperationType, String iUserName) {
     return security.denyUser(session, iDocument, iOperationType, iUserName);
   }
 
   @Override
-  public OIdentifiable denyRole(
-      ODocument iDocument, ORestrictedOperation iOperationType, String iRoleName) {
+  public YTIdentifiable denyRole(
+      YTDocument iDocument, ORestrictedOperation iOperationType, String iRoleName) {
     return security.denyRole(session, iDocument, iOperationType, iRoleName);
   }
 
@@ -81,7 +81,7 @@ public class OSecurityProxy implements OSecurity {
     return security.getUser(session, iUserName);
   }
 
-  public OUser getUser(final ORID iUserId) {
+  public OUser getUser(final YTRID iUserId) {
     return security.getUser(session, iUserId);
   }
 
@@ -99,7 +99,7 @@ public class OSecurityProxy implements OSecurity {
     return security.getRole(session, iRoleName);
   }
 
-  public ORole getRole(final OIdentifiable iRole) {
+  public ORole getRole(final YTIdentifiable iRole) {
     return security.getRole(session, iRole);
   }
 
@@ -112,11 +112,11 @@ public class OSecurityProxy implements OSecurity {
     return security.createRole(session, iRoleName, iParent, iAllowMode);
   }
 
-  public List<ODocument> getAllUsers() {
+  public List<YTDocument> getAllUsers() {
     return security.getAllUsers(session);
   }
 
-  public List<ODocument> getAllRoles() {
+  public List<YTDocument> getAllRoles() {
     return security.getAllRoles(session);
   }
 

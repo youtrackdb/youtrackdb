@@ -3,8 +3,8 @@ package com.orientechnologies.lucene.functions;
 import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
@@ -61,7 +61,7 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
       OCommandContext ctx,
       OExpression... args) {
 
-    Iterable<OIdentifiable> a = searchFromTarget(target, operator, rightValue, ctx, args);
+    Iterable<YTIdentifiable> a = searchFromTarget(target, operator, rightValue, ctx, args);
     if (a instanceof OLuceneResultSet) {
       return ((OLuceneResultSet) a).size();
     }
@@ -74,17 +74,17 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
   }
 
   protected Map<String, ?> getMetadata(OExpression metadata, OCommandContext ctx) {
-    final Object md = metadata.execute((OIdentifiable) null, ctx);
-    if (md instanceof ODocument document) {
+    final Object md = metadata.execute((YTIdentifiable) null, ctx);
+    if (md instanceof YTDocument document) {
       return document.toMap();
     } else if (md instanceof Map map) {
       return map;
     } else if (md instanceof String) {
-      var doc = new ODocument();
+      var doc = new YTDocument();
       doc.fromJSON((String) md);
       return doc.toMap();
     } else {
-      var doc = new ODocument();
+      var doc = new YTDocument();
       doc.fromJSON(metadata.toString());
       return doc.toMap();
     }

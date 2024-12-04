@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.exception.OSequenceException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence;
-import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 public class SequenceTest extends DocumentDBBaseTest {
 
   private static final int CACHE_SIZE = 40;
-  private static final long FIRST_START = OSequence.DEFAULT_START;
+  private static final long FIRST_START = YTSequence.DEFAULT_START;
   private static final long SECOND_START = 31;
 
   @Parameters(value = "remote")
@@ -35,7 +35,7 @@ public class SequenceTest extends DocumentDBBaseTest {
       throws ExecutionException, InterruptedException {
     OSequenceLibrary sequenceLibrary = database.getMetadata().getSequenceLibrary();
 
-    OSequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
+    YTSequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
 
     OSequenceException err = null;
     try {
@@ -49,7 +49,7 @@ public class SequenceTest extends DocumentDBBaseTest {
             + sequenceType.toString()
             + " sequences with same name doesn't throw an exception");
 
-    OSequence seqSame = sequenceLibrary.getSequence(sequenceName);
+    YTSequence seqSame = sequenceLibrary.getSequence(sequenceName);
     Assert.assertEquals(seqSame, seq);
 
     // Doing it twice to check everything works after reset
@@ -68,7 +68,7 @@ public class SequenceTest extends DocumentDBBaseTest {
   public void testOrdered() throws ExecutionException, InterruptedException {
     OSequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
 
-    OSequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
+    YTSequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
 
     OSequenceException err = null;
     try {
@@ -80,20 +80,20 @@ public class SequenceTest extends DocumentDBBaseTest {
         err == null || err.getMessage().toLowerCase(Locale.ENGLISH).contains("already exists"),
         "Creating two ordered sequences with same name doesn't throw an exception");
 
-    OSequence seqSame = sequenceManager.getSequence("seqOrdered");
+    YTSequence seqSame = sequenceManager.getSequence("seqOrdered");
     Assert.assertEquals(seqSame, seq);
 
     testUsage(seq, FIRST_START);
 
     //
     database.begin();
-    seq.updateParams(new OSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+    seq.updateParams(new YTSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
     database.commit();
 
     testUsage(seq, SECOND_START);
   }
 
-  private void testUsage(OSequence seq, long reset)
+  private void testUsage(YTSequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (int i = 0; i < 2; ++i) {
       Assert.assertEquals(seq.reset(), reset);

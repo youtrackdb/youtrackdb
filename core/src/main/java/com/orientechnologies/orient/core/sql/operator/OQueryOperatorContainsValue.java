@@ -21,18 +21,18 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
@@ -59,12 +59,12 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> executeIndexQuery(
+  public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     final OIndexInternal internalIndex = index.getInternal();
-    Stream<ORawPair<Object, ORID>> stream;
+    Stream<ORawPair<Object, YTRID>> stream;
     if (!internalIndex.canBeUsedInEqualityOperators()) {
       return null;
     }
@@ -129,19 +129,19 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       Object iRight,
@@ -155,7 +155,7 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       condition = null;
     }
 
-    OType type = null;
+    YTType type = null;
     if (iCondition.getLeft() instanceof OSQLFilterItemField
         && ((OSQLFilterItemField) iCondition.getLeft()).isFieldChain()
         && ((OSQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemCount() == 1) {
@@ -163,9 +163,9 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
           ((OSQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemName(0);
       if (fieldName != null) {
         Object record = iRecord.getRecord();
-        if (record instanceof ODocument) {
-          OProperty property =
-              ODocumentInternal.getImmutableSchemaClass(((ODocument) record))
+        if (record instanceof YTDocument) {
+          YTProperty property =
+              ODocumentInternal.getImmutableSchemaClass(((YTDocument) record))
                   .getProperty(fieldName);
           if (property != null && property.getType().isMultiValue()) {
             type = property.getLinkedType();
@@ -175,7 +175,7 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
     }
 
     if (type != null) {
-      iRight = OType.convert(iContext.getDatabase(), iRight, type.getDefaultJavaType());
+      iRight = YTType.convert(iContext.getDatabase(), iRight, type.getDefaultJavaType());
     }
 
     if (iLeft instanceof Map<?, ?>) {
@@ -184,18 +184,18 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       if (condition != null) {
         // CHECK AGAINST A CONDITION
         for (Object o : map.values()) {
-          if ((Boolean) condition.evaluate((ODocument) o, null, iContext)) {
+          if ((Boolean) condition.evaluate((YTDocument) o, null, iContext)) {
             return true;
           }
         }
       } else {
         for (Object val : map.values()) {
           Object convertedRight = iRight;
-          if (val instanceof ODocument && iRight instanceof Map) {
-            val = ((ODocument) val).toMap();
+          if (val instanceof YTDocument && iRight instanceof Map) {
+            val = ((YTDocument) val).toMap();
           }
-          if (val instanceof Map && iRight instanceof ODocument) {
-            convertedRight = ((ODocument) iRight).toMap();
+          if (val instanceof Map && iRight instanceof YTDocument) {
+            convertedRight = ((YTDocument) iRight).toMap();
           }
           if (OQueryOperatorEquals.equals(iContext.getDatabase(), val, convertedRight)) {
             return true;
@@ -211,7 +211,7 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       // CHECK AGAINST A CONDITION
       {
         for (Object o : map.values()) {
-          if ((Boolean) condition.evaluate((ODocument) o, null, iContext)) {
+          if ((Boolean) condition.evaluate((YTDocument) o, null, iContext)) {
             return true;
           } else {
             return map.containsValue(iLeft);

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.io.IOException;
 
 /**
@@ -61,7 +61,7 @@ public class ORemoteServerController {
 
     requestChannels =
         new ORemoteServerChannel
-            [OGlobalConfiguration.DISTRIBUTED_REQUEST_CHANNELS.getValueAsInteger()];
+            [YTGlobalConfiguration.DISTRIBUTED_REQUEST_CHANNELS.getValueAsInteger()];
     for (int i = 0; i < requestChannels.length; ++i) {
       requestChannels[i] =
           new ORemoteServerChannel(
@@ -72,7 +72,7 @@ public class ORemoteServerController {
 
     responseChannels =
         new ORemoteServerChannel
-            [OGlobalConfiguration.DISTRIBUTED_RESPONSE_CHANNELS.getValueAsInteger()];
+            [YTGlobalConfiguration.DISTRIBUTED_RESPONSE_CHANNELS.getValueAsInteger()];
     for (int i = 0; i < responseChannels.length; ++i) {
       responseChannels[i] =
           new ORemoteServerChannel(

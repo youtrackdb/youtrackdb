@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.OFetchListener;
 import com.orientechnologies.orient.core.fetch.OFetchPlan;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 
 /**
  * Abstract class to manage command results.
@@ -58,7 +58,7 @@ public abstract class OAbstractCommandResultListener
   protected void fetchRecord(final Object iRecord, final OFetchListener iFetchListener) {
     if (fetchPlan != null
         && fetchPlan != OFetchHelper.DEFAULT_FETCHPLAN
-        && iRecord instanceof ORecord record) {
+        && iRecord instanceof YTRecord record) {
       final OFetchContext context = new ORemoteFetchContext();
       OFetchHelper.fetch(record, record, fetchPlan, iFetchListener, context, "");
     }

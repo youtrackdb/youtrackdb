@@ -25,12 +25,12 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestAbstract;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.core.sql.parser.OStatementCache;
@@ -74,7 +74,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
 
   public static final String DEFAULT_PARAM_USER = "$user";
 
-  protected long timeoutMs = OGlobalConfiguration.COMMAND_TIMEOUT.getValueAsLong();
+  protected long timeoutMs = YTGlobalConfiguration.COMMAND_TIMEOUT.getValueAsLong();
   protected TIMEOUT_STRATEGY timeoutStrategy = TIMEOUT_STRATEGY.EXCEPTION;
   protected OStatement preParsedStatement;
 
@@ -159,7 +159,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
     final Set<String> clusters = new HashSet<String>();
 
     for (String clazz : iClassNames) {
-      final OClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(clazz);
+      final YTClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(clazz);
       if (cls != null) {
         for (int clId : cls.getPolymorphicClusterIds()) {
           // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
@@ -190,7 +190,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
   }
 
   protected Set<String> getInvolvedClustersOfIndex(final String iIndexName) {
-    final ODatabaseSessionInternal db = getDatabase();
+    final YTDatabaseSessionInternal db = getDatabase();
 
     final Set<String> clusters = new HashSet<String>();
 
@@ -200,7 +200,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
       final String clazz = idx.getDefinition().getClassName();
 
       if (clazz != null) {
-        final OClass cls = metadata.getImmutableSchemaSnapshot().getClass(clazz);
+        final YTClass cls = metadata.getImmutableSchemaSnapshot().getClass(clazz);
         if (cls != null) {
           for (int clId : cls.getClusterIds()) {
             final String clName = db.getClusterNameById(clId);
@@ -215,7 +215,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
     return clusters;
   }
 
-  protected boolean checkClusterAccess(final ODatabaseSessionInternal db,
+  protected boolean checkClusterAccess(final YTDatabaseSessionInternal db,
       final String iClusterName) {
     return db.getUser() == null
         || db.getUser()
@@ -257,6 +257,6 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
   }
 
   protected String decodeClassName(String s) {
-    return OClassImpl.decodeClassName(s);
+    return YTClassImpl.decodeClassName(s);
   }
 }

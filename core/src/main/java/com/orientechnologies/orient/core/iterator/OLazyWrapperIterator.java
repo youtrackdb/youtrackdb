@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -32,7 +32,7 @@ public abstract class OLazyWrapperIterator<T>
     implements Iterator<T>, Iterable<T>, OResettable, OSizeable {
 
   protected final Iterator<?> iterator;
-  protected OIdentifiable nextRecord;
+  protected YTIdentifiable nextRecord;
   protected T nextElement;
   protected final int size; // -1 = UNKNOWN
   protected Object multiValue;
@@ -55,8 +55,8 @@ public abstract class OLazyWrapperIterator<T>
 
   public abstract T createGraphElement(Object iObject);
 
-  public OIdentifiable getGraphElementRecord(final Object iObject) {
-    return (OIdentifiable) iObject;
+  public YTIdentifiable getGraphElementRecord(final Object iObject) {
+    return (YTIdentifiable) iObject;
   }
 
   @Override

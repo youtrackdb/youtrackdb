@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.parser.ODDLStatement;
@@ -73,7 +73,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final ODocument doc = new ODocument();
+        final YTDocument doc = new YTDocument();
         doc.fromJSON(iRequest.getContent());
         text = doc.field("command");
         params = doc.field("parameters");
@@ -106,7 +106,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
 
-    ODatabaseSessionInternal db = null;
+    YTDatabaseSessionInternal db = null;
 
     boolean ok = false;
     boolean txBegun = false;
@@ -129,7 +129,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       int i = 0;
       List response = new ArrayList();
       TimerTask commandInterruptTimer = null;
-      if (db.getConfiguration().getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT) > 0
+      if (db.getConfiguration().getValueAsLong(YTGlobalConfiguration.COMMAND_TIMEOUT) > 0
           && !language.equalsIgnoreCase("sql")) {
       }
       try {
@@ -201,10 +201,10 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     return null;
   }
 
-  public static OStatement parseStatement(String language, String text, ODatabaseSession db) {
+  public static OStatement parseStatement(String language, String text, YTDatabaseSession db) {
     try {
       if (language != null && language.equalsIgnoreCase("sql")) {
-        return OSQLEngine.parse(text, (ODatabaseSessionInternal) db);
+        return OSQLEngine.parse(text, (YTDatabaseSessionInternal) db);
       }
     } catch (Exception e) {
     }
@@ -231,7 +231,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
   }
 
   protected OResultSet executeStatement(
-      String language, String text, Object params, ODatabaseSession db) {
+      String language, String text, Object params, YTDatabaseSession db) {
     OResultSet result;
     if ("sql".equalsIgnoreCase(language)) {
       if (params instanceof Map) {

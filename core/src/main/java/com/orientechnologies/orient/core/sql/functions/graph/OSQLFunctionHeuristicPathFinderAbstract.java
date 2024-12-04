@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.sql.functions.graph;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.functions.math.OSQLFunctionMathAbstract;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -53,8 +53,8 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
   protected Boolean paramEmptyIfMaxDepth = false;
   protected String[] paramEdgeTypeNames = new String[]{};
   protected String[] paramVertexAxisNames = new String[]{};
-  protected OVertex paramSourceVertex;
-  protected OVertex paramDestinationVertex;
+  protected YTVertex paramSourceVertex;
+  protected YTVertex paramDestinationVertex;
   protected HeuristicFormula paramHeuristicFormula = HeuristicFormula.MANHATAN;
   protected ODirection paramDirection = ODirection.OUT;
   protected long paramMaxDepth = Long.MAX_VALUE;
@@ -62,7 +62,7 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
   protected String paramCustomHeuristicFormula = "";
 
   protected OCommandContext context;
-  protected List<OVertex> route = new LinkedList<OVertex>();
+  protected List<YTVertex> route = new LinkedList<YTVertex>();
   protected static final float MIN = 0f;
 
   public OSQLFunctionHeuristicPathFinderAbstract(
@@ -75,23 +75,23 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
   }
 
   protected abstract double getDistance(
-      final OVertex node, final OVertex parent, final OVertex target);
+      final YTVertex node, final YTVertex parent, final YTVertex target);
 
   protected abstract double getHeuristicCost(
-      final OVertex node, final OVertex parent, final OVertex target, OCommandContext iContext);
+      final YTVertex node, final YTVertex parent, final YTVertex target, OCommandContext iContext);
 
-  protected LinkedList<OVertex> getPath() {
-    final LinkedList<OVertex> path = new LinkedList<OVertex>(route);
+  protected LinkedList<YTVertex> getPath() {
+    final LinkedList<YTVertex> path = new LinkedList<YTVertex>(route);
     return path;
   }
 
-  protected Set<OVertex> getNeighbors(final OVertex node) {
+  protected Set<YTVertex> getNeighbors(final YTVertex node) {
     context.incrementVariable("getNeighbors");
 
-    final Set<OVertex> neighbors = new HashSet<OVertex>();
+    final Set<YTVertex> neighbors = new HashSet<YTVertex>();
     if (node != null) {
-      for (OVertex v : node.getVertices(paramDirection, paramEdgeTypeNames)) {
-        final OVertex ov = v;
+      for (YTVertex v : node.getVertices(paramDirection, paramEdgeTypeNames)) {
+        final YTVertex ov = v;
         if (ov != null) {
           neighbors.add(ov);
         }
@@ -151,10 +151,10 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
   protected double getCustomHeuristicCost(
       final String functionName,
       final String[] vertextAxisNames,
-      final OVertex start,
-      final OVertex goal,
-      final OVertex current,
-      final OVertex parent,
+      final YTVertex start,
+      final YTVertex goal,
+      final YTVertex current,
+      final YTVertex parent,
       final long depth,
       double dFactor,
       OCommandContext ctx) {

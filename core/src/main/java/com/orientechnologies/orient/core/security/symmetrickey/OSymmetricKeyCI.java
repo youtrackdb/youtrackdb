@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.security.symmetrickey;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 
 /**
@@ -64,16 +64,16 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
     // These are all used as defaults if the JSON document is missing any fields.
 
     // Defaults to "AES".
-    String algorithm = OGlobalConfiguration.CLIENT_CI_KEYALGORITHM.getValueAsString();
+    String algorithm = YTGlobalConfiguration.CLIENT_CI_KEYALGORITHM.getValueAsString();
     // Defaults to "AES/CBC/PKCS5Padding".
-    String transform = OGlobalConfiguration.CLIENT_CI_CIPHERTRANSFORM.getValueAsString();
-    String keystoreFile = OGlobalConfiguration.CLIENT_CI_KEYSTORE_FILE.getValueAsString();
-    String keystorePassword = OGlobalConfiguration.CLIENT_CI_KEYSTORE_PASSWORD.getValueAsString();
+    String transform = YTGlobalConfiguration.CLIENT_CI_CIPHERTRANSFORM.getValueAsString();
+    String keystoreFile = YTGlobalConfiguration.CLIENT_CI_KEYSTORE_FILE.getValueAsString();
+    String keystorePassword = YTGlobalConfiguration.CLIENT_CI_KEYSTORE_PASSWORD.getValueAsString();
 
-    ODocument jsonDoc = null;
+    YTDocument jsonDoc = null;
 
     try {
-      jsonDoc = new ODocument().fromJSON(password, "noMap");
+      jsonDoc = new YTDocument().fromJSON(password, "noMap");
     } catch (Exception ex) {
       throw OException.wrapException(
           new OSecurityException("OSymmetricKeyCI.intercept() Exception: " + ex.getMessage()), ex);
@@ -112,7 +112,7 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
         key = OSymmetricKey.fromFile(algorithm, jsonDoc.field("keyFile"));
         key.setDefaultCipherTransform(transform);
       } else if (jsonDoc.containsField("keyStore")) {
-        ODocument ksDoc = jsonDoc.field("keyStore");
+        YTDocument ksDoc = jsonDoc.field("keyStore");
 
         if (ksDoc.containsField("file")) {
           keystoreFile = ksDoc.field("file");

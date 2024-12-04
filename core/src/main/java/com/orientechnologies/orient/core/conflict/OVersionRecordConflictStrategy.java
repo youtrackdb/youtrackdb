@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.conflict;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.OFastConcurrentModificationException;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,7 +39,7 @@ public class OVersionRecordConflictStrategy implements ORecordConflictStrategy {
   public byte[] onUpdate(
       OStorage storage,
       final byte iRecordType,
-      final ORecordId rid,
+      final YTRecordId rid,
       final int iRecordVersion,
       final byte[] iRecordContent,
       final AtomicInteger iDatabaseVersion) {
@@ -53,7 +53,7 @@ public class OVersionRecordConflictStrategy implements ORecordConflictStrategy {
   }
 
   protected void checkVersions(
-      final ORecordId rid, final int iRecordVersion, final int iDatabaseVersion) {
+      final YTRecordId rid, final int iRecordVersion, final int iDatabaseVersion) {
     if (OFastConcurrentModificationException.enabled()) {
       throw OFastConcurrentModificationException.instance();
     } else {

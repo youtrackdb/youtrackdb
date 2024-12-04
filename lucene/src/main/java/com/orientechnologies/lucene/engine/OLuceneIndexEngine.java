@@ -20,9 +20,9 @@ package com.orientechnologies.lucene.engine;
 
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
 import com.orientechnologies.orient.core.storage.impl.local.OFreezableStorageComponent;
 import java.io.IOException;
@@ -41,9 +41,10 @@ public interface OLuceneIndexEngine extends OIndexEngine, OFreezableStorageCompo
   String indexName();
 
   void onRecordAddedToResultSet(
-      OLuceneQueryContext queryContext, OContextualRecordId recordId, Document ret, ScoreDoc score);
+      OLuceneQueryContext queryContext, YTContextualRecordId recordId, Document ret,
+      ScoreDoc score);
 
-  Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value);
+  Document buildDocument(YTDatabaseSessionInternal session, Object key, YTIdentifiable value);
 
   Query buildQuery(Object query);
 
@@ -51,7 +52,7 @@ public interface OLuceneIndexEngine extends OIndexEngine, OFreezableStorageCompo
 
   Analyzer queryAnalyzer();
 
-  boolean remove(Object key, OIdentifiable value);
+  boolean remove(Object key, YTIdentifiable value);
 
   boolean remove(Object key);
 
@@ -59,14 +60,14 @@ public interface OLuceneIndexEngine extends OIndexEngine, OFreezableStorageCompo
 
   void release(IndexSearcher searcher);
 
-  Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+  Set<YTIdentifiable> getInTx(YTDatabaseSessionInternal session, Object key,
       OLuceneTxChanges changes);
 
   long sizeInTx(OLuceneTxChanges changes);
 
   OLuceneTxChanges buildTxChanges() throws IOException;
 
-  Query deleteQuery(Object key, OIdentifiable value);
+  Query deleteQuery(Object key, YTIdentifiable value);
 
   boolean isCollectionIndex();
 }

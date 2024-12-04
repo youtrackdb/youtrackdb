@@ -31,7 +31,7 @@ import com.orientechnologies.common.profiler.OProfilerStub;
 import com.orientechnologies.common.util.OClassLoaderHelper;
 import com.orientechnologies.orient.core.cache.OLocalRecordCacheFactory;
 import com.orientechnologies.orient.core.cache.OLocalRecordCacheFactoryImpl;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategyFactory;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseThreadLocalFactory;
@@ -290,8 +290,8 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
 
       registerEngines();
 
-      if (OGlobalConfiguration.ENVIRONMENT_DUMP_CFG_AT_STARTUP.getValueAsBoolean()) {
-        OGlobalConfiguration.dumpConfiguration(System.out);
+      if (YTGlobalConfiguration.ENVIRONMENT_DUMP_CFG_AT_STARTUP.getValueAsBoolean()) {
+        YTGlobalConfiguration.dumpConfiguration(System.out);
       }
 
       active = true;

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor.metadata;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,10 +69,10 @@ public class OMultipleIndexCanditate implements OIndexCandidate {
     for (int i = 0; i < canditates.size(); i++) {
       boolean matched = false;
       OIndexCandidate canditate = canditates.get(i);
-      List<OProperty> properties = canditate.properties();
+      List<YTProperty> properties = canditate.properties();
       for (int z = canditates.size() - 1; z > i; z--) {
         OIndexCandidate lastCandidate = canditates.get(z);
-        List<OProperty> lastProperties = lastCandidate.properties();
+        List<YTProperty> lastProperties = lastCandidate.properties();
         if (properties.size() == 1
             && lastProperties.size() == 1
             && properties.get(0).getName() == lastProperties.get(0).getName()) {
@@ -95,15 +95,15 @@ public class OMultipleIndexCanditate implements OIndexCandidate {
 
   private Collection<OIndexCandidate> normalizeComposite(
       Collection<OIndexCandidate> canditates, OCommandContext ctx) {
-    List<OProperty> propeties = properties();
+    List<YTProperty> propeties = properties();
     Map<String, OIndexCandidate> newCanditates = new HashMap<>();
     for (OIndexCandidate cand : canditates) {
       if (!newCanditates.containsKey(cand.getName())) {
         OIndex index = ctx.getDatabase().getMetadata().getIndexManager().getIndex(cand.getName());
-        List<OProperty> foundProps = new ArrayList<>();
+        List<YTProperty> foundProps = new ArrayList<>();
         for (String field : index.getDefinition().getFields()) {
           boolean found = false;
-          for (OProperty property : propeties) {
+          for (YTProperty property : propeties) {
             if (property.getName().equals(field)) {
               found = true;
               foundProps.add(property);
@@ -127,8 +127,8 @@ public class OMultipleIndexCanditate implements OIndexCandidate {
   }
 
   @Override
-  public List<OProperty> properties() {
-    List<OProperty> props = new ArrayList<>();
+  public List<YTProperty> properties() {
+    List<YTProperty> props = new ArrayList<>();
     for (OIndexCandidate cand : this.canditates) {
       props.addAll(cand.properties());
     }

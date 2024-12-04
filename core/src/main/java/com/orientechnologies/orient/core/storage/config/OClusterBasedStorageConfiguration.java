@@ -9,7 +9,7 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationUpdateListener;
@@ -19,9 +19,9 @@ import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfigur
 import com.orientechnologies.orient.core.config.OStorageSegmentConfiguration;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -175,7 +175,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       preloadConfigurationProperties();
       setValidation(
           atomicOperation,
-          getContextConfiguration().getValueAsBoolean(OGlobalConfiguration.DB_VALIDATION));
+          getContextConfiguration().getValueAsBoolean(YTGlobalConfiguration.DB_VALIDATION));
       recalculateLocale();
     } finally {
       lock.writeLock().unlock();
@@ -297,7 +297,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     lock.writeLock().lock();
     try {
       getContextConfiguration()
-          .setValue(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, minimumClusters);
+          .setValue(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, minimumClusters);
       autoInitClusters();
     } finally {
       lock.writeLock().unlock();
@@ -318,11 +318,11 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     lock.readLock().lock();
     try {
       final int mc =
-          getContextConfiguration().getValueAsInteger(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
+          getContextConfiguration().getValueAsInteger(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
       if (mc == 0) {
         autoInitClusters();
         return (Integer)
-            getContextConfiguration().getValue(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
+            getContextConfiguration().getValue(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS);
       }
       return mc;
     } finally {
@@ -436,7 +436,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         // WRITE CONFIGURATION
         write(buffer, configuration.getContextSize());
         for (final String k : configuration.getContextKeys()) {
-          final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(k);
+          final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(k);
           write(buffer, k);
           if (cfg != null) {
             write(buffer, cfg.isHidden() ? null : configuration.getValueAsString(cfg));
@@ -473,7 +473,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
         if (engineData.getKeyTypes() != null) {
           write(buffer, engineData.getKeyTypes().length);
-          for (final OType type : engineData.getKeyTypes()) {
+          for (final YTType type : engineData.getKeyTypes()) {
             write(buffer, type.name());
           }
         } else {
@@ -892,7 +892,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     OIntegerSerializer.INSTANCE.serializeNative(configuration.getContextSize(), contextSize, 0);
 
     for (final String k : configuration.getContextKeys()) {
-      final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(k);
+      final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(k);
       final byte[] key = serializeStringValue(k);
       totalSize += key.length;
       entries.add(key);
@@ -938,10 +938,10 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       final String value = deserializeStringValue(property, pos);
       pos += getSerializedStringSize(property, pos);
 
-      final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(key);
+      final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(key);
       if (cfg != null) {
         if (value != null) {
-          configuration.setValue(key, OType.convert(null, value, cfg.getType()));
+          configuration.setValue(key, YTType.convert(null, value, cfg.getType()));
         }
       } else {
         OLogManager.instance()
@@ -1102,7 +1102,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
   private void preloadConfigurationProperties() {
     final Map<String, String> properties;
-    try (Stream<ORawPair<String, ORID>> stream =
+    try (Stream<ORawPair<String, YTRID>> stream =
         btree.iterateEntriesMajor(PROPERTY_PREFIX_PROPERTY, false, true)) {
       properties =
           stream
@@ -1166,8 +1166,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     lock.writeLock().lock();
     try {
       final List<String> keysToRemove;
-      final List<ORID> ridsToRemove;
-      try (Stream<ORawPair<String, ORID>> stream =
+      final List<YTRID> ridsToRemove;
+      try (Stream<ORawPair<String, YTRID>> stream =
           btree.iterateEntriesMajor(PROPERTY_PREFIX_PROPERTY, false, true)) {
 
         keysToRemove = new ArrayList<>(8);
@@ -1186,7 +1186,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         btree.remove(atomicOperation, key);
       }
 
-      for (final ORID rid : ridsToRemove) {
+      for (final YTRID rid : ridsToRemove) {
         cluster.deleteRecord(atomicOperation, rid.getClusterPosition());
       }
 
@@ -1211,7 +1211,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       final OAtomicOperation atomicOperation, final String name, final IndexEngineData engineData) {
     lock.writeLock().lock();
     try {
-      final ORID identifiable = btree.get(ENGINE_PREFIX_PROPERTY + name);
+      final YTRID identifiable = btree.get(ENGINE_PREFIX_PROPERTY + name);
       if (identifiable != null) {
         OLogManager.instance()
             .warn(
@@ -1244,7 +1244,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   public Set<String> indexEngines() {
     lock.readLock().lock();
     try {
-      try (Stream<ORawPair<String, ORID>> stream =
+      try (Stream<ORawPair<String, YTRID>> stream =
           btree.iterateEntriesMajor(ENGINE_PREFIX_PROPERTY, false, true)) {
         return stream
             .filter((entry) -> entry.first.startsWith(ENGINE_PREFIX_PROPERTY))
@@ -1257,7 +1257,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   }
 
   private List<IndexEngineData> loadIndexEngines() {
-    try (Stream<ORawPair<String, ORID>> stream =
+    try (Stream<ORawPair<String, YTRID>> stream =
         btree.iterateEntriesMajor(ENGINE_PREFIX_PROPERTY, false, true)) {
       return stream
           .filter((entry) -> entry.first.startsWith(ENGINE_PREFIX_PROPERTY))
@@ -1372,7 +1372,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
   private void preloadClusters() {
     final List<OStorageClusterConfiguration> clusters = new ArrayList<>(1024);
-    try (Stream<ORawPair<String, ORID>> stream =
+    try (Stream<ORawPair<String, YTRID>> stream =
         btree.iterateEntriesMajor(CLUSTERS_PREFIX_PROPERTY, false, true)) {
 
       stream
@@ -1488,13 +1488,13 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     totalSize += encryption.length;
     entries.add(encryption);
 
-    final OType[] keyTypesValue = indexEngineData.getKeyTypes();
+    final YTType[] keyTypesValue = indexEngineData.getKeyTypes();
     final byte[] keyTypesSize = new byte[4];
     OIntegerSerializer.INSTANCE.serializeNative(keyTypesValue.length, keyTypesSize, 0);
     totalSize += keyTypesSize.length;
     entries.add(keyTypesSize);
 
-    for (final OType typeValue : keyTypesValue) {
+    for (final YTType typeValue : keyTypesValue) {
       final byte[] keyTypeName = serializeStringValue(typeValue.name());
       totalSize += keyTypeName.length;
       entries.add(keyTypeName);
@@ -1576,12 +1576,12 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     final int keyTypesSize = OIntegerSerializer.INSTANCE.deserializeNative(property, pos);
     pos += OIntegerSerializer.INT_SIZE;
 
-    final OType[] keyTypes = new OType[keyTypesSize];
+    final YTType[] keyTypes = new YTType[keyTypesSize];
     for (int i = 0; i < keyTypesSize; i++) {
       final String typeName = deserializeStringValue(property, pos);
       pos += getSerializedStringSize(property, pos);
 
-      keyTypes[i] = OType.valueOf(typeName);
+      keyTypes[i] = YTType.valueOf(typeName);
     }
 
     final Map<String, String> engineProperties = new HashMap<>(8);
@@ -1614,7 +1614,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         isNullValueSupport,
         keySize,
         encryption,
-        configuration.getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY),
+        configuration.getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY),
         engineProperties);
   }
 
@@ -1702,14 +1702,14 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         0,
         compression,
         encryption,
-        configuration.getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY),
+        configuration.getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY),
         conflictStrategy,
         OStorageClusterConfiguration.STATUS.valueOf(status),
         binaryVersion);
   }
 
   private void dropProperty(final OAtomicOperation atomicOperation, final String name) {
-    final ORID identifiable = btree.remove(atomicOperation, name);
+    final YTRID identifiable = btree.remove(atomicOperation, name);
 
     if (identifiable != null) {
       cluster.deleteRecord(atomicOperation, identifiable.getClusterPosition());
@@ -1789,12 +1789,12 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       final String name,
       final byte[] property,
       final int propertyBinaryVersion) {
-    ORID identity = btree.get(name);
+    YTRID identity = btree.get(name);
 
     if (identity == null) {
       final OPhysicalPosition position =
           cluster.createRecord(property, 0, (byte) 0, null, atomicOperation);
-      identity = new ORecordId(propertyBinaryVersion, position.clusterPosition);
+      identity = new YTRecordId(propertyBinaryVersion, position.clusterPosition);
       btree.put(atomicOperation, name, identity);
     } else {
       cluster.updateRecord(identity.getClusterPosition(), property, -1, (byte) 0, atomicOperation);
@@ -1813,7 +1813,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
   private ORawPairObjectInteger<byte[]> readProperty(final String name) {
     try {
-      final ORID rid = btree.get(name);
+      final YTRID rid = btree.get(name);
       if (rid == null) {
         return null;
       }
@@ -1891,10 +1891,10 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
     if (!configuration
         .getContextKeys()
-        .contains(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.getKey())) {
+        .contains(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.getKey())) {
       configuration.setValue(
-          OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS,
-          OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.getValueAsInteger()); // 0 = AUTOMATIC
+          YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS,
+          YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.getValueAsInteger()); // 0 = AUTOMATIC
     }
     autoInitClusters();
 
@@ -1957,9 +1957,9 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   }
 
   private void autoInitClusters() {
-    if (getContextConfiguration().getValueAsInteger(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS)
+    if (getContextConfiguration().getValueAsInteger(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS)
         == 0) {
-      getContextConfiguration().setValue(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 8);
+      getContextConfiguration().setValue(YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 8);
     }
   }
 

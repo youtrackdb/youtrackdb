@@ -7,12 +7,12 @@ import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
@@ -40,31 +40,31 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
   }
 
   @Override
-  public String getName(ODatabaseSession session) {
+  public String getName(YTDatabaseSession session) {
     return NAME;
   }
 
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] params,
       OCommandContext ctx) {
 
-    if (iThis instanceof ORID) {
+    if (iThis instanceof YTRID) {
       try {
-        iThis = ((ORID) iThis).getRecord();
+        iThis = ((YTRID) iThis).getRecord();
       } catch (ORecordNotFoundException rnf) {
         return false;
       }
     }
-    if (iThis instanceof OIdentifiable) {
-      iThis = new OResultInternal(ctx.getDatabase(), (OIdentifiable) iThis);
+    if (iThis instanceof YTIdentifiable) {
+      iThis = new OResultInternal(ctx.getDatabase(), (YTIdentifiable) iThis);
     }
     OResult result = (OResult) iThis;
 
-    OElement element = result.toElement();
+    YTEntity element = result.toElement();
     if (!element.getSchemaType().isPresent()) {
       return false;
     }
@@ -108,12 +108,12 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
   }
 
   @Override
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "SEARCH_INDEX( indexName, [ metdatada {} ] )";
   }
 
   @Override
-  public Iterable<OIdentifiable> searchFromTarget(
+  public Iterable<YTIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -123,12 +123,12 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     OLuceneFullTextIndex index = searchForIndex(target, ctx, args);
 
     OExpression expression = args[1];
-    Object query = expression.execute((OIdentifiable) null, ctx);
+    Object query = expression.execute((YTIdentifiable) null, ctx);
     if (index != null) {
 
       var meta = getMetadata(args, ctx);
-      Set<OIdentifiable> luceneResultSet;
-      try (Stream<ORID> rids =
+      Set<YTIdentifiable> luceneResultSet;
+      try (Stream<YTRID> rids =
           index
               .getInternal()
               .getRids(ctx.getDatabase(),
@@ -153,7 +153,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
   @Override
   protected OLuceneFullTextIndex searchForIndex(
       OFromClause target, OCommandContext ctx, OExpression... args) {
-    List<String> fieldNames = (List<String>) args[0].execute((OIdentifiable) null, ctx);
+    List<String> fieldNames = (List<String>) args[0].execute((YTIdentifiable) null, ctx);
     OFromItem item = target.getItem();
     String className = item.getIdentifier().getStringValue();
 

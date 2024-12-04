@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTSchema;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,10 +44,10 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
   public void init() {
 
     url = db.getURL();
-    OSchema schema = db.getMetadata().getSchema();
-    OClass oClass = schema.createClass("City");
+    YTSchema schema = db.getMetadata().getSchema();
+    YTClass oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "name", YTType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
@@ -55,7 +55,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
   public void testConcurrentInsertWithIndex() throws Exception {
 
     db.getMetadata().reload();
-    OSchema schema = db.getMetadata().getSchema();
+    YTSchema schema = db.getMetadata().getSchema();
 
     Thread[] threads = new Thread[THREADS + RTHREADS];
     for (int i = 0; i < THREADS; ++i) {
@@ -90,7 +90,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
   public class LuceneInsertThread implements Runnable {
 
-    private ODatabaseSession db;
+    private YTDatabaseSession db;
     private int cycle = 0;
     private final int commitBuf = 500;
 
@@ -105,7 +105,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
       db.begin();
       for (int i = 0; i < cycle; i++) {
-        ODocument doc = new ODocument("City");
+        YTDocument doc = new YTDocument("City");
 
         doc.field("name", "Rome");
 
@@ -124,7 +124,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
   public class LuceneReadThread implements Runnable {
 
     private final int cycle;
-    private ODatabaseSessionInternal databaseDocumentTx;
+    private YTDatabaseSessionInternal databaseDocumentTx;
 
     public LuceneReadThread(int cycle) {
       this.cycle = cycle;
@@ -135,7 +135,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
       databaseDocumentTx = openDatabase();
 
-      OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+      YTSchema schema = databaseDocumentTx.getMetadata().getSchema();
       OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
 
       for (int i = 0; i < cycle; i++) {

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.servlet;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -36,7 +36,7 @@ public class OServletContextLifeCycleListener implements ServletContextListener 
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
-    if (OGlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
+    if (YTGlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
       OLogManager.instance()
           .info(this, "Start web application is detected, YouTrackDB engine is staring up...");
       YouTrackDBManager.startUp(true);
@@ -46,7 +46,7 @@ public class OServletContextLifeCycleListener implements ServletContextListener 
 
   @Override
   public void contextDestroyed(ServletContextEvent sce) {
-    if (OGlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
+    if (YTGlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
       final YouTrackDBManager youTrack = YouTrackDBManager.instance();
       if (youTrack != null) {
         OLogManager.instance()

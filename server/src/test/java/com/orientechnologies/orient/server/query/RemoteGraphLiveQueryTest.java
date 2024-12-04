@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.query;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -44,24 +44,24 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
         new OLiveQueryResultListener() {
 
           @Override
-          public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+          public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
             l.incrementAndGet();
           }
 
           @Override
-          public void onError(ODatabaseSession database, OException exception) {
+          public void onError(YTDatabaseSession database, OException exception) {
           }
 
           @Override
-          public void onEnd(ODatabaseSession database) {
+          public void onEnd(YTDatabaseSession database) {
           }
 
           @Override
-          public void onDelete(ODatabaseSession database, OResult data) {
+          public void onDelete(YTDatabaseSession database, OResult data) {
           }
 
           @Override
-          public void onCreate(ODatabaseSession database, OResult data) {
+          public void onCreate(YTDatabaseSession database, OResult data) {
           }
         },
         new HashMap<String, String>());

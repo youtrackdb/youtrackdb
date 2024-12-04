@@ -19,7 +19,7 @@ package com.orientechnologies.orient.core.sql.functions.conversion;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.text.ParseException;
@@ -44,7 +44,7 @@ public class OSQLMethodAsDateTime extends OAbstractSQLMethod {
   @Override
   public Object execute(
       Object iThis,
-      OIdentifiable iCurrentRecord,
+      YTIdentifiable iCurrentRecord,
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {

@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -33,8 +33,8 @@ public class OReturnStatement extends OSimpleExecStatement {
     Object result = expression == null ? null : expression.execute((OResult) null, ctx);
     if (result instanceof OResult) {
       rs.add((OResult) result);
-    } else if (result instanceof OIdentifiable) {
-      OResultInternal res = new OResultInternal(database, (OIdentifiable) result);
+    } else if (result instanceof YTIdentifiable) {
+      OResultInternal res = new OResultInternal(database, (YTIdentifiable) result);
       rs.add(res);
     } else if (result instanceof OResultSet) {
       if (!((OResultSet) result).hasNext()) {

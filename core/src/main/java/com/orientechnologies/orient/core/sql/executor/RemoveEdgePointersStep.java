@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -28,14 +28,14 @@ public class RemoveEdgePointersStep extends AbstractExecutionStep {
     for (String propName :
         propNames.stream().filter(x -> x.startsWith("in_") || x.startsWith("out_")).toList()) {
       Object val = result.getProperty(propName);
-      if (val instanceof OElement) {
-        if (((OElement) val).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
+      if (val instanceof YTEntity) {
+        if (((YTEntity) val).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
           ((OResultInternal) result).removeProperty(propName);
         }
       } else if (val instanceof Iterable<?> iterable) {
         for (Object o : iterable) {
-          if (o instanceof OElement) {
-            if (((OElement) o).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
+          if (o instanceof YTEntity) {
+            if (((YTEntity) o).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
               ((OResultInternal) result).removeProperty(propName);
               break;
             }

@@ -24,7 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageExistsException;
 import com.orientechnologies.orient.core.metadata.security.OToken;
@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * acquire new connection to database.
  *
  * <p>To acquire connection from the pool call {@link #acquire()} method but to release connection
- * you just need to call {@link ODatabaseSession#close()} method.
+ * you just need to call {@link YTDatabaseSession#close()} method.
  *
  * <p>In case of remote storage database pool will keep connections to the remote storage till you
  * close pool. So in case of remote storage you should close pool at the end of it's usage, it also
@@ -173,7 +173,7 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
     return result;
   }
 
-  public ODatabaseDocumentTx acquire() {
+  public YTDatabaseDocumentTx acquire() {
     checkForClose();
 
     final PoolData data = poolData.get();
@@ -182,7 +182,7 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
 
       assert data.acquiredDatabase != null;
 
-      final ODatabaseDocumentTx db = data.acquiredDatabase;
+      final YTDatabaseDocumentTx db = data.acquiredDatabase;
 
       db.activateOnCurrentThread();
 
@@ -425,7 +425,7 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
     }
   }
 
-  private final class DatabaseDocumentTxPooled extends ODatabaseDocumentTx {
+  private final class DatabaseDocumentTxPooled extends YTDatabaseDocumentTx {
 
     private PoolPartition partition;
 
@@ -434,12 +434,12 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
     }
 
     @Override
-    public ODatabaseSession open(OToken iToken) {
+    public YTDatabaseSession open(OToken iToken) {
       throw new ODatabaseException("Impossible to open a database managed by a pool ");
     }
 
     @Override
-    public ODatabaseSession open(String iUserName, String iUserPassword) {
+    public YTDatabaseSession open(String iUserName, String iUserPassword) {
       throw new ODatabaseException("Impossible to open a database managed by a pool ");
     }
 

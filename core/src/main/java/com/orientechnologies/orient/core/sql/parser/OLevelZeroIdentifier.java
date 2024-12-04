@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -47,7 +47,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(OIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
     if (functionCall != null) {
       return functionCall.execute(iCurrentRecord, ctx);
     }
@@ -73,7 +73,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
     if (functionCall != null) {
       return functionCall.isIndexedFunctionCall(session);
     }
@@ -105,7 +105,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     return -1;
   }
 
-  public Iterable<OIdentifiable> executeIndexedFunction(
+  public Iterable<YTIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
     if (functionCall != null) {
       return functionCall.executeIndexedFunction(target, context, operator, right);
@@ -191,7 +191,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     return collection != null && collection.needsAliases(aliases);
   }
 
-  public boolean isAggregate(ODatabaseSessionInternal session) {
+  public boolean isAggregate(YTDatabaseSessionInternal session) {
     if (functionCall != null && functionCall.isAggregate(session)) {
       return true;
     }
@@ -303,7 +303,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     return collection;
   }
 
-  public OResult serialize(ODatabaseSessionInternal db) {
+  public OResult serialize(YTDatabaseSessionInternal db) {
     OResultInternal result = new OResultInternal(db);
     if (functionCall != null) {
       result.setProperty("functionCall", functionCall.serialize(db));
@@ -339,7 +339,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     if (functionCall != null) {
       return functionCall.isCacheable();
     }

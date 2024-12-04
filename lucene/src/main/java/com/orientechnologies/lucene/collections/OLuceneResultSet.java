@@ -27,8 +27,8 @@ import com.orientechnologies.lucene.exception.OLuceneIndexException;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesAbstract;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,7 +56,7 @@ import org.apache.lucene.search.highlight.TokenSources;
 /**
  *
  */
-public class OLuceneResultSet implements Set<OIdentifiable> {
+public class OLuceneResultSet implements Set<YTIdentifiable> {
 
   private static final Integer PAGE_SIZE = 10000;
   private Query query;
@@ -138,7 +138,7 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
   }
 
   @Override
-  public boolean add(OIdentifiable oIdentifiable) {
+  public boolean add(YTIdentifiable oIdentifiable) {
     throw new UnsupportedOperationException();
   }
 
@@ -153,7 +153,7 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
   }
 
   @Override
-  public boolean addAll(Collection<? extends OIdentifiable> c) {
+  public boolean addAll(Collection<? extends YTIdentifiable> c) {
     throw new UnsupportedOperationException();
   }
 
@@ -186,11 +186,11 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator() {
+  public Iterator<YTIdentifiable> iterator() {
     return new OLuceneResultSetIteratorTx();
   }
 
-  private class OLuceneResultSetIteratorTx implements Iterator<OIdentifiable> {
+  private class OLuceneResultSetIteratorTx implements Iterator<YTIdentifiable> {
 
     private ScoreDoc[] scoreDocs;
     private int index;
@@ -220,9 +220,9 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
     }
 
     @Override
-    public OIdentifiable next() {
+    public YTIdentifiable next() {
       ScoreDoc scoreDoc;
-      OContextualRecordId res;
+      YTContextualRecordId res;
       Document doc;
       do {
         scoreDoc = fetchNext();
@@ -252,9 +252,9 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
       }
     }
 
-    private OContextualRecordId toRecordId(final Document doc, final ScoreDoc score) {
+    private YTContextualRecordId toRecordId(final Document doc, final ScoreDoc score) {
       final String rId = doc.get(OLuceneIndexEngineAbstract.RID);
-      final OContextualRecordId res = new OContextualRecordId(rId);
+      final YTContextualRecordId res = new YTContextualRecordId(rId);
 
       final IndexReader indexReader = queryContext.getSearcher().getIndexReader();
       try {
@@ -276,7 +276,7 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
       }
     }
 
-    private boolean isToSkip(final OContextualRecordId recordId, final Document doc) {
+    private boolean isToSkip(final YTContextualRecordId recordId, final Document doc) {
       return isDeleted(recordId, doc) || isUpdatedDiskMatch(recordId, doc);
     }
 
@@ -298,15 +298,15 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
       }
     }
 
-    private boolean isDeleted(OIdentifiable value, Document doc) {
+    private boolean isDeleted(YTIdentifiable value, Document doc) {
       return queryContext.isDeleted(doc, null, value);
     }
 
-    private boolean isUpdatedDiskMatch(OIdentifiable value, Document doc) {
+    private boolean isUpdatedDiskMatch(YTIdentifiable value, Document doc) {
       return isUpdated(value) && !isTempMatch(doc);
     }
 
-    private boolean isUpdated(OIdentifiable value) {
+    private boolean isUpdated(YTIdentifiable value) {
       return queryContext.isUpdated(null, null, value);
     }
 

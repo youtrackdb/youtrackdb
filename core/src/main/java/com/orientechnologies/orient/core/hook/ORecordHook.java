@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.hook;
 
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 
 /**
  * Hook interface to catch all events regarding records.
@@ -156,7 +156,7 @@ public interface ORecordHook {
 
   void onUnregister();
 
-  RESULT onTrigger(TYPE iType, ORecord iRecord);
+  RESULT onTrigger(TYPE iType, YTRecord iRecord);
 
   DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode();
 
@@ -166,8 +166,8 @@ public interface ORecordHook {
    * the number of useless invocations of this hook.
    *
    * <p>Limiting the hook to proper scopes may give huge performance boost, especially if the
-   * hook's {@link #onTrigger(TYPE, ORecord)} dispatcher implementation is heavy. In extreme cases,
-   * you may override the {@link #onTrigger(TYPE, ORecord)} to act directly on event's
+   * hook's {@link #onTrigger(TYPE, YTRecord)} dispatcher implementation is heavy. In extreme cases,
+   * you may override the {@link #onTrigger(TYPE, YTRecord)} to act directly on event's
    * {@link ORecordHook.TYPE} and exit early, scopes are just a more handy alternative to this.
    *
    * @return the scopes of this hook.

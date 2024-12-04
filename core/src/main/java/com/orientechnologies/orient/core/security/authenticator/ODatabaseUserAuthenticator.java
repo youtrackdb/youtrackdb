@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.metadata.security.auth.OTokenAuthInfo;
 import com.orientechnologies.orient.core.metadata.security.auth.OUserPasswordAuthInfo;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.security.OTokenSign;
@@ -19,14 +19,14 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   private OTokenSign tokenSign;
 
   @Override
-  public void config(ODatabaseSessionInternal session, ODocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, YTDocument jsonConfig,
       OSecuritySystem security) {
     super.config(session, jsonConfig, security);
     tokenSign = security.getTokenSign();
   }
 
   @Override
-  public OSecurityUser authenticate(ODatabaseSessionInternal session, OAuthenticationInfo info) {
+  public OSecurityUser authenticate(YTDatabaseSessionInternal session, OAuthenticationInfo info) {
     if (info instanceof OUserPasswordAuthInfo) {
       return authenticate(
           session,
@@ -54,7 +54,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public OSecurityUser authenticate(ODatabaseSessionInternal session, String username,
+  public OSecurityUser authenticate(YTDatabaseSessionInternal session, String username,
       String password) {
     if (session == null) {
       return null;
@@ -85,12 +85,12 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public OSecurityUser getUser(String username, ODatabaseSessionInternal session) {
+  public OSecurityUser getUser(String username, YTDatabaseSessionInternal session) {
     return null;
   }
 
   @Override
-  public boolean isAuthorized(ODatabaseSessionInternal session, String username, String resource) {
+  public boolean isAuthorized(YTDatabaseSessionInternal session, String username, String resource) {
     return false;
   }
 

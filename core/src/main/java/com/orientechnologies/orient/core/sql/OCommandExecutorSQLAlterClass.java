@@ -23,13 +23,13 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES;
-import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES;
+import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.sql.parser.OAlterClassStatement;
 import java.util.Arrays;
 import java.util.Locale;
@@ -95,14 +95,14 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
       final String attributeAsString = word.toString();
 
       try {
-        attribute = OClass.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
+        attribute = YTClass.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw OException.wrapException(
             new OCommandSQLParsingException(
                 "Unknown class's attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(OClass.ATTRIBUTES.values()),
+                    + Arrays.toString(YTClass.ATTRIBUTES.values()),
                 parserText,
                 oldPos),
             e);
@@ -146,14 +146,14 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
   /**
    * Execute the ALTER CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     final var database = getDatabase();
     if (attribute == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final OClassImpl cls = (OClassImpl) database.getMetadata().getSchema().getClass(className);
+    final YTClassImpl cls = (YTClassImpl) database.getMetadata().getSchema().getClass(className);
     if (cls == null) {
       throw new OCommandExecutionException(
           "Cannot alter class '" + className + "' because not found");
@@ -194,15 +194,15 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
   protected void checkClassExists(
-      ODatabaseSession database, String targetClass, String superClass) {
+      YTDatabaseSession database, String targetClass, String superClass) {
     if (superClass.startsWith("+") || superClass.startsWith("-")) {
       superClass = superClass.substring(1);
     }
-    if (((ODatabaseSessionInternal) database)
+    if (((YTDatabaseSessionInternal) database)
         .getMetadata()
         .getImmutableSchemaSnapshot()
         .getClass(decodeClassName(superClass))

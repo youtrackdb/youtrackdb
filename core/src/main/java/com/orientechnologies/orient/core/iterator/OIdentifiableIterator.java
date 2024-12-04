@@ -20,21 +20,21 @@
 package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.HashSet;
@@ -47,11 +47,11 @@ import java.util.Set;
  * Iterator class to browse forward and backward the records of a cluster. Once browsed in a
  * direction, the iterator cannot change it.
  */
-public abstract class OIdentifiableIterator<REC extends OIdentifiable>
+public abstract class OIdentifiableIterator<REC extends YTIdentifiable>
     implements Iterator<REC>, Iterable<REC> {
 
-  protected final ODatabaseSessionInternal database;
-  protected final ORecordId current = new ChangeableRecordId();
+  protected final YTDatabaseSessionInternal database;
+  protected final YTRecordId current = new ChangeableRecordId();
   private final OStorage dbStorage;
   protected boolean liveUpdated = false;
   protected long limit = -1;
@@ -63,7 +63,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   protected long lastClusterEntry = Long.MAX_VALUE;
   // REUSE IT
   private Boolean directionForward;
-  private long currentEntry = ORID.CLUSTER_POS_INVALID;
+  private long currentEntry = YTRID.CLUSTER_POS_INVALID;
   private int currentEntryPosition = -1;
   private OPhysicalPosition[] positionsToProcess = null;
 
@@ -71,32 +71,32 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
    * Set of RIDs of records which were indicated as broken during cluster iteration. Mainly used
    * during JSON export/import procedure to fix links on broken records.
    */
-  protected final Set<ORID> brokenRIDs = new HashSet<>();
+  protected final Set<YTRID> brokenRIDs = new HashSet<>();
 
   /**
    * @deprecated usage of this constructor may lead to deadlocks.
    */
   @Deprecated
-  public OIdentifiableIterator(final ODatabaseSessionInternal iDatabase) {
+  public OIdentifiableIterator(final YTDatabaseSessionInternal iDatabase) {
     database = iDatabase;
 
     dbStorage = database.getStorage();
-    current.setClusterPosition(ORID.CLUSTER_POS_INVALID); // DEFAULT = START FROM THE BEGIN
+    current.setClusterPosition(YTRID.CLUSTER_POS_INVALID); // DEFAULT = START FROM THE BEGIN
   }
 
   public abstract boolean hasPrevious();
 
-  public abstract OIdentifiable previous();
+  public abstract YTIdentifiable previous();
 
   public abstract OIdentifiableIterator<REC> begin();
 
   public abstract OIdentifiableIterator<REC> last();
 
-  public ORecord current() {
+  public YTRecord current() {
     return readCurrentRecord(0);
   }
 
-  public Set<ORID> getBrokenRIDs() {
+  public Set<YTRID> getBrokenRIDs() {
     return brokenRIDs;
   }
 
@@ -164,10 +164,10 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     return this;
   }
 
-  protected ORecord getTransactionEntry() {
+  protected YTRecord getTransactionEntry() {
     boolean noPhysicalRecordToBrowse;
 
-    if (current.getClusterPosition() < ORID.CLUSTER_POS_INVALID) {
+    if (current.getClusterPosition() < YTRID.CLUSTER_POS_INVALID) {
       noPhysicalRecordToBrowse = true;
     } else if (directionForward) {
       noPhysicalRecordToBrowse = lastClusterEntry <= currentEntry;
@@ -206,7 +206,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
    *
    * @return record which was read from db.
    */
-  protected ORecord readCurrentRecord(final int movement) {
+  protected YTRecord readCurrentRecord(final int movement) {
     // LIMIT REACHED
     if (limit > -1 && browsedRecords >= limit) {
       return null;
@@ -224,7 +224,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       return null;
     }
 
-    ORecord record;
+    YTRecord record;
     try {
       record = database.load(current);
     } catch (ORecordNotFoundException rne) {
@@ -244,7 +244,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
         throw e;
       }
 
-      if (OGlobalConfiguration.DB_SKIP_BROKEN_RECORDS.getValueAsBoolean()) {
+      if (YTGlobalConfiguration.DB_SKIP_BROKEN_RECORDS.getValueAsBoolean()) {
         record = null;
         brokenRIDs.add(current.copy());
 
@@ -294,7 +294,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
 
     currentEntry = positionsToProcess[currentEntryPosition].clusterPosition;
 
-    if (currentEntry > lastClusterEntry || currentEntry == ORID.CLUSTER_POS_INVALID) {
+    if (currentEntry > lastClusterEntry || currentEntry == YTRID.CLUSTER_POS_INVALID) {
       return false;
     }
 
@@ -303,7 +303,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   }
 
   protected boolean checkCurrentPosition() {
-    if (currentEntry == ORID.CLUSTER_POS_INVALID
+    if (currentEntry == YTRID.CLUSTER_POS_INVALID
         || firstClusterEntry > currentEntry
         || lastClusterEntry < currentEntry) {
       return false;
@@ -358,7 +358,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   }
 
   protected void resetCurrentPosition() {
-    currentEntry = ORID.CLUSTER_POS_INVALID;
+    currentEntry = YTRID.CLUSTER_POS_INVALID;
     positionsToProcess = null;
     currentEntryPosition = -1;
   }
@@ -368,7 +368,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   }
 
   protected static void checkForSystemClusters(
-      final ODatabaseSessionInternal iDatabase, final int[] iClusterIds) {
+      final YTDatabaseSessionInternal iDatabase, final int[] iClusterIds) {
     if (iDatabase.isRemote()) {
       return;
     }

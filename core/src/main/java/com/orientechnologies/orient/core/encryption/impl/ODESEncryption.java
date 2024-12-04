@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.encryption.impl;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -49,7 +49,7 @@ public class ODESEncryption extends OAbstractEncryption {
       throw new OSecurityException(
           "DES encryption has been selected, but no key was found. Please configure it by passing"
               + " the key as property at database create/open. The property key is: '"
-              + OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()
+              + YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()
               + "'");
     }
 

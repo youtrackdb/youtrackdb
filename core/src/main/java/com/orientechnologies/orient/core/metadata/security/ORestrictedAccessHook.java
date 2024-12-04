@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.util.Set;
 
@@ -35,8 +35,8 @@ import java.util.Set;
 public class ORestrictedAccessHook {
 
   public static boolean onRecordBeforeCreate(
-      final ODocument iDocument, ODatabaseSessionInternal database) {
-    final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
+      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+    final YTImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls != null && cls.isRestricted()) {
       String fieldNames = cls.getCustom(OSecurityShared.ONCREATE_FIELD);
       if (fieldNames == null) {
@@ -48,7 +48,7 @@ public class ORestrictedAccessHook {
         identityType = "user";
       }
 
-      OIdentifiable identity = null;
+      YTIdentifiable identity = null;
       if (identityType.equals("user")) {
         final OSecurityUser user = database.getUser();
         if (user != null) {
@@ -82,11 +82,11 @@ public class ORestrictedAccessHook {
 
   @SuppressWarnings("unchecked")
   public static boolean isAllowed(
-      ODatabaseSessionInternal database,
-      final ODocument iDocument,
+      YTDatabaseSessionInternal database,
+      final YTDocument iDocument,
       final ORestrictedOperation iAllowOperation,
       final boolean iReadOriginal) {
-    final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
+    final YTImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls != null && cls.isRestricted()) {
 
       if (database.getUser() == null) {
@@ -106,7 +106,7 @@ public class ORestrictedAccessHook {
         }
       }
 
-      final ODocument doc;
+      final YTDocument doc;
       if (iReadOriginal)
       // RELOAD TO AVOID HACKING OF "_ALLOW" FIELDS
       {

@@ -23,10 +23,10 @@ package com.orientechnologies.orient.server.handler;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -70,11 +70,11 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   }
 
   @Override
-  public void onCreate(final ODatabaseSessionInternal iDatabase) {
+  public void onCreate(final YTDatabaseSessionInternal iDatabase) {
     onOpen(iDatabase);
   }
 
-  public void onOpen(ODatabaseSessionInternal iDatabase) {
+  public void onOpen(YTDatabaseSessionInternal iDatabase) {
     if (!iDatabase.isRemote()) {
       var db = iDatabase;
       for (OServerHookConfiguration hook : configuredHooks) {
@@ -84,7 +84,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
           final ORecordHook h;
           Constructor constructor = null;
           try {
-            constructor = klass.getConstructor(ODatabaseSession.class);
+            constructor = klass.getConstructor(YTDatabaseSession.class);
           } catch (NoSuchMethodException ex) {
             // Ignore
           }
@@ -124,15 +124,15 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {
+  public void onClose(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onDrop(ODatabaseSessionInternal iDatabase) {
+  public void onDrop(YTDatabaseSessionInternal iDatabase) {
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
   }
 
   public String getName() {

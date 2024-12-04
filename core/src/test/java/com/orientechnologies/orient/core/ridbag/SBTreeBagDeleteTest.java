@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.ridbag;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.RID_BAG_SBTREEBONSAI_DELETE_DELAY;
+import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_DELETE_DELAY;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import java.util.Collections;
@@ -30,17 +30,17 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
   @Test
   public void testDeleteRidbagTx() throws InterruptedException {
 
-    ODocument doc = new ODocument();
+    YTDocument doc = new YTDocument();
     ORidBag bag = new ORidBag(db);
     int size =
-        OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() * 2;
+        YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() * 2;
     for (int i = 0; i < size; i++) {
-      bag.add(new ORecordId(10, i));
+      bag.add(new YTRecordId(10, i));
     }
     doc.field("bag", bag);
 
     db.begin();
-    ORID id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    YTRID id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
     db.commit();
 
     doc = db.bindToSession(doc);
@@ -60,7 +60,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     }
 
     Thread.sleep(100);
-    OSBTreeBonsai<OIdentifiable, Integer> tree =
+    OSBTreeBonsai<YTIdentifiable, Integer> tree =
         db.getSbTreeCollectionManager().loadSBTree(pointer);
     assertEquals(0, tree.getRealBagSize(Collections.emptyMap()));
   }

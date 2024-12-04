@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.sql.functions.coll;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OSupportsContains;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
 
   public Object execute(
       Object iThis,
-      final OIdentifiable iCurrentRecord,
+      final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
@@ -129,7 +129,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
     for (Iterator it = current; it.hasNext(); ) {
       final Object curr = it.next();
       if (value instanceof ORidBag) {
-        if (((ORidBag) value).contains((OIdentifiable) curr)) {
+        if (((ORidBag) value).contains((YTIdentifiable) curr)) {
           tempSet.add(curr);
         }
       } else if (value instanceof Collection) {
@@ -146,7 +146,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
     return tempSet;
   }
 
-  public String getSyntax(ODatabaseSession session) {
+  public String getSyntax(YTDatabaseSession session) {
     return "intersect(<field>*)";
   }
 

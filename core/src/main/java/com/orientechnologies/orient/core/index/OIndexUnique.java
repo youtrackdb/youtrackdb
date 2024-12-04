@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.UniqueIndexEngineValidator;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
  */
 public class OIndexUnique extends OIndexOneValue {
 
-  private final IndexEngineValidator<Object, ORID> uniqueValidator =
+  private final IndexEngineValidator<Object, YTRID> uniqueValidator =
       new UniqueIndexEngineValidator(this);
 
   public OIndexUnique(OIndexMetadata im, final OStorage storage) {
@@ -46,8 +46,9 @@ public class OIndexUnique extends OIndexOneValue {
   }
 
   @Override
-  public void doPut(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
-      ORID rid)
+  public void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+      Object key,
+      YTRID rid)
       throws OInvalidIndexEngineIdException {
     storage.validatedPutIndexValue(indexId, key, rid, uniqueValidator);
   }

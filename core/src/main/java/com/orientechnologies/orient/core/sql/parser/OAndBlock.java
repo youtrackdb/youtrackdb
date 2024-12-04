@@ -3,9 +3,9 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
@@ -30,7 +30,7 @@ public class OAndBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
     if (subBlocks == null) {
       return true;
     }
@@ -127,7 +127,7 @@ public class OAndBlock extends OBooleanExpression {
   }
 
   public List<OBinaryCondition> getIndexedFunctionConditions(
-      OClass iSchemaClass, ODatabaseSessionInternal database) {
+      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
     if (subBlocks == null) {
       return null;
     }
@@ -261,7 +261,7 @@ public class OAndBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(ODatabaseSessionInternal session) {
+  public boolean isCacheable(YTDatabaseSessionInternal session) {
     for (OBooleanExpression exp : subBlocks) {
       if (!exp.isCacheable(session)) {
         return false;
@@ -271,7 +271,7 @@ public class OAndBlock extends OBooleanExpression {
   }
 
   @Override
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, OClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
     for (OBooleanExpression exp : subBlocks) {
       exp.rewriteIndexChainsAsSubqueries(ctx, clazz);
       // this is on purpose. Multiple optimizations in this case in an AND block can

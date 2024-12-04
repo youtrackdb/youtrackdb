@@ -22,8 +22,8 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
@@ -38,13 +38,13 @@ import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
+import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
@@ -85,20 +85,20 @@ public class ODocumentSerializerDelta {
   protected ODocumentSerializerDelta() {
   }
 
-  public byte[] serialize(ODocument document) {
+  public byte[] serialize(YTDocument document) {
     BytesContainer bytes = new BytesContainer();
     serialize(document, bytes);
     return bytes.fitBytes();
   }
 
-  public byte[] serializeDelta(ODocument document) {
+  public byte[] serializeDelta(YTDocument document) {
     BytesContainer bytes = new BytesContainer();
     serializeDelta(bytes, document);
     return bytes.fitBytes();
   }
 
-  protected OClass serializeClass(final ODocument document, final BytesContainer bytes) {
-    final OClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
+  protected YTClass serializeClass(final YTDocument document, final BytesContainer bytes) {
+    final YTClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
     String name = null;
     if (clazz != null) {
       name = clazz.getName();
@@ -119,9 +119,9 @@ public class ODocumentSerializerDelta {
     return OVarIntSerializer.write(bytes, 0);
   }
 
-  private void serialize(final ODocument document, final BytesContainer bytes) {
+  private void serialize(final YTDocument document, final BytesContainer bytes) {
     serializeClass(document, bytes);
-    OClass oClass = ODocumentInternal.getImmutableSchemaClass(document);
+    YTClass oClass = ODocumentInternal.getImmutableSchemaClass(document);
     final Set<Map.Entry<String, ODocumentEntry>> fields = ODocumentInternal.rawEntries(document);
     OVarIntSerializer.write(bytes, document.fields());
     for (Map.Entry<String, ODocumentEntry> entry : fields) {
@@ -132,7 +132,7 @@ public class ODocumentSerializerDelta {
       writeString(bytes, entry.getKey());
       final Object value = entry.getValue().value;
       if (value != null) {
-        final OType type = getFieldType(entry.getValue());
+        final YTType type = getFieldType(entry.getValue());
         if (type == null) {
           throw new OSerializationException(
               "Impossible serialize value of type "
@@ -147,12 +147,12 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  public void deserialize(ODatabaseSessionInternal session, byte[] content, ODocument toFill) {
+  public void deserialize(YTDatabaseSessionInternal session, byte[] content, YTDocument toFill) {
     BytesContainer bytesContainer = new BytesContainer(content);
     deserialize(session, toFill, bytesContainer);
   }
 
-  private void deserialize(ODatabaseSessionInternal session, final ODocument document,
+  private void deserialize(YTDatabaseSessionInternal session, final YTDocument document,
       final BytesContainer bytes) {
     final String className = readString(bytes);
     if (!className.isEmpty()) {
@@ -160,7 +160,7 @@ public class ODocumentSerializerDelta {
     }
 
     String fieldName;
-    OType type;
+    YTType type;
     Object value;
     int size = OVarIntSerializer.readAsInteger(bytes);
     while ((size--) > 0) {
@@ -176,13 +176,14 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  public void deserializeDelta(ODatabaseSessionInternal session, byte[] content, ODocument toFill) {
+  public void deserializeDelta(YTDatabaseSessionInternal session, byte[] content,
+      YTDocument toFill) {
     BytesContainer bytesContainer = new BytesContainer(content);
     deserializeDelta(session, bytesContainer, toFill);
   }
 
-  public void deserializeDelta(ODatabaseSessionInternal session, BytesContainer bytes,
-      ODocument toFill) {
+  public void deserializeDelta(YTDatabaseSessionInternal session, BytesContainer bytes,
+      YTDocument toFill) {
     final String className = readString(bytes);
     if (!className.isEmpty() && toFill != null) {
       ODocumentInternal.fillClassNameIfNeeded(toFill, className);
@@ -209,10 +210,10 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void deserializeDeltaEntry(ODatabaseSessionInternal session, BytesContainer bytes,
-      ODocument toFill) {
+  private void deserializeDeltaEntry(YTDatabaseSessionInternal session, BytesContainer bytes,
+      YTDocument toFill) {
     String name = readString(bytes);
-    OType type = readNullableType(bytes);
+    YTType type = readNullableType(bytes);
     Object toUpdate;
     if (toFill != null) {
       toUpdate = toFill.getPropertyInternal(name);
@@ -222,8 +223,8 @@ public class ODocumentSerializerDelta {
     deserializeDeltaValue(session, bytes, type, toUpdate);
   }
 
-  private void deserializeDeltaValue(ODatabaseSessionInternal session, BytesContainer bytes,
-      OType type, Object toUpdate) {
+  private void deserializeDeltaValue(YTDatabaseSessionInternal session, BytesContainer bytes,
+      YTType type, Object toUpdate) {
     switch (type) {
       case EMBEDDEDLIST:
         deserializeDeltaEmbeddedList(session, bytes, (OTrackedList) toUpdate);
@@ -235,7 +236,7 @@ public class ODocumentSerializerDelta {
         deserializeDeltaEmbeddedMap(session, bytes, (OTrackedMap) toUpdate);
         break;
       case EMBEDDED:
-        deserializeDelta(session, bytes, ((ORecord) toUpdate).getRecord());
+        deserializeDelta(session, bytes, ((YTRecord) toUpdate).getRecord());
         break;
       case LINKLIST:
         deserializeDeltaLinkList(bytes, (OList) toUpdate);
@@ -261,7 +262,7 @@ public class ODocumentSerializerDelta {
       switch (change) {
         case CREATED: {
           String key = readString(bytes);
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.put(key, link);
           }
@@ -269,7 +270,7 @@ public class ODocumentSerializerDelta {
         }
         case REPLACED: {
           String key = readString(bytes);
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.put(key, link);
           }
@@ -297,7 +298,7 @@ public class ODocumentSerializerDelta {
       byte change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.add(link);
           }
@@ -307,7 +308,7 @@ public class ODocumentSerializerDelta {
           break;
         }
         case REMOVED: {
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.remove(link);
           }
@@ -323,7 +324,7 @@ public class ODocumentSerializerDelta {
       byte change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.add(link);
           }
@@ -331,14 +332,14 @@ public class ODocumentSerializerDelta {
         }
         case REPLACED: {
           long position = OVarIntSerializer.readAsLong(bytes);
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.set((int) position, link);
           }
           break;
         }
         case REMOVED: {
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.remove(link);
           }
@@ -354,7 +355,7 @@ public class ODocumentSerializerDelta {
       byte change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.add(link);
           }
@@ -364,7 +365,7 @@ public class ODocumentSerializerDelta {
           break;
         }
         case REMOVED: {
-          ORecordId link = readOptimizedLink(bytes);
+          YTRecordId link = readOptimizedLink(bytes);
           if (toUpdate != null) {
             toUpdate.remove(link);
           }
@@ -374,7 +375,7 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void deserializeDeltaEmbeddedMap(ODatabaseSessionInternal session, BytesContainer bytes,
+  private void deserializeDeltaEmbeddedMap(YTDatabaseSessionInternal session, BytesContainer bytes,
       OTrackedMap toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
@@ -382,7 +383,7 @@ public class ODocumentSerializerDelta {
       switch (change) {
         case CREATED: {
           String key = readString(bytes);
-          OType type = readNullableType(bytes);
+          YTType type = readNullableType(bytes);
           Object value;
           if (type != null) {
             value = deserializeValue(session, bytes, type, toUpdate);
@@ -396,7 +397,7 @@ public class ODocumentSerializerDelta {
         }
         case REPLACED: {
           String key = readString(bytes);
-          OType type = readNullableType(bytes);
+          YTType type = readNullableType(bytes);
           Object value;
           if (type != null) {
             value = deserializeValue(session, bytes, type, toUpdate);
@@ -427,19 +428,19 @@ public class ODocumentSerializerDelta {
       } else {
         nested = null;
       }
-      OType type = readNullableType(bytes);
+      YTType type = readNullableType(bytes);
       deserializeDeltaValue(session, bytes, type, nested);
     }
   }
 
-  private void deserializeDeltaEmbeddedSet(ODatabaseSessionInternal session, BytesContainer bytes,
+  private void deserializeDeltaEmbeddedSet(YTDatabaseSessionInternal session, BytesContainer bytes,
       OTrackedSet toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          OType type = readNullableType(bytes);
+          YTType type = readNullableType(bytes);
           Object value;
           if (type != null) {
             value = deserializeValue(session, bytes, type, toUpdate);
@@ -454,7 +455,7 @@ public class ODocumentSerializerDelta {
         case REPLACED:
           assert false : "this can't ever happen";
         case REMOVED:
-          OType type = readNullableType(bytes);
+          YTType type = readNullableType(bytes);
           Object value;
           if (type != null) {
             value = deserializeValue(session, bytes, type, toUpdate);
@@ -472,7 +473,7 @@ public class ODocumentSerializerDelta {
       byte other = deserializeByte(bytes);
       assert other == CHANGED;
       long position = OVarIntSerializer.readAsLong(bytes);
-      OType type = readNullableType(bytes);
+      YTType type = readNullableType(bytes);
       Object nested;
       if (toUpdate != null) {
         Iterator iter = toUpdate.iterator();
@@ -488,14 +489,14 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void deserializeDeltaEmbeddedList(ODatabaseSessionInternal session, BytesContainer bytes,
+  private void deserializeDeltaEmbeddedList(YTDatabaseSessionInternal session, BytesContainer bytes,
       OTrackedList toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
         case CREATED: {
-          OType type = readNullableType(bytes);
+          YTType type = readNullableType(bytes);
           Object value;
           if (type != null) {
             value = deserializeValue(session, bytes, type, toUpdate);
@@ -509,7 +510,7 @@ public class ODocumentSerializerDelta {
         }
         case REPLACED: {
           long pos = OVarIntSerializer.readAsLong(bytes);
-          OType type = readNullableType(bytes);
+          YTType type = readNullableType(bytes);
           Object value;
           if (type != null) {
             value = deserializeValue(session, bytes, type, toUpdate);
@@ -541,15 +542,15 @@ public class ODocumentSerializerDelta {
       } else {
         nested = null;
       }
-      OType type = readNullableType(bytes);
+      YTType type = readNullableType(bytes);
       deserializeDeltaValue(session, bytes, type, nested);
     }
   }
 
-  private void deserializeFullEntry(ODatabaseSessionInternal session, BytesContainer bytes,
-      ODocument toFill) {
+  private void deserializeFullEntry(YTDatabaseSessionInternal session, BytesContainer bytes,
+      YTDocument toFill) {
     String name = readString(bytes);
-    OType type = readNullableType(bytes);
+    YTType type = readNullableType(bytes);
     Object value;
     if (type != null) {
       value = deserializeValue(session, bytes, type, toFill);
@@ -561,9 +562,9 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  public void serializeDelta(BytesContainer bytes, ODocument document) {
+  public void serializeDelta(BytesContainer bytes, YTDocument document) {
     serializeClass(document, bytes);
-    OClass oClass = ODocumentInternal.getImmutableSchemaClass(document);
+    YTClass oClass = ODocumentInternal.getImmutableSchemaClass(document);
     long count =
         ODocumentInternal.rawEntries(document).stream()
             .filter(
@@ -600,10 +601,10 @@ public class ODocumentSerializerDelta {
   }
 
   private void serializeDeltaEntry(
-      BytesContainer bytes, OClass oClass, String name, ODocumentEntry entry) {
+      BytesContainer bytes, YTClass oClass, String name, ODocumentEntry entry) {
     final Object value = entry.value;
     assert value != null;
-    final OType type = getFieldType(entry);
+    final YTType type = getFieldType(entry);
     if (type == null) {
       throw new OSerializationException(
           "Impossible serialize value of type " + value.getClass() + " with the delta serializer");
@@ -614,7 +615,7 @@ public class ODocumentSerializerDelta {
   }
 
   private void serializeDeltaValue(
-      BytesContainer bytes, Object value, OType type, OType linkedType) {
+      BytesContainer bytes, Object value, YTType type, YTType linkedType) {
     switch (type) {
       case EMBEDDEDLIST:
         serializeDeltaEmbeddedList(bytes, (OTrackedList) value);
@@ -626,7 +627,7 @@ public class ODocumentSerializerDelta {
         serializeDeltaEmbeddedMap(bytes, (OTrackedMap) value);
         break;
       case EMBEDDED:
-        serializeDelta(bytes, ((ORecord) value).getRecord());
+        serializeDelta(bytes, ((YTRecord) value).getRecord());
         break;
       case LINKLIST:
         serializeDeltaLinkList(bytes, (OList) value);
@@ -647,7 +648,7 @@ public class ODocumentSerializerDelta {
 
   protected void serializeDeltaLinkBag(BytesContainer bytes, ORidBag value) {
     UUID uuid = null;
-    ODatabaseSessionInternal instance = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    YTDatabaseSessionInternal instance = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (instance != null) {
       final OSBTreeCollectionManager sbTreeCollectionManager =
           instance.getSbTreeCollectionManager();
@@ -661,11 +662,11 @@ public class ODocumentSerializerDelta {
     int uuidPos = bytes.alloc(OUUIDSerializer.UUID_SIZE);
     OUUIDSerializer.INSTANCE.serialize(uuid, bytes.bytes, uuidPos);
 
-    final OMultiValueChangeTimeLine<OIdentifiable, OIdentifiable> timeline =
+    final OMultiValueChangeTimeLine<YTIdentifiable, YTIdentifiable> timeline =
         value.getTransactionTimeLine();
     assert timeline != null : "Collection timeline required for serialization of link types";
     OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (OMultiValueChangeEvent<OIdentifiable, OIdentifiable> event :
+    for (OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable> event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:
@@ -684,12 +685,12 @@ public class ODocumentSerializerDelta {
   }
 
   private void serializeDeltaLinkSet(
-      BytesContainer bytes, OTrackedMultiValue<OIdentifiable, OIdentifiable> value) {
-    OMultiValueChangeTimeLine<OIdentifiable, OIdentifiable> timeline =
+      BytesContainer bytes, OTrackedMultiValue<YTIdentifiable, YTIdentifiable> value) {
+    OMultiValueChangeTimeLine<YTIdentifiable, YTIdentifiable> timeline =
         value.getTransactionTimeLine();
     assert timeline != null : "Collection timeline required for link* types serialization";
     OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (OMultiValueChangeEvent<OIdentifiable, OIdentifiable> event :
+    for (OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable> event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:
@@ -708,10 +709,10 @@ public class ODocumentSerializerDelta {
   }
 
   private void serializeDeltaLinkList(BytesContainer bytes, OList value) {
-    OMultiValueChangeTimeLine<Integer, OIdentifiable> timeline = value.getTransactionTimeLine();
+    OMultiValueChangeTimeLine<Integer, YTIdentifiable> timeline = value.getTransactionTimeLine();
     assert timeline != null : "Collection timeline required for link* types serialization";
     OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (OMultiValueChangeEvent<Integer, OIdentifiable> event :
+    for (OMultiValueChangeEvent<Integer, YTIdentifiable> event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:
@@ -732,10 +733,10 @@ public class ODocumentSerializerDelta {
   }
 
   private void serializeDeltaLinkMap(BytesContainer bytes, OMap value) {
-    OMultiValueChangeTimeLine<Object, OIdentifiable> timeline = value.getTransactionTimeLine();
+    OMultiValueChangeTimeLine<Object, YTIdentifiable> timeline = value.getTransactionTimeLine();
     assert timeline != null : "Collection timeline required for link* types serialization";
     OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
-    for (OMultiValueChangeEvent<Object, OIdentifiable> event :
+    for (OMultiValueChangeEvent<Object, YTIdentifiable> event :
         timeline.getMultiValueChangeEvents()) {
       switch (event.getChangeType()) {
         case ADD:
@@ -766,7 +767,7 @@ public class ODocumentSerializerDelta {
             serializeByte(bytes, CREATED);
             writeString(bytes, event.getKey().toString());
             if (event.getValue() != null) {
-              OType type = OType.getTypeByValue(event.getValue());
+              YTType type = YTType.getTypeByValue(event.getValue());
               writeNullableType(bytes, type);
               serializeValue(bytes, event.getValue(), type, null);
             } else {
@@ -778,7 +779,7 @@ public class ODocumentSerializerDelta {
             serializeByte(bytes, REPLACED);
             writeString(bytes, event.getKey().toString());
             if (event.getValue() != null) {
-              OType type = OType.getTypeByValue(event.getValue());
+              YTType type = YTType.getTypeByValue(event.getValue());
               writeNullableType(bytes, type);
               serializeValue(bytes, event.getValue(), type, null);
             } else {
@@ -800,9 +801,9 @@ public class ODocumentSerializerDelta {
             .filter(
                 (v) -> {
                   return v instanceof OTrackedMultiValue && ((OTrackedMultiValue) v).isModified()
-                      || v instanceof ODocument
-                      && ((ODocument) v).isEmbedded()
-                      && ((ODocument) v).isDirty();
+                      || v instanceof YTDocument
+                      && ((YTDocument) v).isEmbedded()
+                      && ((YTDocument) v).isDirty();
                 })
             .count();
     OVarIntSerializer.write(bytes, count);
@@ -814,15 +815,15 @@ public class ODocumentSerializerDelta {
           && ((OTrackedMultiValue) singleValue).isModified()) {
         serializeByte(bytes, CHANGED);
         writeString(bytes, singleEntry.getKey().toString());
-        OType type = OType.getTypeByValue(singleValue);
+        YTType type = YTType.getTypeByValue(singleValue);
         writeNullableType(bytes, type);
         serializeDeltaValue(bytes, singleValue, type, null);
-      } else if (singleValue instanceof ODocument
-          && ((ODocument) singleValue).isEmbedded()
-          && ((ODocument) singleValue).isDirty()) {
+      } else if (singleValue instanceof YTDocument
+          && ((YTDocument) singleValue).isEmbedded()
+          && ((YTDocument) singleValue).isDirty()) {
         serializeByte(bytes, CHANGED);
         writeString(bytes, singleEntry.getKey().toString());
-        OType type = OType.getTypeByValue(singleValue);
+        YTType type = YTType.getTypeByValue(singleValue);
         writeNullableType(bytes, type);
         serializeDeltaValue(bytes, singleValue, type, null);
       }
@@ -838,7 +839,7 @@ public class ODocumentSerializerDelta {
           case ADD: {
             serializeByte(bytes, CREATED);
             if (event.getValue() != null) {
-              OType type = OType.getTypeByValue(event.getValue());
+              YTType type = YTType.getTypeByValue(event.getValue());
               writeNullableType(bytes, type);
               serializeValue(bytes, event.getValue(), type, null);
             } else {
@@ -850,7 +851,7 @@ public class ODocumentSerializerDelta {
             serializeByte(bytes, REPLACED);
             OVarIntSerializer.write(bytes, event.getKey().longValue());
             if (event.getValue() != null) {
-              OType type = OType.getTypeByValue(event.getValue());
+              YTType type = YTType.getTypeByValue(event.getValue());
               writeNullableType(bytes, type);
               serializeValue(bytes, event.getValue(), type, null);
             } else {
@@ -873,9 +874,9 @@ public class ODocumentSerializerDelta {
             .filter(
                 (v) -> {
                   return v instanceof OTrackedMultiValue && ((OTrackedMultiValue) v).isModified()
-                      || v instanceof ODocument
-                      && ((ODocument) v).isEmbedded()
-                      && ((ODocument) v).isDirty();
+                      || v instanceof YTDocument
+                      && ((YTDocument) v).isEmbedded()
+                      && ((YTDocument) v).isDirty();
                 })
             .count();
     OVarIntSerializer.write(bytes, count);
@@ -885,15 +886,15 @@ public class ODocumentSerializerDelta {
           && ((OTrackedMultiValue) singleValue).isModified()) {
         serializeByte(bytes, CHANGED);
         OVarIntSerializer.write(bytes, i);
-        OType type = OType.getTypeByValue(singleValue);
+        YTType type = YTType.getTypeByValue(singleValue);
         writeNullableType(bytes, type);
         serializeDeltaValue(bytes, singleValue, type, null);
-      } else if (singleValue instanceof ODocument
-          && ((ODocument) singleValue).isEmbedded()
-          && ((ODocument) singleValue).isDirty()) {
+      } else if (singleValue instanceof YTDocument
+          && ((YTDocument) singleValue).isEmbedded()
+          && ((YTDocument) singleValue).isDirty()) {
         serializeByte(bytes, CHANGED);
         OVarIntSerializer.write(bytes, i);
-        OType type = OType.getTypeByValue(singleValue);
+        YTType type = YTType.getTypeByValue(singleValue);
         writeNullableType(bytes, type);
         serializeDeltaValue(bytes, singleValue, type, null);
       }
@@ -909,7 +910,7 @@ public class ODocumentSerializerDelta {
           case ADD: {
             serializeByte(bytes, CREATED);
             if (event.getValue() != null) {
-              OType type = OType.getTypeByValue(event.getValue());
+              YTType type = YTType.getTypeByValue(event.getValue());
               writeNullableType(bytes, type);
               serializeValue(bytes, event.getValue(), type, null);
             } else {
@@ -923,7 +924,7 @@ public class ODocumentSerializerDelta {
           case REMOVE: {
             serializeByte(bytes, REMOVED);
             if (event.getOldValue() != null) {
-              OType type = OType.getTypeByValue(event.getOldValue());
+              YTType type = YTType.getTypeByValue(event.getOldValue());
               writeNullableType(bytes, type);
               serializeValue(bytes, event.getOldValue(), type, null);
             } else {
@@ -941,9 +942,9 @@ public class ODocumentSerializerDelta {
             .filter(
                 (v) -> {
                   return v instanceof OTrackedMultiValue && ((OTrackedMultiValue) v).isModified()
-                      || v instanceof ODocument
-                      && ((ODocument) v).isEmbedded()
-                      && ((ODocument) v).isDirty();
+                      || v instanceof YTDocument
+                      && ((YTDocument) v).isEmbedded()
+                      && ((YTDocument) v).isDirty();
                 })
             .count();
     OVarIntSerializer.write(bytes, count);
@@ -955,15 +956,15 @@ public class ODocumentSerializerDelta {
           && ((OTrackedMultiValue) singleValue).isModified()) {
         serializeByte(bytes, CHANGED);
         OVarIntSerializer.write(bytes, i);
-        OType type = OType.getTypeByValue(singleValue);
+        YTType type = YTType.getTypeByValue(singleValue);
         writeNullableType(bytes, type);
         serializeDeltaValue(bytes, singleValue, type, null);
-      } else if (singleValue instanceof ODocument
-          && ((ODocument) singleValue).isEmbedded()
-          && ((ODocument) singleValue).isDirty()) {
+      } else if (singleValue instanceof YTDocument
+          && ((YTDocument) singleValue).isEmbedded()
+          && ((YTDocument) singleValue).isDirty()) {
         serializeByte(bytes, CHANGED);
         OVarIntSerializer.write(bytes, i);
-        OType type = OType.getTypeByValue(singleValue);
+        YTType type = YTType.getTypeByValue(singleValue);
         writeNullableType(bytes, type);
         serializeDeltaValue(bytes, singleValue, type, null);
       }
@@ -971,25 +972,25 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  protected OType getFieldType(final ODocumentEntry entry) {
-    OType type = entry.type;
+  protected YTType getFieldType(final ODocumentEntry entry) {
+    YTType type = entry.type;
     if (type == null) {
-      final OProperty prop = entry.property;
+      final YTProperty prop = entry.property;
       if (prop != null) {
         type = prop.getType();
       }
     }
-    if (type == null || OType.ANY == type) {
-      type = OType.getTypeByValue(entry.value);
+    if (type == null || YTType.ANY == type) {
+      type = YTType.getTypeByValue(entry.value);
     }
     return type;
   }
 
   private void serializeFullEntry(
-      BytesContainer bytes, OClass oClass, String name, ODocumentEntry entry) {
+      BytesContainer bytes, YTClass oClass, String name, ODocumentEntry entry) {
     final Object value = entry.value;
     if (value != null) {
-      final OType type = getFieldType(entry);
+      final YTType type = getFieldType(entry);
       if (type == null) {
         throw new OSerializationException(
             "Impossible serialize value of type "
@@ -1017,7 +1018,7 @@ public class ODocumentSerializerDelta {
   }
 
   public void serializeValue(
-      final BytesContainer bytes, Object value, final OType type, final OType linkedType) {
+      final BytesContainer bytes, Object value, final YTType type, final YTType linkedType) {
     int pointer = 0;
     switch (type) {
       case INTEGER:
@@ -1067,11 +1068,11 @@ public class ODocumentSerializerDelta {
         break;
       case EMBEDDED:
         if (value instanceof ODocumentSerializable) {
-          ODocument cur = ((ODocumentSerializable) value).toDocument();
+          YTDocument cur = ((ODocumentSerializable) value).toDocument();
           cur.field(ODocumentSerializable.CLASS_NAME, value.getClass().getName());
           serialize(cur, bytes);
         } else {
-          serialize(((ORecord) value).getRecord(), bytes);
+          serialize(((YTRecord) value).getRecord(), bytes);
         }
         break;
       case EMBEDDEDSET:
@@ -1092,18 +1093,18 @@ public class ODocumentSerializerDelta {
         break;
       case LINKSET:
       case LINKLIST:
-        Collection<OIdentifiable> ridCollection = (Collection<OIdentifiable>) value;
+        Collection<YTIdentifiable> ridCollection = (Collection<YTIdentifiable>) value;
         writeLinkCollection(bytes, ridCollection);
         break;
       case LINK:
-        if (!(value instanceof OIdentifiable)) {
-          throw new OValidationException("Value '" + value + "' is not a OIdentifiable");
+        if (!(value instanceof YTIdentifiable)) {
+          throw new OValidationException("Value '" + value + "' is not a YTIdentifiable");
         }
 
-        writeOptimizedLink(bytes, (OIdentifiable) value);
+        writeOptimizedLink(bytes, (YTIdentifiable) value);
         break;
       case LINKMAP:
-        writeLinkMap(bytes, (Map<Object, OIdentifiable>) value);
+        writeLinkMap(bytes, (Map<Object, YTIdentifiable>) value);
         break;
       case EMBEDDEDMAP:
         writeEmbeddedMap(bytes, (Map<Object, Object>) value);
@@ -1126,10 +1127,10 @@ public class ODocumentSerializerDelta {
   }
 
   private int writeLinkCollection(
-      final BytesContainer bytes, final Collection<OIdentifiable> value) {
+      final BytesContainer bytes, final Collection<YTIdentifiable> value) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
 
-    for (OIdentifiable itemValue : value) {
+    for (YTIdentifiable itemValue : value) {
       // TODO: handle the null links
       if (itemValue == null) {
         writeNullLink(bytes);
@@ -1141,12 +1142,12 @@ public class ODocumentSerializerDelta {
     return pos;
   }
 
-  private int writeLinkMap(final BytesContainer bytes, final Map<Object, OIdentifiable> map) {
+  private int writeLinkMap(final BytesContainer bytes, final Map<Object, YTIdentifiable> map) {
     final int fullPos = OVarIntSerializer.write(bytes, map.size());
-    for (Map.Entry<Object, OIdentifiable> entry : map.entrySet()) {
+    for (Map.Entry<Object, YTIdentifiable> entry : map.entrySet()) {
       // TODO:check skip of complex types
       // FIXME: changed to support only string key on map
-      final OType type = OType.STRING;
+      final YTType type = YTType.STRING;
       writeOType(bytes, bytes.alloc(1), type);
       writeString(bytes, entry.getKey().toString());
       if (entry.getValue() == null) {
@@ -1159,7 +1160,7 @@ public class ODocumentSerializerDelta {
   }
 
   private int writeEmbeddedCollection(
-      final BytesContainer bytes, final Collection<?> value, final OType linkedType) {
+      final BytesContainer bytes, final Collection<?> value, final YTType linkedType) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
     // TODO manage embedded type from schema and auto-determined.
     for (Object itemValue : value) {
@@ -1168,7 +1169,7 @@ public class ODocumentSerializerDelta {
         writeNullableType(bytes, null);
         continue;
       }
-      OType type;
+      YTType type;
       if (linkedType == null) {
         type = getTypeFromValueEmbedded(itemValue);
       } else {
@@ -1181,7 +1182,7 @@ public class ODocumentSerializerDelta {
         throw new OSerializationException(
             "Impossible serialize value of type "
                 + value.getClass()
-                + " with the ODocument binary serializer");
+                + " with the YTDocument binary serializer");
       }
     }
     return pos;
@@ -1193,7 +1194,7 @@ public class ODocumentSerializerDelta {
       writeString(bytes, entry.getKey().toString());
       final Object value = entry.getValue();
       if (value != null) {
-        final OType type = getTypeFromValueEmbedded(value);
+        final YTType type = getTypeFromValueEmbedded(value);
         if (type == null) {
           throw new OSerializationException(
               "Impossible serialize value of type "
@@ -1209,7 +1210,8 @@ public class ODocumentSerializerDelta {
     return fullPos;
   }
 
-  public Object deserializeValue(ODatabaseSessionInternal session, BytesContainer bytes, OType type,
+  public Object deserializeValue(YTDatabaseSessionInternal session, BytesContainer bytes,
+      YTType type,
       ORecordElement owner) {
     Object value = null;
     switch (type) {
@@ -1248,20 +1250,20 @@ public class ODocumentSerializerDelta {
         value = new Date(savedTime);
         break;
       case EMBEDDED:
-        value = new ODocumentEmbedded();
-        deserialize(session, (ODocument) value, bytes);
-        if (((ODocument) value).containsField(ODocumentSerializable.CLASS_NAME)) {
-          String className = ((ODocument) value).field(ODocumentSerializable.CLASS_NAME);
+        value = new YTDocumentEmbedded();
+        deserialize(session, (YTDocument) value, bytes);
+        if (((YTDocument) value).containsField(ODocumentSerializable.CLASS_NAME)) {
+          String className = ((YTDocument) value).field(ODocumentSerializable.CLASS_NAME);
           try {
             Class<?> clazz = Class.forName(className);
             ODocumentSerializable newValue = (ODocumentSerializable) clazz.newInstance();
-            newValue.fromDocument((ODocument) value);
+            newValue.fromDocument((YTDocument) value);
             value = newValue;
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
         } else {
-          ODocumentInternal.addOwner((ODocument) value, owner);
+          ODocumentInternal.addOwner((YTDocument) value, owner);
         }
 
         break;
@@ -1321,12 +1323,12 @@ public class ODocumentSerializerDelta {
     return value;
   }
 
-  private Collection<?> readEmbeddedList(ODatabaseSessionInternal session,
+  private Collection<?> readEmbeddedList(YTDatabaseSessionInternal session,
       final BytesContainer bytes, final ORecordElement owner) {
     OTrackedList<Object> found = new OTrackedList<>(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
-      OType itemType = readNullableType(bytes);
+      YTType itemType = readNullableType(bytes);
       if (itemType == null) {
         found.addInternal(null);
       } else {
@@ -1336,12 +1338,12 @@ public class ODocumentSerializerDelta {
     return found;
   }
 
-  private Collection<?> readEmbeddedSet(ODatabaseSessionInternal session,
+  private Collection<?> readEmbeddedSet(YTDatabaseSessionInternal session,
       final BytesContainer bytes, final ORecordElement owner) {
     OTrackedSet<Object> found = new OTrackedSet<>(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
-      OType itemType = readNullableType(bytes);
+      YTType itemType = readNullableType(bytes);
       if (itemType == null) {
         found.addInternal(null);
       } else {
@@ -1351,11 +1353,11 @@ public class ODocumentSerializerDelta {
     return found;
   }
 
-  private Collection<OIdentifiable> readLinkList(BytesContainer bytes, ORecordElement owner) {
+  private Collection<YTIdentifiable> readLinkList(BytesContainer bytes, ORecordElement owner) {
     OList found = new OList(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
-      OIdentifiable id = readOptimizedLink(bytes);
+      YTIdentifiable id = readOptimizedLink(bytes);
       if (id.equals(NULL_RECORD_ID)) {
         found.addInternal(null);
       } else {
@@ -1365,11 +1367,11 @@ public class ODocumentSerializerDelta {
     return found;
   }
 
-  private Collection<OIdentifiable> readLinkSet(BytesContainer bytes, ORecordElement owner) {
+  private Collection<YTIdentifiable> readLinkSet(BytesContainer bytes, ORecordElement owner) {
     OSet found = new OSet(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
-      OIdentifiable id = readOptimizedLink(bytes);
+      YTIdentifiable id = readOptimizedLink(bytes);
       if (id.equals(NULL_RECORD_ID)) {
         found.addInternal(null);
       } else {
@@ -1379,14 +1381,14 @@ public class ODocumentSerializerDelta {
     return found;
   }
 
-  private Map<Object, OIdentifiable> readLinkMap(
-      ODatabaseSessionInternal session, final BytesContainer bytes, final ORecordElement owner) {
+  private Map<Object, YTIdentifiable> readLinkMap(
+      YTDatabaseSessionInternal session, final BytesContainer bytes, final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     OMap result = new OMap(owner);
     while ((size--) > 0) {
-      OType keyType = readOType(bytes, false);
+      YTType keyType = readOType(bytes, false);
       Object key = deserializeValue(session, bytes, keyType, result);
-      OIdentifiable value = readOptimizedLink(bytes);
+      YTIdentifiable value = readOptimizedLink(bytes);
       if (value.equals(NULL_RECORD_ID)) {
         result.putInternal(key, null);
       } else {
@@ -1397,13 +1399,13 @@ public class ODocumentSerializerDelta {
     return result;
   }
 
-  private Object readEmbeddedMap(ODatabaseSessionInternal session, final BytesContainer bytes,
+  private Object readEmbeddedMap(YTDatabaseSessionInternal session, final BytesContainer bytes,
       final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     final OTrackedMap result = new OTrackedMap<Object>(owner);
     while ((size--) > 0) {
       String key = readString(bytes);
-      OType valType = readNullableType(bytes);
+      YTType valType = readNullableType(bytes);
       Object value = null;
       if (valType != null) {
         value = deserializeValue(session, bytes, valType, result);
@@ -1413,7 +1415,7 @@ public class ODocumentSerializerDelta {
     return result;
   }
 
-  private ORidBag readRidBag(ODatabaseSessionInternal session, BytesContainer bytes) {
+  private ORidBag readRidBag(YTDatabaseSessionInternal session, BytesContainer bytes) {
     UUID uuid = OUUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
     bytes.skip(OUUIDSerializer.UUID_SIZE);
     if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) {
@@ -1425,7 +1427,7 @@ public class ODocumentSerializerDelta {
       ORidBag bag = new ORidBag(session, uuid);
       int size = OVarIntSerializer.readAsInteger(bytes);
       for (int i = 0; i < size; i++) {
-        OIdentifiable id = readOptimizedLink(bytes);
+        YTIdentifiable id = readOptimizedLink(bytes);
         if (id.equals(NULL_RECORD_ID)) {
           bag.add(null);
         } else {
@@ -1439,10 +1441,10 @@ public class ODocumentSerializerDelta {
       int pageOffset = OVarIntSerializer.readAsInteger(bytes);
       int bagSize = OVarIntSerializer.readAsInteger(bytes);
 
-      Map<OIdentifiable, Change> changes = new HashMap<>();
+      Map<YTIdentifiable, Change> changes = new HashMap<>();
       int size = OVarIntSerializer.readAsInteger(bytes);
       while (size-- > 0) {
-        OIdentifiable link = readOptimizedLink(bytes);
+        YTIdentifiable link = readOptimizedLink(bytes);
         byte type = bytes.bytes[bytes.offset];
         bytes.skip(1);
         int change = OVarIntSerializer.readAsInteger(bytes);
@@ -1474,9 +1476,9 @@ public class ODocumentSerializerDelta {
       int pos = bytes.alloc(1);
       bytes.bytes[pos] = 1;
       OVarIntSerializer.write(bytes, bag.size());
-      Iterator<OIdentifiable> iterator = bag.iterator();
+      Iterator<YTIdentifiable> iterator = bag.iterator();
       while (iterator.hasNext()) {
-        OIdentifiable itemValue = iterator.next();
+        YTIdentifiable itemValue = iterator.next();
         if (itemValue == null) {
           writeNullLink(bytes);
         } else {
@@ -1494,10 +1496,10 @@ public class ODocumentSerializerDelta {
       OVarIntSerializer.write(bytes, pointer.getRootPointer().getPageIndex());
       OVarIntSerializer.write(bytes, pointer.getRootPointer().getPageOffset());
       OVarIntSerializer.write(bytes, bag.size());
-      NavigableMap<OIdentifiable, Change> changes = bag.getChanges();
+      NavigableMap<YTIdentifiable, Change> changes = bag.getChanges();
       if (changes != null) {
         OVarIntSerializer.write(bytes, changes.size());
-        for (Map.Entry<OIdentifiable, Change> change : changes.entrySet()) {
+        for (Map.Entry<YTIdentifiable, Change> change : changes.entrySet()) {
           writeOptimizedLink(bytes, change.getKey());
           int posAll = bytes.alloc(1);
           bytes.bytes[posAll] = change.getValue().getType();
@@ -1509,7 +1511,7 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  public static void writeNullableType(BytesContainer bytes, OType type) {
+  public static void writeNullableType(BytesContainer bytes, YTType type) {
     int pos = bytes.alloc(1);
     if (type == null) {
       bytes.bytes[pos] = -1;
@@ -1518,31 +1520,31 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  public static OType readNullableType(BytesContainer bytes) {
+  public static YTType readNullableType(BytesContainer bytes) {
     byte typeId = bytes.bytes[bytes.offset++];
     if (typeId == -1) {
       return null;
     }
-    return OType.getById(typeId);
+    return YTType.getById(typeId);
   }
 
-  public static ORecordId readOptimizedLink(final BytesContainer bytes) {
+  public static YTRecordId readOptimizedLink(final BytesContainer bytes) {
     int clusterId = OVarIntSerializer.readAsInteger(bytes);
     long clusterPos = OVarIntSerializer.readAsLong(bytes);
 
     if (clusterId == -2 && clusterPos == -2) {
       return null;
     } else {
-      var rid = new ORecordId(clusterId, clusterPos);
+      var rid = new YTRecordId(clusterId, clusterPos);
 
       if (rid.isTemporary()) {
         try {
           // rid will be changed during commit we need to keep track original rid
           var record = rid.getRecord();
 
-          rid = (ORecordId) record.getIdentity();
+          rid = (YTRecordId) record.getIdentity();
           if (rid == null) {
-            rid = new ORecordId(clusterId, clusterPos);
+            rid = new YTRecordId(clusterId, clusterPos);
           }
 
         } catch (ORecordNotFoundException rnf) {
@@ -1554,7 +1556,7 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  public static void writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
+  public static void writeOptimizedLink(final BytesContainer bytes, YTIdentifiable link) {
     if (link == null) {
       OVarIntSerializer.write(bytes, -2);
       OVarIntSerializer.write(bytes, -2);

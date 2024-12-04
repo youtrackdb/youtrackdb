@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import java.util.Iterator;
 import org.junit.Test;
@@ -15,8 +15,8 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
   private int old;
 
   public void setup() throws Exception {
-    old = OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
-    OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
+    old = YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+    YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
     super.setup();
     youTrackDB =
         new YouTrackDB(
@@ -24,22 +24,22 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
             "root",
             "root",
             YouTrackDBConfig.builder()
-                .addConfig(OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1)
+                .addConfig(YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1)
                 .build());
   }
 
   public void teardown() {
-    OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(old);
+    YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(old);
     super.teardown();
   }
 
   @Test
   public void test() throws Exception {
-    ODatabaseSession g = youTrackDB.open(name.getMethodName(), "admin", "admin");
+    YTDatabaseSession g = youTrackDB.open(name.getMethodName(), "admin", "admin");
     g.begin();
-    OVertex vertex1 = g.newVertex("V");
+    YTVertex vertex1 = g.newVertex("V");
     vertex1.save();
-    OVertex vertex2 = g.newVertex("V");
+    YTVertex vertex2 = g.newVertex("V");
     vertex2.save();
     g.commit();
 
@@ -109,7 +109,7 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
      */
   }
 
-  private int countEdges(OVertex v, ODirection dir) throws Exception {
+  private int countEdges(YTVertex v, ODirection dir) throws Exception {
     int c = 0;
     Iterator it = v.getEdges(dir).iterator();
     while (it.hasNext()) {

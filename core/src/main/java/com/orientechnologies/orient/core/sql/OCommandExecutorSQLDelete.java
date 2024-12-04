@@ -25,21 +25,21 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -61,11 +61,11 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   public static final String KEYWORD_DELETE = "DELETE";
   private static final String VALUE_NOT_FOUND = "_not_found_";
 
-  private OSQLQuery<ODocument> query;
+  private OSQLQuery<YTDocument> query;
   private String indexName = null;
   private int recordCount = 0;
   private String returning = "COUNT";
-  private List<ORecord> allDeletedRecords;
+  private List<YTRecord> allDeletedRecords;
 
   private OSQLFilter compiledFilter;
   private boolean unsafe = false;
@@ -139,7 +139,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         subjectName = subjectName.trim();
         query =
             database.command(
-                new OSQLAsynchQuery<ODocument>(
+                new OSQLAsynchQuery<YTDocument>(
                     subjectName.substring(1, subjectName.length() - 1), this));
         parserNextWord(true);
         if (!parserIsEnded()) {
@@ -184,7 +184,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
                 : "";
         query =
             database.command(
-                new OSQLAsynchQuery<ODocument>(
+                new OSQLAsynchQuery<YTDocument>(
                     "select from " + getSelectTarget(subjectName) + condition, this));
       }
     } finally {
@@ -201,14 +201,14 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
     return ((ODeleteStatement) preParsedStatement).fromClause.toString();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (query == null && indexName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     if (!returning.equalsIgnoreCase("COUNT")) {
-      allDeletedRecords = new ArrayList<ORecord>();
+      allDeletedRecords = new ArrayList<YTRecord>();
     }
 
     if (query != null) {
@@ -237,7 +237,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         compiledFilter.bindParameters(iArgs);
       }
 
-      final ODatabaseSessionInternal database = getDatabase();
+      final YTDatabaseSessionInternal database = getDatabase();
       final OIndexInternal index =
           database
               .getMetadata()
@@ -261,14 +261,14 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
           return total;
         } else {
           // RETURNS ALL THE DELETED RECORDS
-          Iterator<ORawPair<Object, ORID>> cursor = index.stream(database).iterator();
+          Iterator<ORawPair<Object, YTRID>> cursor = index.stream(database).iterator();
 
           while (cursor.hasNext()) {
-            final ORawPair<Object, ORID> entry = cursor.next();
-            OIdentifiable rec = entry.second;
+            final ORawPair<Object, YTRID> entry = cursor.next();
+            YTIdentifiable rec = entry.second;
             rec = rec.getRecord();
             if (rec != null) {
-              allDeletedRecords.add((ORecord) rec);
+              allDeletedRecords.add((YTRecord) rec);
             }
           }
 
@@ -306,7 +306,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         final boolean result;
         if (value != VALUE_NOT_FOUND) {
           assert key != null;
-          result = index.remove(database, key, (OIdentifiable) value);
+          result = index.remove(database, key, (YTIdentifiable) value);
         } else {
           result = index.remove(database, key);
         }
@@ -326,19 +326,19 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   public long getDistributedTimeout() {
     return getDatabase()
         .getConfiguration()
-        .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
+        .getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
   }
 
   /**
    * Deletes the current record.
    */
-  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
-    final ORecordAbstract record = ((OIdentifiable) iRecord).getRecord();
+  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
+    final YTRecordAbstract record = ((YTIdentifiable) iRecord).getRecord();
 
-    if (record instanceof ODocument
+    if (record instanceof YTDocument
         && compiledFilter != null
         && !Boolean.TRUE.equals(
-        this.compiledFilter.evaluate(record, (ODocument) record, getContext()))) {
+        this.compiledFilter.evaluate(record, (YTDocument) record, getContext()))) {
       return true;
     }
     if (record.getIdentity().isValid()) {
@@ -350,9 +350,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
       // UPDATED
       //        ORecordInternal.setVersion(record, -1);
 
-      if (!unsafe && record instanceof ODocument) {
+      if (!unsafe && record instanceof YTDocument) {
         // CHECK IF ARE VERTICES OR EDGES
-        final OClass cls = ODocumentInternal.getImmutableSchemaClass(((ODocument) record));
+        final YTClass cls = ODocumentInternal.getImmutableSchemaClass(((YTDocument) record));
         if (cls != null) {
           if (cls.isSubClassOf("V"))
           // FOUND VERTEX
@@ -413,7 +413,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   }
 
   private Object getIndexKey(
-      ODatabaseSessionInternal session, final OIndexDefinition indexDefinition, Object value) {
+      YTDatabaseSessionInternal session, final OIndexDefinition indexDefinition, Object value) {
     if (indexDefinition instanceof OCompositeIndexDefinition) {
       if (value instanceof List<?> values) {
         List<Object> keyParams = new ArrayList<Object>(values.size());

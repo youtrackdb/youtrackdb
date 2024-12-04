@@ -4,7 +4,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class OCommandExecutorSQLDropSequence extends OCommandExecutorSQLAbstract
 
       init((OCommandRequestText) iRequest);
 
-      final ODatabaseSessionInternal database = getDatabase();
+      final YTDatabaseSessionInternal database = getDatabase();
       final StringBuilder word = new StringBuilder();
 
       parserRequiredKeyword("DROP");
@@ -46,7 +46,7 @@ public class OCommandExecutorSQLDropSequence extends OCommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

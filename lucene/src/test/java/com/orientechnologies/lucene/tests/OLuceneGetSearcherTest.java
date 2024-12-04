@@ -20,8 +20,8 @@ package com.orientechnologies.lucene.tests;
 
 import com.orientechnologies.lucene.index.OLuceneIndexNotUnique;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +33,8 @@ public class OLuceneGetSearcherTest extends OLuceneBaseTest {
 
   @Before
   public void init() {
-    OClass song = db.createVertexClass("Person");
-    song.createProperty(db, "isDeleted", OType.BOOLEAN);
+    YTClass song = db.createVertexClass("Person");
+    song.createProperty(db, "isDeleted", YTType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE");
   }

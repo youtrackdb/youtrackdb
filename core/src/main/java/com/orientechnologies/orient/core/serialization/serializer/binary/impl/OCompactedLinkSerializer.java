@@ -6,20 +6,20 @@ import static com.orientechnologies.orient.core.serialization.OBinaryProtocol.sh
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
 import java.nio.ByteBuffer;
 
-public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable> {
+public class OCompactedLinkSerializer implements OBinarySerializer<YTIdentifiable> {
 
   public static final byte ID = 22;
   public static final OCompactedLinkSerializer INSTANCE = new OCompactedLinkSerializer();
 
   @Override
-  public int getObjectSize(OIdentifiable rid, Object... hints) {
-    final ORID r = rid.getIdentity();
+  public int getObjectSize(YTIdentifiable rid, Object... hints) {
+    final YTRID r = rid.getIdentity();
 
     int size = OShortSerializer.SHORT_SIZE + OByteSerializer.BYTE_SIZE;
 
@@ -39,8 +39,8 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
   }
 
   @Override
-  public void serialize(OIdentifiable rid, byte[] stream, int startPosition, Object... hints) {
-    final ORID r = rid.getIdentity();
+  public void serialize(YTIdentifiable rid, byte[] stream, int startPosition, Object... hints) {
+    final YTRID r = rid.getIdentity();
 
     final int zeroBits = Long.numberOfLeadingZeros(r.getClusterPosition());
     final int zerosTillFullByte = zeroBits & 7;
@@ -60,7 +60,7 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
   }
 
   @Override
-  public OIdentifiable deserialize(byte[] stream, int startPosition) {
+  public YTIdentifiable deserialize(byte[] stream, int startPosition) {
     final int cluster = bytes2short(stream, startPosition);
     startPosition += OShortSerializer.SHORT_SIZE;
 
@@ -72,7 +72,7 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
       position = position | ((long) (0xFF & stream[startPosition + i]) << (i * 8));
     }
 
-    return new ORecordId(cluster, position);
+    return new YTRecordId(cluster, position);
   }
 
   @Override
@@ -92,8 +92,8 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
 
   @Override
   public void serializeNativeObject(
-      OIdentifiable rid, byte[] stream, int startPosition, Object... hints) {
-    final ORID r = rid.getIdentity();
+      YTIdentifiable rid, byte[] stream, int startPosition, Object... hints) {
+    final YTRID r = rid.getIdentity();
 
     OShortSerializer.INSTANCE.serializeNative((short) r.getClusterId(), stream, startPosition);
     startPosition += OShortSerializer.SHORT_SIZE;
@@ -113,7 +113,7 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
   }
 
   @Override
-  public OIdentifiable deserializeNativeObject(byte[] stream, int startPosition) {
+  public YTIdentifiable deserializeNativeObject(byte[] stream, int startPosition) {
     final int cluster = OShortSerializer.INSTANCE.deserializeNativeObject(stream, startPosition);
     startPosition += OShortSerializer.SHORT_SIZE;
 
@@ -125,7 +125,7 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
       position = position | ((long) (0xFF & stream[startPosition + i]) << (i * 8));
     }
 
-    return new ORecordId(cluster, position);
+    return new YTRecordId(cluster, position);
   }
 
   @Override
@@ -136,13 +136,13 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
   }
 
   @Override
-  public OIdentifiable preprocess(OIdentifiable value, Object... hints) {
+  public YTIdentifiable preprocess(YTIdentifiable value, Object... hints) {
     return value.getIdentity();
   }
 
   @Override
-  public void serializeInByteBufferObject(OIdentifiable rid, ByteBuffer buffer, Object... hints) {
-    final ORID r = rid.getIdentity();
+  public void serializeInByteBufferObject(YTIdentifiable rid, ByteBuffer buffer, Object... hints) {
+    final YTRID r = rid.getIdentity();
     buffer.putShort((short) r.getClusterId());
 
     final int zeroBits = Long.numberOfLeadingZeros(r.getClusterPosition());
@@ -163,7 +163,7 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
   }
 
   @Override
-  public OIdentifiable deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public YTIdentifiable deserializeFromByteBufferObject(ByteBuffer buffer) {
     final int cluster = buffer.getShort();
 
     final int numberSize = buffer.get();
@@ -175,11 +175,11 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
       position = position | ((long) (0xFF & number[i]) << (i * 8));
     }
 
-    return new ORecordId(cluster, position);
+    return new YTRecordId(cluster, position);
   }
 
   @Override
-  public OIdentifiable deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public YTIdentifiable deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
     final int cluster = buffer.getShort(offset);
     offset += Short.BYTES;
 
@@ -194,7 +194,7 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
       position = position | ((long) (0xFF & number[i]) << (i * 8));
     }
 
-    return new ORecordId(cluster, position);
+    return new YTRecordId(cluster, position);
   }
 
   @Override
@@ -212,7 +212,7 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
   }
 
   @Override
-  public OIdentifiable deserializeFromByteBufferObject(
+  public YTIdentifiable deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     final int cluster = walChanges.getShortValue(buffer, offset);
     offset += OShortSerializer.SHORT_SIZE;
@@ -227,7 +227,7 @@ public class OCompactedLinkSerializer implements OBinarySerializer<OIdentifiable
       position = position | ((long) (0xFF & number[i]) << (i * 8));
     }
 
-    return new ORecordId(cluster, position);
+    return new YTRecordId(cluster, position);
   }
 
   @Override

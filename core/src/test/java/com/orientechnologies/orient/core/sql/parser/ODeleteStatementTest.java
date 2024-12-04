@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.ByteArrayInputStream;
@@ -47,19 +47,19 @@ public class ODeleteStatementTest extends DBTestBase {
     db.command("create class Bar").close();
 
     db.begin();
-    final ODocument doc1 = new ODocument("Foo").field("k", "key1");
-    final ODocument doc2 = new ODocument("Foo").field("k", "key2");
-    final ODocument doc3 = new ODocument("Foo").field("k", "key3");
+    final YTDocument doc1 = new YTDocument("Foo").field("k", "key1");
+    final YTDocument doc2 = new YTDocument("Foo").field("k", "key2");
+    final YTDocument doc3 = new YTDocument("Foo").field("k", "key3");
 
     doc1.save();
     doc2.save();
     doc3.save();
 
-    List<ODocument> list = new ArrayList<ODocument>();
+    List<YTDocument> list = new ArrayList<YTDocument>();
     list.add(doc1);
     list.add(doc2);
     list.add(doc3);
-    final ODocument bar = new ODocument("Bar").field("arr", list);
+    final YTDocument bar = new YTDocument("Bar").field("arr", list);
     bar.save();
     db.commit();
 

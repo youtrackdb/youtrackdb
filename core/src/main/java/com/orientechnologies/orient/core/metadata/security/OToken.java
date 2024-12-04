@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 
 /**
@@ -21,13 +21,13 @@ public interface OToken {
 
   String getUserName();
 
-  OUser getUser(ODatabaseSessionInternal db);
+  OUser getUser(YTDatabaseSessionInternal db);
 
   String getDatabase();
 
   String getDatabaseType();
 
-  ORID getUserId();
+  YTRID getUserId();
 
   long getExpiry();
 

@@ -9,10 +9,10 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
@@ -48,14 +48,14 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testBeginTransactionWriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new ODocument(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new YTDocument(), ORecordOperation.CREATED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;
     change.changesPerKey = new TreeMap<>(ODefaultComparator.INSTANCE);
     OTransactionIndexChangesPerKey keyChange = new OTransactionIndexChangesPerKey("key");
-    keyChange.add(new ORecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new ORecordId(2, 2), OPERATION.REMOVE);
+    keyChange.add(new YTRecordId(1, 2), OPERATION.PUT);
+    keyChange.add(new YTRecordId(2, 2), OPERATION.REMOVE);
     change.changesPerKey.put(keyChange.key, keyChange);
     changes.put("some", change);
 
@@ -79,23 +79,23 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals("key", entryChange.key);
     assertEquals(2, entryChange.size());
-    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(new YTRecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
     assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(new YTRecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
     assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
   public void testFullCommitTransactionWriteRead() throws IOException {
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new ODocument(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new YTDocument(), ORecordOperation.CREATED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;
     change.changesPerKey = new TreeMap<>(ODefaultComparator.INSTANCE);
     OTransactionIndexChangesPerKey keyChange = new OTransactionIndexChangesPerKey("key");
-    keyChange.add(new ORecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new ORecordId(2, 2), OPERATION.REMOVE);
+    keyChange.add(new YTRecordId(1, 2), OPERATION.PUT);
+    keyChange.add(new YTRecordId(2, 2), OPERATION.REMOVE);
     change.changesPerKey.put(keyChange.key, keyChange);
     changes.put("some", change);
 
@@ -118,9 +118,9 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals("key", entryChange.key);
     assertEquals(2, entryChange.size());
-    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(new YTRecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
     assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(new YTRecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
     assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
@@ -132,10 +132,10 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
     Map<UUID, OBonsaiCollectionPointer> changes = new HashMap<>();
     UUID val = UUID.randomUUID();
     changes.put(val, new OBonsaiCollectionPointer(10, new OBonsaiBucketPointer(30, 40)));
-    var updatedRids = new HashMap<ORID, ORID>();
+    var updatedRids = new HashMap<YTRID, YTRID>();
 
-    updatedRids.put(new ORecordId(10, 20), new ORecordId(10, 30));
-    updatedRids.put(new ORecordId(10, 21), new ORecordId(10, 31));
+    updatedRids.put(new YTRecordId(10, 20), new YTRecordId(10, 30));
+    updatedRids.put(new YTRecordId(10, 21), new YTRecordId(10, 31));
 
     OCommit37Response response = new OCommit37Response(updatedRids, changes);
     response.write(db, channel, 0, null);
@@ -146,11 +146,11 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
 
     assertEquals(2, readResponse.getUpdatedRids().size());
 
-    assertEquals(new ORecordId(10, 30), readResponse.getUpdatedRids().get(0).first());
-    assertEquals(new ORecordId(10, 20), readResponse.getUpdatedRids().get(0).second());
+    assertEquals(new YTRecordId(10, 30), readResponse.getUpdatedRids().get(0).first());
+    assertEquals(new YTRecordId(10, 20), readResponse.getUpdatedRids().get(0).second());
 
-    assertEquals(new ORecordId(10, 31), readResponse.getUpdatedRids().get(1).first());
-    assertEquals(new ORecordId(10, 21), readResponse.getUpdatedRids().get(1).second());
+    assertEquals(new YTRecordId(10, 31), readResponse.getUpdatedRids().get(1).first());
+    assertEquals(new YTRecordId(10, 21), readResponse.getUpdatedRids().get(1).second());
 
     assertEquals(1, readResponse.getCollectionChanges().size());
     assertNotNull(readResponse.getCollectionChanges().get(val));
@@ -180,12 +180,12 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testTransactionFetchResponseWriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new ODocument(), ORecordOperation.CREATED));
-    var docOne = new ODocument();
-    ORecordInternal.setIdentity(docOne, new ORecordId(10, 2));
+    operations.add(new ORecordOperation(new YTDocument(), ORecordOperation.CREATED));
+    var docOne = new YTDocument();
+    ORecordInternal.setIdentity(docOne, new YTRecordId(10, 2));
 
-    var docTwo = new ODocument();
-    ORecordInternal.setIdentity(docTwo, new ORecordId(10, 1));
+    var docTwo = new YTDocument();
+    ORecordInternal.setIdentity(docTwo, new YTRecordId(10, 1));
 
     operations.add(
         new ORecordOperation(docOne, ORecordOperation.UPDATED));
@@ -197,8 +197,8 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
     change.cleared = false;
     change.changesPerKey = new TreeMap<>(ODefaultComparator.INSTANCE);
     OTransactionIndexChangesPerKey keyChange = new OTransactionIndexChangesPerKey("key");
-    keyChange.add(new ORecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new ORecordId(2, 2), OPERATION.REMOVE);
+    keyChange.add(new YTRecordId(1, 2), OPERATION.PUT);
+    keyChange.add(new YTRecordId(2, 2), OPERATION.REMOVE);
     change.changesPerKey.put(keyChange.key, keyChange);
     changes.put("some", change);
 
@@ -228,9 +228,9 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals("key", entryChange.key);
     assertEquals(2, entryChange.size());
-    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(new YTRecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
     assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(new YTRecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
     assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
@@ -239,18 +239,18 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testTransactionFetchResponse38WriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new ODocument(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new YTDocument(), ORecordOperation.CREATED));
     operations.add(
-        new ORecordOperation(new ODocument(new ORecordId(10, 2)), ORecordOperation.UPDATED));
+        new ORecordOperation(new YTDocument(new YTRecordId(10, 2)), ORecordOperation.UPDATED));
     operations.add(
-        new ORecordOperation(new ODocument(new ORecordId(10, 1)), ORecordOperation.DELETED));
+        new ORecordOperation(new YTDocument(new YTRecordId(10, 1)), ORecordOperation.DELETED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;
     change.changesPerKey = new TreeMap<>(ODefaultComparator.INSTANCE);
     OTransactionIndexChangesPerKey keyChange = new OTransactionIndexChangesPerKey("key");
-    keyChange.add(new ORecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new ORecordId(2, 2), OPERATION.REMOVE);
+    keyChange.add(new YTRecordId(1, 2), OPERATION.PUT);
+    keyChange.add(new YTRecordId(2, 2), OPERATION.REMOVE);
     change.changesPerKey.put(keyChange.key, keyChange);
     changes.put("some", change);
 
@@ -280,9 +280,9 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals("key", entryChange.key);
     assertEquals(2, entryChange.size());
-    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(new YTRecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
     assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(new YTRecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
     assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
@@ -295,8 +295,8 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
     change.cleared = true;
     change.changesPerKey = new TreeMap<>(ODefaultComparator.INSTANCE);
     OTransactionIndexChangesPerKey keyChange = new OTransactionIndexChangesPerKey("key");
-    keyChange.add(new ORecordId(1, 2), OPERATION.PUT);
-    keyChange.add(new ORecordId(2, 2), OPERATION.REMOVE);
+    keyChange.add(new YTRecordId(1, 2), OPERATION.PUT);
+    keyChange.add(new YTRecordId(2, 2), OPERATION.REMOVE);
     change.changesPerKey.put(keyChange.key, keyChange);
     changes.put("some", change);
 
@@ -320,9 +320,9 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals("key", entryChange.key);
     assertEquals(2, entryChange.size());
-    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(new YTRecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
     assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
-    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(new YTRecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
     assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 }

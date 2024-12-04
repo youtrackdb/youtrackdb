@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import java.util.regex.Pattern;
 
@@ -38,7 +38,7 @@ public class OQueryOperatorMatches extends OQueryOperatorEqualityNotNulls {
 
   @Override
   protected boolean evaluateExpression(
-      final OIdentifiable iRecord,
+      final YTIdentifiable iRecord,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
@@ -52,12 +52,13 @@ public class OQueryOperatorMatches extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
+  public YTRID getBeginRidRange(YTDatabaseSession session, final Object iLeft,
+      final Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
+  public YTRID getEndRidRange(YTDatabaseSession session, final Object iLeft, final Object iRight) {
     return null;
   }
 

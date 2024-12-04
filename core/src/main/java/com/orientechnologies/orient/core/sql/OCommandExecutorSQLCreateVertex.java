@@ -23,11 +23,11 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.OVertexInternal;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +42,7 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
     implements OCommandDistributedReplicateRequest {
 
   public static final String NAME = "CREATE VERTEX";
-  private OClass clazz;
+  private YTClass clazz;
   private String clusterName;
   private List<OPair<String, Object>> fields;
 
@@ -117,16 +117,16 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Execute the command and return the ODocument object created.
+   * Execute the command and return the YTDocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clazz == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     // CREATE VERTEX DOES NOT HAVE TO BE IN TX
-    final OVertexInternal vertex = (OVertexInternal) getDatabase().newVertex(clazz);
+    final YTVertexInternal vertex = (YTVertexInternal) getDatabase().newVertex(clazz);
 
     if (fields != null)
     // EVALUATE FIELDS
@@ -142,7 +142,7 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
     OSQLHelper.bindParameters(vertex.getRecord(), fields, new OCommandParameters(iArgs), context);
 
     if (content != null) {
-      ((ODocument) vertex.getRecord()).merge(content, true, false);
+      ((YTDocument) vertex.getRecord()).merge(content, true, false);
     }
 
     if (clusterName != null) {

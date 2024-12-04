@@ -21,15 +21,15 @@ import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.id.YTContextualRecordId;
+import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexEngineException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
@@ -59,12 +59,12 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   }
 
   @Override
-  public Object get(ODatabaseSessionInternal session, Object key) {
+  public Object get(YTDatabaseSessionInternal session, Object key) {
     return getInTx(session, key, null);
   }
 
   @Override
-  public Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+  public Set<YTIdentifiable> getInTx(YTDatabaseSessionInternal session, Object key,
       OLuceneTxChanges changes) {
     updateLastAccess();
     openIfClosed();
@@ -84,7 +84,7 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
     return new OLuceneResultSetEmpty();
   }
 
-  private Set<OIdentifiable> newGeoSearch(Map<String, Object> key, OLuceneTxChanges changes)
+  private Set<YTIdentifiable> newGeoSearch(Map<String, Object> key, OLuceneTxChanges changes)
       throws Exception {
 
     OLuceneQueryContext queryContext = queryStrategy.build(key).withChanges(changes);
@@ -94,7 +94,7 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   @Override
   public void onRecordAddedToResultSet(
       OLuceneQueryContext queryContext,
-      OContextualRecordId recordId,
+      YTContextualRecordId recordId,
       Document doc,
       ScoreDoc score) {
 
@@ -115,20 +115,20 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   }
 
   @Override
-  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+  public void put(YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       Object value) {
 
-    if (key instanceof OIdentifiable) {
+    if (key instanceof YTIdentifiable) {
       openIfClosed();
-      ODocument location = ((OIdentifiable) key).getRecord();
+      YTDocument location = ((YTIdentifiable) key).getRecord();
       updateLastAccess();
-      addDocument(newGeoDocument((OIdentifiable) value, factory.fromDoc(location), location));
+      addDocument(newGeoDocument((YTIdentifiable) value, factory.fromDoc(location), location));
     }
   }
 
   @Override
   public void update(
-      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      YTDatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
       OIndexKeyUpdater<Object> updater) {
     throw new UnsupportedOperationException();
   }
@@ -137,15 +137,16 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   public boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,
-      ORID value,
-      IndexEngineValidator<Object, ORID> validator) {
+      YTRID value,
+      IndexEngineValidator<Object, YTRID> validator) {
     throw new UnsupportedOperationException(
         "Validated put is not supported by OLuceneGeoSpatialIndexEngine");
   }
 
   @Override
-  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
-    ODocument location = ((OIdentifiable) key).getRecord();
+  public Document buildDocument(YTDatabaseSessionInternal session, Object key,
+      YTIdentifiable value) {
+    YTDocument location = ((YTIdentifiable) key).getRecord();
     return newGeoDocument(value, factory.fromDoc(location), location);
   }
 
