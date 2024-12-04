@@ -19,24 +19,24 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OPatternConst;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionFactory;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexes;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition;
 import com.orientechnologies.orient.core.index.ORuntimeKeyIndexDefinition;
 import com.orientechnologies.orient.core.index.OSimpleKeyIndexDefinition;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -93,21 +93,21 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected index name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -116,7 +116,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Index type requested. Use " + getSyntax(), parserText, oldPos + 1);
       }
 
@@ -124,19 +124,19 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Expected class name. Use " + getSyntax(), parserText, oldPos);
         }
         oldPos = pos;
         oClass = findClass(decodeClassName(word.toString()));
 
         if (oClass == null) {
-          throw new OCommandExecutionException("Class " + word + " not found");
+          throw new YTCommandExecutionException("Class " + word + " not found");
         }
 
         pos = parserTextUpperCase.indexOf(')');
         if (pos == -1) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "No right bracket found. Use " + getSyntax(), parserText, oldPos);
         }
 
@@ -181,7 +181,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         oldPos = pos + 1;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Index type requested. Use " + getSyntax(), parserText, oldPos + 1);
         }
       } else {
@@ -190,7 +190,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
 
           oClass = findClass(parts[0]);
           if (oClass == null) {
-            throw new OCommandExecutionException("Class " + parts[0] + " not found");
+            throw new YTCommandExecutionException("Class " + parts[0] + " not found");
           }
 
           fields = new String[]{parts[1]};
@@ -200,7 +200,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
       indexType = YTClass.INDEX_TYPE.valueOf(word.toString());
 
       if (indexType == null) {
-        throw new OCommandSQLParsingException("Index type is null", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Index type is null", parserText, oldPos);
       }
 
       oldPos = pos;
@@ -250,7 +250,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
           keyTypeList.toArray(keyTypes);
 
           if (fields != null && fields.length != 0 && fields.length != keyTypes.length) {
-            throw new OCommandSQLParsingException(
+            throw new YTCommandSQLParsingException(
                 "Count of fields does not match with count of property types. "
                     + "Fields: "
                     + Arrays.toString(fields)
@@ -275,7 +275,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
   @SuppressWarnings("rawtypes")
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (indexName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -328,7 +328,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
                     metadataDoc,
                     engine);
       } else {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Impossible to create an index without specify the key type or the associated"
                 + " property");
       }
@@ -342,7 +342,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         if (keyTypes == null) {
           for (final String fieldName : fields) {
             if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
-              throw new OIndexException(
+              throw new YTIndexException(
                   "Index with name : '"
                       + indexName
                       + "' cannot be created on class : '"
@@ -416,8 +416,8 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
           OPropertyMapIndexDefinition.INDEX_BY.valueOf(
               fieldNameParts[2].toUpperCase(Locale.ENGLISH));
         } catch (IllegalArgumentException iae) {
-          throw OException.wrapException(
-              new OCommandSQLParsingException(
+          throw YTException.wrapException(
+              new YTCommandSQLParsingException(
                   "Illegal field name format, should be '<property> [by key|value]' but was '"
                       + fieldName
                       + "'",
@@ -427,7 +427,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         }
         return;
       }
-      throw new OCommandSQLParsingException(
+      throw new YTCommandSQLParsingException(
           "Illegal field name format, should be '<property> [by key|value]' but was '"
               + fieldName
               + "'",
@@ -435,7 +435,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
           pos);
     }
 
-    throw new OCommandSQLParsingException(
+    throw new YTCommandSQLParsingException(
         "Illegal field name format, should be '<property> [by key|value]' but was '"
             + fieldName
             + "'",

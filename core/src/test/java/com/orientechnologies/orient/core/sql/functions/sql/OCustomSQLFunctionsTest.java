@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
@@ -40,7 +40,7 @@ public class OCustomSQLFunctionsTest extends DBTestBase {
     assertEquals(5.0f, result.findFirst().<Float>getProperty("abs"), 0.0);
   }
 
-  @Test(expected = OQueryParsingException.class)
+  @Test(expected = YTQueryParsingException.class)
   public void testNonExistingFunction() {
     db.query("select math_min('boom', 'boom') as boom").findFirst();
   }

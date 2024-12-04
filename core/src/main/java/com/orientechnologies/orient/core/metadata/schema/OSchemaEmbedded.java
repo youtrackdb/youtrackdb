@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition.INDEX_BY;
@@ -40,7 +40,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
     //noinspection ConstantValue
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
@@ -72,7 +72,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
     //noinspection ConstantValue
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
@@ -99,7 +99,7 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key)) {
-        throw new OSchemaException("Class '" + className + "' already exists in current database");
+        throw new YTSchemaException("Class '" + className + "' already exists in current database");
       }
       List<YTClass> superClassesList = new ArrayList<>();
       if (superClasses != null) {
@@ -135,8 +135,8 @@ public class OSchemaEmbedded extends OSchemaShared {
       }
 
     } catch (ClusterIdsAreEmptyException e) {
-      throw OException.wrapException(
-          new OSchemaException("Cannot create class '" + className + "'"), e);
+      throw YTException.wrapException(
+          new YTSchemaException("Cannot create class '" + className + "'"), e);
     } finally {
       releaseSchemaWriteLock(database);
     }
@@ -162,7 +162,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     acquireSchemaWriteLock(database);
     try {
       if (className == null || className.isEmpty()) {
-        throw new OSchemaException("Found class name null or empty");
+        throw new YTSchemaException("Found class name null or empty");
       }
 
       checkEmbedded();
@@ -182,7 +182,7 @@ public class OSchemaEmbedded extends OSchemaShared {
       final String key = className.toLowerCase(Locale.ENGLISH);
 
       if (classes.containsKey(key)) {
-        throw new OSchemaException("Class '" + className + "' already exists in current database");
+        throw new YTSchemaException("Class '" + className + "' already exists in current database");
       }
 
       YTClassImpl cls = createClassInstance(className, clusterIds);
@@ -273,7 +273,7 @@ public class OSchemaEmbedded extends OSchemaShared {
               String collate = null;
               INDEX_BY indexBy = null;
               if (entry.getValue() == null || entry.getKey() == null) {
-                throw new ODatabaseException(
+                throw new YTDatabaseException(
                     "Invalid properties " + ((Map<?, ?>) index).get("properties"));
               }
               if (entry.getValue() instanceof Map) {
@@ -323,7 +323,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(cfg.getName());
     //noinspection ConstantValue
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in view name '"
@@ -344,7 +344,7 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       final String key = config.getName().toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key) || views.containsKey(key)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "View (or class) '" + config.getName() + "' already exists in current database");
       }
 
@@ -393,8 +393,8 @@ public class OSchemaEmbedded extends OSchemaShared {
           });
 
     } catch (ClusterIdsAreEmptyException e) {
-      throw OException.wrapException(
-          new OSchemaException("Cannot create view '" + config.getName() + "'"), e);
+      throw YTException.wrapException(
+          new YTSchemaException("Cannot create view '" + config.getName() + "'"), e);
     } finally {
       releaseSchemaWriteLock(database);
     }
@@ -414,7 +414,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     acquireSchemaWriteLock(database);
     try {
       if (cfg.getName() == null || cfg.getName().isEmpty()) {
-        throw new OSchemaException("Found view name null or empty");
+        throw new YTSchemaException("Found view name null or empty");
       }
 
       checkEmbedded();
@@ -434,7 +434,7 @@ public class OSchemaEmbedded extends OSchemaShared {
       final String key = cfg.getName().toLowerCase(Locale.ENGLISH);
 
       if (views.containsKey(key)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "View '" + cfg.getName() + "' already exists in current database");
       }
 
@@ -524,7 +524,7 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key) && retry == 0) {
-        throw new OSchemaException("Class '" + className + "' already exists in current database");
+        throw new YTSchemaException("Class '" + className + "' already exists in current database");
       }
 
       if (!executeThroughDistributedStorage(database)) {
@@ -630,7 +630,7 @@ public class OSchemaEmbedded extends OSchemaShared {
       }
 
       if (clustersToClasses.containsKey(clusterId)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to class "
@@ -657,11 +657,11 @@ public class OSchemaEmbedded extends OSchemaShared {
       YTClass cls = classes.get(key);
 
       if (cls == null) {
-        throw new OSchemaException("Class '" + className + "' was not found in current database");
+        throw new YTSchemaException("Class '" + className + "' was not found in current database");
       }
 
       if (!cls.getSubclasses().isEmpty()) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Class '"
                 + className
                 + "' cannot be dropped because it has sub classes "
@@ -700,11 +700,11 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       final YTClass cls = classes.get(key);
       if (cls == null) {
-        throw new OSchemaException("Class '" + className + "' was not found in current database");
+        throw new YTSchemaException("Class '" + className + "' was not found in current database");
       }
 
       if (!cls.getSubclasses().isEmpty()) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Class '"
                 + className
                 + "' cannot be dropped because it has sub classes "
@@ -770,11 +770,11 @@ public class OSchemaEmbedded extends OSchemaShared {
       YTView cls = views.get(key);
 
       if (cls == null) {
-        throw new OSchemaException("View '" + name + "' was not found in current database");
+        throw new YTSchemaException("View '" + name + "' was not found in current database");
       }
 
       if (!cls.getSubclasses().isEmpty()) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "View '"
                 + name
                 + "' cannot be dropped because it has sub classes "
@@ -813,11 +813,11 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       final YTView cls = views.get(key);
       if (cls == null) {
-        throw new OSchemaException("View '" + view + "' was not found in current database");
+        throw new YTSchemaException("View '" + view + "' was not found in current database");
       }
 
       if (!cls.getSubclasses().isEmpty()) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "View '"
                 + view
                 + "' cannot be dropped because it has sub classes "
@@ -925,7 +925,7 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       final YTClass existingCls = clustersToClasses.get(clusterId);
       if (existingCls != null && !cls.equals(existingCls)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to class "
@@ -950,7 +950,7 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       final YTView existingView = clustersToViews.get(clusterId);
       if (existingView != null && !view.equals(existingView)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to view "

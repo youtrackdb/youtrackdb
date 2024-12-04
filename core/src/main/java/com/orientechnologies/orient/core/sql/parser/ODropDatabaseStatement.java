@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class ODropDatabaseStatement extends OSimpleExecServerStatement {
         server.drop(nameString, null, null);
         result.setProperty("dropped", true);
       } catch (Exception e) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Could not drop database " + nameString + ":" + e.getMessage());
       }
     }

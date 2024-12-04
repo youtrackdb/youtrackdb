@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -229,7 +229,7 @@ public class ODatabaseHelper {
                       + "}/config/orientdb-server-config.xml"));
     }
     if (!file.exists()) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Cannot load file orientdb-server-config.xml to execute remote tests. Current directory"
               + " is "
               + new File(".").getAbsolutePath());

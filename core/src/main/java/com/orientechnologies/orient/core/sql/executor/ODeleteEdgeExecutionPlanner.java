@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.parser.OBatch;
 import com.orientechnologies.orient.core.sql.parser.ODeleteEdgeStatement;
 import com.orientechnologies.orient.core.sql.parser.OExecutionPlanCache;
@@ -197,7 +197,7 @@ public class ODeleteEdgeExecutionPlanner {
       String name = targetClusterName.getStringValue();
       int clusterId = ctx.getDatabase().getClusterIdByName(name);
       if (clusterId < 0) {
-        throw new OCommandExecutionException("Cluster not found: " + name);
+        throw new YTCommandExecutionException("Cluster not found: " + name);
       }
       result.chain(new FetchFromClusterExecutionStep(clusterId, ctx, profilingEnabled));
     }
@@ -224,7 +224,7 @@ public class ODeleteEdgeExecutionPlanner {
     if (indexIdentifier == null) {
       return false;
     }
-    throw new OCommandExecutionException("DELETE VERTEX FROM INDEX is not supported");
+    throw new YTCommandExecutionException("DELETE VERTEX FROM INDEX is not supported");
   }
 
   private void handleDelete(

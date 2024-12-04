@@ -20,11 +20,11 @@
 
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBooleanSerializer;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -81,8 +81,8 @@ public class OIndexRIDContainerSBTree implements Set<YTIdentifiable> {
     try {
       tree.create(atomicOperation, OCompactedLinkSerializer.INSTANCE, OBooleanSerializer.INSTANCE);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new ODatabaseException("Error during creation of index container "), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Error during creation of index container "), e);
     }
   }
 
@@ -257,7 +257,7 @@ public class OIndexRIDContainerSBTree implements Set<YTIdentifiable> {
       if (autoConvertToRecord) {
         try {
           return identifiable.getRecord();
-        } catch (ORecordNotFoundException rnf) {
+        } catch (YTRecordNotFoundException rnf) {
           return identifiable;
         }
       } else {

@@ -17,8 +17,8 @@
  */
 package com.orientechnologies.common.factory;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTSystemException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -49,13 +49,13 @@ public class OConfigurableStatefulFactory<K, V> {
       try {
         return cls.newInstance();
       } catch (Exception e) {
-        final OSystemException exception =
-            new OSystemException(
+        final YTSystemException exception =
+            new YTSystemException(
                 String.format(
                     "Error on creating new instance of class '%s' registered in factory with key"
                         + " '%s'",
                     cls, iKey));
-        throw OException.wrapException(exception, e);
+        throw YTException.wrapException(exception, e);
       }
     }
 
@@ -67,8 +67,8 @@ public class OConfigurableStatefulFactory<K, V> {
       try {
         return defaultClass.newInstance();
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OSystemException(
+        throw YTException.wrapException(
+            new YTSystemException(
                 String.format(
                     "Error on creating new instance of default class '%s'", defaultClass)),
             e);

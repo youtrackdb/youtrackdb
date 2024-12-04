@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.security.kerberos;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,12 +56,12 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
   }
 
   public void intercept(final String url, final String principal, final String spn)
-      throws OSecurityException {
+      throws YTSecurityException {
     // While the principal can be determined from the ticket cache, if a client keytab is used
     // instead,
     // it may contain multiple principals.
     if (principal == null || principal.isEmpty()) {
-      throw new OSecurityException("OKerberosCredentialInterceptor Principal cannot be null!");
+      throw new YTSecurityException("OKerberosCredentialInterceptor Principal cannot be null!");
     }
 
     this.principal = principal;
@@ -73,7 +73,7 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
       // If spn is null or an empty string, the SPN will be generated from the URL like this:
       //		YouTrackDB/host
       if (url == null || url.isEmpty()) {
-        throw new OSecurityException(
+        throw new YTSecurityException(
             "OKerberosCredentialInterceptor URL and SPN cannot both be null!");
       }
 
@@ -90,14 +90,14 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
         String host = remoteURI.getHost();
 
         if (host == null) {
-          throw new OSecurityException(
+          throw new YTSecurityException(
               "OKerberosCredentialInterceptor Could not create SPN from URL: " + url);
         }
 
         actualSPN = "YouTrackDB/" + host;
       } catch (URISyntaxException ex) {
-        throw OException.wrapException(
-            new OSecurityException(
+        throw YTException.wrapException(
+            new YTSecurityException(
                 "OKerberosCredentialInterceptor Could not create SPN from URL: " + url),
             ex);
       }
@@ -125,10 +125,10 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     }
 
     if (config == null) {
-      throw new OSecurityException("OKerberosCredentialInterceptor KRB5 Config cannot be null!");
+      throw new YTSecurityException("OKerberosCredentialInterceptor KRB5 Config cannot be null!");
     }
     if (ccname == null && ktname == null) {
-      throw new OSecurityException(
+      throw new YTSecurityException(
           "OKerberosCredentialInterceptor KRB5 Credential Cache and KeyTab cannot both be null!");
     }
 
@@ -145,8 +145,8 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     } catch (LoginException lie) {
       OLogManager.instance().debug(this, "intercept() LoginException", lie);
 
-      throw OException.wrapException(
-          new OSecurityException("OKerberosCredentialInterceptor Client Validation Exception!"),
+      throw YTException.wrapException(
+          new YTSecurityException("OKerberosCredentialInterceptor Client Validation Exception!"),
           lie);
     }
 
@@ -155,7 +155,7 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     // Assign the client's principal name.
     //		this.principal = getFirstPrincipal(subject);
 
-    //		if(this.principal == null) throw new OSecurityException("OKerberosCredentialInterceptor
+    //		if(this.principal == null) throw new YTSecurityException("OKerberosCredentialInterceptor
     // Cannot obtain client principal!");
 
     this.serviceTicket = getServiceTicket(subject, principal, actualSPN);
@@ -167,7 +167,7 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     }
 
     if (this.serviceTicket == null) {
-      throw new OSecurityException(
+      throw new YTSecurityException(
           "OKerberosCredentialInterceptor Cannot obtain the service ticket!");
     }
   }

@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.parser.OOrBlock;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -69,7 +69,7 @@ public class OPredicateCache {
     return result.copy();
   }
 
-  protected static OOrBlock parse(String statement) throws OCommandSQLParsingException {
+  protected static OOrBlock parse(String statement) throws YTCommandSQLParsingException {
     return OSQLEngine.parsePredicate(statement);
   }
 

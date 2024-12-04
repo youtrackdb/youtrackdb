@@ -20,12 +20,12 @@
 package com.orientechnologies.orient.core.serialization.serializer;
 
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -107,7 +107,7 @@ public class OJSONWriter {
                     ? "indent:" + iIndentLevel
                     : iFormat + ",indent:" + iIndentLevel;
             buffer.append(rec.toJSON(embeddedFormat));
-          } catch (ORecordNotFoundException e) {
+          } catch (YTRecordNotFoundException e) {
             buffer.append("null");
           }
         }
@@ -261,8 +261,8 @@ public class OJSONWriter {
 
       return buffer.toString();
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OSerializationException("Error on serializing collection"), e);
+      throw YTException.wrapException(
+          new YTSerializationException("Error on serializing collection"), e);
     }
   }
 
@@ -290,7 +290,7 @@ public class OJSONWriter {
       buffer.append('}');
       return buffer.toString();
     } catch (IOException e) {
-      throw OException.wrapException(new OSerializationException("Error on serializing map"), e);
+      throw YTException.wrapException(new YTSerializationException("Error on serializing map"), e);
     }
   }
 

@@ -17,7 +17,7 @@ package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.console.OConsoleReader;
 import com.orientechnologies.common.console.ODefaultConsoleReader;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OAnsiCode;
 import com.orientechnologies.common.log.OLogManager;
@@ -36,12 +36,12 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OTokenAuthInfo;
-import com.orientechnologies.orient.core.security.OInvalidPasswordException;
+import com.orientechnologies.orient.core.security.YTInvalidPasswordException;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
@@ -305,7 +305,7 @@ public class OServer {
     return null;
   }
 
-  public OServer startup() throws OConfigurationException {
+  public OServer startup() throws YTConfigurationException {
     String config = OServerConfiguration.DEFAULT_CONFIG_FILE;
     if (System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE) != null) {
       config = System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE);
@@ -318,7 +318,7 @@ public class OServer {
     return this;
   }
 
-  public OServer startup(final File iConfigurationFile) throws OConfigurationException {
+  public OServer startup(final File iConfigurationFile) throws YTConfigurationException {
     // Startup function split to allow pre-activation changes
     try {
       serverCfg = new OServerConfigurationManager(iConfigurationFile);
@@ -328,7 +328,7 @@ public class OServer {
       final String message =
           "Error on reading server configuration from file: " + iConfigurationFile;
       OLogManager.instance().error(this, message, e);
-      throw OException.wrapException(new OConfigurationException(message), e);
+      throw YTException.wrapException(new YTConfigurationException(message), e);
     }
   }
 
@@ -338,7 +338,7 @@ public class OServer {
 
   public OServer startup(final InputStream iInputStream) throws IOException {
     if (iInputStream == null) {
-      throw new OConfigurationException("Configuration file is null");
+      throw new YTConfigurationException("Configuration file is null");
     }
 
     serverCfg = new OServerConfigurationManager(iInputStream);
@@ -417,13 +417,13 @@ public class OServer {
               ODistributedConfig.buildConfig(
                   contextConfiguration, ODistributedConfig.fromEnv(configuration.distributed));
           databases = YouTrackDBInternal.distributed(this.databaseDirectory, youTrackDBConfig);
-        } catch (ODatabaseException ex) {
+        } catch (YTDatabaseException ex) {
           databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
         }
       } else {
         try {
           databases = YouTrackDBInternal.distributed(this.databaseDirectory, config);
-        } catch (ODatabaseException ex) {
+        } catch (YTDatabaseException ex) {
           databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
         }
       }
@@ -490,7 +490,7 @@ public class OServer {
             try {
               factory.config(f.name, f.parameters);
               networkSocketFactories.put(f.name, factory);
-            } catch (OConfigurationException e) {
+            } catch (YTConfigurationException e) {
               OLogManager.instance().error(this, "Error creating socket factory", e);
             }
           }
@@ -528,7 +528,7 @@ public class OServer {
         final String message = "Error on reading server configuration";
         OLogManager.instance().error(this, message, e);
 
-        throw OException.wrapException(new OConfigurationException(message), e);
+        throw YTException.wrapException(new YTConfigurationException(message), e);
       }
 
       registerPlugins();
@@ -847,7 +847,7 @@ public class OServer {
   @SuppressWarnings("unchecked")
   public <RET extends OServerPlugin> RET getPluginByClass(final Class<RET> iPluginClass) {
     if (startupLatch == null) {
-      throw new ODatabaseException("Error on plugin lookup: the server did not start correctly");
+      throw new YTDatabaseException("Error on plugin lookup: the server did not start correctly");
     }
 
     try {
@@ -856,7 +856,7 @@ public class OServer {
       Thread.currentThread().interrupt();
     }
     if (!running) {
-      throw new ODatabaseException("Error on plugin lookup the server did not start correctly.");
+      throw new YTDatabaseException("Error on plugin lookup the server did not start correctly.");
     }
 
     for (OServerPluginInfo h : getPlugins()) {
@@ -871,7 +871,7 @@ public class OServer {
   @SuppressWarnings("unchecked")
   public <RET extends OServerPlugin> RET getPlugin(final String iName) {
     if (startupLatch == null) {
-      throw new ODatabaseException("Error on plugin lookup: the server did not start correctly");
+      throw new YTDatabaseException("Error on plugin lookup: the server did not start correctly");
     }
 
     try {
@@ -880,7 +880,7 @@ public class OServer {
       Thread.currentThread().interrupt();
     }
     if (!running) {
-      throw new ODatabaseException("Error on plugin lookup: the server did not start correctly");
+      throw new YTDatabaseException("Error on plugin lookup: the server did not start correctly");
     }
 
     final OServerPluginInfo p = pluginManager.getPluginByName(iName);
@@ -1007,7 +1007,7 @@ public class OServer {
 
         int typeIndex = url.indexOf(':');
         if (typeIndex <= 0) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Error in database URL: the engine was not specified. Syntax is: "
                   + YouTrackDBManager.URL_SYNTAX
                   + ". URL was: "
@@ -1128,7 +1128,7 @@ public class OServer {
               }
               // PASSWORD IS STRONG ENOUGH
               break;
-            } catch (OInvalidPasswordException ex) {
+            } catch (YTInvalidPasswordException ex) {
               System.out.println(
                   OAnsiCode.format(
                       "$ANSI{red ERROR: Root password does not match the password policies}"));
@@ -1266,7 +1266,7 @@ public class OServer {
     if (databases.exists(databaseName, null, null)) {
       databases.drop(databaseName, null, null);
     } else {
-      throw new OStorageException("Database with name '" + databaseName + "' does not exist");
+      throw new YTStorageException("Database with name '" + databaseName + "' does not exist");
     }
   }
 

@@ -6,7 +6,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -396,7 +396,7 @@ public class OModifier extends SimpleNode {
       } else if (suffix != null) {
         suffix.applyRemove(currentValue, ctx);
       } else {
-        throw new OCommandExecutionException("cannot apply REMOVE " + this);
+        throw new YTCommandExecutionException("cannot apply REMOVE " + this);
       }
     }
   }

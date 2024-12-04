@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.cache.OAbstractWriteCache;
@@ -162,8 +162,8 @@ public final class OSBTreeCollectionManagerShared
                           pair.second);
                     });
               } catch (final IOException e) {
-                throw OException.wrapException(
-                    new OStorageException("Error during migration of RidBag data"), e);
+                throw YTException.wrapException(
+                    new YTStorageException("Error during migration of RidBag data"), e);
               }
             });
       }
@@ -378,7 +378,7 @@ public final class OSBTreeCollectionManagerShared
     final int fileId = (int) collectionPointer.getFileId();
     final BTree bTree = fileIdBTreeMap.get(fileId);
     if (bTree == null) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "RidBug for with collection pointer " + collectionPointer + " does not exist");
     }
 

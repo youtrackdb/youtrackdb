@@ -20,12 +20,12 @@
 
 package com.orientechnologies.orient.core.storage.index.sbtree.multivalue.v2;
 
-import com.orientechnologies.orient.core.exception.ODurableComponentException;
+import com.orientechnologies.orient.core.exception.YTDurableComponentException;
 
 /**
  * @since 8/30/13
  */
-public final class CellBTreeMultiValueException extends ODurableComponentException {
+public final class CellBTreeMultiValueException extends YTDurableComponentException {
 
   @SuppressWarnings("unused")
   public CellBTreeMultiValueException(final CellBTreeMultiValueException exception) {

@@ -20,16 +20,16 @@
 
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -381,9 +381,9 @@ public class OClassIndexManager {
     if (iRecord.isUnloaded()) {
       try {
         return session.load(iRecord.getIdentity());
-      } catch (final ORecordNotFoundException e) {
-        throw OException.wrapException(
-            new OIndexException("Error during loading of record with id " + iRecord.getIdentity()),
+      } catch (final YTRecordNotFoundException e) {
+        throw YTException.wrapException(
+            new YTIndexException("Error during loading of record with id " + iRecord.getIdentity()),
             e);
       }
     }

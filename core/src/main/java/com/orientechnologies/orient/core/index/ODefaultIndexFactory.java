@@ -17,7 +17,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeIndexEngine;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeMultiValueIndexEngine;
@@ -99,7 +99,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
   }
 
   public OIndexInternal createIndex(OStorage storage, OIndexMetadata im)
-      throws OConfigurationException {
+      throws YTConfigurationException {
     int version = im.getVersion();
     final String indexType = im.getType();
     final String algorithm = im.getAlgorithm();
@@ -124,7 +124,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
       return new OIndexDictionary(im, storage);
     }
 
-    throw new OConfigurationException("Unsupported type: " + indexType);
+    throw new YTConfigurationException("Unsupported type: " + indexType);
   }
 
   @Override
@@ -143,7 +143,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
   public OBaseIndexEngine createIndexEngine(OStorage storage, IndexEngineData data) {
 
     if (data.getAlgorithm() == null) {
-      throw new OIndexException("Name of algorithm is not specified");
+      throw new YTIndexException("Name of algorithm is not specified");
     }
     final OBaseIndexEngine indexEngine;
     String storageType = storage.getType();
@@ -181,7 +181,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
         indexEngine = new ORemoteIndexEngine(data.getIndexId(), data.getName());
         break;
       default:
-        throw new OIndexException("Unsupported storage type: " + storageType);
+        throw new YTIndexException("Unsupported storage type: " + storageType);
     }
 
     return indexEngine;

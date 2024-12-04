@@ -34,8 +34,8 @@ import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -219,7 +219,7 @@ public class ORidBag
     return bottomThreshold >= size();
   }
 
-  public int toStream(BytesContainer bytesContainer) throws OSerializationException {
+  public int toStream(BytesContainer bytesContainer) throws YTSerializationException {
 
     checkAndConvert();
 
@@ -321,7 +321,7 @@ public class ORidBag
   }
 
   @Override
-  public OStringBuilderSerializable toStream(StringBuilder output) throws OSerializationException {
+  public OStringBuilderSerializable toStream(StringBuilder output) throws YTSerializationException {
     final BytesContainer container = new BytesContainer();
     toStream(container);
     output.append(Base64.getEncoder().encodeToString(container.fitBytes()));
@@ -338,7 +338,8 @@ public class ORidBag
   }
 
   @Override
-  public OStringBuilderSerializable fromStream(StringBuilder input) throws OSerializationException {
+  public OStringBuilderSerializable fromStream(StringBuilder input)
+      throws YTSerializationException {
     final byte[] stream = Base64.getDecoder().decode(input.toString());
     fromStream(stream);
     return this;
@@ -380,7 +381,7 @@ public class ORidBag
   public void setOwner(ORecordElement owner) {
     if ((!(owner instanceof YTDocument) && owner != null)
         || (owner != null && ((YTDocument) owner).isEmbedded())) {
-      throw new ODatabaseException("RidBag are supported only at document root");
+      throw new YTDatabaseException("RidBag are supported only at document root");
     }
     delegate.setOwner(owner);
   }

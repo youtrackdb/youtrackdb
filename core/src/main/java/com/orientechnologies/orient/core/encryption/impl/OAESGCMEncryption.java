@@ -4,12 +4,12 @@ import static java.lang.String.format;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.thread.NonDaemonThreadFactory;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTInvalidStorageEncryptionKeyException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -132,7 +132,7 @@ public class OAESGCMEncryption implements OEncryption {
       return cipher.doFinal(
           input, offset + GCM_NONCE_SIZE_IN_BYTES, length - GCM_NONCE_SIZE_IN_BYTES);
     } catch (AEADBadTagException e) {
-      throw OException.wrapException(new OSecurityException(AUTHENTICATION_ERROR), e);
+      throw YTException.wrapException(new YTSecurityException(AUTHENTICATION_ERROR), e);
     } catch (IllegalBlockSizeException | BadPaddingException e) {
       throw new IllegalStateException("Unexpected exception during GCM decryption.", e);
     }
@@ -140,7 +140,7 @@ public class OAESGCMEncryption implements OEncryption {
 
   private SecretKey createKey(String base64EncodedKey) {
     if (base64EncodedKey == null) {
-      throw new OSecurityException(
+      throw new YTSecurityException(
           format(MISSING_KEY_ERROR, YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()));
     }
     try {
@@ -148,8 +148,8 @@ public class OAESGCMEncryption implements OEncryption {
       validateKeySize(keyBytes.length);
       return new SecretKeySpec(keyBytes, ALGORITHM_NAME);
     } catch (IllegalArgumentException e) {
-      throw OException.wrapException(
-          new OInvalidStorageEncryptionKeyException(INVALID_KEY_ERROR), e);
+      throw YTException.wrapException(
+          new YTInvalidStorageEncryptionKeyException(INVALID_KEY_ERROR), e);
     }
   }
 
@@ -161,13 +161,13 @@ public class OAESGCMEncryption implements OEncryption {
 
   private void validateKeySize(int numBytes) {
     if (numBytes != 16 && numBytes != 24 && numBytes != 32) {
-      throw new OInvalidStorageEncryptionKeyException(INVALID_KEY_ERROR);
+      throw new YTInvalidStorageEncryptionKeyException(INVALID_KEY_ERROR);
     }
   }
 
   private void assertInitialized() {
     if (!initialized) {
-      throw new OSecurityException(ENCRYPTION_NOT_INITIALIZED_ERROR);
+      throw new YTSecurityException(ENCRYPTION_NOT_INITIALIZED_ERROR);
     }
   }
 
@@ -179,7 +179,7 @@ public class OAESGCMEncryption implements OEncryption {
 
   private void assertCiphertextSizeIsValid(int size) {
     if (size < MIN_CIPHERTEXT_SIZE) {
-      throw new OSecurityException(
+      throw new YTSecurityException(
           format(INVALID_CIPHERTEXT_SIZE_ERROR, MIN_CIPHERTEXT_SIZE, size));
     }
   }
@@ -200,7 +200,8 @@ public class OAESGCMEncryption implements OEncryption {
       cipher.init(mode, key, gcmParameterSpec(nonce));
       return cipher;
     } catch (InvalidKeyException e) {
-      throw OException.wrapException(new OInvalidStorageEncryptionKeyException(e.getMessage()), e);
+      throw YTException.wrapException(new YTInvalidStorageEncryptionKeyException(e.getMessage()),
+          e);
     } catch (InvalidAlgorithmParameterException e) {
       throw new IllegalArgumentException("Invalid or re-used nonce.", e);
     }
@@ -214,7 +215,7 @@ public class OAESGCMEncryption implements OEncryption {
     } catch (InterruptedException | ExecutionException e) {
       throw new IllegalStateException(e);
     } catch (TimeoutException e) {
-      throw new OSecurityException(BLOCKING_SECURE_RANDOM_ERROR);
+      throw new YTSecurityException(BLOCKING_SECURE_RANDOM_ERROR);
     } finally {
       executor.shutdownNow();
     }
@@ -228,7 +229,7 @@ public class OAESGCMEncryption implements OEncryption {
     try {
       return Cipher.getInstance(TRANSFORMATION);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-      throw OException.wrapException(new OSecurityException(NO_SUCH_CIPHER), e);
+      throw YTException.wrapException(new YTSecurityException(NO_SUCH_CIPHER), e);
     }
   }
 }

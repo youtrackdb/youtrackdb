@@ -11,16 +11,16 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyListIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyRidBagIndexDefinition;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -126,7 +126,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
       assertTrue(
           (cause instanceof IllegalArgumentException)
-              || (cause instanceof OCommandSQLParsingException));
+              || (cause instanceof YTCommandSQLParsingException));
     }
   }
 
@@ -693,7 +693,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           YTClass.INDEX_TYPE.UNIQUE.toString(),
           null,
           new YTDocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap b value"});
-    } catch (OIndexException e) {
+    } catch (YTIndexException e) {
       exceptionIsThrown = true;
     }
 
@@ -711,7 +711,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           null,
           new YTDocument().fields("ignoreNullValues", true),
           new String[]{"fEmbeddedMap by value t"});
-    } catch (OIndexException e) {
+    } catch (YTIndexException e) {
       exceptionIsThrown = true;
     }
 
@@ -2111,12 +2111,12 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     assertEquals(propertyIndexDefinition, indexes.iterator().next().getDefinition());
   }
 
-  @Test(expectedExceptions = OIndexException.class)
+  @Test(expectedExceptions = YTIndexException.class)
   public void testCreateIndexEmptyFields() {
     oClass.createIndex(database, "ClassIndexTestCompositeEmpty", YTClass.INDEX_TYPE.UNIQUE);
   }
 
-  @Test(expectedExceptions = OIndexException.class)
+  @Test(expectedExceptions = YTIndexException.class)
   public void testCreateIndexAbsentFields() {
     oClass.createIndex(database,
         "ClassIndexTestCompositeFieldAbsent",
@@ -2130,7 +2130,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     try {
       oClass.createIndex(database, "ClassIndexTestProxyIndex", YTClass.INDEX_TYPE.PROXY, "fOne");
       Assert.fail();
-    } catch (OIndexException e) {
+    } catch (YTIndexException e) {
       Assert.assertTrue(true);
     }
   }
@@ -2166,7 +2166,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndexMapWithoutLinkedTypeIndex",
           YTClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMapWithoutLinkedType by value");
       fail();
-    } catch (OIndexException e) {
+    } catch (YTIndexException e) {
       assertTrue(
           e.getMessage()
               .contains(

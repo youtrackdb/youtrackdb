@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.hook;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
@@ -51,7 +51,7 @@ public class HookChangeValidationTest extends DBTestBase {
       doc.save();
       db.commit();
       Assert.fail("The document save should fail for validation exception");
-    } catch (OValidationException ex) {
+    } catch (YTValidationException ex) {
 
     }
   }
@@ -105,7 +105,7 @@ public class HookChangeValidationTest extends DBTestBase {
       doc.save();
       db.commit();
       Assert.fail("The document save should fail for validation exception");
-    } catch (OValidationException ex) {
+    } catch (YTValidationException ex) {
 
     }
   }

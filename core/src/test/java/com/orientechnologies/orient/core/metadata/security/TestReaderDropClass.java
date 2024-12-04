@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class TestReaderDropClass {
       try {
         db.getMetadata().getSchema().dropClass("Test");
         Assert.fail("reader should not be able to drop a class");
-      } catch (OSecurityAccessException ex) {
+      } catch (YTSecurityAccessException ex) {
       }
       Assert.assertTrue(db.getMetadata().getSchema().existsClass("Test"));
 

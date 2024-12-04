@@ -20,11 +20,11 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -70,8 +70,8 @@ public class OJMXPlugin extends OServerPluginAbstract {
       }
 
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OConfigurationException("Cannot initialize JMX server"), e);
+      throw YTException.wrapException(
+          new YTConfigurationException("Cannot initialize JMX server"), e);
     }
   }
 

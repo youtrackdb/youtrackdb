@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.core.sql.method;
 
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.Set;
 
 /**
@@ -36,7 +36,7 @@ public interface OSQLMethodFactory {
    *
    * @param name
    * @return OSQLMethod : created method
-   * @throws OCommandExecutionException : when method creation fail
+   * @throws YTCommandExecutionException : when method creation fail
    */
-  OSQLMethod createMethod(String name) throws OCommandExecutionException;
+  OSQLMethod createMethod(String name) throws YTCommandExecutionException;
 }

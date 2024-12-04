@@ -2,7 +2,7 @@ package com.orientechnologies.orient.client.remote.metadata.schema;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
@@ -33,16 +33,16 @@ public class YTViewRemote extends YTViewImpl {
       final YTClass linkedClass,
       final boolean unsafe) {
     if (type == null) {
-      throw new OSchemaException("Property type not defined.");
+      throw new YTSchemaException("Property type not defined.");
     }
 
     if (propertyName == null || propertyName.length() == 0) {
-      throw new OSchemaException("Property name is null or empty");
+      throw new YTSchemaException("Property name is null or empty");
     }
 
     validatePropertyName(propertyName);
     if (session.getTransaction().isActive()) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Cannot create property '" + propertyName + "' inside a transaction");
     }
 
@@ -169,10 +169,10 @@ public class YTViewRemote extends YTViewImpl {
       String error =
           String.format(
               "Cannot rename view %s to %s. A Class with name %s exists", this.name, name, name);
-      throw new OSchemaException(error);
+      throw new YTSchemaException(error);
     }
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in view name '"
@@ -291,7 +291,7 @@ public class YTViewRemote extends YTViewImpl {
     acquireSchemaWriteLock(sessionInternal);
     try {
       if (!properties.containsKey(propertyName)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Property '" + propertyName + "' not found in class " + name + "'");
       }
 

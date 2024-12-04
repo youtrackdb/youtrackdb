@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.functions;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
-import com.orientechnologies.lucene.exception.OLuceneIndexException;
+import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
@@ -69,7 +69,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       Object[] params,
       OCommandContext ctx) {
 
-    throw new OLuceneIndexException("SEARCH_MORE can't be executed by document");
+    throw new YTLuceneIndexException("SEARCH_MORE can't be executed by document");
   }
 
   @Override

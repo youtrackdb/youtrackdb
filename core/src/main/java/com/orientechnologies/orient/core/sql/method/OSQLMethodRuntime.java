@@ -24,17 +24,17 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
+import com.orientechnologies.orient.core.command.YTCommandExecutorNotFoundException;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemAbstract;
@@ -121,7 +121,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
               runtimeParameters[i] =
                   ((OCommandSQL) configuredParameters[i]).setContext(iContext)
                       .execute(iContext.getDatabase());
-            } catch (OCommandExecutorNotFoundException ignore) {
+            } catch (YTCommandExecutorNotFoundException ignore) {
               // TRY WITH SIMPLE CONDITION
               final String text = ((OCommandSQL) configuredParameters[i]).getText();
               final OSQLPredicate pred = new OSQLPredicate(iContext, text);
@@ -160,7 +160,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
           } else {
             params = method.getMinParams() + "-" + method.getMaxParams(db);
           }
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Syntax error: function '"
                   + method.getName()
                   + "' needs "
@@ -183,7 +183,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
     try {
       final YTDocument current = iRecord != null ? (YTDocument) iRecord.getRecord() : null;
       return execute(current, current, null, iContext);
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
   }
@@ -205,7 +205,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
 
     method = OSQLEngine.getMethod(funcName);
     if (method == null) {
-      throw new OCommandSQLParsingException("Unknown method " + funcName + "()");
+      throw new YTCommandSQLParsingException("Unknown method " + funcName + "()");
     }
 
     // PARSE PARAMETERS

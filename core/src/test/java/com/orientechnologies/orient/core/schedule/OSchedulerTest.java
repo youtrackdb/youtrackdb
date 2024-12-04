@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.concur.ONeedRetryException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
@@ -186,7 +186,7 @@ public class OSchedulerTest {
               .close();
           db.commit();
           break;
-        } catch (ONeedRetryException e) {
+        } catch (YTNeedRetryException e) {
           retryCount--;
           //noinspection BusyWait
           Thread.sleep(10);
@@ -212,7 +212,7 @@ public class OSchedulerTest {
           db.command("delete from oschedule where name = 'test'", func.getId(db)).close();
           db.commit();
           break;
-        } catch (ONeedRetryException e) {
+        } catch (YTNeedRetryException e) {
           retryCount--;
           //noinspection BusyWait
           Thread.sleep(10);

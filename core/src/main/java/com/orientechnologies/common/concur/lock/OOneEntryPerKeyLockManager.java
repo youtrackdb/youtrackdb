@@ -20,7 +20,7 @@
 package com.orientechnologies.common.concur.lock;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -191,7 +191,7 @@ public class OOneEntryPerKeyLockManager<T> implements OLockManager<T> {
         try {
           if (iLockType == LOCK.SHARED) {
             if (!lock.readWriteLock.readLock().tryLock(iTimeout, TimeUnit.MILLISECONDS)) {
-              throw new OLockException(
+              throw new YTLockException(
                   "Timeout ("
                       + iTimeout
                       + "ms) on acquiring resource '"
@@ -200,7 +200,7 @@ public class OOneEntryPerKeyLockManager<T> implements OLockManager<T> {
             }
           } else {
             if (!lock.readWriteLock.writeLock().tryLock(iTimeout, TimeUnit.MILLISECONDS)) {
-              throw new OLockException(
+              throw new YTLockException(
                   "Timeout ("
                       + iTimeout
                       + "ms) on acquiring resource '"
@@ -210,8 +210,8 @@ public class OOneEntryPerKeyLockManager<T> implements OLockManager<T> {
           }
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
-          throw OException.wrapException(
-              new OLockException(
+          throw YTException.wrapException(
+              new YTLockException(
                   "Thread interrupted while waiting for resource '" + iResourceId + "'"),
               e);
         }
@@ -229,7 +229,7 @@ public class OOneEntryPerKeyLockManager<T> implements OLockManager<T> {
   }
 
   public void releaseLock(final Object iRequester, T iResourceId, final LOCK iLockType)
-      throws OLockException {
+      throws YTLockException {
     if (!enabled) {
       return;
     }
@@ -240,7 +240,7 @@ public class OOneEntryPerKeyLockManager<T> implements OLockManager<T> {
 
     final CountableLock lock = map.get(iResourceId);
     if (lock == null) {
-      throw new OLockException(
+      throw new YTLockException(
           "Error on releasing a non acquired lock by the requester '"
               + iRequester
               + "' against the resource: '"

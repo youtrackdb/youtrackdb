@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -44,7 +44,7 @@ public class OServerCommandGetDictionary extends OServerCommandAuthenticatedDbAb
 
       final YTRecord record = db.getDictionary().get(urlParts[2]);
       if (record == null) {
-        throw new ORecordNotFoundException(
+        throw new YTRecordNotFoundException(
             null, "Key '" + urlParts[2] + "' was not found in the database dictionary");
       }
 

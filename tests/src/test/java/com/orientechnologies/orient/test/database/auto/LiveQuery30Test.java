@@ -15,12 +15,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.io.IOException;
@@ -65,7 +65,7 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
     }
 
     @Override
-    public void onError(YTDatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, YTException exception) {
     }
 
     @Override

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -28,7 +28,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
           boolean done = false;
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
@@ -58,7 +58,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
           boolean done = false;
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
@@ -78,7 +78,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
     Assert.assertFalse(result.hasNext(context));
   }
 
-  @Test(expected = OCommandExecutionException.class)
+  @Test(expected = YTCommandExecutionException.class)
   public void shouldThrowExceptionWhenTypeIsDifferent() {
     OCommandContext context = new OBasicCommandContext();
     context.setDatabase(db);
@@ -90,7 +90,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
           boolean done = false;
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {

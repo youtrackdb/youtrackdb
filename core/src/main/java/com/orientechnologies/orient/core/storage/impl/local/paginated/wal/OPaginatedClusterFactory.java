@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.cluster.v2.OPaginatedClusterV2;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -36,7 +36,7 @@ public final class OPaginatedClusterFactory {
       final int binaryVersion,
       final OAbstractPaginatedStorage storage) {
     if (configurationVersion >= 0 && configurationVersion < 6) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "You use deprecated version of storage cluster, this version is not supported in current"
               + " implementation. Please do export/import or recreate database.");
     }

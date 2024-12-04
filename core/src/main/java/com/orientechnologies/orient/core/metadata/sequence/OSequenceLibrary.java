@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.metadata.sequence;
 
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import java.util.Set;
 
@@ -34,11 +34,11 @@ public interface OSequenceLibrary {
 
   YTSequence createSequence(String iName, SEQUENCE_TYPE sequenceType,
       YTSequence.CreateParams params)
-      throws ODatabaseException;
+      throws YTDatabaseException;
 
   YTSequence getSequence(String iName);
 
-  void dropSequence(String iName) throws ODatabaseException;
+  void dropSequence(String iName) throws YTDatabaseException;
 
   @Deprecated
   void create();

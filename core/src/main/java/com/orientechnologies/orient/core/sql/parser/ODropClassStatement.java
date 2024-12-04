@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -41,20 +41,20 @@ public class ODropClassStatement extends ODDLStatement {
       if (ifExists) {
         return OExecutionStream.empty();
       }
-      throw new OCommandExecutionException("Class " + className + " does not exist");
+      throw new YTCommandExecutionException("Class " + className + " does not exist");
     }
 
     if (!unsafe && clazz.count(db) > 0) {
       // check vertex or edge
       if (clazz.isVertexType()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Vertices. Use 'DELETE VERTEX' command first to avoid"
                 + " broken edges in a database, or apply the 'UNSAFE' keyword to force it");
       } else if (clazz.isEdgeType()) {
         // FOUND EDGE CLASS
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Edges. Use 'DELETE EDGE' command first to avoid broken"

@@ -20,10 +20,10 @@
 
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationImpl;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.nio.charset.StandardCharsets;
 
@@ -42,7 +42,7 @@ public class OStorageMemoryConfiguration extends OStorageConfigurationImpl {
 
   @Override
   public OStorageConfigurationImpl load(final OContextConfiguration configuration)
-      throws OSerializationException {
+      throws YTSerializationException {
     lock.writeLock().lock();
     try {
       initConfiguration(configuration);
@@ -50,8 +50,8 @@ public class OStorageMemoryConfiguration extends OStorageConfigurationImpl {
       try {
         fromStream(serializedContent, 0, serializedContent.length, streamCharset);
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OSerializationException(
+        throw YTException.wrapException(
+            new YTSerializationException(
                 "Cannot load database configuration. The database seems corrupted"),
             e);
       }
@@ -62,14 +62,14 @@ public class OStorageMemoryConfiguration extends OStorageConfigurationImpl {
   }
 
   @Override
-  public void update() throws OSerializationException {
+  public void update() throws YTSerializationException {
     lock.writeLock().lock();
     try {
       try {
         serializedContent = toStream(streamCharset);
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OSerializationException("Error on update storage configuration"), e);
+        throw YTException.wrapException(
+            new YTSerializationException("Error on update storage configuration"), e);
       }
       if (updateListener != null) {
         updateListener.onUpdate(this);

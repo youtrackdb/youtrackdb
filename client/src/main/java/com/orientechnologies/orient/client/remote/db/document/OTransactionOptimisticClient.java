@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -197,8 +197,8 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           }
         }
 
-        throw OException.wrapException(
-            new ODatabaseException("Error on saving record " + iRecord.getIdentity()), e);
+        throw YTException.wrapException(
+            new YTDatabaseException("Error on saving record " + iRecord.getIdentity()), e);
       }
     } finally {
       if (callHook) {

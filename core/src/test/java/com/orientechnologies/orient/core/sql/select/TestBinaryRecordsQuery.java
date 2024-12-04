@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.select;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
@@ -58,7 +58,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     try {
       db.load(rec.getIdentity());
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
   }
@@ -86,7 +86,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     try {
       db.load(rec.getIdentity());
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
   }
@@ -120,14 +120,14 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     try {
       db.load(rec.getIdentity());
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
 
     try {
       db.load(rec1.getIdentity());
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
   }

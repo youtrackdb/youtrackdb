@@ -19,10 +19,10 @@ package com.orientechnologies.orient.core.sql.method.sequence;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 
 /**
@@ -49,12 +49,12 @@ public class OSQLMethodNext extends OAbstractSQLMethod {
       Object ioResult,
       Object[] iParams) {
     if (iThis == null) {
-      throw new OCommandSQLParsingException(
+      throw new YTCommandSQLParsingException(
           "Method 'next()' can be invoked only on OSequence instances, while NULL was found");
     }
 
     if (!(iThis instanceof YTSequence)) {
-      throw new OCommandSQLParsingException(
+      throw new YTCommandSQLParsingException(
           "Method 'next()' can be invoked only on OSequence instances, while '"
               + iThis.getClass()
               + "' was found");
@@ -62,10 +62,10 @@ public class OSQLMethodNext extends OAbstractSQLMethod {
 
     try {
       return ((YTSequence) iThis).next();
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       OLogManager.instance().error(this, message, exc, (Object) null);
-      throw new OCommandExecutionException(message);
+      throw new YTCommandExecutionException(message);
     }
   }
 }

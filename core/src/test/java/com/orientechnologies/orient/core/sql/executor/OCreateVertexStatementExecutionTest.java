@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,7 +54,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     try {
       OResultSet result = db.command("create vertex " + className + " set name = 'name1'");
       Assert.fail();
-    } catch (OCommandExecutionException e1) {
+    } catch (YTCommandExecutionException e1) {
     } catch (Exception e2) {
       Assert.fail();
     }

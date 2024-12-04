@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -102,7 +102,7 @@ public class PredicateSecurityTest {
           });
 
       Assert.fail();
-    } catch (OSecurityException ex) {
+    } catch (YTSecurityException ex) {
     }
   }
 
@@ -135,7 +135,7 @@ public class PredicateSecurityTest {
       db.command("insert into Person SET name = 'bar'");
       db.commit();
       Assert.fail();
-    } catch (OSecurityException ex) {
+    } catch (YTSecurityException ex) {
     }
   }
 
@@ -298,7 +298,7 @@ public class PredicateSecurityTest {
       db.save(elemToSave);
       db.commit();
       Assert.fail();
-    } catch (OSecurityException ex) {
+    } catch (YTSecurityException ex) {
     }
 
     elem = db.load(elem.getIdentity());
@@ -350,7 +350,7 @@ public class PredicateSecurityTest {
       db.command("update Person set name = 'bar'");
       db.commit();
       return false;
-    } catch (OSecurityException ex) {
+    } catch (YTSecurityException ex) {
     }
 
     Assert.assertEquals("foo", db.bindToSession(elem).getProperty("name"));
@@ -393,7 +393,7 @@ public class PredicateSecurityTest {
       db.save(elemToSave);
       db.commit();
       Assert.fail();
-    } catch (OSecurityException ex) {
+    } catch (YTSecurityException ex) {
     }
 
     elem = db.load(elem.getIdentity());
@@ -433,7 +433,7 @@ public class PredicateSecurityTest {
       db.command("update Person set name = 'bar'");
       db.commit();
       Assert.fail();
-    } catch (OSecurityException ex) {
+    } catch (YTSecurityException ex) {
     }
 
     Assert.assertEquals("foo", db.bindToSession(elem).getProperty("name"));
@@ -471,7 +471,7 @@ public class PredicateSecurityTest {
       var elemToDelete = elem;
       db.executeInTx(() -> db.delete(db.bindToSession(elemToDelete)));
       Assert.fail();
-    } catch (OSecurityException ex) {
+    } catch (YTSecurityException ex) {
     }
 
     elem =
@@ -528,7 +528,7 @@ public class PredicateSecurityTest {
       db.command("delete from Person where name = 'bar'");
       db.commit();
       Assert.fail();
-    } catch (OSecurityException ex) {
+    } catch (YTSecurityException ex) {
     }
 
     OResultSet rs = db.query("select from Person");

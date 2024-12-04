@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.parser.OBatch;
@@ -106,7 +106,7 @@ public class OCreateEdgeExecutionPlanner {
               .getImmutableSchemaSnapshot()
               .getClass(targetClass.getStringValue());
       if (clazz == null) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Class " + targetClass + " not found in the db schema");
       }
       uniqueIndexName =
@@ -122,7 +122,7 @@ public class OCreateEdgeExecutionPlanner {
               .orElse(null);
 
       if (uniqueIndexName == null) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot perform an UPSERT on "
                 + targetClass
                 + " edge class: no unique index present on out/in");

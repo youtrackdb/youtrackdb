@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.parser.ODropClassStatement;
 import java.util.Map;
@@ -77,19 +77,19 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
     int oldPos = 0;
     int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
     if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-      throw new OCommandSQLParsingException(
+      throw new YTCommandSQLParsingException(
           "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
     }
 
     pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
     if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-      throw new OCommandSQLParsingException(
+      throw new YTCommandSQLParsingException(
           "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
     }
 
     pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
     if (pos == -1) {
-      throw new OCommandSQLParsingException(
+      throw new YTCommandSQLParsingException(
           "Expected <class>. Use " + getSyntax(), parserText, pos);
     }
 
@@ -126,7 +126,7 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (className == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -145,14 +145,14 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
       // NOT EMPTY, CHECK IF CLASS IS OF VERTEX OR EDGES
       if (cls.isSubClassOf("V")) {
         // FOUND VERTEX CLASS
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Vertices. Use 'DELETE VERTEX' command first to avoid"
                 + " broken edges in a database, or apply the 'UNSAFE' keyword to force it");
       } else if (cls.isSubClassOf("E")) {
         // FOUND EDGE CLASS
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Edges. Use 'DELETE EDGE' command first to avoid broken"

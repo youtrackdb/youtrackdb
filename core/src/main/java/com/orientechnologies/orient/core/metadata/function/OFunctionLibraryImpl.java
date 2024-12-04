@@ -19,20 +19,20 @@
  */
 package com.orientechnologies.orient.core.metadata.function;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -132,12 +132,12 @@ public class OFunctionLibraryImpl {
       f.save(database);
       functions.put(iName.toUpperCase(Locale.ENGLISH), f);
       database.commit();
-    } catch (ORecordDuplicatedException ex) {
+    } catch (YTRecordDuplicatedException ex) {
       OLogManager.instance().error(this, "Exception is suppressed, original exception is ", ex);
 
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      throw OException.wrapException(
-          new OFunctionDuplicatedException("Function with name '" + iName + "' already exist"),
+      throw YTException.wrapException(
+          new YTFunctionDuplicatedException("Function with name '" + iName + "' already exist"),
           null);
     }
 
@@ -226,10 +226,10 @@ public class OFunctionLibraryImpl {
     needReload.set(true);
   }
 
-  public static void validateFunctionRecord(YTDocument doc) throws ODatabaseException {
+  public static void validateFunctionRecord(YTDocument doc) throws YTDatabaseException {
     String name = doc.getProperty("name");
     if (!Pattern.compile("[A-Za-z][A-Za-z0-9_]*").matcher(name).matches()) {
-      throw new ODatabaseException("Invalid function name: " + name);
+      throw new YTDatabaseException("Invalid function name: " + name);
     }
   }
 }

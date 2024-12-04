@@ -20,7 +20,7 @@ import com.orientechnologies.orient.client.remote.OFetchPlanResults;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OFetchException;
+import com.orientechnologies.orient.core.exception.YTFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
@@ -98,7 +98,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
               Object iUserObject,
               String iFieldName,
               OFetchContext iContext)
-              throws OFetchException {
+              throws YTFetchException {
             if (!(iLinked instanceof YTRecordId)) {
               sendRecord(iLinked.getRecord());
             }
@@ -111,7 +111,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
               Object iUserObject,
               String iFieldName,
               OFetchContext iContext)
-              throws OFetchException {
+              throws YTFetchException {
 
             if (!(iLinked instanceof YTRecordId)) {
               sendRecord(iLinked.getRecord());

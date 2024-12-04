@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -23,7 +23,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     var prev = this.prev;
     assert prev != null;
     OExecutionStream upstream = prev.start(ctx);
@@ -81,11 +81,11 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
   private static void validateOutInForEdge(Object currentOut, Object currentIn) {
     if (recordIsNotInstanceOfVertex(currentOut)) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
     if (recordIsNotInstanceOfVertex(currentIn)) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
   }
@@ -106,7 +106,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
       YTDocument record = ((YTIdentifiable) iRecord).getRecord();
       return (!ODocumentInternal.getImmutableSchemaClass(record)
           .isSubClassOf(YTClass.VERTEX_CLASS_NAME));
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return true;
     }
   }

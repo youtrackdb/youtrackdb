@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.storage.cache.chm;
 
-import com.orientechnologies.common.concur.lock.OInterruptedException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.orientechnologies.common.directmemory.OPointer;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.types.OModifiableBoolean;
 import com.orientechnologies.common.util.ORawPairLongInteger;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OAbstractWriteCache;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntryImpl;
@@ -162,8 +162,8 @@ public final class AsyncReadCache implements OReadCache {
                               page.getFileId(), page.getPageIndex(), pointer, false, this);
                       return null;
                     } catch (final IOException e) {
-                      throw OException.wrapException(
-                          new OStorageException(
+                      throw YTException.wrapException(
+                          new YTStorageException(
                               "Error during loading of page " + pageIndex + " for file " + fileId),
                           e);
                     }
@@ -236,8 +236,8 @@ public final class AsyncReadCache implements OReadCache {
                       return new OCacheEntryImpl(
                           page.getFileId(), page.getPageIndex(), pointer, true, this);
                     } catch (final IOException e) {
-                      throw OException.wrapException(
-                          new OStorageException(
+                      throw YTException.wrapException(
+                          new YTStorageException(
                               "Error during loading of page " + pageIndex + " for file " + fileId),
                           e);
                     }
@@ -264,8 +264,8 @@ public final class AsyncReadCache implements OReadCache {
             try {
               writeCache.checkCacheOverflow();
             } catch (final InterruptedException e) {
-              throw OException.wrapException(
-                  new OInterruptedException("Check of write cache overflow was interrupted"), e);
+              throw YTException.wrapException(
+                  new YTInterruptedException("Check of write cache overflow was interrupted"), e);
             }
           }
 
@@ -495,7 +495,7 @@ public final class AsyncReadCache implements OReadCache {
         if (entry.freeze()) {
           policy.onRemove(entry);
         } else {
-          throw new OStorageException(
+          throw new YTStorageException(
               "Page with index "
                   + entry.getPageIndex()
                   + " for file id "
@@ -584,11 +584,11 @@ public final class AsyncReadCache implements OReadCache {
             try {
               writeCache.checkCacheOverflow();
             } catch (final InterruptedException e) {
-              throw OException.wrapException(
-                  new OInterruptedException("Check of write cache overflow was interrupted"), e);
+              throw YTException.wrapException(
+                  new YTInterruptedException("Check of write cache overflow was interrupted"), e);
             }
           } else {
-            throw new OStorageException(
+            throw new YTStorageException(
                 "Page with index "
                     + cacheEntry.getPageIndex()
                     + " for file id "

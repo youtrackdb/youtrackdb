@@ -28,8 +28,8 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
@@ -115,7 +115,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
   public Object getValue(
       final YTIdentifiable iRecord, final Object iCurrentResult, final OCommandContext iContext) {
     if (iRecord == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "expression item '" + name + "' cannot be resolved because current record is NULL");
     }
 
@@ -156,7 +156,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
 
   public OBinaryField getBinaryField(final YTIdentifiable iRecord) {
     if (iRecord == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "expression item '" + name + "' cannot be resolved because current record is NULL");
     }
 
@@ -280,7 +280,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
         return null;
       }
       return property.getCollate();
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
   }

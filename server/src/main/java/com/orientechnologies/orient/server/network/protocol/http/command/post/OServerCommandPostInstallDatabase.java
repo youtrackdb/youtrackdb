@@ -18,7 +18,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -43,7 +43,7 @@ public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticat
       final String name = getDbName(url);
       if (name != null) {
         if (server.getContext().exists(name)) {
-          throw new ODatabaseException("Database named '" + name + "' already exists: ");
+          throw new YTDatabaseException("Database named '" + name + "' already exists: ");
         } else {
           final URL uri = new URL(url);
           final URLConnection conn = uri.openConnection();

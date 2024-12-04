@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTClusterDoesNotExistException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OCluster.ATTRIBUTES;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -68,21 +68,21 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected <cluster-name>. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -98,7 +98,7 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missing cluster attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -107,8 +107,8 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
       try {
         attribute = OCluster.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw OException.wrapException(
-            new OCommandSQLParsingException(
+        throw YTException.wrapException(
+            new YTCommandSQLParsingException(
                 "Unknown class attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
@@ -127,7 +127,7 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
       }
 
       if (value.length() == 0) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missing property value to change for attribute '"
                 + attribute
                 + "'. Use "
@@ -151,14 +151,14 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (attribute == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final IntArrayList clusters = getClusters();
 
     if (clusters.isEmpty()) {
-      throw new OCommandExecutionException("Cluster '" + clusterName + "' not found");
+      throw new YTCommandExecutionException("Cluster '" + clusterName + "' not found");
     }
 
     Object result = null;
@@ -169,7 +169,7 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
       if (this.clusterId > -1 && clusterName.equals(String.valueOf(this.clusterId))) {
         clusterName = database.getClusterNameById(clusterId);
         if (clusterName == null) {
-          throw new OClusterDoesNotExistException(
+          throw new YTClusterDoesNotExistException(
               "Cluster with id "
                   + clusterId
                   + " does not exist inside of storage "

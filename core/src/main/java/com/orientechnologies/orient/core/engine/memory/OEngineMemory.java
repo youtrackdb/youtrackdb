@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.core.engine.memory;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
 import com.orientechnologies.orient.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.memory.ODirectMemoryStorage;
 
@@ -48,7 +48,7 @@ public class OEngineMemory extends OEngineAbstract {
       final String message = "Error on opening in memory storage: " + url;
       OLogManager.instance().error(this, message, e);
 
-      throw OException.wrapException(new ODatabaseException(message), e);
+      throw YTException.wrapException(new YTDatabaseException(message), e);
     }
   }
 

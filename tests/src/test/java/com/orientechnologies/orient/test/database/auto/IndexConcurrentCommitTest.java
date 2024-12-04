@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -65,7 +65,7 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
       database.commit();
 
       System.out.println("Success!");
-    } catch (OIndexException e) {
+    } catch (YTIndexException e) {
       System.out.println("Exception: " + e);
       database.rollback();
     }

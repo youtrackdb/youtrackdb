@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.storage.fs;
 
-import com.orientechnologies.common.concur.lock.OInterruptedException;
 import com.orientechnologies.common.concur.lock.ScalableRWLock;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPairLongObject;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -63,7 +63,7 @@ public final class AsyncFile implements OFile {
     lock.exclusiveLock();
     try {
       if (fileChannel != null) {
-        throw new OStorageException("File " + osFile + " is already opened.");
+        throw new YTStorageException("File " + osFile + " is already opened.");
       }
 
       Files.createFile(osFile);
@@ -85,11 +85,11 @@ public final class AsyncFile implements OFile {
         try {
           written += writeFuture.get();
         } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("File write was interrupted"), e);
+          throw YTException.wrapException(
+              new YTInterruptedException("File write was interrupted"), e);
         } catch (ExecutionException e) {
-          throw OException.wrapException(
-              new OStorageException("Error during write operation to the file " + osFile), e);
+          throw YTException.wrapException(
+              new YTStorageException("Error during write operation to the file " + osFile), e);
         }
       } while (written < HEADER_SIZE);
 
@@ -133,7 +133,7 @@ public final class AsyncFile implements OFile {
     try {
       doOpen();
     } catch (IOException e) {
-      throw OException.wrapException(new OStorageException("Can not open file " + osFile), e);
+      throw YTException.wrapException(new YTStorageException("Can not open file " + osFile), e);
     } finally {
       lock.exclusiveUnlock();
     }
@@ -141,7 +141,7 @@ public final class AsyncFile implements OFile {
 
   private void doOpen() throws IOException {
     if (fileChannel != null) {
-      throw new OStorageException("File " + osFile + " is already opened.");
+      throw new YTStorageException("File " + osFile + " is already opened.");
     }
     fileChannel = AsynchronousFileChannel.open(osFile, options, executor);
 
@@ -197,11 +197,11 @@ public final class AsyncFile implements OFile {
         try {
           written += writeFuture.get();
         } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("File write was interrupted"), e);
+          throw YTException.wrapException(
+              new YTInterruptedException("File write was interrupted"), e);
         } catch (ExecutionException e) {
-          throw OException.wrapException(
-              new OStorageException("Error during write operation to the file " + osFile), e);
+          throw YTException.wrapException(
+              new YTStorageException("Error during write operation to the file " + osFile), e);
         }
       } while (written < buffer.limit());
 
@@ -257,11 +257,11 @@ public final class AsyncFile implements OFile {
         try {
           bytesRead = readFuture.get();
         } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("File write was interrupted"), e);
+          throw YTException.wrapException(
+              new YTInterruptedException("File write was interrupted"), e);
         } catch (ExecutionException e) {
-          throw OException.wrapException(
-              new OStorageException("Error during read operation from the file " + osFile), e);
+          throw YTException.wrapException(
+              new YTStorageException("Error during read operation from the file " + osFile), e);
         }
 
         if (bytesRead == -1) {
@@ -339,8 +339,8 @@ public final class AsyncFile implements OFile {
       doSynch();
       doClose();
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during closing the file " + osFile), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during closing the file " + osFile), e);
     } finally {
       lock.exclusiveUnlock();
     }
@@ -401,7 +401,7 @@ public final class AsyncFile implements OFile {
   private void checkPosition(long offset) {
     final long fileSize = size.get();
     if (offset < 0 || offset >= fileSize) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "You are going to access region outside of allocated file position. File size = "
               + fileSize
               + ", requested position "
@@ -411,7 +411,7 @@ public final class AsyncFile implements OFile {
 
   private void checkForClose() {
     if (fileChannel == null) {
-      throw new OStorageException("File " + osFile + " is closed");
+      throw new YTStorageException("File " + osFile + " is closed");
     }
   }
 
@@ -474,10 +474,11 @@ public final class AsyncFile implements OFile {
       try {
         latch.await();
       } catch (InterruptedException e) {
-        throw OException.wrapException(new OInterruptedException("File write was interrupted"), e);
+        throw YTException.wrapException(new YTInterruptedException("File write was interrupted"),
+            e);
       }
       if (exc != null) {
-        throw OException.wrapException(new OStorageException("Error during IO operation"), exc);
+        throw YTException.wrapException(new YTStorageException("Error during IO operation"), exc);
       }
     }
   }

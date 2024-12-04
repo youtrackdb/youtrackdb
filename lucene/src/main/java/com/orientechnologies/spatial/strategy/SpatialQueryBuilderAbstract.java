@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.strategy;
 
-import com.orientechnologies.orient.core.index.OIndexEngineException;
+import com.orientechnologies.orient.core.index.YTIndexEngineException;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexContainer;
 import com.orientechnologies.spatial.query.OSpatialQueryContext;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
@@ -47,12 +47,12 @@ public abstract class SpatialQueryBuilderAbstract {
     Object geometry = query.get(SHAPE);
 
     if (geometry == null) {
-      throw new OIndexEngineException("Invalid spatial query. Missing shape field " + query, null);
+      throw new YTIndexEngineException("Invalid spatial query. Missing shape field " + query, null);
     }
     Shape parsed = factory.fromObject(geometry);
 
     if (parsed == null) {
-      throw new OIndexEngineException(
+      throw new YTIndexEngineException(
           "Invalid spatial query. Invalid shape field. Found: " + geometry.getClass().getName(),
           null);
     }

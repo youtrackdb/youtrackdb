@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.iterator;
 
-import com.orientechnologies.common.exception.OHighLevelException;
+import com.orientechnologies.common.exception.YTHighLevelException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -174,7 +174,7 @@ public class ORecordIteratorClusters<REC extends YTRecord> extends OIdentifiable
         try {
           currentRecord = readCurrentRecord(0);
         } catch (Exception e) {
-          if (e instanceof OHighLevelException) {
+          if (e instanceof YTHighLevelException) {
             throw (RuntimeException) e;
           }
 

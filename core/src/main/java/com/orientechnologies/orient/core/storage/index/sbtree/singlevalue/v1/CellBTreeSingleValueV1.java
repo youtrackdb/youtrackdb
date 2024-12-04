@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v1;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
@@ -29,7 +29,7 @@ import com.orientechnologies.common.serialization.types.OShortSerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
+import com.orientechnologies.orient.core.exception.YTTooBigIndexKeyException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -212,8 +212,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OCellBTreeSingleValueV1Exception(
+      throw YTException.wrapException(
+          new YTCellBTreeSingleValueV1Exception(
               "Error during retrieving  of sbtree with name " + getName(), this),
           e);
     } finally {
@@ -252,7 +252,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
               key = keySerializer.preprocess(key, (Object[]) keyTypes);
 
               if (keySize > MAX_KEY_SIZE) {
-                throw new OTooBigIndexKeyException(
+                throw new YTTooBigIndexKeyException(
                     "Key size is more than allowed, operation was canceled. Current key size "
                         + keySize
                         + ", allowed  "
@@ -445,8 +445,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
       this.keySerializer = keySerializer;
       this.encryption = encryption;
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OCellBTreeSingleValueV1Exception("Exception during loading of sbtree " + name, this),
+      throw YTException.wrapException(
+          new YTCellBTreeSingleValueV1Exception("Exception during loading of sbtree " + name, this),
           e);
     } finally {
       releaseExclusiveLock();
@@ -471,8 +471,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OCellBTreeSingleValueV1Exception(
+      throw YTException.wrapException(
+          new YTCellBTreeSingleValueV1Exception(
               "Error during retrieving of size of index " + getName(), this),
           e);
     } finally {
@@ -615,8 +615,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OCellBTreeSingleValueV1Exception(
+      throw YTException.wrapException(
+          new YTCellBTreeSingleValueV1Exception(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
     } finally {
@@ -647,8 +647,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OCellBTreeSingleValueV1Exception(
+      throw YTException.wrapException(
+          new YTCellBTreeSingleValueV1Exception(
               "Error during finding last key in sbtree [" + getName() + "]", this),
           e);
     } finally {
@@ -675,8 +675,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OCellBTreeSingleValueV1Exception(
+      throw YTException.wrapException(
+          new YTCellBTreeSingleValueV1Exception(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
     } finally {
@@ -1330,7 +1330,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     while (true) {
       depth++;
       if (depth > MAX_PATH_LENGTH) {
-        throw new OCellBTreeSingleValueV1Exception(
+        throw new YTCellBTreeSingleValueV1Exception(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.",
             this);
@@ -1368,7 +1368,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
-        throw new OCellBTreeSingleValueV1Exception(
+        throw new YTCellBTreeSingleValueV1Exception(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.",
             this);
@@ -1625,8 +1625,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw OException.wrapException(
-            new OCellBTreeSingleValueV1Exception(
+        throw YTException.wrapException(
+            new YTCellBTreeSingleValueV1Exception(
                 "Error during element iteration", CellBTreeSingleValueV1.this),
             e);
       } finally {
@@ -1797,8 +1797,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw OException.wrapException(
-            new OCellBTreeSingleValueV1Exception(
+        throw YTException.wrapException(
+            new YTCellBTreeSingleValueV1Exception(
                 "Error during element iteration", CellBTreeSingleValueV1.this),
             e);
       } finally {

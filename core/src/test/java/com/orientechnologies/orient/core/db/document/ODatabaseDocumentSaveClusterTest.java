@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db.document;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -21,7 +21,7 @@ public class ODatabaseDocumentSaveClusterTest extends DBTestBase {
     db.save(new YTDocument("test"), "test_one");
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testUsedClusterTest() {
     YTClass clazz = db.getMetadata().getSchema().createClass("test");
     db.addCluster("test_one");

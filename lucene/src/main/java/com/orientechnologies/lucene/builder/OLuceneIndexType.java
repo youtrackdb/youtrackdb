@@ -16,9 +16,9 @@
 
 package com.orientechnologies.lucene.builder;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
-import com.orientechnologies.lucene.exception.OLuceneIndexException;
+import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -175,7 +175,7 @@ public class OLuceneIndexType {
       byte[] bytes = sha256.digest(keyString.getBytes(StandardCharsets.UTF_8));
       return Base64.getEncoder().encodeToString(bytes);
     } catch (NoSuchAlgorithmException e) {
-      throw OException.wrapException(new OLuceneIndexException("fail to find sha algorithm"), e);
+      throw YTException.wrapException(new YTLuceneIndexException("fail to find sha algorithm"), e);
     }
   }
 

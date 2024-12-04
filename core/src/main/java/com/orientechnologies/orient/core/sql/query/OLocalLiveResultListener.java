@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.query;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -31,7 +31,7 @@ public class OLocalLiveResultListener implements OLiveResultListener, OCommandRe
   }
 
   @Override
-  public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws OException {
+  public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws YTException {
     underlying.onLiveResult(iLiveToken, iOp);
   }
 

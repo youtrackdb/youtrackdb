@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.common.concur.lock;
 
-import com.orientechnologies.common.concur.OTimeoutException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.YTTimeoutException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -90,8 +90,8 @@ public class OAdaptiveLock extends OAbstractLock {
             }
           }
 
-          throw OException.wrapException(
-              new OLockException(
+          throw YTException.wrapException(
+              new YTLockException(
                   "Thread interrupted while waiting for resource of class '"
                       + getClass()
                       + "' with timeout="
@@ -117,8 +117,8 @@ public class OAdaptiveLock extends OAbstractLock {
         try {
           return lock.tryLock(iTimeout, iUnit);
         } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OLockException(
+          throw YTException.wrapException(
+              new YTLockException(
                   "Thread interrupted while waiting for resource of class '"
                       + getClass()
                       + "' with timeout="
@@ -153,7 +153,7 @@ public class OAdaptiveLock extends OAbstractLock {
   private void throwTimeoutException(Lock lock) {
     final String owner = extractLockOwnerStackTrace(lock);
 
-    throw new OTimeoutException(
+    throw new YTTimeoutException(
         "Timeout on acquiring exclusive lock against resource of class: "
             + getClass()
             + " with timeout="

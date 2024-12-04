@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.storage.index.engine;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.common.util.ORawPair;
@@ -28,10 +28,10 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.OIndexUpdateAction;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
@@ -231,8 +231,8 @@ public final class OHashTableIndexEngine implements OIndexEngine {
     try {
       versionPositionMap.open();
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during VPM load of index " + data.getName()), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during VPM load of index " + data.getName()), e);
     }
   }
 

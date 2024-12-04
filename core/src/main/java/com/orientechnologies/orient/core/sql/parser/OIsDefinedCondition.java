@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public class OIsDefinedCondition extends OBooleanExpression implements OSimpleBo
     Object elem;
     try {
       elem = currentRecord.getRecord();
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return false;
     }
 

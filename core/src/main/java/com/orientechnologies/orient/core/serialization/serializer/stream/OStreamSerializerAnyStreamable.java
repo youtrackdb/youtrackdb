@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.stream;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.serialization.OBinaryProtocol;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
@@ -68,7 +68,7 @@ public class OStreamSerializerAnyStreamable {
           "Class signature not found in ANY element: " + Arrays.toString(iStream);
       OLogManager.instance().error(this, message, null);
 
-      throw new OSerializationException(message);
+      throw new YTSerializationException(message);
     }
 
     final String className = new String(iStream, 4, classNameSize, StandardCharsets.UTF_8);
@@ -100,7 +100,7 @@ public class OStreamSerializerAnyStreamable {
     } catch (Exception e) {
       final String message = "Error on unmarshalling content. Class: " + className;
       OLogManager.instance().error(this, message, e);
-      throw OException.wrapException(new OSerializationException(message), e);
+      throw YTException.wrapException(new YTSerializationException(message), e);
     }
   }
 

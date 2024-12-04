@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -68,7 +68,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
 
     source = parserRequiredWord(false, "Syntax error", " =><,\r\n");
     if (source == null) {
-      throw new OCommandSQLParsingException("Cannot find source");
+      throw new YTCommandSQLParsingException("Cannot find source");
     }
 
     parserRequiredKeyword("TO");
@@ -78,18 +78,18 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
     while (temp != null) {
       if (temp.startsWith("CLUSTER:")) {
         if (className != null) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Cannot define multiple sources. Found both cluster and class.");
         }
 
         clusterName = temp.substring("CLUSTER:".length());
         if (database.getClusterIdByName(clusterName) == -1) {
-          throw new OCommandSQLParsingException("Cluster '" + clusterName + "' was not found");
+          throw new YTCommandSQLParsingException("Cluster '" + clusterName + "' was not found");
         }
 
       } else if (temp.startsWith("CLASS:")) {
         if (clusterName != null) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Cannot define multiple sources. Found both cluster and class.");
         }
 
@@ -98,7 +98,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
         clazz = database.getMetadata().getSchema().getClass(className);
 
         if (clazz == null) {
-          throw new OCommandSQLParsingException("Class '" + className + "' was not found");
+          throw new YTCommandSQLParsingException("Class '" + className + "' was not found");
         }
 
       } else if (temp.equals(KEYWORD_SET)) {
@@ -134,7 +134,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
     db.begin();
 
     if (className == null && clusterName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -213,7 +213,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
       if (item instanceof YTEntity) {

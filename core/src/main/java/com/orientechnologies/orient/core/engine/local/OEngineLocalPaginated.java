@@ -24,7 +24,7 @@ import com.orientechnologies.common.collection.closabledictionary.OClosableLinke
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.orientechnologies.common.directmemory.OPointer;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.jnr.ONative;
 import com.orientechnologies.common.log.OLogManager;
@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
 import com.orientechnologies.orient.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import com.orientechnologies.orient.core.storage.cache.chm.AsyncReadCache;
@@ -159,7 +159,7 @@ public class OEngineLocalPaginated extends OEngineAbstract {
               + new java.io.File(".").getAbsolutePath();
       OLogManager.instance().error(this, message, e);
 
-      throw OException.wrapException(new ODatabaseException(message), e);
+      throw YTException.wrapException(new YTDatabaseException(message), e);
     }
   }
 

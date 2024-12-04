@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -368,7 +368,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
           .close();
       db.commit();
       Assert.fail();
-    } catch (ORecordDuplicatedException | OCommandExecutionException e) {
+    } catch (YTRecordDuplicatedException | YTCommandExecutionException e) {
 
     }
   }
@@ -412,7 +412,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
                   + ")")
           .close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
 
     }
   }

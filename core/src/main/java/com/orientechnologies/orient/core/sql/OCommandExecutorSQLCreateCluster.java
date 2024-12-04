@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.Map;
 
 /**
@@ -62,7 +62,7 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
         parserRequiredKeyword(KEYWORD_CLUSTER);
         blob = true;
       } else if (!nextWord.equals(KEYWORD_CLUSTER)) {
-        throw new OCommandSQLParsingException("Invalid Syntax: " + queryText);
+        throw new YTCommandSQLParsingException("Invalid Syntax: " + queryText);
       }
 
       clusterName = parserRequiredWord(false);
@@ -108,7 +108,7 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clusterName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -116,14 +116,14 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
 
     final int clusterId = database.getClusterIdByName(clusterName);
     if (clusterId > -1) {
-      throw new OCommandSQLParsingException("Cluster '" + clusterName + "' already exists");
+      throw new YTCommandSQLParsingException("Cluster '" + clusterName + "' already exists");
     }
 
     if (blob) {
       if (requestedId == -1) {
         return database.addBlobCluster(clusterName);
       } else {
-        throw new OCommandExecutionException("Request id not supported by blob cluster creation.");
+        throw new YTCommandExecutionException("Request id not supported by blob cluster creation.");
       }
     } else {
       if (requestedId == -1) {

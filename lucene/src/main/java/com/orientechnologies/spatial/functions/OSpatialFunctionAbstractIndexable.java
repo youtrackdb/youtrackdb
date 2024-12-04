@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -127,7 +127,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
           }
         }
       } else {
-        throw new OCommandExecutionException("The collection in input cannot be major than 1");
+        throw new YTCommandExecutionException("The collection in input cannot be major than 1");
       }
     }
 

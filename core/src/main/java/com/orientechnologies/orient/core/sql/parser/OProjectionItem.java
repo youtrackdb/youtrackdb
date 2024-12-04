@@ -6,12 +6,12 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterable;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterator;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -271,7 +271,7 @@ public class OProjectionItem extends SimpleNode {
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
     if (expression == null) {
-      throw new OCommandExecutionException("Cannot aggregate on this projection: " + this);
+      throw new YTCommandExecutionException("Cannot aggregate on this projection: " + this);
     }
     return expression.getAggregationContext(ctx);
   }

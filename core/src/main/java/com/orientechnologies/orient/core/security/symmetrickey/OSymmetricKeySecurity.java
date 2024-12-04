@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.core.security.symmetrickey;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
@@ -69,12 +69,12 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   public OUser authenticate(
       YTDatabaseSessionInternal session, final String username, final String password) {
     if (delegate == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           "OSymmetricKeySecurity.authenticate() Delegate is null for username: " + username);
     }
 
     if (session == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           "OSymmetricKeySecurity.authenticate() Database is null for username: " + username);
     }
 
@@ -83,14 +83,14 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
     OUser user = delegate.getUser(session, username);
 
     if (user == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           dbName,
           "OSymmetricKeySecurity.authenticate() Username or Key is invalid for username: "
               + username);
     }
 
     if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           dbName, "OSymmetricKeySecurity.authenticate() User '" + username + "' is not active");
     }
 
@@ -105,8 +105,8 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
         return user;
       }
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityAccessException(
+      throw YTException.wrapException(
+          new YTSecurityAccessException(
               dbName,
               "OSymmetricKeySecurity.authenticate() Exception for session: "
                   + dbName
@@ -117,7 +117,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
           ex);
     }
 
-    throw new OSecurityAccessException(
+    throw new YTSecurityAccessException(
         dbName,
         "OSymmetricKeySecurity.authenticate() Username or Key is invalid for session: "
             + dbName

@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.server.network;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.enterprise.channel.OChannel;
-import com.orientechnologies.orient.enterprise.channel.binary.ONetworkProtocolException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -84,7 +84,7 @@ public class OServerNetworkListener extends Thread {
       final String message = "Error on reading protocol version for " + iProtocol;
       OLogManager.instance().error(this, message, e);
 
-      throw OException.wrapException(new ONetworkProtocolException(message), e);
+      throw YTException.wrapException(new YTNetworkProtocolException(message), e);
     }
 
     listen(iHostName, iHostPortRange, iProtocolName, iProtocol);
@@ -410,7 +410,7 @@ public class OServerNetworkListener extends Thread {
             null,
             iHostPortRange,
             iHostName);
-    throw new OSystemException(
+    throw new YTSystemException(
         String.format(
             "Unable to listen for connections using the configured ports '%s' on host '%s'",
             iHostPortRange, iHostName));

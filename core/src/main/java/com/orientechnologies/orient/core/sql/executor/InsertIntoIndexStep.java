@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
@@ -36,7 +36,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -52,11 +52,12 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
             .getIndexManagerInternal()
             .getIndex(database, targetIndex.getIndexName());
     if (index == null) {
-      throw new OCommandExecutionException("Index not found: " + targetIndex);
+      throw new YTCommandExecutionException("Index not found: " + targetIndex);
     }
     List<OInsertSetExpression> setExps = body.getSetExpressions();
     if (body.getContent() != null) {
-      throw new OCommandExecutionException("Invalid expression: INSERT INTO INDEX:... CONTENT ...");
+      throw new YTCommandExecutionException(
+          "Invalid expression: INSERT INTO INDEX:... CONTENT ...");
     }
     long count;
     if (setExps != null) {
@@ -78,12 +79,12 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     OExpression keyExp = null;
     OExpression valueExp = null;
     if (identifierList == null || setExpressions == null) {
-      throw new OCommandExecutionException("Invalid insert expression");
+      throw new YTCommandExecutionException("Invalid insert expression");
     }
     long count = 0;
     for (List<OExpression> valList : setExpressions) {
       if (identifierList.size() != valList.size()) {
-        throw new OCommandExecutionException("Invalid insert expression");
+        throw new YTCommandExecutionException("Invalid insert expression");
       }
       for (int i = 0; i < identifierList.size(); i++) {
         OIdentifier key = identifierList.get(i);
@@ -99,7 +100,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       count += doExecute(index, ctx, keyExp, valueExp);
     }
     if (keyExp == null) {
-      throw new OCommandExecutionException("Invalid insert expression");
+      throw new YTCommandExecutionException("Invalid insert expression");
     }
     return count;
   }
@@ -113,11 +114,11 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       } else if (exp.getLeft().getStringValue().equalsIgnoreCase("rid")) {
         valueExp = exp.getRight();
       } else {
-        throw new OCommandExecutionException("Cannot set " + exp + " on index");
+        throw new YTCommandExecutionException("Cannot set " + exp + " on index");
       }
     }
     if (keyExp == null || valueExp == null) {
-      throw new OCommandExecutionException("Invalid insert expression");
+      throw new YTCommandExecutionException("Invalid insert expression");
     }
     return doExecute(index, ctx, keyExp, valueExp);
   }
@@ -146,7 +147,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
           insertIntoIndex(ctx.getDatabase(), index, key, ((OResult) item).toElement());
           count++;
         } else {
-          throw new OCommandExecutionException("Cannot insert into index " + item);
+          throw new YTCommandExecutionException("Cannot insert into index " + item);
         }
       }
     }

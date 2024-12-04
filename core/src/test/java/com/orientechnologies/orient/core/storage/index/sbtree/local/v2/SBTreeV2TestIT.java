@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.local.v2;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OHighLevelException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTHighLevelException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.util.ORawPair;
@@ -1132,7 +1132,7 @@ public class SBTreeV2TestIT {
     }
   }
 
-  private static final class RollbackException extends OException implements OHighLevelException {
+  private static final class RollbackException extends YTException implements YTHighLevelException {
 
     public RollbackException() {
       this("");

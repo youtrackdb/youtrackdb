@@ -19,7 +19,7 @@ import static com.orientechnologies.common.util.OClassLoaderHelper.lookupProvide
 
 import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -135,7 +135,7 @@ public final class OIndexes {
       }
     }
 
-    throw new OIndexException(
+    throw new YTIndexException(
         "Index with type " + indexType + " and algorithm " + algorithm + " does not exist.");
   }
 
@@ -143,11 +143,11 @@ public final class OIndexes {
    * @param storage   TODO
    * @param indexType index type
    * @return OIndexInternal
-   * @throws OConfigurationException if index creation failed
-   * @throws OIndexException         if index type does not exist
+   * @throws YTConfigurationException if index creation failed
+   * @throws YTIndexException         if index type does not exist
    */
   public static OIndexInternal createIndex(OStorage storage, OIndexMetadata metadata)
-      throws OConfigurationException, OIndexException {
+      throws YTConfigurationException, YTIndexException {
     String indexType = metadata.getType();
     String algorithm = metadata.getAlgorithm();
 
@@ -164,7 +164,7 @@ public final class OIndexes {
         return factory;
       }
     }
-    throw new OIndexException(
+    throw new YTIndexException(
         "Index type "
             + indexType
             + " with engine "

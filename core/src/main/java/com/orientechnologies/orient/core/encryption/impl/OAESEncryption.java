@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.encryption.impl;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTInvalidStorageEncryptionKeyException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -44,7 +44,7 @@ public class OAESEncryption extends OAbstractEncryption {
     initialized = false;
 
     if (iOptions == null) {
-      throw new OSecurityException(
+      throw new YTSecurityException(
           "AES encryption has been selected, but no key was found. Please configure it by passing"
               + " the key as property at database create/open. The property key is: '"
               + YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()
@@ -57,8 +57,8 @@ public class OAESEncryption extends OAbstractEncryption {
       theKey = new SecretKeySpec(key, ALGORITHM_NAME); // AES
 
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OInvalidStorageEncryptionKeyException(
+      throw YTException.wrapException(
+          new YTInvalidStorageEncryptionKeyException(
               "Cannot initialize AES encryption with current key. Assure the key is a BASE64 - 128"
                   + " oe 256 bits long"),
           e);
@@ -72,7 +72,7 @@ public class OAESEncryption extends OAbstractEncryption {
   public byte[] encryptOrDecrypt(
       final int mode, final byte[] input, final int offset, final int length) throws Exception {
     if (!initialized) {
-      throw new OSecurityException("AES encryption algorithm is not available");
+      throw new YTSecurityException("AES encryption algorithm is not available");
     }
     Cipher cipher = Cipher.getInstance(TRANSFORMATION);
     cipher.init(mode, theKey);

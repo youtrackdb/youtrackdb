@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class AlterPropertyTest extends DBTestBase {
     try {
       classA.createProperty(db, "propertyMap", YTType.LINKMAP, YTType.STRING);
       fail("create linkmap property should not allow linked type");
-    } catch (OSchemaException e) {
+    } catch (YTSchemaException e) {
 
     }
 
@@ -60,7 +60,7 @@ public class AlterPropertyTest extends DBTestBase {
     try {
       classA.createProperty(db, "propertyString", YTType.STRING, classLinked);
       fail("create linkmap property should not allow linked type");
-    } catch (OSchemaException e) {
+    } catch (YTSchemaException e) {
 
     }
 

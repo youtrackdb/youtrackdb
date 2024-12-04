@@ -116,7 +116,7 @@ public class TransactionChangesDetectionTest {
     assertEquals(0, currentTx.getTxStartCounter());
   }
 
-  @Test(expected = ORollbackException.class)
+  @Test(expected = YTRollbackException.class)
   public void testTransactionRollbackCommit() {
     database.begin();
     final OTransactionOptimistic currentTx = (OTransactionOptimistic) database.getTransaction();
@@ -126,7 +126,7 @@ public class TransactionChangesDetectionTest {
     database.rollback();
     assertEquals(1, currentTx.getTxStartCounter());
     database.commit();
-    fail("Should throw an 'ORollbackException'.");
+    fail("Should throw an 'YTRollbackException'.");
   }
 
   @Test

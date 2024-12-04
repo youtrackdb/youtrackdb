@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -494,7 +494,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     }
   }
 
-  @Test(expectedExceptions = OCommandSQLParsingException.class)
+  @Test(expectedExceptions = YTCommandSQLParsingException.class)
   public void queryUndefinedFunction() {
     //noinspection ResultOfMethodCallIgnored
     database.query("select blaaaa(salary) as max from Account").stream()

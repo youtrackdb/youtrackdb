@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.common.concur.lock.OInterruptedException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OStorageExistsException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTStorageExistsException;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.HashMap;
@@ -195,8 +195,8 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
         connectionsCounter.acquire();
       }
     } catch (InterruptedException ie) {
-      throw OException.wrapException(
-          new OInterruptedException("Acquiring of new connection was interrupted"), ie);
+      throw YTException.wrapException(
+          new YTInterruptedException("Acquiring of new connection was interrupted"), ie);
     }
 
     boolean acquired = false;
@@ -300,7 +300,7 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
       if (!db.getURL().startsWith("remote:") && !db.exists()) {
         try {
           db.create();
-        } catch (OStorageExistsException ex) {
+        } catch (YTStorageExistsException ex) {
           OLogManager.instance()
               .debug(
                   this,
@@ -435,12 +435,12 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
 
     @Override
     public YTDatabaseSession open(OToken iToken) {
-      throw new ODatabaseException("Impossible to open a database managed by a pool ");
+      throw new YTDatabaseException("Impossible to open a database managed by a pool ");
     }
 
     @Override
     public YTDatabaseSession open(String iUserName, String iUserPassword) {
-      throw new ODatabaseException("Impossible to open a database managed by a pool ");
+      throw new YTDatabaseException("Impossible to open a database managed by a pool ");
     }
 
     /**

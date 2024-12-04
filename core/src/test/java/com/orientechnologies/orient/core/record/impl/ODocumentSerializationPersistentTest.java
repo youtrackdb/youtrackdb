@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     db.commit();
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testRidBagInEmbeddedDocument() {
     ODatabaseRecordThreadLocal.instance().set(db);
     YTDocument doc = new YTDocument();

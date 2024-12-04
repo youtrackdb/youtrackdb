@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
@@ -45,12 +45,12 @@ import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
@@ -180,7 +180,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     } catch (Exception t) {
       ODatabaseRecordThreadLocal.instance().remove();
 
-      throw OException.wrapException(new ODatabaseException("Error on opening database "), t);
+      throw YTException.wrapException(new YTDatabaseException("Error on opening database "), t);
     }
   }
 
@@ -204,17 +204,17 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       ORecordSerializerFactory serializerFactory = ORecordSerializerFactory.instance();
       String serializeName = getStorageInfo().getConfiguration().getRecordSerializer();
       if (serializeName == null) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Impossible to open database from version before 2.x use export import instead");
       }
       serializer = serializerFactory.getFormat(serializeName);
       if (serializer == null) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "RecordSerializer with name '" + serializeName + "' not found ");
       }
       if (getStorageInfo().getConfiguration().getRecordSerializerVersion()
           > serializer.getMinSupportedVersion()) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Persistent record serializer version is not support by the current implementation");
       }
 
@@ -227,13 +227,13 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       user = null;
 
       initialized = true;
-    } catch (OException e) {
+    } catch (YTException e) {
       ODatabaseRecordThreadLocal.instance().remove();
       throw e;
     } catch (Exception e) {
       ODatabaseRecordThreadLocal.instance().remove();
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database url=" + getURL()), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot open database url=" + getURL()), e);
     }
   }
 
@@ -254,13 +254,13 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_READ);
       }
 
-    } catch (OException e) {
+    } catch (YTException e) {
       ODatabaseRecordThreadLocal.instance().remove();
       throw e;
     } catch (Exception e) {
       ODatabaseRecordThreadLocal.instance().remove();
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database url=" + getURL()), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot open database url=" + getURL()), e);
     }
   }
 
@@ -293,13 +293,13 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
               checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_READ);
             }
-          } catch (OException e) {
+          } catch (YTException e) {
             ODatabaseRecordThreadLocal.instance().remove();
             throw e;
           } catch (Exception e) {
             ODatabaseRecordThreadLocal.instance().remove();
-            throw OException.wrapException(
-                new ODatabaseException("Cannot open database url=" + getURL()), e);
+            throw YTException.wrapException(
+                new YTDatabaseException("Cannot open database url=" + getURL()), e);
           }
         });
   }
@@ -335,7 +335,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   public void internalCreate(YouTrackDBConfig config, OSharedContext ctx) {
     ORecordSerializer serializer = ORecordSerializerFactory.instance().getDefaultRecordSerializer();
     if (serializer.toString().equals("ORecordDocument2csv")) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Impossible to create the database with ORecordDocument2csv serializer");
     }
     storage.setRecordSerializer(serializer.toString(), serializer.getCurrentVersion());
@@ -653,7 +653,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       preQueryStart();
       OStatement statement = OSQLEngine.parse(query, this);
       if (!statement.isIdempotent()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot execute query on non idempotent statement: " + query);
       }
       OResultSet original = statement.execute(this, args, true);
@@ -675,7 +675,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     try {
       OStatement statement = OSQLEngine.parse(query, this);
       if (!statement.isIdempotent()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot execute query on non idempotent statement: " + query);
       }
       OResultSet original = statement.execute(this, args, true);
@@ -934,7 +934,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     if (id instanceof YTDocument doc) {
 
       if (!getSharedContext().getSecurity().canCreate(this, doc)) {
-        throw new OSecurityException(
+        throw new YTSecurityException(
             "Cannot update record "
                 + doc
                 + ": the resource has restricted access due to security policies");
@@ -1007,7 +1007,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         if (clazz.isRestricted()) {
           if (!ORestrictedAccessHook.isAllowed(
               this, doc, ORestrictedOperation.ALLOW_UPDATE, true)) {
-            throw new OSecurityException(
+            throw new YTSecurityException(
                 "Cannot update record "
                     + doc.getIdentity()
                     + ": the resource has restricted access");
@@ -1017,7 +1017,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
           OFunctionLibraryImpl.validateFunctionRecord(doc);
         }
         if (!getSharedContext().getSecurity().canUpdate(this, doc)) {
-          throw new OSecurityException(
+          throw new YTSecurityException(
               "Cannot update record "
                   + doc.getIdentity()
                   + ": the resource has restricted access due to security policies");
@@ -1058,7 +1058,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
    * record as deleted, while others cannot access to it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the database, then a {@link OConcurrentModificationException} exception is thrown.
+   * the database, then a {@link YTConcurrentModificationException} exception is thrown.
    *
    * @param record record to delete
    */
@@ -1066,7 +1066,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     checkOpenness();
 
     if (record == null) {
-      throw new ODatabaseException("Cannot delete null document");
+      throw new YTDatabaseException("Cannot delete null document");
     }
 
     if (record instanceof YTEntity) {
@@ -1089,12 +1089,12 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
     try {
       currentTx.deleteRecord((YTRecordAbstract) record);
-    } catch (OException e) {
+    } catch (YTException e) {
       throw e;
     } catch (Exception e) {
       if (record instanceof YTDocument) {
-        throw OException.wrapException(
-            new ODatabaseException(
+        throw YTException.wrapException(
+            new YTDatabaseException(
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
@@ -1102,8 +1102,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
                     + "'"),
             e);
       } else {
-        throw OException.wrapException(
-            new ODatabaseException("Error on deleting record " + record.getIdentity()), e);
+        throw YTException.wrapException(
+            new YTDatabaseException("Error on deleting record " + record.getIdentity()), e);
       }
     }
   }
@@ -1120,14 +1120,14 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         if (clazz.isRestricted()) {
           if (!ORestrictedAccessHook.isAllowed(
               this, doc, ORestrictedOperation.ALLOW_DELETE, true)) {
-            throw new OSecurityException(
+            throw new YTSecurityException(
                 "Cannot delete record "
                     + doc.getIdentity()
                     + ": the resource has restricted access");
           }
         }
         if (!getSharedContext().getSecurity().canDelete(this, doc)) {
-          throw new OSecurityException(
+          throw new YTSecurityException(
               "Cannot delete record "
                   + doc.getIdentity()
                   + ": the resource has restricted access due to security policies");
@@ -1240,7 +1240,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         }
         try {
           checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_READ, clazz.getName());
-        } catch (OSecurityException e) {
+        } catch (YTSecurityException e) {
           return true;
         }
 
@@ -1321,7 +1321,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       if (schemaClass != null) {
         // FIND THE RIGHT CLUSTER AS CONFIGURED IN CLASS
         if (schemaClass.isAbstract()) {
-          throw new OSchemaException(
+          throw new YTSchemaException(
               "Document belongs to abstract class '"
                   + schemaClass.getName()
                   + "' and cannot be saved");
@@ -1379,8 +1379,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
       return storage.recordExists(this, rid);
     } catch (Exception t) {
-      throw OException.wrapException(
-          new ODatabaseException(
+      throw YTException.wrapException(
+          new YTDatabaseException(
               "Error on retrieving record "
                   + rid
                   + " (cluster: "
@@ -1407,7 +1407,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     if (user != null) {
       try {
         user.allow(this, resourceGeneric, resourceSpecific, iOperation);
-      } catch (OSecurityAccessException e) {
+      } catch (YTSecurityAccessException e) {
 
         if (OLogManager.instance().isDebugEnabled()) {
           OLogManager.instance()
@@ -1527,8 +1527,9 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     try {
       return storage.getClusterRecordsSizeByName(clusterName);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Error on reading records size for cluster '" + clusterName + "'"),
+      throw YTException.wrapException(
+          new YTDatabaseException(
+              "Error on reading records size for cluster '" + clusterName + "'"),
           e);
     }
   }
@@ -1539,8 +1540,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     try {
       return storage.getClusterRecordsSizeById(clusterId);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException(
+      throw YTException.wrapException(
+          new YTDatabaseException(
               "Error on reading records size for cluster with id '" + clusterId + "'"),
           e);
     }
@@ -1801,7 +1802,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     checkIfActive();
 
     if (this.isClosed()) {
-      throw new ODatabaseException("Cannot reload a closed db");
+      throw new YTDatabaseException("Cannot reload a closed db");
     }
     metadata.reload();
     storage.reload(this);
@@ -1890,7 +1891,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     this.checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_UPDATE);
     YTClass clazz = getClass(name);
     if (clazz.isSubClassOf(OSecurityShared.RESTRICTED_CLASSNAME)) {
-      throw new OSecurityException(
+      throw new YTSecurityException(
           "Class '"
               + getName()
               + "' cannot be truncated because has record level security enabled (extends '"
@@ -1930,7 +1931,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
     int id = getClusterIdByName(clusterName);
     if (id == -1) {
-      throw new ODatabaseException("Cluster with name " + clusterName + " does not exist");
+      throw new YTDatabaseException("Cluster with name " + clusterName + " does not exist");
     }
     final YTClass clazz = getMetadata().getSchema().getClassByClusterId(id);
     if (clazz != null) {

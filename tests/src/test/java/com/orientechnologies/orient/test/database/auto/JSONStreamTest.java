@@ -17,10 +17,10 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -787,31 +787,31 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     try {
       doc.fromJSON(new ByteArrayInputStream("{".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (OSerializationException | IOException e) {
+    } catch (YTSerializationException | IOException e) {
     }
 
     try {
       doc.fromJSON(new ByteArrayInputStream("{\"foo\":{}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (OSerializationException | IOException e) {
+    } catch (YTSerializationException | IOException e) {
     }
 
     try {
       doc.fromJSON(new ByteArrayInputStream("{{}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (OSerializationException | IOException e) {
+    } catch (YTSerializationException | IOException e) {
     }
 
     try {
       doc.fromJSON(new ByteArrayInputStream("{}}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (OSerializationException | IOException e) {
+    } catch (YTSerializationException | IOException e) {
     }
 
     try {
       doc.fromJSON(new ByteArrayInputStream("}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (OSerializationException | IOException e) {
+    } catch (YTSerializationException | IOException e) {
     }
   }
 

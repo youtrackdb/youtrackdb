@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.security.authenticator.OSecurityAuthenticatorAbstract;
 import com.orientechnologies.orient.core.security.kerberos.OKrb5ClientLoginModuleConfig;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
-import com.orientechnologies.orient.server.security.OSecurityAuthenticatorException;
+import com.orientechnologies.orient.server.security.YTSecurityAuthenticatorException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
@@ -332,7 +332,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
    */
   private void initializeKerberos() {
     if (krb5Config == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator KRB5 Config cannot be null");
     }
 
@@ -346,11 +346,11 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
   private void createServiceSubject() {
     if (servicePrincipal == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator.createServiceSubject() Service Principal cannot be null");
     }
     if (serviceKTName == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator.createServiceSubject() Service KeyTab cannot be null");
     }
 
@@ -375,18 +375,18 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     }
 
     if (serviceSubject == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator could not create service Subject");
     }
   }
 
   private void createSpnegoSubject() {
     if (spnegoPrincipal == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator.createSpnegoSubject() SPNEGO Principal cannot be null");
     }
     if (spnegoKTName == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator.createSpnegoSubject() SPNEGO KeyTab cannot be null");
     }
 
@@ -411,23 +411,23 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     }
 
     if (spnegoSubject == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator could not create SPNEGO Subject");
     }
   }
 
   private void createClientSubject() {
     if (clientPrincipal == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator.createClientSubject() Client Principal cannot be null");
     }
     if (clientUseTicketCache && clientCCName == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator.createClientSubject() Client UseTicketCache cannot be true while"
               + " Credential Cache is null");
     }
     if (clientCCName == null && clientKTName == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator.createClientSubject() Client Credential Cache and Client KeyTab"
               + " cannot both be null");
     }
@@ -455,7 +455,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     }
 
     if (clientSubject == null) {
-      throw new OSecurityAuthenticatorException(
+      throw new YTSecurityAuthenticatorException(
           "OKerberosAuthenticator could not create client Subject");
     }
   }

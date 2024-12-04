@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.ODDLStatement;
 import java.util.Collections;
@@ -53,9 +53,9 @@ public class ODDLExecutionPlan implements OInternalExecutionPlan {
   }
 
   public OExecutionStream executeInternal(OBasicCommandContext ctx)
-      throws OCommandExecutionException {
+      throws YTCommandExecutionException {
     if (executed) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Trying to execute a result-set twice. Please use reset()");
     }
     executed = true;

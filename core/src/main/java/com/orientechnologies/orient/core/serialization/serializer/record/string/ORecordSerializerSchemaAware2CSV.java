@@ -21,13 +21,13 @@ package com.orientechnologies.orient.core.serialization.serializer.record.string
 
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
@@ -290,8 +290,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
           }
         }
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OSerializationException(
+        throw YTException.wrapException(
+            new YTSerializationException(
                 "Error on unmarshalling field '"
                     + fieldName
                     + "' in record "
@@ -339,11 +339,11 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
       final String iFormat,
       final boolean autoDetectCollectionType) {
     if (iRecord == null) {
-      throw new OSerializationException("Expected a record but was null");
+      throw new YTSerializationException("Expected a record but was null");
     }
 
     if (!(iRecord instanceof YTDocument record)) {
-      throw new OSerializationException(
+      throw new YTSerializationException(
           "Cannot marshall a record of type " + iRecord.getClass().getSimpleName());
     }
 

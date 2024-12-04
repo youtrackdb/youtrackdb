@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OCluster;
@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.sql.parser.OCluster;
  *
  * <p>It accepts two values: a target cluster (name or OCluster) and a class. If the cluster
  * belongs to the class, then the syncPool() returns an empty result set, otherwise it throws an
- * OCommandExecutionException
+ * YTCommandExecutionException
  */
 public class CheckClusterTypeStep extends AbstractExecutionStep {
 
@@ -36,7 +36,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext context) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext context) throws YTTimeoutException {
     var prev = this.prev;
     if (prev != null) {
       prev.start(context).close(ctx);
@@ -52,16 +52,16 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
     } else {
       clusterId = cluster.getClusterNumber();
       if (db.getClusterNameById(clusterId) == null) {
-        throw new OCommandExecutionException("Cluster not found: " + clusterId);
+        throw new YTCommandExecutionException("Cluster not found: " + clusterId);
       }
     }
     if (clusterId < 0) {
-      throw new OCommandExecutionException("Cluster not found: " + clusterName);
+      throw new YTCommandExecutionException("Cluster not found: " + clusterName);
     }
 
     YTClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(targetClass);
     if (clazz == null) {
-      throw new OCommandExecutionException("Class not found: " + targetClass);
+      throw new YTCommandExecutionException("Class not found: " + targetClass);
     }
 
     boolean found = false;
@@ -72,7 +72,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       }
     }
     if (!found) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cluster " + clusterId + " does not belong to class " + targetClass);
     }
     return OExecutionStream.empty();

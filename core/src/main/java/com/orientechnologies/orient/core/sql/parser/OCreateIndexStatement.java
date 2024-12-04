@@ -5,15 +5,15 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionFactory;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexes;
 import com.orientechnologies.orient.core.index.OSimpleKeyIndexDefinition;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -76,7 +76,7 @@ public class OCreateIndexStatement extends ODDLStatement {
       if (ifNotExists) {
         return null;
       } else {
-        throw new OCommandExecutionException("Index " + name + " already exists");
+        throw new YTCommandExecutionException("Index " + name + " already exists");
       }
     }
 
@@ -129,25 +129,25 @@ public class OCreateIndexStatement extends ODDLStatement {
         // legacy: create index without specifying property names
         String[] split = name.getValue().split("\\.");
         if (split.length != 2) {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "Impossible to create an index without specify class and property name nor key types:"
                   + " "
                   + this);
         }
         YTClass oClass = database.getClass(split[0]);
         if (oClass == null) {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "Impossible to create an index, class not found: " + split[0]);
         }
         if (oClass.getProperty(split[1]) == null) {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "Impossible to create an index, property not found: " + name.getValue());
         }
         String[] fields = new String[]{split[1]};
         idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
 
       } else {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Impossible to create an index without specify the key type or the associated property:"
                 + " "
                 + this);
@@ -183,7 +183,7 @@ public class OCreateIndexStatement extends ODDLStatement {
       if (keyTypes == null || keyTypes.size() == 0 && fields.length > 0) {
         for (final String fieldName : fields) {
           if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
-            throw new OIndexException(
+            throw new YTIndexException(
                 "Index with name : '"
                     + name.getValue()
                     + "' cannot be created on class : '"
@@ -253,7 +253,7 @@ public class OCreateIndexStatement extends ODDLStatement {
     YTClass result =
         ctx.getDatabase().getMetadata().getSchema().getClass(className.getStringValue());
     if (result == null) {
-      throw new OCommandExecutionException("Cannot find class " + className);
+      throw new YTCommandExecutionException("Cannot find class " + className);
     }
     return result;
   }

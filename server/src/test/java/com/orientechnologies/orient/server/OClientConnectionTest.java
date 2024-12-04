@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class OClientConnectionTest extends BaseMemoryInternalDatabase {
     assertNotNull(conn.getToken());
   }
 
-  @Test(expected = OTokenSecurityException.class)
+  @Test(expected = YTTokenSecurityException.class)
   public void testExpiredToken() throws IOException, InterruptedException {
     OClientConnection conn = new OClientConnection(1, protocol);
     long sessionTimeout = YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.getValueAsLong();
@@ -65,7 +65,7 @@ public class OClientConnectionTest extends BaseMemoryInternalDatabase {
     conn.validateSession(tokenBytes, handler, protocol);
   }
 
-  @Test(expected = OTokenSecurityException.class)
+  @Test(expected = YTTokenSecurityException.class)
   public void testWrongToken() throws IOException {
     OClientConnection conn = new OClientConnection(1, protocol);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());
@@ -89,7 +89,7 @@ public class OClientConnectionTest extends BaseMemoryInternalDatabase {
     assertNotNull(conn.getToken());
   }
 
-  @Test(expected = OTokenSecurityException.class)
+  @Test(expected = YTTokenSecurityException.class)
   public void testNotAlreadyAuthenticated() throws IOException {
     OClientConnection conn = new OClientConnection(1, protocol);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());
@@ -97,7 +97,7 @@ public class OClientConnectionTest extends BaseMemoryInternalDatabase {
     conn.validateSession(null, handler, protocol1);
   }
 
-  @Test(expected = OTokenSecurityException.class)
+  @Test(expected = YTTokenSecurityException.class)
   public void testAlreadyAuthenticatedButNotOnSpecificConnection() throws IOException {
     OClientConnection conn = new OClientConnection(1, protocol);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());

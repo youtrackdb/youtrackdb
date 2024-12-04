@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.server.network;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.File;
 import java.io.IOException;
@@ -79,9 +79,10 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
     }
 
     if (keyStorePath == null) {
-      throw new OConfigurationException("Missing parameter " + PARAM_NETWORK_SSL_KEYSTORE);
+      throw new YTConfigurationException("Missing parameter " + PARAM_NETWORK_SSL_KEYSTORE);
     } else if (keyStorePassword == null) {
-      throw new OConfigurationException("Missing parameter " + PARAM_NETWORK_SSL_KEYSTORE_PASSWORD);
+      throw new YTConfigurationException(
+          "Missing parameter " + PARAM_NETWORK_SSL_KEYSTORE_PASSWORD);
     }
 
     keyStoreFile = new File(keyStorePath);
@@ -147,8 +148,8 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
       return context;
 
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OConfigurationException("Failed to create SSL context"), e);
+      throw YTException.wrapException(
+          new YTConfigurationException("Failed to create SSL context"), e);
     }
   }
 

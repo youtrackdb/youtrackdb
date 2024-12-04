@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.YTTimeoutException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     IntOpenHashSet ids = init(ctx.getDatabase());
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
@@ -83,7 +83,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       clusters = fromResult.getProperty("clusters");
     } catch (Exception e) {
-      throw OException.wrapException(new OCommandExecutionException(""), e);
+      throw YTException.wrapException(new YTCommandExecutionException(""), e);
     }
   }
 }

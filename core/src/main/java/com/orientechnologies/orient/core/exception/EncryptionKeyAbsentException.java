@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.exception;
 
-public class EncryptionKeyAbsentException extends OStorageException {
+public class EncryptionKeyAbsentException extends YTStorageException {
 
   public EncryptionKeyAbsentException(EncryptionKeyAbsentException exception) {
     super(exception);

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.token;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
@@ -200,7 +200,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       tokenByteOS.write(
           Base64.getUrlEncoder().encode(ByteBuffer.wrap(bytes, 0, bytes.length)).array());
     } catch (Exception ex) {
-      throw OException.wrapException(new OSystemException("Error on token parsing"), ex);
+      throw YTException.wrapException(new YTSystemException("Error on token parsing"), ex);
     }
 
     return tokenByteOS.toByteArray();
@@ -229,7 +229,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       tokenByteOS.write(
           Base64.getUrlEncoder().encode(ByteBuffer.wrap(bytes, 0, bytes.length)).array());
     } catch (Exception ex) {
-      throw OException.wrapException(new OSystemException("Error on token parsing"), ex);
+      throw YTException.wrapException(new YTSystemException("Error on token parsing"), ex);
     }
 
     return tokenByteOS.toByteArray();
@@ -287,7 +287,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {
-      throw OException.wrapException(new OSystemException("Error on token parsing"), e);
+      throw YTException.wrapException(new YTSystemException("Error on token parsing"), e);
     }
   }
 
@@ -339,7 +339,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       System.arraycopy(binaryToken, 0, onlyTokenBytes, 0, end);
       return new OParsedToken(token, onlyTokenBytes, decodedSignature);
     } catch (Exception e) {
-      throw OException.wrapException(new OSystemException("Error on token parsing"), e);
+      throw YTException.wrapException(new YTSystemException("Error on token parsing"), e);
     }
   }
 
@@ -368,7 +368,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
           throw new OTokenException("renew of web token not supported");
         }
       } catch (IOException e) {
-        throw OException.wrapException(new OSystemException("Error on token parsing"), e);
+        throw YTException.wrapException(new YTSystemException("Error on token parsing"), e);
       }
     }
     return OCommonConst.EMPTY_BYTE_ARRAY;
@@ -394,7 +394,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
 
   protected OJwtPayload deserializeWebPayload(final String type, final byte[] decodedPayload) {
     if (!"YouTrackDB".equals(type)) {
-      throw new OSystemException("Payload class not registered:" + type);
+      throw new YTSystemException("Payload class not registered:" + type);
     }
     final YTDocument doc = new YTDocument();
     doc.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
@@ -495,7 +495,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     try {
       return binarySerializer.deserialize(bais);
     } catch (Exception e) {
-      throw OException.wrapException(new OSystemException("Cannot deserialize binary token"), e);
+      throw YTException.wrapException(new YTSystemException("Cannot deserialize binary token"), e);
     }
   }
 

@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -60,7 +60,7 @@ public class ORestrictedAccessHook {
           identity = roles.iterator().next().getIdentity(database);
         }
       } else {
-        throw new OConfigurationException(
+        throw new YTConfigurationException(
             "Wrong custom field '"
                 + OSecurityShared.ONCREATE_IDENTITY_TYPE
                 + "' in class '"
@@ -112,7 +112,7 @@ public class ORestrictedAccessHook {
       {
         try {
           doc = database.load(iDocument.getIdentity());
-        } catch (ORecordNotFoundException e) {
+        } catch (YTRecordNotFoundException e) {
           return false;
         }
 

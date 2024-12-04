@@ -29,28 +29,28 @@ import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.HelperClasses.MapRecordInfo;
@@ -361,7 +361,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
         final int id = (len * -1) - 1;
         prop = ODocumentInternal.getGlobalPropertyById(reference, id);
         if (prop == null) {
-          throw new OSerializationException(
+          throw new YTSerializationException(
               "Missing property definition for property id '" + id + "'");
         }
         result.add(prop.getName());
@@ -411,7 +411,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
       if (value != null) {
         type = getFieldType(field.getValue());
         if (type == null) {
-          throw new OSerializationException(
+          throw new YTSerializationException(
               "Impossible serialize value of type "
                   + value.getClass()
                   + " with the YTDocument binary serializer");
@@ -694,14 +694,14 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
       writeOType(bytes, bytes.alloc(1), type);
       var key = entry.getKey();
       if (key == null) {
-        throw new OSerializationException("Maps with null keys are not supported");
+        throw new YTSerializationException("Maps with null keys are not supported");
       }
       writeString(bytes, entry.getKey().toString());
       final Object value = entry.getValue();
       if (value != null) {
         type = getTypeFromValueEmbedded(value);
         if (type == null) {
-          throw new OSerializationException(
+          throw new YTSerializationException(
               "Impossible serialize value of type "
                   + value.getClass()
                   + " with the YTDocument binary serializer");
@@ -798,7 +798,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
       boolean justRunThrough,
       YTImmutableSchema schema) {
     if (type == null) {
-      throw new ODatabaseException("Invalid type value: null");
+      throw new YTDatabaseException("Invalid type value: null");
     }
     Object value = null;
     switch (type) {
@@ -1072,7 +1072,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
         break;
       case LINK:
         if (!(value instanceof YTIdentifiable)) {
-          throw new OValidationException("Value '" + value + "' is not a YTIdentifiable");
+          throw new YTValidationException("Value '" + value + "' is not a YTIdentifiable");
         }
 
         pointer = writeOptimizedLink(bytes, (YTIdentifiable) value);
@@ -1126,7 +1126,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
         writeOType(bytes, bytes.alloc(1), type);
         serializeValue(session, bytes, itemValue, type, null, schema, encryption);
       } else {
-        throw new OSerializationException(
+        throw new YTSerializationException(
             "Impossible serialize value of type "
                 + value.getClass()
                 + " with the YTDocument binary serializer");

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
@@ -71,7 +71,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
     final YTDocument doc;
     try {
       doc = getRecord();
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
 
@@ -96,7 +96,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
     final YTDocument doc;
     try {
       doc = getRecord();
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
 
@@ -130,7 +130,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
     final YTDocument doc;
     try {
       doc = getRecord();
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
 
@@ -156,7 +156,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
 
     try {
       doc = getRecord();
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
 

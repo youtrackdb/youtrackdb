@@ -17,10 +17,10 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -887,31 +887,31 @@ public class JSONTest extends DocumentDBBaseTest {
     try {
       doc.fromJSON("{");
       Assert.fail();
-    } catch (OSerializationException e) {
+    } catch (YTSerializationException e) {
     }
 
     try {
       doc.fromJSON("{\"foo\":{}");
       Assert.fail();
-    } catch (OSerializationException e) {
+    } catch (YTSerializationException e) {
     }
 
     try {
       doc.fromJSON("{{}");
       Assert.fail();
-    } catch (OSerializationException e) {
+    } catch (YTSerializationException e) {
     }
 
     try {
       doc.fromJSON("{}}");
       Assert.fail();
-    } catch (OSerializationException e) {
+    } catch (YTSerializationException e) {
     }
 
     try {
       doc.fromJSON("}");
       Assert.fail();
-    } catch (OSerializationException e) {
+    } catch (YTSerializationException e) {
     }
   }
 

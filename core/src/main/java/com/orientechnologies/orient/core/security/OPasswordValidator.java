@@ -25,5 +25,5 @@ package com.orientechnologies.orient.core.security;
 public interface OPasswordValidator extends OSecurityComponent {
 
   void validatePassword(final String username, final String password)
-      throws OInvalidPasswordException;
+      throws YTInvalidPasswordException;
 }

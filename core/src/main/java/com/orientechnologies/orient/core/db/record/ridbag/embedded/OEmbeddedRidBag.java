@@ -27,16 +27,16 @@ import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
@@ -409,7 +409,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
         }
 
         if (link == null) {
-          throw new OSerializationException("Found null entry in ridbag with rid=" + rid);
+          throw new YTSerializationException("Found null entry in ridbag with rid=" + rid);
         }
 
         entries[i] = link.getIdentity();
@@ -435,7 +435,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
       if (rid.isTemporary()) {
         try {
           identifiable = rid.getRecord();
-        } catch (ORecordNotFoundException rnf) {
+        } catch (YTRecordNotFoundException rnf) {
           OLogManager.instance()
               .warn(this, "Found null reference during ridbag deserialization (rid=%s)", rid);
           identifiable = rid;

@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -72,9 +72,9 @@ public class YouTrackDBRemoteTest {
     db.close();
   }
 
-  // @Test(expected = OStorageExistsException.class)
+  // @Test(expected = YTStorageExistsException.class)
   // TODO: Uniform database exist exceptions
-  @Test(expected = OStorageException.class)
+  @Test(expected = YTStorageException.class)
   public void doubleCreateRemoteDatabase() {
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");

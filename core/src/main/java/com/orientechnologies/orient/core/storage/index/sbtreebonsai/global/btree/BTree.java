@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btree;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -70,8 +70,8 @@ public final class BTree extends ODurableComponent {
 
       fileId = openFile(atomicOperation, getFullName());
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Exception during loading of rid bag " + getFullName()), e);
+      throw YTException.wrapException(
+          new YTStorageException("Exception during loading of rid bag " + getFullName()), e);
     } finally {
       releaseExclusiveLock();
     }
@@ -112,8 +112,8 @@ public final class BTree extends ODurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Error during retrieving  of value for rid bag with name " + getName()),
           e);
     } finally {
@@ -230,8 +230,8 @@ public final class BTree extends ODurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during finding first key in btree [" + getName() + "]"), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during finding first key in btree [" + getName() + "]"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -320,8 +320,8 @@ public final class BTree extends ODurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during finding last key in btree [" + getName() + "]"), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during finding last key in btree [" + getName() + "]"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -688,7 +688,7 @@ public final class BTree extends ODurableComponent {
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.");
       }
@@ -730,7 +730,7 @@ public final class BTree extends ODurableComponent {
     while (true) {
       depth++;
       if (depth > MAX_PATH_LENGTH) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.");
       }
@@ -951,7 +951,7 @@ public final class BTree extends ODurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(new OStorageException("Error during element iteration"), e);
+      throw YTException.wrapException(new YTStorageException("Error during element iteration"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(BTree.this);
     }
@@ -1084,7 +1084,7 @@ public final class BTree extends ODurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(new OStorageException("Error during element iteration"), e);
+      throw YTException.wrapException(new YTStorageException("Error during element iteration"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(BTree.this);
     }

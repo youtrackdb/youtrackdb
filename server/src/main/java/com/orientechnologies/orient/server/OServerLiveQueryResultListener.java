@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.exception.OErrorCode;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.exception.OCoreException;
-import com.orientechnologies.orient.core.exception.OLiveQueryInterruptedException;
+import com.orientechnologies.orient.core.exception.YTCoreException;
+import com.orientechnologies.orient.core.exception.YTLiveQueryInterruptedException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import java.io.IOException;
@@ -58,19 +58,19 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
   }
 
   @Override
-  public void onError(YTDatabaseSession database, OException exception) {
+  public void onError(YTDatabaseSession database, YTException exception) {
     try {
       // TODO: resolve error identifier
       int errorIdentifier = 0;
       OErrorCode code = OErrorCode.GENERIC_ERROR;
-      if (exception instanceof OCoreException) {
-        code = ((OCoreException) exception).getErrorCode();
+      if (exception instanceof YTCoreException) {
+        code = ((YTCoreException) exception).getErrorCode();
       }
       protocol.push((YTDatabaseSessionInternal) database,
           new OLiveQueryPushRequest(monitorId, errorIdentifier, code, exception.getMessage()));
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OLiveQueryInterruptedException("Live query interrupted by socket close"), e);
+      throw YTException.wrapException(
+          new YTLiveQueryInterruptedException("Live query interrupted by socket close"), e);
     }
   }
 
@@ -80,8 +80,8 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
       protocol.push((YTDatabaseSessionInternal) database,
           new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.END, Collections.emptyList()));
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OLiveQueryInterruptedException("Live query interrupted by socket close"), e);
+      throw YTException.wrapException(
+          new YTLiveQueryInterruptedException("Live query interrupted by socket close"), e);
     }
   }
 
@@ -102,8 +102,8 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
           new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.HAS_MORE, events));
     } catch (IOException e) {
       sharedContext.getLiveQueryOpsV2().getSubscribers().remove(monitorId);
-      throw OException.wrapException(
-          new OLiveQueryInterruptedException("Live query interrupted by socket close"), e);
+      throw YTException.wrapException(
+          new YTLiveQueryInterruptedException("Live query interrupted by socket close"), e);
     }
   }
 }

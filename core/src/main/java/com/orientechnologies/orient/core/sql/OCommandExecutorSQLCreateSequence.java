@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.metadata.sequence.OSequenceHelper;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
-import com.orientechnologies.orient.core.metadata.sequence.OSequenceHelper;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -59,8 +59,8 @@ public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstra
           try {
             this.sequenceType = OSequenceHelper.getSequenceTyeFromString(typeAsString);
           } catch (IllegalArgumentException e) {
-            throw OException.wrapException(
-                new OCommandSQLParsingException(
+            throw YTException.wrapException(
+                new YTCommandSQLParsingException(
                     "Unknown sequence type '"
                         + typeAsString
                         + "'. Supported attributes are: "
@@ -91,7 +91,7 @@ public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstra
   @Override
   public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -102,10 +102,10 @@ public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstra
           .getMetadata()
           .getSequenceLibrary()
           .createSequence(this.sequenceName, this.sequenceType, this.params);
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       OLogManager.instance().error(this, message, exc, (Object) null);
-      throw new OCommandExecutionException(message);
+      throw new YTCommandExecutionException(message);
     }
 
     return database.getMetadata().getSequenceLibrary().getSequenceCount();

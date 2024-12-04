@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OMatchFilter;
 import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
@@ -139,6 +139,6 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     if (x instanceof YTIdentifiable) {
       return new OResultInternal(db, (YTIdentifiable) x);
     }
-    throw new OCommandExecutionException("Cannot execute traversal on " + x);
+    throw new YTCommandExecutionException("Cannot execute traversal on " + x);
   }
 }

@@ -18,7 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
@@ -83,7 +83,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
-      // Concurrent update docA via database1 -> will throw OConcurrentModificationException at
+      // Concurrent update docA via database1 -> will throw YTConcurrentModificationException at
       // database2.commit().
       database1.activateOnCurrentThread();
       database1.begin();
@@ -94,7 +94,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
         database1.save(vDocA_db1);
 
         database1.commit();
-      } catch (OConcurrentModificationException e) {
+      } catch (YTConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
       vDocA_db1 = database1.bindToSession(vDocA_db1);
@@ -112,10 +112,10 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       vDocB_db2.field(NAME, "docB_UpdatedInTranscationThatWillBeRollbacked");
       database2.save(vDocB_db2);
 
-      // Will throw OConcurrentModificationException
+      // Will throw YTConcurrentModificationException
       database2.commit();
-      Assert.fail("Should throw OConcurrentModificationException");
-    } catch (OConcurrentModificationException e) {
+      Assert.fail("Should throw YTConcurrentModificationException");
+    } catch (YTConcurrentModificationException e) {
       database2.rollback();
     }
 
@@ -167,17 +167,17 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
         database1.commit();
-      } catch (OConcurrentModificationException e) {
+      } catch (YTConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
       vDocA_db1 = database1.bindToSession(vDocA_db1);
       Assert.assertEquals(vDocA_db1.field(NAME), "docA_v3");
 
-      // Will throw OConcurrentModificationException
+      // Will throw YTConcurrentModificationException
       database2.activateOnCurrentThread();
       database2.commit();
-      Assert.fail("Should throw OConcurrentModificationException");
-    } catch (OConcurrentModificationException e) {
+      Assert.fail("Should throw YTConcurrentModificationException");
+    } catch (YTConcurrentModificationException e) {
       database2.rollback();
     }
 
@@ -229,18 +229,18 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
         database1.commit();
-      } catch (OConcurrentModificationException e) {
+      } catch (YTConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
 
       vDocA_db1 = database1.bindToSession(vDocA_db1);
       Assert.assertEquals(vDocA_db1.field(NAME), "docA_v3");
 
-      // Will throw OConcurrentModificationException
+      // Will throw YTConcurrentModificationException
       database2.activateOnCurrentThread();
       database2.commit();
-      Assert.fail("Should throw OConcurrentModificationException");
-    } catch (OConcurrentModificationException e) {
+      Assert.fail("Should throw YTConcurrentModificationException");
+    } catch (YTConcurrentModificationException e) {
       database2.rollback();
     }
 

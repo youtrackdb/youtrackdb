@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.parser.OSecurityResourceSegment;
 import java.util.Map;
@@ -87,7 +87,7 @@ public abstract class OSecurityResource {
         OSecurityResourceSegment propertyModifier = classElement.getNext();
         if (propertyModifier != null) {
           if (propertyModifier.getNext() != null) {
-            throw new OSecurityException("Invalid resource: " + resource);
+            throw new YTSecurityException("Invalid resource: " + resource);
           }
           String propertyName = propertyModifier.getIdentifier().getStringValue();
           if (allClasses) {
@@ -102,29 +102,29 @@ public abstract class OSecurityResource {
         OSecurityResourceSegment clusterElement = parsed.getNext().getNext();
         String clusterName = clusterElement.getIdentifier().getStringValue();
         if (clusterElement.getNext() != null) {
-          throw new OSecurityException("Invalid resource: " + resource);
+          throw new YTSecurityException("Invalid resource: " + resource);
         }
         return new OSecurityResourceCluster(resource, clusterName);
       } else if (resource.startsWith("database.function.")) {
         OSecurityResourceSegment functionElement = parsed.getNext().getNext();
         String functionName = functionElement.getIdentifier().getStringValue();
         if (functionElement.getNext() != null) {
-          throw new OSecurityException("Invalid resource: " + resource);
+          throw new YTSecurityException("Invalid resource: " + resource);
         }
         return new OSecurityResourceFunction(resource, functionName);
       } else if (resource.startsWith("database.systemclusters.")) {
         OSecurityResourceSegment clusterElement = parsed.getNext().getNext();
         String clusterName = clusterElement.getIdentifier().getStringValue();
         if (clusterElement.getNext() != null) {
-          throw new OSecurityException("Invalid resource: " + resource);
+          throw new YTSecurityException("Invalid resource: " + resource);
         }
         return new OSecurityResourceCluster(resource, clusterName);
       }
 
-      throw new OSecurityException("Invalid resource: " + resource);
+      throw new YTSecurityException("Invalid resource: " + resource);
     } catch (Exception ex) {
       ex.printStackTrace();
-      throw new OSecurityException("Invalid resource: " + resource);
+      throw new YTSecurityException("Invalid resource: " + resource);
     }
   }
 

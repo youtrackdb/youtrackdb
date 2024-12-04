@@ -6,7 +6,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.lang.reflect.Array;
@@ -359,7 +359,7 @@ public class OArrayRangeSelector extends SimpleNode {
       to = toSelector.getValue(originalRecord, null, ctx);
     }
     if (from == null || to == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Invalid range expression: " + this + " one of the elements is null");
     }
     if (included) {
@@ -395,7 +395,7 @@ public class OArrayRangeSelector extends SimpleNode {
         count++;
       }
     } else {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Trying to remove elements from "
               + currentValue
               + " ("

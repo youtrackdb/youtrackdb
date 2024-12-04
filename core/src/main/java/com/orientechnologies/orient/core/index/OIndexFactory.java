@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Set;
@@ -44,9 +44,9 @@ public interface OIndexFactory {
    *
    * @param im TODO
    * @return OIndexInternal
-   * @throws OConfigurationException if index creation failed
+   * @throws YTConfigurationException if index creation failed
    */
-  OIndexInternal createIndex(OStorage storage, OIndexMetadata im) throws OConfigurationException;
+  OIndexInternal createIndex(OStorage storage, OIndexMetadata im) throws YTConfigurationException;
 
   OBaseIndexEngine createIndexEngine(OStorage storage, IndexEngineData data);
 }

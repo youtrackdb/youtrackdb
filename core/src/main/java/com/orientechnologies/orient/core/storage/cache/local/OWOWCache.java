@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.storage.cache.local;
 
 import com.orientechnologies.common.collection.closabledictionary.OClosableEntry;
 import com.orientechnologies.common.collection.closabledictionary.OClosableLinkedContainer;
-import com.orientechnologies.common.concur.lock.OInterruptedException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
 import com.orientechnologies.common.concur.lock.OLockManager;
 import com.orientechnologies.common.concur.lock.OPartitionedLockManager;
 import com.orientechnologies.common.concur.lock.OReadersWriterSpinLock;
@@ -29,7 +29,7 @@ import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.orientechnologies.common.directmemory.OPointer;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
@@ -41,11 +41,11 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.common.util.ORawPairLongObject;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.exception.OWriteCacheException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTInvalidStorageEncryptionKeyException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
+import com.orientechnologies.orient.core.exception.YTWriteCacheException;
 import com.orientechnologies.orient.core.storage.OChecksumMode;
 import com.orientechnologies.orient.core.storage.cache.OAbstractWriteCache;
 import com.orientechnologies.orient.core.storage.cache.OCachePointer;
@@ -480,12 +480,12 @@ public final class OWOWCache extends OAbstractWriteCache
 
     this.logFileDeletion = logFileDeletion;
     if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
-      throw new OInvalidStorageEncryptionKeyException(
+      throw new YTInvalidStorageEncryptionKeyException(
           "Invalid length of the encryption key, provided size is " + aesKey.length);
     }
 
     if (aesKey != null && iv == null) {
-      throw new OInvalidStorageEncryptionKeyException("IV can not be null");
+      throw new YTInvalidStorageEncryptionKeyException("IV can not be null");
     }
 
     this.shutdownTimeout = shutdownTimeout;
@@ -513,8 +513,8 @@ public final class OWOWCache extends OAbstractWriteCache
       try {
         this.fileStore = Files.getFileStore(this.storagePath);
       } catch (final IOException e) {
-        throw OException.wrapException(
-            new OStorageException("Error during retrieving of file store"), e);
+        throw YTException.wrapException(
+            new YTStorageException("Error during retrieving of file store"), e);
       }
 
       this.stringSerializer = stringSerializer;
@@ -665,7 +665,7 @@ public final class OWOWCache extends OAbstractWriteCache
         if (fileId < 0) {
           return composeFileId(id, -fileId);
         } else {
-          throw new OStorageException(
+          throw new YTStorageException(
               "File " + fileName + " has already been added to the storage");
         }
       }
@@ -707,7 +707,7 @@ public final class OWOWCache extends OAbstractWriteCache
         if (fileClassic != null) {
           return externalId;
         } else {
-          throw new OStorageException(
+          throw new YTStorageException(
               "File with given name " + fileName + " only partially registered in storage");
         }
       }
@@ -728,7 +728,7 @@ public final class OWOWCache extends OAbstractWriteCache
       fileClassic = createFileInstance(fileName, fileId);
 
       if (!fileClassic.exists()) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "File with name " + fileName + " does not exist in storage " + storageName);
       } else {
         // REGISTER THE FILE
@@ -753,7 +753,7 @@ public final class OWOWCache extends OAbstractWriteCache
         return externalId;
       }
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("Load file was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("Load file was interrupted"), e);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -769,7 +769,7 @@ public final class OWOWCache extends OAbstractWriteCache
       final OFile fileClassic;
 
       if (fileId != null && fileId >= 0) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "File with name " + fileName + " already exists in storage " + storageName);
       }
 
@@ -799,7 +799,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
       return externalId;
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("File add was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("File add was interrupted"), e);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -880,10 +880,10 @@ public final class OWOWCache extends OAbstractWriteCache
 
       if (existingFileId != null && existingFileId >= 0) {
         if (existingFileId == intId) {
-          throw new OStorageException(
+          throw new YTStorageException(
               "File with name '" + fileName + "'' already exists in storage '" + storageName + "'");
         } else {
-          throw new OStorageException(
+          throw new YTStorageException(
               "File with given name '"
                   + fileName
                   + "' already exists but has different id "
@@ -898,7 +898,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
       if (fileClassic != null) {
         if (!fileClassic.getName().equals(createInternalFileName(fileName, intId))) {
-          throw new OStorageException(
+          throw new YTStorageException(
               "File with given id exists but has different name "
                   + fileClassic.getName()
                   + " vs. proposed "
@@ -926,7 +926,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
       return fileId;
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("File add was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("File add was interrupted"), e);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -972,7 +972,8 @@ public final class OWOWCache extends OAbstractWriteCache
         doubleWriteLog.endCheckpoint();
       }
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("Fuzzy checkpoint was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("Fuzzy checkpoint was interrupted"),
+          e);
     } finally {
       filesLock.releaseReadLock();
     }
@@ -984,7 +985,7 @@ public final class OWOWCache extends OAbstractWriteCache
     try {
       future.get();
     } catch (final Exception e) {
-      throw ODatabaseException.wrapException(new OStorageException("Error during data flush"), e);
+      throw YTDatabaseException.wrapException(new YTStorageException("Error during data flush"), e);
     }
   }
 
@@ -1193,8 +1194,8 @@ public final class OWOWCache extends OAbstractWriteCache
         files.release(entry);
       }
     } catch (final InterruptedException e) {
-      throw OException.wrapException(
-          new OStorageException("Allocation of page was interrupted"), e);
+      throw YTException.wrapException(
+          new YTStorageException("Allocation of page was interrupted"), e);
     } finally {
       filesLock.releaseReadLock();
     }
@@ -1224,10 +1225,10 @@ public final class OWOWCache extends OAbstractWriteCache
       future.get();
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw OException.wrapException(new OInterruptedException("File flush was interrupted"), e);
+      throw YTException.wrapException(new YTInterruptedException("File flush was interrupted"), e);
     } catch (final Exception e) {
-      throw OException.wrapException(
-          new OWriteCacheException("File flush was abnormally terminated"), e);
+      throw YTException.wrapException(
+          new YTWriteCacheException("File flush was abnormally terminated"), e);
     }
   }
 
@@ -1239,10 +1240,10 @@ public final class OWOWCache extends OAbstractWriteCache
       future.get();
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw OException.wrapException(new OInterruptedException("File flush was interrupted"), e);
+      throw YTException.wrapException(new YTInterruptedException("File flush was interrupted"), e);
     } catch (final Exception e) {
-      throw OException.wrapException(
-          new OWriteCacheException("File flush was abnormally terminated"), e);
+      throw YTException.wrapException(
+          new YTWriteCacheException("File flush was abnormally terminated"), e);
     }
   }
 
@@ -1281,11 +1282,11 @@ public final class OWOWCache extends OAbstractWriteCache
       try {
         file = future.get();
       } catch (final InterruptedException e) {
-        throw OException.wrapException(
-            new OInterruptedException("File data removal was interrupted"), e);
+        throw YTException.wrapException(
+            new YTInterruptedException("File data removal was interrupted"), e);
       } catch (final Exception e) {
-        throw OException.wrapException(
-            new OWriteCacheException("File data removal was abnormally terminated"), e);
+        throw YTException.wrapException(
+            new YTWriteCacheException("File data removal was abnormally terminated"), e);
       }
 
       if (file != null) {
@@ -1313,7 +1314,7 @@ public final class OWOWCache extends OAbstractWriteCache
         files.release(entry);
       }
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("File truncation was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("File truncation was interrupted"), e);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1365,7 +1366,7 @@ public final class OWOWCache extends OAbstractWriteCache
       writeNameIdEntry(new NameFileIdEntry(oldFileName, -1, oldOsFileName), false);
       writeNameIdEntry(new NameFileIdEntry(newFileName, intId, newOsFileName), true);
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("Rename of file was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("Rename of file was interrupted"), e);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1408,7 +1409,7 @@ public final class OWOWCache extends OAbstractWriteCache
       nameIdMap.remove(fileName);
       nameIdMap.put(newFileName, intFileId);
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("Replace of file was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("Replace of file was interrupted"), e);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1420,11 +1421,11 @@ public final class OWOWCache extends OAbstractWriteCache
     for (final CountDownLatch completionLatch : triggeredTasks.values()) {
       try {
         if (!completionLatch.await(shutdownTimeout, TimeUnit.MINUTES)) {
-          throw new OWriteCacheException("Can not shutdown data flush for storage " + storageName);
+          throw new YTWriteCacheException("Can not shutdown data flush for storage " + storageName);
         }
       } catch (final InterruptedException e) {
-        throw OException.wrapException(
-            new OWriteCacheException(
+        throw YTException.wrapException(
+            new YTWriteCacheException(
                 "Flush of the data for storage " + storageName + " has been interrupted"),
             e);
       }
@@ -1436,12 +1437,13 @@ public final class OWOWCache extends OAbstractWriteCache
       } catch (final InterruptedException | CancellationException e) {
         // ignore
       } catch (final ExecutionException e) {
-        throw OException.wrapException(
-            new OWriteCacheException("Error in execution of data flush for storage " + storageName),
+        throw YTException.wrapException(
+            new YTWriteCacheException(
+                "Error in execution of data flush for storage " + storageName),
             e);
       } catch (final TimeoutException e) {
-        throw OException.wrapException(
-            new OWriteCacheException("Can not shutdown data flush for storage " + storageName), e);
+        throw YTException.wrapException(
+            new YTWriteCacheException("Can not shutdown data flush for storage " + storageName), e);
       }
     }
   }
@@ -1525,7 +1527,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   private void checkForClose() {
     if (closed) {
-      throw new OStorageException("Write cache is closed and can not be used");
+      throw new YTStorageException("Write cache is closed and can not be used");
     }
   }
 
@@ -1545,7 +1547,7 @@ public final class OWOWCache extends OAbstractWriteCache
       }
 
       if (!files.close(fileId)) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Can not close file with id " + internalFileId(fileId) + " because it is still in use");
       }
     } finally {
@@ -1594,7 +1596,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
       return errors.toArray(new OPageDataVerificationError[0]);
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("Thread was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("Thread was interrupted"), e);
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1747,11 +1749,11 @@ public final class OWOWCache extends OAbstractWriteCache
         try {
           file = future.get();
         } catch (final InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("File data removal was interrupted"), e);
+          throw YTException.wrapException(
+              new YTInterruptedException("File data removal was interrupted"), e);
         } catch (final Exception e) {
-          throw OException.wrapException(
-              new OWriteCacheException("File data removal was abnormally terminated"), e);
+          throw YTException.wrapException(
+              new YTWriteCacheException("File data removal was abnormally terminated"), e);
         }
 
         if (file != null) {
@@ -1804,7 +1806,7 @@ public final class OWOWCache extends OAbstractWriteCache
         fileClassic.open();
       }
     } else {
-      throw new OStorageException("File " + fileClassic + " does not exist.");
+      throw new YTStorageException("File " + fileClassic + " does not exist.");
     }
   }
 
@@ -2344,7 +2346,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     final int recordLen = serializedRecord.position() - xxHashSize - recordLenSize;
     if (recordLen > MAX_FILE_RECORD_LEN) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Maximum record length in file registry can not exceed "
               + MAX_FILE_RECORD_LEN
               + " bytes. But actual record length "
@@ -2372,11 +2374,11 @@ public final class OWOWCache extends OAbstractWriteCache
     try {
       future.get();
     } catch (final InterruptedException e) {
-      throw OException.wrapException(
-          new OInterruptedException("File data removal was interrupted"), e);
+      throw YTException.wrapException(
+          new YTInterruptedException("File data removal was interrupted"), e);
     } catch (final Exception e) {
-      throw OException.wrapException(
-          new OWriteCacheException("File data removal was abnormally terminated"), e);
+      throw YTException.wrapException(
+          new YTWriteCacheException("File data removal was abnormally terminated"), e);
     }
   }
 
@@ -2456,7 +2458,7 @@ public final class OWOWCache extends OAbstractWriteCache
         files.release(entry);
       }
     } catch (final InterruptedException e) {
-      throw OException.wrapException(new OStorageException("Data load was interrupted"), e);
+      throw YTException.wrapException(new YTStorageException("Data load was interrupted"), e);
     }
   }
 
@@ -2471,7 +2473,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     if (checksumMode == OChecksumMode.StoreAndThrow) {
       bufferPool.release(pointer);
-      throw new OStorageException(message);
+      throw new YTStorageException(message);
     } else if (checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode) {
       dumpStackTrace(message);
       callPageIsBrokenListeners(fileNameById(fileId), pageIndex);
@@ -2556,7 +2558,8 @@ public final class OWOWCache extends OAbstractWriteCache
       buffer.put(outBuffer);
 
     } catch (InvalidKeyException e) {
-      throw OException.wrapException(new OInvalidStorageEncryptionKeyException(e.getMessage()), e);
+      throw YTException.wrapException(new YTInvalidStorageEncryptionKeyException(e.getMessage()),
+          e);
     } catch (InvalidAlgorithmParameterException e) {
       throw new IllegalArgumentException("Invalid IV.", e);
     } catch (IllegalBlockSizeException | BadPaddingException | ShortBufferException e) {
@@ -2792,7 +2795,7 @@ public final class OWOWCache extends OAbstractWriteCache
           fileSize = files.get(externalFileId(fileId)).getUnderlyingFileSize();
 
           if ((fileSize & (pageSize - 1)) != 0) {
-            throw new OStorageException(
+            throw new YTStorageException(
                 "Storage : "
                     + storageName
                     + ". File size is not multiple of page size. File id : "
@@ -2978,8 +2981,8 @@ public final class OWOWCache extends OAbstractWriteCache
         files.release(entry);
       }
     } catch (final IOException | InterruptedException e) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Storage : "
                   + storageName
                   + "Error during of writing initial blank page for file  "
@@ -3512,8 +3515,8 @@ public final class OWOWCache extends OAbstractWriteCache
     try {
       return Cipher.getInstance(TRANSFORMATION);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-      throw OException.wrapException(
-          new OSecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
+      throw YTException.wrapException(
+          new YTSecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
           e);
     }
   }

@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OStringParser;
 import com.orientechnologies.common.types.OBinary;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -34,7 +34,7 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringSerializerAnyStreamable;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.math.BigDecimal;
@@ -691,7 +691,7 @@ public abstract class OStringSerializerHelper {
                 || insideList > 0
                 || !isCharPresent(c, iSeparator)) {
               if (insideList == 0) {
-                throw new OSerializationException(
+                throw new YTSerializationException(
                     "Found invalid "
                         + LIST_END
                         + " character at position "
@@ -707,7 +707,7 @@ public abstract class OStringSerializerHelper {
           } else if (c == EMBEDDED_END) {
             // if (!isCharPresent(c, iRecordSeparator)) {
             if (insideParenthesis == 0) {
-              throw new OSerializationException(
+              throw new YTSerializationException(
                   "Found invalid "
                       + EMBEDDED_END
                       + " character at position "
@@ -724,7 +724,7 @@ public abstract class OStringSerializerHelper {
           } else if (c == MAP_END) {
             if (i < iMinPosSeparatorAreValid || !isCharPresent(c, iSeparator)) {
               if (insideMap == 0) {
-                throw new OSerializationException(
+                throw new YTSerializationException(
                     "Found invalid "
                         + MAP_END
                         + " character at position "
@@ -750,7 +750,7 @@ public abstract class OStringSerializerHelper {
               } else if (c == SET_END) {
                 if (i < iMinPosSeparatorAreValid || !isCharPresent(c, iSeparator)) {
                   if (insideSet == 0) {
-                    throw new OSerializationException(
+                    throw new YTSerializationException(
                         "Found invalid "
                             + SET_END
                             + " character at position "
@@ -769,7 +769,7 @@ public abstract class OStringSerializerHelper {
               } else if (c == BAG_END) {
                 if (!isCharPresent(c, iSeparator)) {
                   if (insideBag == 0) {
-                    throw new OSerializationException(
+                    throw new YTSerializationException(
                         "Found invalid "
                             + BAG_BEGIN
                             + " character. Ensure it is opened and closed correctly.");
@@ -1191,8 +1191,8 @@ public abstract class OStringSerializerHelper {
     try {
       getParameters(iText, 0, -1, params);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OCommandSQLParsingException("Error on reading parameters in: " + iText), e);
+      throw YTException.wrapException(
+          new YTCommandSQLParsingException("Error on reading parameters in: " + iText), e);
     }
     return params;
   }
@@ -1467,7 +1467,7 @@ public abstract class OStringSerializerHelper {
         while (true) {
           tend = iOrigin.indexOf('\'', tend + 1);
           if (tend < 0) {
-            throw new OCommandSQLParsingException("Could not find end of text area", iOrigin, i);
+            throw new YTCommandSQLParsingException("Could not find end of text area", iOrigin, i);
           }
 
           if (iOrigin.charAt(tend - 1) == '\\') {

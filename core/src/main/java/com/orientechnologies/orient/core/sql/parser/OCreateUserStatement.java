@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -95,7 +95,7 @@ public class OCreateUserStatement extends OSimpleExecStatement {
       String roleName = this.roles.get(i).getStringValue();
       ORole role = security.getRole(roleName);
       if (role == null) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot create user " + this.name + ": role " + roleName + " does not exist");
       }
       if (i > 0) {

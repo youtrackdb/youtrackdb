@@ -6,8 +6,8 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -202,7 +202,7 @@ public class ORemoteURLs {
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
       if (serverURLs.isEmpty()) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Cannot create a connection to remote server because url list is empty");
       }
     }
@@ -233,7 +233,7 @@ public class ORemoteURLs {
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
       if (serverURLs.isEmpty()) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Cannot create a connection to remote server because url list is empty");
       }
     }
@@ -310,7 +310,7 @@ public class ORemoteURLs {
         break;
 
       default:
-        throw new OConfigurationException("Connection mode " + strategy + " is not supported");
+        throw new YTConfigurationException("Connection mode " + strategy + " is not supported");
     }
 
     return url;

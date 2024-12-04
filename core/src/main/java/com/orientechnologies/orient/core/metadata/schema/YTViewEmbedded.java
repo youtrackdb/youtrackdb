@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.metadata.schema;
 import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -97,7 +97,7 @@ public class YTViewEmbedded extends YTViewImpl {
       }
 
       if (newSuperClasses.contains(cls)) {
-        throw new OSchemaException("Duplicated superclass '" + cls.getName() + "'");
+        throw new YTSchemaException("Duplicated superclass '" + cls.getName() + "'");
       }
 
       newSuperClasses.add(cls);
@@ -193,7 +193,7 @@ public class YTViewEmbedded extends YTViewImpl {
     internalSession.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
-      throw new OSchemaException("Impossible to associate a cluster to an abstract class class");
+      throw new YTSchemaException("Impossible to associate a cluster to an abstract class class");
     }
 
     acquireSchemaWriteLock(internalSession);
@@ -211,7 +211,7 @@ public class YTViewEmbedded extends YTViewImpl {
     sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (clusterIds.length == 1 && clusterId == clusterIds[0]) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           " Impossible to remove the last cluster of class '"
               + getName()
               + "' drop the class instead");

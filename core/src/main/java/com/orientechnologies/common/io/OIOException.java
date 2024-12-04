@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.common.io;
 
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTSystemException;
 
-public class OIOException extends OSystemException {
+public class OIOException extends YTSystemException {
 
   private static final long serialVersionUID = -3003977236203691448L;
 

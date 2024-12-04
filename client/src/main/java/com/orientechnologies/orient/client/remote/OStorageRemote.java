@@ -18,16 +18,16 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.concur.OOfflineNodeException;
-import com.orientechnologies.common.concur.lock.OInterruptedException;
-import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.YTOfflineNodeException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.client.ONotSendRequestException;
+import com.orientechnologies.orient.client.YTNotSendRequestException;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.client.remote.db.document.OLiveQueryMonitorRemote;
@@ -121,9 +121,9 @@ import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OTokenException;
@@ -150,8 +150,8 @@ import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.ODistributedRedirectException;
-import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTDistributedRedirectException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -361,7 +361,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
               network.endRequest();
             }
           } catch (IOException e) {
-            throw new ONotSendRequestException("Cannot send request on this channel");
+            throw new YTNotSendRequestException("Cannot send request on this channel");
           }
           final T response = request.createResponse();
           T ret = null;
@@ -424,7 +424,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             if (network.isConnected()) {
               OLogManager.instance().warn(this, "Error Writing request on the network", e);
             }
-            throw new ONotSendRequestException("Cannot send request on this channel");
+            throw new YTNotSendRequestException("Cannot send request on this channel");
           }
 
           int prev = network.getSocketTimeout();
@@ -464,7 +464,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       final String errorMessage, int retry) {
     OStorageRemoteSession session = getCurrentSession(remoteSession);
     if (session.commandExecuting) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Cannot execute the request because an asynchronous operation is in progress. Please use"
               + " a different connection");
     }
@@ -480,7 +480,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       do {
         try {
           network = getNetwork(serverUrl);
-        } catch (OException e) {
+        } catch (YTException e) {
           if (session.isStickToSession()) {
             throw e;
           } else {
@@ -509,10 +509,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         }
 
         return operation.execute(network, session);
-      } catch (ONotSendRequestException e) {
+      } catch (YTNotSendRequestException e) {
         connectionManager.remove(network);
         serverUrl = null;
-      } catch (ODistributedRedirectException e) {
+      } catch (YTDistributedRedirectException e) {
         connectionManager.release(network);
         OLogManager.instance()
             .debug(
@@ -525,18 +525,18 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
         // RECONNECT TO THE SERVER SUGGESTED IN THE EXCEPTION
         serverUrl = e.getToServerAddress();
-      } catch (OModificationOperationProhibitedException mope) {
+      } catch (YTModificationOperationProhibitedException mope) {
         connectionManager.release(network);
         handleDBFreeze();
         serverUrl = null;
-      } catch (OTokenException | OTokenSecurityException e) {
+      } catch (OTokenException | YTTokenSecurityException e) {
         connectionManager.release(network);
         session.removeServerSession(network.getServerURL());
 
         if (session.isStickToSession()) {
           retry--;
           if (retry <= 0) {
-            throw OException.wrapException(new OStorageException(errorMessage), e);
+            throw YTException.wrapException(new YTStorageException(errorMessage), e);
           } else {
             OLogManager.instance()
                 .warn(
@@ -553,13 +553,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             } catch (InterruptedException e1) {
               OLogManager.instance()
                   .error(this, "Exception was suppressed, original exception is ", e);
-              throw OException.wrapException(new OInterruptedException(e1.getMessage()), e1);
+              throw YTException.wrapException(new YTInterruptedException(e1.getMessage()), e1);
             }
           }
         }
 
         serverUrl = null;
-      } catch (OOfflineNodeException e) {
+      } catch (YTOfflineNodeException e) {
         connectionManager.release(network);
         // Remove the current url because the node is offline
         this.serverURLs.remove(serverUrl);
@@ -578,23 +578,23 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         OLogManager.instance().debug(this, "I/O error stack: ", e);
         connectionManager.remove(network);
         if (--retry <= 0) {
-          throw OException.wrapException(new OIOException(e.getMessage()), e);
+          throw YTException.wrapException(new OIOException(e.getMessage()), e);
         } else {
           try {
             Thread.sleep(connectionRetryDelay);
           } catch (InterruptedException e1) {
             OLogManager.instance()
                 .error(this, "Exception was suppressed, original exception is ", e);
-            throw OException.wrapException(new OInterruptedException(e1.getMessage()), e1);
+            throw YTException.wrapException(new YTInterruptedException(e1.getMessage()), e1);
           }
         }
         serverUrl = null;
-      } catch (OException e) {
+      } catch (YTException e) {
         connectionManager.release(network);
         throw e;
       } catch (Exception e) {
         connectionManager.release(network);
-        throw OException.wrapException(new OStorageException(errorMessage), e);
+        throw YTException.wrapException(new YTStorageException(errorMessage), e);
       } finally {
         session.commandExecuting = false;
       }
@@ -664,8 +664,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       {
         throw (RuntimeException) e;
       } else {
-        throw OException.wrapException(
-            new OStorageException("Cannot open the remote storage: " + name), e);
+        throw YTException.wrapException(
+            new YTStorageException("Cannot open the remote storage: " + name), e);
       }
     }
   }
@@ -1418,7 +1418,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     stateLock.readLock().lock();
     try {
       if (clusterId < 0 || clusterId >= clusters.length) {
-        throw new OStorageException("Cluster with id " + clusterId + " does not exist");
+        throw new YTStorageException("Cluster with id " + clusterId + " does not exist");
       }
 
       final OCluster cluster = clusters[clusterId];
@@ -1495,7 +1495,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       stateLock.readLock().unlock();
     }
 
-    throw new OStorageException("Cluster " + clusterId + " is absent in storage.");
+    throw new YTStorageException("Cluster " + clusterId + " is absent in storage.");
   }
 
   public boolean setClusterAttribute(int id, OCluster.ATTRIBUTES attribute, Object value) {
@@ -1679,14 +1679,14 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           }
 
           OLogManager.instance().error(this, "Cannot open database with url " + currentURL, e);
-        } catch (OOfflineNodeException e) {
+        } catch (YTOfflineNodeException e) {
           if (network != null) {
             // REMOVE THE NETWORK CONNECTION IF ANY
             connectionManager.remove(network);
           }
 
           OLogManager.instance().debug(this, "Cannot open database with url " + currentURL, e);
-        } catch (OSecurityException ex) {
+        } catch (YTSecurityException ex) {
           OLogManager.instance().debug(this, "Invalidate token for url=%s", ex, currentURL);
           OStorageRemoteSession session = getCurrentSession(database);
           session.removeServerSession(currentURL);
@@ -1701,7 +1701,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
                   .debug(this, "Cannot remove connection or database url=" + currentURL, e);
             }
           }
-        } catch (OException e) {
+        } catch (YTException e) {
           connectionManager.release(network);
           // PROPAGATE ANY OTHER ORIENTDB EXCEPTION
           throw e;
@@ -1728,7 +1728,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     // REFILL ORIGINAL SERVER LIST
     serverURLs.reloadOriginalURLs();
 
-    throw new OStorageException(
+    throw new YTStorageException(
         "Cannot create a connection to remote server address(es): " + serverURLs.getUrls());
   }
 
@@ -1846,15 +1846,15 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           network = getNetwork(currentURL);
           openRemoteDatabase(database, network);
           return;
-        } catch (ODistributedRedirectException e) {
+        } catch (YTDistributedRedirectException e) {
           connectionManager.release(network);
           // RECONNECT TO THE SERVER SUGGESTED IN THE EXCEPTION
           currentURL = e.getToServerAddress();
-        } catch (OModificationOperationProhibitedException mope) {
+        } catch (YTModificationOperationProhibitedException mope) {
           connectionManager.release(network);
           handleDBFreeze();
           currentURL = useNewServerURL(database, currentURL);
-        } catch (OOfflineNodeException e) {
+        } catch (YTOfflineNodeException e) {
           connectionManager.release(network);
           currentURL = useNewServerURL(database, currentURL);
         } catch (OIOException e) {
@@ -1865,7 +1865,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
           OLogManager.instance().debug(this, "Cannot open database with url " + currentURL, e);
 
-        } catch (OException e) {
+        } catch (YTException e) {
           connectionManager.release(network);
           // PROPAGATE ANY OTHER ORIENTDB EXCEPTION
           throw e;
@@ -1879,7 +1879,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             // REMOVE THE NETWORK CONNECTION IF ANY
             connectionManager.remove(network);
           }
-          throw OException.wrapException(new OStorageException(e.getMessage()), e);
+          throw YTException.wrapException(new YTStorageException(e.getMessage()), e);
         }
       } while (connectionManager.getReusableConnections(currentURL) > 0);
 
@@ -1892,7 +1892,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     // REFILL ORIGINAL SERVER LIST
     serverURLs.reloadOriginalURLs();
 
-    throw new OStorageException(
+    throw new YTStorageException(
         "Cannot create a connection to remote server address(es): " + serverURLs.getUrls());
   }
 
@@ -1966,8 +1966,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       } catch (OIOException cause) {
         throw cause;
       } catch (Exception cause) {
-        throw OException.wrapException(
-            new OStorageException("Cannot open a connection to remote server: " + iCurrentURL),
+        throw YTException.wrapException(
+            new YTStorageException("Cannot open a connection to remote server: " + iCurrentURL),
             cause);
       }
       if (!network.tryLock()) {
@@ -2267,7 +2267,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     OSubscribeLiveQueryResponse response = pushThread.subscribe(request,
         getCurrentSession(database));
     if (response == null) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Impossible to start the live query, check server log for additional information");
     }
     registerLiveListener(response.getMonitorId(), listener);
@@ -2284,7 +2284,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     OSubscribeLiveQueryResponse response = pushThread.subscribe(request,
         getCurrentSession(database));
     if (response == null) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Impossible to start the live query, check server log for additional information");
     }
     registerLiveListener(response.getMonitorId(), listener);
@@ -2363,11 +2363,11 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       }
     } else {
       for (OLiveQueryClientListener liveListener : liveQueryListener.values()) {
-        if (e instanceof OException) {
-          liveListener.onError((OException) e);
+        if (e instanceof YTException) {
+          liveListener.onError((YTException) e);
         } else {
           liveListener.onError(
-              OException.wrapException(new ODatabaseException("Live query disconnection "), e));
+              YTException.wrapException(new YTDatabaseException("Live query disconnection "), e));
         }
       }
     }

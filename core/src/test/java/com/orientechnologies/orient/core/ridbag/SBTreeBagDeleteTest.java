@@ -7,7 +7,7 @@ import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -55,7 +55,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     try {
       db.load(id);
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
 

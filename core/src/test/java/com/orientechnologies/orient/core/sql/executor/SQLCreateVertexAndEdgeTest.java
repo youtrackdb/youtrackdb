@@ -18,7 +18,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -196,14 +196,14 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
     try {
       db.command("alter class ETest name ETest2").close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       db.command("alter class ETest name ETest2 unsafe").close();
       Assert.assertTrue(true);
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.fail();
     }
   }

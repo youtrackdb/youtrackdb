@@ -37,9 +37,9 @@ import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -169,7 +169,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       if (value != null) {
         final YTType type = getFieldType(docEntry);
         if (type == null) {
-          throw new OSerializationException(
+          throw new YTSerializationException(
               "Impossible serialize value of type "
                   + value.getClass()
                   + " with the Result binary serializer");
@@ -537,7 +537,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     if (id.isTemporary()) {
       try {
         return id.getRecord();
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return id;
       }
     }
@@ -671,7 +671,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         break;
       case LINK:
         if (!(value instanceof YTIdentifiable)) {
-          throw new OValidationException("Value '" + value + "' is not a YTIdentifiable");
+          throw new YTValidationException("Value '" + value + "' is not a YTIdentifiable");
         }
 
         writeOptimizedLink(bytes, (YTIdentifiable) value);
@@ -731,7 +731,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       if (value != null) {
         final YTType type = getTypeFromValueEmbedded(value);
         if (type == null) {
-          throw new OSerializationException(
+          throw new YTSerializationException(
               "Impossible serialize value of type "
                   + value.getClass()
                   + " with the Result binary serializer");
@@ -755,7 +755,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     if (!link.getIdentity().isPersistent()) {
       try {
         link = link.getRecord();
-      } catch (ORecordNotFoundException rnfe) {
+      } catch (YTRecordNotFoundException rnfe) {
         //
       }
     }
@@ -797,7 +797,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         writeOType(bytes, bytes.alloc(1), type);
         serializeValue(bytes, itemValue, type, null);
       } else {
-        throw new OSerializationException(
+        throw new YTSerializationException(
             "Impossible serialize value of type "
                 + value.getClass()
                 + " with the YTDocument binary serializer");

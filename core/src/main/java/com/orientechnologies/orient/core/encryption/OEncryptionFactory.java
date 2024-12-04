@@ -20,13 +20,13 @@
 
 package com.orientechnologies.orient.core.encryption;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.encryption.impl.OAESEncryption;
 import com.orientechnologies.orient.core.encryption.impl.OAESGCMEncryption;
 import com.orientechnologies.orient.core.encryption.impl.ODESEncryption;
 import com.orientechnologies.orient.core.encryption.impl.ONothingEncryption;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -70,11 +70,11 @@ public class OEncryptionFactory {
           encryption.configure(iOptions);
 
         } catch (Exception e) {
-          throw OException.wrapException(
-              new OSecurityException("Cannot instantiate encryption algorithm '" + name + "'"), e);
+          throw YTException.wrapException(
+              new YTSecurityException("Cannot instantiate encryption algorithm '" + name + "'"), e);
         }
       } else {
-        throw new OSecurityException("Encryption with name '" + name + "' is absent");
+        throw new YTSecurityException("Encryption with name '" + name + "' is absent");
       }
     }
     return encryption;

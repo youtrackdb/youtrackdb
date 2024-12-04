@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImpExpAbstract;
-import com.orientechnologies.orient.core.db.tool.ODatabaseImportException;
 import com.orientechnologies.orient.core.db.tool.ODatabaseTool;
+import com.orientechnologies.orient.core.db.tool.YTDatabaseImportException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,7 +39,7 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
     return super.setOptions(iOptions);
   }
 
-  public void importDatabase() throws ODatabaseImportException {
+  public void importDatabase() throws YTDatabaseImportException {
     OStorageRemote storage = (OStorageRemote) getDatabase().getStorage();
     File file = new File(getFileName());
     try {
@@ -47,8 +47,8 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
           file.getName(),
           getListener());
     } catch (FileNotFoundException e) {
-      throw OException.wrapException(
-          new ODatabaseImportException("Error importing the database"), e);
+      throw YTException.wrapException(
+          new YTDatabaseImportException("Error importing the database"), e);
     }
   }
 

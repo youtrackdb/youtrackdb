@@ -210,7 +210,7 @@ public class OIndexDefinitionFactory {
         } else {
           indexType = linkedType;
           if (indexType == null) {
-            throw new OIndexException(
+            throw new YTIndexException(
                 "Linked type was not provided. You should provide linked type for embedded"
                     + " collections that are going to be indexed.");
           }
@@ -228,7 +228,7 @@ public class OIndexDefinitionFactory {
       } else {
         indexType = linkedType;
         if (indexType == null) {
-          throw new OIndexException(
+          throw new YTIndexException(
               "Linked type was not provided. You should provide linked type for embedded"
                   + " collections that are going to be indexed.");
         }

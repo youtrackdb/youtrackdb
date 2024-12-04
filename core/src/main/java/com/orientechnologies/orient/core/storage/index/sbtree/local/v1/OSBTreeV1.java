@@ -21,13 +21,13 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.local.v1;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
+import com.orientechnologies.orient.core.exception.YTTooBigIndexKeyException;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexUpdateAction;
@@ -231,7 +231,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeException("Error during retrieving  of sbtree with name " + getName(), this),
           e);
     } finally {
@@ -281,7 +281,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
               key = keySerializer.preprocess(key, (Object[]) keyTypes);
 
               if (keySize > MAX_KEY_SIZE) {
-                throw new OTooBigIndexKeyException(
+                throw new YTTooBigIndexKeyException(
                     "Key size is more than allowed, operation was canceled. Current key size "
                         + keySize
                         + ", allowed  "
@@ -549,7 +549,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
       this.keySerializer = keySerializer;
       this.valueSerializer = valueSerializer;
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeException("Exception during loading of sbtree " + name, this), e);
     } finally {
       releaseExclusiveLock();
@@ -573,7 +573,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeException("Error during retrieving of size of index " + getName(), this), e);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
@@ -700,7 +700,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeException(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
@@ -731,7 +731,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeException("Error during finding last key in sbtree [" + getName() + "]", this),
           e);
     } finally {
@@ -757,7 +757,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeException(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
@@ -1530,7 +1530,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw OException.wrapException(
+        throw YTException.wrapException(
             new OSBTreeException("Error during element iteration", OSBTreeV1.this), e);
       } finally {
         atomicOperationsManager.releaseReadLock(OSBTreeV1.this);
@@ -1689,7 +1689,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw OException.wrapException(
+        throw YTException.wrapException(
             new OSBTreeException("Error during element iteration", OSBTreeV1.this), e);
       } finally {
         atomicOperationsManager.releaseReadLock(OSBTreeV1.this);
@@ -1857,7 +1857,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw OException.wrapException(
+        throw YTException.wrapException(
             new OSBTreeException("Error during element iteration", OSBTreeV1.this), e);
       } finally {
         atomicOperationsManager.releaseReadLock(OSBTreeV1.this);

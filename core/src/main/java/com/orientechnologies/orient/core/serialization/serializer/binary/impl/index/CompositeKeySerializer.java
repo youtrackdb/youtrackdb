@@ -9,7 +9,7 @@ import com.orientechnologies.common.serialization.types.OUTF8Serializer;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
@@ -55,7 +55,7 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
       case LINK -> OCompactedLinkSerializer.INSTANCE.getObjectSize((YTRID) key);
       case SHORT -> OShortSerializer.SHORT_SIZE;
       case STRING -> OUTF8Serializer.INSTANCE.getObjectSize((String) key);
-      default -> throw new OIndexException("Unsupported key type " + type);
+      default -> throw new YTIndexException("Unsupported key type " + type);
     };
   }
 
@@ -136,7 +136,7 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
         OUTF8Serializer.INSTANCE.serializeInByteBufferObject((String) key, buffer);
         return;
       default:
-        throw new OIndexException("Unsupported index type " + type);
+        throw new YTIndexException("Unsupported index type " + type);
     }
   }
 
@@ -225,7 +225,7 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
       case STRING:
         return OUTF8Serializer.INSTANCE.deserializeFromByteBufferObject(buffer);
       default:
-        throw new OIndexException("Unsupported index type " + type);
+        throw new YTIndexException("Unsupported index type " + type);
     }
   }
 
@@ -272,7 +272,7 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
       case STRING:
         return OUTF8Serializer.INSTANCE.deserializeFromByteBufferObject(offset, buffer);
       default:
-        throw new OIndexException("Unsupported index type " + type);
+        throw new YTIndexException("Unsupported index type " + type);
     }
   }
 
@@ -300,7 +300,7 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
       case STRING:
         return OUTF8Serializer.INSTANCE.getObjectSizeInByteBuffer(offset, buffer);
       default:
-        throw new OIndexException("Unsupported index type " + type);
+        throw new YTIndexException("Unsupported index type " + type);
     }
   }
 
@@ -341,7 +341,7 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
       case STRING:
         return OUTF8Serializer.INSTANCE.deserializeFromByteBufferObject(buffer, walChanges, offset);
       default:
-        throw new OIndexException("Unsupported index type " + type);
+        throw new YTIndexException("Unsupported index type " + type);
     }
   }
 

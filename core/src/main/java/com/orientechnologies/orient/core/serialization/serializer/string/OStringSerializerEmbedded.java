@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.string;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
@@ -83,11 +83,11 @@ public class OStringSerializerEmbedded implements OStringSerializer {
 
         return documentSerializable;
       } catch (InstantiationException e) {
-        throw OException.wrapException(
-            new OSerializationException("Cannot serialize the object"), e);
+        throw YTException.wrapException(
+            new YTSerializationException("Cannot serialize the object"), e);
       } catch (IllegalAccessException e) {
-        throw OException.wrapException(
-            new OSerializationException("Cannot serialize the object"), e);
+        throw YTException.wrapException(
+            new YTSerializationException("Cannot serialize the object"), e);
       }
     }
 
@@ -104,7 +104,7 @@ public class OStringSerializerEmbedded implements OStringSerializer {
       }
 
       if (!(iValue instanceof OSerializableStream stream)) {
-        throw new OSerializationException(
+        throw new YTSerializationException(
             "Cannot serialize the object since it's not implements the OSerializableStream"
                 + " interface");
       }

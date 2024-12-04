@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
@@ -33,7 +33,7 @@ public class TestNetworkSerializerIndipendency {
     server.activate();
   }
 
-  @Test(expected = OStorageException.class)
+  @Test(expected = YTStorageException.class)
   public void createCsvDatabaseConnectBinary() throws IOException {
     ORecordSerializer prev = YTDatabaseSessionAbstract.getDefaultSerializer();
     YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
@@ -129,7 +129,7 @@ public class TestNetworkSerializerIndipendency {
         if (f.isDirectory()) {
           deleteDirectory(f);
         } else if (!f.delete()) {
-          throw new OConfigurationException("Cannot delete the file: " + f);
+          throw new YTConfigurationException("Cannot delete the file: " + f);
         }
       }
     }

@@ -5,7 +5,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -49,7 +49,7 @@ public class OUnsubscribeRequest implements OBinaryRequest<OUnsubscribeResponse>
       return new OUnsubscribeLiveQueryRequest();
     }
 
-    throw new ODatabaseException("Unknown message response for code:" + message);
+    throw new YTDatabaseException("Unknown message response for code:" + message);
   }
 
   @Override

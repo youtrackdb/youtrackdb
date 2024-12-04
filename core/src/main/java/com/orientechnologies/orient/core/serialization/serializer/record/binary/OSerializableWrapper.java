@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,29 +24,29 @@ public class OSerializableWrapper implements OSerializableStream {
   }
 
   @Override
-  public byte[] toStream() throws OSerializationException {
+  public byte[] toStream() throws YTSerializationException {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     try {
       ObjectOutputStream writer = new ObjectOutputStream(output);
       writer.writeObject(serializable);
       writer.close();
     } catch (IOException e) {
-      throw OException.wrapException(
-          new ODatabaseException("Error on serialization of Serializable"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Error on serialization of Serializable"), e);
     }
     return output.toByteArray();
   }
 
   @Override
-  public OSerializableStream fromStream(byte[] iStream) throws OSerializationException {
+  public OSerializableStream fromStream(byte[] iStream) throws YTSerializationException {
     ByteArrayInputStream stream = new ByteArrayInputStream(iStream);
     try {
       ObjectInputStream reader = new ObjectInputStream(stream);
       serializable = (Serializable) reader.readObject();
       reader.close();
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Error on deserialization of Serializable"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Error on deserialization of Serializable"), e);
     }
     return this;
   }

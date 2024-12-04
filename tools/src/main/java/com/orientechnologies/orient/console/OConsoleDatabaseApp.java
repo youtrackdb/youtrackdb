@@ -27,7 +27,7 @@ import com.orientechnologies.common.console.OConsoleProperties;
 import com.orientechnologies.common.console.TTYConsoleReader;
 import com.orientechnologies.common.console.annotation.ConsoleCommand;
 import com.orientechnologies.common.console.annotation.ConsoleParameter;
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.listener.OProgressListener;
@@ -44,12 +44,12 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
@@ -60,13 +60,13 @@ import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExportException;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
-import com.orientechnologies.orient.core.db.tool.ODatabaseImportException;
 import com.orientechnologies.orient.core.db.tool.ODatabaseRepair;
 import com.orientechnologies.orient.core.db.tool.OGraphRepair;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORetryQueryException;
+import com.orientechnologies.orient.core.db.tool.YTDatabaseImportException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRetryQueryException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -1367,7 +1367,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
         currentResult = cmd.execute(null, currentDatabase);
         break;
-      } catch (ORetryQueryException e) {
+      } catch (YTRetryQueryException e) {
         continue;
       }
     }
@@ -1431,7 +1431,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final File serverCfgFile = new File("../config/orientdb-server-config.xml");
     if (!serverCfgFile.exists()) {
-      throw new OConfigurationException("Cannot access to file " + serverCfgFile);
+      throw new YTConfigurationException("Cannot access to file " + serverCfgFile);
     }
 
     try {
@@ -1467,7 +1467,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final File serverCfgFile = new File("../config/orientdb-server-config.xml");
     if (!serverCfgFile.exists()) {
-      throw new OConfigurationException("Cannot access to file " + serverCfgFile);
+      throw new YTConfigurationException("Cannot access to file " + serverCfgFile);
     }
 
     try {
@@ -1498,7 +1498,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final File serverCfgFile = new File("../config/orientdb-server-config.xml");
     if (!serverCfgFile.exists()) {
-      throw new OConfigurationException("Cannot access to file " + serverCfgFile);
+      throw new YTConfigurationException("Cannot access to file " + serverCfgFile);
     }
 
     try {
@@ -1681,13 +1681,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     } else {
       int recNumber = Integer.parseInt(iRecordNumber);
       if (currentResultSet.size() == 0) {
-        throw new OSystemException(
+        throw new YTSystemException(
             "No result set where to find the requested record. Execute a query first.");
       }
 
       if (currentResultSet.size() <= recNumber) {
         String resultSize = currentResultSet.size() > 0 ? "-" + (currentResultSet.size() - 1) : "";
-        throw new OSystemException(
+        throw new YTSystemException(
             "The record requested is not part of current result set (0" + resultSize + ")");
       }
 
@@ -1959,7 +1959,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     checkForDatabase();
 
     if (iPropertyName.indexOf('.') == -1) {
-      throw new OSystemException("Property name is in the format <class>.<property>");
+      throw new YTSystemException("Property name is in the format <class>.<property>");
     }
 
     final String[] parts = iPropertyName.split("\\.");
@@ -2434,7 +2434,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     message("\nChecking storage.");
     try {
       ((OAbstractPaginatedStorage) currentDatabase.getStorage()).check(verbose, this);
-    } catch (ODatabaseImportException e) {
+    } catch (YTDatabaseImportException e) {
       printError(e);
     }
   }
@@ -2602,7 +2602,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         databaseImport.importDatabase();
         databaseImport.close();
       }
-    } catch (ODatabaseImportException e) {
+    } catch (YTDatabaseImportException e) {
       printError(e);
     }
   }
@@ -3065,11 +3065,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           setResultset(result);
           dumpResultSet(displayLimit);
           return RESULT.OK;
-        } catch (OCommandExecutionException e) {
+        } catch (YTCommandExecutionException e) {
           printError(e);
           return RESULT.ERROR;
         } catch (Exception e) {
-          if (e.getCause() instanceof OCommandExecutionException) {
+          if (e.getCause() instanceof YTCommandExecutionException) {
             printError(e);
             return RESULT.ERROR;
           }
@@ -3120,7 +3120,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
    */
   protected void checkForRemoteServer() {
     if (youTrackDB == null || YouTrackDBInternal.extract(youTrackDB).isEmbedded()) {
-      throw new OSystemException(
+      throw new YTSystemException(
           "Remote server is not connected. Use 'connect remote:<host>[:<port>][/<database-name>]'"
               + " to connect");
     }
@@ -3131,11 +3131,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
    */
   protected void checkForDatabase() {
     if (currentDatabase == null) {
-      throw new OSystemException(
+      throw new YTSystemException(
           "Database not selected. Use 'connect <url> <user> <password>' to connect to a database.");
     }
     if (currentDatabase.isClosed()) {
-      throw new ODatabaseException("Database '" + currentDatabaseName + "' is closed");
+      throw new YTDatabaseException("Database '" + currentDatabaseName + "' is closed");
     }
   }
 
@@ -3144,7 +3144,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
    */
   protected void checkCurrentObject() {
     if (currentRecord == null) {
-      throw new OSystemException("The is no current object selected: create a new one or load it");
+      throw new YTSystemException("The is no current object selected: create a new one or load it");
     }
   }
 

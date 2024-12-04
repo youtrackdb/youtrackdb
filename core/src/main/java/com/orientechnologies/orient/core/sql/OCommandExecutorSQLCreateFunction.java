@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstra
           parameters = new ArrayList<String>();
           OStringSerializerHelper.getCollection(parserGetLastWord(), 0, parameters);
           if (parameters.size() == 0) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Syntax Error. Missing function parameter(s): " + getSyntax());
           }
         }
@@ -103,15 +103,15 @@ public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstra
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (name == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
     if (name.isEmpty()) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Syntax Error. You must specify a function name: " + getSyntax());
     }
     if (code == null || code.isEmpty()) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Syntax Error. You must specify the function code: " + getSyntax());
     }
 

@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -58,7 +58,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -79,7 +79,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       OIndex uniqueIndex =
           database.getMetadata().getIndexManagerInternal().getIndex(database, uniqueIndexName);
       if (uniqueIndex == null) {
-        throw new OCommandExecutionException("Index not found for upsert: " + uniqueIndexName);
+        throw new YTCommandExecutionException("Index not found for upsert: " + uniqueIndexName);
       }
       return uniqueIndex;
     }
@@ -139,7 +139,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
             (obj) -> {
               YTVertex currentTo = asVertex(obj);
               if (currentTo == null) {
-                throw new OCommandExecutionException("Invalid TO vertex for edge");
+                throw new YTCommandExecutionException("Invalid TO vertex for edge");
               }
               YTEdgeInternal edgeToUpdate = null;
               if (uniqueIndex != null) {
@@ -155,7 +155,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
                     (YTEdgeInternal) currentFrom.addEdge(currentTo, targetClass.getStringValue());
                 if (targetCluster != null) {
                   if (edgeToUpdate.isLightweight()) {
-                    throw new OCommandExecutionException(
+                    throw new YTCommandExecutionException(
                         "Cannot set target cluster on lightweight edges");
                   }
 
@@ -203,7 +203,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               .getVertex()
               .orElseThrow(
                   () ->
-                      new OCommandExecutionException("Invalid vertex for edge creation: " + from));
+                      new YTCommandExecutionException("Invalid vertex for edge creation: " + from));
     }
     if (currentFrom instanceof YTVertex) {
       return (YTVertex) currentFrom;
@@ -213,9 +213,9 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       return ((YTEntity) currentFrom)
           .asVertex()
           .orElseThrow(
-              () -> new OCommandExecutionException("Invalid vertex for edge creation: " + from));
+              () -> new YTCommandExecutionException("Invalid vertex for edge creation: " + from));
     }
-    throw new OCommandExecutionException(
+    throw new YTCommandExecutionException(
         "Invalid vertex for edge creation: "
             + (currentFrom == null ? "null" : currentFrom.toString()));
   }

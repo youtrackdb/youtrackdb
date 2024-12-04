@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
@@ -37,7 +37,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     assert prev != null;
     OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
@@ -115,7 +115,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
         mapDoc.fromMap((Map<String, ?>) map);
         doc.merge(mapDoc, false, false);
       } else {
-        throw new OCommandExecutionException("Invalid value for UPDATE CONTENT: " + val);
+        throw new YTCommandExecutionException("Invalid value for UPDATE CONTENT: " + val);
       }
     }
     if (fieldsToPreserve != null) {

@@ -23,13 +23,13 @@ package com.orientechnologies.orient.core.storage.index.sbtreebonsai.local;
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.common.concur.lock.OLockManager;
 import com.orientechnologies.common.concur.lock.OPartitionedLockManager;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OSBTreeBonsaiLocalException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -91,7 +91,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         atomicOperation,
         operation -> {
           if (isFileExists(atomicOperation, getFullName())) {
-            throw new OStorageException(
+            throw new YTStorageException(
                 "Ridbag component with name " + getFullName() + " already exists");
           } else {
             this.fileId = addFile(atomicOperation, getFullName());
@@ -120,7 +120,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
             if (isFileExists(atomicOperation, getFullName())) {
               this.fileId = openFile(atomicOperation, getFullName());
             } else {
-              throw new OStorageException(
+              throw new YTStorageException(
                   "Ridbag component with name " + getFullName() + " does not exist");
             }
 
@@ -149,7 +149,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
             if (isFileExists(atomicOperation, getFullName())) {
               this.fileId = openFile(atomicOperation, getFullName());
             } else {
-              throw new OStorageException(
+              throw new YTStorageException(
                   "Ridbag component with name " + getFullName() + " does not exist");
             }
 
@@ -255,7 +255,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         lock.unlock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeBonsaiLocalException(
               "Error during retrieving  of sbtree with name " + getName(), this),
           e);
@@ -641,7 +641,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
       }
 
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeBonsaiLocalException("Exception during loading of sbtree " + fileId, this), e);
     } finally {
       lock.unlock();
@@ -700,7 +700,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         lock.unlock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeBonsaiLocalException(
               "Error during retrieving of size of index " + getName(), this),
           e);
@@ -818,7 +818,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         lock.unlock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeBonsaiLocalException(
               "Error during fetch of minor values for key " + key + " in sbtree " + getName(),
               this),
@@ -904,7 +904,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         lock.unlock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeBonsaiLocalException(
               "Error during fetch of major values for key " + key + " in sbtree " + getName(),
               this),
@@ -1025,7 +1025,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         lock.unlock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeBonsaiLocalException(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
@@ -1114,7 +1114,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         lock.unlock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeBonsaiLocalException(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
@@ -1204,7 +1204,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         lock.unlock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new OSBTreeBonsaiLocalException(
               "Error during fetch of values between key "
                   + keyFrom

@@ -16,10 +16,10 @@
  */
 package com.orientechnologies.orient.core.fetch.json;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OFetchException;
+import com.orientechnologies.orient.core.exception.YTFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchListener;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -55,15 +55,15 @@ public class OJSONFetchListener implements OFetchListener {
               iFormat,
               filedType);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OFetchException(
+      throw YTException.wrapException(
+          new YTFetchException(
               "Error processing field '" + iFieldValue + " of record " + iRecord.getIdentity()),
           e);
     }
   }
 
   public void processStandardCollectionValue(final Object iFieldValue, final OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     try {
       ((OJSONFetchContext) iContext)
           .getJsonWriter()
@@ -82,7 +82,7 @@ public class OJSONFetchListener implements OFetchListener {
       final String iFieldName,
       final YTDocument iLinked,
       final OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     return iLinked;
   }
 
@@ -93,7 +93,7 @@ public class OJSONFetchListener implements OFetchListener {
       final String iKey,
       final YTDocument iLinked,
       final OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     return iLinked;
   }
 
@@ -103,12 +103,12 @@ public class OJSONFetchListener implements OFetchListener {
       final Object iUserObject,
       final String iFieldName,
       final OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     try {
       ((OJSONFetchContext) iContext).writeLinkedAttribute(iLinked, iFieldName);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OFetchException(
+      throw YTException.wrapException(
+          new YTFetchException(
               "Error writing linked field "
                   + iFieldName
                   + " (record:"
@@ -125,7 +125,7 @@ public class OJSONFetchListener implements OFetchListener {
       Object iUserObject,
       String iFieldName,
       OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     try {
       if (((OJSONFetchContext) iContext).isInCollection(iRootRecord)) {
         ((OJSONFetchContext) iContext).writeLinkedValue(iLinked, iFieldName);
@@ -133,8 +133,8 @@ public class OJSONFetchListener implements OFetchListener {
         ((OJSONFetchContext) iContext).writeLinkedAttribute(iLinked, iFieldName);
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OFetchException(
+      throw YTException.wrapException(
+          new YTFetchException(
               "Error writing linked field "
                   + iFieldName
                   + " (record:"
@@ -151,7 +151,7 @@ public class OJSONFetchListener implements OFetchListener {
       String iFieldName,
       YTDocument iLinked,
       OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     return iLinked;
   }
 
@@ -162,6 +162,6 @@ public class OJSONFetchListener implements OFetchListener {
       OFetchContext iContext,
       Object iUserObject,
       String iFormat)
-      throws OFetchException {
+      throws YTFetchException {
   }
 }

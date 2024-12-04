@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class OConsoleStatementExecutionTest extends DBTestBase {
     try {
       db.command("console.bla 'foo bar'");
       Assert.fail();
-    } catch (OCommandExecutionException x) {
+    } catch (YTCommandExecutionException x) {
 
     } catch (Exception x2) {
       Assert.fail();

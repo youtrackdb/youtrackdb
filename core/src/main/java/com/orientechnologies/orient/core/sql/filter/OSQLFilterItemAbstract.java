@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -102,7 +102,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
                 } else {
                   params = method.getMinParams() + "-" + method.getMaxParams(session);
                 }
-                throw new OQueryParsingException(
+                throw new YTQueryParsingException(
                     iQueryToParse.parserText,
                     "Syntax error: field operator '"
                         + method.getName()
@@ -123,7 +123,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
             if (f == null)
             // ERROR: METHOD/FUNCTION NOT FOUND OR MISPELLED
             {
-              throw new OQueryParsingException(
+              throw new YTQueryParsingException(
                   iQueryToParse.parserText,
                   "Syntax error: function or field operator not recognized between the supported"
                       + " ones: "
@@ -142,7 +142,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
                 } else {
                   params = f.getMinParams() + "-" + f.getMaxParams(session);
                 }
-                throw new OQueryParsingException(
+                throw new YTQueryParsingException(
                     iQueryToParse.parserText,
                     "Syntax error: function '"
                         + f.getName(session)

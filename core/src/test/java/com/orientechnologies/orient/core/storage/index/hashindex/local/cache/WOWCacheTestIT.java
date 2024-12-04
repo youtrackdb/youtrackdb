@@ -9,7 +9,7 @@ import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
 import com.orientechnologies.common.types.OModifiableBoolean;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.OChecksumMode;
 import com.orientechnologies.orient.core.storage.cache.OCachePointer;
 import com.orientechnologies.orient.core.storage.cache.local.OWOWCache;
@@ -708,7 +708,7 @@ public class WOWCacheTestIT {
     try {
       wowCache.load(fileId, 0, new OModifiableBoolean(), true);
       Assert.fail();
-    } catch (OStorageException e) {
+    } catch (YTStorageException e) {
       // ok
     }
   }
@@ -745,7 +745,7 @@ public class WOWCacheTestIT {
     try {
       wowCache.load(fileId, 0, new OModifiableBoolean(), true);
       Assert.fail();
-    } catch (OStorageException e) {
+    } catch (YTStorageException e) {
       // ok
     }
   }

@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -703,7 +703,7 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
     assertEquals(extr.<Object>field("custom"), document.field("custom"));
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testSetOfWrongData() {
     YTDocument document = new YTDocument();
 
@@ -714,7 +714,7 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
     serializer.toStream(db, document);
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testListOfWrongData() {
     YTDocument document = new YTDocument();
 
@@ -725,7 +725,7 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
     serializer.toStream(db, document);
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testMapOfWrongData() {
     YTDocument document = new YTDocument();
 
@@ -769,7 +769,7 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
     serializer.toStream(db, document);
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testFieldWrongData() {
     YTDocument document = new YTDocument();
 
@@ -992,13 +992,13 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
     byte[] bytes = new byte[10];
 
     @Override
-    public OSerializableStream fromStream(byte[] iStream) throws OSerializationException {
+    public OSerializableStream fromStream(byte[] iStream) throws YTSerializationException {
       bytes = iStream;
       return this;
     }
 
     @Override
-    public byte[] toStream() throws OSerializationException {
+    public byte[] toStream() throws YTSerializationException {
       for (int i = 0; i < bytes.length; i++) {
         bytes[i] = (byte) i;
       }

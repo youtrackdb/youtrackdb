@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.YTTimeoutException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStreamProducer;
@@ -109,7 +109,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     YTClass clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot()
         .getClass(className);
     if (clazz == null) {
-      throw new OCommandExecutionException("Class " + className + " not found");
+      throw new YTCommandExecutionException("Class " + className + " not found");
     }
     return clazz;
   }
@@ -129,7 +129,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -221,7 +221,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
       this.orderByRidAsc = fromResult.getProperty("orderByRidAsc");
       this.orderByRidDesc = fromResult.getProperty("orderByRidDesc");
     } catch (Exception e) {
-      throw OException.wrapException(new OCommandExecutionException(""), e);
+      throw YTException.wrapException(new YTCommandExecutionException(""), e);
     }
   }
 

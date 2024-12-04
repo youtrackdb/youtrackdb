@@ -16,23 +16,23 @@
 
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
+import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.lang.reflect.Method;
 import javax.script.Bindings;
@@ -200,7 +200,7 @@ public class OClassTrigger {
                 YTDocument funcDoc = database.load(new YTRecordId(fieldName));
                 func =
                     database.getMetadata().getFunctionLibrary().getFunction(funcDoc.field("name"));
-              } catch (ORecordNotFoundException rnf) {
+              } catch (YTRecordNotFoundException rnf) {
                 // ignore
               }
             } catch (Exception ex) {
@@ -254,8 +254,8 @@ public class OClassTrigger {
       try {
         result = (String) method.invoke(clz.newInstance(), iDocument);
       } catch (Exception ex) {
-        throw OException.wrapException(
-            new ODatabaseException("Failed to invoke method " + method.getName()), ex);
+        throw YTException.wrapException(
+            new YTDatabaseException("Failed to invoke method " + method.getName()), ex);
       }
       if (result == null) {
         return ORecordHook.RESULT.RECORD_NOT_CHANGED;
@@ -285,7 +285,7 @@ public class OClassTrigger {
       String result = null;
       try {
         if (func.getLanguage(database) == null) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Database function '" + func.getName(database) + "' has no language");
         }
         final String funcStr = scriptManager.getFunctionDefinition(database, func);
@@ -301,15 +301,15 @@ public class OClassTrigger {
           result = (String) invocableEngine.invokeFunction(func.getName(database), empty);
         }
       } catch (ScriptException e) {
-        throw OException.wrapException(
-            new OCommandScriptException(
+        throw YTException.wrapException(
+            new YTCommandScriptException(
                 "Error on execution of the script", func.getName(database), e.getColumnNumber()),
             e);
       } catch (NoSuchMethodException e) {
-        throw OException.wrapException(
-            new OCommandScriptException("Error on execution of the script", func.getName(database),
+        throw YTException.wrapException(
+            new YTCommandScriptException("Error on execution of the script", func.getName(database),
                 0), e);
-      } catch (OCommandScriptException e) {
+      } catch (YTCommandScriptException e) {
         // PASS THROUGH
         throw e;
 

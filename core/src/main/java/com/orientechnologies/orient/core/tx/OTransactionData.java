@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -46,8 +46,8 @@ public class OTransactionData {
           OTransactionDataChange.deserialize(
               new DataInputStream(new ByteArrayInputStream(record))));
     } catch (IOException e) {
-      throw OException.wrapException(
-          new ODatabaseException("error reading transaction data change record"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("error reading transaction data change record"), e);
     }
   }
 
@@ -91,7 +91,7 @@ public class OTransactionData {
                       if (x.getRecordType() == YTDocument.RECORD_TYPE) {
                         try {
                           record = database.load(x.getId());
-                        } catch (ORecordNotFoundException rnf) {
+                        } catch (YTRecordNotFoundException rnf) {
                           record = new YTDocument();
                         }
 
@@ -113,7 +113,7 @@ public class OTransactionData {
                     case ORecordOperation.DELETED: {
                       try {
                         record = database.load(x.getId());
-                      } catch (ORecordNotFoundException rnf) {
+                      } catch (YTRecordNotFoundException rnf) {
                         record =
                             YouTrackDBManager.instance()
                                 .getRecordFactoryManager()

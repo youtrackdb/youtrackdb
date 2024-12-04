@@ -4,11 +4,11 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
@@ -60,7 +60,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
     OStatement stm = OSQLEngine.parse(query, db);
     if (!(stm instanceof OSelectStatement)) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Only SELECT statement can be used as a live query: " + query);
     }
     this.statement = (OSelectStatement) stm;
@@ -71,7 +71,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
           .getMetadata()
           .getImmutableSchemaSnapshot()
           .existsClass(className)) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Class " + className + " not found in the schema: " + query);
       }
     } else if (statement.getTarget().getItem().getRids() != null) {
@@ -108,23 +108,23 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   private void validateStatement(OSelectStatement statement, YTDatabaseSessionInternal db) {
     if (statement.getProjection() != null) {
       if (statement.getProjection().getItems().stream().anyMatch(x -> x.isAggregate(db))) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Aggregate Projections cannot be used in live query " + statement);
       }
     }
     if (statement.getTarget().getItem().getIdentifier() == null
         && statement.getTarget().getItem().getRids() == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Live queries can only be executed against a Class or on RIDs" + statement);
     }
     if (statement.getOrderBy() != null) {
-      throw new OCommandExecutionException("Live queries do not support ORDER BY " + statement);
+      throw new YTCommandExecutionException("Live queries do not support ORDER BY " + statement);
     }
     if (statement.getGroupBy() != null) {
-      throw new OCommandExecutionException("Live queries do not support GROUP BY " + statement);
+      throw new YTCommandExecutionException("Live queries do not support GROUP BY " + statement);
     }
     if (statement.getSkip() != null || statement.getLimit() != null) {
-      throw new OCommandExecutionException("Live queries do not support SKIP/LIMIT " + statement);
+      throw new YTCommandExecutionException("Live queries do not support SKIP/LIMIT " + statement);
     }
   }
 

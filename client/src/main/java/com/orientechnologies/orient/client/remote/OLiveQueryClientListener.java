@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 
 /**
  *
@@ -59,7 +59,7 @@ public class OLiveQueryClientListener {
     }
   }
 
-  public void onError(OException e) {
+  public void onError(YTException e) {
     YTDatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();

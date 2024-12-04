@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.storage.memory;
 import com.orientechnologies.common.types.OModifiableBoolean;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OAbstractWriteCache;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OCachePointer;
@@ -94,7 +94,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
 
         fileIdNameMap.put(fileId, fileName);
       } else {
-        throw new OStorageException(fileName + " already exists.");
+        throw new YTStorageException(fileName + " already exists.");
       }
 
       return composeFileId(id, fileId);
@@ -158,11 +158,11 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
     metadataLock.lock();
     try {
       if (files.containsKey(intId)) {
-        throw new OStorageException("File with id " + intId + " already exists.");
+        throw new YTStorageException("File with id " + intId + " already exists.");
       }
 
       if (fileNameIdMap.containsKey(fileName)) {
-        throw new OStorageException(fileName + " already exists.");
+        throw new YTStorageException(fileName + " already exists.");
       }
 
       files.put(intId, new MemoryFile(id, intId));
@@ -257,7 +257,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
     final MemoryFile memoryFile = files.get(fileId);
 
     if (memoryFile == null) {
-      throw new OStorageException("File with id " + fileId + " does not exist");
+      throw new YTStorageException("File with id " + fileId + " does not exist");
     }
 
     return memoryFile;
@@ -502,7 +502,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
       final int fileId = fileNameIdMap.getInt(fileName);
 
       if (fileId == -1) {
-        throw new OStorageException("File " + fileName + " does not exist.");
+        throw new YTStorageException("File " + fileName + " does not exist.");
       }
 
       return composeFileId(id, fileId);

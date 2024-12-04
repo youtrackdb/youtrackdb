@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import java.util.Arrays;
@@ -62,21 +62,21 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_DATABASE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missed the database's attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -86,8 +86,8 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
         attribute =
             ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw OException.wrapException(
-            new OCommandSQLParsingException(
+        throw YTException.wrapException(
+            new YTCommandSQLParsingException(
                 "Unknown database's attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
@@ -100,7 +100,7 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
       value = parserText.substring(pos + 1).trim();
 
       if (value.length() == 0) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missed the database's value to change for attribute '"
                 + attribute
                 + "'. Use "
@@ -131,7 +131,7 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (attribute == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 

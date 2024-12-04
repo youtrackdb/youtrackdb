@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OStepStats;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -63,7 +63,7 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
     this.profilingEnabled = profilingEnabled;
   }
 
-  public OExecutionStream start(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream start(OCommandContext ctx) throws YTTimeoutException {
     if (profilingEnabled) {
       ctx.startProfiling(this);
       try {
@@ -76,7 +76,7 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
     }
   }
 
-  protected abstract OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException;
+  protected abstract OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException;
 
   @Override
   public long getCost() {

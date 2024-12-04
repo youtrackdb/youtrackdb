@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
@@ -35,7 +35,7 @@ import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -502,7 +502,7 @@ public enum YTType {
           } else if (((String) value).equalsIgnoreCase("false")) {
             return (T) Boolean.FALSE;
           }
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               String.format("Error in conversion of value '%s' to type '%s'", value, targetClass));
         } else if (value instanceof Number) {
           return (T) (Boolean) (((Number) value).intValue() != 0);
@@ -573,8 +573,8 @@ public enum YTType {
               try {
                 result.add(new YTRecordId(value.toString()));
               } catch (Exception e) {
-                throw OException.wrapException(
-                    new ODatabaseException(
+                throw YTException.wrapException(
+                    new YTDatabaseException(
                         String.format(
                             "Error in conversion of value '%s' to type '%s'", value, targetClass)),
                     e);
@@ -591,7 +591,7 @@ public enum YTType {
             return (T) result.get(0);
           }
 
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               String.format(
                   "Error in conversion of value '%s' to type '%s'", value, targetClass));
         } else if (value instanceof String) {
@@ -625,15 +625,15 @@ public enum YTType {
 
       if (targetClass.equals(YTIdentifiable.class) && value instanceof ODocumentWrapper wrapper) {
         if (session == null) {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "Cannot convert ODocumentWrapper to YTIdentifiable without a session");
         }
         return (T) wrapper.getDocument(session);
       }
     } catch (IllegalArgumentException e) {
       // PASS THROUGH
-      throw OException.wrapException(
-          new ODatabaseException(
+      throw YTException.wrapException(
+          new YTDatabaseException(
               String.format("Error in conversion of value '%s' to type '%s'", value, targetClass)),
           e);
     } catch (Exception e) {
@@ -660,13 +660,13 @@ public enum YTType {
             targetClass);
       }
 
-      throw OException.wrapException(
-          new ODatabaseException(
+      throw YTException.wrapException(
+          new YTDatabaseException(
               String.format("Error in conversion of value '%s' to type '%s'", value, targetClass)),
           e);
     }
 
-    throw new ODatabaseException(
+    throw new YTDatabaseException(
         String.format("Error in conversion of value '%s' to type '%s'", value, targetClass));
   }
 

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -335,7 +335,7 @@ public class OResultInternal implements OResult {
 
     try {
       identifiable = identifiable.getRecord();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       identifiable = null;
     }
 
@@ -517,7 +517,7 @@ public class OResultInternal implements OResult {
           }
 
           identifiable = session.bindToSession(elem);
-        } catch (ORecordNotFoundException rnf) {
+        } catch (YTRecordNotFoundException rnf) {
           identifiable = null;
         }
       }
@@ -535,7 +535,7 @@ public class OResultInternal implements OResult {
       }
 
       this.identifiable = session.load(identifiable.getIdentity());
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       identifiable = null;
     }
   }

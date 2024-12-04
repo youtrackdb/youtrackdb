@@ -19,15 +19,15 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
@@ -86,7 +86,7 @@ public class OLiveQueryTest {
     public List<OResult> created = new ArrayList<OResult>();
 
     @Override
-    public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws OException {
+    public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws YTException {
       ops.add(iOp);
       latch.countDown();
     }
@@ -114,7 +114,7 @@ public class OLiveQueryTest {
     }
 
     @Override
-    public void onError(YTDatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, YTException exception) {
     }
 
     @Override
@@ -235,7 +235,7 @@ public class OLiveQueryTest {
                         }
 
                         @Override
-                        public void onError(YTDatabaseSession database, OException exception) {
+                        public void onError(YTDatabaseSession database, YTException exception) {
                         }
 
                         @Override

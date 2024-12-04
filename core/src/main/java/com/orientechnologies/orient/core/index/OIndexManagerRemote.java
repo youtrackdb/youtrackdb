@@ -23,10 +23,10 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OMultiKey;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.OMetadata;
@@ -469,8 +469,8 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       reload(database);
 
       return indexes.get(iName);
-    } catch (OCommandExecutionException x) {
-      throw new OIndexException(x.getMessage());
+    } catch (YTCommandExecutionException x) {
+      throw new YTIndexException(x.getMessage());
     } finally {
       releaseExclusiveLock();
     }

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -31,7 +31,7 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
           boolean done = false;
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {

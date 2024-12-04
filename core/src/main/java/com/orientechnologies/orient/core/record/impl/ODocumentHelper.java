@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.YouTrackDBManager;
@@ -29,22 +29,22 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -265,8 +265,8 @@ public class ODocumentHelper {
               ((String) iValue).length() > config.getDateFormat().length()
                   ? config.getDateTimeFormat()
                   : config.getDateFormat();
-          throw OException.wrapException(
-              new OQueryParsingException(
+          throw YTException.wrapException(
+              new YTQueryParsingException(
                   "Error on conversion of date '" + iValue + "' using the format: " + dateFormat),
               pe);
         }
@@ -790,7 +790,7 @@ public class ODocumentHelper {
       final YTRecord rec;
       try {
         rec = ((YTIdentifiable) iValue).getRecord();
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
 
@@ -904,7 +904,7 @@ public class ODocumentHelper {
     try {
       final YTDocument doc = iCurrent.getRecord();
       return doc.accessProperty(iFieldName);
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
   }

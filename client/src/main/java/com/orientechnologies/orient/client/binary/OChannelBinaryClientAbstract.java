@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.client.binary;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
@@ -28,8 +28,8 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.enterprise.channel.OSocketFactory;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.ONetworkProtocolException;
-import com.orientechnologies.orient.enterprise.channel.binary.OResponseProcessingException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTResponseProcessingException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -111,7 +111,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
 
         srvProtocolVersion = readShort();
       } catch (IOException e) {
-        throw new ONetworkProtocolException(
+        throw new YTNetworkProtocolException(
             "Cannot read protocol version from remote server "
                 + socket.getRemoteSocketAddress()
                 + ": "
@@ -159,7 +159,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
 
     } catch (Exception e) {
       // UNABLE TO REPRODUCE THE SAME SERVER-SIZE EXCEPTION: THROW AN IO EXCEPTION
-      rootException = OException.wrapException(new OSystemException(iMessage), iPrevious);
+      rootException = YTException.wrapException(new YTSystemException(iMessage), iPrevious);
     }
 
     if (c != null) {
@@ -172,7 +172,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
         }
 
         rootException =
-            OException.wrapException(new OSystemException("Data processing exception"), cause);
+            YTException.wrapException(new YTSystemException("Data processing exception"), cause);
       } catch (InstantiationException ignored) {
       } catch (IllegalAccessException ignored) {
       } catch (InvocationTargetException ignored) {
@@ -259,13 +259,13 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
       if (previous != null) {
         throw new RuntimeException(previous);
       } else {
-        throw new ONetworkProtocolException("Network response error");
+        throw new YTNetworkProtocolException("Network response error");
       }
 
     } else {
       // PROTOCOL ERROR
       // close();
-      throw new ONetworkProtocolException("Error on reading response from the server");
+      throw new YTNetworkProtocolException("Error on reading response from the server");
     }
   }
 
@@ -290,12 +290,12 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
 
     objectInputStream.close();
 
-    if (throwable instanceof OException) {
+    if (throwable instanceof YTException) {
       try {
-        final Class<? extends OException> cls = (Class<? extends OException>) throwable.getClass();
-        final Constructor<? extends OException> constructor;
+        final Class<? extends YTException> cls = (Class<? extends YTException>) throwable.getClass();
+        final Constructor<? extends YTException> constructor;
         constructor = cls.getConstructor(cls);
-        final OException proxyInstance = constructor.newInstance(throwable);
+        final YTException proxyInstance = constructor.newInstance(throwable);
 
         throw proxyInstance;
 
@@ -311,7 +311,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
     }
 
     if (throwable instanceof Throwable) {
-      throw new OResponseProcessingException(
+      throw new YTResponseProcessingException(
           "Exception during response processing", (Throwable) throwable);
     } else {
       // WRAP IT

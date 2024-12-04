@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
@@ -73,7 +73,7 @@ public class ORidBagUpdateSerializationOperation implements ORecordSerialization
         }
       }
     } catch (IOException e) {
-      throw OException.wrapException(new ODatabaseException("Error during ridbag update"), e);
+      throw YTException.wrapException(new YTDatabaseException("Error during ridbag update"), e);
     } finally {
       releaseTree();
     }

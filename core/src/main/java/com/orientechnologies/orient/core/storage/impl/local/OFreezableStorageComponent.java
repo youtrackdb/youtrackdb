@@ -19,6 +19,8 @@
  */
 package com.orientechnologies.orient.core.storage.impl.local;
 
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
+
 /**
  * Interface for storage components that support freeze/release operations.
  *
@@ -33,7 +35,7 @@ public interface OFreezableStorageComponent {
    *
    * @param throwException If <code>true</code>
    *                       {@link
-   *                       com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException}
+   *                       YTModificationOperationProhibitedException}
    *                       exception will be thrown on call of methods that requires storage
    *                       modification. Otherwise other threads will wait for {@link #release()}
    *                       method call.

@@ -6,7 +6,7 @@ import com.orientechnologies.common.comparator.OCaseInsentiveComparator;
 import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -39,14 +39,14 @@ public class ODropPropertyStatement extends ODDLStatement {
     final YTClassImpl sourceClass =
         (YTClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
     if (sourceClass == null) {
-      throw new OCommandExecutionException("Source class '" + className + "' not found");
+      throw new YTCommandExecutionException("Source class '" + className + "' not found");
     }
 
     if (sourceClass.getProperty(propertyName.getStringValue()) == null) {
       if (ifExists) {
         return OExecutionStream.empty();
       }
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Property '" + propertyName + "' not found on class " + className);
     }
     final List<OIndex> indexes = relatedIndexes(propertyName.getStringValue(), database);
@@ -74,7 +74,7 @@ public class ODropPropertyStatement extends ODDLStatement {
           indexNames.append(index.getName());
         }
 
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Property used in indexes ("
                 + indexNames
                 + "). Please drop these indexes before removing property or use FORCE parameter.");

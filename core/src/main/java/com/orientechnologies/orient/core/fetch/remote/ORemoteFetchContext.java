@@ -17,7 +17,7 @@
 package com.orientechnologies.orient.core.fetch.remote;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OFetchException;
+import com.orientechnologies.orient.core.exception.YTFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -36,24 +36,24 @@ public class ORemoteFetchContext implements OFetchContext {
   }
 
   public void onBeforeMap(YTDocument iRootRecord, String iFieldName, final Object iUserObject)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
-  public void onBeforeFetch(YTDocument iRootRecord) throws OFetchException {
+  public void onBeforeFetch(YTDocument iRootRecord) throws YTFetchException {
   }
 
   public void onBeforeArray(
       YTDocument iRootRecord, String iFieldName, Object iUserObject, YTIdentifiable[] iArray)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public void onAfterArray(YTDocument iRootRecord, String iFieldName, Object iUserObject)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public void onBeforeDocument(
       YTDocument iRecord, final YTDocument iDocument, String iFieldName, final Object iUserObject)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public void onBeforeCollection(
@@ -61,24 +61,24 @@ public class ORemoteFetchContext implements OFetchContext {
       String iFieldName,
       final Object iUserObject,
       final Iterable<?> iterable)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public void onAfterMap(YTDocument iRootRecord, String iFieldName, final Object iUserObject)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
-  public void onAfterFetch(YTDocument iRootRecord) throws OFetchException {
+  public void onAfterFetch(YTDocument iRootRecord) throws YTFetchException {
   }
 
   public void onAfterDocument(
       YTDocument iRootRecord, final YTDocument iDocument, String iFieldName,
       final Object iUserObject)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public void onAfterCollection(YTDocument iRootRecord, String iFieldName, final Object iUserObject)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public boolean fetchEmbeddedDocuments() {

@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.core.storage.cluster;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.storage.OCluster;
@@ -85,18 +85,19 @@ public class OOfflineCluster implements OCluster {
 
   @Override
   public void setClusterName(final String name) {
-    throw new OOfflineClusterException("Cannot set cluster name on offline cluster '" + name + "'");
+    throw new YTOfflineClusterException(
+        "Cannot set cluster name on offline cluster '" + name + "'");
   }
 
   @Override
   public void setRecordConflictStrategy(final String conflictStrategy) {
-    throw new OOfflineClusterException(
+    throw new YTOfflineClusterException(
         "Cannot set record conflict strategy on offline cluster '" + name + "'");
   }
 
   @Override
   public void setEncryption(final String encryptionName, final String encryptionKey) {
-    throw new OOfflineClusterException("Cannot set encryption on offline cluster '" + name + "'");
+    throw new YTOfflineClusterException("Cannot set encryption on offline cluster '" + name + "'");
   }
 
   @Override
@@ -112,7 +113,7 @@ public class OOfflineCluster implements OCluster {
   @Override
   public OPhysicalPosition allocatePosition(byte recordType, OAtomicOperation atomicOperation)
       throws IOException {
-    throw new OOfflineClusterException(
+    throw new YTOfflineClusterException(
         "Cannot allocate a new position on offline cluster '" + name + "'");
   }
 
@@ -123,13 +124,13 @@ public class OOfflineCluster implements OCluster {
       byte recordType,
       OPhysicalPosition allocatedPosition,
       OAtomicOperation atomicOperation) {
-    throw new OOfflineClusterException(
+    throw new YTOfflineClusterException(
         "Cannot create a new record on offline cluster '" + name + "'");
   }
 
   @Override
   public boolean deleteRecord(OAtomicOperation atomicOperation, long clusterPosition) {
-    throw new OOfflineClusterException("Cannot delete a record on offline cluster '" + name + "'");
+    throw new YTOfflineClusterException("Cannot delete a record on offline cluster '" + name + "'");
   }
 
   @Override
@@ -139,16 +140,16 @@ public class OOfflineCluster implements OCluster {
       int recordVersion,
       byte recordType,
       OAtomicOperation atomicOperation) {
-    throw new OOfflineClusterException("Cannot update a record on offline cluster '" + name + "'");
+    throw new YTOfflineClusterException("Cannot update a record on offline cluster '" + name + "'");
   }
 
   @Override
   public @Nonnull ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) {
-    throw OException.wrapException(
-        new ORecordNotFoundException(
+    throw YTException.wrapException(
+        new YTRecordNotFoundException(
             new YTRecordId(id, clusterPosition),
             "Record with rid #" + id + ":" + clusterPosition + " was not found in database"),
-        new OOfflineClusterException(
+        new YTOfflineClusterException(
             "Cannot read a record from the offline cluster '" + name + "'"));
   }
 
@@ -159,7 +160,7 @@ public class OOfflineCluster implements OCluster {
 
   @Override
   public OPhysicalPosition getPhysicalPosition(OPhysicalPosition iPPosition) throws IOException {
-    throw new OOfflineClusterException("Cannot read a record on offline cluster '" + name + "'");
+    throw new YTOfflineClusterException("Cannot read a record on offline cluster '" + name + "'");
   }
 
   @Override
@@ -184,7 +185,7 @@ public class OOfflineCluster implements OCluster {
 
   @Override
   public String getFileName() {
-    throw new OOfflineClusterException("Cannot return filename of offline cluster '" + name + "'");
+    throw new YTOfflineClusterException("Cannot return filename of offline cluster '" + name + "'");
   }
 
   @Override

@@ -5,8 +5,8 @@ import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -41,16 +41,16 @@ public class YTClassEmbedded extends YTClassImpl {
       final YTClass linkedClass,
       final boolean unsafe) {
     if (type == null) {
-      throw new OSchemaException("Property type not defined.");
+      throw new YTSchemaException("Property type not defined.");
     }
 
     if (propertyName == null || propertyName.isEmpty()) {
-      throw new OSchemaException("Property name is null or empty");
+      throw new YTSchemaException("Property name is null or empty");
     }
 
     validatePropertyName(propertyName);
     if (session.getTransaction().isActive()) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Cannot create property '" + propertyName + "' inside a transaction");
     }
 
@@ -235,7 +235,7 @@ public class YTClassEmbedded extends YTClassImpl {
         }
 
         if (superClasses.contains(superClass)) {
-          throw new OSchemaException(
+          throw new YTSchemaException(
               "Class: '"
                   + this.getName()
                   + "' already has the class '"
@@ -301,7 +301,7 @@ public class YTClassEmbedded extends YTClassImpl {
       }
 
       if (newSuperClasses.contains(cls)) {
-        throw new OSchemaException("Duplicated superclass '" + cls.getName() + "'");
+        throw new YTSchemaException("Duplicated superclass '" + cls.getName() + "'");
       }
 
       newSuperClasses.add(cls);
@@ -334,11 +334,11 @@ public class YTClassEmbedded extends YTClassImpl {
       String error =
           String.format(
               "Cannot rename class %s to %s. A Class with name %s exists", this.name, name, name);
-      throw new OSchemaException(error);
+      throw new YTSchemaException(error);
     }
     //noinspection ConstantValue
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
@@ -432,7 +432,7 @@ public class YTClassEmbedded extends YTClassImpl {
       final YTClass linkedClass,
       final boolean unsafe) {
     if (name == null || name.isEmpty()) {
-      throw new OSchemaException("Found property name null");
+      throw new YTSchemaException("Found property name null");
     }
 
     if (!unsafe) {
@@ -455,7 +455,8 @@ public class YTClassEmbedded extends YTClassImpl {
       checkEmbedded();
 
       if (properties.containsKey(name)) {
-        throw new OSchemaException("Class '" + this.name + "' already has property '" + name + "'");
+        throw new YTSchemaException(
+            "Class '" + this.name + "' already has property '" + name + "'");
       }
 
       OGlobalProperty global = owner.findOrCreateGlobalProperty(name, type);
@@ -560,7 +561,7 @@ public class YTClassEmbedded extends YTClassImpl {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
-      throw new OSchemaException("Impossible to associate a cluster to an abstract class class");
+      throw new YTSchemaException("Impossible to associate a cluster to an abstract class class");
     }
 
     acquireSchemaWriteLock(database);
@@ -581,7 +582,7 @@ public class YTClassEmbedded extends YTClassImpl {
     session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (!force && clusterIds.length == 1 && clusterId == clusterIds[0]) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           " Impossible to remove the last cluster of class '"
               + getName()
               + "' drop the class instead");
@@ -654,7 +655,7 @@ public class YTClassEmbedded extends YTClassImpl {
     acquireSchemaWriteLock(database);
     try {
       if (!properties.containsKey(propertyName)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Property '" + propertyName + "' not found in class " + name + "'");
       }
 
@@ -684,7 +685,7 @@ public class YTClassEmbedded extends YTClassImpl {
       final YTProperty prop = properties.remove(iPropertyName);
 
       if (prop == null) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Property '" + iPropertyName + "' not found in class " + name + "'");
       }
     } finally {
@@ -698,7 +699,7 @@ public class YTClassEmbedded extends YTClassImpl {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
-      throw new OSchemaException("Impossible to associate a cluster to an abstract class class");
+      throw new YTSchemaException("Impossible to associate a cluster to an abstract class class");
     }
 
     acquireSchemaWriteLock(database);

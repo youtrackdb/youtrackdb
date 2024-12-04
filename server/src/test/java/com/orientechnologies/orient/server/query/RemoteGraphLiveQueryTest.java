@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.query;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -49,7 +49,7 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
           }
 
           @Override
-          public void onError(YTDatabaseSession database, OException exception) {
+          public void onError(YTDatabaseSession database, YTException exception) {
           }
 
           @Override

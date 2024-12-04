@@ -19,7 +19,7 @@ package com.orientechnologies.orient.client.remote;
 import static com.orientechnologies.orient.client.remote.OStorageRemote.ADDRESS_SEPARATOR;
 import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.NETWORK_SOCKET_RETRY;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
@@ -66,8 +66,8 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
@@ -76,7 +76,7 @@ import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -182,8 +182,8 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       db.internalOpen(user, password, resolvedConfig);
       return db;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database '" + name + "'"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot open database '" + name + "'"), e);
     }
   }
 
@@ -211,7 +211,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     if (name == null || name.length() <= 0 || name.contains("`")) {
       final String message = "Cannot create unnamed remote storage. Check your syntax";
       OLogManager.instance().error(this, message, null);
-      throw new OStorageException(message);
+      throw new YTStorageException(message);
     }
     String create = String.format("CREATE DATABASE `%s` %s ", name, databaseType.name());
     Map<String, Object> parameters = new HashMap<String, Object>();
@@ -241,8 +241,8 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
                   urls, name, this, "rw", connectionManager, solveConfig(pool.getConfig()));
           storages.put(name, storage);
         } catch (Exception e) {
-          throw OException.wrapException(
-              new ODatabaseException("Cannot open database '" + name + "'"), e);
+          throw YTException.wrapException(
+              new YTDatabaseException("Cannot open database '" + name + "'"), e);
         }
       }
     }
@@ -352,7 +352,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     if (name == null || name.length() <= 0) {
       final String message = "Cannot create unnamed remote storage. Check your syntax";
       OLogManager.instance().error(this, message, null);
-      throw new OStorageException(message);
+      throw new YTStorageException(message);
     }
 
     OCreateDatabaseRequest request =
@@ -463,7 +463,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
   private void checkOpen() {
     if (!open) {
-      throw new ODatabaseException("YouTrackDB Instance is closed");
+      throw new YTDatabaseException("YouTrackDB Instance is closed");
     }
   }
 
@@ -681,7 +681,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       do {
         try {
           network = OStorageRemote.getNetwork(serverUrl, connectionManager, config);
-        } catch (OException e) {
+        } catch (YTException e) {
           serverUrl = urls.removeAndGet(serverUrl);
           if (serverUrl == null) {
             throw e;
@@ -697,7 +697,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
         connectionManager.release(network);
       }
       session.closeAllSessions(connectionManager, config);
-      throw OException.wrapException(new OStorageException(errorMessage), e);
+      throw YTException.wrapException(new YTStorageException(errorMessage), e);
     }
   }
 
@@ -751,11 +751,11 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
             newSession);
 
         return operation.execute(newSession);
-      } catch (IOException | OTokenSecurityException e) {
+      } catch (IOException | YTTokenSecurityException e) {
         retry--;
         if (retry == 0) {
-          throw OException.wrapException(
-              new ODatabaseException(
+          throw YTException.wrapException(
+              new YTDatabaseException(
                   "Reached maximum retry limit on admin operations, the server may be offline"),
               e);
         }
@@ -764,7 +764,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       }
     }
     // SHOULD NEVER REACH THIS POINT
-    throw new ODatabaseException(
+    throw new YTDatabaseException(
         "Reached maximum retry limit on admin operations, the server may be offline");
   }
 

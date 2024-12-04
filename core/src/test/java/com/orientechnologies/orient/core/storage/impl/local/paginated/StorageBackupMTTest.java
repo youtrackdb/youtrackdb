@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
@@ -313,7 +313,7 @@ public class StorageBackupMTTest {
               }
               db.commit();
 
-            } catch (OModificationOperationProhibitedException e) {
+            } catch (YTModificationOperationProhibitedException e) {
               System.out.println("Modification prohibited ... wait ...");
               //noinspection BusyWait
               Thread.sleep(1000);

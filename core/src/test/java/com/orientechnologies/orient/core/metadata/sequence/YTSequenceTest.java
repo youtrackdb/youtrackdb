@@ -7,9 +7,9 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSequenceException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSequenceException;
 import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -68,7 +68,7 @@ public class YTSequenceTest {
     try {
       sequences.createSequence(
           "mySeq", YTSequence.SEQUENCE_TYPE.ORDERED, new YTSequence.CreateParams().setDefaults());
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       Assert.fail("Can not create sequence");
     }
 
@@ -156,7 +156,7 @@ public class YTSequenceTest {
     db.commit();
   }
 
-  @Test(expected = OSequenceException.class)
+  @Test(expected = YTSequenceException.class)
   public void shouldThrowExceptionOnDuplicateSeqDefinition() {
     sequences.createSequence("mySeq", YTSequence.SEQUENCE_TYPE.ORDERED, null);
     sequences.createSequence("mySeq", YTSequence.SEQUENCE_TYPE.ORDERED, null);
@@ -267,7 +267,7 @@ public class YTSequenceTest {
                   success.incrementAndGet();
                   break;
 
-                } catch (OConcurrentModificationException e) {
+                } catch (YTConcurrentModificationException e) {
                   if (retry >= 10) {
                     e.printStackTrace();
                     errors.incrementAndGet();
@@ -598,7 +598,7 @@ public class YTSequenceTest {
           Byte exceptionsCought = 0;
           try {
             myseq.next();
-          } catch (OSequenceLimitReachedException exc) {
+          } catch (YTSequenceLimitReachedException exc) {
             exceptionsCought++;
           }
           assertThat(exceptionsCought).isEqualTo((byte) 1);
@@ -640,7 +640,7 @@ public class YTSequenceTest {
           Byte exceptionsCought = 0;
           try {
             myseq.next();
-          } catch (OSequenceLimitReachedException exc) {
+          } catch (YTSequenceLimitReachedException exc) {
             exceptionsCought++;
           }
           assertThat(exceptionsCought).isEqualTo((byte) 1);
@@ -681,7 +681,7 @@ public class YTSequenceTest {
           Byte exceptionsCought = 0;
           try {
             newSeq.next();
-          } catch (OSequenceLimitReachedException exc) {
+          } catch (YTSequenceLimitReachedException exc) {
             exceptionsCought++;
           }
           assertThat(exceptionsCought).isEqualTo((byte) 1);
@@ -717,7 +717,7 @@ public class YTSequenceTest {
           Byte exceptionsCought = 0;
           try {
             myseq.next();
-          } catch (OSequenceLimitReachedException exc) {
+          } catch (YTSequenceLimitReachedException exc) {
             exceptionsCought++;
           }
 
@@ -771,7 +771,7 @@ public class YTSequenceTest {
           Byte exceptionsCought = 0;
           try {
             myseq.next();
-          } catch (OSequenceLimitReachedException exc) {
+          } catch (YTSequenceLimitReachedException exc) {
             exceptionsCought++;
           }
 
@@ -817,7 +817,7 @@ public class YTSequenceTest {
           Byte exceptionsCought = 0;
           try {
             myseq.next();
-          } catch (OSequenceLimitReachedException exc) {
+          } catch (YTSequenceLimitReachedException exc) {
             exceptionsCought++;
           }
           assertThat(exceptionsCought).isEqualTo((byte) 1);
@@ -885,7 +885,7 @@ public class YTSequenceTest {
           Byte exceptionsCought = 0;
           try {
             myseq.next();
-          } catch (OSequenceLimitReachedException exc) {
+          } catch (YTSequenceLimitReachedException exc) {
             exceptionsCought++;
           }
           assertThat(exceptionsCought).isEqualTo((byte) 1);

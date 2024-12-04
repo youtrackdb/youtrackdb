@@ -1,9 +1,9 @@
 package com.orientechnologies.common.exception;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.OBackupInProgressException;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTBackupInProgressException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -14,23 +14,23 @@ public enum OErrorCode {
 
   // eg.
   QUERY_PARSE_ERROR(
-      OErrorCategory.SQL_PARSING, 1, "query parse error", OQueryParsingException.class),
+      OErrorCategory.SQL_PARSING, 1, "query parse error", YTQueryParsingException.class),
 
   BACKUP_IN_PROGRESS(
       OErrorCategory.STORAGE,
       2,
       "You are trying to start a backup, but it is already in progress",
-      OBackupInProgressException.class),
+      YTBackupInProgressException.class),
 
   MVCC_ERROR(
       OErrorCategory.CONCURRENCY_RETRY,
       3,
       "The version of the update is outdated compared to the persistent value, retry",
-      OConcurrentModificationException.class),
+      YTConcurrentModificationException.class),
 
-  VALIDATION_ERROR(OErrorCategory.VALIDATION, 4, "Record validation failure", OException.class),
+  VALIDATION_ERROR(OErrorCategory.VALIDATION, 4, "Record validation failure", YTException.class),
 
-  GENERIC_ERROR(OErrorCategory.SQL_GENERIC, 5, "Generic Error", OException.class);
+  GENERIC_ERROR(OErrorCategory.SQL_GENERIC, 5, "Generic Error", YTException.class);
 
   private static final OErrorCode[] codes = new OErrorCode[6];
 
@@ -43,13 +43,13 @@ public enum OErrorCode {
   private final OErrorCategory category;
   private final int code;
   private final String description;
-  private final Class<? extends OException> exceptionClass;
+  private final Class<? extends YTException> exceptionClass;
 
   OErrorCode(
       OErrorCategory category,
       int code,
       String description,
-      Class<? extends OException> exceptionClass) {
+      Class<? extends YTException> exceptionClass) {
     this.category = category;
     this.code = code;
     this.description = description;
@@ -73,14 +73,14 @@ public enum OErrorCode {
   }
 
   public void throwException(String message, Throwable parent) {
-    OException exc = newException(message, parent);
+    YTException exc = newException(message, parent);
     throw exc;
   }
 
-  public OException newException(String message, Throwable parent) {
+  public YTException newException(String message, Throwable parent) {
     final String fullMessage = String.format("%1$06d_%2$06d - %3$s", category.code, code, message);
     try {
-      return OException.wrapException(
+      return YTException.wrapException(
           exceptionClass.getConstructor(String.class).newInstance(fullMessage), parent);
     } catch (InstantiationException
              | IllegalAccessException

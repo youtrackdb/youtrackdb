@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -346,7 +346,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                       records.add(doc);
                       Collections.addAll(colNames, doc.fieldNames());
                     }
-                  } catch (ORecordNotFoundException rnf) {
+                  } catch (YTRecordNotFoundException rnf) {
                     // IGNORE IT
                   }
                 }

@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Iterator;
@@ -20,9 +20,9 @@ public class ExpandStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev == null) {
-      throw new OCommandExecutionException("Cannot expand without a target");
+      throw new YTCommandExecutionException("Cannot expand without a target");
     }
     OExecutionStream resultSet = prev.start(ctx);
     return resultSet.flatMap(ExpandStep::nextResults);
@@ -45,7 +45,7 @@ public class ExpandStep extends AbstractExecutionStep {
       YTRecord rec;
       try {
         rec = ((YTIdentifiable) projValue).getRecord();
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return OExecutionStream.empty();
       }
 

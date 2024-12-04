@@ -25,7 +25,7 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.util.ORawPairIntegerBoolean;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
@@ -282,7 +282,7 @@ public final class OClusterPage extends ODurablePage {
       int entryPointer = getPointerAt(entryIndexPosition);
       // 2.1 requested position already occupied by other record, should not really happen
       if ((entryPointer & MARKED_AS_DELETED_FLAG) == 0) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Can not insert record inside of already occupied slot, record position = "
                 + requestedPosition);
       }
@@ -310,7 +310,7 @@ public final class OClusterPage extends ODurablePage {
           prevFreeListItem = currentFreeListItem;
           currentFreeListItem = nextEntryPosition - 1;
         } else {
-          throw new OStorageException(
+          throw new YTStorageException(
               "Record position "
                   + requestedPosition
                   + " marked as deleted but can not be found in the list of deleted records");
@@ -324,7 +324,7 @@ public final class OClusterPage extends ODurablePage {
       setVersionAt(entryIndexPosition, recordVersion);
       allocatedFromFreeList = true;
     } else {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Can not insert record out side of list of already inserted records, record position = "
               + requestedPosition);
     }

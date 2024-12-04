@@ -16,7 +16,7 @@ package com.orientechnologies.spatial;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -88,7 +88,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
 
       Assert.fail("It should throw an exception");
     } catch (Exception e) {
-      Assert.assertTrue(e instanceof OCommandExecutionException);
+      Assert.assertTrue(e instanceof YTCommandExecutionException);
     }
 
     db.begin();

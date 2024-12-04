@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class UniqueIndexTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
       db.rollback();
     }
   }
@@ -144,7 +144,7 @@ public class UniqueIndexTest extends DBTestBase {
       db.save(toUp);
       db.commit();
       Assert.fail("Expected record duplicate exception");
-    } catch (ORecordDuplicatedException ex) {
+    } catch (YTRecordDuplicatedException ex) {
       // ignore
     }
     YTDocument fromDb = db.load(id.getIdentity());
@@ -188,7 +188,7 @@ public class UniqueIndexTest extends DBTestBase {
       db.commit();
 
       Assert.fail("Expected record duplicate exception");
-    } catch (ORecordDuplicatedException ex) {
+    } catch (YTRecordDuplicatedException ex) {
       // ignore
     }
 

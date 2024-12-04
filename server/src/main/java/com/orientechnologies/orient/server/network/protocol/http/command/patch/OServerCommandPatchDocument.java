@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -86,7 +86,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
 
                 try {
                   currentDocument = db.load(recordId);
-                } catch (ORecordNotFoundException rnf) {
+                } catch (YTRecordNotFoundException rnf) {
                   return new ORawPair<>(false, recordId);
                 }
 

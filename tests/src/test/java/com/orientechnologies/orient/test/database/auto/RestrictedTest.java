@@ -19,8 +19,8 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -134,7 +134,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.load(adminRecordId.getIdentity());
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
 
@@ -150,7 +150,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
       adminRecord.setProperty("user", "writer-hacker");
       adminRecord.save();
       database.commit();
-    } catch (OSecurityException | ORecordNotFoundException e) {
+    } catch (YTSecurityException | YTRecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
@@ -169,7 +169,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
       database.begin();
       database.delete(adminRecordId);
       database.commit();
-    } catch (OSecurityException | ORecordNotFoundException e) {
+    } catch (YTSecurityException | YTRecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
@@ -194,7 +194,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
               .getIdentity(database));
       adminRecord.save();
       database.commit();
-    } catch (OSecurityException | ORecordNotFoundException e) {
+    } catch (YTSecurityException | YTRecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
@@ -248,7 +248,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.load(writerRecordId.getIdentity());
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
     database.commit();
@@ -298,7 +298,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.load(writerRecordId.getIdentity());
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
     database.commit();
@@ -356,7 +356,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.command("truncate class CMSDocument").close();
       Assert.fail();
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
       Assert.assertTrue(true);
     }
   }
@@ -366,7 +366,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     try {
       database.command("truncate cluster CMSDocument").close();
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
 
     }
   }

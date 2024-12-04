@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OUser;
@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.security.OTokenSign;
-import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 
 public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
 
@@ -36,10 +36,10 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
       OParsedToken token = ((OTokenAuthInfo) info).getToken();
 
       if (tokenSign != null && !tokenSign.verifyTokenSign(token)) {
-        throw new OTokenSecurityException("The token provided is expired");
+        throw new YTTokenSecurityException("The token provided is expired");
       }
       if (!token.getToken().getIsValid()) {
-        throw new OSecurityAccessException(session.getName(), "Token not valid");
+        throw new YTSecurityAccessException(session.getName(), "Token not valid");
       }
 
       OUser user = token.getToken().getUser(session);
@@ -66,7 +66,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
       return null;
     }
     if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
-      throw new OSecurityAccessException(dbName, "User '" + username + "' is not active");
+      throw new YTSecurityAccessException(dbName, "User '" + username + "' is not active");
     }
 
     // CHECK USER & PASSWORD
@@ -77,7 +77,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
       } catch (InterruptedException ignore) {
         Thread.currentThread().interrupt();
       }
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           dbName, "User or password not valid for database: '" + dbName + "'");
     }
 

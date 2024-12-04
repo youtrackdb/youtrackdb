@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.math.BigDecimal;
@@ -72,7 +72,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     assertNotNull(oClass.getProperty("some2"));
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testCreatePropertyFailOnExistingData() {
     final YTSchema oSchema = db.getMetadata().getSchema();
     YTClass oClass = oSchema.createClass("Test3");
@@ -87,7 +87,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "some", YTType.INTEGER);
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkList() {
     final YTSchema oSchema = db.getMetadata().getSchema();
     YTClass oClass = oSchema.createClass("Test4");
@@ -104,7 +104,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "some", YTType.EMBEDDEDLIST);
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkSet() {
     final YTSchema oSchema = db.getMetadata().getSchema();
     YTClass oClass = oSchema.createClass("Test5");
@@ -121,7 +121,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "somelinkset", YTType.EMBEDDEDSET);
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddetSet() {
     final YTSchema oSchema = db.getMetadata().getSchema();
     YTClass oClass = oSchema.createClass("Test6");
@@ -138,7 +138,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "someembededset", YTType.LINKSET);
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddedList() {
     final YTSchema oSchema = db.getMetadata().getSchema();
     YTClass oClass = oSchema.createClass("Test7");
@@ -155,7 +155,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "someembeddedlist", YTType.LINKLIST);
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testCreatePropertyFailOnExistingDataEmbeddedMap() {
     final YTSchema oSchema = db.getMetadata().getSchema();
     YTClass oClass = oSchema.createClass("Test8");
@@ -172,7 +172,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "someembededmap", YTType.LINKMAP);
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testCreatePropertyFailOnExistingDataLinkMap() {
     final YTSchema oSchema = db.getMetadata().getSchema();
     YTClass oClass = oSchema.createClass("Test9");

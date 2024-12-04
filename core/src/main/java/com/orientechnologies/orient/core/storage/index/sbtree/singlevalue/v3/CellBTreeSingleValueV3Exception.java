@@ -20,12 +20,12 @@
 
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v3;
 
-import com.orientechnologies.orient.core.exception.ODurableComponentException;
+import com.orientechnologies.orient.core.exception.YTDurableComponentException;
 
 /**
  * @since 8/30/13
  */
-public final class CellBTreeSingleValueV3Exception extends ODurableComponentException {
+public final class CellBTreeSingleValueV3Exception extends YTDurableComponentException {
 
   @SuppressWarnings("unused")
   public CellBTreeSingleValueV3Exception(final CellBTreeSingleValueV3Exception exception) {

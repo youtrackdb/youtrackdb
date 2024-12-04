@@ -3,7 +3,7 @@ package com.orientechnologies.orient.client.remote;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
@@ -48,7 +48,7 @@ public class ORemoteLiveQueryPushTest {
     }
 
     @Override
-    public void onError(YTDatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, YTException exception) {
     }
 
     @Override

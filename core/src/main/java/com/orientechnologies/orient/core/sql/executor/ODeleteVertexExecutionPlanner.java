@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.parser.ODeleteVertexStatement;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import com.orientechnologies.orient.core.sql.parser.OIndexIdentifier;
@@ -31,10 +31,11 @@ public class ODeleteVertexExecutionPlanner {
 
     if (handleIndexAsTarget(result, fromClause.getItem().getIndex(), whereClause, ctx)) {
       if (limit != null) {
-        throw new OCommandExecutionException("Cannot apply a LIMIT on a delete from index");
+        throw new YTCommandExecutionException("Cannot apply a LIMIT on a delete from index");
       }
       if (returnBefore) {
-        throw new OCommandExecutionException("Cannot apply a RETURN BEFORE on a delete from index");
+        throw new YTCommandExecutionException(
+            "Cannot apply a RETURN BEFORE on a delete from index");
       }
 
     } else {
@@ -55,7 +56,7 @@ public class ODeleteVertexExecutionPlanner {
     if (indexIdentifier == null) {
       return false;
     }
-    throw new OCommandExecutionException("DELETE VERTEX FROM INDEX is not supported");
+    throw new YTCommandExecutionException("DELETE VERTEX FROM INDEX is not supported");
   }
 
   private void handleDelete(

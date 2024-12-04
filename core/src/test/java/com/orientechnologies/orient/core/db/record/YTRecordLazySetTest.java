@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -74,7 +74,7 @@ public class YTRecordLazySetTest extends DBTestBase {
     assertEquals(set.size(), 2);
   }
 
-  @Test(expected = OValidationException.class)
+  @Test(expected = YTValidationException.class)
   public void testSetWithNotExistentRecordWithValidation() {
     YTClass test = db.getMetadata().getSchema().createClass("test");
     YTClass test1 = db.getMetadata().getSchema().createClass("test1");

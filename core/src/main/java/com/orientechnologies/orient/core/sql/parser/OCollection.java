@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -108,7 +108,7 @@ public class OCollection extends SimpleNode {
         if (exp.isAggregate(db) || exp.isEarlyCalculated(ctx)) {
           result.expressions.add(exp.splitForAggregation(aggregateProj, ctx));
         } else {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Cannot mix aggregate and non-aggregate operations in a collection: " + this);
         }
       }

@@ -20,10 +20,10 @@
 
 package com.orientechnologies.orient.core.storage.index.versionmap;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -122,8 +122,8 @@ public final class OVersionPositionMapV0 extends OVersionPositionMap {
         return bucket.getVersion(hash);
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during reading the size of rid bag"), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during reading the size of rid bag"), e);
     } finally {
       releaseSharedLock();
     }

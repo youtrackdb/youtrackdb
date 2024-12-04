@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorFunction;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
 import com.orientechnologies.orient.core.command.script.OCommandFunction;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLDelegate;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLLiveSelect;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLResultsetDelegate;
@@ -139,7 +139,7 @@ public class OCommandManager {
         commandReqExecMap.get(iCommand.getClass());
 
     if (executorClass == null) {
-      throw new OCommandExecutorNotFoundException(
+      throw new YTCommandExecutorNotFoundException(
           "Cannot find a command executor for the command request: " + iCommand);
     }
 
@@ -154,8 +154,8 @@ public class OCommandManager {
       return exec;
 
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OCommandExecutionException(
+      throw YTException.wrapException(
+          new YTCommandExecutionException(
               "Cannot create the command executor of class "
                   + executorClass
                   + " for the command request: "

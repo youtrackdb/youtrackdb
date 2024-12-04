@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.ODatabasePoolBase;
 import com.orientechnologies.orient.core.db.ODatabasePooled;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 
 /**
@@ -163,7 +163,7 @@ public class YTDatabaseDocumentTxPooled extends YTDatabaseDocumentTx implements 
   //  @Override
   protected void checkOpenness() {
     if (ownerPool == null) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Database instance has been released to the pool. Get another database instance from the"
               + " pool with the right username and password");
     }

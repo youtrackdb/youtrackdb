@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v3;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OHighLevelException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTHighLevelException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OUTF8Serializer;
 import com.orientechnologies.common.util.ORawPair;
@@ -996,7 +996,7 @@ public class CellBTreeSingleValueV3TestIT {
     }
   }
 
-  static final class RollbackException extends OException implements OHighLevelException {
+  static final class RollbackException extends YTException implements YTHighLevelException {
 
     @SuppressWarnings("WeakerAccess")
     public RollbackException() {

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class YTPropertyIndexDefinitionTest extends DBTestBase {
     Assert.assertEquals(result, 12);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testCreateValueWrongParameter() {
     propertyIndex.createValue(db, Collections.singletonList("tt"));
   }
@@ -50,7 +50,7 @@ public class YTPropertyIndexDefinitionTest extends DBTestBase {
     Assert.assertEquals(result, 12);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testCreateValueWrongParameterArrayParams() {
     propertyIndex.createValue(db, "tt");
   }

@@ -23,7 +23,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.List;
@@ -49,7 +49,7 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
       final Object[] iParams,
       @Nonnull OCommandContext iContext) {
     if (iParams.length < 1) {
-      throw new OCommandExecutionException("invalid ");
+      throw new YTCommandExecutionException("invalid ");
     }
     if (predicate == null) {
       predicate = new OSQLPredicate(iContext, String.valueOf(iParams[0]));

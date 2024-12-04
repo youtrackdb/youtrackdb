@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
-import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
+import com.orientechnologies.orient.core.exception.YTCommandInterruptedException;
 import com.orientechnologies.orient.core.sql.executor.AbstractExecutionStep;
 import com.orientechnologies.orient.core.sql.executor.EmptyStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStepInternal;
@@ -30,7 +30,7 @@ public class WhileStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -38,7 +38,7 @@ public class WhileStep extends AbstractExecutionStep {
     var db = ctx.getDatabase();
     while (condition.evaluate(new OResultInternal(db), ctx)) {
       if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
-        throw new OCommandInterruptedException("The command has been interrupted");
+        throw new YTCommandInterruptedException("The command has been interrupted");
       }
 
       OScriptExecutionPlan plan = initPlan(ctx);

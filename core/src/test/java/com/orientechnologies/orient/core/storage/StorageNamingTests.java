@@ -23,7 +23,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OInvalidDatabaseNameException;
+import com.orientechnologies.orient.core.exception.YTInvalidDatabaseNameException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class StorageNamingTests {
       try {
         youTrackDB.create("name%", ODatabaseType.MEMORY);
         Assert.fail();
-      } catch (OInvalidDatabaseNameException e) {
+      } catch (YTInvalidDatabaseNameException e) {
         // skip
       }
     }
@@ -53,7 +53,7 @@ public class StorageNamingTests {
       try {
         youTrackDB.create("na.me", ODatabaseType.MEMORY);
         Assert.fail();
-      } catch (OInvalidDatabaseNameException e) {
+      } catch (YTInvalidDatabaseNameException e) {
         // skip
       }
     }
@@ -74,12 +74,12 @@ public class StorageNamingTests {
     OAbstractPaginatedStorage.checkName("/,,,/,/,/name");
   }
 
-  @Test(expected = OInvalidDatabaseNameException.class)
+  @Test(expected = YTInvalidDatabaseNameException.class)
   public void commaInNameShouldThrow() {
     OAbstractPaginatedStorage.checkName("/path/with/,/name/with,");
   }
 
-  @Test(expected = OInvalidDatabaseNameException.class)
+  @Test(expected = YTInvalidDatabaseNameException.class)
   public void name() throws Exception {
     OAbstractPaginatedStorage.checkName("/name/with,");
   }

@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -397,7 +397,7 @@ public class OBinaryCondition extends OBooleanExpression {
             OExpression val = identifierToStringExpr(identifier);
             newColl.expressions.add(val);
           } else {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Cannot execute because of invalid LUCENE expression");
           }
         }
@@ -411,7 +411,7 @@ public class OBinaryCondition extends OBooleanExpression {
         return result;
       }
     }
-    throw new OCommandExecutionException("Cannot execute because of invalid LUCENE expression");
+    throw new YTCommandExecutionException("Cannot execute because of invalid LUCENE expression");
   }
 
   private OExpression identifierToStringExpr(OIdentifier identifier) {
@@ -438,7 +438,7 @@ public class OBinaryCondition extends OBooleanExpression {
           (OBinaryCompareOperator)
               Class.forName(String.valueOf(fromResult.getProperty("operator"))).newInstance();
     } catch (Exception e) {
-      throw OException.wrapException(new OCommandExecutionException(""), e);
+      throw YTException.wrapException(new YTCommandExecutionException(""), e);
     }
     right = new OExpression(-1);
     right.deserialize(fromResult.getProperty("right"));

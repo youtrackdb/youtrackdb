@@ -5,8 +5,8 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import java.util.Map;
 
@@ -71,7 +71,7 @@ public class OCommandExecutorSQLAlterSequence extends OCommandExecutorSQLAbstrac
   @Override
   public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -84,10 +84,10 @@ public class OCommandExecutorSQLAlterSequence extends OCommandExecutorSQLAbstrac
       result = sequence.updateParams(this.params);
       // TODO check, but reset should not be here
       //      sequence.reset();
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       OLogManager.instance().error(this, message, exc, (Object) null);
-      throw new OCommandExecutionException(message);
+      throw new YTCommandExecutionException(message);
     }
     return result;
   }

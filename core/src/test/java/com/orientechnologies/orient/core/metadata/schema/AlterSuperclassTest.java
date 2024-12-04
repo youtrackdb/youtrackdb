@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +29,7 @@ public class AlterSuperclassTest extends DBTestBase {
     assertEquals(classChild2.getSuperClasses(), List.of(classA));
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testPropertyNameConflict() {
     YTSchema schema = db.getMetadata().getSchema();
     YTClass classA = schema.createClass("ParentClass");
@@ -42,7 +42,7 @@ public class AlterSuperclassTest extends DBTestBase {
     classChild2.setSuperClasses(db, List.of(classChild));
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testHasAlreadySuperclass() {
     YTSchema schema = db.getMetadata().getSchema();
     YTClass classA = schema.createClass("ParentClass");
@@ -51,7 +51,7 @@ public class AlterSuperclassTest extends DBTestBase {
     classChild.addSuperClass(db, classA);
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testSetDuplicateSuperclasses() {
     YTSchema schema = db.getMetadata().getSchema();
     YTClass classA = schema.createClass("ParentClass");

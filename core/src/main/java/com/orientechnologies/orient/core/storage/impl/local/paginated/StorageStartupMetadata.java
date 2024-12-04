@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -152,7 +152,7 @@ public class StorageStartupMetadata {
     }
 
     if (fileLock == null) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Database is locked by another process, please shutdown process and try again");
     }
   }

@@ -16,7 +16,7 @@
 
 package com.orientechnologies.lucene.index;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.OLuceneIndex;
@@ -29,8 +29,8 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.IndexStreamSecurityDecorator;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -125,8 +125,8 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
                 indexEngine.put(session, atomicOperation, decodeKey(key), rid);
                 return null;
               } catch (IOException e) {
-                throw OException.wrapException(
-                    new OIndexException("Error during commit of index changes"), e);
+                throw YTException.wrapException(
+                    new YTIndexException("Error during commit of index changes"), e);
               }
             });
         break;
@@ -237,8 +237,8 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
                     try {
                       return indexEngine.buildTxChanges();
                     } catch (IOException e) {
-                      throw OException.wrapException(
-                          new OIndexException("Cannot get searcher from index " + getName()), e);
+                      throw YTException.wrapException(
+                          new YTIndexException("Cannot get searcher from index " + getName()), e);
                     }
                   });
           break;

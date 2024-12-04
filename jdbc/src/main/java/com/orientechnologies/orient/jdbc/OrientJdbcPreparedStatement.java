@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -97,9 +97,9 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
         //        sql = new OSQLSynchQuery<YTDocument>(mayCleanForSpark(sql));
         oResultSet = database.query(sql, params.values().toArray());
 
-      } catch (OQueryParsingException e) {
+      } catch (YTQueryParsingException e) {
         throw new SQLSyntaxErrorException("Error while parsing query", e);
-      } catch (OException e) {
+      } catch (YTException e) {
         throw new SQLException("Error while executing query", e);
       }
     }
@@ -121,7 +121,7 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
     try {
       database.activateOnCurrentThread();
       return database.command(query, params.values().toArray());
-    } catch (OException e) {
+    } catch (YTException e) {
       throw new SQLException("Error while executing command", e);
     }
   }
@@ -345,12 +345,12 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
       try {
         record.fromInputStream(x);
       } catch (IOException e) {
-        throw ODatabaseException.wrapException(
-            new ODatabaseException("Error during creation of BLOB"), e);
+        throw YTDatabaseException.wrapException(
+            new YTDatabaseException("Error during creation of BLOB"), e);
       }
       record.save();
       params.put(parameterIndex, record);
-    } catch (ODatabaseException e) {
+    } catch (YTDatabaseException e) {
       throw new SQLException("unable to store inputStream", e);
     }
   }

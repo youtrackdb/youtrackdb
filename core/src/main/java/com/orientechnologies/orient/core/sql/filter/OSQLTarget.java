@@ -19,22 +19,22 @@
  */
 package com.orientechnologies.orient.core.sql.filter;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLAbstract;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLResultsetDelegate;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OCommandSQLResultset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,22 +71,22 @@ public class OSQLTarget extends OBaseParser {
     try {
       empty = !extractTargets();
 
-    } catch (OQueryParsingException e) {
+    } catch (YTQueryParsingException e) {
       if (e.getText() == null)
       // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
       {
-        throw OException.wrapException(
-            new OQueryParsingException(
+        throw YTException.wrapException(
+            new YTQueryParsingException(
                 "Error on parsing query", parserText, parserGetCurrentPosition()),
             e);
       }
 
       throw e;
-    } catch (OCommandExecutionException ex) {
+    } catch (YTCommandExecutionException ex) {
       throw ex;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OQueryParsingException(
+      throw YTException.wrapException(
+          new YTQueryParsingException(
               "Error on parsing query", parserText, parserGetCurrentPosition()),
           e);
     }
@@ -149,7 +149,7 @@ public class OSQLTarget extends OBaseParser {
 
   @Override
   protected void throwSyntaxErrorException(String iText) {
-    throw new OCommandSQLParsingException(
+    throw new YTCommandSQLParsingException(
         iText + ". Use " + getSyntax(), parserText, parserGetPreviousPosition());
   }
 
@@ -158,7 +158,7 @@ public class OSQLTarget extends OBaseParser {
     parserSkipWhiteSpaces();
 
     if (parserIsEnded()) {
-      throw new OQueryParsingException("No query target found", parserText, 0);
+      throw new YTQueryParsingException("No query target found", parserText, 0);
     }
 
     final char c = parserGetCurrentChar();
@@ -201,7 +201,7 @@ public class OSQLTarget extends OBaseParser {
       }
 
       if (!(executor instanceof Iterable<?>)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Sub-query cannot be iterated because doesn't implement the Iterable interface: "
                 + subCommand);
       }
@@ -286,7 +286,7 @@ public class OSQLTarget extends OBaseParser {
                             .getConfiguration()
                             .getIndexMgrRecordId()));
           } else {
-            throw new OQueryParsingException("Metadata element not supported: " + metadataTarget);
+            throw new YTQueryParsingException("Metadata element not supported: " + metadataTarget);
           }
 
         } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.DICTIONARY_PREFIX)) {
@@ -336,7 +336,7 @@ public class OSQLTarget extends OBaseParser {
                   .getImmutableSchemaSnapshot()
                   .getClass(subjectName);
           if (cls == null) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Class '"
                     + subjectName
                     + "' was not found in database '"

@@ -26,7 +26,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
@@ -141,7 +141,7 @@ public class OLiveQueryHook {
       synchronized (ops.pendingOps) {
         ops.pendingOps.remove(iDatabase);
       }
-    } catch (ODatabaseException ex) {
+    } catch (YTDatabaseException ex) {
       // This catch and log the exception because in some case is suppressing the real exception
       OLogManager.instance().error(iDatabase, "Error cleaning the live query resources", ex);
     }

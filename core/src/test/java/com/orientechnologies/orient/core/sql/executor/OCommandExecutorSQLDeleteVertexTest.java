@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import org.junit.Assert;
 import org.junit.Test;
@@ -72,7 +72,7 @@ public class OCommandExecutorSQLDeleteVertexTest extends DBTestBase {
     Assert.assertEquals(result.stream().count(), 0);
   }
 
-  @Test(expected = OCommandExecutionException.class)
+  @Test(expected = YTCommandExecutionException.class)
   public void testDeleteVertexWithEdgeRid() throws Exception {
 
     db.begin();

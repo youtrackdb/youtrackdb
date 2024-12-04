@@ -24,7 +24,7 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
@@ -205,7 +205,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
             if (edge != null) {
               printEdge(json, edge);
             }
-          } catch (ORecordNotFoundException rnf) {
+          } catch (YTRecordNotFoundException rnf) {
             // ignore
           }
         }

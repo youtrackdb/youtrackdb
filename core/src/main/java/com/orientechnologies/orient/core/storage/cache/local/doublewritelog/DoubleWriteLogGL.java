@@ -8,7 +8,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPairIntegerInteger;
 import com.orientechnologies.common.util.ORawPairLongLong;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.io.IOException;
@@ -582,7 +582,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
                   try {
                     Files.delete(path);
                   } catch (IOException e) {
-                    throw new OStorageException(
+                    throw new YTStorageException(
                         "Can not delete file " + path + " in storage " + storageName);
                   }
                 });

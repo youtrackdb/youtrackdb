@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.config;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategyFactory;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTImmutableRecordId;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -299,7 +299,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
    * with older database than 0.9.25.
    */
   public OStorageConfigurationImpl load(final OContextConfiguration configuration)
-      throws OSerializationException {
+      throws YTSerializationException {
     lock.writeLock().lock();
     try {
       initConfiguration(configuration);
@@ -307,7 +307,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       final byte[] record = storage.readRecord(null, CONFIG_RID, false, false, null).buffer;
 
       if (record == null) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Cannot load database configuration. The database seems corrupted");
       }
 
@@ -319,7 +319,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     return this;
   }
 
-  public void update() throws OSerializationException {
+  public void update() throws YTSerializationException {
     lock.writeLock().lock();
     try {
       final byte[] record = toStream(streamCharset);
@@ -408,7 +408,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       version = Integer.parseInt(read(values[index++]));
 
       if (version < 14) {
-        throw new OStorageException("cannot open database created with a version before 2.0 ");
+        throw new YTStorageException("cannot open database created with a version before 2.0 ");
       }
 
       name = read(values[index++]);
@@ -695,7 +695,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
    */
   @Override
   @Deprecated
-  public OSerializableStream fromStream(final byte[] iStream) throws OSerializationException {
+  public OSerializableStream fromStream(final byte[] iStream) throws YTSerializationException {
     fromStream(iStream, 0, iStream.length, Charset.defaultCharset());
     return this;
   }
@@ -704,11 +704,11 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
    * @deprecated because method uses native encoding use {@link #toStream(Charset)} instead.
    */
   @Override
-  public byte[] toStream() throws OSerializationException {
+  public byte[] toStream() throws YTSerializationException {
     return toStream(Integer.MAX_VALUE, Charset.defaultCharset());
   }
 
-  public byte[] toStream(Charset charset) throws OSerializationException {
+  public byte[] toStream(Charset charset) throws YTSerializationException {
     return toStream(Integer.MAX_VALUE, charset);
   }
 
@@ -716,7 +716,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
    * Added version used for managed Network Versioning.
    */
   public byte[] toStream(final int iNetworkVersion, Charset charset)
-      throws OSerializationException {
+      throws YTSerializationException {
     lock.readLock().lock();
     try {
       final StringBuilder buffer = new StringBuilder(8192);
@@ -927,7 +927,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         clusters.add(config);
       } else {
         if (clusters.get(config.id) != null) {
-          throw new OStorageException(
+          throw new YTStorageException(
               "Cluster with id "
                   + config.id
                   + " already exists with name '"

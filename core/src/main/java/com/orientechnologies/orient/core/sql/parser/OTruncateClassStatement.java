@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -36,17 +36,17 @@ public class OTruncateClassStatement extends ODDLStatement {
     YTSchema schema = db.getMetadata().getSchema();
     YTClass clazz = schema.getClass(className.getStringValue());
     if (clazz == null) {
-      throw new OCommandExecutionException("Schema Class not found: " + className);
+      throw new YTCommandExecutionException("Schema Class not found: " + className);
     }
 
     final long recs = clazz.count(ctx.getDatabase(), polymorphic);
     if (recs > 0 && !unsafe) {
       if (clazz.isSubClassOf("V")) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'TRUNCATE CLASS' command cannot be used on not empty vertex classes. Apply the"
                 + " 'UNSAFE' keyword to force it (at your own risk)");
       } else if (clazz.isSubClassOf("E")) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'TRUNCATE CLASS' command cannot be used on not empty edge classes. Apply the 'UNSAFE'"
                 + " keyword to force it (at your own risk)");
       }
@@ -59,12 +59,12 @@ public class OTruncateClassStatement extends ODDLStatement {
         long subclassRecs = clazz.count(db);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "'TRUNCATE CLASS' command cannot be used on not empty vertex classes ("
                     + subclass.getName()
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
           } else if (subclass.isSubClassOf("E")) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "'TRUNCATE CLASS' command cannot be used on not empty edge classes ("
                     + subclass.getName()
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");

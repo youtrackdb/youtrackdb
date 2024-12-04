@@ -1,18 +1,18 @@
 package com.orientechnologies.orient.core.index.engine.v1;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.index.engine.OMultiValueIndexEngine;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -125,8 +125,8 @@ public final class OCellBTreeMultiValueIndexEngine
             atomicOperation, OCompactedLinkSerializer.INSTANCE, new YTType[]{YTType.LINK}, 1, null);
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during creation of index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during creation of index " + name), e);
     }
   }
 
@@ -145,8 +145,8 @@ public final class OCellBTreeMultiValueIndexEngine
         nullTree.delete(atomicOperation);
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during deletion of index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during deletion of index " + name), e);
     }
   }
 
@@ -163,8 +163,8 @@ public final class OCellBTreeMultiValueIndexEngine
             try {
               mvTree.remove(atomicOperation, pair.first, pair.second);
             } catch (IOException e) {
-              throw OException.wrapException(
-                  new OIndexException("Error during cleaning of index " + name), e);
+              throw YTException.wrapException(
+                  new YTIndexException("Error during cleaning of index " + name), e);
             }
           });
     }
@@ -175,8 +175,8 @@ public final class OCellBTreeMultiValueIndexEngine
             try {
               mvTree.remove(atomicOperation, null, rid);
             } catch (final IOException e) {
-              throw OException.wrapException(
-                  new OStorageException("Error during cleaning of index " + name), e);
+              throw YTException.wrapException(
+                  new YTStorageException("Error during cleaning of index " + name), e);
             }
           });
     }
@@ -197,8 +197,8 @@ public final class OCellBTreeMultiValueIndexEngine
               try {
                 svTree.remove(atomicOperation, pair.first);
               } catch (IOException e) {
-                throw OException.wrapException(
-                    new OIndexException("Error during index cleaning"), e);
+                throw YTException.wrapException(
+                    new YTIndexException("Error during index cleaning"), e);
               }
             });
       }
@@ -216,8 +216,8 @@ public final class OCellBTreeMultiValueIndexEngine
                 try {
                   nullTree.remove(atomicOperation, pair.first);
                 } catch (IOException e) {
-                  throw OException.wrapException(
-                      new OIndexException("Error during index cleaning"), e);
+                  throw YTException.wrapException(
+                      new YTIndexException("Error during index cleaning"), e);
                 }
               });
         }
@@ -270,8 +270,8 @@ public final class OCellBTreeMultiValueIndexEngine
                     final boolean result = svTree.remove(atomicOperation, pair.first) != null;
                     removed[0] = result || removed[0];
                   } catch (final IOException e) {
-                    throw OException.wrapException(
-                        new OIndexException(
+                    throw YTException.wrapException(
+                        new YTIndexException(
                             "Error during remove of entry (" + key + ", " + value + ")"),
                         e);
                   }
@@ -285,8 +285,8 @@ public final class OCellBTreeMultiValueIndexEngine
         }
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException(
+      throw YTException.wrapException(
+          new YTIndexException(
               "Error during removal of entry with key "
                   + key
                   + "and RID "
@@ -412,8 +412,8 @@ public final class OCellBTreeMultiValueIndexEngine
       try {
         mvTree.put(atomicOperation, key, value);
       } catch (IOException e) {
-        throw OException.wrapException(
-            new OIndexException(
+        throw YTException.wrapException(
+            new YTIndexException(
                 "Error during insertion of key " + key + " and RID " + value + " to index " + name),
             e);
       }
@@ -422,8 +422,8 @@ public final class OCellBTreeMultiValueIndexEngine
       try {
         svTree.put(atomicOperation, createCompositeKey(key, value), value);
       } catch (IOException e) {
-        throw OException.wrapException(
-            new OIndexException(
+        throw YTException.wrapException(
+            new YTIndexException(
                 "Error during insertion of key " + key + " and RID " + value + " to index " + name),
             e);
       }
@@ -432,8 +432,8 @@ public final class OCellBTreeMultiValueIndexEngine
       try {
         nullTree.put(atomicOperation, value, value);
       } catch (IOException e) {
-        throw OException.wrapException(
-            new OIndexException(
+        throw YTException.wrapException(
+            new YTIndexException(
                 "Error during insertion of null key and RID " + value + " to index " + name),
             e);
       }
@@ -610,7 +610,7 @@ public final class OCellBTreeMultiValueIndexEngine
       System.arraycopy(keyTypes, 0, sbTypes, 0, keyTypes.length);
       sbTypes[sbTypes.length - 1] = YTType.LINK;
     } else {
-      throw new OIndexException("Types of fields should be provided upon of creation of index");
+      throw new YTIndexException("Types of fields should be provided upon of creation of index");
     }
     return sbTypes;
   }

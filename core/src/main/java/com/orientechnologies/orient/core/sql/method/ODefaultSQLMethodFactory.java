@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.core.sql.method;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.coll.OSQLMethodMultiValue;
 import com.orientechnologies.orient.core.sql.functions.conversion.OSQLMethodAsDate;
 import com.orientechnologies.orient.core.sql.functions.conversion.OSQLMethodAsDateTime;
@@ -141,7 +141,7 @@ public class ODefaultSQLMethodFactory implements OSQLMethodFactory {
   }
 
   @Override
-  public OSQLMethod createMethod(final String name) throws OCommandExecutionException {
+  public OSQLMethod createMethod(final String name) throws YTCommandExecutionException {
     final Object m = methods.get(name);
     final OSQLMethod method;
 
@@ -149,15 +149,15 @@ public class ODefaultSQLMethodFactory implements OSQLMethodFactory {
       try {
         method = (OSQLMethod) ((Class<?>) m).newInstance();
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OCommandExecutionException("Cannot create SQL method: " + m), e);
+        throw YTException.wrapException(
+            new YTCommandExecutionException("Cannot create SQL method: " + m), e);
       }
     } else {
       method = (OSQLMethod) m;
     }
 
     if (method == null) {
-      throw new OCommandExecutionException("Unknown method name: " + name);
+      throw new YTCommandExecutionException("Unknown method name: " + name);
     }
 
     return method;

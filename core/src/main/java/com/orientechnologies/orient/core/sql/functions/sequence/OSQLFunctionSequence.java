@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
@@ -47,7 +47,7 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
             .getSequenceLibrary()
             .getSequence(seqName);
     if (result == null) {
-      throw new OCommandExecutionException("Sequence not found: " + seqName);
+      throw new YTCommandExecutionException("Sequence not found: " + seqName);
     }
     return result;
   }

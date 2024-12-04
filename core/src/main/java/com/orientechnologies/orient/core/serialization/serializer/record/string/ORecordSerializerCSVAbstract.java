@@ -22,12 +22,11 @@ package com.orientechnologies.orient.core.serialization.serializer.record.string
 import com.orientechnologies.common.collection.OLazyIterator;
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -35,8 +34,9 @@ import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -44,8 +44,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringBuilderSerializable;
@@ -339,8 +339,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           try {
             map.put(key, mapValueObject);
           } catch (ClassCastException e) {
-            throw OException.wrapException(
-                new OSerializationException(
+            throw YTException.wrapException(
+                new YTSerializationException(
                     "Cannot load map because the type was not the expected: key="
                         + key
                         + "(type "
@@ -377,7 +377,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     switch (iType) {
       case LINK: {
         if (!(iValue instanceof YTIdentifiable)) {
-          throw new OSerializationException(
+          throw new YTSerializationException(
               "Found an unexpected type during marshalling of a LINK where a YTIdentifiable (YTRID"
                   + " or any Record) was expected. The string representation of the object is: "
                   + iValue);

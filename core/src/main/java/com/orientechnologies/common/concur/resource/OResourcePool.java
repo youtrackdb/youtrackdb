@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.common.concur.resource;
 
-import com.orientechnologies.common.concur.lock.OInterruptedException;
-import com.orientechnologies.common.concur.lock.OLockException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
+import com.orientechnologies.common.concur.lock.YTLockException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.OAcquireTimeoutException;
+import com.orientechnologies.orient.core.exception.YTAcquireTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,11 +72,11 @@ public class OResourcePool<K, V> {
   }
 
   public V getResource(K key, final long maxWaitMillis, Object... additionalArgs)
-      throws OAcquireTimeoutException {
+      throws YTAcquireTimeoutException {
     // First, get permission to take or create a resource
     try {
       if (!sem.tryAcquire(maxWaitMillis, TimeUnit.MILLISECONDS)) {
-        throw new OAcquireTimeoutException(
+        throw new YTAcquireTimeoutException(
             "No more resources available in pool (max="
                 + maxResources
                 + "). Requested resource: "
@@ -85,8 +85,8 @@ public class OResourcePool<K, V> {
 
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw OException.wrapException(
-          new OInterruptedException("Acquiring of resources was interrupted"), e);
+      throw YTException.wrapException(
+          new YTInterruptedException("Acquiring of resources was interrupted"), e);
     }
 
     V res;
@@ -140,8 +140,8 @@ public class OResourcePool<K, V> {
     } catch (Exception e) {
       sem.release();
 
-      throw OException.wrapException(
-          new OLockException("Error on creation of the new resource in the pool"), e);
+      throw YTException.wrapException(
+          new YTLockException("Error on creation of the new resource in the pool"), e);
     }
   }
 

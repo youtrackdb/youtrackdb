@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.traverse.OTraverseRecordProcess;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
@@ -88,7 +88,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
       stack = (Collection) ((OResult) iThis).getMetadata("$stack");
     }
     if (stack == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot invoke " + getName(iContext.getDatabase()) + "() against non traverse command");
     }
 

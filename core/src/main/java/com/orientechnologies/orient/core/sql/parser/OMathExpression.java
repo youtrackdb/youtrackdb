@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
@@ -32,7 +32,7 @@ public class OMathExpression extends SimpleNode {
   private static final Object NULL_VALUE = new Object();
 
   public OExpression getExpandContent() {
-    throw new OCommandExecutionException("Invalid expand expression");
+    throw new YTCommandExecutionException("Invalid expand expression");
   }
 
   public boolean isDefinedFor(OResult currentRecord) {
@@ -1103,7 +1103,7 @@ public class OMathExpression extends SimpleNode {
       for (OMathExpression expr : this.childExpressions) {
         if (expr.isExpand()) {
           if (this.childExpressions.size() > 1) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Cannot calculate expand() with other expressions");
           }
           return true;
@@ -1150,7 +1150,7 @@ public class OMathExpression extends SimpleNode {
             if (res.isEarlyCalculated(ctx) || res.isAggregate(db)) {
               result.addChildExpression(res);
             } else {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot mix aggregate and single record attribute values in the same projection");
             }
           } else if (splitResult instanceof OExpression) {
@@ -1258,7 +1258,7 @@ public class OMathExpression extends SimpleNode {
 
   public void applyRemove(OResultInternal result, OCommandContext ctx) {
     if (childExpressions == null || childExpressions.size() != 1) {
-      throw new OCommandExecutionException("cannot apply REMOVE " + this);
+      throw new YTCommandExecutionException("cannot apply REMOVE " + this);
     }
     childExpressions.get(0).applyRemove(result, ctx);
   }
@@ -1271,7 +1271,7 @@ public class OMathExpression extends SimpleNode {
       result.deserialize(fromResult);
       return result;
     } catch (Exception e) {
-      throw OException.wrapException(new OCommandExecutionException(""), e);
+      throw YTException.wrapException(new YTCommandExecutionException(""), e);
     }
   }
 

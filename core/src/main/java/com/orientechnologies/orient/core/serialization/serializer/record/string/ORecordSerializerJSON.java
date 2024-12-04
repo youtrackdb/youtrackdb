@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.string;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OStringParser;
@@ -29,14 +29,14 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.OFetchPlan;
 import com.orientechnologies.orient.core.fetch.json.OJSONFetchContext;
@@ -47,15 +47,15 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordStringable;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
-import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -271,7 +271,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
             '\t');
 
     if (fields.size() % 2 != 0) {
-      throw new OSerializationException(
+      throw new YTSerializationException(
           "Error on unmarshalling JSON content: wrong format \""
               + source
               + "\". Use <field> : <value>");
@@ -313,7 +313,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                           .get()
                           .load(new YTRecordId(fieldValueAsString));
 
-                } catch (ORecordNotFoundException e) {
+                } catch (YTRecordNotFoundException e) {
                   // ignore
                 }
               }
@@ -348,13 +348,13 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
         }
       } catch (Exception e) {
         if (record.getIdentity().isValid()) {
-          throw OException.wrapException(
-              new OSerializationException(
+          throw YTException.wrapException(
+              new YTSerializationException(
                   "Error on unmarshalling JSON content for record " + record.getIdentity()),
               e);
         } else {
-          throw OException.wrapException(
-              new OSerializationException(
+          throw YTException.wrapException(
+              new YTSerializationException(
                   "Error on unmarshalling JSON content for record: " + source),
               e);
         }
@@ -525,7 +525,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 "value",
                 Base64.getEncoder().encodeToString(((YTRecordAbstract) record).toStream()));
           } else {
-            throw new OSerializationException(
+            throw new YTSerializationException(
                 "Error on marshalling record of type '"
                     + iRecord.getClass()
                     + "' to JSON. The record type cannot be exported to JSON");
@@ -535,8 +535,8 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
       json.endObject(settings.indentLevel, true);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OSerializationException("Error on marshalling of record to JSON"), e);
+      throw YTException.wrapException(
+          new YTSerializationException("Error on marshalling of record to JSON"), e);
     }
   }
 
@@ -573,7 +573,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 "value",
                 Base64.getEncoder().encodeToString(((YTRecordAbstract) recordBlob).toStream()));
           } else {
-            throw new OSerializationException(
+            throw new YTSerializationException(
                 "Error on marshalling record of type '"
                     + record.getClass()
                     + "' to JSON. The record type cannot be exported to JSON");
@@ -585,8 +585,8 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       output.append(buffer);
       return output;
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OSerializationException("Error on marshalling of record to JSON"), e);
+      throw YTException.wrapException(
+          new YTSerializationException("Error on marshalling of record to JSON"), e);
     }
   }
 
@@ -740,8 +740,8 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
             } catch (ParseException ex) {
               OLogManager.instance()
                   .error(this, "Exception is suppressed, original exception is ", e);
-              throw OException.wrapException(
-                  new OSerializationException(
+              throw YTException.wrapException(
+                  new YTSerializationException(
                       "Unable to unmarshall date (format="
                           + ODateHelper.getDateFormat()
                           + ") : "
@@ -763,8 +763,8 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
             } catch (ParseException ex) {
               OLogManager.instance()
                   .error(this, "Exception is suppressed, original exception is ", e);
-              throw OException.wrapException(
-                  new OSerializationException(
+              throw YTException.wrapException(
+                  new YTSerializationException(
                       "Unable to unmarshall datetime (format="
                           + ODateHelper.getDateTimeFormat()
                           + ") : "
@@ -782,8 +782,8 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
             ObjectInputStream input = new ObjectInputStream(bais);
             return input.readObject();
           } catch (IOException | ClassNotFoundException e) {
-            throw OException.wrapException(
-                new OSerializationException("Error on custom field deserialization"), e);
+            throw YTException.wrapException(
+                new YTSerializationException("Error on custom field deserialization"), e);
           }
         }
         default:
@@ -837,7 +837,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       String iOptions,
       String[] fields) {
     if (fields.length % 2 == 1) {
-      throw new OSerializationException(
+      throw new YTSerializationException(
           "Bad JSON format on map. Expected pairs of field:value but received '"
               + iFieldValue
               + "'");

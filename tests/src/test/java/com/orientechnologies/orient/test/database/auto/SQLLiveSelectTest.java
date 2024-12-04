@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
@@ -62,7 +62,8 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
                 "live select from LiveClassTx",
                 new OLiveResultListener() {
                   @Override
-                  public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws OException {
+                  public void onLiveResult(int iLiveToken, ORecordOperation iOp)
+                      throws YTException {
                     ops.add(iOp);
                     latch.countDown();
                   }
@@ -116,7 +117,8 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
                 "live select from LiveClass",
                 new OLiveResultListener() {
                   @Override
-                  public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws OException {
+                  public void onLiveResult(int iLiveToken, ORecordOperation iOp)
+                      throws YTException {
                     ops.add(iOp);
                     latch.countDown();
                   }

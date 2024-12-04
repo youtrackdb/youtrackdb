@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.query;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 
 /**
@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
  */
 public interface OLiveResultListener {
 
-  void onLiveResult(int iLiveToken, ORecordOperation iOp) throws OException;
+  void onLiveResult(int iLiveToken, ORecordOperation iOp) throws YTException;
 
   void onError(int iLiveToken);
 

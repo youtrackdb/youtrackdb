@@ -18,7 +18,7 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import java.util.Base64;
 
@@ -50,7 +50,7 @@ public class OSQLFunctionDecode extends OSQLFunctionAbstract {
     if (OSQLFunctionEncode.FORMAT_BASE64.equalsIgnoreCase(format)) {
       return Base64.getDecoder().decode(candidate);
     } else {
-      throw new ODatabaseException("unknowned format :" + format);
+      throw new YTDatabaseException("unknowned format :" + format);
     }
   }
 

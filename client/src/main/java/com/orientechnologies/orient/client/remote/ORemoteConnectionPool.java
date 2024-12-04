@@ -2,7 +2,7 @@ package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.common.concur.resource.OResourcePool;
 import com.orientechnologies.common.concur.resource.OResourcePoolListener;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
@@ -49,7 +49,7 @@ public class ORemoteConnectionPool
       throw e;
     } catch (Exception e) {
       OLogManager.instance().debug(this, "Error on connecting to %s", e, serverURL);
-      throw OException.wrapException(new OIOException("Error on connecting to " + serverURL), e);
+      throw YTException.wrapException(new OIOException("Error on connecting to " + serverURL), e);
     }
   }
 

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
 
-import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
+import com.orientechnologies.orient.core.exception.YTCommandInterruptedException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -50,7 +50,7 @@ public abstract class LocalHashTableV2Base {
       for (int k = 0; k < 2; k++) {
         final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
         localHashTable.put(atomicOperation, key, String.valueOf(key));
-        manager.endAtomicOperation(k == 0 ? new OCommandInterruptedException("") : null);
+        manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
       }
 
       keys.add(key);
@@ -74,7 +74,7 @@ public abstract class LocalHashTableV2Base {
       for (int k = 0; k < 2; k++) {
         final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
         localHashTable.put(atomicOperation, key, String.valueOf(key));
-        manager.endAtomicOperation(k == 0 ? new OCommandInterruptedException("") : null);
+        manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
       }
       keys.add(key);
       Assert.assertEquals(localHashTable.get(key), String.valueOf(key));
@@ -99,7 +99,7 @@ public abstract class LocalHashTableV2Base {
       for (int k = 0; k < 2; k++) {
         final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
         localHashTable.put(atomicOperation, key, String.valueOf(key));
-        manager.endAtomicOperation(k == 0 ? new OCommandInterruptedException("") : null);
+        manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
       }
 
       keys.add(key);
@@ -111,7 +111,7 @@ public abstract class LocalHashTableV2Base {
         for (int k = 0; k < 2; k++) {
           final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
           localHashTable.remove(atomicOperation, key);
-          manager.endAtomicOperation(k == 0 ? new OCommandInterruptedException("") : null);
+          manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
         }
       }
     }
@@ -206,7 +206,7 @@ public abstract class LocalHashTableV2Base {
     for (int k = 0; k < 2; k++) {
       final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
       localHashTable.put(atomicOperation, null, "null");
-      manager.endAtomicOperation(k == 0 ? new OCommandInterruptedException("") : null);
+      manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
     }
 
     for (int i = 0; i < 10; i++) {
@@ -226,7 +226,7 @@ public abstract class LocalHashTableV2Base {
     for (int k = 0; k < 2; k++) {
       final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
       Assert.assertEquals(localHashTable.remove(atomicOperation, null), "null");
-      manager.endAtomicOperation(k == 0 ? new OCommandInterruptedException("") : null);
+      manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
     }
 
     for (int i = 0; i < 5; i++) {
@@ -261,7 +261,7 @@ public abstract class LocalHashTableV2Base {
       for (int k = 0; k < 2; k++) {
         final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
         localHashTable.put(atomicOperation, key, String.valueOf(key));
-        manager.endAtomicOperation(k == 0 ? new OCommandInterruptedException("") : null);
+        manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
       }
 
       keys.add(key);
@@ -272,7 +272,7 @@ public abstract class LocalHashTableV2Base {
         for (int k = 0; k < 2; k++) {
           final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
           localHashTable.remove(atomicOperation, key);
-          manager.endAtomicOperation(k == 0 ? new OCommandInterruptedException("") : null);
+          manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
         }
       }
     }
@@ -304,7 +304,7 @@ public abstract class LocalHashTableV2Base {
         }
 
         atomicOperationsManager.endAtomicOperation(
-            k == 0 ? new OCommandInterruptedException("") : null);
+            k == 0 ? new YTCommandInterruptedException("") : null);
       }
     }
   }

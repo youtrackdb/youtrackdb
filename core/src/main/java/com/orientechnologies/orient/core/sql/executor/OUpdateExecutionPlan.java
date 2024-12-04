@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class OUpdateExecutionPlan extends OSelectExecutionPlan {
     executeInternal();
   }
 
-  public void executeInternal() throws OCommandExecutionException {
+  public void executeInternal() throws YTCommandExecutionException {
     OExecutionStream nextBlock = super.start();
     while (nextBlock.hasNext(ctx)) {
       result.add(nextBlock.next(ctx));

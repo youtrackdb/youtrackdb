@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.OSequenceException;
+import com.orientechnologies.orient.core.exception.YTSequenceException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
@@ -37,10 +37,10 @@ public class SequenceTest extends DocumentDBBaseTest {
 
     YTSequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
 
-    OSequenceException err = null;
+    YTSequenceException err = null;
     try {
       sequenceLibrary.createSequence(sequenceName, sequenceType, null);
-    } catch (OSequenceException se) {
+    } catch (YTSequenceException se) {
       err = se;
     }
     Assert.assertTrue(
@@ -70,10 +70,10 @@ public class SequenceTest extends DocumentDBBaseTest {
 
     YTSequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
 
-    OSequenceException err = null;
+    YTSequenceException err = null;
     try {
       sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
-    } catch (OSequenceException se) {
+    } catch (YTSequenceException se) {
       err = se;
     }
     Assert.assertTrue(

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -282,16 +282,16 @@ public class OCreatePropertyStatementExecutionTest extends DBTestBase {
     assertEquals(idProperty.getDefaultValue(), "5");
   }
 
-  @Test(expected = OCommandExecutionException.class)
+  @Test(expected = YTCommandExecutionException.class)
   public void testInvalidAttributeName() throws Exception {
-    db.command("CREATE CLASS OCommandExecutionException").close();
+    db.command("CREATE CLASS YTCommandExecutionException").close();
     db.command(
-            "CREATE PROPERTY OCommandExecutionException.id INTEGER (MANDATORY, INVALID, NOTNULL) "
+            "CREATE PROPERTY YTCommandExecutionException.id INTEGER (MANDATORY, INVALID, NOTNULL) "
                 + " UNSAFE")
         .close();
   }
 
-  @Test(expected = OCommandExecutionException.class)
+  @Test(expected = YTCommandExecutionException.class)
   public void testMissingAttributeValue() throws Exception {
     db.command("CREATE CLASS testMissingAttributeValue").close();
     db.command("CREATE PROPERTY testMissingAttributeValue.id INTEGER (DEFAULT)  UNSAFE").close();

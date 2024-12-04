@@ -2,20 +2,20 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -66,13 +66,13 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
    */
   private Object execute(OCommandContext ctx) {
     if (destField == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     if (database.getDatabaseOwner() == null) {
-      throw new OCommandSQLParsingException(
+      throw new YTCommandSQLParsingException(
           "This command supports only the database type YTDatabaseDocumentTx and type '"
               + database.getClass()
               + "' was found");
@@ -86,7 +86,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
             .getImmutableSchemaSnapshot()
             .getClass(this.sourceClass.getStringValue());
     if (sourceClass == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Source class '" + this.sourceClass.getStringValue() + "' not found");
     }
 
@@ -96,7 +96,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
             .getImmutableSchemaSnapshot()
             .getClass(this.destClass.getStringValue());
     if (destClass == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Destination class '" + this.destClass.getStringValue() + "' not found");
     }
 
@@ -163,7 +163,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
             if (result == null || result.size() == 0) {
               value = null;
             } else if (result.size() > 1) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot create link because multiple records was found in class '"
                       + txDestClass.getName()
                       + "' with value "
@@ -237,7 +237,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
           destClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
             if (linkType != prop.getType()) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot create the link because the property '"
                       + linkName
                       + "' already exists for class "
@@ -248,7 +248,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
                       + linkType);
             }
           } else {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Cannot create the link because the property '"
                     + linkName
                     + "' does not exist in class '"
@@ -261,7 +261,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
           sourceClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
             if (prop.getType() != YTType.LINK) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot create the link because the property '"
                       + linkName
                       + "' already exists for class "
@@ -272,7 +272,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
                       + YTType.LINK);
             }
           } else {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Cannot create the link because the property '"
                     + linkName
                     + "' does not exist in class '"
@@ -283,8 +283,8 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
       }
 
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OCommandExecutionException("Error on creation of links"), e);
+      throw YTException.wrapException(
+          new YTCommandExecutionException("Error on creation of links"), e);
     }
     return total[0];
   }

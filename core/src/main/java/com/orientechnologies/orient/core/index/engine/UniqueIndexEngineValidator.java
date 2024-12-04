@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.index.engine;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexUnique;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 
 public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, YTRID> {
 
@@ -28,7 +28,7 @@ public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, 
         final Boolean mergeSameKey =
             metadata != null ? (Boolean) metadata.get(OIndexInternal.MERGE_KEYS) : Boolean.FALSE;
         if (mergeSameKey == null || !mergeSameKey) {
-          throw new ORecordDuplicatedException(
+          throw new YTRecordDuplicatedException(
               String.format(
                   "Cannot index record %s: found duplicated key '%s' in index '%s' previously"
                       + " assigned to the record %s",

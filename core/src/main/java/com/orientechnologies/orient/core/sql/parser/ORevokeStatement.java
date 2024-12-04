@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -32,7 +32,7 @@ public class ORevokeStatement extends OSimpleExecStatement {
     YTDatabaseSessionInternal db = ctx.getDatabase();
     ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null) {
-      throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());
+      throw new YTCommandExecutionException("Invalid role: " + actor.getStringValue());
     }
 
     String resourcePath = securityResource.toString();
@@ -71,7 +71,7 @@ public class ORevokeStatement extends OSimpleExecStatement {
     } else if ("NONE".equals(privilegeName)) {
       privilege = ORole.PERMISSION_NONE;
     } else {
-      throw new OCommandExecutionException("Unrecognized privilege '" + privilegeName + "'");
+      throw new YTCommandExecutionException("Unrecognized privilege '" + privilegeName + "'");
     }
     return privilege;
   }

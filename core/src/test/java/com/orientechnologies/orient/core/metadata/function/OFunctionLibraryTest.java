@@ -19,7 +19,7 @@ public class OFunctionLibraryTest extends DBTestBase {
     assertNotNull(func);
   }
 
-  @Test(expected = OFunctionDuplicatedException.class)
+  @Test(expected = YTFunctionDuplicatedException.class)
   public void testDuplicateFunctionCreate() {
     OFunction func = db.getMetadata().getFunctionLibrary().createFunction("TestFunc");
     assertNotNull(func);

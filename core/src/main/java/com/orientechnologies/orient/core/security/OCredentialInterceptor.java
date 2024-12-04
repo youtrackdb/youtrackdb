@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.security;
 
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 
 /**
  * Provides a basic credential interceptor interface.
@@ -31,5 +31,5 @@ public interface OCredentialInterceptor {
   String getPassword();
 
   void intercept(final String url, final String username, final String password)
-      throws OSecurityException;
+      throws YTSecurityException;
 }

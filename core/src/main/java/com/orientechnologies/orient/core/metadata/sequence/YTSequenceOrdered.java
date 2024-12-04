@@ -39,7 +39,7 @@ public class YTSequenceOrdered extends YTSequence {
   }
 
   @Override
-  public long nextWork() throws OSequenceLimitReachedException {
+  public long nextWork() throws YTSequenceLimitReachedException {
     return callRetry(
         (db, doc) -> {
           long newValue;
@@ -52,7 +52,7 @@ public class YTSequenceOrdered extends YTSequence {
               if (getRecyclable(doc)) {
                 newValue = getStart(doc);
               } else {
-                throw new OSequenceLimitReachedException("Limit reached");
+                throw new YTSequenceLimitReachedException("Limit reached");
               }
             }
           } else {
@@ -61,7 +61,7 @@ public class YTSequenceOrdered extends YTSequence {
               if (getRecyclable(doc)) {
                 newValue = getStart(doc);
               } else {
-                throw new OSequenceLimitReachedException("Limit reached");
+                throw new YTSequenceLimitReachedException("Limit reached");
               }
             }
           }

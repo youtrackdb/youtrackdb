@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.types.OModifiableInteger;
@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
@@ -697,7 +697,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
         ODatabaseRecordThreadLocal.instance().get();
     var tx = databaseDocumentInternal.getTransaction();
     if (!(tx instanceof OTransactionOptimistic optimisticTx)) {
-      throw new ODatabaseException("Changes are not supported outside of transactions");
+      throw new YTDatabaseException("Changes are not supported outside of transactions");
     }
 
     boolean remoteMode = databaseDocumentInternal.isRemote();
@@ -723,7 +723,8 @@ public class OSBTreeRidBag implements ORidBagDelegate {
                   .getSbTreeCollectionManager()
                   .createSBTree(clusterId, atomicOperation, ownerUuid);
         } catch (IOException e) {
-          throw OException.wrapException(new ODatabaseException("Error during ridbag creation"), e);
+          throw YTException.wrapException(new YTDatabaseException("Error during ridbag creation"),
+              e);
         }
       }
     }

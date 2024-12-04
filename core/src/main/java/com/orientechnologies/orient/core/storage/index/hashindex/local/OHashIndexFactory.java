@@ -20,14 +20,14 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local;
 
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.index.OIndexDictionary;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.OIndexNotUnique;
 import com.orientechnologies.orient.core.index.OIndexUnique;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -82,7 +82,7 @@ public final class OHashIndexFactory implements OIndexFactory {
   }
 
   public OIndexInternal createIndex(final OStorage storage, final OIndexMetadata im)
-      throws OConfigurationException {
+      throws YTConfigurationException {
     int version = im.getVersion();
     final String indexType = im.getType();
     final String algorithm = im.getAlgorithm();
@@ -100,7 +100,7 @@ public final class OHashIndexFactory implements OIndexFactory {
       return new OIndexDictionary(im, storage);
     }
 
-    throw new OConfigurationException("Unsupported type: " + indexType);
+    throw new YTConfigurationException("Unsupported type: " + indexType);
   }
 
   @Override
@@ -131,7 +131,7 @@ public final class OHashIndexFactory implements OIndexFactory {
         indexEngine = new ORemoteIndexEngine(data.getIndexId(), data.getName());
         break;
       default:
-        throw new OIndexException("Unsupported storage type: " + storageType);
+        throw new YTIndexException("Unsupported storage type: " + storageType);
     }
 
     return indexEngine;

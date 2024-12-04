@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security.binary;
 
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.security.jwt.OBinaryTokenPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenMetaInfo;
@@ -48,7 +48,7 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
       case "YouTrackDB":
         return new OBinaryTokenPayloadDeserializer();
     }
-    throw new ODatabaseException("Unknown payload type");
+    throw new YTDatabaseException("Unknown payload type");
   }
 
   public OBinaryTokenSerializer() {

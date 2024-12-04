@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.functions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -104,7 +104,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     resultSet.close();
   }
 
-  @Test(expected = OCommandExecutionException.class)
+  @Test(expected = YTCommandExecutionException.class)
   public void shouldFailWithWrongFieldName() throws Exception {
     db.query(
         "SELECT from Song where SEARCH_FIELDS(['wrongName'], '(description:happiness) (lyrics:sad) "

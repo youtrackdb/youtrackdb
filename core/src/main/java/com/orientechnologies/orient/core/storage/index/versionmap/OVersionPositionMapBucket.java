@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.storage.index.versionmap;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 
@@ -43,7 +43,7 @@ public final class OVersionPositionMapBucket extends ODurablePage {
     final int entryPosition = entryPosition(index); // ENTRIES_OFFSET + ridBagId * ENTRY_SIZE;
     final int value = getIntValue(entryPosition);
     if (value < 0) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Entry with index " + index + " might be deleted and can not be used.");
     }
     return value;
@@ -53,7 +53,7 @@ public final class OVersionPositionMapBucket extends ODurablePage {
     final int entryPosition = entryPosition(index);
     final int value = getIntValue(entryPosition);
     if (value < 0) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Entry with index " + index + " might be deleted and can not be used.");
     }
     setIntValue(entryPosition, value + 1);

@@ -20,10 +20,10 @@
 
 package com.orientechnologies.orient.core.metadata.sequence;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
-import com.orientechnologies.orient.core.exception.OSequenceException;
+import com.orientechnologies.orient.core.exception.YTSequenceException;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -116,7 +116,7 @@ public class OSequenceLibraryImpl {
       try {
         database.delete(seq.docRid);
         sequences.remove(iName.toUpperCase(Locale.ENGLISH));
-      } catch (ONeedRetryException e) {
+      } catch (YTNeedRetryException e) {
         var rec = database.load(seq.docRid);
         rec.delete();
       }
@@ -171,7 +171,7 @@ public class OSequenceLibraryImpl {
 
   private void validateSequenceNoExists(final String iName) {
     if (sequences.containsKey(iName)) {
-      throw new OSequenceException("Sequence '" + iName + "' already exists");
+      throw new YTSequenceException("Sequence '" + iName + "' already exists");
     }
   }
 

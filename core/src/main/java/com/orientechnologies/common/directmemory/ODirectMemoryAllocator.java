@@ -21,7 +21,7 @@
 package com.orientechnologies.common.directmemory;
 
 import com.kenai.jffi.MemoryIO;
-import com.orientechnologies.common.exception.ODirectMemoryAllocationFailedException;
+import com.orientechnologies.common.exception.YTDirectMemoryAllocationFailedException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.types.OModifiableLong;
 import com.orientechnologies.orient.core.YouTrackDBManager;
@@ -154,7 +154,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
    * @param clear     clears memory if needed
    * @param intention Why this memory is allocated. This parameter is used for memory profiling.
    * @return Pointer to allocated memory
-   * @throws ODirectMemoryAllocationFailedException if it is impossible to allocate amount of direct
+   * @throws YTDirectMemoryAllocationFailedException if it is impossible to allocate amount of direct
    *                                                memory of given size
    */
   public OPointer allocate(int size, boolean clear, Intention intention) {
@@ -175,7 +175,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     }
 
     if (pointer <= 0) {
-      throw new ODirectMemoryAllocationFailedException(
+      throw new YTDirectMemoryAllocationFailedException(
           "Can not allocate direct memory chunk of size " + size);
     }
 

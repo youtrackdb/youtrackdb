@@ -25,8 +25,8 @@ import com.orientechnologies.common.util.OMultiKey;
 import com.orientechnologies.common.util.OUncaughtExceptionHandler;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -34,14 +34,14 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
+import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
-import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -141,11 +141,11 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     try {
       final OIndex index = indexes.get(indexName);
       if (index == null) {
-        throw new OIndexException("Index with name " + indexName + " does not exist.");
+        throw new YTIndexException("Index with name " + indexName + " does not exist.");
       }
 
       if (index.getInternal() == null) {
-        throw new OIndexException(
+        throw new YTIndexException(
             "Index with name " + indexName + " has no internal presentation.");
       }
       if (!index.getInternal().getClusters().contains(clusterName)) {
@@ -171,7 +171,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     try {
       final OIndex index = indexes.get(indexName);
       if (index == null) {
-        throw new OIndexException("Index with name " + indexName + " does not exist.");
+        throw new YTIndexException("Index with name " + indexName + " does not exist.");
       }
       index.getInternal().removeCluster(session, clusterName);
     } finally {
@@ -646,7 +646,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     try {
 
       if (indexes.containsKey(iName)) {
-        throw new OIndexException("Index with name " + iName + " already exists.");
+        throw new YTIndexException("Index with name " + iName + " already exists.");
       }
 
       // manual indexes are always durable
@@ -754,7 +754,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
       if (indexedAndFilteredProperties.size() > 0) {
         try (Stream<OSecurityResourceProperty> stream = indexedAndFilteredProperties.stream()) {
-          throw new OIndexException(
+          throw new YTIndexException(
               "Cannot create index on "
                   + indexClass
                   + "["
@@ -791,7 +791,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       for (int clusterId : clusterIdsToIndex) {
         final String clusterNameToIndex = database.getClusterNameById(clusterId);
         if (clusterNameToIndex == null) {
-          throw new OIndexException("Cluster with id " + clusterId + " does not exist.");
+          throw new YTIndexException("Cluster with id " + clusterId + " does not exist.");
         }
 
         clustersToIndex.add(clusterNameToIndex);

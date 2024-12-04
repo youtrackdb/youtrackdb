@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.PatternEdge;
 import com.orientechnologies.orient.core.sql.executor.PatternNode;
 import java.util.ArrayList;
@@ -57,17 +57,17 @@ public class Pattern {
     for (PatternNode node : this.aliasToNode.values()) {
       if (node.isOptionalNode()) {
         if (node.out.size() > 0) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "In current MATCH version, optional nodes are allowed only on right terminal nodes,"
                   + " eg. {} --> {optional:true} is allowed, {optional:true} <-- {} is not. ");
         }
         if (node.in.size() == 0) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "In current MATCH version, optional nodes must have at least one incoming pattern"
                   + " edge");
         }
         //        if (node.in.size() != 1) {
-        //          throw new OCommandSQLParsingException("In current MATCH version, optional nodes
+        //          throw new YTCommandSQLParsingException("In current MATCH version, optional nodes
         // are allowed only as single terminal nodes. ");
         //        }
       }

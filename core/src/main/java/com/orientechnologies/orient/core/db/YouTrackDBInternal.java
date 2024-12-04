@@ -20,11 +20,11 @@
 
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -62,7 +62,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
     } else if ("remote".equals(what)) {
       return remote(url.substring(url.indexOf(':') + 1).split(";"), configuration);
     }
-    throw new ODatabaseException("not supported database type");
+    throw new YTDatabaseException("not supported database type");
   }
 
   default YouTrackDB newOrientDB() {
@@ -105,11 +105,11 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
              | NoSuchMethodException
              | IllegalAccessException
              | InstantiationException e) {
-      throw OException.wrapException(new ODatabaseException("YouTrackDB client API missing"), e);
+      throw YTException.wrapException(new YTDatabaseException("YouTrackDB client API missing"), e);
     } catch (InvocationTargetException e) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      throw OException.wrapException(
-          new ODatabaseException("Error creating YouTrackDB remote factory"),
+      throw YTException.wrapException(
+          new YTDatabaseException("Error creating YouTrackDB remote factory"),
           e.getTargetException());
     }
     return factory;
@@ -154,12 +154,12 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
              | NoSuchMethodException
              | IllegalAccessException
              | InstantiationException e) {
-      throw OException.wrapException(new ODatabaseException("YouTrackDB distributed API missing"),
+      throw YTException.wrapException(new YTDatabaseException("YouTrackDB distributed API missing"),
           e);
     } catch (InvocationTargetException e) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      throw OException.wrapException(
-          new ODatabaseException("Error creating YouTrackDB remote factory"),
+      throw YTException.wrapException(
+          new YTDatabaseException("Error creating YouTrackDB remote factory"),
           e.getTargetException());
     }
     return factory;

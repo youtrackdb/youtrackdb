@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.orient.core.exception.OAcquireTimeoutException;
+import com.orientechnologies.orient.core.exception.YTAcquireTimeoutException;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 
@@ -162,9 +162,9 @@ public class ODatabasePool implements AutoCloseable {
    * available or a timeout is reached
    *
    * @return a session from the pool.
-   * @throws OAcquireTimeoutException in case the timeout for waiting for a session is reached.
+   * @throws YTAcquireTimeoutException in case the timeout for waiting for a session is reached.
    */
-  public YTDatabaseSession acquire() throws OAcquireTimeoutException {
+  public YTDatabaseSession acquire() throws YTAcquireTimeoutException {
     return internal.acquire();
   }
 

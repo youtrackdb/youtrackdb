@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
@@ -40,13 +40,14 @@ public class ODeleteExecutionPlanner {
     if (handleIndexAsTarget(
         result, fromClause.getItem().getIndex(), whereClause, ctx, enableProfiling)) {
       if (limit != null) {
-        throw new OCommandExecutionException("Cannot apply a LIMIT on a delete from index");
+        throw new YTCommandExecutionException("Cannot apply a LIMIT on a delete from index");
       }
       if (unsafe) {
-        throw new OCommandExecutionException("Cannot apply a UNSAFE on a delete from index");
+        throw new YTCommandExecutionException("Cannot apply a UNSAFE on a delete from index");
       }
       if (returnBefore) {
-        throw new OCommandExecutionException("Cannot apply a RETURN BEFORE on a delete from index");
+        throw new YTCommandExecutionException(
+            "Cannot apply a RETURN BEFORE on a delete from index");
       }
 
       handleReturn(result, ctx, this.returnBefore, enableProfiling);
@@ -73,7 +74,7 @@ public class ODeleteExecutionPlanner {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
-      throw new OCommandExecutionException("Index not found: " + indexName);
+      throw new YTCommandExecutionException("Index not found: " + indexName);
     }
     List<OAndBlock> flattenedWhereClause = whereClause == null ? null : whereClause.flatten();
 
@@ -85,11 +86,11 @@ public class ODeleteExecutionPlanner {
         OBooleanExpression ridCondition = null;
         if (flattenedWhereClause == null || flattenedWhereClause.size() == 0) {
           if (!index.supportsOrderedIterations()) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Index " + indexName + " does not allow iteration without a condition");
           }
         } else if (flattenedWhereClause.size() > 1) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index queries with this kind of condition are not supported yet: " + whereClause);
         } else {
           OAndBlock andBlock = flattenedWhereClause.get(0);
@@ -100,7 +101,7 @@ public class ODeleteExecutionPlanner {
             flattenedWhereClause = null;
             keyCondition = getKeyCondition(andBlock);
             if (keyCondition == null) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Index queries with this kind of condition are not supported yet: "
                       + whereClause);
             }
@@ -111,12 +112,12 @@ public class ODeleteExecutionPlanner {
             keyCondition = getKeyCondition(andBlock);
             ridCondition = getRidCondition(andBlock);
             if (keyCondition == null || ridCondition == null) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Index queries with this kind of condition are not supported yet: "
                       + whereClause);
             }
           } else {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Index queries with this kind of condition are not supported yet: " + whereClause);
           }
         }
@@ -132,7 +133,7 @@ public class ODeleteExecutionPlanner {
       case VALUES:
       case VALUESASC:
         if (!index.supportsOrderedIterations()) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(
@@ -142,7 +143,7 @@ public class ODeleteExecutionPlanner {
         break;
       case VALUESDESC:
         if (!index.supportsOrderedIterations()) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(

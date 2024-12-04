@@ -21,17 +21,17 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.concur.lock.OOneEntryPerKeyLockManager;
 import com.orientechnologies.common.concur.lock.OPartitionedLockManager;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.exception.OManualIndexesAreProhibited;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTManualIndexesAreProhibited;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysLessKey;
@@ -39,9 +39,10 @@ import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.index.iterator.OIndexCursorStream;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -124,8 +125,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
                      | InstantiationException
                      | InvocationTargetException
                      | NoSuchMethodException e) {
-        throw OException.wrapException(
-            new OIndexException("Error during deserialization of index definition"), e);
+        throw YTException.wrapException(
+            new YTIndexException("Error during deserialization of index definition"), e);
       }
     } else {
       // @COMPATIBILITY 1.0rc6 new index model was implemented
@@ -134,7 +135,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
       if (Boolean.TRUE.equals(isAutomatic)) {
         final int pos = indexName.lastIndexOf('.');
         if (pos < 0) {
-          throw new OIndexException(
+          throw new YTIndexException(
               "Cannot convert from old index model to new one. "
                   + "Invalid index name. Dot (.) separator should be present");
         }
@@ -143,7 +144,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
         final String keyTypeStr = config.field(OIndexInternal.CONFIG_KEYTYPE);
         if (keyTypeStr == null) {
-          throw new OIndexException(
+          throw new YTIndexException(
               "Cannot convert from old index model to new one. " + "Index key type is absent");
         }
         final YTType keyType = YTType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
@@ -241,8 +242,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
       if (indexId >= 0) {
         doDelete(session);
       }
-      throw OException.wrapException(
-          new OIndexException("Cannot create the index '" + im.getName() + "'"), e);
+      throw YTException.wrapException(
+          new YTIndexException("Cannot create the index '" + im.getName() + "'"), e);
     } finally {
       releaseExclusiveLock();
     }
@@ -503,8 +504,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
         // ERROR
       }
 
-      throw OException.wrapException(
-          new OIndexException("Error on rebuilding the index for clusters: " + clustersToIndex), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error on rebuilding the index for clusters: " + clustersToIndex),
+          e);
     } finally {
       releaseExclusiveLock();
     }
@@ -524,8 +526,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
         // ERROR
       }
 
-      throw OException.wrapException(
-          new OIndexException("Error on rebuilding the index for clusters: " + clustersToIndex), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error on rebuilding the index for clusters: " + clustersToIndex),
+          e);
     } finally {
       releaseSharedLock();
     }
@@ -634,7 +637,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
               remove(session, entry.first, entry.second);
             });
           }
-        } catch (OIndexEngineException e) {
+        } catch (YTIndexEngineException e) {
           throw e;
         } catch (RuntimeException e) {
           OLogManager.instance().error(this, "Error Dropping Index %s", e, getName());
@@ -645,7 +648,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
           try (Stream<YTRID> stream = getRids(session, null)) {
             stream.forEach((rid) -> remove(session, null, rid));
           }
-        } catch (OIndexEngineException e) {
+        } catch (YTIndexEngineException e) {
           throw e;
         } catch (RuntimeException e) {
           OLogManager.instance().error(this, "Error Dropping Index %s", e, getName());
@@ -774,7 +777,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
    * cases this is a requirement. For example, if you put multiple values under the same key during
    * the transaction for single-valued/unique index, but remove all of them except one before
    * commit, there is no point in throwing
-   * {@link com.orientechnologies.orient.core.storage.ORecordDuplicatedException} while applying
+   * {@link YTRecordDuplicatedException} while applying
    * index changes.
    *
    * @param changes the changes to interpret.
@@ -934,7 +937,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
       long documentIndexed,
       long documentTotal) {
     if (im.getIndexDefinition() == null) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Index '"
               + im.getName()
               + "' cannot be rebuilt because has no a valid definition ("
@@ -947,7 +950,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     var clusterIterator = session.browseCluster(clusterName);
     session.executeInTxBatches((Iterator<YTRecord>) clusterIterator, (db, record) -> {
       if (Thread.interrupted()) {
-        throw new OCommandExecutionException("The index rebuild has been interrupted");
+        throw new YTCommandExecutionException("The index rebuild has been interrupted");
       }
 
       if (record instanceof YTDocument doc) {
@@ -1034,7 +1037,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   public static void manualIndexesWarning() {
     if (!YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getValueAsBoolean()) {
-      throw new OManualIndexesAreProhibited(
+      throw new YTManualIndexesAreProhibited(
           "Manual indexes are deprecated, not supported any more and will be removed in next"
               + " versions if you still want to use them, please set global property `"
               + YTGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.getKey()

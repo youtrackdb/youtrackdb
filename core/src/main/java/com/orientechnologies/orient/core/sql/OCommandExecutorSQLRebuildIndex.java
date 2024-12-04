@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import java.util.Map;
 
@@ -54,21 +54,21 @@ public class OCommandExecutorSQLRebuildIndex extends OCommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_REBUILD)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_REBUILD + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException("Expected index name", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Expected index name", parserText, oldPos);
       }
 
       name = word.toString();
@@ -85,7 +85,7 @@ public class OCommandExecutorSQLRebuildIndex extends OCommandExecutorSQLAbstract
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (name == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -103,11 +103,11 @@ public class OCommandExecutorSQLRebuildIndex extends OCommandExecutorSQLAbstract
     } else {
       final OIndex idx = database.getMetadata().getIndexManagerInternal().getIndex(database, name);
       if (idx == null) {
-        throw new OCommandExecutionException("Index '" + name + "' not found");
+        throw new YTCommandExecutionException("Index '" + name + "' not found");
       }
 
       if (!idx.isAutomatic()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot rebuild index '"
                 + name
                 + "' because it's manual and there aren't indications of what to index");

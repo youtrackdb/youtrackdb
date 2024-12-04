@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
@@ -66,21 +66,21 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CLASS + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Expected <class>", parserText, oldPos);
       }
 
       className = decodeClassName(word.toString());
@@ -88,7 +88,7 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missed the class's attribute to change", parserText, oldPos);
       }
 
@@ -97,8 +97,8 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
       try {
         attribute = YTClass.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw OException.wrapException(
-            new OCommandSQLParsingException(
+        throw YTException.wrapException(
+            new YTCommandSQLParsingException(
                 "Unknown class's attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
@@ -127,7 +127,7 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
         }
       }
       if (value.length() == 0) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missed the property's value to change for attribute '" + attribute + "'",
             parserText,
             oldPos);
@@ -149,18 +149,18 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     final var database = getDatabase();
     if (attribute == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final YTClassImpl cls = (YTClassImpl) database.getMetadata().getSchema().getClass(className);
     if (cls == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot alter class '" + className + "' because not found");
     }
 
     if (!unsafe && attribute == ATTRIBUTES.NAME && cls.isSubClassOf("E")) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot alter class '"
               + className
               + "' because is an Edge class and could break vertices. Use UNSAFE if you want to"
@@ -178,7 +178,7 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
     }
     if (!unsafe && value != null && attribute == ATTRIBUTES.NAME) {
       if (!cls.getIndexes(database).isEmpty()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot rename class '"
                 + className
                 + "' because it has indexes defined on it. Drop indexes before or use UNSAFE (at"
@@ -207,7 +207,7 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
         .getImmutableSchemaSnapshot()
         .getClass(decodeClassName(superClass))
         == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot alter superClass of '"
               + targetClass
               + "' because "

@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class OJsonWithCustom {
     YTGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testCustomFieldDisabled() {
     YTDocument doc = new YTDocument();
     doc.field("test", String.class, YTType.CUSTOM);

@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OBasicLegacyResultSet;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
@@ -75,7 +75,7 @@ public class OSQLScriptEngine implements ScriptEngine {
   public Object eval(String script, Bindings n) throws ScriptException {
     YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
-      throw new OCommandExecutionException("No database available in threadlocal");
+      throw new YTCommandExecutionException("No database available in threadlocal");
     }
     Map<Object, Object> params = convertToParameters(n);
     OResultSet queryResult;

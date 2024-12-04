@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassEmbedded;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
@@ -89,55 +89,57 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_PROPERTY + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
       }
 
       String[] parts = split(word);
       if (parts.length != 2) {
-        throw new OCommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new OCommandSQLParsingException("Class not found", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Class not found", parserText, oldPos);
       }
       fieldName = decodeClassName(parts[1]);
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException("Missed property type", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Missed property type", parserText, oldPos);
       }
       if ("IF".equalsIgnoreCase(word.toString())) {
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new OCommandSQLParsingException("Missed property type", parserText, oldPos);
+          throw new YTCommandSQLParsingException("Missed property type", parserText, oldPos);
         }
         if (!"NOT".equalsIgnoreCase(word.toString())) {
-          throw new OCommandSQLParsingException("Expected NOT EXISTS after IF", parserText, oldPos);
+          throw new YTCommandSQLParsingException("Expected NOT EXISTS after IF", parserText,
+              oldPos);
         }
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new OCommandSQLParsingException("Missed property type", parserText, oldPos);
+          throw new YTCommandSQLParsingException("Missed property type", parserText, oldPos);
         }
         if (!"EXISTS".equalsIgnoreCase(word.toString())) {
-          throw new OCommandSQLParsingException("Expected EXISTS after IF NOT", parserText, oldPos);
+          throw new YTCommandSQLParsingException("Expected EXISTS after IF NOT", parserText,
+              oldPos);
         }
         this.ifNotExists = true;
 
@@ -216,7 +218,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
   }
 
   private void onInvalidAttributeDefinition(String attDef) {
-    throw new OCommandSQLParsingException("Invalid attribute definition: '" + attDef + "'");
+    throw new YTCommandSQLParsingException("Invalid attribute definition: '" + attDef + "'");
   }
 
   private boolean getOptionalBoolean(String[] parts) {
@@ -289,7 +291,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (type == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -297,7 +299,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
     final YTClassEmbedded sourceClass =
         (YTClassEmbedded) database.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
-      throw new OCommandExecutionException("Source class '" + className + "' not found");
+      throw new YTCommandExecutionException("Source class '" + className + "' not found");
     }
 
     YTPropertyImpl prop = (YTPropertyImpl) sourceClass.getProperty(fieldName);
@@ -306,7 +308,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
       if (ifNotExists) {
         return sourceClass.properties(database).size();
       }
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Property '"
               + className
               + "."

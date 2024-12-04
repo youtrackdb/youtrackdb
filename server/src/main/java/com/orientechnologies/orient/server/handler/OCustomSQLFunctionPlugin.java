@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server.handler;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.functions.OCustomSQLFunctionFactory;
 import com.orientechnologies.orient.server.OServer;
@@ -43,7 +43,7 @@ public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
             .findFirst()
             .orElseThrow(
                 () ->
-                    new OConfigurationException(
+                    new YTConfigurationException(
                         "Custom SQL functions configuration file not found"));
 
     try {
@@ -52,8 +52,8 @@ public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
       configuration = new YTDocument();
       configuration.fromJSON(configurationContent);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OConfigurationException(
+      throw YTException.wrapException(
+          new YTConfigurationException(
               "Cannot load Custom SQL configuration file '"
                   + configFile
                   + "'. No custom functions will be disabled"),
@@ -90,11 +90,11 @@ public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
         final String prefix = function.get("prefix");
         final String clazz = function.get("class");
         if (prefix == null || clazz == null) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Unable to load functions without prefix and / or class ");
         }
         if (!prefix.matches("^[\\pL]+$")) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Unable to load functions with prefix '"
                   + prefix
                   + "'. Prefixes can be letters only");
@@ -104,8 +104,8 @@ public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
           Class functionsClass = Class.forName(clazz);
           OCustomSQLFunctionFactory.register(prefix + PREFIX_NAME_SEPARATOR, functionsClass);
         } catch (ClassNotFoundException e) {
-          throw OException.wrapException(
-              new OConfigurationException(
+          throw YTException.wrapException(
+              new YTConfigurationException(
                   "Unable to load class " + clazz + " for custom functions with prefix " + prefix),
               e);
         }

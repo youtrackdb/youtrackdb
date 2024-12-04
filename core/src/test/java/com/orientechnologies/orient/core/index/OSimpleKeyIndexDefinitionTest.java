@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
     Assert.assertNull(result);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testWrongParamTypeListItem() {
     simpleKeyIndexDefinition.createValue(db, Arrays.asList("a", "3"));
   }
@@ -105,7 +105,7 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
     Assert.assertNull(result);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testWrongParamType() {
     simpleKeyIndexDefinition.createValue(db, "a", "3");
   }
@@ -158,7 +158,7 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
     Assert.assertEquals(loadedKeyIndexDefinition, simpleKeyIndexDefinition);
   }
 
-  @Test(expected = OIndexException.class)
+  @Test(expected = YTIndexException.class)
   public void testGetDocumentValueToIndex() {
     simpleKeyIndexDefinition.getDocumentValueToIndex(db, new YTDocument());
   }

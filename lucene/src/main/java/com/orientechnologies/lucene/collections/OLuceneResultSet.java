@@ -18,12 +18,12 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineUtils;
-import com.orientechnologies.lucene.exception.OLuceneIndexException;
+import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesAbstract;
 import com.orientechnologies.orient.core.command.OCommandContext;
@@ -272,7 +272,7 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
         engine.onRecordAddedToResultSet(queryContext, res, doc, score);
         return res;
       } catch (IOException | InvalidTokenOffsetsException e) {
-        throw OException.wrapException(new OLuceneIndexException("error while highlighting"), e);
+        throw YTException.wrapException(new YTLuceneIndexException("error while highlighting"), e);
       }
     }
 

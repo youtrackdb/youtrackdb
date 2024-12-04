@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -109,15 +109,15 @@ public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
     Method method = pickMethod(iParams);
 
     if (method == null) {
-      throw new OQueryParsingException(
+      throw new YTQueryParsingException(
           "Unable to find a function for " + name + paramsPrettyPrint.get());
     }
 
     try {
       return method.invoke(null, iParams);
     } catch (ReflectiveOperationException e) {
-      throw OException.wrapException(
-          new OQueryParsingException("Error executing function " + name + paramsPrettyPrint.get()),
+      throw YTException.wrapException(
+          new YTQueryParsingException("Error executing function " + name + paramsPrettyPrint.get()),
           e);
     } catch (IllegalArgumentException x) {
       OLogManager.instance().error(this, "Error executing function %s", x, name);

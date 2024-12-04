@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.server.network;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
@@ -105,7 +105,7 @@ public class OLiveQueryRemoteTest {
     }
 
     @Override
-    public void onError(YTDatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, YTException exception) {
     }
 
     @Override
@@ -219,7 +219,7 @@ public class OLiveQueryRemoteTest {
                       }
 
                       @Override
-                      public void onError(YTDatabaseSession database, OException exception) {
+                      public void onError(YTDatabaseSession database, YTException exception) {
                       }
 
                       @Override

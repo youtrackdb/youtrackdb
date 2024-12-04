@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import java.io.File;
@@ -54,12 +54,12 @@ public class OURLHelperTest {
     assertEquals("to", parsed.getDbName());
   }
 
-  @Test(expected = OConfigurationException.class)
+  @Test(expected = YTConfigurationException.class)
   public void testWrongPrefix() {
     OURLHelper.parseNew("embd:/path/test/to");
   }
 
-  @Test(expected = OConfigurationException.class)
+  @Test(expected = YTConfigurationException.class)
   public void testNoPrefix() {
     OURLHelper.parseNew("/embd/path/test/to");
   }

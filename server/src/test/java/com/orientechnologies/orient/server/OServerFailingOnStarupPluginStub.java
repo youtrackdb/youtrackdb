@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.server.distributed.ODistributedException;
+import com.orientechnologies.orient.server.distributed.YTDistributedException;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
 
 /**
@@ -10,7 +10,7 @@ public class OServerFailingOnStarupPluginStub extends OServerPluginAbstract {
 
   @Override
   public void startup() {
-    throw new ODistributedException("this plugin is not starting correctly");
+    throw new YTDistributedException("this plugin is not starting correctly");
   }
 
   @Override

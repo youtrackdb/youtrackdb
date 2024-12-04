@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class TestGraphOperations extends DBTestBase {
       db.save(edge);
       db.commit();
       Assert.fail("It should not be inserted  a duplicated edge");
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
 
     }
 

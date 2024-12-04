@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.fetch;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OFetchException;
+import com.orientechnologies.orient.core.exception.YTFetchException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 
@@ -48,7 +48,7 @@ public interface OFetchListener {
       final String iFieldName,
       final YTDocument iLinked,
       final OFetchContext iContext)
-      throws OFetchException;
+      throws YTFetchException;
 
   void parseLinked(
       final YTDocument iRootRecord,
@@ -56,7 +56,7 @@ public interface OFetchListener {
       final Object iUserObject,
       final String iFieldName,
       final OFetchContext iContext)
-      throws OFetchException;
+      throws YTFetchException;
 
   void parseLinkedCollectionValue(
       final YTDocument iRootRecord,
@@ -64,7 +64,7 @@ public interface OFetchListener {
       final Object iUserObject,
       final String iFieldName,
       final OFetchContext iContext)
-      throws OFetchException;
+      throws YTFetchException;
 
   Object fetchLinkedMapEntry(
       final YTDocument iRoot,
@@ -73,7 +73,7 @@ public interface OFetchListener {
       final String iKey,
       final YTDocument iLinked,
       final OFetchContext iContext)
-      throws OFetchException;
+      throws YTFetchException;
 
   Object fetchLinkedCollectionValue(
       final YTDocument iRoot,
@@ -81,7 +81,7 @@ public interface OFetchListener {
       final String iFieldName,
       final YTDocument iLinked,
       final OFetchContext iContext)
-      throws OFetchException;
+      throws YTFetchException;
 
   void processStandardField(
       final YTDocument iRecord,
@@ -91,7 +91,7 @@ public interface OFetchListener {
       final Object iUserObject,
       String iFormat,
       YTType filedType)
-      throws OFetchException;
+      throws YTFetchException;
 
   void skipStandardField(
       final YTDocument iRecord,
@@ -99,5 +99,5 @@ public interface OFetchListener {
       final OFetchContext iContext,
       final Object iUserObject,
       String iFormat)
-      throws OFetchException;
+      throws YTFetchException;
 }

@@ -2,14 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -98,7 +98,7 @@ public class OSuffixIdentifier extends SimpleNode {
             result = ctx.getVariable(varName);
           }
           return result;
-        } catch (OCommandExecutionException rnf) {
+        } catch (YTCommandExecutionException rnf) {
           return null;
         }
       }
@@ -111,7 +111,7 @@ public class OSuffixIdentifier extends SimpleNode {
                 ? (YTEntity) iCurrentRecord
                 : iCurrentRecord.getRecord();
         return recordAttribute.evaluate(rec, ctx);
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
     }
@@ -369,9 +369,9 @@ public class OSuffixIdentifier extends SimpleNode {
         if (rec instanceof YTEntity) {
           doc = (YTEntity) rec;
         }
-      } catch (ORecordNotFoundException rnf) {
-        throw OException.wrapException(
-            new OCommandExecutionException(
+      } catch (YTRecordNotFoundException rnf) {
+        throw YTException.wrapException(
+            new YTCommandExecutionException(
                 "Cannot set record attribute " + recordAttribute + " on existing document"),
             rnf);
       }
@@ -379,7 +379,7 @@ public class OSuffixIdentifier extends SimpleNode {
     if (doc != null) {
       doc.setProperty(identifier.getStringValue(), value);
     } else {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot set record attribute " + recordAttribute + " on existing document");
     }
   }
@@ -406,7 +406,8 @@ public class OSuffixIdentifier extends SimpleNode {
         intTarget.setProperty(recordAttribute.getName(), value);
       }
     } else {
-      throw new OCommandExecutionException("Cannot set property on unmodifiable target: " + target);
+      throw new YTCommandExecutionException(
+          "Cannot set property on unmodifiable target: " + target);
     }
   }
 

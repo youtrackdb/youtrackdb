@@ -19,17 +19,17 @@
  */
 package com.orientechnologies.orient.core.metadata.sequence;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.thread.NonDaemonThreadFactory;
 import com.orientechnologies.common.thread.OThreadPoolExecutorWithLogging;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSequenceException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSequenceException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
@@ -213,7 +213,7 @@ public abstract class YTSequence {
       return switch (val) {
         case 0 -> CACHED;
         case 1 -> ORDERED;
-        default -> throw new OSequenceException("Unknown sequence type: " + val);
+        default -> throw new YTSequenceException("Unknown sequence type: " + val);
       };
     }
   }
@@ -264,7 +264,7 @@ public abstract class YTSequence {
     setSequenceType(document);
   }
 
-  public boolean updateParams(CreateParams params) throws ODatabaseException {
+  public boolean updateParams(CreateParams params) throws YTDatabaseException {
     var db = getDatabase();
     var doc = db.<YTDocument>load(docRid);
     var result = updateParams(doc, params, false);
@@ -273,7 +273,7 @@ public abstract class YTSequence {
   }
 
   boolean updateParams(YTDocument document, CreateParams params, boolean executeViaDistributed)
-      throws ODatabaseException {
+      throws YTDatabaseException {
     boolean any = false;
 
     if (params.start != null && this.getStart(document) != params.start) {
@@ -314,7 +314,7 @@ public abstract class YTSequence {
 
   protected static long getValue(YTDocument doc) {
     if (!doc.hasProperty(FIELD_VALUE)) {
-      throw new OSequenceException("Value property not found in document");
+      throw new YTSequenceException("Value property not found in document");
     }
     return doc.getProperty(FIELD_VALUE);
   }
@@ -398,7 +398,7 @@ public abstract class YTSequence {
       return SEQUENCE_TYPE.valueOf(sequenceTypeStr);
     }
 
-    throw new OSequenceException("Sequence type not found in document");
+    throw new YTSequenceException("Sequence type not found in document");
   }
 
   public static void initClass(YTDatabaseSession session, YTClassImpl sequenceClass) {
@@ -424,22 +424,22 @@ public abstract class YTSequence {
   /*
    * Forwards the sequence by one, and returns the new value.
    */
-  public long next() throws OSequenceLimitReachedException, ODatabaseException {
+  public long next() throws YTSequenceLimitReachedException, YTDatabaseException {
     return nextWork();
   }
 
-  public abstract long nextWork() throws OSequenceLimitReachedException;
+  public abstract long nextWork() throws YTSequenceLimitReachedException;
 
   /*
    * Returns the current sequence value. If next() was never called, returns null
    */
-  public long current() throws ODatabaseException {
+  public long current() throws YTDatabaseException {
     return currentWork();
   }
 
   protected abstract long currentWork();
 
-  public long reset() throws ODatabaseException {
+  public long reset() throws YTDatabaseException {
     return resetWork();
   }
 
@@ -471,7 +471,7 @@ public abstract class YTSequence {
                           doc.save();
                           return result;
                         });
-                  } catch (OConcurrentModificationException ignore) {
+                  } catch (YTConcurrentModificationException ignore) {
                     try {
                       //noinspection BusyWait
                       Thread.sleep(
@@ -487,10 +487,10 @@ public abstract class YTSequence {
                       break;
                     }
 
-                  } catch (OStorageException e) {
-                    if (!(e.getCause() instanceof OConcurrentModificationException)) {
-                      throw OException.wrapException(
-                          new OSequenceException(
+                  } catch (YTStorageException e) {
+                    if (!(e.getCause() instanceof YTConcurrentModificationException)) {
+                      throw YTException.wrapException(
+                          new YTSequenceException(
                               "Error in transactional processing of "
                                   + getName()
                                   + "."
@@ -501,8 +501,8 @@ public abstract class YTSequence {
                   } catch (Exception e) {
                     db.executeInTx(
                         () -> {
-                          throw OException.wrapException(
-                              new OSequenceException(
+                          throw YTException.wrapException(
+                              new YTSequenceException(
                                   "Error in transactional processing of "
                                       + getName()
                                       + "."
@@ -524,8 +524,8 @@ public abstract class YTSequence {
                         return result;
                       });
                 } catch (Exception e) {
-                  throw OException.wrapException(
-                      new OSequenceException(
+                  throw YTException.wrapException(
+                      new YTSequenceException(
                           "Error in transactional processing of "
                               + getName()
                               + "."
@@ -540,15 +540,15 @@ public abstract class YTSequence {
     try {
       return future.get();
     } catch (InterruptedException e) {
-      throw OException.wrapException(
-          new ODatabaseException("Sequence operation was interrupted"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Sequence operation was interrupted"), e);
     } catch (ExecutionException e) {
       var cause = e.getCause();
       if (cause == null) {
         cause = e;
       }
-      throw OException.wrapException(
-          new OSequenceException(
+      throw YTException.wrapException(
+          new YTSequenceException(
               "Error in transactional processing of " + getName() + "." + method + "()"),
           cause);
     }

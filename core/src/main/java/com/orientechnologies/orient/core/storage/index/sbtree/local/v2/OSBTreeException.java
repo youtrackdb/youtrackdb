@@ -20,12 +20,12 @@
 
 package com.orientechnologies.orient.core.storage.index.sbtree.local.v2;
 
-import com.orientechnologies.orient.core.exception.ODurableComponentException;
+import com.orientechnologies.orient.core.exception.YTDurableComponentException;
 
 /**
  * @since 8/30/13
  */
-public class OSBTreeException extends ODurableComponentException {
+public class OSBTreeException extends YTDurableComponentException {
 
   public OSBTreeException(OSBTreeException exception) {
     super(exception);

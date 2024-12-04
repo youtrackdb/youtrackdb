@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public class ORidBagAtomicUpdateTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     rootDoc = db.load(rootDoc.getIdentity());
@@ -298,7 +298,7 @@ public class ORidBagAtomicUpdateTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     Assert.assertEquals(db.countClusterElements(db.getDefaultClusterId()), recordsCount);
@@ -447,7 +447,7 @@ public class ORidBagAtomicUpdateTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     Assert.assertEquals(db.countClusterElements(db.getDefaultClusterId()), recordsCount);
@@ -621,7 +621,7 @@ public class ORidBagAtomicUpdateTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     Assert.assertEquals(db.countClusterElements(db.getDefaultClusterId()), recordsCount);
@@ -725,7 +725,7 @@ public class ORidBagAtomicUpdateTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     rootDoc = db.load(rootDoc.getIdentity());
@@ -859,7 +859,7 @@ public class ORidBagAtomicUpdateTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     document = db.load(document.getIdentity());
@@ -923,7 +923,7 @@ public class ORidBagAtomicUpdateTest extends DBTestBase {
       document.save(db.getClusterNameById(db.getDefaultClusterId()));
       db.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     document = db.load(document.getIdentity());
@@ -1078,7 +1078,7 @@ public class ORidBagAtomicUpdateTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     document = db.load(document.getIdentity());

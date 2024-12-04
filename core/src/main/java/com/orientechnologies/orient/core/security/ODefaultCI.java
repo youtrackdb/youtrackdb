@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.security;
 
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 
 /**
  * Provides a default credential interceptor that does nothing.
@@ -38,7 +38,7 @@ public class ODefaultCI implements OCredentialInterceptor {
   }
 
   public void intercept(final String url, final String username, final String password)
-      throws OSecurityException {
+      throws YTSecurityException {
     this.username = username;
     this.password = password;
   }

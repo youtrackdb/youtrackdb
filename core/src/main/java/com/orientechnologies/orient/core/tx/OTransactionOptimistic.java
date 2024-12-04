@@ -20,17 +20,17 @@
 
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
+import com.orientechnologies.orient.core.exception.YTTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook.TYPE;
 import com.orientechnologies.orient.core.id.ChangeableIdentity;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -113,7 +113,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
   public int begin() {
     if (txStartCounter < 0) {
-      throw new OTransactionException("Invalid value of TX counter: " + txStartCounter);
+      throw new YTTransactionException("Invalid value of TX counter: " + txStartCounter);
     }
 
     if (txStartCounter == 0) {
@@ -124,7 +124,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       localCache.clear();
     } else {
       if (status == TXSTATUS.ROLLED_BACK || status == TXSTATUS.ROLLBACKING) {
-        throw new ORollbackException(
+        throw new YTRollbackException(
             "Impossible to start a new transaction because the current was rolled back");
       }
     }
@@ -147,7 +147,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   public void commit(final boolean force) {
     checkTransactionValid();
     if (txStartCounter < 0) {
-      throw new OStorageException("Invalid value of tx counter: " + txStartCounter);
+      throw new YTStorageException("Invalid value of tx counter: " + txStartCounter);
     }
     if (force) {
       txStartCounter = 0;
@@ -159,7 +159,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       doCommit();
     } else {
       if (txStartCounter < 0) {
-        throw new OTransactionException(
+        throw new YTTransactionException(
             "Transaction was committed more times than it was started.");
       }
     }
@@ -401,7 +401,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   @Override
   public void rollback(boolean force, int commitLevelDiff) {
     if (txStartCounter < 0) {
-      throw new OStorageException("Invalid value of TX counter");
+      throw new YTStorageException("Invalid value of TX counter");
     }
     checkTransactionValid();
 
@@ -444,7 +444,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     final YTRecordAbstract txRecord = getRecord(rid);
     if (txRecord == OTransactionAbstract.DELETED_RECORD) {
       // DELETED IN TX
-      throw new ORecordNotFoundException(rid);
+      throw new YTRecordNotFoundException(rid);
     }
 
     if (txRecord != null) {
@@ -452,7 +452,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
 
     if (rid.isTemporary()) {
-      throw new ORecordNotFoundException(rid);
+      throw new YTRecordNotFoundException(rid);
     }
 
     // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
@@ -518,7 +518,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         return null;
       }
       if (passedRecord.isUnloaded()) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Record "
                 + passedRecord
                 + " is not bound to session, please call "
@@ -633,7 +633,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
   public void addRecord(YTRecordAbstract record, byte status, String clusterName) {
     if (record.isUnloaded()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Record "
               + record
               + " is not bound to session, please call "
@@ -653,7 +653,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
       if (txEntry != null) {
         if (txEntry.record != record) {
-          throw new OTransactionException(
+          throw new YTTransactionException(
               "Found record in transaction with the same RID but different instance");
         }
       }
@@ -744,8 +744,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
             database.callbackHooks(TYPE.DELETE_FAILED, record);
             break;
         }
-        throw OException.wrapException(
-            new ODatabaseException("Error on saving record " + record.getIdentity()), e);
+        throw YTException.wrapException(
+            new YTDatabaseException("Error on saving record " + record.getIdentity()), e);
       }
     } finally {
       switch (status) {
@@ -768,7 +768,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         internalRollback();
       }
 
-      throw new ORollbackException(
+      throw new YTRollbackException(
           "Given transaction was rolled back, and thus cannot be committed.");
     }
 
@@ -852,7 +852,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     for (Entry<String, OTransactionIndexChanges> entry : indexEntries.entrySet()) {
       final OIndex index = indexManager.getIndex(database, entry.getKey());
       if (index == null) {
-        throw new OTransactionException(
+        throw new YTTransactionException(
             "Cannot find index '" + entry.getValue() + "' while committing transaction");
       }
 
@@ -1104,7 +1104,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
   protected void checkTransactionValid() {
     if (status == TXSTATUS.INVALID) {
-      throw new OTransactionException(
+      throw new YTTransactionException(
           "Invalid state of the transaction. The transaction must be begun.");
     }
   }

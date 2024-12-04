@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -506,7 +506,7 @@ public class ORole extends OIdentity implements OSecurityRole {
           try {
             YTEntity rec = value.getRecord();
             result.put(key, new OSecurityPolicyImpl(rec));
-          } catch (ORecordNotFoundException rnf) {
+          } catch (YTRecordNotFoundException rnf) {
             // ignore
           }
         });
@@ -527,7 +527,7 @@ public class ORole extends OIdentity implements OSecurityRole {
     try {
       policy = entry.getRecord();
 
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
 

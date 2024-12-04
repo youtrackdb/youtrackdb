@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OContextVariableResolver;
@@ -34,14 +34,14 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTTransactionException;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.OTemporaryRidGenerator;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.core.sql.parser.OIfStatement;
@@ -49,7 +49,7 @@ import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.core.sql.parser.OrientSql;
 import com.orientechnologies.orient.core.sql.parser.ParseException;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -118,8 +118,8 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
       try {
         parserText = preParse(parserText, iArgs);
       } catch (ParseException e) {
-        throw OException.wrapException(
-            new OCommandExecutionException("Invalid script:" + e.getMessage()), e);
+        throw YTException.wrapException(
+            new YTCommandExecutionException("Invalid script:" + e.getMessage()), e);
       }
       return executeSQL();
     } else {
@@ -220,7 +220,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
       if (compiledScript == null) {
         if (!(scriptEngine instanceof Compilable c)) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Language '" + language + "' does not support compilation");
         }
 
@@ -246,8 +246,8 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
         return OCommandExecutorUtility.transformResult(ob);
       } catch (ScriptException e) {
-        throw OException.wrapException(
-            new OCommandScriptException(
+        throw YTException.wrapException(
+            new YTCommandScriptException(
                 "Error on execution of the script", request.getText(), e.getColumnNumber()),
             e);
 
@@ -267,14 +267,14 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
       return executeSQLScript(parserText, db);
 
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OCommandExecutionException("Error on executing command: " + parserText), e);
+      throw YTException.wrapException(
+          new YTCommandExecutionException("Error on executing command: " + parserText), e);
     }
   }
 
   @Override
   protected void throwSyntaxErrorException(String iText) {
-    throw new OCommandScriptException(
+    throw new YTCommandScriptException(
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 
@@ -356,7 +356,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
               } else if (OStringSerializerHelper.startsWithIgnoreCase(lastCommand, "begin")) {
 
                 if (txBegun) {
-                  throw new OCommandSQLParsingException("Transaction already begun");
+                  throw new YTCommandSQLParsingException("Transaction already begun");
                 }
 
                 if (db.getTransaction().isActive())
@@ -373,7 +373,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
               } else if ("rollback".equalsIgnoreCase(lastCommand)) {
 
                 if (!txBegun) {
-                  throw new OCommandSQLParsingException("Transaction not begun");
+                  throw new YTCommandSQLParsingException("Transaction not begun");
                 }
 
                 db.rollback();
@@ -384,7 +384,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
               } else if (OStringSerializerHelper.startsWithIgnoreCase(lastCommand, "commit")) {
                 if (txBegunAtLine < 0) {
-                  throw new OCommandSQLParsingException("Transaction not begun");
+                  throw new YTCommandSQLParsingException("Transaction not begun");
                 }
 
                 if (retry == 1 && lastCommand.length() > "commit ".length()) {
@@ -442,7 +442,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
         // COMPLETED
         break;
 
-      } catch (OTransactionException e) {
+      } catch (YTTransactionException e) {
         // THIS CASE IS ON UPSERT
         context.setVariable("retries", retry);
         if (retry >= maxRetry) {
@@ -451,7 +451,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
         waitForNextRetry();
 
-      } catch (ORecordDuplicatedException e) {
+      } catch (YTRecordDuplicatedException e) {
         // THIS CASE IS ON UPSERT
         context.setVariable("retries", retry);
         if (retry >= maxRetry) {
@@ -460,14 +460,14 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
         waitForNextRetry();
 
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         // THIS CASE IS ON UPSERT
         context.setVariable("retries", retry);
         if (retry >= maxRetry) {
           throw e;
         }
 
-      } catch (ONeedRetryException e) {
+      } catch (YTNeedRetryException e) {
         context.setVariable("retries", retry);
         if (retry >= maxRetry) {
           throw e;
@@ -522,8 +522,8 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     try {
       result = condition.evaluate(null, null, getContext());
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OCommandExecutionException(
+      throw YTException.wrapException(
+          new YTCommandExecutionException(
               "Could not evaluate IF condition: " + cmd + " - " + e.getMessage()),
           e);
     }

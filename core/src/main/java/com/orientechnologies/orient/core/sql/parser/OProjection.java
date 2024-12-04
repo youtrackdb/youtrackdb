@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
@@ -208,7 +208,7 @@ public class OProjection extends SimpleNode {
     if (items != null && items.size() > 1) {
       for (OProjectionItem item : items) {
         if (item.isExpand()) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Cannot execute a query with expand() together with other projections");
         }
       }

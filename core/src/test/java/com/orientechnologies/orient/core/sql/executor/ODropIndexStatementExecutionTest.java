@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -70,7 +70,7 @@ public class ODropIndexStatementExecutionTest extends BaseMemoryInternalDatabase
     try {
       OResultSet result = db.command("drop index " + indexName);
       Assert.fail();
-    } catch (OCommandExecutionException ex) {
+    } catch (YTCommandExecutionException ex) {
     } catch (Exception e) {
       Assert.fail();
     }

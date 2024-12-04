@@ -24,7 +24,7 @@ import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.ONetworkProtocolException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class OServerShutdownMain {
     }
 
     if (channel == null) {
-      throw new ONetworkProtocolException(
+      throw new YTNetworkProtocolException(
           "Cannot connect to server host '"
               + networkAddress
               + "', ports: "

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 
 /**
  * Orient wrapper class to use from scripts.
@@ -41,14 +41,14 @@ public class OScriptOrientWrapper {
 
   public OScriptDocumentDatabaseWrapper getDatabase() {
     if (db == null) {
-      throw new OConfigurationException("No database instance found in context");
+      throw new YTConfigurationException("No database instance found in context");
     }
 
     if (db instanceof YTDatabaseSessionInternal) {
       return new OScriptDocumentDatabaseWrapper((YTDatabaseSessionInternal) db);
     }
 
-    throw new OConfigurationException(
+    throw new YTConfigurationException(
         "No valid database instance found in context: " + db + ", class: " + db.getClass());
   }
 }

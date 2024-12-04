@@ -22,12 +22,12 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
- * Mostly used for testing purpose. It just throws an OConcurrentModificationException
+ * Mostly used for testing purpose. It just throws an YTConcurrentModificationException
  */
 public class OSQLFunctionThrowCME extends OSQLFunctionAbstract {
 
@@ -46,7 +46,7 @@ public class OSQLFunctionThrowCME extends OSQLFunctionAbstract {
       final Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
-    throw new OConcurrentModificationException(
+    throw new YTConcurrentModificationException(
         (YTRecordId) iParams[0], (int) iParams[1], (int) iParams[2], (int) iParams[3]);
   }
 

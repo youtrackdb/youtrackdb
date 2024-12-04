@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata.function;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
 import java.util.Set;
@@ -49,7 +49,7 @@ public class ODatabaseFunctionFactory implements OSQLFunctionFactory {
   }
 
   @Override
-  public OSQLFunction createFunction(final String name) throws OCommandExecutionException {
+  public OSQLFunction createFunction(final String name) throws YTCommandExecutionException {
     var db = ODatabaseRecordThreadLocal.instance().get();
     final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(name);
     return new ODatabaseFunction(f);

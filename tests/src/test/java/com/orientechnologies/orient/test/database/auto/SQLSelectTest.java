@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -610,7 +610,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     try {
       executeQuery("select from Profile order by name aaaa", database);
       Assert.fail();
-    } catch (OCommandSQLParsingException ignored) {
+    } catch (YTCommandSQLParsingException ignored) {
     }
   }
 

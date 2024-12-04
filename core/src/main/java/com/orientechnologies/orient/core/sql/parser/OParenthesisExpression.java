@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OInsertExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -221,7 +221,7 @@ public class OParenthesisExpression extends OMathExpression {
     if (expression != null) {
       expression.applyRemove(result, ctx);
     } else {
-      throw new OCommandExecutionException("Cannot apply REMOVE " + this);
+      throw new YTCommandExecutionException("Cannot apply REMOVE " + this);
     }
   }
 

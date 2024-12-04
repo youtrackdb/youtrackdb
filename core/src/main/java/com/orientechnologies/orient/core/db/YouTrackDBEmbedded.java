@@ -24,8 +24,8 @@ import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.FIL
 import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.FILE_DELETE_RETRY;
 import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.WARNING_DEFAULT_USERS;
 
-import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.thread.OSourceTraceExecutorService;
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
@@ -37,9 +37,9 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.engine.OEngine;
 import com.orientechnologies.orient.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.security.ODefaultSecuritySystem;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -153,7 +153,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         maxWALSegmentSize = calculateInitialMaxWALSegSize();
 
         if (maxWALSegmentSize <= 0) {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "Invalid configuration settings. Can not set maximum size of WAL segment");
         }
 
@@ -161,8 +161,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
             .info(
                 this, "WAL maximum segment size is set to %,d MB", maxWALSegmentSize / 1024 / 1024);
       } catch (IOException e) {
-        throw OException.wrapException(
-            new ODatabaseException("Cannot initialize YouTrackDB engine"), e);
+        throw YTException.wrapException(
+            new YTDatabaseException("Cannot initialize YouTrackDB engine"), e);
       }
     }
 
@@ -343,7 +343,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     if (maxSegSize <= 0) {
       int sizePercent = getIntConfig(YTGlobalConfiguration.WAL_MAX_SEGMENT_SIZE_PERCENT);
       if (sizePercent <= 0) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Invalid configuration settings. Can not set maximum size of WAL segment");
       }
 
@@ -402,7 +402,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           getIntConfig(YTGlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE_PERCENT);
 
       if (sizePercent <= 0) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Invalid configuration settings. Can not set maximum size of WAL segment");
       }
 
@@ -438,8 +438,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       embedded.callOnOpenListeners();
       return embedded;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database '" + name + "'"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot open database '" + name + "'"), e);
     }
   }
 
@@ -471,8 +471,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       embedded.callOnOpenListeners();
       return embedded;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database '" + name + "'"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot open database '" + name + "'"), e);
     }
   }
 
@@ -495,8 +495,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       embedded.callOnOpenListeners();
       return embedded;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database '" + name + "'"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot open database '" + name + "'"), e);
     }
   }
 
@@ -509,7 +509,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         checkOpen();
         config = solveConfig(config);
         if (!authenticationInfo.getDatabase().isPresent()) {
-          throw new OSecurityException("Authentication info do not contain the database");
+          throw new YTSecurityException("Authentication info do not contain the database");
         }
         String database = authenticationInfo.getDatabase().get();
         OAbstractPaginatedStorage storage = getAndOpenStorage(database, config);
@@ -520,8 +520,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       embedded.callOnOpenListeners();
       return embedded;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database '" + authenticationInfo.getDatabase() + "'"),
+      throw YTException.wrapException(
+          new YTDatabaseException(
+              "Cannot open database '" + authenticationInfo.getDatabase() + "'"),
           e);
     }
   }
@@ -595,7 +596,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     OAbstractPaginatedStorage storage = storages.get(name);
     if (storage == null) {
       if (basePath == null) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Cannot open database '" + name + "' because it does not exists");
       }
       Path storagePath = Paths.get(buildName(name));
@@ -636,7 +637,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected String buildName(String name) {
     if (basePath == null) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "YouTrackDB instanced created without physical path, only memory databases are allowed");
     }
     return basePath + "/" + name;
@@ -696,11 +697,11 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
                 });
           }
         } catch (Exception e) {
-          throw OException.wrapException(
-              new ODatabaseException("Cannot create database '" + name + "'"), e);
+          throw YTException.wrapException(
+              new YTDatabaseException("Cannot create database '" + name + "'"), e);
         }
       } else {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Cannot create new database '" + name + "' because it already exists");
       }
     }
@@ -724,7 +725,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       }
       storage.restore(in, null, callable, null);
       distributedSetOnline(name);
-    } catch (OModificationOperationProhibitedException e) {
+    } catch (YTModificationOperationProhibitedException e) {
       throw e;
     } catch (Exception e) {
       try {
@@ -746,8 +747,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           configs.getValueAsInteger(FILE_DELETE_RETRY),
           configs.getValueAsInteger(FILE_DELETE_DELAY),
           buildName(name));
-      throw OException.wrapException(
-          new ODatabaseException("Cannot create database '" + name + "'"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot create database '" + name + "'"), e);
     }
   }
 
@@ -776,11 +777,11 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           embedded = internalCreate(config, storage);
           storages.put(name, storage);
         } catch (Exception e) {
-          throw OException.wrapException(
-              new ODatabaseException("Cannot restore database '" + name + "'"), e);
+          throw YTException.wrapException(
+              new YTDatabaseException("Cannot restore database '" + name + "'"), e);
         }
       } else {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Cannot create new storage '" + name + "' because it already exists");
       }
     }
@@ -818,8 +819,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           configs.getValueAsInteger(FILE_DELETE_RETRY),
           configs.getValueAsInteger(FILE_DELETE_DELAY),
           buildName(name));
-      throw OException.wrapException(
-          new ODatabaseException("Cannot create database '" + name + "'"), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot create database '" + name + "'"), e);
     }
   }
 
@@ -1036,8 +1037,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
 
     if (storageException != null) {
-      throw OException.wrapException(
-          new OStorageException("Error during closing the storages"), storageException);
+      throw YTException.wrapException(
+          new YTStorageException("Error during closing the storages"), storageException);
     }
   }
 
@@ -1120,7 +1121,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected void checkOpen() {
     if (!open) {
-      throw new ODatabaseException("YouTrackDB Instance is closed");
+      throw new YTDatabaseException("YouTrackDB Instance is closed");
     }
   }
 
@@ -1188,7 +1189,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         database.activateOnCurrentThread();
       }
     } else {
-      throw new ODatabaseException("YouTrackDB instance is closed");
+      throw new YTDatabaseException("YouTrackDB instance is closed");
     }
   }
 
@@ -1265,7 +1266,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       throw new NullArgumentException("database");
     }
     if (name.contains("/") || name.contains(":")) {
-      throw new ODatabaseException(String.format("Invalid database name:'%s'", name));
+      throw new YTDatabaseException(String.format("Invalid database name:'%s'", name));
     }
   }
 

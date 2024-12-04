@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.common.concur.resource;
 
-import com.orientechnologies.common.concur.lock.OLockException;
+import com.orientechnologies.common.concur.lock.YTLockException;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
 import com.orientechnologies.orient.core.YouTrackDBManager;
@@ -71,7 +71,7 @@ public class OReentrantResourcePool<K, V> extends OResourcePool<K, V>
   }
 
   public V getResource(K key, final long maxWaitMillis, Object... additionalArgs)
-      throws OLockException {
+      throws YTLockException {
     Map<K, ResourceHolder<V>> resourceHolderMap = activeResources.get();
 
     if (resourceHolderMap == null) {

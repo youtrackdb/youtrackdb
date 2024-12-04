@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.common.concur.resource.OResourcePool;
 import com.orientechnologies.common.concur.resource.OResourcePoolListener;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
@@ -141,8 +141,8 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
 
     } catch (PolyglotException e) {
       final int col = e.getSourceLocation() != null ? e.getSourceLocation().getStartColumn() : 0;
-      throw OException.wrapException(
-          new OCommandScriptException("Error on execution of the script", script, col),
+      throw YTException.wrapException(
+          new YTCommandScriptException("Error on execution of the script", script, col),
           new ScriptException(e));
     } finally {
       returnContext(ctx, database);
@@ -194,8 +194,8 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
       return finalResult;
     } catch (PolyglotException e) {
       final int col = e.getSourceLocation() != null ? e.getSourceLocation().getStartColumn() : 0;
-      throw OException.wrapException(
-          new OCommandScriptException("Error on execution of the script", functionName, col),
+      throw YTException.wrapException(
+          new YTCommandScriptException("Error on execution of the script", functionName, col),
           new ScriptException(e));
     } finally {
       returnContext(ctx, database);

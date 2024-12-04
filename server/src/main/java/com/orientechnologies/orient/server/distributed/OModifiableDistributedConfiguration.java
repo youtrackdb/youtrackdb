@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -120,7 +120,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
         // CHECK IF THE OWNER IS ALREADY CONFIGURED
         final String owner = cluster.field(OWNER);
         if (owner != null && !iServerName.equalsIgnoreCase(owner)) {
-          throw new ODistributedException(
+          throw new YTDistributedException(
               "Cannot overwrite ownership of cluster '"
                   + iClusterName
                   + "' to the server '"
@@ -153,7 +153,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
       }
 
       if (!removed) {
-        throw new ODistributedException(
+        throw new YTDistributedException(
             "Cannot set ownership of cluster '"
                 + iClusterName
                 + "' to the server '"

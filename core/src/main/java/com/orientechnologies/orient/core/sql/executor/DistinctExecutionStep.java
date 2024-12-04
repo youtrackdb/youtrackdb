@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     assert prev != null;
     OExecutionStream resultSet = prev.start(ctx);
     Set<OResult> pastItems = new HashSet<>();
@@ -60,7 +60,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     pastItems.add(nextValue);
     if (maxElementsAllowed > 0 && maxElementsAllowed < pastItems.size()) {
       pastItems.clear();
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Limit of allowed elements for in-heap DISTINCT in a single query exceeded ("
               + maxElementsAllowed
               + ") . You can set "

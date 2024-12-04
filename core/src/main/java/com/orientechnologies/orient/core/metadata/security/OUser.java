@@ -25,8 +25,8 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
@@ -91,13 +91,13 @@ public class OUser extends OIdentity implements OSecurityUser {
       YTDatabaseSessionInternal session, final YTDocument iDocument) {
     final String name = iDocument.field("name");
     if (name == null) {
-      throw new OSecurityException("User name not found");
+      throw new YTSecurityException("User name not found");
     }
 
     final String password = iDocument.field("password");
 
     if (password == null) {
-      throw new OSecurityException("User '" + iDocument.field("name") + "' has no password");
+      throw new YTSecurityException("User '" + iDocument.field("name") + "' has no password");
     }
     OSecuritySystem security = session.getSharedContext().getYouTrackDB().getSecuritySystem();
     security.validatePassword(name, password);
@@ -153,9 +153,9 @@ public class OUser extends OIdentity implements OSecurityUser {
    *
    * @param session
    * @param iOperation Requested operation
-   * @return The role that has granted the permission if any, otherwise a OSecurityAccessException
+   * @return The role that has granted the permission if any, otherwise a YTSecurityAccessException
    * exception is raised
-   * @throws OSecurityAccessException
+   * @throws YTSecurityAccessException
    */
   public ORole allow(
       YTDatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
@@ -170,7 +170,7 @@ public class OUser extends OIdentity implements OSecurityUser {
         document = null;
         fromStream(sessionInternal, doc);
       } else {
-        throw new OSecurityAccessException(
+        throw new YTSecurityAccessException(
             sessionInternal.getName(),
             "User '" + document.field("name") + "' has no role defined");
       }
@@ -179,7 +179,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     final ORole role = checkIfAllowed(session, resourceGeneric, resourceSpecific, iOperation);
 
     if (role == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           document.getSession().getName(),
           "User '"
               + document.field("name")
@@ -314,7 +314,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   public STATUSES getAccountStatus(YTDatabaseSessionInternal session) {
     final String status = getDocument(session).field("status");
     if (status == null) {
-      throw new OSecurityException("User '" + getName(session) + "' has no status");
+      throw new YTSecurityException("User '" + getName(session) + "' has no status");
     }
     return STATUSES.valueOf(status);
   }

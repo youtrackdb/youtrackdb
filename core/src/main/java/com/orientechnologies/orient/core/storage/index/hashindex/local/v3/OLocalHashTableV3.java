@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v3;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OLocalHashTableV3Exception;
-import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.exception.YTLocalHashTableV3Exception;
+import com.orientechnologies.orient.core.exception.YTTooBigIndexKeyException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -237,8 +237,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Exception during index value retrieval"), e);
+      throw YTException.wrapException(
+          new YTIndexException("Exception during index value retrieval"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -441,8 +441,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         releaseSharedLock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Exception during data retrieval", this), ioe);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Exception during data retrieval", this), ioe);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -485,8 +485,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
 
       fileId = openFile(atomicOperation, getFullName());
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Exception during hash table loading", this), e);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Exception during hash table loading", this), e);
     } finally {
       releaseExclusiveLock();
     }
@@ -722,8 +722,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         releaseSharedLock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Error during data retrieval", this), ioe);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Error during data retrieval", this), ioe);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -775,8 +775,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         releaseSharedLock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Exception during data read", this), ioe);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Exception during data read", this), ioe);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -835,8 +835,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         releaseSharedLock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Exception during data read", this), ioe);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Exception during data read", this), ioe);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -909,8 +909,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         releaseSharedLock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Exception during data read", this), ioe);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Exception during data read", this), ioe);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -983,8 +983,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         releaseSharedLock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Exception during data read", this), ioe);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Exception during data read", this), ioe);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -1146,8 +1146,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Error during index size request", this), e);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Error during index size request", this), e);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -1163,8 +1163,8 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
       readCache.closeFile(fileStateId, true, writeCache);
       readCache.closeFile(fileId, true, writeCache);
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OLocalHashTableV3Exception("Error during hash table close", this), e);
+      throw YTException.wrapException(
+          new YTLocalHashTableV3Exception("Error during hash table close", this), e);
     } finally {
       releaseExclusiveLock();
     }
@@ -1258,7 +1258,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
             if (key != null) {
               final int keySize = keySerializer.getObjectSize(key, (Object[]) keyTypes);
               if (keySize > MAX_KEY_SIZE) {
-                throw new OTooBigIndexKeyException(
+                throw new YTTooBigIndexKeyException(
                     "Key size is more than allowed, operation was canceled. Current key size "
                         + keySize
                         + ", allowed  "

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
@@ -29,9 +29,9 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
@@ -201,7 +201,7 @@ public class OSQLFilterCondition {
               r,
               iContext,
               ORecordSerializerBinary.INSTANCE.getCurrentSerializer());
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       throw e;
     } catch (Exception e) {
       if (OLogManager.instance().isDebugEnabled()) {
@@ -399,8 +399,8 @@ public class OSQLFilterCondition {
       try {
         return new Date(Double.valueOf(stringValue).longValue());
       } catch (Exception pe2) {
-        throw OException.wrapException(
-            new OQueryParsingException(
+        throw YTException.wrapException(
+            new YTQueryParsingException(
                 "Error on conversion of date '"
                     + stringValue
                     + "' using the format: "
@@ -433,7 +433,7 @@ public class OSQLFilterCondition {
           iCurrentRecord = db.bindToSession(iCurrentRecord);
         }
       }
-    } catch (ORecordNotFoundException ignore) {
+    } catch (YTRecordNotFoundException ignore) {
       return null;
     }
 

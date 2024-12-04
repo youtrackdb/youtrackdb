@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.orient.core.command.OCommandRequestAsynch;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +74,7 @@ public class OSQLAsynchQuery<T extends Object> extends OSQLQuery<T>
   @Override
   public List<T> run(Object... iArgs) {
     if (resultListener == null) {
-      throw new OCommandExecutionException("Listener not found on asynch query");
+      throw new YTCommandExecutionException("Listener not found on asynch query");
     }
 
     return super.run(iArgs);

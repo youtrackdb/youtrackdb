@@ -21,12 +21,12 @@
 package com.orientechnologies.orient.core.storage.impl.local;
 
 import com.google.common.util.concurrent.Striped;
-import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.common.concur.lock.OInterruptedException;
-import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
 import com.orientechnologies.common.concur.lock.ScalableRWLock;
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OHighLevelException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTHighLevelException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.ModifiableLongProfileHookValue;
@@ -48,49 +48,49 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationUpdateListener;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDeleter;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.encryption.OEncryptionFactory;
 import com.orientechnologies.orient.core.encryption.impl.ONothingEncryption;
-import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OCommitSerializationException;
-import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OFastConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.OInternalErrorException;
-import com.orientechnologies.orient.core.exception.OInvalidDatabaseNameException;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.exception.OInvalidInstanceIdException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.ORetryQueryException;
-import com.orientechnologies.orient.core.exception.OStorageDoesNotExistException;
-import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.exception.OStorageExistsException;
+import com.orientechnologies.orient.core.exception.YTClusterDoesNotExistException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommitSerializationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentCreateException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTFastConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTInternalErrorException;
+import com.orientechnologies.orient.core.exception.YTInvalidDatabaseNameException;
+import com.orientechnologies.orient.core.exception.YTInvalidInstanceIdException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRetryQueryException;
+import com.orientechnologies.orient.core.exception.YTStorageDoesNotExistException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageExistsException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.OIndexes;
 import com.orientechnologies.orient.core.index.ORuntimeKeyIndexDefinition;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
@@ -106,13 +106,13 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.OQueryAbstract;
-import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
+import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
+import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexEngine;
@@ -377,7 +377,7 @@ public abstract class OAbstractPaginatedStorage
     Matcher matcher = pattern.matcher(name);
     boolean isValid = matcher.matches();
     if (!isValid) {
-      throw new OInvalidDatabaseNameException(
+      throw new YTInvalidDatabaseNameException(
           "Invalid name for database. ("
               + name
               + ") Name can contain only letters, numbers, underscores and dashes. "
@@ -408,7 +408,7 @@ public abstract class OAbstractPaginatedStorage
     var sessions = sessionCount.decrementAndGet();
 
     if (sessions < 0) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Amount of closed sessions in storage "
               + name
               + " is bigger than amount of open sessions");
@@ -482,7 +482,7 @@ public abstract class OAbstractPaginatedStorage
       final String message = "Error on closing of storage '" + name;
       OLogManager.instance().error(this, message, e);
 
-      throw OException.wrapException(new OStorageException(message), e);
+      throw YTException.wrapException(new YTStorageException(message), e);
     } finally {
       stateLock.writeLock().unlock();
     }
@@ -499,7 +499,7 @@ public abstract class OAbstractPaginatedStorage
     }
 
     if (maxKeySize > bTreeMaxKeySize) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Value of parameter "
               + YTGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
               + " should be at least 4 times bigger than value of parameter "
@@ -566,12 +566,12 @@ public abstract class OAbstractPaginatedStorage
           }
 
           if (status != STATUS.CLOSED) {
-            throw new OStorageException(
+            throw new YTStorageException(
                 "Storage " + name + " is in wrong state " + status + " and can not be opened.");
           }
 
           if (!exists()) {
-            throw new OStorageDoesNotExistException(
+            throw new YTStorageDoesNotExistException(
                 "Cannot open the storage '" + name + "' because it does not exist in path: " + url);
           }
 
@@ -751,7 +751,7 @@ public abstract class OAbstractPaginatedStorage
   protected final void openIndexes() {
     final OCurrentStorageComponentsFactory cf = componentsFactory;
     if (cf == null) {
-      throw new OStorageException("Storage '" + name + "' is not properly initialized");
+      throw new YTStorageException("Storage '" + name + "' is not properly initialized");
     }
     final Set<String> indexNames = configuration.indexEngines();
     int counter = 0;
@@ -850,15 +850,15 @@ public abstract class OAbstractPaginatedStorage
       try {
         doCreate(contextConfiguration);
       } catch (final InterruptedException e) {
-        throw OException.wrapException(
-            new OStorageException("Storage creation was interrupted"), e);
-      } catch (final OStorageException e) {
+        throw YTException.wrapException(
+            new YTStorageException("Storage creation was interrupted"), e);
+      } catch (final YTStorageException e) {
         close(null);
         throw e;
       } catch (final IOException e) {
         close(null);
-        throw OException.wrapException(
-            new OStorageException("Error on creation of storage '" + name + "'"), e);
+        throw YTException.wrapException(
+            new YTStorageException("Error on creation of storage '" + name + "'"), e);
       } finally {
         stateLock.writeLock().unlock();
       }
@@ -887,29 +887,29 @@ public abstract class OAbstractPaginatedStorage
     checkPageSizeAndRelatedParametersInGlobalConfiguration();
 
     if (name == null) {
-      throw new OInvalidDatabaseNameException("Database name can not be null");
+      throw new YTInvalidDatabaseNameException("Database name can not be null");
     }
 
     if (name.isEmpty()) {
-      throw new OInvalidDatabaseNameException("Database name can not be empty");
+      throw new YTInvalidDatabaseNameException("Database name can not be empty");
     }
 
     final Pattern namePattern = Pattern.compile("[^\\w\\d$_-]+");
     final Matcher matcher = namePattern.matcher(name);
     if (matcher.find()) {
-      throw new OInvalidDatabaseNameException(
+      throw new YTInvalidDatabaseNameException(
           "Only letters, numbers, `$`, `_` and `-` are allowed in database name. Provided name :`"
               + name
               + "`");
     }
 
     if (status != STATUS.CLOSED) {
-      throw new OStorageExistsException(
+      throw new YTStorageExistsException(
           "Cannot create new storage '" + getURL() + "' because it is not closed");
     }
 
     if (exists()) {
-      throw new OStorageExistsException(
+      throw new YTStorageExistsException(
           "Cannot create new storage '" + getURL() + "' because it already exists");
     }
 
@@ -1007,12 +1007,12 @@ public abstract class OAbstractPaginatedStorage
   protected void checkDatabaseInstanceId(UUID backupUUID) {
     UUID dbUUID = readDatabaseInstanceId();
     if (backupUUID == null) {
-      throw new OInvalidInstanceIdException(
+      throw new YTInvalidInstanceIdException(
           "The Database Instance Id do not mach, backup UUID is null");
     }
     if (dbUUID != null) {
       if (!dbUUID.equals(backupUUID)) {
-        throw new OInvalidInstanceIdException(
+        throw new YTInvalidInstanceIdException(
             String.format(
                 "The Database Instance Id do not mach, database: '%s' backup: '%s'",
                 dbUUID, backupUUID));
@@ -1027,7 +1027,7 @@ public abstract class OAbstractPaginatedStorage
     final int maxKeySize = YTGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
 
     if (configuration.getPageSize() != -1 && configuration.getPageSize() != pageSize) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Storage is created with value of "
               + configuration.getPageSize()
               + " parameter equal to "
@@ -1037,7 +1037,7 @@ public abstract class OAbstractPaginatedStorage
     }
 
     if (configuration.getMaxKeySize() != -1 && configuration.getMaxKeySize() != maxKeySize) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Storage is created with value of "
               + configuration.getMaxKeySize()
               + " parameter equal to "
@@ -1165,7 +1165,7 @@ public abstract class OAbstractPaginatedStorage
       stateLock.writeLock().lock();
       try {
         if (clusterMap.containsKey(clusterName)) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               String.format("Cluster with name:'%s' already exists", clusterName));
         }
         checkOpennessAndMigration();
@@ -1175,8 +1175,8 @@ public abstract class OAbstractPaginatedStorage
             null, (atomicOperation) -> doAddCluster(atomicOperation, clusterName));
 
       } catch (final IOException e) {
-        throw OException.wrapException(
-            new OStorageException("Error in creation of new cluster '" + clusterName), e);
+        throw YTException.wrapException(
+            new YTStorageException("Error in creation of new cluster '" + clusterName), e);
       } finally {
         stateLock.writeLock().unlock();
       }
@@ -1200,10 +1200,10 @@ public abstract class OAbstractPaginatedStorage
         checkOpennessAndMigration();
 
         if (requestedId < 0) {
-          throw new OConfigurationException("Cluster id must be positive!");
+          throw new YTConfigurationException("Cluster id must be positive!");
         }
         if (requestedId < clusters.size() && clusters.get(requestedId) != null) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Requested cluster ID ["
                   + requestedId
                   + "] is occupied by cluster with name ["
@@ -1211,7 +1211,7 @@ public abstract class OAbstractPaginatedStorage
                   + "]");
         }
         if (clusterMap.containsKey(clusterName)) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               String.format("Cluster with name:'%s' already exists", clusterName));
         }
 
@@ -1220,8 +1220,8 @@ public abstract class OAbstractPaginatedStorage
             null, atomicOperation -> doAddCluster(atomicOperation, clusterName, requestedId));
 
       } catch (final IOException e) {
-        throw OException.wrapException(
-            new OStorageException("Error in creation of new cluster '" + clusterName + "'"), e);
+        throw YTException.wrapException(
+            new YTStorageException("Error in creation of new cluster '" + clusterName + "'"), e);
       } finally {
         stateLock.writeLock().unlock();
       }
@@ -1270,8 +1270,8 @@ public abstract class OAbstractPaginatedStorage
               return true;
             });
       } catch (final Exception e) {
-        throw OException.wrapException(
-            new OStorageException("Error while removing cluster '" + clusterId + "'"), e);
+        throw YTException.wrapException(
+            new YTStorageException("Error while removing cluster '" + clusterId + "'"), e);
 
       } finally {
         stateLock.writeLock().unlock();
@@ -1287,7 +1287,7 @@ public abstract class OAbstractPaginatedStorage
 
   private void checkClusterId(int clusterId) {
     if (clusterId < 0 || clusterId >= clusters.size()) {
-      throw new OClusterDoesNotExistException(
+      throw new YTClusterDoesNotExistException(
           "Cluster id '"
               + clusterId
               + "' is outside the of range of configured clusters (0-"
@@ -1546,12 +1546,12 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private void throwClusterDoesNotExist(int clusterId) {
-    throw new OClusterDoesNotExistException(
+    throw new YTClusterDoesNotExistException(
         "Cluster with id " + clusterId + " does not exist inside of storage " + name);
   }
 
   private void throwClusterDoesNotExist(String clusterName) {
-    throw new OClusterDoesNotExistException(
+    throw new YTClusterDoesNotExistException(
         "Cluster with name `" + clusterName + "` does not exist inside of storage " + name);
   }
 
@@ -1591,7 +1591,7 @@ public abstract class OAbstractPaginatedStorage
       }
 
       if (!configured) {
-        throw new OStorageException("Can not configure offline cluster with id " + clusterId);
+        throw new YTStorageException("Can not configure offline cluster with id " + clusterId);
       }
     } else {
       newCluster =
@@ -1633,7 +1633,7 @@ public abstract class OAbstractPaginatedStorage
       final boolean countTombstones) {
     try {
       if (clusterId == -1) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Cluster Id " + clusterId + " is invalid in database '" + name + "'");
       }
 
@@ -1687,8 +1687,8 @@ public abstract class OAbstractPaginatedStorage
         }
 
       } catch (final IOException ioe) {
-        throw OException.wrapException(
-            new OStorageException("Cannot retrieve information about data range"), ioe);
+        throw YTException.wrapException(
+            new YTStorageException("Cannot retrieve information about data range"), ioe);
       } finally {
         stateLock.readLock().unlock();
       }
@@ -1721,7 +1721,7 @@ public abstract class OAbstractPaginatedStorage
       return;
     }
 
-    if (!(e instanceof OInternalErrorException)) {
+    if (!(e instanceof YTInternalErrorException)) {
       setInError(e);
     }
 
@@ -1749,7 +1749,7 @@ public abstract class OAbstractPaginatedStorage
 
         for (final int iClusterId : iClusterIds) {
           if (iClusterId >= clusters.size()) {
-            throw new OConfigurationException(
+            throw new YTConfigurationException(
                 "Cluster id " + iClusterId + " was not found in database '" + name + "'");
           }
 
@@ -1824,7 +1824,7 @@ public abstract class OAbstractPaginatedStorage
       final YTRID rid) {
     try {
       if (rid.isNew()) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Passed record with id " + rid + " is new and cannot be stored.");
       }
 
@@ -2174,7 +2174,7 @@ public abstract class OAbstractPaginatedStorage
                               ORecordInternal.getRecordType(rec), atomicOperation);
                     }
                     if (ppos.clusterPosition != rid.getClusterPosition()) {
-                      throw new OConcurrentCreateException(
+                      throw new YTConcurrentCreateException(
                           rid, new YTRecordId(rid.getClusterId(), ppos.clusterPosition));
                     }
                   } else if (recordStatus == RECORD_STATUS.PRESENT
@@ -2182,14 +2182,14 @@ public abstract class OAbstractPaginatedStorage
                     final OPhysicalPosition ppos =
                         cluster.allocatePosition(
                             ORecordInternal.getRecordType(rec), atomicOperation);
-                    throw new OConcurrentCreateException(
+                    throw new YTConcurrentCreateException(
                         rid, new YTRecordId(rid.getClusterId(), ppos.clusterPosition));
                   }
                 }
               }
             });
       } catch (final IOException | RuntimeException ioe) {
-        throw OException.wrapException(new OStorageException("Could not preallocate RIDs"), ioe);
+        throw YTException.wrapException(new YTStorageException("Could not preallocate RIDs"), ioe);
       } finally {
         stateLock.readLock().unlock();
       }
@@ -2330,7 +2330,7 @@ public abstract class OAbstractPaginatedStorage
                       recordOperation,
                       new OPhysicalPosition(rec.getIdentity().getClusterPosition()));
                 } else {
-                  throw new OStorageException(
+                  throw new YTStorageException(
                       "Impossible to commit a transaction with not valid rid in pre-allocated"
                           + " commit");
                 }
@@ -2361,7 +2361,7 @@ public abstract class OAbstractPaginatedStorage
                   }
 
                   if (rid.getClusterPosition() != physicalPosition.clusterPosition) {
-                    throw new OConcurrentCreateException(
+                    throw new YTConcurrentCreateException(
                         rid, new YTRecordId(rid.getClusterId(), physicalPosition.clusterPosition));
                   }
                 }
@@ -2389,8 +2389,8 @@ public abstract class OAbstractPaginatedStorage
             if (e instanceof RuntimeException) {
               throw ((RuntimeException) e);
             } else {
-              throw OException.wrapException(
-                  new OStorageException("Error during transaction commit"), e);
+              throw YTException.wrapException(
+                  new YTStorageException("Error during transaction commit"), e);
             }
           } finally {
             if (error != null) {
@@ -2444,7 +2444,7 @@ public abstract class OAbstractPaginatedStorage
         }
         applyTxChanges(session, changes.nullKeyChanges, index);
       } catch (final OInvalidIndexEngineIdException e) {
-        throw OException.wrapException(new OStorageException("Error during index commit"), e);
+        throw YTException.wrapException(new YTStorageException("Error during index commit"), e);
       }
     }
   }
@@ -2513,7 +2513,7 @@ public abstract class OAbstractPaginatedStorage
           return -1;
         }
         if (indexEngineNameMap.containsKey(indexMetadata.getName())) {
-          throw new OIndexException(
+          throw new YTIndexException(
               "Index with name " + indexMetadata.getName() + " already exists");
         }
         makeStorageDirty();
@@ -2523,7 +2523,7 @@ public abstract class OAbstractPaginatedStorage
 
         final OBinarySerializer<?> keySerializer = determineKeySerializer(indexDefinition);
         if (keySerializer == null) {
-          throw new OIndexException("Can not determine key serializer");
+          throw new YTIndexException("Can not determine key serializer");
         }
         final int keySize = determineKeySize(indexDefinition);
         final YTType[] keyTypes =
@@ -2556,8 +2556,8 @@ public abstract class OAbstractPaginatedStorage
             });
         return generateIndexId(engineData.getIndexId(), engine);
       } catch (final IOException e) {
-        throw OException.wrapException(
-            new OStorageException(
+        throw YTException.wrapException(
+            new YTStorageException(
                 "Cannot add index engine " + indexMetadata.getName() + " in storage."),
             e);
       } finally {
@@ -2578,16 +2578,16 @@ public abstract class OAbstractPaginatedStorage
 
     try {
       if (indexDefinition == null) {
-        throw new OIndexException("Index definition has to be provided");
+        throw new YTIndexException("Index definition has to be provided");
       }
       final YTType[] keyTypes = indexDefinition.getTypes();
       if (keyTypes == null) {
-        throw new OIndexException("Types of indexed keys have to be provided");
+        throw new YTIndexException("Types of indexed keys have to be provided");
       }
 
       final OBinarySerializer<?> keySerializer = determineKeySerializer(indexDefinition);
       if (keySerializer == null) {
-        throw new OIndexException("Can not determine key serializer");
+        throw new YTIndexException("Can not determine key serializer");
       }
 
       final int keySize = determineKeySize(indexDefinition);
@@ -2658,8 +2658,8 @@ public abstract class OAbstractPaginatedStorage
               return generateIndexId(engineData.getIndexId(), engine);
             });
       } catch (final IOException e) {
-        throw OException.wrapException(
-            new OStorageException(
+        throw YTException.wrapException(
+            new YTStorageException(
                 "Cannot add index engine " + indexMetadata.getName() + " in storage."),
             e);
       } finally {
@@ -2715,15 +2715,15 @@ public abstract class OAbstractPaginatedStorage
 
   private OBinarySerializer<?> determineKeySerializer(final OIndexDefinition indexDefinition) {
     if (indexDefinition == null) {
-      throw new OStorageException("Index definition has to be provided");
+      throw new YTStorageException("Index definition has to be provided");
     }
 
     final YTType[] keyTypes = indexDefinition.getTypes();
     if (keyTypes == null || keyTypes.length == 0) {
-      throw new OStorageException("Types of index keys has to be defined");
+      throw new YTStorageException("Types of index keys has to be defined");
     }
     if (keyTypes.length < indexDefinition.getFields().size()) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Types are provided only for "
               + keyTypes.length
               + " fields. But index definition has "
@@ -2789,7 +2789,7 @@ public abstract class OAbstractPaginatedStorage
             });
 
       } catch (final IOException e) {
-        throw OException.wrapException(new OStorageException("Error on index deletion"), e);
+        throw YTException.wrapException(new YTStorageException("Error on index deletion"), e);
       } finally {
         stateLock.writeLock().unlock();
       }
@@ -2856,14 +2856,14 @@ public abstract class OAbstractPaginatedStorage
         if (!v1IndexEngine.isMultiValue()) {
           return ((OSingleValueIndexEngine) engine).remove(atomicOperation, key);
         } else {
-          throw new OStorageException(
+          throw new YTStorageException(
               "To remove entry from multi-value index not only key but value also should be"
                   + " provided");
         }
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during removal of entry with key " + key + " from index "),
+      throw YTException.wrapException(
+          new YTStorageException("Error during removal of entry with key " + key + " from index "),
           e);
     }
   }
@@ -2910,7 +2910,7 @@ public abstract class OAbstractPaginatedStorage
 
       engine.clear(atomicOperation);
     } catch (final IOException e) {
-      throw OException.wrapException(new OStorageException("Error during clearing of index"), e);
+      throw YTException.wrapException(new YTStorageException("Error during clearing of index"), e);
     }
   }
 
@@ -3226,8 +3226,8 @@ public abstract class OAbstractPaginatedStorage
 
       ((OIndexEngine) engine).put(session, atomicOperation, key, value);
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Cannot put key " + key + " value " + value + " entry to the index"),
           e);
     }
@@ -3294,8 +3294,8 @@ public abstract class OAbstractPaginatedStorage
       throw new IllegalStateException(
           "Invalid type of index engine " + engine.getClass().getName());
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Cannot put key " + key + " value " + value + " entry to the index"),
           e);
     }
@@ -3662,9 +3662,9 @@ public abstract class OAbstractPaginatedStorage
 
   public void moveToErrorStateIfNeeded(final Throwable error) {
     if (error != null
-        && !((error instanceof OHighLevelException)
-        || (error instanceof ONeedRetryException)
-        || (error instanceof OInternalErrorException))) {
+        && !((error instanceof YTHighLevelException)
+        || (error instanceof YTNeedRetryException)
+        || (error instanceof YTInternalErrorException))) {
       setInError(error);
     }
   }
@@ -3818,7 +3818,8 @@ public abstract class OAbstractPaginatedStorage
 
         return size;
       } catch (final IOException ioe) {
-        throw OException.wrapException(new OStorageException("Cannot calculate records size"), ioe);
+        throw YTException.wrapException(new YTStorageException("Cannot calculate records size"),
+            ioe);
       }
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
@@ -3900,7 +3901,7 @@ public abstract class OAbstractPaginatedStorage
 
         if (throwException) {
           atomicOperationsManager.freezeAtomicOperations(
-              OModificationOperationProhibitedException.class,
+              YTModificationOperationProhibitedException.class,
               "Modification requests are prohibited");
         } else {
           atomicOperationsManager.freezeAtomicOperations(null, null);
@@ -3920,8 +3921,8 @@ public abstract class OAbstractPaginatedStorage
             indexEngine.release();
           }
 
-          throw OException.wrapException(
-              new OStorageException("Error on freeze of storage '" + name + "'"), e);
+          throw YTException.wrapException(
+              new YTStorageException("Error on freeze of storage '" + name + "'"), e);
         }
 
         synch();
@@ -4006,7 +4007,7 @@ public abstract class OAbstractPaginatedStorage
       return;
     }
 
-    setInError(new OStorageException("Page " + pageIndex + " is broken in file " + fileName));
+    setInError(new YTStorageException("Page " + pageIndex + " is broken in file " + fileName));
 
     try {
       makeStorageDirty();
@@ -4055,7 +4056,7 @@ public abstract class OAbstractPaginatedStorage
           executor.setProgressListener(command.getProgressListener());
           executor.parse(command);
           return executeCommand(database, command, executor);
-        } catch (final ORetryQueryException ignore) {
+        } catch (final YTRetryQueryException ignore) {
           if (command instanceof OQueryAbstract<?> query) {
             query.reset();
           }
@@ -4075,7 +4076,7 @@ public abstract class OAbstractPaginatedStorage
       final OCommandExecutor executor) {
     try {
       if (iCommand.isIdempotent() && !executor.isIdempotent()) {
-        throw new OCommandExecutionException("Cannot execute non idempotent command");
+        throw new YTCommandExecutionException("Cannot execute non idempotent command");
       }
       final long beginTime = YouTrackDBManager.instance().getProfiler().startChrono();
       try {
@@ -4099,12 +4100,12 @@ public abstract class OAbstractPaginatedStorage
 
         return result;
 
-      } catch (final OException e) {
+      } catch (final YTException e) {
         // PASS THROUGH
         throw e;
       } catch (final Exception e) {
-        throw OException.wrapException(
-            new OCommandExecutionException("Error on execution of command: " + iCommand), e);
+        throw YTException.wrapException(
+            new YTCommandExecutionException("Error on execution of command: " + iCommand), e);
 
       } finally {
         if (YouTrackDBManager.instance().getProfiler().isRecording()) {
@@ -4153,8 +4154,8 @@ public abstract class OAbstractPaginatedStorage
         final OCluster cluster = doGetAndCheckCluster(currentClusterId);
         return cluster.higherPositions(physicalPosition);
       } catch (final IOException ioe) {
-        throw OException.wrapException(
-            new OStorageException(
+        throw YTException.wrapException(
+            new YTStorageException(
                 "Cluster Id " + currentClusterId + " is invalid in storage '" + name + '\''),
             ioe);
       } finally {
@@ -4186,8 +4187,8 @@ public abstract class OAbstractPaginatedStorage
         final OCluster cluster = doGetAndCheckCluster(clusterId);
         return cluster.ceilingPositions(physicalPosition);
       } catch (final IOException ioe) {
-        throw OException.wrapException(
-            new OStorageException(
+        throw YTException.wrapException(
+            new YTStorageException(
                 "Cluster Id " + clusterId + " is invalid in storage '" + name + '\''),
             ioe);
       } finally {
@@ -4220,8 +4221,8 @@ public abstract class OAbstractPaginatedStorage
 
         return cluster.lowerPositions(physicalPosition);
       } catch (final IOException ioe) {
-        throw OException.wrapException(
-            new OStorageException(
+        throw YTException.wrapException(
+            new YTStorageException(
                 "Cluster Id " + currentClusterId + " is invalid in storage '" + name + '\''),
             ioe);
       } finally {
@@ -4253,8 +4254,8 @@ public abstract class OAbstractPaginatedStorage
 
         return cluster.floorPositions(physicalPosition);
       } catch (final IOException ioe) {
-        throw OException.wrapException(
-            new OStorageException(
+        throw YTException.wrapException(
+            new YTStorageException(
                 "Cluster Id " + clusterId + " is invalid in storage '" + name + '\''),
             ioe);
       } finally {
@@ -4287,8 +4288,8 @@ public abstract class OAbstractPaginatedStorage
       atomicOperationsManager.executeInsideAtomicOperation(
           null, atomicOperation -> doSetConflictStrategy(conflictResolver, atomicOperation));
     } catch (final Exception e) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Exception during setting of conflict strategy "
                   + conflictResolver.getName()
                   + " for storage "
@@ -4359,12 +4360,12 @@ public abstract class OAbstractPaginatedStorage
     final STATUS status = this.status;
 
     if (status == STATUS.MIGRATION) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Storage data are under migration procedure, please wait till data will be migrated.");
     }
 
     if (status != STATUS.OPEN) {
-      throw new OStorageException("Storage " + name + " is not opened.");
+      throw new YTStorageException("Storage " + name + " is not opened.");
     }
   }
 
@@ -4374,8 +4375,8 @@ public abstract class OAbstractPaginatedStorage
 
   public void checkErrorState() {
     if (this.error.get() != null) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Internal error happened in storage "
                   + name
                   + " please restart the server or re-open the storage to undergo the restore"
@@ -4392,8 +4393,8 @@ public abstract class OAbstractPaginatedStorage
           break;
         }
       } catch (InterruptedException e) {
-        throw OException.wrapException(
-            new OInterruptedException("Fuzzy check point was interrupted"), e);
+        throw YTException.wrapException(
+            new YTInterruptedException("Fuzzy check point was interrupted"), e);
       }
 
       if (status != STATUS.OPEN || status != STATUS.MIGRATION) {
@@ -4453,7 +4454,7 @@ public abstract class OAbstractPaginatedStorage
         OLogManager.instance().debug(this, "No reason to make fuzzy checkpoint");
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(new OIOException("Error during fuzzy checkpoint"), ioe);
+      throw YTException.wrapException(new OIOException("Error during fuzzy checkpoint"), ioe);
     } finally {
       stateLock.readLock().unlock();
     }
@@ -4483,7 +4484,7 @@ public abstract class OAbstractPaginatedStorage
       sbTreeCollectionManager.delete(atomicOperation, collectionPointer);
     } catch (final Exception e) {
       OLogManager.instance().error(this, "Error during deletion of rid bag", e);
-      throw OException.wrapException(new OStorageException("Error during deletion of ridbag"), e);
+      throw YTException.wrapException(new YTStorageException("Error during deletion of ridbag"), e);
     }
 
     ridBag.confirmDelete();
@@ -4519,8 +4520,8 @@ public abstract class OAbstractPaginatedStorage
       clearStorageDirty();
 
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OStorageException("Error during checkpoint creation for storage " + name), ioe);
+      throw YTException.wrapException(
+          new YTStorageException("Error during checkpoint creation for storage " + name), ioe);
     }
   }
 
@@ -4574,7 +4575,7 @@ public abstract class OAbstractPaginatedStorage
   private ORawBuffer readRecord(final YTRecordId rid, final boolean prefetchRecords) {
 
     if (!rid.isPersistent()) {
-      throw new ORecordNotFoundException(
+      throw new YTRecordNotFoundException(
           rid,
           "Cannot read record "
               + rid
@@ -4589,7 +4590,7 @@ public abstract class OAbstractPaginatedStorage
       try {
         cluster = doGetAndCheckCluster(rid.getClusterId());
       } catch (IllegalArgumentException e) {
-        throw OException.wrapException(new ORecordNotFoundException(rid), e);
+        throw YTException.wrapException(new YTRecordNotFoundException(rid), e);
       }
       // Disabled this assert have no meaning anymore
       // assert iLockingStrategy.equals(LOCKING_STRATEGY.DEFAULT);
@@ -4603,7 +4604,7 @@ public abstract class OAbstractPaginatedStorage
       try {
         cluster = doGetAndCheckCluster(rid.getClusterId());
       } catch (IllegalArgumentException e) {
-        throw OException.wrapException(new ORecordNotFoundException(rid), e);
+        throw YTException.wrapException(new YTRecordNotFoundException(rid), e);
       }
       return doReadRecord(cluster, rid, prefetchRecords);
     } finally {
@@ -4614,7 +4615,7 @@ public abstract class OAbstractPaginatedStorage
   @Override
   public boolean recordExists(YTDatabaseSessionInternal session, YTRID rid) {
     if (!rid.isPersistent()) {
-      throw new ORecordNotFoundException(
+      throw new YTRecordNotFoundException(
           rid,
           "Cannot read record "
               + rid
@@ -4703,7 +4704,7 @@ public abstract class OAbstractPaginatedStorage
         final String openedAtVersion = getOpenedAtVersion();
 
         if (openedAtVersion != null && !openedAtVersion.equals(OConstants.getRawVersion())) {
-          throw new OStorageException(
+          throw new YTStorageException(
               "Database has been opened at version "
                   + openedAtVersion
                   + " but is attempted to be restored at version "
@@ -4759,8 +4760,8 @@ public abstract class OAbstractPaginatedStorage
       }
     } catch (final Exception e) {
       OLogManager.instance().error(this, "Error on creating record in cluster: " + cluster, e);
-      throw ODatabaseException.wrapException(
-          new OStorageException("Error during creation of record"), e);
+      throw YTDatabaseException.wrapException(
+          new YTStorageException("Error during creation of record"), e);
     }
 
     if (callback != null) {
@@ -4855,12 +4856,12 @@ public abstract class OAbstractPaginatedStorage
       } else {
         return new OStorageOperationResult<>(newRecordVersion);
       }
-    } catch (final OConcurrentModificationException e) {
+    } catch (final YTConcurrentModificationException e) {
       recordConflict.increment();
       throw e;
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Error on updating record " + rid + " (cluster: " + cluster.getName() + ")"),
           ioe);
     }
@@ -4886,10 +4887,10 @@ public abstract class OAbstractPaginatedStorage
       if (version > -1 && ppos.recordVersion != version) {
         recordConflict.increment();
 
-        if (OFastConcurrentModificationException.enabled()) {
-          throw OFastConcurrentModificationException.instance();
+        if (YTFastConcurrentModificationException.enabled()) {
+          throw YTFastConcurrentModificationException.instance();
         } else {
-          throw new OConcurrentModificationException(
+          throw new YTConcurrentModificationException(
               rid, ppos.recordVersion, version, ORecordOperation.DELETED);
         }
       }
@@ -4909,8 +4910,8 @@ public abstract class OAbstractPaginatedStorage
 
       return new OStorageOperationResult<>(true);
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Error on deleting record " + rid + "( cluster: " + cluster.getName() + ")"),
           ioe);
     }
@@ -4937,8 +4938,8 @@ public abstract class OAbstractPaginatedStorage
 
       return buff;
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during read of record with rid = " + rid), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during read of record with rid = " + rid), e);
     }
   }
 
@@ -4946,8 +4947,8 @@ public abstract class OAbstractPaginatedStorage
     try {
       return clusterSegment.exists(rid.getClusterPosition());
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during read of record with rid = " + rid), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during read of record with rid = " + rid), e);
     }
   }
 
@@ -4997,7 +4998,7 @@ public abstract class OAbstractPaginatedStorage
     if (cluster != null) {
       // CHECK FOR DUPLICATION OF NAMES
       if (clusterMap.containsKey(cluster.getName().toLowerCase())) {
-        throw new OConfigurationException(
+        throw new YTConfigurationException(
             "Cannot add cluster '"
                 + cluster.getName()
                 + "' because it is already registered in database '"
@@ -5166,8 +5167,8 @@ public abstract class OAbstractPaginatedStorage
       }
 
       if (status != STATUS.OPEN && !isInError()) {
-        throw OException.wrapException(
-            new OStorageException("Storage " + name + " was not opened, so can not be closed"),
+        throw YTException.wrapException(
+            new YTStorageException("Storage " + name + " was not opened, so can not be closed"),
             this.error.get());
       }
 
@@ -5241,8 +5242,8 @@ public abstract class OAbstractPaginatedStorage
     }
 
     if (status != STATUS.OPEN && !isInError()) {
-      throw OException.wrapException(
-          new OStorageException("Storage " + name + " was not opened, so can not be closed"),
+      throw YTException.wrapException(
+          new YTStorageException("Storage " + name + " was not opened, so can not be closed"),
           this.error.get());
     }
 
@@ -5300,7 +5301,7 @@ public abstract class OAbstractPaginatedStorage
       final String message = "Error on closing of storage '" + name;
       OLogManager.instance().error(this, message, e);
 
-      throw OException.wrapException(new OStorageException(message), e);
+      throw YTException.wrapException(new YTStorageException(message), e);
     }
   }
 
@@ -5348,7 +5349,7 @@ public abstract class OAbstractPaginatedStorage
           version.set(ORecordVersionHelper.clearRollbackMode(v));
           iDatabaseVersion.set(version.get());
         } else if (v != iDatabaseVersion.get()) {
-          throw new OConcurrentModificationException(
+          throw new YTConcurrentModificationException(
               rid, iDatabaseVersion.get(), v, ORecordOperation.UPDATED);
         } else
         // OK, INCREMENT DB VERSION
@@ -5396,8 +5397,8 @@ public abstract class OAbstractPaginatedStorage
           try {
             stream = serializer.toStream(transcation.getDatabase(), rec);
           } catch (RuntimeException e) {
-            throw OException.wrapException(
-                new OCommitSerializationException("Error During Record Serialization"), e);
+            throw YTException.wrapException(
+                new YTCommitSerializationException("Error During Record Serialization"), e);
           }
           if (allocated != null) {
             final OPhysicalPosition ppos;
@@ -5439,8 +5440,8 @@ public abstract class OAbstractPaginatedStorage
           try {
             stream = serializer.toStream(transcation.getDatabase(), rec);
           } catch (RuntimeException e) {
-            throw OException.wrapException(
-                new OCommitSerializationException("Error During Record Serialization"), e);
+            throw YTException.wrapException(
+                new YTCommitSerializationException("Error During Record Serialization"), e);
           }
 
           final OStorageOperationResult<Integer> updateRes =
@@ -5474,7 +5475,7 @@ public abstract class OAbstractPaginatedStorage
           break;
         }
         default:
-          throw new OStorageException("Unknown record operation " + txEntry.type);
+          throw new YTStorageException("Unknown record operation " + txEntry.type);
       }
     } finally {
       ORecordSerializationContext.pullContext();
@@ -5696,7 +5697,7 @@ public abstract class OAbstractPaginatedStorage
           final String fileName = writeCache.restoreFileById(fileId);
 
           if (fileName == null) {
-            throw new OStorageException(
+            throw new YTStorageException(
                 "File with id "
                     + fileId
                     + " was deleted from storage, the rest of operations can not be restored");
@@ -5984,9 +5985,9 @@ public abstract class OAbstractPaginatedStorage
   }
 
   protected RuntimeException logAndPrepareForRethrow(final RuntimeException runtimeException) {
-    if (!(runtimeException instanceof OHighLevelException
-        || runtimeException instanceof ONeedRetryException
-        || runtimeException instanceof OInternalErrorException
+    if (!(runtimeException instanceof YTHighLevelException
+        || runtimeException instanceof YTNeedRetryException
+        || runtimeException instanceof YTInternalErrorException
         || runtimeException instanceof IllegalArgumentException)) {
       final Object[] iAdditionalArgs =
           new Object[]{
@@ -6004,7 +6005,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   protected Error logAndPrepareForRethrow(final Error error, final boolean putInReadOnlyMode) {
-    if (!(error instanceof OHighLevelException)) {
+    if (!(error instanceof YTHighLevelException)) {
       if (putInReadOnlyMode) {
         setInError(error);
       }
@@ -6024,9 +6025,9 @@ public abstract class OAbstractPaginatedStorage
 
   protected RuntimeException logAndPrepareForRethrow(
       final Throwable throwable, final boolean putInReadOnlyMode) {
-    if (!(throwable instanceof OHighLevelException
-        || throwable instanceof ONeedRetryException
-        || throwable instanceof OInternalErrorException)) {
+    if (!(throwable instanceof YTHighLevelException
+        || throwable instanceof YTNeedRetryException
+        || throwable instanceof YTInternalErrorException)) {
       if (putInReadOnlyMode) {
         setInError(throwable);
       }
@@ -6662,8 +6663,8 @@ public abstract class OAbstractPaginatedStorage
         return Optional.empty();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error of reading of records from  WAL"), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error of reading of records from  WAL"), e);
     } finally {
       stateLock.readLock().unlock();
     }
@@ -6700,8 +6701,8 @@ public abstract class OAbstractPaginatedStorage
       try {
         backupIsDone.await();
       } catch (InterruptedException e) {
-        throw OException.wrapException(
-            new OInterruptedException("Interrupted wait for backup to finish"), e);
+        throw YTException.wrapException(
+            new YTInterruptedException("Interrupted wait for backup to finish"), e);
       }
     }
   }
@@ -6751,8 +6752,8 @@ public abstract class OAbstractPaginatedStorage
         try {
           backupIsDone.await();
         } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("Interrupted wait for backup to finish"), e);
+          throw YTException.wrapException(
+              new YTInterruptedException("Interrupted wait for backup to finish"), e);
         }
       }
       //noinspection NonAtomicOperationOnVolatileField

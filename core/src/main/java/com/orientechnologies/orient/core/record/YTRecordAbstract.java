@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.ChangeableIdentity;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.IdentityChangeListener;
@@ -135,7 +135,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
 
   public YTRecordAbstract fromStream(final byte[] iRecordBuffer) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fromStream() on dirty records");
+      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
     }
 
     contentChanged = false;
@@ -149,7 +149,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
 
   protected YTRecordAbstract fromStream(final byte[] iRecordBuffer, YTDatabaseSessionInternal db) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fromStream() on dirty records");
+      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
     }
 
     contentChanged = false;
@@ -164,12 +164,12 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
   public YTRecordAbstract setDirty() {
     if (!dirty && recordId.isPersistent()) {
       if (session == null) {
-        throw new ODatabaseException(createNotBoundToSessionMessage());
+        throw new YTDatabaseException(createNotBoundToSessionMessage());
       }
 
       var tx = session.getTransaction();
       if (!tx.isActive()) {
-        throw new ODatabaseException("Cannot modify persisted record outside of transaction");
+        throw new YTDatabaseException("Cannot modify persisted record outside of transaction");
       }
     }
 
@@ -315,7 +315,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
     assert session != null && session.assertIfNotActive();
 
     if (session == null) {
-      throw new ODatabaseException(createNotBoundToSessionMessage());
+      throw new YTDatabaseException(createNotBoundToSessionMessage());
     }
 
     return session;
@@ -397,7 +397,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
     checkForBinding();
 
     if (cloned.dirty) {
-      throw new ODatabaseException("Cannot copy to dirty records");
+      throw new YTDatabaseException("Cannot copy to dirty records");
     }
 
     cloned.source = source;
@@ -417,7 +417,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
   protected YTRecordAbstract fill(
       final YTRID iRid, final int iVersion, final byte[] iBuffer, boolean iDirty) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fill() on dirty records");
+      throw new YTDatabaseException("Cannot call fill() on dirty records");
     }
 
     recordId.setClusterId(iRid.getClusterId());
@@ -447,7 +447,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
       boolean iDirty,
       YTDatabaseSessionInternal db) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fill() on dirty records");
+      throw new YTDatabaseException("Cannot call fill() on dirty records");
     }
 
     recordId.setClusterId(iRid.getClusterId());
@@ -537,7 +537,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
         return;
       }
 
-      throw new ODatabaseException(createNotBoundToSessionMessage());
+      throw new YTDatabaseException(createNotBoundToSessionMessage());
     }
 
     assert session == null || session.assertIfNotActive();

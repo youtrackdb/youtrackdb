@@ -17,7 +17,7 @@
 package com.orientechnologies.orient.core.fetch.remote;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OFetchException;
+import com.orientechnologies.orient.core.exception.YTFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchListener;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -48,7 +48,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       final Object iusObject,
       final String iFormat,
       YTType filedType)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public void parseLinked(
@@ -57,7 +57,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       Object iUserObject,
       String iFieldName,
       OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public void parseLinkedCollectionValue(
@@ -66,7 +66,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       Object iUserObject,
       String iFieldName,
       OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
   }
 
   public Object fetchLinkedMapEntry(
@@ -76,7 +76,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       String iKey,
       YTDocument iLinked,
       OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     if (iLinked.getIdentity().isValid()) {
       sendRecord(iLinked);
       return true;
@@ -90,7 +90,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       String iFieldName,
       YTDocument iLinked,
       OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     if (iLinked.getIdentity().isValid()) {
       sendRecord(iLinked);
       return true;
@@ -104,7 +104,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       String iFieldName,
       YTDocument iLinked,
       OFetchContext iContext)
-      throws OFetchException {
+      throws YTFetchException {
     sendRecord(iLinked);
     return true;
   }
@@ -116,6 +116,6 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       OFetchContext iContext,
       Object iUserObject,
       String iFormat)
-      throws OFetchException {
+      throws YTFetchException {
   }
 }

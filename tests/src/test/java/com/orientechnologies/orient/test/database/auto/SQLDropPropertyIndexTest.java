@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -132,7 +132,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
     try {
       database.command("DROP PROPERTY DropPropertyIndexTestClass.prop1").close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(
           e.getMessage()
               .contains(
@@ -169,7 +169,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
     try {
       database.command("DROP PROPERTY DropPropertyIndextestclass.prop1").close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(
           e.getMessage()
               .contains(

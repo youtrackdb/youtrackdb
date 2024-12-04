@@ -20,12 +20,12 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
@@ -82,7 +82,7 @@ public class OLiveQueryV2Test {
     }
 
     @Override
-    public void onError(YTDatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, YTException exception) {
     }
 
     @Override
@@ -262,7 +262,7 @@ public class OLiveQueryV2Test {
                         }
 
                         @Override
-                        public void onError(YTDatabaseSession database, OException exception) {
+                        public void onError(YTDatabaseSession database, YTException exception) {
                         }
 
                         @Override

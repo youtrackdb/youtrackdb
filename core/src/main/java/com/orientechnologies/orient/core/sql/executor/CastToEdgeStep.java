@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
@@ -16,7 +16,7 @@ public class CastToEdgeStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     assert prev != null;
     OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
@@ -34,7 +34,7 @@ public class CastToEdgeStep extends AbstractExecutionStep {
         result = new OResultInternal(db, result.toElement().toEdge());
       }
     } else {
-      throw new OCommandExecutionException("Current element is not a vertex: " + result);
+      throw new YTCommandExecutionException("Current element is not a vertex: " + result);
     }
     return result;
   }

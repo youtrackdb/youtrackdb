@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -165,7 +165,7 @@ public class OScriptExecutionTest extends DBTestBase {
     script += "COMMIT RETRY 10;";
     try {
       db.execute("SQL", script);
-    } catch (OConcurrentModificationException x) {
+    } catch (YTConcurrentModificationException x) {
     }
 
     OResultSet result = db.query("select from " + className);
@@ -241,7 +241,7 @@ public class OScriptExecutionTest extends DBTestBase {
     try {
       db.execute("SQL", script);
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
 
     }
 
@@ -270,7 +270,7 @@ public class OScriptExecutionTest extends DBTestBase {
     try {
       db.execute("SQL", script);
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
 
     }
 
@@ -290,7 +290,7 @@ public class OScriptExecutionTest extends DBTestBase {
     try {
       db.command(script);
       Assert.fail();
-    } catch (OCommandSQLParsingException e) {
+    } catch (YTCommandSQLParsingException e) {
 
     }
 

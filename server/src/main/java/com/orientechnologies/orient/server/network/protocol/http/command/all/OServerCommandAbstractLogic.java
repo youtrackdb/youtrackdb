@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.all;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.command.script.OCommandScriptException;
+import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -80,8 +80,8 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
           params.fromJSON(iRequest.getContent());
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {
-          throw OException.wrapException(
-              new OCommandScriptException("Error on parsing parameters from request body"), e);
+          throw YTException.wrapException(
+              new YTCommandScriptException("Error on parsing parameters from request body"), e);
         }
       } else {
         functionResult = f.executeInContext(context, args);
@@ -89,7 +89,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
 
       handleResult(iRequest, iResponse, functionResult, db);
 
-    } catch (OCommandScriptException e) {
+    } catch (YTCommandScriptException e) {
       // EXCEPTION
       final StringBuilder msg = new StringBuilder(256);
       for (Exception currentException = e;

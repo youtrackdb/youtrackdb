@@ -8,8 +8,8 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -57,7 +57,7 @@ public class TestGraphElementDelete {
     try {
       database.load(edge.getIdentity());
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
   }
@@ -110,7 +110,7 @@ public class TestGraphElementDelete {
       database.delete(instance);
       database.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
     }
 
     assertNotNull(database.load(edge.getIdentity()));

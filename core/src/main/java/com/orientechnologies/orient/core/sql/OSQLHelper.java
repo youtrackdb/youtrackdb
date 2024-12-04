@@ -145,7 +145,7 @@ public class OSQLHelper {
             OStringSerializerHelper.smartSplit(item, OStringSerializerHelper.ENTRY_SEPARATOR);
 
         if (parts == null || parts.size() != 2) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Map found but entries are not defined as <key>:<value>");
         }
 

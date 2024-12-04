@@ -24,14 +24,14 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.fetch.json.OJSONFetchContext;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -757,7 +757,7 @@ public class OFetchHelper {
         YTRecord r = null;
         try {
           r = identifiable.getRecord();
-        } catch (ORecordNotFoundException ignore) {
+        } catch (YTRecordNotFoundException ignore) {
         }
         if (r != null) {
           if (r instanceof YTDocument d) {
@@ -923,7 +923,7 @@ public class OFetchHelper {
                 context.onAfterDocument(
                     iRootRecord, (YTDocument) identifiable, fieldName, iUserObject);
               }
-            } catch (ORecordNotFoundException rnf) {
+            } catch (YTRecordNotFoundException rnf) {
               iListener.processStandardField(
                   null, identifiable, null, context, iUserObject, "", null);
             }
@@ -1008,7 +1008,7 @@ public class OFetchHelper {
       final YTDocument linked;
       try {
         linked = fieldValue.getRecord();
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return;
       }
 

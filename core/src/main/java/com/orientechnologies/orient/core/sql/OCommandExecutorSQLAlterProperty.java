@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty.ATTRIBUTES;
@@ -70,21 +70,21 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_PROPERTY + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -100,21 +100,21 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
           }
           parts = new String[]{parts[0], fullName.toString()};
         } else {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Expected <class>.<property>. Use " + getSyntax(), parserText, oldPos);
         }
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new OCommandSQLParsingException("Class not found", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Class not found", parserText, oldPos);
       }
       fieldName = decodeClassName(parts[1]);
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missing property attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -123,8 +123,8 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
       try {
         attribute = YTProperty.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw OException.wrapException(
-            new OCommandSQLParsingException(
+        throw YTException.wrapException(
+            new YTCommandSQLParsingException(
                 "Unknown property attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
@@ -140,7 +140,7 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
       }
 
       if (value.length() == 0) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missing property value to change for attribute '"
                 + attribute
                 + "'. Use "
@@ -213,7 +213,7 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (attribute == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
     }
 
@@ -221,12 +221,12 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
     final YTClassImpl sourceClass =
         (YTClassImpl) db.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
-      throw new OCommandExecutionException("Source class '" + className + "' not found");
+      throw new YTCommandExecutionException("Source class '" + className + "' not found");
     }
 
     final YTPropertyImpl prop = (YTPropertyImpl) sourceClass.getProperty(fieldName);
     if (prop == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Property '" + className + "." + fieldName + "' not exists");
     }
 

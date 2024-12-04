@@ -507,7 +507,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   // OSecuritySystem (via OServerSecurity)
   public void validatePassword(final String username, final String password)
-      throws OInvalidPasswordException {
+      throws YTInvalidPasswordException {
     if (enabled) {
       synchronized (passwordValidatorSynch) {
         if (passwordValidator != null) {
@@ -674,7 +674,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
               this,
               "ODefaultServerSecurity.reload(YTDocument) The provided configuration document is"
                   + " null");
-      throw new OSecuritySystemException(
+      throw new YTSecuritySystemException(
           "ODefaultServerSecurity.reload(YTDocument) The provided configuration document is null");
     }
   }
@@ -682,11 +682,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   public void reloadComponent(YTDatabaseSessionInternal session, OSecurityUser user,
       final String name, final YTDocument jsonConfig) {
     if (name == null || name.isEmpty()) {
-      throw new OSecuritySystemException(
+      throw new YTSecuritySystemException(
           "ODefaultServerSecurity.reloadComponent() name is null or empty");
     }
     if (jsonConfig == null) {
-      throw new OSecuritySystemException(
+      throw new YTSecuritySystemException(
           "ODefaultServerSecurity.reloadComponent() Configuration document is null");
     }
 

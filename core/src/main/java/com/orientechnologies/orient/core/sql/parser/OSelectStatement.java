@@ -9,7 +9,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -253,11 +253,11 @@ public class OSelectStatement extends OStatement {
     }
   }
 
-  public void validate() throws OCommandSQLParsingException {
+  public void validate() throws YTCommandSQLParsingException {
     if (projection != null) {
       projection.validate();
       if (projection.isExpand() && groupBy != null) {
-        throw new OCommandSQLParsingException("expand() cannot be used together with GROUP BY");
+        throw new YTCommandSQLParsingException("expand() cannot be used together with GROUP BY");
       }
     }
   }

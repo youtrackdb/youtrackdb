@@ -20,9 +20,9 @@
 
 package com.orientechnologies.common.util;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
@@ -51,8 +51,8 @@ public class OClassLoaderHelper {
       return ServiceLoader.load(clazz).iterator();
     } catch (Exception e) {
       OLogManager.instance().warn(OClassLoaderHelper.class, "Cannot lookup in service registry", e);
-      throw OException.wrapException(
-          new OConfigurationException("Cannot lookup in service registry"), e);
+      throw YTException.wrapException(
+          new YTConfigurationException("Cannot lookup in service registry"), e);
     } finally {
       Thread.currentThread().setContextClassLoader(origClassLoader);
     }

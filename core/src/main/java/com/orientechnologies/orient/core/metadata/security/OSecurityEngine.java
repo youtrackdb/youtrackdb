@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -434,8 +434,8 @@ public class OSecurityEngine {
                 return predicate.evaluate(recordCopy, ctx);
               }));
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OSecurityException("Cannot execute security predicate"), e);
+      throw YTException.wrapException(
+          new YTSecurityException("Cannot execute security predicate"), e);
     }
   }
 
@@ -469,7 +469,7 @@ public class OSecurityEngine {
           .get();
     } catch (Exception e) {
       e.printStackTrace();
-      throw new OSecurityException("Cannot execute security predicate");
+      throw new YTSecurityException("Cannot execute security predicate");
     }
   }
 

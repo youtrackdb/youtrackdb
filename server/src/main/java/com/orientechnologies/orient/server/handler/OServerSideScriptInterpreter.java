@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OScriptInterceptor;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -141,6 +141,6 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
       return;
     }
 
-    throw new OSecurityException("Language '" + language + "' is not allowed to be executed");
+    throw new YTSecurityException("Language '" + language + "' is not allowed to be executed");
   }
 }

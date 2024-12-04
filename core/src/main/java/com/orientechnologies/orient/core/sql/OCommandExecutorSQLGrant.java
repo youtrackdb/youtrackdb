@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import java.util.Map;
 
@@ -55,45 +55,45 @@ public class OCommandExecutorSQLGrant extends OCommandExecutorSQLPermissionAbstr
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_GRANT)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_GRANT + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException("Invalid privilege", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Invalid privilege", parserText, oldPos);
       }
 
       parsePrivilege(word, oldPos);
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ON)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_ON + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserText, pos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException("Invalid resource", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Invalid resource", parserText, oldPos);
       }
 
       resource = word.toString();
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TO)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_TO + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserText, pos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException("Invalid role", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Invalid role", parserText, oldPos);
       }
 
       final String roleName = word.toString();
       role = getDatabase().getMetadata().getSecurity().getRole(roleName);
       if (role == null) {
-        throw new OCommandSQLParsingException("Invalid role: " + roleName);
+        throw new YTCommandSQLParsingException("Invalid role: " + roleName);
       }
 
     } finally {
@@ -108,7 +108,7 @@ public class OCommandExecutorSQLGrant extends OCommandExecutorSQLPermissionAbstr
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (role == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 

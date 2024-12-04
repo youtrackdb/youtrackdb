@@ -26,9 +26,9 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -131,7 +131,7 @@ public class OResultSerializerNetwork {
         } else {
           final YTType type = YTType.getTypeByValue(propertyValue);
           if (type == null) {
-            throw new OSerializationException(
+            throw new YTSerializationException(
                 "Impossible serialize value of type "
                     + propertyValue.getClass()
                     + " with the Result binary serializer");
@@ -157,7 +157,7 @@ public class OResultSerializerNetwork {
         } else {
           final YTType type = YTType.getTypeByValue(value);
           if (type == null) {
-            throw new OSerializationException(
+            throw new YTSerializationException(
                 "Impossible serialize value of type "
                     + value.getClass()
                     + " with the Result binary serializer");
@@ -443,7 +443,7 @@ public class OResultSerializerNetwork {
           value = ((OResult) value).getElement().get();
         }
         if (!(value instanceof YTIdentifiable)) {
-          throw new OValidationException("Value '" + value + "' is not a YTIdentifiable");
+          throw new YTValidationException("Value '" + value + "' is not a YTIdentifiable");
         }
         writeOptimizedLink(bytes, (YTIdentifiable) value);
         break;
@@ -500,7 +500,7 @@ public class OResultSerializerNetwork {
     OVarIntSerializer.write(bytes, map.size());
     for (Object f : fieldNames) {
       if (!(f instanceof String field)) {
-        throw new OSerializationException(
+        throw new YTSerializationException(
             "Invalid key type for map: " + f + " (only Strings supported)");
       }
       writeString(bytes, field);
@@ -512,7 +512,7 @@ public class OResultSerializerNetwork {
         } else {
           final YTType type = YTType.getTypeByValue(value);
           if (type == null) {
-            throw new OSerializationException(
+            throw new YTSerializationException(
                 "Impossible serialize value of type "
                     + value.getClass()
                     + " with the Result binary serializer");
@@ -536,7 +536,7 @@ public class OResultSerializerNetwork {
     if (!link.getIdentity().isPersistent()) {
       try {
         link = link.getRecord();
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         // IGNORE THIS
       }
     }
@@ -571,7 +571,7 @@ public class OResultSerializerNetwork {
         writeOType(bytes, bytes.alloc(1), type);
         serializeValue(bytes, itemValue, type, null);
       } else {
-        throw new OSerializationException(
+        throw new YTSerializationException(
             "Impossible serialize value of type "
                 + value.getClass()
                 + " with the YTDocument binary serializer");

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,7 +51,7 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<YTDatabaseSessionInt
     if (INSTANCE.get() == null) {
       final YouTrackDBManager inst = YouTrackDBManager.instance();
       if (inst == null) {
-        throw new ODatabaseException("YouTrackDB API is not active.");
+        throw new YTDatabaseException("YouTrackDB API is not active.");
       }
       inst.registerListener(
           new OOrientListenerAbstract() {
@@ -74,13 +74,13 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<YTDatabaseSessionInt
     YTDatabaseSessionInternal db = super.get();
     if (db == null) {
       if (YouTrackDBManager.instance().getDatabaseThreadFactory() == null) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "The database instance is not set in the current thread. Be sure to set it with:"
                 + " ODatabaseRecordThreadLocal.instance().set(db);");
       } else {
         db = YouTrackDBManager.instance().getDatabaseThreadFactory().getThreadDatabase();
         if (db == null) {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "The database instance is not set in the current thread. Be sure to set it with:"
                   + " ODatabaseRecordThreadLocal.instance().set(db);");
         } else {

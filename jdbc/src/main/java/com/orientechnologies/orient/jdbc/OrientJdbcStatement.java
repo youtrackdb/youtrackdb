@@ -15,9 +15,9 @@ package com.orientechnologies.orient.jdbc;
 
 import static java.lang.Boolean.parseBoolean;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -112,9 +112,9 @@ public class OrientJdbcStatement implements Statement {
 
         oResultSet = executeCommand(sql);
 
-      } catch (OQueryParsingException e) {
+      } catch (YTQueryParsingException e) {
         throw new SQLSyntaxErrorException("Error while parsing query", e);
-      } catch (OException e) {
+      } catch (YTException e) {
         throw new SQLException("Error while executing query", e);
       }
     }
@@ -163,9 +163,9 @@ public class OrientJdbcStatement implements Statement {
 
     try {
       return database.command(query);
-    } catch (OQueryParsingException e) {
+    } catch (YTQueryParsingException e) {
       throw new SQLSyntaxErrorException("Error while parsing command", e);
-    } catch (OException e) {
+    } catch (YTException e) {
       throw new SQLException("Error while executing command", e);
     }
   }

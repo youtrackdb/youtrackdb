@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -291,7 +291,7 @@ public class OUpdateItem extends SimpleNode {
         } else if (((Collection<?>) value).size() == 1) {
           value = ((Collection<?>) value).iterator().next();
         } else {
-          throw new OCommandExecutionException("Cannot assign a collection to a LINK property");
+          throw new YTCommandExecutionException("Cannot assign a collection to a LINK property");
         }
       } else {
         if (type == YTType.EMBEDDEDLIST && linkedClass != null) {

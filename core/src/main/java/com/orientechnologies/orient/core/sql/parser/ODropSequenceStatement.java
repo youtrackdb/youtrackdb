@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -35,16 +35,16 @@ public class ODropSequenceStatement extends ODDLStatement {
       if (ifExists) {
         return OExecutionStream.empty();
       } else {
-        throw new OCommandExecutionException("Sequence not found: " + name);
+        throw new YTCommandExecutionException("Sequence not found: " + name);
       }
     }
 
     try {
       database.getMetadata().getSequenceLibrary().dropSequence(name.getStringValue());
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       OLogManager.instance().error(this, message, exc, (Object) null);
-      throw new OCommandExecutionException(message);
+      throw new YTCommandExecutionException(message);
     }
 
     OResultInternal result = new OResultInternal(database);

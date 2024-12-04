@@ -15,32 +15,32 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OStringCache;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
 import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordSerializationContext;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -192,7 +192,7 @@ public class HelperClasses {
       }
       return new String(bytes, offset, len, StandardCharsets.UTF_8).intern();
     } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string decoding"), e);
+      throw YTException.wrapException(new YTSerializationException("Error on string decoding"), e);
     }
   }
 
@@ -232,12 +232,12 @@ public class HelperClasses {
     if (!link.getIdentity().isPersistent()) {
       try {
         link = link.getRecord();
-      } catch (ORecordNotFoundException ignored) {
+      } catch (YTRecordNotFoundException ignored) {
         // IGNORE IT WILL FAIL THE ASSERT IN CASE
       }
     }
     if (link.getIdentity().getClusterId() < 0) {
-      throw new ODatabaseException("Impossible to serialize invalid link " + link.getIdentity());
+      throw new YTDatabaseException("Impossible to serialize invalid link " + link.getIdentity());
     }
 
     final int pos = OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
@@ -416,7 +416,7 @@ public class HelperClasses {
     var db = ODatabaseRecordThreadLocal.instance().get();
     var tx = db.getTransaction();
     if (!(tx instanceof OTransactionOptimistic optimisticTx)) {
-      throw new ODatabaseException("Transaction is not active. Changes are not allowed");
+      throw new YTDatabaseException("Transaction is not active. Changes are not allowed");
     }
 
     boolean remoteMode = db.isRemote();
@@ -443,8 +443,8 @@ public class HelperClasses {
                 .getSbTreeCollectionManager()
                 .createSBTree(clusterId, atomicOperation, ownerUuid);
       } catch (IOException e) {
-        throw OException.wrapException(
-            new ODatabaseException("Error during creation of ridbag"), e);
+        throw YTException.wrapException(
+            new YTDatabaseException("Error during creation of ridbag"), e);
       }
     }
 
@@ -536,7 +536,7 @@ public class HelperClasses {
     if (rid.isTemporary()) {
       try {
         identifiable = rid.getRecord();
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         identifiable = rid;
       }
     }
@@ -555,7 +555,7 @@ public class HelperClasses {
     if (rid.isTemporary()) {
       try {
         identifiable = rid.getRecord();
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         identifiable = rid;
       }
     } else {

@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.core.storage.cluster.v2;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.exception.OPaginatedClusterException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTPaginatedClusterException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
@@ -353,8 +353,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                       try {
                         cacheEntry.close();
                       } catch (final IOException e) {
-                        throw OException.wrapException(
-                            new OPaginatedClusterException("Can not store the record", this), e);
+                        throw YTException.wrapException(
+                            new YTPaginatedClusterException("Can not store the record", this), e);
                       }
                     });
 
@@ -403,8 +403,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         page.init();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OPaginatedClusterException("Can not store the record", this), e);
+      throw YTException.wrapException(
+          new YTPaginatedClusterException("Can not store the record", this), e);
     }
 
     return page;
@@ -629,7 +629,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         final OClusterPositionMapBucket.PositionEntry positionEntry =
             clusterPositionMap.get(clusterPosition, atomicOperation);
         if (positionEntry == null) {
-          throw new ORecordNotFoundException(new YTRecordId(id, clusterPosition));
+          throw new YTRecordNotFoundException(new YTRecordId(id, clusterPosition));
         }
         return internalReadRecord(
             clusterPosition,
@@ -668,9 +668,9 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
         if (localPage.isDeleted(recordPosition)) {
           if (recordChunks.isEmpty()) {
-            throw new ORecordNotFoundException(new YTRecordId(id, clusterPosition));
+            throw new YTRecordNotFoundException(new YTRecordId(id, clusterPosition));
           } else {
-            throw new OPaginatedClusterException(
+            throw new YTPaginatedClusterException(
                 "Content of record " + new YTRecordId(id, clusterPosition) + " was broken", this);
           }
         }
@@ -683,7 +683,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         if (firstEntry
             && content[content.length - OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE]
             == 0) {
-          throw new ORecordNotFoundException(new YTRecordId(id, clusterPosition));
+          throw new YTRecordNotFoundException(new YTRecordId(id, clusterPosition));
         }
 
         recordChunks.add(content);
@@ -702,7 +702,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     byte[] fullContent = convertRecordChunksToSingleChunk(recordChunks, contentSize);
 
     if (fullContent == null) {
-      throw new ORecordNotFoundException(new YTRecordId(id, clusterPosition));
+      throw new YTRecordNotFoundException(new YTRecordId(id, clusterPosition));
     }
 
     int fullContentPosition = 0;
@@ -753,7 +753,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                     cacheEntry.close();
                     return false;
                   } else {
-                    throw new OPaginatedClusterException(
+                    throw new YTPaginatedClusterException(
                         "Content of record " + new YTRecordId(id, clusterPosition) + " was broken",
                         this);
                   }
@@ -863,8 +863,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                       try {
                         cacheEntry.close();
                       } catch (final IOException e) {
-                        throw OException.wrapException(
-                            new OPaginatedClusterException(
+                        throw YTException.wrapException(
+                            new YTPaginatedClusterException(
                                 "Can not update record with rid "
                                     + new YTRecordId(id, clusterPosition),
                                 this),
@@ -895,8 +895,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                         try {
                           cacheEntry.close();
                         } catch (final IOException e) {
-                          throw OException.wrapException(
-                              new OPaginatedClusterException(
+                          throw YTException.wrapException(
+                              new YTPaginatedClusterException(
                                   "Can not update record with rid "
                                       + new YTRecordId(id, clusterPosition),
                                   this),
@@ -1021,8 +1021,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         releaseSharedLock();
       }
     } catch (final IOException ioe) {
-      throw OException.wrapException(
-          new OPaginatedClusterException(
+      throw YTException.wrapException(
+          new YTPaginatedClusterException(
               "Error during retrieval of size of '" + getName() + "' cluster", this),
           ioe);
     } finally {
@@ -1268,8 +1268,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
       setName(newName);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OPaginatedClusterException("Error during renaming of cluster", this), e);
+      throw YTException.wrapException(
+          new YTPaginatedClusterException("Error during renaming of cluster", this), e);
     } finally {
       releaseExclusiveLock();
     }

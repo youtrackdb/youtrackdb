@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTConcurrentCreateException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -58,7 +58,7 @@ public class TransactionRidAllocationTest {
     try {
       db1.load(generated);
       Assert.fail();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       // ignore
     }
 
@@ -140,7 +140,7 @@ public class TransactionRidAllocationTest {
     db2.close();
   }
 
-  @Test(expected = OConcurrentCreateException.class)
+  @Test(expected = YTConcurrentCreateException.class)
   public void testMultipleDbAllocationNotAlignedFailure() {
     YTDatabaseSessionInternal second;
     youTrackDB.execute(

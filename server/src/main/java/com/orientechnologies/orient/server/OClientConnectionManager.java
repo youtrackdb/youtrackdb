@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import com.orientechnologies.orient.server.plugin.OServerPluginHelper;
@@ -176,10 +176,10 @@ public class OClientConnectionManager {
     try {
       parsedToken = server.getTokenHandler().parseOnlyBinary(tokenBytes);
     } catch (Exception e) {
-      throw OException.wrapException(new OTokenSecurityException("Error on token parsing"), e);
+      throw YTException.wrapException(new YTTokenSecurityException("Error on token parsing"), e);
     }
     if (!server.getTokenHandler().validateBinaryToken(parsedToken)) {
-      throw new OTokenSecurityException("The token provided is expired");
+      throw new YTTokenSecurityException("The token provided is expired");
     }
     OClientSessions session;
     synchronized (sessions) {
@@ -201,10 +201,10 @@ public class OClientConnectionManager {
     try {
       parsedToken = server.getTokenHandler().parseOnlyBinary(tokenBytes);
     } catch (Exception e) {
-      throw OException.wrapException(new OTokenSecurityException("Error on token parsing"), e);
+      throw YTException.wrapException(new YTTokenSecurityException("Error on token parsing"), e);
     }
     if (!server.getTokenHandler().validateBinaryToken(parsedToken)) {
-      throw new OTokenSecurityException("The token provided is expired");
+      throw new YTTokenSecurityException("The token provided is expired");
     }
 
     OHashToken key = new OHashToken(tokenBytes);

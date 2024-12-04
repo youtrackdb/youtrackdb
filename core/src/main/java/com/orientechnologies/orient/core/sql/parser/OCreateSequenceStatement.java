@@ -5,9 +5,9 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
       if (ifNotExists) {
         return OExecutionStream.empty();
       } else {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Sequence " + name.getStringValue() + " already exists");
       }
     }
@@ -64,7 +64,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
     } catch (ExecutionException | InterruptedException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       OLogManager.instance().error(this, message, exc, (Object) null);
-      throw new OCommandExecutionException(message);
+      throw new YTCommandExecutionException(message);
     }
 
     return OExecutionStream.singleton(result);
@@ -90,7 +90,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
         params.setStart(((Number) o).longValue());
         result.setProperty("start", o);
       } else {
-        throw new OCommandExecutionException("Invalid start value: " + o);
+        throw new YTCommandExecutionException("Invalid start value: " + o);
       }
     }
     if (increment != null) {
@@ -99,7 +99,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
         params.setIncrement(((Number) o).intValue());
         result.setProperty("increment", o);
       } else {
-        throw new OCommandExecutionException("Invalid increment value: " + o);
+        throw new YTCommandExecutionException("Invalid increment value: " + o);
       }
     }
     if (cache != null) {
@@ -108,7 +108,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
         params.setCacheSize(((Number) o).intValue());
         result.setProperty("cacheSize", o);
       } else {
-        throw new OCommandExecutionException("Invalid cache value: " + o);
+        throw new YTCommandExecutionException("Invalid cache value: " + o);
       }
     }
 
@@ -118,7 +118,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
         params.setLimitValue(((Number) o).longValue());
         result.setProperty("limitValue", o);
       } else {
-        throw new OCommandExecutionException("Invalid limit value: " + o);
+        throw new YTCommandExecutionException("Invalid limit value: " + o);
       }
     }
 

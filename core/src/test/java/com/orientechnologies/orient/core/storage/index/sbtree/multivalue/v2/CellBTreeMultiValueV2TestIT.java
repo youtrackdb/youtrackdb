@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.multivalue.v2;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OHighLevelException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTHighLevelException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OUTF8Serializer;
 import com.orientechnologies.common.types.OModifiableInteger;
@@ -1514,7 +1514,7 @@ public class CellBTreeMultiValueV2TestIT {
     void execute(int value, boolean rollback, OAtomicOperation atomicOperation) throws IOException;
   }
 
-  static final class RollbackException extends OException implements OHighLevelException {
+  static final class RollbackException extends YTException implements YTHighLevelException {
 
     public RollbackException() {
       this("");

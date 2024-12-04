@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
       db.getMetadata()
           .getSequenceLibrary()
           .createSequence(name, YTSequence.SEQUENCE_TYPE.CACHED, new YTSequence.CreateParams());
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       Assert.fail("Creating sequence failed");
     }
 
@@ -45,7 +45,7 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
     try {
       OResultSet result = db.command("drop sequence " + name);
       Assert.fail();
-    } catch (OCommandExecutionException ex1) {
+    } catch (YTCommandExecutionException ex1) {
 
     } catch (Exception ex1) {
       Assert.fail();
@@ -65,7 +65,7 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
       db.getMetadata()
           .getSequenceLibrary()
           .createSequence(name, YTSequence.SEQUENCE_TYPE.CACHED, new YTSequence.CreateParams());
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       Assert.fail("Creating sequence failed");
     }
 

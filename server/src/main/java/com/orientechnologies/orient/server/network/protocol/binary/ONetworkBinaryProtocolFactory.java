@@ -83,7 +83,7 @@ import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
 import com.orientechnologies.orient.client.remote.message.OSubscribeRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeRequest;
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.util.function.Function;
 
@@ -164,7 +164,7 @@ public class ONetworkBinaryProtocolFactory {
       case OChannelBinaryProtocol.REQUEST_INCREMENTAL_BACKUP -> new OIncrementalBackupRequest();
       case OChannelBinaryProtocol.REQUEST_DB_IMPORT -> new OImportRequest();
       case OChannelBinaryProtocol.DISTRIBUTED_CONNECT -> new ODistributedConnectRequest();
-      default -> throw new ODatabaseException("binary protocol command with code: " + requestType);
+      default -> throw new YTDatabaseException("binary protocol command with code: " + requestType);
     };
   }
 
@@ -227,7 +227,7 @@ public class ONetworkBinaryProtocolFactory {
       case OChannelBinaryProtocol.REQUEST_INCREMENTAL_BACKUP -> new OIncrementalBackupRequest();
       case OChannelBinaryProtocol.REQUEST_DB_IMPORT -> new OImportRequest();
       case OChannelBinaryProtocol.DISTRIBUTED_CONNECT -> new ODistributedConnectRequest();
-      default -> throw new ODatabaseException(
+      default -> throw new YTDatabaseException(
           "binary protocol command with code: " + requestType + " for protocol version 37");
     };
   }

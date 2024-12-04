@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
@@ -55,7 +55,7 @@ public class ConcurrentQueriesTest extends DocumentDBBaseTest {
               counter.incrementAndGet();
               totalRetries.addAndGet(retry);
               break;
-            } catch (ONeedRetryException e) {
+            } catch (YTNeedRetryException e) {
               try {
                 Thread.sleep(retry * 10);
               } catch (InterruptedException e1) {

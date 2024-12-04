@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.core.sql.filter;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Locale;
 import javax.annotation.Nonnull;
@@ -55,20 +55,20 @@ public class OSQLFilter extends OSQLPredicate implements OCommandPredicate {
       parserTextUpperCase = lastTextUpperCase;
       parserMoveCurrentPosition(lastPos);
 
-    } catch (OQueryParsingException e) {
+    } catch (YTQueryParsingException e) {
       if (e.getText() == null)
       // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
       {
-        throw OException.wrapException(
-            new OQueryParsingException(
+        throw YTException.wrapException(
+            new YTQueryParsingException(
                 "Error on parsing query", parserText, parserGetCurrentPosition()),
             e);
       }
 
       throw e;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OQueryParsingException(
+      throw YTException.wrapException(
+          new YTQueryParsingException(
               "Error on parsing query", parserText, parserGetCurrentPosition()),
           e);
     }

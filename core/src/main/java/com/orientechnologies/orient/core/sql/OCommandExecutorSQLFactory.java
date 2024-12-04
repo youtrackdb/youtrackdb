@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandExecutor;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.Set;
 
 /**
@@ -35,7 +35,7 @@ public interface OCommandExecutorSQLFactory {
    *
    * @param name
    * @return OCommandExecutorSQLAbstract : created command
-   * @throws OCommandExecutionException : when command creation fail
+   * @throws YTCommandExecutionException : when command creation fail
    */
-  OCommandExecutor createCommand(String name) throws OCommandExecutionException;
+  OCommandExecutor createCommand(String name) throws YTCommandExecutionException;
 }

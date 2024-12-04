@@ -24,7 +24,7 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.iterator.OLazyWrapperIterator;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -85,7 +85,7 @@ public class OEdgeIterator extends OLazyWrapperIterator<YTEdge> {
     final YTRecord record;
     try {
       record = rec.getRecord();
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       // SKIP IT
       OLogManager.instance().warn(this, "Record (%s) is null", rec);
       return null;

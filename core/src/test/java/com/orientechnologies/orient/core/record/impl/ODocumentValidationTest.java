@@ -5,7 +5,7 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -157,7 +157,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       d.validate();
       fail("Validation doesn't throw exception");
-    } catch (OValidationException e) {
+    } catch (YTValidationException e) {
       Assert.assertTrue(e.toString().contains("EmbeddedValidation.int"));
     }
     d = new YTDocument(clazzNotVertex);
@@ -197,7 +197,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       d.validate();
       fail("Validation doesn't throw exception");
-    } catch (OValidationException e) {
+    } catch (YTValidationException e) {
       Assert.assertTrue(e.toString().contains("EmbeddedValidation.long"));
     }
   }
@@ -232,7 +232,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       d.validate();
       fail("Validation doesn't throw exception");
-    } catch (OValidationException e) {
+    } catch (YTValidationException e) {
       Assert.assertTrue(e.toString().contains("EmbeddedValidation.long"));
     }
   }
@@ -267,7 +267,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       d.validate();
       fail("Validation doesn't throw exception");
-    } catch (OValidationException e) {
+    } catch (YTValidationException e) {
       Assert.assertTrue(e.toString().contains("EmbeddedValidation.long"));
     }
   }
@@ -278,7 +278,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
       newD.removeField(fieldName);
       newD.validate();
       fail();
-    } catch (OValidationException v) {
+    } catch (YTValidationException v) {
     }
   }
 
@@ -688,7 +688,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
       ((Collection) newD.field("linkList")).add(new YTDocument(clazz));
       newD.validate();
       fail();
-    } catch (OValidationException v) {
+    } catch (YTValidationException v) {
       db.rollback();
     }
 
@@ -699,7 +699,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
       ((Collection) newD.field("linkSet")).add(new YTDocument(clazz));
       newD.validate();
       fail();
-    } catch (OValidationException v) {
+    } catch (YTValidationException v) {
       db.rollback();
     }
 
@@ -710,7 +710,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
       ((ORidBag) newD.field("linkBag")).add(new YTDocument(clazz));
       newD.validate();
       fail();
-    } catch (OValidationException v) {
+    } catch (YTValidationException v) {
       db.rollback();
     }
 
@@ -721,7 +721,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
       ((Map<String, YTDocument>) newD.field("linkMap")).put("a", new YTDocument(clazz));
       newD.validate();
       fail();
-    } catch (OValidationException v) {
+    } catch (YTValidationException v) {
       db.rollback();
     }
   }
@@ -732,7 +732,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
       newD.field(field, newValue);
       newD.validate();
       fail();
-    } catch (OValidationException v) {
+    } catch (YTValidationException v) {
     }
   }
 }

@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -62,7 +62,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
     try {
 
       if (!(scriptEngine instanceof Compilable c)) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Language '" + language + "' does not support compilation");
       }
 
@@ -84,8 +84,8 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
         final Object ob = compiledScript.eval(binding);
         return transformer.toResultSet(database, ob);
       } catch (ScriptException e) {
-        throw OException.wrapException(
-            new OCommandScriptException(
+        throw YTException.wrapException(
+            new YTCommandScriptException(
                 "Error on execution of the script", script, e.getColumnNumber()),
             e);
 
@@ -145,14 +145,14 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
             scriptManager.handleResult(f.getLanguage(db), result, scriptEngine, binding, db));
 
       } catch (ScriptException e) {
-        throw OException.wrapException(
-            new OCommandScriptException(
+        throw YTException.wrapException(
+            new YTCommandScriptException(
                 "Error on execution of the script", functionName, e.getColumnNumber()),
             e);
       } catch (NoSuchMethodException e) {
-        throw OException.wrapException(
-            new OCommandScriptException("Error on execution of the script", functionName, 0), e);
-      } catch (OCommandScriptException e) {
+        throw YTException.wrapException(
+            new YTCommandScriptException("Error on execution of the script", functionName, 0), e);
+      } catch (YTCommandScriptException e) {
         // PASS THROUGH
         throw e;
 

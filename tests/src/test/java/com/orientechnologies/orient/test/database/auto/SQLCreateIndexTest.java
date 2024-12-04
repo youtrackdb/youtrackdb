@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyListIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition;
@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import java.util.Arrays;
 import java.util.List;
 import org.testng.Assert;
@@ -169,7 +169,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
                   + " (prop3 by ttt) UNIQUE")
           .close();
       Assert.fail();
-    } catch (OCommandSQLParsingException e) {
+    } catch (YTCommandSQLParsingException e) {
     }
     final OIndex index =
         database
@@ -190,7 +190,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
                   + " (prop3 b value) UNIQUE")
           .close();
       Assert.fail();
-    } catch (OCommandSQLParsingException e) {
+    } catch (YTCommandSQLParsingException e) {
 
     }
     final OIndex index =
@@ -212,7 +212,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
                   + " (prop3 by value t) UNIQUE")
           .close();
       Assert.fail();
-    } catch (OCommandSQLParsingException e) {
+    } catch (YTCommandSQLParsingException e) {
 
     }
     final OIndex index =
@@ -378,7 +378,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
                   + " sqlCreateIndexTestClass (prop6) UNIQUE")
           .close();
       Assert.fail();
-    } catch (OIndexException e) {
+    } catch (YTIndexException e) {
       Assert.assertTrue(
           e.getMessage()
               .contains(
@@ -404,7 +404,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
                   + " sqlCreateIndexTestClass (prop7 by value) UNIQUE")
           .close();
       Assert.fail();
-    } catch (OIndexException e) {
+    } catch (YTIndexException e) {
       Assert.assertTrue(
           e.getMessage()
               .contains(
@@ -462,7 +462,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
     try {
       database.command(new OCommandSQL(query)).execute(database);
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(
           e.getMessage()
               .contains(

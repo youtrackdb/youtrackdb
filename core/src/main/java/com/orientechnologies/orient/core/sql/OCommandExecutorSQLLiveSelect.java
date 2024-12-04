@@ -25,9 +25,9 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedAccessHook;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
@@ -159,7 +159,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
           ORule.ResourceGeneric.CLASS,
           ORole.PERMISSION_READ,
           ((YTDocument) value.getRecord()).getClassName());
-    } catch (OSecurityException ignore) {
+    } catch (YTSecurityException ignore) {
       return false;
     }
     OSecurityInternal security = execDb.getSharedContext().getSecurity();

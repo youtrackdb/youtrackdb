@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
@@ -84,7 +84,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
 
   @Override
   public OIndexInternal createIndex(OStorage storage, OIndexMetadata im)
-      throws OConfigurationException {
+      throws YTConfigurationException {
     Map<String, ?> metadata = im.getMetadata();
     final String indexType = im.getType();
     final String algorithm = im.getAlgorithm();
@@ -98,7 +98,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
     if (FULLTEXT.toString().equalsIgnoreCase(indexType)) {
       return new OLuceneFullTextIndex(im, storage);
     }
-    throw new OConfigurationException("Unsupported type : " + algorithm);
+    throw new YTConfigurationException("Unsupported type : " + algorithm);
   }
 
   @Override

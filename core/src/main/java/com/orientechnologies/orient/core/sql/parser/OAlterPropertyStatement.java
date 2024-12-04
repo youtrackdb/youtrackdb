@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Arrays;
@@ -41,12 +41,12 @@ public class OAlterPropertyStatement extends ODDLStatement {
     YTClass clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
 
     if (clazz == null) {
-      throw new OCommandExecutionException("Invalid class name or class not found: " + clazz);
+      throw new YTCommandExecutionException("Invalid class name or class not found: " + clazz);
     }
 
     YTProperty property = clazz.getProperty(propertyName.getStringValue());
     if (property == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Property " + propertyName.getStringValue() + " not found on class " + clazz);
     }
 
@@ -86,8 +86,8 @@ public class OAlterPropertyStatement extends ODDLStatement {
       try {
         attribute = YTProperty.ATTRIBUTES.valueOf(setting.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw OException.wrapException(
-            new OCommandExecutionException(
+        throw YTException.wrapException(
+            new YTCommandExecutionException(
                 "Unknown property attribute '"
                     + setting
                     + "'. Supported attributes are: "
@@ -107,7 +107,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
   }
 
   @Override
-  public void validate() throws OCommandSQLParsingException {
+  public void validate() throws YTCommandSQLParsingException {
     super.validate(); // TODO
   }
 

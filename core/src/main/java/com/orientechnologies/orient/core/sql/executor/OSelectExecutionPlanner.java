@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -135,7 +135,7 @@ public class OSelectExecutionPlanner {
     OSelectExecutionPlan result = new OSelectExecutionPlan(ctx);
 
     if (info.expand && info.distinct) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute a statement with DISTINCT expand(), please use a subquery");
     }
 
@@ -308,7 +308,7 @@ public class OSelectExecutionPlanner {
     Map<String, Set<String>> minimalSetOfNodes =
         getMinimalSetOfNodesForShardedQuery(db.getLocalNodeName(), clusterMap, queryClusters);
     if (minimalSetOfNodes == null) {
-      throw new OCommandExecutionException("Cannot execute sharded query");
+      throw new YTCommandExecutionException("Cannot execute sharded query");
     }
     info.serverToClusters = minimalSetOfNodes;
     for (String node : info.serverToClusters.keySet()) {
@@ -361,7 +361,7 @@ public class OSelectExecutionPlanner {
       nextNodeClusters = new HashSet<>(clusterMap.get(nextNode));
       nextNodeClusters.retainAll(uncovered);
       if (nextNodeClusters.isEmpty()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot execute a sharded query: clusters ["
                 + String.join(", ", uncovered)
                 + "] are not present on any node"
@@ -427,7 +427,7 @@ public class OSelectExecutionPlanner {
       if (item.getRids().size() == 1) {
         OInteger cluster = item.getRids().get(0).getCluster();
         if (cluster.getValue().longValue() > YTRID.CLUSTER_MAX) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Invalid cluster Id:" + cluster + ". Max allowed value = " + YTRID.CLUSTER_MAX);
         }
         result.add(db.getClusterNameById(cluster.getValue().intValue()));
@@ -470,7 +470,7 @@ public class OSelectExecutionPlanner {
       String indexName = item.getIndex().getIndexName();
       OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, indexName);
       if (idx == null) {
-        throw new OCommandExecutionException("Index " + indexName + " does not exist");
+        throw new YTCommandExecutionException("Index " + indexName + " does not exist");
       }
       result.addAll(idx.getClusters());
       if (result.isEmpty()) {
@@ -1133,7 +1133,7 @@ public class OSelectExecutionPlanner {
     int i = 0;
     for (OExpression exp : info.groupBy.getItems()) {
       if (exp.isAggregate(db)) {
-        throw new OCommandExecutionException("Cannot group by an aggregate function");
+        throw new YTCommandExecutionException("Cannot group by an aggregate function");
       }
       boolean found = false;
       if (info.preAggregateProjection != null) {
@@ -1324,7 +1324,7 @@ public class OSelectExecutionPlanner {
             shardedPlan.getValue(), target.getStatement(), ctx, profilingEnabled);
       } else if (target.getFunctionCall() != null) {
         //        handleFunctionCallAsTarget(result, target.getFunctionCall(), ctx);//TODO
-        throw new OCommandExecutionException("function call as target is not supported yet");
+        throw new YTCommandExecutionException("function call as target is not supported yet");
       } else if (target.getInputParam() != null) {
         handleInputParamAsTarget(
             shardedPlan.getValue(),
@@ -1508,7 +1508,7 @@ public class OSelectExecutionPlanner {
       List<ORid> rids = new ArrayList<>();
       for (Object x : (Iterable) paramValue) {
         if (!(x instanceof YTIdentifiable)) {
-          throw new OCommandExecutionException("Cannot use colleciton as target: " + paramValue);
+          throw new YTCommandExecutionException("Cannot use colleciton as target: " + paramValue);
         }
         YTRID orid = ((YTIdentifiable) x).getIdentity();
 
@@ -1529,7 +1529,7 @@ public class OSelectExecutionPlanner {
         result.chain(new EmptyStep(ctx, profilingEnabled)); // nothing to return
       }
     } else {
-      throw new OCommandExecutionException("Invalid target: " + paramValue);
+      throw new YTCommandExecutionException("Invalid target: " + paramValue);
     }
   }
 
@@ -1568,7 +1568,7 @@ public class OSelectExecutionPlanner {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
-      throw new OCommandExecutionException("Index not found: " + indexName);
+      throw new YTCommandExecutionException("Index not found: " + indexName);
     }
 
     int[] filterClusterIds = null;
@@ -1582,11 +1582,11 @@ public class OSelectExecutionPlanner {
         OBooleanExpression ridCondition = null;
         if (info.flattenedWhereClause == null || info.flattenedWhereClause.isEmpty()) {
           if (!index.supportsOrderedIterations()) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Index " + indexName + " does not allow iteration without a condition");
           }
         } else if (info.flattenedWhereClause.size() > 1) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index queries with this kind of condition are not supported yet: "
                   + info.whereClause);
         } else {
@@ -1598,7 +1598,7 @@ public class OSelectExecutionPlanner {
             info.flattenedWhereClause = null;
             keyCondition = getKeyCondition(andBlock);
             if (keyCondition == null) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Index queries with this kind of condition are not supported yet: "
                       + info.whereClause);
             }
@@ -1609,12 +1609,12 @@ public class OSelectExecutionPlanner {
             keyCondition = getKeyCondition(andBlock);
             ridCondition = getRidCondition(andBlock);
             if (keyCondition == null || ridCondition == null) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Index queries with this kind of condition are not supported yet: "
                       + info.whereClause);
             }
           } else {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Index queries with this kind of condition are not supported yet: "
                     + info.whereClause);
           }
@@ -1635,7 +1635,7 @@ public class OSelectExecutionPlanner {
       case VALUES:
       case VALUESASC:
         if (!index.supportsOrderedIterations()) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(
@@ -1649,7 +1649,7 @@ public class OSelectExecutionPlanner {
         break;
       case VALUESDESC:
         if (!index.supportsOrderedIterations()) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(
@@ -1864,7 +1864,7 @@ public class OSelectExecutionPlanner {
       boolean profilingEnabled) {
     int skipSize = info.skip == null ? 0 : info.skip.getValue(ctx);
     if (skipSize < 0) {
-      throw new OCommandExecutionException("Cannot execute a query with a negative SKIP");
+      throw new YTCommandExecutionException("Cannot execute a query with a negative SKIP");
     }
     int limitSize = info.limit == null ? -1 : info.limit.getValue(ctx);
     Integer maxResults = null;
@@ -1975,7 +1975,8 @@ public class OSelectExecutionPlanner {
           new FetchFromViewExecutionStep(
               className, filterClusters, info, ctx, orderByRidAsc, profilingEnabled);
     } else {
-      throw new OCommandExecutionException("Class or View not present in the schema: " + className);
+      throw new YTCommandExecutionException(
+          "Class or View not present in the schema: " + className);
     }
 
     if (orderByRidAsc != null && info.serverToClusters.size() == 1) {
@@ -2011,7 +2012,7 @@ public class OSelectExecutionPlanner {
     if (clazz == null) {
       clazz = schema.getView(queryTarget.getStringValue());
       if (clazz == null) {
-        throw new OCommandExecutionException("Class not found: " + queryTarget);
+        throw new YTCommandExecutionException("Class not found: " + queryTarget);
       }
     }
     if (info.flattenedWhereClause == null || info.flattenedWhereClause.size() == 0) {
@@ -2091,7 +2092,7 @@ public class OSelectExecutionPlanner {
         for (OBinaryCondition cond : indexedFunctionConditions) {
           if (!cond.allowsIndexedFunctionExecutionOnTarget(info.target, ctx)) {
             if (!cond.canExecuteIndexedFunctionWithoutIndex(info.target, ctx)) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot execute " + block + " on " + queryTarget);
             }
           }
@@ -2104,7 +2105,7 @@ public class OSelectExecutionPlanner {
                 blockCandidateFunction.canExecuteIndexedFunctionWithoutIndex(info.target, ctx);
             if (!thisAllowsNoIndex && !prevAllowsNoIndex) {
               // none of the functions allow execution without index, so cannot choose one
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot choose indexed function between "
                       + cond
                       + " and "
@@ -2202,7 +2203,7 @@ public class OSelectExecutionPlanner {
       if (cond.allowsIndexedFunctionExecutionOnTarget(fromClause, ctx)) {
         result.add(cond);
       } else if (!cond.canExecuteIndexedFunctionWithoutIndex(fromClause, ctx)) {
-        throw new OCommandExecutionException("Cannot evaluate " + cond + ": no index defined");
+        throw new YTCommandExecutionException("Cannot evaluate " + cond + ": no index defined");
       }
     }
     return result;
@@ -2228,7 +2229,7 @@ public class OSelectExecutionPlanner {
     if (clazz == null) {
       clazz = schema.getView(queryTarget.getStringValue());
       if (clazz == null) {
-        throw new OCommandExecutionException("Class not found: " + queryTarget);
+        throw new YTCommandExecutionException("Class not found: " + queryTarget);
       }
     }
 
@@ -2322,7 +2323,7 @@ public class OSelectExecutionPlanner {
     if (clazz == null) {
       clazz = schema.getView(targetClass.getStringValue());
       if (clazz == null) {
-        throw new OCommandExecutionException("Class not found: " + targetClass);
+        throw new YTCommandExecutionException("Class not found: " + targetClass);
       }
     }
     if (clazz.count(ctx.getDatabase(), false) != 0 || clazz.getSubclasses().size() == 0
@@ -2391,7 +2392,7 @@ public class OSelectExecutionPlanner {
         clazz = getSchemaFromContext(ctx).getView(targetClass);
       }
       if (clazz == null) {
-        throw new OCommandExecutionException("Cannot find class " + targetClass);
+        throw new YTCommandExecutionException("Cannot find class " + targetClass);
       }
       if (clazz.count(ctx.getDatabase(), false) != 0
           || clazz.getSubclasses().isEmpty()
@@ -2435,7 +2436,7 @@ public class OSelectExecutionPlanner {
       clazz = getSchemaFromContext(ctx).getView(targetClass);
     }
     if (clazz == null) {
-      throw new OCommandExecutionException("Cannot find class " + targetClass);
+      throw new YTCommandExecutionException("Cannot find class " + targetClass);
     }
 
     Set<OIndex> indexes = clazz.getIndexes(ctx.getDatabase());
@@ -3004,7 +3005,7 @@ public class OSelectExecutionPlanner {
         clusterId = db.getClusterIdByName(cluster.getClusterName());
       }
       if (clusterId == null) {
-        throw new OCommandExecutionException("Cluster " + cluster + " does not exist");
+        throw new YTCommandExecutionException("Cluster " + cluster + " does not exist");
       }
       FetchFromClusterExecutionStep step =
           new FetchFromClusterExecutionStep(clusterId, ctx, profilingEnabled);
@@ -3023,7 +3024,7 @@ public class OSelectExecutionPlanner {
           clusterId = db.getClusterIdByName(cluster.getClusterName());
         }
         if (clusterId == null) {
-          throw new OCommandExecutionException("Cluster " + cluster + " does not exist");
+          throw new YTCommandExecutionException("Cluster " + cluster + " does not exist");
         }
         clusterIds[i] = clusterId;
       }

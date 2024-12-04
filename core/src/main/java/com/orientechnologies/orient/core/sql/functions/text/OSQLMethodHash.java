@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.core.sql.functions.text;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.io.UnsupportedEncodingException;
@@ -57,12 +57,12 @@ public class OSQLMethodHash extends OAbstractSQLMethod {
       return OSecurityManager.createHash(iThis.toString(), algorithm);
 
     } catch (NoSuchAlgorithmException e) {
-      throw OException.wrapException(
-          new OCommandExecutionException("hash(): algorithm '" + algorithm + "' is not supported"),
+      throw YTException.wrapException(
+          new YTCommandExecutionException("hash(): algorithm '" + algorithm + "' is not supported"),
           e);
     } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(
-          new OCommandExecutionException("hash(): encoding 'UTF-8' is not supported"), e);
+      throw YTException.wrapException(
+          new YTCommandExecutionException("hash(): encoding 'UTF-8' is not supported"), e);
     }
   }
 }

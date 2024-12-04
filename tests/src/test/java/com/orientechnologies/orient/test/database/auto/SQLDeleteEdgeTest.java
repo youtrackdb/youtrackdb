@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -199,28 +199,28 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     try {
       database.command("DROP CLASS SuperV").close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       database.command("DROP CLASS SuperV unsafe").close();
       Assert.assertTrue(true);
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.fail();
     }
 
     try {
       database.command("DROP CLASS SuperE UNSAFE").close();
       Assert.assertTrue(true);
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.fail();
     }
   }
@@ -242,14 +242,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     try {
       database.command("DROP CLASS SuperV").close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
@@ -260,14 +260,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     try {
       database.command("DROP CLASS SuperV").close();
       Assert.assertTrue(true);
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.fail();
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
       Assert.assertTrue(true);
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.fail();
     }
   }

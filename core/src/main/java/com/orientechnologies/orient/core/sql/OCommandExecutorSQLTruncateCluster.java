@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
@@ -61,21 +61,21 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected cluster name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -91,7 +91,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
 
       final var database = getDatabase();
       if (database.getClusterIdByName(clusterName) == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Cluster '" + clusterName + "' not found", parserText, oldPos);
       }
     } finally {
@@ -109,7 +109,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clusterName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -117,7 +117,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
 
     final int clusterId = database.getClusterIdByName(clusterName);
     if (clusterId < 0) {
-      throw new ODatabaseException("Cluster with name " + clusterName + " does not exist");
+      throw new YTDatabaseException("Cluster with name " + clusterName + " does not exist");
     }
 
     final YTSchema schema = database.getMetadata().getSchema();
@@ -127,7 +127,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
 
       final ORecordIteratorCluster<YTRecord> iteratorCluster = database.browseCluster(clusterName);
       if (iteratorCluster == null) {
-        throw new ODatabaseException("Cluster with name " + clusterName + " does not exist");
+        throw new YTDatabaseException("Cluster with name " + clusterName + " does not exist");
       }
       while (iteratorCluster.hasNext()) {
         final YTRecord record = iteratorCluster.next();

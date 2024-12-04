@@ -18,8 +18,8 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
@@ -61,7 +61,7 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
         if (rec instanceof YTBlob) {
           data = rec.toStream();
         }
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
     } else if (candidate instanceof OSerializableStream) {
@@ -75,7 +75,7 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
     if (FORMAT_BASE64.equalsIgnoreCase(format)) {
       return Base64.getEncoder().encodeToString(data);
     } else {
-      throw new ODatabaseException("unknowned format :" + format);
+      throw new YTDatabaseException("unknowned format :" + format);
     }
   }
 

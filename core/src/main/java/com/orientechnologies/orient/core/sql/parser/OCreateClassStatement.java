@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -56,7 +56,7 @@ public class OCreateClassStatement extends ODDLStatement {
       if (ifNotExists) {
         return OExecutionStream.empty();
       } else {
-        throw new OCommandExecutionException("Class " + name + " already exists");
+        throw new YTCommandExecutionException("Class " + name + " already exists");
       }
     }
     checkSuperclasses(schema, ctx);
@@ -103,7 +103,7 @@ public class OCreateClassStatement extends ODDLStatement {
     if (superclasses != null) {
       for (OIdentifier superclass : superclasses) {
         if (!schema.existsClass(superclass.getStringValue())) {
-          throw new OCommandExecutionException("Superclass " + superclass + " not found");
+          throw new YTCommandExecutionException("Superclass " + superclass + " not found");
         }
       }
     }

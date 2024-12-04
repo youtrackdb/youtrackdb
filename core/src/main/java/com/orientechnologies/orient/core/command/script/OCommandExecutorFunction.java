@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
@@ -106,15 +106,15 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
             scriptManager.handleResult(f.getLanguage(db), result, scriptEngine, binding, db));
 
       } catch (ScriptException e) {
-        throw OException.wrapException(
-            new OCommandScriptException(
+        throw YTException.wrapException(
+            new YTCommandScriptException(
                 "Error on execution of the script", request.getText(), e.getColumnNumber()),
             e);
       } catch (NoSuchMethodException e) {
-        throw OException.wrapException(
-            new OCommandScriptException("Error on execution of the script", request.getText(), 0),
+        throw YTException.wrapException(
+            new YTCommandScriptException("Error on execution of the script", request.getText(), 0),
             e);
-      } catch (OCommandScriptException e) {
+      } catch (YTCommandScriptException e) {
         // PASS THROUGH
         throw e;
 
@@ -132,7 +132,7 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
 
   @Override
   protected void throwSyntaxErrorException(String iText) {
-    throw new OCommandScriptException(
+    throw new YTCommandScriptException(
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 }

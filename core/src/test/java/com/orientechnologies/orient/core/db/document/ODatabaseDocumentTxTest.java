@@ -5,9 +5,9 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommitSerializationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTCommitSerializationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClassDescendentOrder;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -77,7 +77,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     Assert.assertEquals(newTimezone, "GMT");
   }
 
-  @Test(expected = OCommitSerializationException.class)
+  @Test(expected = YTCommitSerializationException.class)
   public void testSaveInvalidRid() {
     db.begin();
     YTDocument doc = new YTDocument();
@@ -99,7 +99,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     try {
       db.createClass("TestCreateClass");
       Assert.fail();
-    } catch (OSchemaException ex) {
+    } catch (YTSchemaException ex) {
     }
 
     YTClass subclazz = db.createClass("TestCreateClass_subclass", "TestCreateClass");
@@ -313,7 +313,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     }
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testLinkDuplicate() {
     String vertexClass = "testVertex";
     String edgeClass = "testEdge";

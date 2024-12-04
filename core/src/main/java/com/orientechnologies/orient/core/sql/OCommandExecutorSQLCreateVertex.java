@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
@@ -90,7 +90,7 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
           // GET/CHECK CLASS NAME
           clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
           if (clazz == null) {
-            throw new OCommandSQLParsingException("Class '" + className + "' was not found");
+            throw new YTCommandSQLParsingException("Class '" + className + "' was not found");
           }
         }
 
@@ -107,7 +107,7 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
         // GET/CHECK CLASS NAME
         clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
         if (clazz == null) {
-          throw new OCommandSQLParsingException("Class '" + className + "' was not found");
+          throw new YTCommandSQLParsingException("Class '" + className + "' was not found");
         }
       }
     } finally {
@@ -121,7 +121,7 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clazz == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 

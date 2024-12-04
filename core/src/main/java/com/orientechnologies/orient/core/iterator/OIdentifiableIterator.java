@@ -22,12 +22,12 @@ package com.orientechnologies.orient.core.iterator;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTNoTxRecordReadException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -197,7 +197,7 @@ public abstract class OIdentifiableIterator<REC extends YTIdentifiable>
     {
       directionForward = iForward;
     } else if (directionForward != iForward) {
-      throw new OIterationException("Iterator cannot change direction while browsing");
+      throw new YTIterationException("Iterator cannot change direction while browsing");
     }
   }
 
@@ -227,20 +227,20 @@ public abstract class OIdentifiableIterator<REC extends YTIdentifiable>
     YTRecord record;
     try {
       record = database.load(current);
-    } catch (ORecordNotFoundException rne) {
+    } catch (YTRecordNotFoundException rne) {
       record = null;
-    } catch (ODatabaseException e) {
+    } catch (YTDatabaseException e) {
       if (Thread.interrupted() || database.isClosed())
       // THREAD INTERRUPTED: RETURN
       {
         throw e;
       }
 
-      if (e.getCause() instanceof OSecurityException) {
+      if (e.getCause() instanceof YTSecurityException) {
         throw e;
       }
 
-      if (e instanceof ONoTxRecordReadException) {
+      if (e instanceof YTNoTxRecordReadException) {
         throw e;
       }
 

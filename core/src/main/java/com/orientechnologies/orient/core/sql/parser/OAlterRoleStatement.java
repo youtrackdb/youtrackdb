@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
@@ -54,7 +54,7 @@ public class OAlterRoleStatement extends OSimpleExecStatement {
     OSecurityInternal security = db.getSharedContext().getSecurity();
     ORole role = db.getMetadata().getSecurity().getRole(name.getStringValue());
     if (role == null) {
-      throw new OCommandExecutionException("role not found: " + name.getStringValue());
+      throw new YTCommandExecutionException("role not found: " + name.getStringValue());
     }
     for (Op op : operations) {
       OResultInternal result = new OResultInternal(db);

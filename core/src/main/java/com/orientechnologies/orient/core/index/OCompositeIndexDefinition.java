@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
@@ -87,7 +87,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
         if (multiValueDefinitionIndex == -1) {
           multiValueDefinitionIndex = indexDefinitions.size() - 1;
         } else {
-          throw new OIndexException("Composite key cannot contain more than one collection item");
+          throw new YTIndexException("Composite key cannot contain more than one collection item");
         }
       }
     }
@@ -113,7 +113,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
       if (multiValueDefinitionIndex == -1) {
         multiValueDefinitionIndex = indexDefinitions.size() - 1;
       } else {
-        throw new OIndexException("Composite key cannot contain more than one collection item");
+        throw new YTIndexException("Composite key cannot contain more than one collection item");
       }
     }
 
@@ -306,7 +306,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
           compositeKeys.add(compositeKey);
         }
       } else {
-        throw new OIndexException("Composite key cannot contain more than one collection item");
+        throw new YTIndexException("Composite key cannot contain more than one collection item");
       }
 
       int compositeIndex = 0;
@@ -543,8 +543,8 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
                    | InstantiationException
                    | IllegalAccessException
                    | NoSuchMethodException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during composite index deserialization"), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during composite index deserialization"), e);
     }
   }
 

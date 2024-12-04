@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -14,7 +14,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  *
  * <p>It accepts two values: a target class and a parent class. If the two classes are the same or
  * if the parent class is indeed a parent class of the target class, then the syncPool() returns an
- * empty result set, otherwise it throws an OCommandExecutionException
+ * empty result set, otherwise it throws an YTCommandExecutionException
  */
 public class CheckClassTypeStep extends AbstractExecutionStep {
 
@@ -36,7 +36,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext context) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext context) throws YTTimeoutException {
     if (prev != null) {
       prev.start(context).close(ctx);
     }
@@ -49,11 +49,11 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
     YTClass parentClazz = schema.getClass(this.parentClass);
     if (parentClazz == null) {
-      throw new OCommandExecutionException("Class not found: " + this.parentClass);
+      throw new YTCommandExecutionException("Class not found: " + this.parentClass);
     }
     YTClass targetClazz = schema.getClass(this.targetClass);
     if (targetClazz == null) {
-      throw new OCommandExecutionException("Class not found: " + this.targetClass);
+      throw new YTCommandExecutionException("Class not found: " + this.targetClass);
     }
 
     boolean found = false;
@@ -68,7 +68,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
       }
     }
     if (!found) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Class  " + this.targetClass + " is not a subclass of " + this.parentClass);
     }
     return OExecutionStream.empty();

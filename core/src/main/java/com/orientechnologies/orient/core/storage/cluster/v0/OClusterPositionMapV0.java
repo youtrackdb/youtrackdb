@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.storage.cluster.v0;
 
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.exception.OClusterPositionMapException;
+import com.orientechnologies.orient.core.exception.YTClusterPositionMapException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMap;
@@ -147,7 +147,7 @@ public class OClusterPositionMapV0 extends OClusterPositionMap {
     final int index = (int) (clusterPosition % OClusterPositionMapBucket.MAX_ENTRIES);
 
     if (pageIndex >= getFilledUpTo(atomicOperation, fileId)) {
-      throw new OClusterPositionMapException(
+      throw new YTClusterPositionMapException(
           "Passed in cluster position "
               + clusterPosition
               + " is outside of range of cluster-position map",

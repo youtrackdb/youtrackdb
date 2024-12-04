@@ -23,7 +23,6 @@ import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
@@ -34,19 +33,20 @@ import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
@@ -134,7 +134,7 @@ public class ODocumentSerializerDelta {
       if (value != null) {
         final YTType type = getFieldType(entry.getValue());
         if (type == null) {
-          throw new OSerializationException(
+          throw new YTSerializationException(
               "Impossible serialize value of type "
                   + value.getClass()
                   + " with the Result binary serializer");
@@ -251,7 +251,7 @@ public class ODocumentSerializerDelta {
         deserializeDeltaLinkBag(bytes, (ORidBag) toUpdate);
         break;
       default:
-        throw new OSerializationException("delta not supported for type:" + type);
+        throw new YTSerializationException("delta not supported for type:" + type);
     }
   }
 
@@ -606,7 +606,7 @@ public class ODocumentSerializerDelta {
     assert value != null;
     final YTType type = getFieldType(entry);
     if (type == null) {
-      throw new OSerializationException(
+      throw new YTSerializationException(
           "Impossible serialize value of type " + value.getClass() + " with the delta serializer");
     }
     writeString(bytes, name);
@@ -642,7 +642,7 @@ public class ODocumentSerializerDelta {
         serializeDeltaLinkBag(bytes, (ORidBag) value);
         break;
       default:
-        throw new OSerializationException("delta not supported for type:" + type);
+        throw new YTSerializationException("delta not supported for type:" + type);
     }
   }
 
@@ -992,7 +992,7 @@ public class ODocumentSerializerDelta {
     if (value != null) {
       final YTType type = getFieldType(entry);
       if (type == null) {
-        throw new OSerializationException(
+        throw new YTSerializationException(
             "Impossible serialize value of type "
                 + value.getClass()
                 + " with the delta serializer");
@@ -1098,7 +1098,7 @@ public class ODocumentSerializerDelta {
         break;
       case LINK:
         if (!(value instanceof YTIdentifiable)) {
-          throw new OValidationException("Value '" + value + "' is not a YTIdentifiable");
+          throw new YTValidationException("Value '" + value + "' is not a YTIdentifiable");
         }
 
         writeOptimizedLink(bytes, (YTIdentifiable) value);
@@ -1179,7 +1179,7 @@ public class ODocumentSerializerDelta {
         writeNullableType(bytes, type);
         serializeValue(bytes, itemValue, type, null);
       } else {
-        throw new OSerializationException(
+        throw new YTSerializationException(
             "Impossible serialize value of type "
                 + value.getClass()
                 + " with the YTDocument binary serializer");
@@ -1196,7 +1196,7 @@ public class ODocumentSerializerDelta {
       if (value != null) {
         final YTType type = getTypeFromValueEmbedded(value);
         if (type == null) {
-          throw new OSerializationException(
+          throw new YTSerializationException(
               "Impossible serialize value of type "
                   + value.getClass()
                   + " with the Result binary serializer");
@@ -1547,7 +1547,7 @@ public class ODocumentSerializerDelta {
             rid = new YTRecordId(clusterId, clusterPos);
           }
 
-        } catch (ORecordNotFoundException rnf) {
+        } catch (YTRecordNotFoundException rnf) {
           return rid;
         }
       }
@@ -1564,7 +1564,7 @@ public class ODocumentSerializerDelta {
       if (!link.getIdentity().isPersistent()) {
         try {
           link = link.getRecord();
-        } catch (ORecordNotFoundException ignored) {
+        } catch (YTRecordNotFoundException ignored) {
           // IGNORE IT WILL FAIL THE ASSERT IN CASE
         }
       }

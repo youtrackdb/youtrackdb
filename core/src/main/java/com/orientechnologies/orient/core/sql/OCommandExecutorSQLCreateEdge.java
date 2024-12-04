@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -152,7 +152,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
 
       // GET/CHECK CLASS NAME
       if (clazz == null) {
-        throw new OCommandSQLParsingException("Class '" + className + "' was not found");
+        throw new YTCommandSQLParsingException("Class '" + className + "' was not found");
       }
 
       edgeLabel = className;
@@ -167,7 +167,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clazz == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -184,7 +184,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
       for (YTIdentifiable from : fromIds) {
         final YTVertex fromVertex = toVertex(from);
         if (fromVertex == null) {
-          throw new OCommandExecutionException("Source vertex '" + from + "' does not exist");
+          throw new YTCommandExecutionException("Source vertex '" + from + "' does not exist");
         }
 
         for (YTIdentifiable to : toIds) {
@@ -195,7 +195,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
             toVertex = toVertex(to);
           }
           if (toVertex == null) {
-            throw new OCommandExecutionException("Source vertex '" + to + "' does not exist");
+            throw new YTCommandExecutionException("Source vertex '" + to + "' does not exist");
           }
 
           if (fields != null)
@@ -247,13 +247,13 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
 
     if (edges.isEmpty()) {
       if (fromIds.isEmpty()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "No edge has been created because no source vertices: " + this);
       } else if (toIds.isEmpty()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "No edge has been created because no target vertices: " + this);
       }
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "No edge has been created between " + fromIds + " and " + toIds + ": " + this);
     }
     return edges;
@@ -268,7 +268,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         return null;
       }
       if (item instanceof YTEntity) {

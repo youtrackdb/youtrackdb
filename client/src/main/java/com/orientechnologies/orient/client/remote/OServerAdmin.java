@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.IOException;
 import java.util.Map;
@@ -115,7 +115,7 @@ public class OServerAdmin {
 
   private void checkConnected() {
     if (user == null || password == null) {
-      throw new OStorageException("OServerAdmin not connect use connect before do an operation");
+      throw new YTStorageException("OServerAdmin not connect use connect before do an operation");
     }
   }
 

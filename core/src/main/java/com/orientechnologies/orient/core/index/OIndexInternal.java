@@ -25,14 +25,14 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import java.util.Collection;
@@ -218,7 +218,7 @@ public interface OIndexInternal extends OIndex {
     if (isReadRestrictedBySecurityPolicy(indexClass, db, security)) {
       try {
         item = item.getRecord();
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         item = null;
       }
     }
@@ -230,7 +230,7 @@ public interface OIndexInternal extends OIndex {
       if (isLabelSecurityDefined(db, security, indexClass, indexProp)) {
         try {
           item = item.getRecord();
-        } catch (ORecordNotFoundException e) {
+        } catch (YTRecordNotFoundException e) {
           item = null;
         }
         if (item == null) {

@@ -19,25 +19,25 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.concur.lock.OLockException;
+import com.orientechnologies.common.concur.lock.YTLockException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.enterprise.channel.OChannel;
-import com.orientechnologies.orient.enterprise.channel.binary.ONetworkProtocolException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
 import com.orientechnologies.orient.enterprise.channel.text.OChannelTextServer;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
@@ -189,7 +189,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     start();
   }
 
-  public void service() throws ONetworkProtocolException, IOException {
+  public void service() throws YTNetworkProtocolException, IOException {
     ++connection.getStats().totalRequests;
     connection.getData().commandInfo = null;
     connection.getData().commandDetail = null;
@@ -405,13 +405,13 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     if (e instanceof IllegalFormatException || e instanceof InputMismatchException) {
       errorCode = OHttpUtils.STATUS_BADREQ_CODE;
       errorReason = OHttpUtils.STATUS_BADREQ_DESCRIPTION;
-    } else if (e instanceof ORecordNotFoundException) {
+    } else if (e instanceof YTRecordNotFoundException) {
       errorCode = OHttpUtils.STATUS_NOTFOUND_CODE;
       errorReason = OHttpUtils.STATUS_NOTFOUND_DESCRIPTION;
-    } else if (e instanceof OConcurrentModificationException) {
+    } else if (e instanceof YTConcurrentModificationException) {
       errorCode = OHttpUtils.STATUS_CONFLICT_CODE;
       errorReason = OHttpUtils.STATUS_CONFLICT_DESCRIPTION;
-    } else if (e instanceof OLockException) {
+    } else if (e instanceof YTLockException) {
       errorCode = 423;
     } else if (e instanceof UnsupportedOperationException) {
       errorCode = OHttpUtils.STATUS_NOTIMPL_CODE;
@@ -420,15 +420,15 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       errorCode = OHttpUtils.STATUS_INTERNALERROR_CODE;
     }
 
-    if (e instanceof ODatabaseException
-        || e instanceof OSecurityAccessException
-        || e instanceof OCommandExecutionException
-        || e instanceof OLockException) {
+    if (e instanceof YTDatabaseException
+        || e instanceof YTSecurityAccessException
+        || e instanceof YTCommandExecutionException
+        || e instanceof YTLockException) {
       // GENERIC DATABASE EXCEPTION
       Throwable cause;
       do {
-        cause = e instanceof OSecurityAccessException ? e : e.getCause();
-        if (cause instanceof OSecurityAccessException) {
+        cause = e instanceof YTSecurityAccessException ? e : e.getCause();
+        if (cause instanceof YTSecurityAccessException) {
           // SECURITY EXCEPTION
           if (account == null) {
             // UNAUTHORIZED
@@ -442,7 +442,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
                   server
                       .getSecurity()
                       .getAuthenticationHeader(
-                          ((OSecurityAccessException) cause).getDatabaseName());
+                          ((YTSecurityAccessException) cause).getDatabaseName());
             }
             errorMessage = null;
           } else {
@@ -458,7 +458,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
           e = cause;
         }
       } while (cause != null);
-    } else if (e instanceof OCommandSQLParsingException) {
+    } else if (e instanceof YTCommandSQLParsingException) {
       errorMessage = e.getMessage();
       errorCode = OHttpUtils.STATUS_BADREQ_CODE;
     }
@@ -868,7 +868,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
           while (channel.inStream.available() > 0) {
             channel.read();
           }
-          throw new ONetworkProtocolException("Invalid http request, max content length exceeded");
+          throw new YTNetworkProtocolException("Invalid http request, max content length exceeded");
         }
       }
 

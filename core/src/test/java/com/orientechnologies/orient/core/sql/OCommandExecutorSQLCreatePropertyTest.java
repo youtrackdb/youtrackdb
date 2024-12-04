@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -319,20 +319,20 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     assertEquals(idProperty.getDefaultValue(), "6");
   }
 
-  @Test(expected = OCommandExecutionException.class)
+  @Test(expected = YTCommandExecutionException.class)
   public void testInvalidAttributeName() throws Exception {
     db.command("CREATE CLASS company").close();
     db.command("CREATE PROPERTY company.id INTEGER (MANDATORY, INVALID, NOTNULL)  UNSAFE").close();
   }
 
-  @Test(expected = OCommandExecutionException.class)
+  @Test(expected = YTCommandExecutionException.class)
   public void testMissingAttributeValue() throws Exception {
 
     db.command("CREATE CLASS company").close();
     db.command("CREATE PROPERTY company.id INTEGER (DEFAULT)  UNSAFE").close();
   }
 
-  @Test(expected = OCommandSQLParsingException.class)
+  @Test(expected = YTCommandSQLParsingException.class)
   public void tooManyAttributeParts() throws Exception {
 
     db.command("CREATE CLASS company").close();

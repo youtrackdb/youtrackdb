@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sharding.auto;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCommonConst;
@@ -29,10 +29,10 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.OIndexUpdateAction;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
@@ -144,8 +144,8 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
             data.isNullValuesSupport());
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during creation of index with name " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during creation of index with name " + name), e);
     }
   }
 
@@ -164,7 +164,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
     if (storage != null) {
       final String partitionsAsString = engineProperties.get("partitions");
       if (partitionsAsString == null || partitionsAsString.isEmpty()) {
-        throw new OIndexException(
+        throw new YTIndexException(
             "Cannot load autosharding index '"
                 + data.getName()
                 + "' because there is no metadata about the number of partitions");
@@ -221,8 +221,8 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
       }
 
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during deletion of index with name " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during deletion of index with name " + name), e);
     }
   }
 
@@ -274,8 +274,8 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
     try {
       return getPartition(key).remove(atomicOperation, key) != null;
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException(
+      throw YTException.wrapException(
+          new YTIndexException(
               "Error during deletion of key " + key + " of index with name " + name),
           e);
     }
@@ -288,8 +288,8 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
         doClearPartitions(atomicOperation);
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during clear of index with name " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during clear of index with name " + name), e);
     }
   }
 
@@ -313,8 +313,8 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
     try {
       getPartition(key).put(atomicOperation, key, value);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException(
+      throw YTException.wrapException(
+          new YTIndexException(
               "Error during insertion of key " + key + " of index with name " + name),
           e);
     }
@@ -347,8 +347,8 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
       return getPartition(key)
           .validatedPut(atomicOperation, key, value, (IndexEngineValidator) validator);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException(
+      throw YTException.wrapException(
+          new YTIndexException(
               "Error during insertion of key " + key + " of index with name " + name),
           e);
     }

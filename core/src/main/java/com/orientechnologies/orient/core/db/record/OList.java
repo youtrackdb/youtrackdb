@@ -23,10 +23,10 @@ import com.orientechnologies.common.collection.OLazyIterator;
 import com.orientechnologies.common.collection.OLazyIteratorListWrapper;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.record.ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Iterator;
@@ -252,7 +252,7 @@ public class OList extends OTrackedList<YTIdentifiable> implements OSizeable {
         if (!convertRecord2Link(i)) {
           allConverted = false;
         }
-      } catch (ORecordNotFoundException ignore) {
+      } catch (YTRecordNotFoundException ignore) {
         // LEAVE THE RID DIRTY
       }
     }
@@ -306,7 +306,7 @@ public class OList extends OTrackedList<YTIdentifiable> implements OSizeable {
           super.setInternal(iIndex, o.getIdentity());
           // CONVERTED
           return true;
-        } catch (ORecordNotFoundException ignore) {
+        } catch (YTRecordNotFoundException ignore) {
           // IGNORE THIS
         }
       } else {

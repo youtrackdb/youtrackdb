@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
@@ -54,7 +54,7 @@ public class ORidBagBasicTest extends DBTestBase {
       record.setProperty("emb", valueList);
       db.save(record);
       fail("Should not be possible to save a ridbag in a list");
-    } catch (ODatabaseException ex) {
+    } catch (YTDatabaseException ex) {
       // this is expected
     }
 
@@ -65,7 +65,7 @@ public class ORidBagBasicTest extends DBTestBase {
       record.setProperty("emb", valueSet);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
-    } catch (ODatabaseException ex) {
+    } catch (YTDatabaseException ex) {
       // this is expected
     }
 
@@ -76,7 +76,7 @@ public class ORidBagBasicTest extends DBTestBase {
       record.setProperty("emb", valueSet);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
-    } catch (ODatabaseException ex) {
+    } catch (YTDatabaseException ex) {
       // this is expected
     }
 
@@ -89,7 +89,7 @@ public class ORidBagBasicTest extends DBTestBase {
       record.setProperty("emb", valueSet);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
-    } catch (ODatabaseException ex) {
+    } catch (YTDatabaseException ex) {
       // this is expected
     }
 
@@ -102,7 +102,7 @@ public class ORidBagBasicTest extends DBTestBase {
       record.setProperty("emb", valueList);
       db.save(record);
       fail("Should not be possible to save a ridbag in a list");
-    } catch (ODatabaseException ex) {
+    } catch (YTDatabaseException ex) {
       // this is expected
     }
 
@@ -115,7 +115,7 @@ public class ORidBagBasicTest extends DBTestBase {
       record.setProperty("emb", valueSet);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
-    } catch (ODatabaseException ex) {
+    } catch (YTDatabaseException ex) {
       // this is expected
     }
 
@@ -126,7 +126,7 @@ public class ORidBagBasicTest extends DBTestBase {
       record.setProperty("emb", nested);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
-    } catch (ODatabaseException ex) {
+    } catch (YTDatabaseException ex) {
       // this is expected
     }
   }

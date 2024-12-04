@@ -6,14 +6,14 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
+import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import java.util.Locale;
@@ -92,7 +92,7 @@ public class ODatabaseMetadataUpdateListener {
           .getMetadata()
           .getSequenceLibrary()
           .createSequence("sequence1", YTSequence.SEQUENCE_TYPE.ORDERED, null);
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       Assert.fail("Failed to create sequence");
     }
     assertEquals(count, 1);

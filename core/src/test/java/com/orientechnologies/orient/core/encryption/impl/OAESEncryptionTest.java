@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.encryption.impl;
 
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import java.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class OAESEncryptionTest {
 
-  @Test(expected = OSecurityException.class)
+  @Test(expected = YTSecurityException.class)
   public void testNotInited() {
     OAESEncryption encryption = new OAESEncryption();
     byte[] original = "this is a test string to encrypt".getBytes();

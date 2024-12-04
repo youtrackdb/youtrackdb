@@ -7,7 +7,7 @@ import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
@@ -586,7 +586,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       copy.save();
       database.commit();
       Assert.assertFalse(expectCME);
-    } catch (OConcurrentModificationException cme) {
+    } catch (YTConcurrentModificationException cme) {
       Assert.assertTrue(expectCME);
     }
   }

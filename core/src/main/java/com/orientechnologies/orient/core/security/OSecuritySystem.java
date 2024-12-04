@@ -100,10 +100,10 @@ public interface OSecuritySystem {
   void unregisterSecurityClass(final Class<?> cls);
 
   // If a password validator is registered with the security system, it will be called to validate
-  // the specified password. An OInvalidPasswordException is thrown if the password does not meet
+  // the specified password. An YTInvalidPasswordException is thrown if the password does not meet
   // the password validator's requirements.
   void validatePassword(final String username, final String password)
-      throws OInvalidPasswordException;
+      throws YTInvalidPasswordException;
 
   OAuditingService getAuditing();
 

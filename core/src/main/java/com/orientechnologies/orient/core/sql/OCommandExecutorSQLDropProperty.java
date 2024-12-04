@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import java.util.ArrayList;
@@ -64,31 +64,31 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_PROPERTY + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       String[] parts = word.toString().split("\\.");
       if (parts.length != 2) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new OCommandSQLParsingException("Class not found", parserText, pos);
+        throw new YTCommandSQLParsingException("Class not found", parserText, pos);
       }
       fieldName = decodeClassName(parts[1]);
 
@@ -102,11 +102,11 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
           if ("EXISTS".contentEquals(word)) {
             this.ifExists = true;
           } else {
-            throw new OCommandSQLParsingException(
+            throw new YTCommandSQLParsingException(
                 "Wrong query parameter, expecting EXISTS after IF", parserText, pos);
           }
         } else {
-          throw new OCommandSQLParsingException("Wrong query parameter", parserText, pos);
+          throw new YTCommandSQLParsingException("Wrong query parameter", parserText, pos);
         }
       }
     } finally {
@@ -121,7 +121,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (fieldName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
     }
 
@@ -129,7 +129,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
     final YTClassImpl sourceClass =
         (YTClassImpl) database.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
-      throw new OCommandExecutionException("Source class '" + className + "' not found");
+      throw new YTCommandExecutionException("Source class '" + className + "' not found");
     }
 
     if (ifExists && !sourceClass.existsProperty(fieldName)) {
@@ -153,7 +153,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
           indexNames.append(index.getName());
         }
 
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Property used in indexes ("
                 + indexNames
                 + "). Please drop these indexes before removing property or use FORCE parameter.");

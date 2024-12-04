@@ -1036,7 +1036,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
       fail(
           "Invalid query, usage of LET, aggregate functions and GROUP BY together is not"
               + " supported");
-    } catch (OCommandSQLParsingException x) {
+    } catch (YTCommandSQLParsingException x) {
 
     }
   }

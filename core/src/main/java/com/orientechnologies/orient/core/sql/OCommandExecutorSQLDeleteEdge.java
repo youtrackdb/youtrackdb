@@ -29,8 +29,8 @@ import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -170,7 +170,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
             label = originalTemp;
             clazz = curDb.getMetadata().getSchema().getClass(temp);
             if (clazz == null) {
-              throw new OCommandSQLParsingException("Class '" + temp + "' was not found");
+              throw new YTCommandSQLParsingException("Class '" + temp + "' was not found");
             }
           }
 
@@ -223,7 +223,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
         && rids == null
         && query == null
         && compiledFilter == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
     YTDatabaseSessionInternal db = getDatabase();
@@ -321,7 +321,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
             }
           }
         } else {
-          throw new OCommandExecutionException("Invalid target: " + toIds);
+          throw new YTCommandExecutionException("Invalid target: " + toIds);
         }
 
         if (compiledFilter != null) {
@@ -399,11 +399,12 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
       final YTIdentifiable a = item;
       return ((YTEntity) item)
           .asEdge()
-          .orElseThrow(() -> new OCommandExecutionException((a.getIdentity()) + " is not an edge"));
+          .orElseThrow(
+              () -> new YTCommandExecutionException((a.getIdentity()) + " is not an edge"));
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
 
@@ -412,7 +413,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
         return ((YTEntity) item)
             .asEdge()
             .orElseThrow(
-                () -> new OCommandExecutionException((a.getIdentity()) + " is not an edge"));
+                () -> new YTCommandExecutionException((a.getIdentity()) + " is not an edge"));
       }
     }
     return null;
@@ -424,7 +425,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
       if (item instanceof YTEntity) {

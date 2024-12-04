@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.functions;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -38,11 +38,11 @@ public abstract class OSQLFunctionFactoryTemplate implements OSQLFunctionFactory
   }
 
   @Override
-  public OSQLFunction createFunction(final String name) throws OCommandExecutionException {
+  public OSQLFunction createFunction(final String name) throws YTCommandExecutionException {
     final Object obj = functions.get(name);
 
     if (obj == null) {
-      throw new OCommandExecutionException("Unknown function name :" + name);
+      throw new YTCommandExecutionException("Unknown function name :" + name);
     }
 
     if (obj instanceof OSQLFunction) {
@@ -53,8 +53,8 @@ public abstract class OSQLFunctionFactoryTemplate implements OSQLFunctionFactory
       try {
         return (OSQLFunction) clazz.newInstance();
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OCommandExecutionException(
+        throw YTException.wrapException(
+            new YTCommandExecutionException(
                 "Error in creation of function "
                     + name
                     + "(). Probably there is not an empty constructor or the constructor generates"

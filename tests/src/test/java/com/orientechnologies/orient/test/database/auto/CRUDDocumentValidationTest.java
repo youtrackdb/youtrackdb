@@ -18,11 +18,11 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentComparator;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,7 +54,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
   }
 
-  @Test(dependsOnMethods = "openDb", expectedExceptions = OValidationException.class)
+  @Test(dependsOnMethods = "openDb", expectedExceptions = YTValidationException.class)
   public void validationMandatory() {
     database.begin();
     record = database.newInstance("Whiz");
@@ -63,7 +63,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
   }
 
-  @Test(dependsOnMethods = "validationMandatory", expectedExceptions = OValidationException.class)
+  @Test(dependsOnMethods = "validationMandatory", expectedExceptions = YTValidationException.class)
   public void validationMinString() {
     database.begin();
     record = database.newInstance("Whiz");
@@ -77,7 +77,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = "validationMinString",
-      expectedExceptions = OValidationException.class,
+      expectedExceptions = YTValidationException.class,
       expectedExceptionsMessageRegExp = "(?s).*more.*than.*")
   public void validationMaxString() {
     database.begin();
@@ -95,7 +95,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = "validationMaxString",
-      expectedExceptions = OValidationException.class,
+      expectedExceptions = YTValidationException.class,
       expectedExceptionsMessageRegExp = "(?s).*precedes.*")
   public void validationMinDate() throws ParseException {
     database.begin();
@@ -108,7 +108,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
   }
 
-  @Test(dependsOnMethods = "validationMinDate", expectedExceptions = ODatabaseException.class)
+  @Test(dependsOnMethods = "validationMinDate", expectedExceptions = YTDatabaseException.class)
   public void validationEmbeddedType() throws ParseException {
     database.begin();
     record = database.newInstance("Whiz");
@@ -119,7 +119,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = "validationEmbeddedType",
-      expectedExceptions = OValidationException.class)
+      expectedExceptions = YTValidationException.class)
   public void validationStrictClass() throws ParseException {
     database.begin();
     YTDocument doc = new YTDocument("StrictTest");
@@ -239,7 +239,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
       doc.save();
       database.commit();
       Assert.fail();
-    } catch (OValidationException ignored) {
+    } catch (YTValidationException ignored) {
     }
 
     database

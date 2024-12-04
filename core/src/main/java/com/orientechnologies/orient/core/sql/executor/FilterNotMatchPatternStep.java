@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.List;
@@ -16,7 +16,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
@@ -48,7 +48,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
         new AbstractExecutionStep(ctx, profilingEnabled) {
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
             return OExecutionStream.singleton(copy(nextItem));
           }
 

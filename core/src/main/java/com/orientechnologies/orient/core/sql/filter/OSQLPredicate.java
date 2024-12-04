@@ -19,19 +19,19 @@
  */
 package com.orientechnologies.orient.core.sql.filter;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLSelect;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.operator.OQueryOperator;
@@ -74,10 +74,10 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
   protected void throwSyntaxErrorException(final String iText) {
     final String syntax = getSyntax();
     if (syntax.equals("?")) {
-      throw new OCommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
+      throw new YTCommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
     }
 
-    throw new OCommandSQLParsingException(
+    throw new YTCommandSQLParsingException(
         iText + ". Use " + syntax, parserText, parserGetPreviousPosition());
   }
 
@@ -96,7 +96,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
 
   public OSQLPredicate text(YTDatabaseSessionInternal session, final String iText) {
     if (iText == null) {
-      throw new OCommandSQLParsingException("Query text is null");
+      throw new YTCommandSQLParsingException("Query text is null");
     }
 
     try {
@@ -108,20 +108,20 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
       rootCondition = (OSQLFilterCondition) extractConditions(session, null);
 
       optimize(session);
-    } catch (OQueryParsingException e) {
+    } catch (YTQueryParsingException e) {
       if (e.getText() == null)
       // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
       {
-        throw OException.wrapException(
-            new OQueryParsingException(
+        throw YTException.wrapException(
+            new YTQueryParsingException(
                 "Error on parsing query", parserText, parserGetCurrentPosition()),
             e);
       }
 
       throw e;
     } catch (Exception t) {
-      throw OException.wrapException(
-          new OQueryParsingException(
+      throw YTException.wrapException(
+          new YTQueryParsingException(
               "Error on parsing query", parserText, parserGetCurrentPosition()),
           t);
     }
@@ -294,7 +294,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
         parserSetCurrentPosition(
             OStringSerializerHelper.getParameters(parserText, paramBeginPos, -1, params));
       } else if (!word.equals(op.keyword)) {
-        throw new OQueryParsingException(
+        throw new YTQueryParsingException(
             "Malformed usage of operator '" + op + "'. Parsed operator is: " + word);
       }
 
@@ -302,8 +302,8 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
         // CONFIGURE COULD INSTANTIATE A NEW OBJECT: ACT AS A FACTORY
         return op.configure(params);
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OQueryParsingException(
+        throw YTException.wrapException(
+            new YTQueryParsingException(
                 "Syntax error using the operator '" + op + "'. Syntax is: " + op.getSyntax()),
             e);
       }
@@ -458,7 +458,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
 
       // CHECK THE PARAMETER NAME IS CORRECT
       if (!OStringSerializerHelper.isAlphanumeric(name)) {
-        throw new OQueryParsingException(
+        throw new YTQueryParsingException(
             "Parameter name '" + name + "' is invalid, only alphanumeric characters are allowed");
       }
     } else {

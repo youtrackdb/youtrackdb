@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.listener.OListenerManger;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.function.OFunctionLibraryImpl;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
@@ -128,8 +128,8 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
       try {
         resource = factory.call();
       } catch (Exception e) {
-        OException.wrapException(
-            new ODatabaseException(String.format("instance creation for '%s' failed", name)), e);
+        YTException.wrapException(
+            new YTDatabaseException(String.format("instance creation for '%s' failed", name)), e);
       }
       resources.put(name, resource);
     }

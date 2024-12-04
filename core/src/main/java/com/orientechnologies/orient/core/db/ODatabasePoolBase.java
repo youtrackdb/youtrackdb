@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.common.concur.resource.OReentrantResourcePool;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import java.util.Map;
 
 /**
@@ -85,7 +85,7 @@ public abstract class ODatabasePoolBase extends Thread {
                 public YTDatabaseSession createNewResource(
                     final String iDatabaseName, final Object... iAdditionalArgs) {
                   if (iAdditionalArgs.length < 2) {
-                    throw new OSecurityAccessException("Username and/or password missed");
+                    throw new YTSecurityAccessException("Username and/or password missed");
                   }
 
                   return createResource(owner, iDatabaseName, iAdditionalArgs);
@@ -108,7 +108,7 @@ public abstract class ODatabasePoolBase extends Thread {
                               (String) iAdditionalArgs[1], new OContextConfiguration());
                     } else if (!iValue.getUser()
                         .checkPassword(session, (String) iAdditionalArgs[1])) {
-                      throw new OSecurityAccessException(
+                      throw new YTSecurityAccessException(
                           iValue.getName(),
                           "User or password not valid for database: '" + iValue.getName() + "'");
                     }

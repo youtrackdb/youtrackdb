@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     try {
       db.command("alter class " + className + " name " + className + "_new");
       Assert.fail();
-    } catch (OCommandExecutionException ex) {
+    } catch (YTCommandExecutionException ex) {
 
     } catch (Exception ex) {
       Assert.fail();
@@ -206,7 +206,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     try {
       db.command("alter class " + className + " name " + className + "_new");
       Assert.fail();
-    } catch (OCommandExecutionException ex) {
+    } catch (YTCommandExecutionException ex) {
 
     }
     OResultSet result =
@@ -236,7 +236,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
 
     try {
       db.command("alter class " + className + " defaultcluster " + firstNonDefault).close();
-    } catch (OCommandExecutionException ex) {
+    } catch (YTCommandExecutionException ex) {
     }
 
     Assert.assertEquals(firstNonDefault, schema.getClass(className).getDefaultClusterId());

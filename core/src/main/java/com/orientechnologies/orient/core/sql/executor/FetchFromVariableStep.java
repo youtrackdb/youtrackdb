@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.YTTimeoutException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collections;
@@ -23,7 +23,7 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -46,7 +46,7 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
     } else if (src instanceof Iterable) {
       source = OExecutionStream.iterator(((Iterable<?>) src).iterator());
     } else {
-      throw new OCommandExecutionException("Cannot use variable as query target: " + variableName);
+      throw new YTCommandExecutionException("Cannot use variable as query target: " + variableName);
     }
     return source;
   }
@@ -76,7 +76,7 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
       }
       reset();
     } catch (Exception e) {
-      throw OException.wrapException(new OCommandExecutionException(""), e);
+      throw YTException.wrapException(new YTCommandExecutionException(""), e);
     }
   }
 }

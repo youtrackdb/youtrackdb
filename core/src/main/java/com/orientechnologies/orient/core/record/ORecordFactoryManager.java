@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.record;
 
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
@@ -105,7 +105,7 @@ public class ORecordFactoryManager {
   public void declareRecordType(
       byte iByte, String iName, Class<? extends YTRecord> iClass, final ORecordFactory iFactory) {
     if (recordTypes[iByte] != null) {
-      throw new OSystemException(
+      throw new YTSystemException(
           "Record type byte '" + iByte + "' already in use : " + recordTypes[iByte].getName());
     }
     recordTypeNames[iByte] = iName;

@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -15,7 +15,7 @@ public class UnwrapPreviousValueStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     assert prev != null;
 
     OExecutionStream upstream = prev.start(ctx);
@@ -26,12 +26,13 @@ public class UnwrapPreviousValueStep extends AbstractExecutionStep {
     if (result instanceof OUpdatableResult) {
       result = ((OUpdatableResult) result).previousValue;
       if (result == null) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Invalid status of record: no previous value available");
       }
       return result;
     } else {
-      throw new OCommandExecutionException("Invalid status of record: no previous value available");
+      throw new YTCommandExecutionException(
+          "Invalid status of record: no previous value available");
     }
   }
 

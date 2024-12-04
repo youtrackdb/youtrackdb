@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.encryption.impl;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTInvalidStorageEncryptionKeyException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -46,7 +46,7 @@ public class ODESEncryption extends OAbstractEncryption {
     initialized = false;
 
     if (iOptions == null) {
-      throw new OSecurityException(
+      throw new YTSecurityException(
           "DES encryption has been selected, but no key was found. Please configure it by passing"
               + " the key as property at database create/open. The property key is: '"
               + YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()
@@ -63,8 +63,8 @@ public class ODESEncryption extends OAbstractEncryption {
       cipher = Cipher.getInstance(TRANSFORMATION);
 
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OInvalidStorageEncryptionKeyException(
+      throw YTException.wrapException(
+          new YTInvalidStorageEncryptionKeyException(
               "Cannot initialize DES encryption with current key. Assure the key is a BASE64 - 64"
                   + " bits long"),
           e);
@@ -78,7 +78,7 @@ public class ODESEncryption extends OAbstractEncryption {
   public byte[] encryptOrDecrypt(
       final int mode, final byte[] input, final int offset, final int length) throws Exception {
     if (!initialized) {
-      throw new OSecurityException("DES encryption algorithm is not available");
+      throw new YTSecurityException("DES encryption algorithm is not available");
     }
 
     cipher.init(mode, theKey);

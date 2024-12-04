@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.common.concur.lock.OLockException;
+import com.orientechnologies.common.concur.lock.YTLockException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OTokenHandler;
@@ -81,9 +81,9 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
             signedToken = new String(tokenBytes);
           }
 
-        } catch (OSecurityAccessException e) {
+        } catch (YTSecurityAccessException e) {
           // WRONG USER/PASSWD
-        } catch (OLockException e) {
+        } catch (YTLockException e) {
           OLogManager.instance()
               .error(this, "Cannot access to the database '" + iRequest.getDatabaseName() + "'", e);
         }
@@ -115,9 +115,9 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
       db = server.openDatabase(iDatabaseName, username, password);
 
       userRid = (db.getUser() == null ? "<server user>" : db.getUser().getIdentity(db).toString());
-    } catch (OSecurityAccessException e) {
+    } catch (YTSecurityAccessException e) {
       // WRONG USER/PASSWD
-    } catch (OLockException e) {
+    } catch (YTLockException e) {
       OLogManager.instance()
           .error(this, "Cannot access to the database '" + iDatabaseName + "'", e);
     } finally {

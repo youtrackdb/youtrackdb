@@ -32,7 +32,7 @@ public abstract class OCommandExecutorSQLRetryAbstract extends OCommandExecutorS
   /**
    * Parses the RETRY number of times
    */
-  protected void parseRetry() throws OCommandSQLParsingException {
+  protected void parseRetry() throws YTCommandSQLParsingException {
     retry = Integer.parseInt(parserNextWord(true));
 
     String temp = parseOptionalWord(true);

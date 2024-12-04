@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import org.junit.Assert;
@@ -36,7 +36,7 @@ public class CheckClassTypeStepTest extends TestUtilsFixture {
     Assert.assertEquals(0, result.stream(context).count());
   }
 
-  @Test(expected = OCommandExecutionException.class)
+  @Test(expected = YTCommandExecutionException.class)
   public void shouldThrowExceptionWhenClassIsNotParent() {
     OBasicCommandContext context = new OBasicCommandContext();
     context.setDatabase(db);

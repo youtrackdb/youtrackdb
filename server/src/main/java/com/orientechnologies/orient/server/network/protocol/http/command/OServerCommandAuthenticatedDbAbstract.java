@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.common.concur.lock.OLockException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.lock.YTLockException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OUser;
@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestException;
+import com.orientechnologies.orient.server.network.protocol.http.YTHttpRequestException;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpSession;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -70,7 +70,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
 
       final String[] urlParts = iRequest.getUrl().substring(1).split("/");
       if (urlParts.length < 2) {
-        throw new OHttpRequestException(
+        throw new YTHttpRequestException(
             "Syntax error in URL. Expected is: <command>/<database>[/...]");
       }
 
@@ -179,7 +179,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
         }
       }
     } catch (Exception e) {
-      throw OException.wrapException(new OHttpRequestException("Error on authentication"), e);
+      throw YTException.wrapException(new YTHttpRequestException("Error on authentication"), e);
     } finally {
       // clear local cache to ensure that zomby records will not pile up in cache.
       try {
@@ -232,9 +232,9 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       iResponse.setSessionId(iRequest.getSessionId());
       return true;
 
-    } catch (OSecurityAccessException e) {
+    } catch (YTSecurityAccessException e) {
       // WRONG USER/PASSWD
-    } catch (OLockException e) {
+    } catch (YTLockException e) {
       OLogManager.instance()
           .error(this, "Cannot access to the database '" + iDatabaseName + "'", e);
     } finally {
@@ -320,7 +320,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     final OHttpSession session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
 
     if (session == null) {
-      throw new OSecurityAccessException(iRequest.getDatabaseName(), "No session active");
+      throw new YTSecurityAccessException(iRequest.getDatabaseName(), "No session active");
     }
 
     // after authentication, if current login user is different compare with current DB user, reset

@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
@@ -245,10 +245,10 @@ public class OBaseIdentifier extends SimpleNode {
       } else if (suffix != null) {
         return suffix.getAggregationContext(ctx);
       } else {
-        throw new OCommandExecutionException("cannot aggregate on " + this);
+        throw new YTCommandExecutionException("cannot aggregate on " + this);
       }
     } else {
-      throw new OCommandExecutionException("cannot aggregate on " + this);
+      throw new YTCommandExecutionException("cannot aggregate on " + this);
     }
   }
 
@@ -307,7 +307,7 @@ public class OBaseIdentifier extends SimpleNode {
     if (suffix != null) {
       suffix.applyRemove(result, ctx);
     } else {
-      throw new OCommandExecutionException("cannot apply REMOVE " + this);
+      throw new YTCommandExecutionException("cannot apply REMOVE " + this);
     }
   }
 

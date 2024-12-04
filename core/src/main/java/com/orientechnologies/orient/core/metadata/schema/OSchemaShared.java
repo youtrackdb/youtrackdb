@@ -28,9 +28,9 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OSchemaNotCreatedException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaNotCreatedException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
@@ -106,7 +106,7 @@ public abstract class OSchemaShared implements OCloseable {
   public OSchemaShared() {
   }
 
-  public static Character checkClassNameIfValid(String iName) throws OSchemaException {
+  public static Character checkClassNameIfValid(String iName) throws YTSchemaException {
     if (iName == null) {
       throw new IllegalArgumentException("Name is null");
     }
@@ -329,13 +329,13 @@ public abstract class OSchemaShared implements OCloseable {
       }
 
       if (blobClusters.contains(clusterId)) {
-        throw new OSchemaException("Cluster with id " + clusterId + " already belongs to Blob");
+        throw new YTSchemaException("Cluster with id " + clusterId + " already belongs to Blob");
       }
 
       final YTClass existingCls = clustersToClasses.get(clusterId);
 
       if (existingCls != null && (cls == null || !cls.equals(existingCls))) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to the class '"
@@ -346,7 +346,7 @@ public abstract class OSchemaShared implements OCloseable {
       final YTView existingView = clustersToViews.get(clusterId);
 
       if (existingView != null && (cls == null || !cls.equals(existingView))) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to the view '"
@@ -613,7 +613,7 @@ public abstract class OSchemaShared implements OCloseable {
         // VERSION_NUMBER_V5 is needed for guarantee the compatibility to 2.0-M1 and 2.0-M2 no
         // changed associated with it
         // HANDLE SCHEMA UPGRADE
-        throw new OConfigurationException(
+        throw new YTConfigurationException(
             "Database schema is different. Please export your old database with the previous"
                 + " version of YouTrackDB and reimport it using the current one.");
       }
@@ -692,7 +692,7 @@ public abstract class OSchemaShared implements OCloseable {
             superClass = classes.get(superClassName.toLowerCase(Locale.ENGLISH));
 
             if (superClass == null) {
-              throw new OConfigurationException(
+              throw new YTConfigurationException(
                   "Super class '"
                       + superClassName
                       + "' was declared in class '"
@@ -888,7 +888,7 @@ public abstract class OSchemaShared implements OCloseable {
     try {
       identity = new YTRecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
       if (!identity.isValid()) {
-        throw new OSchemaNotCreatedException("Schema is not created and cannot be loaded");
+        throw new YTSchemaNotCreatedException("Schema is not created and cannot be loaded");
       }
       database.executeInTx(
           () -> {
@@ -945,7 +945,7 @@ public abstract class OSchemaShared implements OCloseable {
     OGlobalProperty global;
     if (id < properties.size() && (global = properties.get(id)) != null) {
       if (!global.getName().equals(name) || !global.getType().equals(type)) {
-        throw new OSchemaException("A property with id " + id + " already exist ");
+        throw new YTSchemaException("A property with id " + id + " already exist ");
       }
       return global;
     }
@@ -980,7 +980,7 @@ public abstract class OSchemaShared implements OCloseable {
 
     var tx = database.getTransaction();
     if (tx.isActive()) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Cannot change the schema while a transaction is active. Schema changes are not"
               + " transactional");
     }

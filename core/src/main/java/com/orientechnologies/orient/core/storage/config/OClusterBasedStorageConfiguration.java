@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.config;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
@@ -9,7 +9,6 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationUpdateListener;
@@ -17,8 +16,9 @@ import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.config.OStorageFileConfiguration;
 import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageSegmentConfiguration;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -244,7 +244,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
   public void load(
       final OContextConfiguration configuration, final OAtomicOperation atomicOperation)
-      throws OSerializationException, IOException {
+      throws YTSerializationException, IOException {
     lock.writeLock().lock();
     try {
       this.configuration = configuration;
@@ -344,7 +344,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
    * Added version used for managed Network Versioning.
    */
   public byte[] toStream(final int iNetworkVersion, final Charset charset)
-      throws OSerializationException {
+      throws YTSerializationException {
     lock.readLock().lock();
     try {
       final StringBuilder buffer = new StringBuilder(8192);
@@ -1116,8 +1116,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
                           entry.first.substring(PROPERTY_PREFIX_PROPERTY.length()),
                           deserializeStringValue(buffer.buffer, 0));
                     } catch (IOException e) {
-                      throw OException.wrapException(
-                          new OStorageException("Can not preload configuration properties"), e);
+                      throw YTException.wrapException(
+                          new YTStorageException("Can not preload configuration properties"), e);
                     }
                   })
               .collect(Collectors.toMap((pair) -> pair.first, (pair) -> pair.second));
@@ -1271,8 +1271,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
                   return deserializeIndexEngineProperty(
                       name, buffer.buffer, Integer.MIN_VALUE, entry.second.getClusterId());
                 } catch (IOException e) {
-                  throw OException.wrapException(
-                      new OStorageException(
+                  throw YTException.wrapException(
+                      new YTStorageException(
                           "Can not load data for index "
                               + name
                               + " for storage "
@@ -1399,8 +1399,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
                     clusters.set(id, deserializeStorageClusterConfig(id, buffer.buffer));
                   }
                 } catch (final IOException e) {
-                  throw OException.wrapException(
-                      new OStorageException(
+                  throw YTException.wrapException(
+                      new YTStorageException(
                           "Can not load data for cluster with id="
                               + id
                               + " for storage "
@@ -1821,8 +1821,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       final ORawBuffer buffer = cluster.readRecord(rid.getClusterPosition(), false);
       return new ORawPairObjectInteger<>(buffer.buffer, rid.getClusterId());
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during read of configuration property " + name), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during read of configuration property " + name), e);
     }
   }
 

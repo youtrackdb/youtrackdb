@@ -2,8 +2,8 @@ package com.orientechnologies.orient.client.remote.metadata.schema;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassAbstractDelegate;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
@@ -36,16 +36,16 @@ public class YTClassRemote extends YTClassImpl {
       final YTClass linkedClass,
       final boolean unsafe) {
     if (type == null) {
-      throw new OSchemaException("Property type not defined.");
+      throw new YTSchemaException("Property type not defined.");
     }
 
     if (propertyName == null || propertyName.length() == 0) {
-      throw new OSchemaException("Property name is null or empty");
+      throw new YTSchemaException("Property name is null or empty");
     }
 
     validatePropertyName(propertyName);
     if (session.getTransaction().isActive()) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Cannot create property '" + propertyName + "' inside a transaction");
     }
 
@@ -234,10 +234,10 @@ public class YTClassRemote extends YTClassImpl {
       String error =
           String.format(
               "Cannot rename class %s to %s. A Class with name %s exists", this.name, name, name);
-      throw new OSchemaException(error);
+      throw new YTSchemaException(error);
     }
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
@@ -341,7 +341,7 @@ public class YTClassRemote extends YTClassImpl {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
-      throw new OSchemaException("Impossible to associate a cluster to an abstract class class");
+      throw new YTSchemaException("Impossible to associate a cluster to an abstract class class");
     }
     acquireSchemaWriteLock(database);
     try {
@@ -359,7 +359,7 @@ public class YTClassRemote extends YTClassImpl {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (clusterIds.length == 1 && clusterId == clusterIds[0]) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           " Impossible to remove the last cluster of class '"
               + getName()
               + "' drop the class instead");
@@ -387,7 +387,7 @@ public class YTClassRemote extends YTClassImpl {
     acquireSchemaWriteLock(database);
     try {
       if (!properties.containsKey(propertyName)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Property '" + propertyName + "' not found in class " + name + "'");
       }
 
@@ -404,7 +404,7 @@ public class YTClassRemote extends YTClassImpl {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
-      throw new OSchemaException("Impossible to associate a cluster to an abstract class class");
+      throw new YTSchemaException("Impossible to associate a cluster to an abstract class class");
     }
 
     acquireSchemaWriteLock(database);
@@ -481,7 +481,7 @@ public class YTClassRemote extends YTClassImpl {
       }
 
       if (newSuperClasses.contains(cls)) {
-        throw new OSchemaException("Duplicated superclass '" + cls.getName() + "'");
+        throw new YTSchemaException("Duplicated superclass '" + cls.getName() + "'");
       }
 
       newSuperClasses.add(cls);
@@ -506,7 +506,7 @@ public class YTClassRemote extends YTClassImpl {
     YTDatabaseSessionInternal database = (YTDatabaseSessionInternal) session;
     String clusterName = database.getClusterNameById(defaultClusterId);
     if (clusterName == null) {
-      throw new OSchemaException("Cluster with id '" + defaultClusterId + "' does not exist");
+      throw new YTSchemaException("Cluster with id '" + defaultClusterId + "' does not exist");
     }
     final String cmd =
         String.format("alter class `%s` DEFAULTCLUSTER `%s`", this.name, clusterName);

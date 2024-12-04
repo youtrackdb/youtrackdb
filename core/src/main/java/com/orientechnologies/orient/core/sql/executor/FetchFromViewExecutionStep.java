@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
 import java.util.Set;
 
@@ -39,7 +39,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
   protected YTView loadClassFromSchema(String className, OCommandContext ctx) {
     YTView clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot().getView(className);
     if (clazz == null) {
-      throw new OCommandExecutionException("View " + className + " not found");
+      throw new YTCommandExecutionException("View " + className + " not found");
     }
     return clazz;
   }

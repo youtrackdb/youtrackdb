@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class OCreateClusterStatement extends ODDLStatement {
       if (ifNotExists) {
         return OExecutionStream.empty();
       } else {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cluster " + name.getStringValue() + " already exists");
       }
     }
@@ -48,7 +48,7 @@ public class OCreateClusterStatement extends ODDLStatement {
         if (ifNotExists) {
           return OExecutionStream.empty();
         } else {
-          throw new OCommandExecutionException("Cluster " + id.getValue() + " already exists");
+          throw new YTCommandExecutionException("Cluster " + id.getValue() + " already exists");
         }
       }
     }
@@ -64,7 +64,7 @@ public class OCreateClusterStatement extends ODDLStatement {
         finalId = db.addBlobCluster(name.getStringValue());
         result.setProperty("finalId", finalId);
       } else {
-        throw new OCommandExecutionException("Request id not supported by blob cluster creation.");
+        throw new YTCommandExecutionException("Request id not supported by blob cluster creation.");
       }
     } else {
       if (requestedId == -1) {

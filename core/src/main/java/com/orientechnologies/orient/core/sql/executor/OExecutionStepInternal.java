@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public interface OExecutionStepInternal extends OExecutionStep {
 
-  OExecutionStream start(OCommandContext ctx) throws OTimeoutException;
+  OExecutionStream start(OCommandContext ctx) throws YTTimeoutException;
 
   void sendTimeout();
 

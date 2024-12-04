@@ -24,10 +24,10 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
+import com.orientechnologies.orient.core.exception.YTCommandInterruptedException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
@@ -131,7 +131,7 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
 
   public static boolean checkInterruption(final OCommandContext iContext) {
     if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
-      throw new OCommandInterruptedException("The command has been interrupted");
+      throw new YTCommandInterruptedException("The command has been interrupted");
     }
 
     return iContext == null || iContext.checkTimeout();

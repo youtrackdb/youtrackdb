@@ -2,10 +2,10 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -33,8 +33,8 @@ public class OHaSyncDatabaseStatement extends OSimpleExecStatement {
       r.setProperty("result", result);
       return OExecutionStream.singleton(r);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OCommandExecutionException("Cannot execute HA SYNC DATABASE"), e);
+      throw YTException.wrapException(
+          new YTCommandExecutionException("Cannot execute HA SYNC DATABASE"), e);
     }
   }
 

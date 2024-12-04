@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.util;
 
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import java.io.File;
 import java.util.Optional;
 
@@ -19,7 +19,7 @@ public class OURLHelper {
 
     int typeIndex = url.indexOf(':');
     if (typeIndex <= 0) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
               + YouTrackDBManager.URL_SYNTAX
               + ". URL was: "
@@ -30,7 +30,7 @@ public class OURLHelper {
     String type = url.substring(0, typeIndex);
 
     if (!"remote".equals(type) && !"plocal".equals(type) && !"memory".equals(type)) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Error on opening database: the engine '"
               + type
               + "' was not found. URL was: "
@@ -70,7 +70,7 @@ public class OURLHelper {
 
     int typeIndex = url.indexOf(':');
     if (typeIndex <= 0) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
               + YouTrackDBManager.URL_SYNTAX
               + ". URL was: "
@@ -93,7 +93,7 @@ public class OURLHelper {
     }
 
     if (!"embedded".equals(type) && !"remote".equals(type)) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Error on opening database: the engine '"
               + type
               + "' was not found. URL was: "

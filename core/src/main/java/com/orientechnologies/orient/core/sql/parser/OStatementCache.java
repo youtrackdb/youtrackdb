@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -111,9 +111,9 @@ public class OStatementCache {
    *
    * @param statement the SQL statement
    * @return the corresponding executor
-   * @throws OCommandSQLParsingException if the input parameter is not a valid SQL statement
+   * @throws YTCommandSQLParsingException if the input parameter is not a valid SQL statement
    */
-  protected static OStatement parse(String statement) throws OCommandSQLParsingException {
+  protected static OStatement parse(String statement) throws YTCommandSQLParsingException {
     try {
       YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       InputStream is;
@@ -171,10 +171,10 @@ public class OStatementCache {
    *
    * @param statement the SQL statement
    * @return the corresponding executor
-   * @throws OCommandSQLParsingException if the input parameter is not a valid SQL statement
+   * @throws YTCommandSQLParsingException if the input parameter is not a valid SQL statement
    */
   protected static OServerStatement parseServerStatement(String statement)
-      throws OCommandSQLParsingException {
+      throws YTCommandSQLParsingException {
     try {
       InputStream is = new ByteArrayInputStream(statement.getBytes());
       OrientSql osql = new OrientSql(is);
@@ -191,11 +191,11 @@ public class OStatementCache {
   }
 
   protected static void throwParsingException(ParseException e, String statement) {
-    throw new OCommandSQLParsingException(e, statement);
+    throw new YTCommandSQLParsingException(e, statement);
   }
 
   protected static void throwParsingException(TokenMgrError e, String statement) {
-    throw new OCommandSQLParsingException(e, statement);
+    throw new YTCommandSQLParsingException(e, statement);
   }
 
   public void clear() {

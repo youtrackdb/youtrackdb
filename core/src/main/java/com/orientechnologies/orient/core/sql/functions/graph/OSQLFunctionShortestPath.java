@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
@@ -167,7 +167,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
       }
 
       if (Thread.interrupted()) {
-        throw new OCommandExecutionException("The shortestPath() function has been interrupted");
+        throw new YTCommandExecutionException("The shortestPath() function has been interrupted");
       }
 
       if (!OCommandExecutorAbstract.checkInterruption(iContext)) {

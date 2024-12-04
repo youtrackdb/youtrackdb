@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.multivalue.v2;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
@@ -29,7 +29,7 @@ import com.orientechnologies.common.types.OModifiableLong;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
+import com.orientechnologies.orient.core.exception.YTTooBigIndexKeyException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -321,7 +321,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new CellBTreeMultiValueException(
               "Error during retrieving  of sbtree with name " + getName(), this),
           e);
@@ -412,7 +412,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
                   keySerializer.serializeNativeAsWhole(key, (Object[]) keyTypes);
 
               if (keySize > MAX_KEY_SIZE) {
-                throw new OTooBigIndexKeyException(
+                throw new YTTooBigIndexKeyException(
                     "Key size is more than allowed, operation was canceled. Current key size "
                         + keySize
                         + ", allowed  "
@@ -599,7 +599,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
       }
 
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new CellBTreeMultiValueException("Exception during loading of sbtree " + name, this), e);
     } finally {
       releaseExclusiveLock();
@@ -623,7 +623,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new CellBTreeMultiValueException(
               "Error during retrieving of size of index " + getName(), this),
           e);
@@ -847,7 +847,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new CellBTreeMultiValueException(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
@@ -878,7 +878,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new CellBTreeMultiValueException(
               "Error during finding last key in sbtree [" + getName() + "]", this),
           e);
@@ -903,7 +903,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
+      throw YTException.wrapException(
           new CellBTreeMultiValueException(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
@@ -1881,7 +1881,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw OException.wrapException(
+        throw YTException.wrapException(
             new CellBTreeMultiValueException(
                 "Error during element iteration", CellBTreeMultiValueV2.this),
             e);
@@ -2095,7 +2095,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw OException.wrapException(
+        throw YTException.wrapException(
             new CellBTreeMultiValueException(
                 "Error during element iteration", CellBTreeMultiValueV2.this),
             e);
@@ -2316,7 +2316,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw OException.wrapException(
+        throw YTException.wrapException(
             new CellBTreeMultiValueException(
                 "Error during element iteration", CellBTreeMultiValueV2.this),
             e);

@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.concur.OTimeoutException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.YTTimeoutException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandInterruptedException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -75,7 +75,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     var prev = this.prev;
     if (prev != null) {
       prev.start(ctx).close(ctx);
@@ -115,7 +115,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   private OResult readResult(OCommandContext ctx, ORawPair<Object, YTRID> nextEntry) {
     if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
-      throw new OCommandInterruptedException("The command has been interrupted");
+      throw new YTCommandInterruptedException("The command has been interrupted");
     }
     count++;
     Object key = nextEntry.first;
@@ -190,7 +190,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       return processInCondition(index, condition, ctx, isOrderAsc);
     } else {
       // TODO process containsAny
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
   }
@@ -205,7 +205,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
     OExpression left = inCondition.getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
     Object rightValue = inCondition.evaluateRight((OResult) null, ctx);
@@ -580,7 +580,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     OIndexDefinition definition = index.getDefinition();
     OExpression key = ((OBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
     OExpression second = ((OBetweenCondition) condition).getSecond();
@@ -615,7 +615,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     OBinaryCompareOperator operator = ((OBinaryCondition) condition).getOperator();
     OExpression left = ((OBinaryCondition) condition).getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
     Object rightValue = ((OBinaryCondition) condition).getRight().execute((OResult) null, ctx);
@@ -684,7 +684,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     } else if (operator instanceof OLtOperator) {
       return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
   }
@@ -857,7 +857,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       desc = new IndexSearchDescriptor(index, condition, additionalRangeCondition, null);
       orderAsc = fromResult.getProperty("orderAsc");
     } catch (Exception e) {
-      throw OException.wrapException(new OCommandExecutionException(""), e);
+      throw YTException.wrapException(new YTCommandExecutionException(""), e);
     }
   }
 

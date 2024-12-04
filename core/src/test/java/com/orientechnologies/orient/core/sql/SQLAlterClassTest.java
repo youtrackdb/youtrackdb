@@ -14,7 +14,7 @@ public class SQLAlterClassTest extends DBTestBase {
     try {
       db.command("alter class TestClass name = 'test_class'").close();
       Assert.fail("the rename should fail for wrong syntax");
-    } catch (OCommandSQLParsingException ex) {
+    } catch (YTCommandSQLParsingException ex) {
 
     }
     Assert.assertNotNull(db.getMetadata().getSchema().getClass("TestClass"));
@@ -32,7 +32,7 @@ public class SQLAlterClassTest extends DBTestBase {
 
       OResultSet result = db.query("Select from `Client-Type`");
       Assert.assertEquals(result.stream().count(), 1);
-    } catch (OCommandSQLParsingException ex) {
+    } catch (YTCommandSQLParsingException ex) {
       Assert.fail();
     }
   }

@@ -16,9 +16,9 @@ package com.orientechnologies.security.password;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.security.OInvalidPasswordException;
 import com.orientechnologies.orient.core.security.OPasswordValidator;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
+import com.orientechnologies.orient.core.security.YTInvalidPasswordException;
 import java.util.regex.Pattern;
 
 /**
@@ -84,7 +84,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
 
   // OPasswordValidator
   public void validatePassword(final String username, final String password)
-      throws OInvalidPasswordException {
+      throws YTInvalidPasswordException {
     if (!enabled) {
       return;
     }
@@ -100,7 +100,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
                 this,
                 "ODefaultPasswordValidator.validatePassword() Password length (%d) is too short",
                 password.length());
-        throw new OInvalidPasswordException(
+        throw new YTInvalidPasswordException(
             "Password length is too short.  Minimum password length is " + minLength);
       }
 
@@ -110,7 +110,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
                 this,
                 "ODefaultPasswordValidator.validatePassword() Password requires a minimum count of"
                     + " numbers");
-        throw new OInvalidPasswordException("Password requires a minimum count of numbers");
+        throw new YTInvalidPasswordException("Password requires a minimum count of numbers");
       }
 
       if (hasSpecial != null && !isValid(hasSpecial, password)) {
@@ -119,7 +119,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
                 this,
                 "ODefaultPasswordValidator.validatePassword() Password requires a minimum count of"
                     + " special characters");
-        throw new OInvalidPasswordException(
+        throw new YTInvalidPasswordException(
             "Password requires a minimum count of special characters");
       }
 
@@ -129,13 +129,13 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
                 this,
                 "ODefaultPasswordValidator.validatePassword() Password requires a minimum count of"
                     + " uppercase characters");
-        throw new OInvalidPasswordException(
+        throw new YTInvalidPasswordException(
             "Password requires a minimum count of uppercase characters");
       }
     } else {
       OLogManager.instance()
           .debug(this, "ODefaultPasswordValidator.validatePassword() Password is null or empty");
-      throw new OInvalidPasswordException(
+      throw new YTInvalidPasswordException(
           "ODefaultPasswordValidator.validatePassword() Password is null or empty");
     }
   }

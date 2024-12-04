@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.record.ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Iterator;
@@ -160,7 +160,7 @@ public class OMap extends OTrackedMap<YTIdentifiable> implements OSizeable {
         ORecordInternal.unTrack(sourceRecord, rid);
         ORecordInternal.track(sourceRecord, record);
         super.putInternal(iKey, record);
-      } catch (ORecordNotFoundException ignore) {
+      } catch (YTRecordNotFoundException ignore) {
         // IGNORE THIS
       }
     }

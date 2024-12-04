@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
@@ -76,7 +76,7 @@ public class YTRecordBytes extends YTRecordAbstract implements YTBlob {
   @Override
   public YTRecordBytes fromStream(final byte[] iRecordBuffer) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fromStream() on dirty records");
+      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
     }
 
     checkForBinding();

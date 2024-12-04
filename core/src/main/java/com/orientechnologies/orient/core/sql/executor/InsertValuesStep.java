@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OResultMapper;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
@@ -29,7 +29,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     assert prev != null;
     OExecutionStream upstream = prev.start(ctx);
 
@@ -42,14 +42,14 @@ public class InsertValuesStep extends AbstractExecutionStep {
           public OResult map(OResult result, OCommandContext ctx) {
             if (!(result instanceof OResultInternal)) {
               if (!result.isElement()) {
-                throw new OCommandExecutionException(
+                throw new YTCommandExecutionException(
                     "Error executing INSERT, cannot modify element: " + result);
               }
               result = new OUpdatableResult(ctx.getDatabase(), result.toElement());
             }
             List<OExpression> currentValues = values.get(nextValueSet++);
             if (currentValues.size() != identifiers.size()) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot execute INSERT, the number of fields is different from the number of"
                       + " expressions: "
                       + identifiers

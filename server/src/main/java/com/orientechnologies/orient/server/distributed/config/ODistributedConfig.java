@@ -5,14 +5,14 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.db.config.OMulticastConfguration;
 import com.orientechnologies.orient.core.db.config.ONodeConfigurationBuilder;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.server.config.distributed.OServerDistributedConfiguration;
 import com.orientechnologies.orient.server.config.distributed.OServerDistributedNetworkMulticastConfiguration;
 
 public class ODistributedConfig {
 
   public static OServerDistributedConfiguration fromEnv(OServerDistributedConfiguration distributed)
-      throws OConfigurationException {
+      throws YTConfigurationException {
     final OServerDistributedConfiguration config;
     if (distributed == null) {
       config = new OServerDistributedConfiguration();
@@ -27,38 +27,38 @@ public class ODistributedConfig {
   }
 
   public static void validateConfiguration(OServerDistributedConfiguration configuration)
-      throws OConfigurationException {
+      throws YTConfigurationException {
 
     if (configuration.enabled) {
 
       if (configuration.nodeName == null) {
-        throw new OConfigurationException("Node name not specified in the configuration");
+        throw new YTConfigurationException("Node name not specified in the configuration");
       }
 
       if (configuration.group.name == null) {
-        throw new OConfigurationException("Group name not specified in the configuration");
+        throw new YTConfigurationException("Group name not specified in the configuration");
       }
       if (configuration.group.password == null) {
-        throw new OConfigurationException("Group password not specified in the configuration");
+        throw new YTConfigurationException("Group password not specified in the configuration");
       }
       if (configuration.quorum == null) {
-        throw new OConfigurationException("Quorum not specified in the configuration");
+        throw new YTConfigurationException("Quorum not specified in the configuration");
       }
 
       if (configuration.network.multicast.enabled) {
 
         if (configuration.network.multicast.ip == null) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Address not specified in the configuration of multicast");
         }
 
         if (configuration.network.multicast.port == null) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Address not specified in the configuration of multicast");
         }
 
         if (configuration.network.multicast.discoveryPorts == null) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Address not specified in the configuration of multicast");
         }
       }

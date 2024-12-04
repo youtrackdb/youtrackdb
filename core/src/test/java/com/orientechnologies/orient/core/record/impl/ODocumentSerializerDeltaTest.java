@@ -10,12 +10,12 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import java.math.BigDecimal;
@@ -1895,7 +1895,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     assertEquals(extr.<Object>field("custom"), document.field("custom"));
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testSetOfWrongData() {
     YTDocument document = new YTDocument();
 
@@ -1907,7 +1907,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] res = serializerDelta.serialize(document);
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testListOfWrongData() {
     YTDocument document = new YTDocument();
 
@@ -1919,7 +1919,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] res = serializerDelta.serialize(document);
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testMapOfWrongData() {
     YTDocument document = new YTDocument();
 
@@ -1967,7 +1967,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     byte[] res = serializerDelta.serialize(document);
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testFieldWrongData() {
     YTDocument document = new YTDocument();
 

@@ -1,9 +1,9 @@
 package com.orientechnologies.lucene.analyzer;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Locale;
@@ -90,8 +90,8 @@ public class OLuceneAnalyzerFactory {
       final Constructor constructor = classAnalyzer.getConstructor();
       return (Analyzer) constructor.newInstance();
     } catch (final ClassNotFoundException e) {
-      throw OException.wrapException(
-          new OIndexException("Analyzer: " + analyzerFQN + " not found"), e);
+      throw YTException.wrapException(
+          new YTIndexException("Analyzer: " + analyzerFQN + " not found"), e);
     } catch (final NoSuchMethodException e) {
       Class classAnalyzer = null;
       try {
@@ -100,8 +100,8 @@ public class OLuceneAnalyzerFactory {
       } catch (Exception e1) {
         OLogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-        throw OException.wrapException(
-            new OIndexException("Couldn't instantiate analyzer:  public constructor  not found"),
+        throw YTException.wrapException(
+            new YTIndexException("Couldn't instantiate analyzer:  public constructor  not found"),
             e1);
       }
     } catch (Exception e) {
@@ -120,11 +120,11 @@ public class OLuceneAnalyzerFactory {
       final Constructor constructor = classAnalyzer.getDeclaredConstructor(CharArraySet.class);
       return (Analyzer) constructor.newInstance(new CharArraySet(stopwords, true));
     } catch (final ClassNotFoundException e) {
-      throw OException.wrapException(
-          new OIndexException("Analyzer: " + analyzerFQN + " not found"), e);
+      throw YTException.wrapException(
+          new YTIndexException("Analyzer: " + analyzerFQN + " not found"), e);
     } catch (final NoSuchMethodException e) {
-      throw OException.wrapException(
-          new OIndexException("Couldn't instantiate analyzer: public constructor not found"), e);
+      throw YTException.wrapException(
+          new YTIndexException("Couldn't instantiate analyzer: public constructor not found"), e);
     } catch (final Exception e) {
       OLogManager.instance()
           .error(

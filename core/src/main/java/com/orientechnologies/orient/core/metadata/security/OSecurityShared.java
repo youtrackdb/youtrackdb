@@ -29,8 +29,8 @@ import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.ONullOutputListener;
@@ -305,7 +305,7 @@ public class OSecurityShared implements OSecurityInternal {
 
     if (user != null) {
       if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
-        throw new OSecurityAccessException(dbName,
+        throw new YTSecurityAccessException(dbName,
             "User '" + user.getName(session) + "' is not active");
       }
     } else {
@@ -316,7 +316,7 @@ public class OSecurityShared implements OSecurityInternal {
         Thread.currentThread().interrupt();
       }
 
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           dbName, "Invalid authentication info for access to the database " + authenticationInfo);
     }
     return user;
@@ -332,7 +332,7 @@ public class OSecurityShared implements OSecurityInternal {
 
     if (user != null) {
       if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
-        throw new OSecurityAccessException(dbName,
+        throw new YTSecurityAccessException(dbName,
             "User '" + user.getName(session) + "' is not active");
       }
     } else {
@@ -343,7 +343,7 @@ public class OSecurityShared implements OSecurityInternal {
         Thread.currentThread().interrupt();
       }
 
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           dbName,
           "User or password not valid for username: " + userName + ", database: '" + dbName + "'");
     }
@@ -360,7 +360,7 @@ public class OSecurityShared implements OSecurityInternal {
   public OUser authenticate(final YTDatabaseSessionInternal session, final OToken authToken) {
     final String dbName = session.getName();
     if (!authToken.getIsValid()) {
-      throw new OSecurityAccessException(dbName, "Token not valid");
+      throw new YTSecurityAccessException(dbName, "Token not valid");
     }
 
     OUser user = authToken.getUser(session);
@@ -370,11 +370,11 @@ public class OSecurityShared implements OSecurityInternal {
     }
 
     if (user == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           dbName, "Authentication failed, could not load user from token");
     }
     if (user.getAccountStatus(session) != STATUSES.ACTIVE) {
-      throw new OSecurityAccessException(dbName,
+      throw new YTSecurityAccessException(dbName,
           "User '" + user.getName(session) + "' is not active");
     }
 
@@ -443,7 +443,7 @@ public class OSecurityShared implements OSecurityInternal {
       if (clazz != null && clazz.isOrole()) {
         return new ORole(session, doc);
       }
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
 
@@ -1373,7 +1373,7 @@ public class OSecurityShared implements OSecurityInternal {
                           roleMap.put(clazz.getName(), true);
                         }
                       }
-                    } catch (ORecordNotFoundException rne) {
+                    } catch (YTRecordNotFoundException rne) {
                       // ignore
                     }
                   }
@@ -1901,7 +1901,7 @@ public class OSecurityShared implements OSecurityInternal {
                   result.add((OSecurityResourceProperty) res);
                 }
               }
-            } catch (ORecordNotFoundException e) {
+            } catch (YTRecordNotFoundException e) {
               // ignore
             } catch (Exception e) {
               OLogManager.instance().error(this, "Error on loading security policy", e);

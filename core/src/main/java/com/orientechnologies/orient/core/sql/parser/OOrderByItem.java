@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -143,7 +143,7 @@ public class OOrderByItem {
               OSQLEngine.getCollate(String.valueOf(collateVal).toLowerCase(Locale.ENGLISH));
         }
         if (collateStrategy == null) {
-          throw new OCommandExecutionException("Invalid collate for ORDER BY: " + collateVal);
+          throw new YTCommandExecutionException("Invalid collate for ORDER BY: " + collateVal);
         }
       }
     }

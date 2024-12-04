@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.List;
 import org.testng.Assert;
@@ -44,7 +44,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
               + "RETURN $credential;");
 
       Assert.fail("Tx has been committed while a rollback was expected");
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
 
       List<YTDocument> result = executeQuery("select from V where email = '123'");
       Assert.assertTrue(result.isEmpty());

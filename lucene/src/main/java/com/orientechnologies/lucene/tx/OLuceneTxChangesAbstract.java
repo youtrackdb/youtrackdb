@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.tx;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.lucene.exception.OLuceneIndexException;
+import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import java.io.IOException;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -54,8 +54,8 @@ public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
     } catch (IOException e) {
       //      OLogManager.instance().error(this, "Error during searcher index instantiation on new
       // documents", e);
-      throw OException.wrapException(
-          new OLuceneIndexException("Error during searcher index instantiation on new documents"),
+      throw YTException.wrapException(
+          new YTLuceneIndexException("Error during searcher index instantiation on new documents"),
           e);
     }
   }

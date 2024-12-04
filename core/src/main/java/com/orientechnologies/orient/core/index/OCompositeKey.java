@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.ChangeableIdentity;
 import com.orientechnologies.orient.core.id.IdentityChangeListener;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
@@ -242,7 +242,7 @@ public class OCompositeKey
     out.writeInt(l);
     for (Object key : keys) {
       if (key instanceof OCompositeKey) {
-        throw new OSerializationException("Cannot serialize unflattened nested composite key.");
+        throw new YTSerializationException("Cannot serialize unflattened nested composite key.");
       }
       if (key == null) {
         out.writeByte((byte) -1);

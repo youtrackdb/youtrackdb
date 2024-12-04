@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import org.junit.Test;
 
 public class AlterClassClusterTest extends DBTestBase {
@@ -20,19 +20,19 @@ public class AlterClassClusterTest extends DBTestBase {
     assertEquals(clazz.getDefaultClusterId(), db.getClusterIdByName("TestOneMore"));
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testRemoveLastClassCluster() {
     YTClass clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
     clazz.removeClusterId(db, db.getClusterIdByName("Test"));
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testAddClusterToAbstracClass() {
     YTClass clazz = db.getMetadata().getSchema().createAbstractClass("Test");
     clazz.addCluster(db, "TestOneMore");
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testAddClusterIdToAbstracClass() {
     YTClass clazz = db.getMetadata().getSchema().createAbstractClass("Test");
     int id = db.addCluster("TestOneMore");

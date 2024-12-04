@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OTraverseExecutionPlanner;
@@ -45,12 +45,12 @@ public class OTraverseStatement extends OStatement {
     super(p, id);
   }
 
-  public void validate() throws OCommandSQLParsingException {
+  public void validate() throws YTCommandSQLParsingException {
     //    for(OTraverseProjectionItem projection:projections) {
     //
     //        projection. validate();
     //        if (projection.isExpand() && groupBy != null) {
-    //          throw new OCommandSQLParsingException("expand() cannot be used together with GROUP
+    //          throw new YTCommandSQLParsingException("expand() cannot be used together with GROUP
     // BY");
     //        }
     //

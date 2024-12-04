@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -94,7 +94,7 @@ public class OValueExpression extends OExpression {
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
-    throw new OCommandExecutionException("Cannot aggregate on " + this);
+    throw new YTCommandExecutionException("Cannot aggregate on " + this);
   }
 
   public OValueExpression copy() {
@@ -138,7 +138,7 @@ public class OValueExpression extends OExpression {
   }
 
   public void applyRemove(OResultInternal result, OCommandContext ctx) {
-    throw new OCommandExecutionException("Cannot apply REMOVE " + this);
+    throw new YTCommandExecutionException("Cannot apply REMOVE " + this);
   }
 
   public boolean isCount() {

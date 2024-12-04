@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.functions;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.misc.OSQLStaticReflectiveFunction;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -80,7 +80,7 @@ public class OCustomSQLFunctionFactory implements OSQLFunctionFactory {
     final Object obj = FUNCTIONS.get(name);
 
     if (obj == null) {
-      throw new OCommandExecutionException("Unknown function name :" + name);
+      throw new YTCommandExecutionException("Unknown function name :" + name);
     }
 
     if (obj instanceof OSQLFunction) {
@@ -91,8 +91,8 @@ public class OCustomSQLFunctionFactory implements OSQLFunctionFactory {
       try {
         return (OSQLFunction) clazz.newInstance();
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OCommandExecutionException(
+        throw YTException.wrapException(
+            new YTCommandExecutionException(
                 "Error in creation of function "
                     + name
                     + "(). Probably there is not an empty constructor or the constructor generates"

@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.string;
 
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 
 public interface OStringBuilderSerializable {
 
-  OStringBuilderSerializable toStream(StringBuilder iOutput) throws OSerializationException;
+  OStringBuilderSerializable toStream(StringBuilder iOutput) throws YTSerializationException;
 
-  OStringBuilderSerializable fromStream(StringBuilder iInput) throws OSerializationException;
+  OStringBuilderSerializable fromStream(StringBuilder iInput) throws YTSerializationException;
 }

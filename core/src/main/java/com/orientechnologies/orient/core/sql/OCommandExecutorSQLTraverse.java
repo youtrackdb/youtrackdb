@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.command.traverse.OTraverse;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -80,7 +80,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
 
       final int pos = parseFields();
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Traverse must have the field list. Use " + getSyntax());
       }
       parserSetCurrentPosition(pos);
@@ -168,7 +168,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     return this;
   }
 
-  protected boolean parseMaxDepth(final String w) throws OCommandSQLParsingException {
+  protected boolean parseMaxDepth(final String w) throws YTCommandSQLParsingException {
     if (!w.equals(KEYWORD_MAXDEPTH)) {
       return false;
     }
@@ -204,7 +204,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     context.beginExecution(timeoutMs, timeoutStrategy);
 
     if (!assignTarget(iArgs)) {
-      throw new OQueryParsingException(
+      throw new YTQueryParsingException(
           "No source found in query: specify class, cluster(s) or single record(s)");
     }
 
@@ -278,7 +278,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
 
     int fromPosition = parserTextUpperCase.indexOf(KEYWORD_FROM_2FIND, currentPos);
     if (fromPosition == -1) {
-      throw new OQueryParsingException("Missed " + KEYWORD_FROM, parserText, currentPos);
+      throw new YTQueryParsingException("Missed " + KEYWORD_FROM, parserText, currentPos);
     }
 
     Set<Object> fields = new HashSet<Object>();
@@ -298,7 +298,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
         }
       }
     } else {
-      throw new OQueryParsingException(
+      throw new YTQueryParsingException(
           "Missed field list to cross in TRAVERSE. Use " + getSyntax(), parserText, currentPos);
     }
 
@@ -312,7 +312,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
   /**
    * Parses the strategy keyword if found.
    */
-  protected boolean parseStrategy(final String w) throws OCommandSQLParsingException {
+  protected boolean parseStrategy(final String w) throws YTCommandSQLParsingException {
     if (!w.equals(KEYWORD_STRATEGY)) {
       return false;
     }

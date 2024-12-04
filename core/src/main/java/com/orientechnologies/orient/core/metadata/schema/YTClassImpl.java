@@ -26,14 +26,14 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionFactory;
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -138,7 +138,7 @@ public abstract class YTClassImpl implements YTClass {
         final String clusterName = db.getClusterNameById(clusterId);
         db.checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, clusterName);
         listOfReadableIds.add(clusterId);
-      } catch (OSecurityAccessException ignore) {
+      } catch (YTSecurityAccessException ignore) {
         all = false;
         // if the cluster is inaccessible it's simply not processed in the list.add
       }
@@ -1128,7 +1128,7 @@ public abstract class YTClassImpl implements YTClass {
     type = type.toUpperCase(Locale.ENGLISH);
 
     if (fields.length == 0) {
-      throw new OIndexException("List of fields to index cannot be empty.");
+      throw new YTIndexException("List of fields to index cannot be empty.");
     }
 
     var sessionInternal = (YTDatabaseSessionInternal) session;
@@ -1140,7 +1140,7 @@ public abstract class YTClassImpl implements YTClass {
           decodeClassName(OIndexDefinitionFactory.extractFieldName(fieldToIndex));
 
       if (!fieldName.equals("@rid") && !existsProperty(fieldName)) {
-        throw new OIndexException(
+        throw new YTIndexException(
             "Index with name '"
                 + name
                 + "' cannot be created on class '"
@@ -1467,7 +1467,7 @@ public abstract class YTClassImpl implements YTClass {
 
     try (final OResultSet res = database.command(builder.toString())) {
       if (res.hasNext()) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "The database contains some schema-less data in the property '"
                 + name
                 + "."
@@ -1509,7 +1509,7 @@ public abstract class YTClassImpl implements YTClass {
                   .findFirst()
                   .ifPresent(
                       x -> {
-                        throw new OSchemaException(
+                        throw new YTSchemaException(
                             "The database contains some schema-less data in the property '"
                                 + name
                                 + "."
@@ -1521,7 +1521,7 @@ public abstract class YTClassImpl implements YTClass {
                                 + ". Fix those records and change the schema again. "
                                 + x);
                       });
-            } catch (OSchemaException e1) {
+            } catch (YTSchemaException e1) {
               throw e1;
             } catch (Exception e) {
             }
@@ -1530,7 +1530,7 @@ public abstract class YTClassImpl implements YTClass {
           case LINK:
             Object elem = item.getProperty(propertyName);
             if (!matchesType(elem, linkedClass)) {
-              throw new OSchemaException(
+              throw new YTSchemaException(
                   "The database contains some schema-less data in the property '"
                       + name
                       + "."
@@ -1554,7 +1554,7 @@ public abstract class YTClassImpl implements YTClass {
     if (x instanceof YTRID) {
       try {
         x = ((YTRID) x).getRecord();
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         return true;
       }
     }
@@ -1662,7 +1662,7 @@ public abstract class YTClassImpl implements YTClass {
     for (YTProperty property : baseClassProperties) {
       YTProperty thisProperty = getProperty(property.getName());
       if (thisProperty != null && !thisProperty.getType().equals(property.getType())) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Cannot add base class '"
                 + baseClass.getName()
                 + "', because of property conflict: '"
@@ -1695,7 +1695,7 @@ public abstract class YTClassImpl implements YTClass {
           final String property = entry.getKey();
           final YTProperty existingProperty = comulative.get(property);
           if (!existingProperty.getType().equals(entry.getValue().getType())) {
-            throw new OSchemaException(
+            throw new YTSchemaException(
                 "Properties conflict detected: '"
                     + existingProperty
                     + "] vs ["
@@ -1712,7 +1712,7 @@ public abstract class YTClassImpl implements YTClass {
 
   private void checkRecursion(final YTClass baseClass) {
     if (isSubClassOf(baseClass)) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Cannot add base class '" + baseClass.getName() + "', because of recursion");
     }
   }

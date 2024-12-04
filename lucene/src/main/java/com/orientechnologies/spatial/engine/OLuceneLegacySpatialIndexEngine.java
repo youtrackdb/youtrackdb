@@ -29,8 +29,8 @@ import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.index.OIndexEngineException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
+import com.orientechnologies.orient.core.index.YTIndexEngineException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -92,7 +92,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
     } else if (key instanceof OCompositeKey) {
       return searchIntersect(session, (OCompositeKey) key, 0, null, changes);
     }
-    throw new OIndexEngineException("Unknown key" + key, null);
+    throw new YTIndexEngineException("Unknown key" + key, null);
   }
 
   private Set<YTIdentifiable> searchIntersect(

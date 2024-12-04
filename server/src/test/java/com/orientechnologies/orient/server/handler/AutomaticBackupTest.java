@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -284,7 +284,7 @@ public class AutomaticBackupTest {
     try {
       aBackup.config(server, config);
 
-    } catch (OConfigurationException e) {
+    } catch (YTConfigurationException e) {
       Assert.fail("It should not get an configuration exception when disabled");
     }
   }

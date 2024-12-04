@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class ODocumentTransactionalValidationTest extends BaseMemoryInternalDatabase {
 
-  @Test(expected = OValidationException.class)
+  @Test(expected = YTValidationException.class)
   public void simpleConstraintShouldBeCheckedOnCommitFalseTest() {
     YTClass clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "int", YTType.INTEGER).setMandatory(db, true);
@@ -68,7 +68,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     Assert.assertEquals("abacorrect", db.bindToSession(vertex).getProperty("str"));
   }
 
-  @Test(expected = OValidationException.class)
+  @Test(expected = YTValidationException.class)
   public void stringRegexpPatternValidationCheckFails() {
     YTClass clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "str", YTType.STRING).setMandatory(db, true).setRegexp(db, "aba.*");
@@ -80,7 +80,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     db.commit();
   }
 
-  @Test(expected = OValidationException.class)
+  @Test(expected = YTValidationException.class)
   public void requiredLinkBagNegativeTest() {
     YTClass edgeClass = db.createEdgeClass("lst");
     YTClass clazz = db.createVertexClass("Validation");
@@ -107,7 +107,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     db.commit();
   }
 
-  @Test(expected = OValidationException.class)
+  @Test(expected = YTValidationException.class)
   public void requiredLinkBagFailsIfBecomesEmpty() {
     YTClass edgeClass = db.createEdgeClass("lst");
     YTClass clazz = db.createVertexClass("Validation");
@@ -127,7 +127,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     db.commit();
   }
 
-  @Test(expected = OValidationException.class)
+  @Test(expected = YTValidationException.class)
   public void requiredArrayFailsIfBecomesEmpty() {
     YTClass clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "arr", YTType.EMBEDDEDLIST).setMandatory(db, true).setMin(db, "1");
@@ -193,7 +193,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     db.commit();
   }
 
-  @Test(expected = OValidationException.class)
+  @Test(expected = YTValidationException.class)
   public void maxConstraintOnFloatPropertyOnTransaction() {
     YTClass clazz = db.createVertexClass("Validation");
     clazz.createProperty(db, "dbl", YTType.FLOAT).setMandatory(db, true).setMin(db, "-10");

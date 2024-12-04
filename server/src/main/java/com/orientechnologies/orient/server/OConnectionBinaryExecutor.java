@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
@@ -146,17 +146,17 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.OFetchListener;
@@ -168,12 +168,12 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -184,7 +184,7 @@ import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
-import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
+import com.orientechnologies.orient.core.storage.cluster.YTOfflineClusterException;
 import com.orientechnologies.orient.core.storage.config.OClusterBasedStorageConfiguration;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -298,7 +298,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeCreateDatabase(OCreateDatabaseRequest request) {
 
     if (server.existsDatabase(request.getDatabaseName())) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Database named '" + request.getDatabaseName() + "' already exists");
     }
     if (request.getBackupPath() != null && !"".equals(request.getBackupPath().trim())) {
@@ -429,7 +429,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (metadata != null) {
       return new OGetRecordMetadataResponse(metadata);
     } else {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           String.format("Record metadata for RID: %s, Not found", request.getRid()));
     }
   }
@@ -482,7 +482,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         response =
             new OReadRecordResponse(
                 ORecordInternal.getRecordType(record), record.getVersion(), bytes, recordsToSend);
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         response = new OReadRecordResponse((byte) 0, 0, null, null);
       }
     }
@@ -539,17 +539,17 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (newRecord instanceof YTDocument) {
       try {
         currentRecord = database.load(request.getRid());
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         // MAINTAIN COHERENT THE BEHAVIOR FOR ALL THE STORAGE TYPES
-        if (e.getCause() instanceof OOfflineClusterException)
+        if (e.getCause() instanceof YTOfflineClusterException)
         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
         {
-          throw (OOfflineClusterException) e.getCause();
+          throw (YTOfflineClusterException) e.getCause();
         }
       }
 
       if (currentRecord == null) {
-        throw new ORecordNotFoundException(request.getRid());
+        throw new YTRecordNotFoundException(request.getRid());
       }
 
       ((YTDocument) currentRecord).merge((YTDocument) newRecord, false, false);
@@ -725,22 +725,22 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var indexChanges = request.getIndexChanges();
 
     if (!indexChanges.isEmpty()) {
-      throw new ODatabaseException("Manual indexes are not supported");
+      throw new YTDatabaseException("Manual indexes are not supported");
     }
 
     var database = connection.getDatabase();
     var tx = database.getTransaction();
 
     if (!tx.isActive()) {
-      throw new ODatabaseException("There is no active transaction on server.");
+      throw new YTDatabaseException("There is no active transaction on server.");
     }
     if (tx.getId() != request.getTxId()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
     if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction type,"
               + " expected OTransactionOptimisticServer but found "
               + tx.getClass().getName());
@@ -749,17 +749,17 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     try {
       try {
         serverTransaction.mergeReceivedTransaction(recordOperations);
-      } catch (final ORecordNotFoundException e) {
-        throw e.getCause() instanceof OOfflineClusterException
-            ? (OOfflineClusterException) e.getCause()
+      } catch (final YTRecordNotFoundException e) {
+        throw e.getCause() instanceof YTOfflineClusterException
+            ? (YTOfflineClusterException) e.getCause()
             : e;
       }
       try {
         try {
           serverTransaction.commit();
-        } catch (final ORecordNotFoundException e) {
-          throw e.getCause() instanceof OOfflineClusterException
-              ? (OOfflineClusterException) e.getCause()
+        } catch (final YTRecordNotFoundException e) {
+          throw e.getCause() instanceof YTOfflineClusterException
+              ? (YTOfflineClusterException) e.getCause()
               : e;
         }
         final OSBTreeCollectionManager collectionManager =
@@ -882,7 +882,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
                       .getSbTreeCollectionManager()
                       .createSBTree(request.getClusterId(), atomicOperation, null));
     } catch (IOException e) {
-      throw OException.wrapException(new ODatabaseException("Error during ridbag creation"), e);
+      throw YTException.wrapException(new YTDatabaseException("Error during ridbag creation"), e);
     }
 
     return new OSBTCreateTreeResponse(collectionPointer);
@@ -1007,7 +1007,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       new File(request.getImporPath()).delete();
 
     } catch (IOException e) {
-      throw OException.wrapException(new ODatabaseException("error on import"), e);
+      throw YTException.wrapException(new YTDatabaseException("error on import"), e);
     }
     return new OImportResponse(result);
   }
@@ -1016,7 +1016,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeConnect(OConnectRequest request) {
     OBinaryProtocolHelper.checkProtocolVersion(this, request.getProtocolVersion());
     if (request.getProtocolVersion() > 36) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "You can use connect as first operation only for protocol  < 37 please use handshake for"
               + " protocol >= 37");
     }
@@ -1037,7 +1037,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               this,
               "Session open with token flag false is not supported anymore please use token based"
                   + " sessions");
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Session open with token flag false is not supported anymore please use token based"
               + " sessions");
     }
@@ -1046,7 +1046,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect"));
 
     if (connection.getServerUser() == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
     byte[] token = null;
@@ -1079,7 +1079,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect"));
 
     if (connection.getServerUser() == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
 
@@ -1102,7 +1102,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeDatabaseOpen(OOpenRequest request) {
     OBinaryProtocolHelper.checkProtocolVersion(this, request.getProtocolVersion());
     if (request.getProtocolVersion() > 36) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "You can use open as first operation only for protocol  < 37 please use handshake for"
               + " protocol >= 37");
     }
@@ -1118,7 +1118,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               this,
               "Session open with token flag false is not supported anymore please use token based"
                   + " sessions");
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Session open with token flag false is not supported anymore please use token based"
               + " sessions");
     }
@@ -1133,7 +1133,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               request.getUserName(),
               request.getUserPassword(),
               connection.getData()));
-    } catch (OException e) {
+    } catch (YTException e) {
       server.getClientConnectionManager().disconnect(connection);
       throw e;
     }
@@ -1220,7 +1220,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               request.getUserName(),
               request.getUserPassword(),
               connection.getData()));
-    } catch (OException e) {
+    } catch (YTException e) {
       server.getClientConnectionManager().disconnect(connection);
       throw e;
     }
@@ -1258,7 +1258,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     OLogManager.instance()
         .error(this, "Authentication error of remote client: shutdown is aborted.", null);
 
-    throw new OSecurityAccessException("Invalid user/password to shutdown the server");
+    throw new YTSecurityAccessException("Invalid user/password to shutdown the server");
   }
 
   private void runShutdownInNonDaemonThread() {
@@ -1285,13 +1285,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (cfg != null) {
       cfg.setValue(request.getValue());
       if (!cfg.isChangeableAtRuntime()) {
-        throw new OConfigurationException(
+        throw new YTConfigurationException(
             "Property '"
                 + request.getKey()
                 + "' cannot be changed at runtime. Change the setting at startup");
       }
     } else {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Property '" + request.getKey() + "' was not found in global configuration");
     }
 
@@ -1422,7 +1422,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         (OLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
 
     if (rs == null) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           String.format(
               "No query with id '%s' found probably expired session", request.getQueryId()));
     }
@@ -1462,23 +1462,23 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var indexChanges = request.getIndexChanges();
 
     if (!indexChanges.isEmpty()) {
-      throw new ODatabaseException("Manual indexes are not supported.");
+      throw new YTDatabaseException("Manual indexes are not supported.");
     }
 
     if (tx.isActive()) {
       if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-        throw new ODatabaseException("Non-server based transaction is active");
+        throw new YTDatabaseException("Non-server based transaction is active");
       }
       if (tx.getId() != request.getTxId()) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Transaction id mismatch, expected " + tx.getId() + " but got " + request.getTxId());
       }
 
       try {
         serverTransaction.mergeReceivedTransaction(recordOperations);
-      } catch (final ORecordNotFoundException e) {
-        throw e.getCause() instanceof OOfflineClusterException
-            ? (OOfflineClusterException) e.getCause()
+      } catch (final YTRecordNotFoundException e) {
+        throw e.getCause() instanceof YTOfflineClusterException
+            ? (YTOfflineClusterException) e.getCause()
             : e;
       }
 
@@ -1491,9 +1491,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     try {
       serverTransaction.mergeReceivedTransaction(recordOperations);
-    } catch (final ORecordNotFoundException e) {
-      throw e.getCause() instanceof OOfflineClusterException
-          ? (OOfflineClusterException) e.getCause()
+    } catch (final YTRecordNotFoundException e) {
+      throw e.getCause() instanceof YTOfflineClusterException
+          ? (YTOfflineClusterException) e.getCause()
           : e;
     }
 
@@ -1508,13 +1508,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     var indexChanges = request.getIndexChanges();
     if (!indexChanges.isEmpty()) {
-      throw new ODatabaseException("Manual indexes are not supported");
+      throw new YTDatabaseException("Manual indexes are not supported");
     }
 
     var tx = database.getTransaction();
 
     if (tx.isActive()) {
-      throw new ODatabaseException("Transaction is already started on server");
+      throw new YTDatabaseException("Transaction is already started on server");
     }
 
     var serverTransaction =
@@ -1533,9 +1533,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     try {
       serverTransaction.mergeReceivedTransaction(recordOperations);
-    } catch (final ORecordNotFoundException e) {
-      throw e.getCause() instanceof OOfflineClusterException
-          ? (OOfflineClusterException) e.getCause()
+    } catch (final YTRecordNotFoundException e) {
+      throw e.getCause() instanceof YTOfflineClusterException
+          ? (YTOfflineClusterException) e.getCause()
           : e;
     }
 
@@ -1550,12 +1550,12 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var tx = database.getTransaction();
 
     if (!tx.isActive()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Transaction with id " + request.getTxId() + " is not active on server.");
     }
 
     if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction type,"
               + " expected OTransactionOptimisticServer but found "
               + tx.getClass().getName());
@@ -1563,9 +1563,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     try {
       serverTransaction.mergeReceivedTransaction(recordOperations);
-    } catch (final ORecordNotFoundException e) {
-      throw e.getCause() instanceof OOfflineClusterException
-          ? (OOfflineClusterException) e.getCause()
+    } catch (final YTRecordNotFoundException e) {
+      throw e.getCause() instanceof YTOfflineClusterException
+          ? (YTOfflineClusterException) e.getCause()
           : e;
     }
 
@@ -1579,7 +1579,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var indexChanges = request.getIndexChanges();
 
     if (!indexChanges.isEmpty()) {
-      throw new ODatabaseException("Manual indexes are not supported");
+      throw new YTDatabaseException("Manual indexes are not supported");
     }
 
     var database = connection.getDatabase();
@@ -1592,12 +1592,12 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     if (tx.getId() != request.getTxId()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
     if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction type,"
               + " expected OTransactionOptimisticServer but found "
               + tx.getClass().getName());
@@ -1608,22 +1608,22 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         if (started) {
           serverTransaction.mergeReceivedTransaction(recordOperations);
         }
-      } catch (final ORecordNotFoundException e) {
-        throw e.getCause() instanceof OOfflineClusterException
-            ? (OOfflineClusterException) e.getCause()
+      } catch (final YTRecordNotFoundException e) {
+        throw e.getCause() instanceof YTOfflineClusterException
+            ? (YTOfflineClusterException) e.getCause()
             : e;
       }
 
       if (serverTransaction.getTxStartCounter() != 1) {
-        throw new ODatabaseException("Transaction can be started only once on server");
+        throw new YTDatabaseException("Transaction can be started only once on server");
       }
 
       try {
         try {
           database.commit();
-        } catch (final ORecordNotFoundException e) {
-          throw e.getCause() instanceof OOfflineClusterException
-              ? (OOfflineClusterException) e.getCause()
+        } catch (final YTRecordNotFoundException e) {
+          throw e.getCause() instanceof YTOfflineClusterException
+              ? (YTOfflineClusterException) e.getCause()
               : e;
         }
         final OSBTreeCollectionManager collectionManager =
@@ -1663,7 +1663,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var indexChanges = request.getIndexChanges();
 
     if (indexChanges != null && !indexChanges.isEmpty()) {
-      throw new ODatabaseException("Manual indexes are not supported");
+      throw new YTDatabaseException("Manual indexes are not supported");
     }
 
     var database = connection.getDatabase();
@@ -1674,35 +1674,35 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     if (tx.getId() != request.getTxId()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
     if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction type,"
               + " expected OTransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
     if (serverTransaction.getTxStartCounter() != 1) {
-      throw new ODatabaseException("Transaction can be started only once on server");
+      throw new YTDatabaseException("Transaction can be started only once on server");
     }
 
     try {
       try {
         serverTransaction.mergeReceivedTransaction(recordOperations);
-      } catch (final ORecordNotFoundException e) {
-        throw e.getCause() instanceof OOfflineClusterException
-            ? (OOfflineClusterException) e.getCause()
+      } catch (final YTRecordNotFoundException e) {
+        throw e.getCause() instanceof YTOfflineClusterException
+            ? (YTOfflineClusterException) e.getCause()
             : e;
       }
       try {
         try {
           database.commit();
-        } catch (final ORecordNotFoundException e) {
-          throw e.getCause() instanceof OOfflineClusterException
-              ? (OOfflineClusterException) e.getCause()
+        } catch (final YTRecordNotFoundException e) {
+          throw e.getCause() instanceof YTOfflineClusterException
+              ? (YTOfflineClusterException) e.getCause()
               : e;
         }
         final OSBTreeCollectionManager collectionManager =
@@ -1740,12 +1740,12 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeFetchTransaction(OFetchTransactionRequest request) {
     YTDatabaseSessionInternal database = connection.getDatabase();
     if (!database.getTransaction().isActive()) {
-      throw new ODatabaseException("No Transaction Active");
+      throw new YTDatabaseException("No Transaction Active");
     }
 
     OTransactionOptimistic tx = (OTransactionOptimistic) database.getTransaction();
     if (tx.getId() != request.getTxId()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
@@ -1760,11 +1760,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeFetchTransaction38(OFetchTransaction38Request request) {
     YTDatabaseSessionInternal database = connection.getDatabase();
     if (!database.getTransaction().isActive()) {
-      throw new ODatabaseException("No Transaction Active");
+      throw new YTDatabaseException("No Transaction Active");
     }
     OTransactionOptimistic tx = (OTransactionOptimistic) database.getTransaction();
     if (tx.getId() != request.getTxId()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
@@ -1890,7 +1890,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect");
 
     if (serverUser == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
 
@@ -1911,7 +1911,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               "Rejected distributed connection from '%s' too old not supported",
               null,
               connection.getRemoteAddress());
-      throw new ODatabaseException("protocol version too old rejected connection");
+      throw new YTDatabaseException("protocol version too old rejected connection");
     } else {
       connection.setServerUser(serverUser);
       connection.getData().serverUsername = serverUser.getName(null);

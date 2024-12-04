@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.security.symmetrickey;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 
@@ -51,12 +51,12 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
    * The usual password field should be a JSON representation.
    */
   public void intercept(final String url, final String username, final String password)
-      throws OSecurityException {
+      throws YTSecurityException {
     if (username == null || username.isEmpty()) {
-      throw new OSecurityException("OSymmetricKeyCI username is not valid!");
+      throw new YTSecurityException("OSymmetricKeyCI username is not valid!");
     }
     if (password == null || password.isEmpty()) {
-      throw new OSecurityException("OSymmetricKeyCI password is not valid!");
+      throw new YTSecurityException("OSymmetricKeyCI password is not valid!");
     }
 
     this.username = username;
@@ -75,8 +75,8 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
     try {
       jsonDoc = new YTDocument().fromJSON(password, "noMap");
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKeyCI.intercept() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKeyCI.intercept() Exception: " + ex.getMessage()), ex);
     }
 
     // Override algorithm and transform, if they exist in the JSON document.
@@ -89,7 +89,8 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
 
     // Just in case the default configuration gets changed, check it.
     if (transform == null || transform.isEmpty()) {
-      throw new OSecurityException("OSymmetricKeyCI.intercept() cipher transformation is required");
+      throw new YTSecurityException(
+          "OSymmetricKeyCI.intercept() cipher transformation is required");
     }
 
     // If the algorithm is not set, either as a default in the global configuration or in the JSON
@@ -119,7 +120,7 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
         }
 
         if (keystoreFile == null || keystoreFile.isEmpty()) {
-          throw new OSecurityException("OSymmetricKeyCI.intercept() keystore file is required");
+          throw new YTSecurityException("OSymmetricKeyCI.intercept() keystore file is required");
         }
 
         // Specific to Keystore, but override if present in the JSON document.
@@ -130,7 +131,7 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
         String keyAlias = ksDoc.field("keyAlias");
 
         if (keyAlias == null || keyAlias.isEmpty()) {
-          throw new OSecurityException(
+          throw new YTSecurityException(
               "OSymmetricKeyCI.intercept() keystore key alias is required");
         }
 
@@ -141,13 +142,13 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
         key = OSymmetricKey.fromKeystore(keystoreFile, keystorePassword, keyAlias, keyPassword);
         key.setDefaultCipherTransform(transform);
       } else {
-        throw new OSecurityException(
+        throw new YTSecurityException(
             "OSymmetricKeyCI.intercept() No suitable symmetric key property exists");
       }
 
     // This should never happen, but...
     if (key == null) {
-      throw new OSecurityException("OSymmetricKeyCI.intercept() OSymmetricKey is null");
+      throw new YTSecurityException("OSymmetricKeyCI.intercept() OSymmetricKey is null");
     }
 
     encodedJSON = key.encrypt(transform, username);

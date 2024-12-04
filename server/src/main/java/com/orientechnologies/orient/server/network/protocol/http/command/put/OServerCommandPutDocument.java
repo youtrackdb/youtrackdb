@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.put;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -87,7 +87,7 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
                 final YTDocument currentDocument;
                 try {
                   currentDocument = db.load(txRecordId);
-                } catch (ORecordNotFoundException rnf) {
+                } catch (YTRecordNotFoundException rnf) {
                   return null;
                 }
 

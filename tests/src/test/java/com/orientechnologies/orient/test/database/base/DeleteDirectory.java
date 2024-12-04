@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.base;
 
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import java.io.File;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class DeleteDirectory {
         if (f.isDirectory()) {
           deleteDirectory(f);
         } else if (!f.delete()) {
-          throw new OConfigurationException("Cannot delete the file: " + f);
+          throw new YTConfigurationException("Cannot delete the file: " + f);
         }
       }
     }

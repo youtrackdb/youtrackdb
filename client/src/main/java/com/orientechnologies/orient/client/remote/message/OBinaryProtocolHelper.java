@@ -4,7 +4,7 @@ import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.NET
 import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.OLDEST_SUPPORTED_PROTOCOL_VERSION;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 
 public class OBinaryProtocolHelper {
 
@@ -16,7 +16,7 @@ public class OBinaryProtocolHelper {
               "Backward compatibility support available from to version %d your version is %d",
               OLDEST_SUPPORTED_PROTOCOL_VERSION, protocolVersion);
       OLogManager.instance().error(caller, message, null);
-      throw new ODatabaseException(message);
+      throw new YTDatabaseException(message);
     }
 
     if (NETWORK_BINARY_MIN_PROTOCOL_VERSION.getValueAsInteger() > protocolVersion) {
@@ -28,7 +28,7 @@ public class OBinaryProtocolHelper {
               protocolVersion,
               NETWORK_BINARY_MIN_PROTOCOL_VERSION.getKey());
       OLogManager.instance().error(caller, message, null);
-      throw new ODatabaseException(message);
+      throw new YTDatabaseException(message);
     }
   }
 }

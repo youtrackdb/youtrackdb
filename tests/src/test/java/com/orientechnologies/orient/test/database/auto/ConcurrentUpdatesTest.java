@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -78,7 +78,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
               counter.incrementAndGet();
               totalRetries.addAndGet(retries);
               break;
-            } catch (ONeedRetryException e) {
+            } catch (YTNeedRetryException e) {
               Thread.sleep(retries * 10L);
             }
           }
@@ -131,9 +131,9 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
               break;
 
-            } catch (ONeedRetryException e) {
+            } catch (YTNeedRetryException e) {
               if (lock) {
-                Assert.fail(ONeedRetryException.class.getSimpleName() + " was encountered");
+                Assert.fail(YTNeedRetryException.class.getSimpleName() + " was encountered");
               }
             }
           }

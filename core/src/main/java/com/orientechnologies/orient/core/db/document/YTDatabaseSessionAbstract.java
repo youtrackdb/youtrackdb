@@ -20,9 +20,9 @@
 
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OHighLevelException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTHighLevelException;
 import com.orientechnologies.common.listener.OListenerManger;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
@@ -42,15 +42,15 @@ import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFact
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OSessionNotActivatedException;
-import com.orientechnologies.orient.core.exception.OTransactionBlockedException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.exception.YTSessionNotActivatedException;
+import com.orientechnologies.orient.core.exception.YTTransactionBlockedException;
+import com.orientechnologies.orient.core.exception.YTTransactionException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -94,9 +94,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
-import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
+import com.orientechnologies.orient.core.storage.cluster.YTOfflineClusterException;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.orientechnologies.orient.core.tx.ORollbackException;
+import com.orientechnologies.orient.core.tx.YTRollbackException;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransaction.TXSTATUS;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
@@ -330,7 +330,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       command.reset();
       return command;
     } catch (Exception e) {
-      throw OException.wrapException(new ODatabaseException("Error on command execution"), e);
+      throw YTException.wrapException(new YTDatabaseException("Error on command execution"), e);
     }
   }
 
@@ -580,7 +580,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       final YTRecord rec;
       try {
         rec = id.getRecord();
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         return ORecordHook.RESULT.RECORD_NOT_CHANGED;
       }
 
@@ -729,7 +729,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
         getMetadata().getImmutableSchemaSnapshot().getClassesRelyOnCluster(iClusterName);
     for (YTClass c : classes) {
       if (c.isSubClassOf(OSecurityShared.RESTRICTED_CLASSNAME)) {
-        throw new OSecurityException(
+        throw new YTSecurityException(
             "Class '"
                 + c.getName()
                 + "' cannot be truncated because has record level security enabled (extends '"
@@ -853,7 +853,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
 
     var rid = record.getIdentity();
     if (rid == null) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Cannot bind record to session with not persisted rid: " + rid);
     }
 
@@ -878,7 +878,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
     }
 
     if (!rid.isPersistent()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Cannot bind record to session with not persisted rid: " + rid);
     }
 
@@ -906,7 +906,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       var record = getTransaction().getRecord(rid);
       if (record == OTransactionAbstract.DELETED_RECORD) {
         // DELETED IN TX
-        throw new ORecordNotFoundException(rid);
+        throw new YTRecordNotFoundException(rid);
       }
 
       var cachedRecord = localCache.findRecord(rid);
@@ -916,7 +916,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
 
       if (record != null && !record.isUnloaded()) {
         if (beforeReadOperations(record)) {
-          throw new ORecordNotFoundException(rid);
+          throw new YTRecordNotFoundException(rid);
         }
 
         afterReadOperations(record);
@@ -949,7 +949,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       }
 
       if (recordBuffer == null) {
-        throw new ORecordNotFoundException(rid);
+        throw new YTRecordNotFoundException(rid);
       }
 
       if (record == null) {
@@ -961,7 +961,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       }
 
       if (ORecordInternal.getRecordType(record) != recordBuffer.recordType) {
-        throw new ODatabaseException("Record type is different from the one in the database");
+        throw new YTDatabaseException("Record type is different from the one in the database");
       }
 
       ORecordInternal.setRecordSerializer(record, serializer);
@@ -972,7 +972,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       }
 
       if (beforeReadOperations(record)) {
-        throw new ORecordNotFoundException(rid);
+        throw new YTRecordNotFoundException(rid);
       }
 
       ORecordInternal.fromStream(record, recordBuffer.buffer, this);
@@ -984,15 +984,15 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       assert record.getSession() == this;
 
       return (RET) record;
-    } catch (OOfflineClusterException | ORecordNotFoundException t) {
+    } catch (YTOfflineClusterException | YTRecordNotFoundException t) {
       throw t;
     } catch (Exception t) {
       if (rid.isTemporary()) {
-        throw OException.wrapException(
-            new ODatabaseException("Error on retrieving record using temporary RID: " + rid), t);
+        throw YTException.wrapException(
+            new YTDatabaseException("Error on retrieving record using temporary RID: " + rid), t);
       } else {
-        throw OException.wrapException(
-            new ODatabaseException(
+        throw YTException.wrapException(
+            new YTDatabaseException(
                 "Error on retrieving record "
                     + rid
                     + " (cluster: "
@@ -1022,7 +1022,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
         schemaClass = ODocumentInternal.getImmutableSchemaClass(this, ((YTDocument) record));
         if (schemaClass != null) {
           if (schemaClass.isAbstract()) {
-            throw new OSchemaException(
+            throw new YTSchemaException(
                 "Document belongs to abstract class "
                     + schemaClass.getName()
                     + " and cannot be saved");
@@ -1031,7 +1031,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
         } else {
           var defaultCluster = getStorageInfo().getDefaultClusterId();
           if (defaultCluster < 0) {
-            throw new ODatabaseException(
+            throw new YTDatabaseException(
                 "Cannot save (1) document " + record + ": no class or cluster defined");
           }
           rid.setClusterId(defaultCluster);
@@ -1045,7 +1045,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
             rid.setClusterId(blobs.iterator().nextInt());
           }
         } else {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "Cannot save (3) document " + record + ": no class or cluster defined");
         }
       }
@@ -1224,26 +1224,26 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
 
     boolean outDocumentModified = false;
     if (checkDeletedInTx(toVertex)) {
-      throw new ORecordNotFoundException(
+      throw new YTRecordNotFoundException(
           toVertex.getIdentity(),
           "The vertex " + toVertex.getIdentity() + " has been deleted");
     }
 
     if (checkDeletedInTx(inVertex)) {
-      throw new ORecordNotFoundException(
+      throw new YTRecordNotFoundException(
           inVertex.getIdentity(), "The vertex " + inVertex.getIdentity() + " has been deleted");
     }
 
     try {
       outDocument = toVertex.getRecord();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + toVertex.getIdentity() + ")");
     }
 
     try {
       inDocument = inVertex.getRecord();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
     }
@@ -1370,7 +1370,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
    * record as modified, while others cannot access to it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the database, then a {@link OConcurrentModificationException} exception is thrown.Before to
+   * the database, then a {@link YTConcurrentModificationException} exception is thrown.Before to
    * save the document it must be valid following the constraints declared in the schema if any (can
    * work also in schema-less mode). To validate the document the {@link YTDocument#validate()} is
    * called.
@@ -1378,9 +1378,9 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
    * @param record Record to save.
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
    * methods in chain.
-   * @throws OConcurrentModificationException if the version of the document is different by the
+   * @throws YTConcurrentModificationException if the version of the document is different by the
    *                                          version contained in the database.
-   * @throws OValidationException             if the document breaks some validation constraints
+   * @throws YTValidationException             if the document breaks some validation constraints
    *                                          defined in the schema
    * @see #setMVCC(boolean), {@link #isMVCC()}
    */
@@ -1399,7 +1399,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
    * it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the database, then a {@link OConcurrentModificationException} exception is thrown. Before to
+   * the database, then a {@link YTConcurrentModificationException} exception is thrown. Before to
    * save the document it must be valid following the constraints declared in the schema if any (can
    * work also in schema-less mode). To validate the document the {@link YTDocument#validate()} is
    * called.
@@ -1408,9 +1408,9 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
    * @param clusterName Cluster name where to save the record
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
    * methods in chain.
-   * @throws OConcurrentModificationException if the version of the document is different by the
+   * @throws YTConcurrentModificationException if the version of the document is different by the
    *                                          version contained in the database.
-   * @throws OValidationException             if the document breaks some validation constraints
+   * @throws YTValidationException             if the document breaks some validation constraints
    *                                          defined in the schema
    * @see #setMVCC(boolean), {@link #isMVCC()}, YTDocument#validate()
    */
@@ -1428,7 +1428,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
     record = record.getRecord();
 
     if (record.isUnloaded()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Record "
               + record
               + " is not bound to session, please call "
@@ -1450,7 +1450,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
     ODocumentInternal.checkClass(doc, this);
     try {
       doc.autoConvertValues();
-    } catch (OValidationException e) {
+    } catch (YTValidationException e) {
       doc.undo();
       throw e;
     }
@@ -1570,11 +1570,11 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
     checkIfActive();
 
     if (currentTx.getStatus() == TXSTATUS.ROLLBACKING) {
-      throw new ORollbackException("Transaction is rolling back");
+      throw new YTRollbackException("Transaction is rolling back");
     }
 
     if (!currentTx.isActive()) {
-      throw new ODatabaseException("No active transaction to commit. Call begin() first");
+      throw new YTDatabaseException("No active transaction to commit. Call begin() first");
     }
 
     if (currentTx.amountOfNestedTxs() > 1) {
@@ -1587,7 +1587,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
 
     try {
       beforeCommitOperations();
-    } catch (OException e) {
+    } catch (YTException e) {
       try {
         rollback();
       } catch (Exception re) {
@@ -1600,7 +1600,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       currentTx.commit();
     } catch (RuntimeException e) {
 
-      if ((e instanceof OHighLevelException) || (e instanceof ONeedRetryException)) {
+      if ((e instanceof YTHighLevelException) || (e instanceof YTNeedRetryException)) {
         OLogManager.instance()
             .debug(this, "Error on transaction commit `%08X`", e, System.identityHashCode(e));
       } else {
@@ -1641,8 +1641,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
                 e,
                 listener.getClass().getName(),
                 System.identityHashCode(e));
-        throw OException.wrapException(
-            new OTransactionException(
+        throw YTException.wrapException(
+            new YTTransactionException(
                 "Cannot commit the transaction: caught exception on execution of "
                     + listener.getClass().getName()
                     + "#onBeforeTxCommit()"),
@@ -1664,7 +1664,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
 
         OLogManager.instance().error(this, message, e, System.identityHashCode(e));
 
-        throw OException.wrapException(new OTransactionBlockedException(message), e);
+        throw YTException.wrapException(new YTTransactionBlockedException(message), e);
       }
     }
   }
@@ -1700,7 +1700,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   @Override
-  public void rollback(boolean force) throws OTransactionException {
+  public void rollback(boolean force) throws YTTransactionException {
     checkOpenness();
     if (currentTx.isActive()) {
 
@@ -1807,7 +1807,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
 
   protected void checkOpenness() {
     if (status == STATUS.CLOSED) {
-      throw new ODatabaseException("Database '" + getURL() + "' is closed");
+      throw new YTDatabaseException("Database '" + getURL() + "' is closed");
     }
   }
 
@@ -1910,7 +1910,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
     }
 
     if (currentDatabase != this) {
-      throw new OSessionNotActivatedException(getName());
+      throw new YTSessionNotActivatedException(getName());
     }
 
     return true;

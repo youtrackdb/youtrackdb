@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -227,12 +227,12 @@ public class TestYTTypeDetection extends DBTestBase {
   public class CustomClass implements OSerializableStream {
 
     @Override
-    public byte[] toStream() throws OSerializationException {
+    public byte[] toStream() throws YTSerializationException {
       return null;
     }
 
     @Override
-    public OSerializableStream fromStream(byte[] iStream) throws OSerializationException {
+    public OSerializableStream fromStream(byte[] iStream) throws YTSerializationException {
       return null;
     }
   }

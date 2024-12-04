@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -96,7 +96,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
       if (iThis instanceof YTRecordId) {
         try {
           iThis = ((YTRecordId) iThis).getRecord();
-        } catch (ORecordNotFoundException rnf) {
+        } catch (YTRecordNotFoundException rnf) {
           return null;
         }
       } else {
@@ -120,7 +120,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
                 try {
                   var rec = ((YTIdentifiable) o).getRecord();
                   result.add(copy(db, (YTDocument) rec, iParams));
-                } catch (ORecordNotFoundException rnf) {
+                } catch (YTRecordNotFoundException rnf) {
                   // IGNORE IT
                 }
               }

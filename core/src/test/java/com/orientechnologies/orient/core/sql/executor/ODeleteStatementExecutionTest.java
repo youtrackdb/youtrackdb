@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -68,7 +68,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     try {
       OResultSet result = db.command("delete from  " + className + " where name = 'name4'");
       Assert.fail();
-    } catch (OCommandExecutionException ex) {
+    } catch (YTCommandExecutionException ex) {
 
     } catch (Exception e) {
       Assert.fail();

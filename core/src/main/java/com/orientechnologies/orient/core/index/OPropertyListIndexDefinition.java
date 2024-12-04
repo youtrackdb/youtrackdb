@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -93,8 +93,8 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
       var value = refreshRid(session, param[0]);
       return YTType.convert(session, value, keyType.getDefaultJavaType());
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OIndexException(
+      throw YTException.wrapException(
+          new YTIndexException(
               "Invalid key for index: " + param[0] + " cannot be converted to " + keyType),
           e);
     }

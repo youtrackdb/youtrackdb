@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -74,8 +74,8 @@ public class OCommandExecutorSQLFindReferences extends OCommandExecutorSQLEarlyR
           recordIds.add(rid);
 
         } catch (IllegalArgumentException iae) {
-          throw OException.wrapException(
-              new OCommandSQLParsingException(
+          throw YTException.wrapException(
+              new YTCommandSQLParsingException(
                   "Error reading record Id", parserText, parserGetPreviousPosition()),
               iae);
         }
@@ -104,7 +104,7 @@ public class OCommandExecutorSQLFindReferences extends OCommandExecutorSQLEarlyR
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (recordIds.isEmpty() && subQuery == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 

@@ -20,12 +20,12 @@
 
 package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTSystemException;
 
 /**
  * @since 12/16/13
  */
-public class OWALPageBrokenException extends OSystemException {
+public class OWALPageBrokenException extends YTSystemException {
 
   public OWALPageBrokenException(OWALPageBrokenException exception) {
     super(exception);

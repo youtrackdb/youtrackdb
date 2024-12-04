@@ -17,7 +17,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
@@ -431,7 +431,7 @@ public class OrientJdbcResultSet implements ResultSet {
           try {
             YTBlob ob = statement.database.load(listElement.getIdentity());
             binaryRecordList.add(ob);
-          } catch (ORecordNotFoundException rnf) {
+          } catch (YTRecordNotFoundException rnf) {
             // ignore
           }
         }

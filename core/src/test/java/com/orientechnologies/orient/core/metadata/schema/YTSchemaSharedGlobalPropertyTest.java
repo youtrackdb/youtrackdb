@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import org.junit.Test;
 
 public class YTSchemaSharedGlobalPropertyTest extends DBTestBase {
@@ -29,7 +29,7 @@ public class YTSchemaSharedGlobalPropertyTest extends DBTestBase {
     schema.createGlobalProperty("test", YTType.SHORT, 200);
   }
 
-  @Test(expected = OSchemaException.class)
+  @Test(expected = YTSchemaException.class)
   public void testGlobalPropertyCreateDouble() {
 
     YTSchema schema = db.getMetadata().getSchema();

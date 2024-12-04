@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.core.security;
 
 import com.orientechnologies.common.collection.OLRUCache;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -176,7 +176,7 @@ public class OSecurityManager {
           "The requested encoding is not supported: cannot execute security checks";
       OLogManager.instance().error(OSecuritySystem.class, message, e);
 
-      throw OException.wrapException(new OConfigurationException(message), e);
+      throw YTException.wrapException(new YTConfigurationException(message), e);
     }
   }
 
@@ -267,8 +267,8 @@ public class OSecurityManager {
 
       return encoded;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OSecurityException("Cannot create a key with '" + algorithm + "' algorithm"), e);
+      throw YTException.wrapException(
+          new YTSecurityException("Cannot create a key with '" + algorithm + "' algorithm"), e);
     }
   }
 

@@ -20,14 +20,14 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
-import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
+import com.orientechnologies.orient.core.exception.YTConcurrentCreateException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.distributed.ODistributedServerLog.DIRECTION;
-import com.orientechnologies.orient.server.distributed.task.ODistributedOperationException;
-import com.orientechnologies.orient.server.distributed.task.ODistributedRecordLockedException;
+import com.orientechnologies.orient.server.distributed.task.YTDistributedOperationException;
+import com.orientechnologies.orient.server.distributed.task.YTDistributedRecordLockedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -291,7 +291,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
         // WAIT FOR THE RESPONSES
         if (synchronousResponsesArrived.await(currentTimeout, TimeUnit.MILLISECONDS)) {
           if (canceled.get()) {
-            throw new ODistributedOperationException("Request has been canceled");
+            throw new YTDistributedOperationException("Request has been canceled");
           }
           // COMPLETED
           return true;
@@ -386,7 +386,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       }
 
       if (canceled.get()) {
-        throw new ODistributedOperationException("Request has been canceled");
+        throw new YTDistributedOperationException("Request has been canceled");
       }
 
       return isMinimumQuorumReached(reachedTimeout);
@@ -425,7 +425,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
 
       if (receivedResponses == 0) {
         if (quorum > 0 && !request.getTask().isIdempotent()) {
-          throw new ODistributedException(
+          throw new YTDistributedException(
               "No response received from any of nodes "
                   + getExpectedNodes()
                   + " for request "
@@ -619,14 +619,14 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
               final Object payload = r.getPayload();
 
               if (payload instanceof Throwable) {
-                if (payload instanceof ODistributedRecordLockedException)
-                // JUST ONE ODistributedRecordLockedException IS ENOUGH TO FAIL THE OPERATION
+                if (payload instanceof YTDistributedRecordLockedException)
+                // JUST ONE YTDistributedRecordLockedException IS ENOUGH TO FAIL THE OPERATION
                 // BECAUSE RESOURCES CANNOT BE LOCKED
                 {
                   break;
                 }
-                if (payload instanceof OConcurrentCreateException)
-                // JUST ONE OConcurrentCreateException IS ENOUGH TO FAIL THE OPERATION BECAUSE RID
+                if (payload instanceof YTConcurrentCreateException)
+                // JUST ONE YTConcurrentCreateException IS ENOUGH TO FAIL THE OPERATION BECAUSE RID
                 // ARE DIFFERENT
                 {
                   break;
@@ -712,14 +712,14 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       }
     }
 
-    // CHECK IF THERE IS AT LEAST ONE ODistributedRecordLockedException or
-    // OConcurrentCreateException
+    // CHECK IF THERE IS AT LEAST ONE YTDistributedRecordLockedException or
+    // YTConcurrentCreateException
     for (Object r : responses.values()) {
-      if (r instanceof ODistributedRecordLockedException) {
-        throw (ODistributedRecordLockedException) r;
+      if (r instanceof YTDistributedRecordLockedException) {
+        throw (YTDistributedRecordLockedException) r;
       }
-      if (r instanceof OConcurrentCreateException) {
-        throw (OConcurrentCreateException) r;
+      if (r instanceof YTConcurrentCreateException) {
+        throw (YTConcurrentCreateException) r;
       }
     }
 
@@ -730,8 +730,8 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     {
       return (RuntimeException) goodResponsePayload;
     } else if (goodResponsePayload instanceof Throwable) {
-      return OException.wrapException(
-          new ODistributedOperationException(composeConflictMessage()),
+      return YTException.wrapException(
+          new YTDistributedOperationException(composeConflictMessage()),
           (Throwable) goodResponsePayload);
     } else {
       if (responseGroups.size() <= 2) {
@@ -747,7 +747,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
         }
       }
 
-      return new ODistributedOperationException(composeConflictMessage());
+      return new YTDistributedOperationException(composeConflictMessage());
     }
   }
 

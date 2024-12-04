@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.operationsfreezer;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.types.OModifiableInteger;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -70,7 +70,7 @@ public final class OperationsFreezer {
   }
 
   public long freezeOperations(
-      final Class<? extends OException> exceptionClass, final String message) {
+      final Class<? extends YTException> exceptionClass, final String message) {
     final long id = freezeIdGen.incrementAndGet();
 
     freezeRequests.incrementAndGet();
@@ -118,7 +118,7 @@ public final class OperationsFreezer {
 
       if (freezeParameters.message != null) {
         try {
-          final Constructor<? extends OException> mConstructor =
+          final Constructor<? extends YTException> mConstructor =
               freezeParameters.exceptionClass.getConstructor(String.class);
           throw mConstructor.newInstance(freezeParameters.message);
         } catch (InstantiationException
@@ -159,9 +159,9 @@ public final class OperationsFreezer {
   private static final class FreezeParameters {
 
     private final String message;
-    private final Class<? extends OException> exceptionClass;
+    private final Class<? extends YTException> exceptionClass;
 
-    private FreezeParameters(String message, Class<? extends OException> exceptionClass) {
+    private FreezeParameters(String message, Class<? extends YTException> exceptionClass) {
       this.message = message;
       this.exceptionClass = exceptionClass;
     }

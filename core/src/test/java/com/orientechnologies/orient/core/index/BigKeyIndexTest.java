@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
+import com.orientechnologies.orient.core.exception.YTTooBigIndexKeyException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
@@ -31,7 +31,7 @@ public class BigKeyIndexTest extends DBTestBase {
     }
   }
 
-  @Test(expected = OTooBigIndexKeyException.class)
+  @Test(expected = YTTooBigIndexKeyException.class)
   public void testTooBigKey() {
     YTClass cl = db.createClass("One");
     YTProperty prop = cl.createProperty(db, "two", YTType.STRING);

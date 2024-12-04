@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.Map;
 
 /**
@@ -38,7 +38,7 @@ public class OCommandExecutorSQLDropUser extends OCommandExecutorSQLAbstract
   @Override
   public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (this.userName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 

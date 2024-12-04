@@ -21,13 +21,13 @@ public class OSourceTraceExecutorService implements ExecutorService {
 
   @Override
   public void execute(Runnable command) {
-    final OTracedExecutionException trace = OTracedExecutionException.prepareTrace(command);
+    final YTTracedExecutionException trace = YTTracedExecutionException.prepareTrace(command);
     this.service.execute(
         () -> {
           try {
             command.run();
           } catch (RuntimeException e) {
-            throw OTracedExecutionException.trace(trace, e, command);
+            throw YTTracedExecutionException.trace(trace, e, command);
           }
         });
   }
@@ -59,26 +59,26 @@ public class OSourceTraceExecutorService implements ExecutorService {
 
   @Override
   public <T> Future<T> submit(Callable<T> task) {
-    final OTracedExecutionException trace = OTracedExecutionException.prepareTrace(task);
+    final YTTracedExecutionException trace = YTTracedExecutionException.prepareTrace(task);
     return this.service.submit(
         () -> {
           try {
             return task.call();
           } catch (RuntimeException e) {
-            throw OTracedExecutionException.trace(trace, e, task);
+            throw YTTracedExecutionException.trace(trace, e, task);
           }
         });
   }
 
   @Override
   public <T> Future<T> submit(Runnable task, T result) {
-    final OTracedExecutionException trace = OTracedExecutionException.prepareTrace(task);
+    final YTTracedExecutionException trace = YTTracedExecutionException.prepareTrace(task);
     return this.service.submit(
         () -> {
           try {
             task.run();
           } catch (RuntimeException e) {
-            throw OTracedExecutionException.trace(trace, e, task);
+            throw YTTracedExecutionException.trace(trace, e, task);
           }
         },
         result);
@@ -86,13 +86,13 @@ public class OSourceTraceExecutorService implements ExecutorService {
 
   @Override
   public Future<?> submit(Runnable task) {
-    final OTracedExecutionException trace = OTracedExecutionException.prepareTrace(task);
+    final YTTracedExecutionException trace = YTTracedExecutionException.prepareTrace(task);
     return this.service.submit(
         () -> {
           try {
             task.run();
           } catch (RuntimeException e) {
-            throw OTracedExecutionException.trace(trace, e, task);
+            throw YTTracedExecutionException.trace(trace, e, task);
           }
         });
   }

@@ -24,9 +24,9 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTNoTxRecordReadException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -100,7 +100,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   public @Nonnull YTRecord loadRecord(final YTRID rid) {
     checkNonTXReads();
     if (rid.isNew()) {
-      throw new ORecordNotFoundException(rid);
+      throw new YTRecordNotFoundException(rid);
     }
 
     return database.executeReadRecord((YTRecordId) rid);
@@ -110,7 +110,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     if (nonTxReadMode == NonTxReadMode.WARN) {
       OLogManager.instance().warn(this, NON_TX_WARNING_READ_MESSAGE);
     } else if (nonTxReadMode == NonTxReadMode.EXCEPTION) {
-      throw new ONoTxRecordReadException(NON_TX_EXCEPTION_READ_MESSAGE);
+      throw new YTNoTxRecordReadException(NON_TX_EXCEPTION_READ_MESSAGE);
     }
   }
 
@@ -125,14 +125,14 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public YTRecord saveRecord(final YTRecordAbstract iRecord, final String iClusterName) {
-    throw new ODatabaseException("Cannot save record in no tx mode");
+    throw new YTDatabaseException("Cannot save record in no tx mode");
   }
 
   /**
    * Deletes the record.
    */
   public void deleteRecord(final YTRecordAbstract iRecord) {
-    throw new ODatabaseException("Cannot delete record in no tx mode");
+    throw new YTDatabaseException("Cannot delete record in no tx mode");
   }
 
   public Collection<ORecordOperation> getCurrentRecordEntries() {

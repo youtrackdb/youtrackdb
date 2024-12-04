@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.parser.OMatchStatement;
 import com.orientechnologies.orient.core.sql.parser.OProfileStorageStatement;
 import java.util.Collections;
@@ -195,18 +195,18 @@ public class ODefaultCommandExecutorSQLFactory implements OCommandExecutorSQLFac
   /**
    * {@inheritDoc}
    */
-  public OCommandExecutor createCommand(final String name) throws OCommandExecutionException {
+  public OCommandExecutor createCommand(final String name) throws YTCommandExecutionException {
     final Class<? extends OCommandExecutor> clazz = COMMANDS.get(name);
 
     if (clazz == null) {
-      throw new OCommandExecutionException("Unknowned command name :" + name);
+      throw new YTCommandExecutionException("Unknowned command name :" + name);
     }
 
     try {
       return clazz.newInstance();
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OCommandExecutionException(
+      throw YTException.wrapException(
+          new YTCommandExecutionException(
               "Error in creation of command "
                   + name
                   + "(). Probably there is not an empty constructor or the constructor generates"

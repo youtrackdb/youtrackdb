@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -43,11 +43,11 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
       final OIndex idx =
           database.getMetadata().getIndexManagerInternal().getIndex(database, name.getValue());
       if (idx == null) {
-        throw new OCommandExecutionException("Index '" + name + "' not found");
+        throw new YTCommandExecutionException("Index '" + name + "' not found");
       }
 
       if (!idx.isAutomatic()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot rebuild index '"
                 + name
                 + "' because it's manual and there aren't indications of what to index");

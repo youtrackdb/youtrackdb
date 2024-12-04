@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -61,14 +61,14 @@ public class AbstractClassTest extends DocumentDBBaseTest {
       database.begin();
       new YTDocument("AbstractPerson").save();
       database.begin();
-    } catch (OException e) {
+    } catch (YTException e) {
       Throwable cause = e;
 
       while (cause.getCause() != null) {
         cause = cause.getCause();
       }
 
-      Assert.assertTrue(cause instanceof OSchemaException);
+      Assert.assertTrue(cause instanceof YTSchemaException);
     }
   }
 }

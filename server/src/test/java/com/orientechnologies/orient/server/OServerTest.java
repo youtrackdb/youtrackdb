@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
@@ -70,7 +70,7 @@ public class OServerTest {
       server.startup(conf);
       server.activate();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(OException.class);
+      assertThat(e).isInstanceOf(YTException.class);
     }
 
     assertThat(server.isActive()).isFalse();

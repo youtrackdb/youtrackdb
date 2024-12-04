@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMap;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -47,7 +47,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     var db = ctx.getDatabase();
     Set<YTRID> rids = fetchRidsToFind(ctx);
     List<ORecordIteratorCluster<YTRecord>> clustersIterators = initClusterIterators(ctx);
@@ -95,7 +95,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
           } else {
             String clusterName = db.getClusterNameById(c.getClusterNumber());
             if (clusterName == null) {
-              throw new OCommandExecutionException("Cluster not found: " + c.getClusterNumber());
+              throw new YTCommandExecutionException("Cluster not found: " + c.getClusterNumber());
             }
             targetClusterNames.add(clusterName);
           }
@@ -105,7 +105,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
         for (OIdentifier className : this.classes) {
           YTClass clazz = schema.getClass(className.getStringValue());
           if (clazz == null) {
-            throw new OCommandExecutionException("Class not found: " + className);
+            throw new YTCommandExecutionException("Class not found: " + className);
           }
           for (int clusterId : clazz.getPolymorphicClusterIds()) {
             targetClusterNames.add(db.getClusterNameById(clusterId));

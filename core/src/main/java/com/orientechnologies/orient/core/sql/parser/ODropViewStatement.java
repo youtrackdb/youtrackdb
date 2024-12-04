@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -33,19 +33,19 @@ public class ODropViewStatement extends ODDLStatement {
       if (ifExists) {
         return OExecutionStream.empty();
       }
-      throw new OCommandExecutionException("View " + name.getStringValue() + " does not exist");
+      throw new YTCommandExecutionException("View " + name.getStringValue() + " does not exist");
     }
 
     if (view.count(db) > 0) {
       // no need for this probably, but perhaps in the future...
       if (view.isVertexType()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'DROP VIEW' command cannot drop view '"
                 + name.getStringValue()
                 + "' because it contains Vertices. Use 'DELETE VERTEX' command first to avoid"
                 + " broken edges in a database, or apply the 'UNSAFE' keyword to force it");
       } else if (view.isEdgeType()) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'DROP VIEW' command cannot drop view '"
                 + name.getStringValue()
                 + "' because it contains Edges. Use 'DELETE EDGE' command first to avoid broken"

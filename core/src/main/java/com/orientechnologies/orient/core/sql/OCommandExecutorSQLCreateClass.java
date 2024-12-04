@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTClusterDoesNotExistException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.parser.OCreateClassStatement;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
@@ -74,21 +74,21 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Expected <class>", parserText, oldPos);
       }
 
       className = word.toString();
@@ -96,7 +96,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
         className = ((OCreateClassStatement) preParsedStatement).name.getStringValue();
       }
       if (className == null) {
-        throw new OCommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new YTCommandSQLParsingException("Expected <class>", parserText, oldPos);
       }
 
       oldPos = pos;
@@ -111,7 +111,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
             oldPos = pos;
             pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
             if (pos == -1) {
-              throw new OCommandSQLParsingException(
+              throw new YTCommandSQLParsingException(
                   "Syntax error after EXTENDS for class "
                       + className
                       + ". Expected the super-class name. Use "
@@ -123,7 +123,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
 
             if (!database.getMetadata().getImmutableSchemaSnapshot().existsClass(superclassName)
                 && !newParser) {
-              throw new OCommandSQLParsingException(
+              throw new YTCommandSQLParsingException(
                   "Super-class " + word + " not exists", parserText, oldPos);
             }
             superClass = database.getMetadata().getSchema().getClass(superclassName);
@@ -147,7 +147,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
             for (OIdentifier superclass : superclasses) {
               String superclassName = superclass.getStringValue();
               if (!database.getMetadata().getSchema().existsClass(superclassName)) {
-                throw new OCommandSQLParsingException(
+                throw new YTCommandSQLParsingException(
                     "Super-class " + word + " not exists", parserText, oldPos);
               }
               superClass = database.getMetadata().getSchema().getClass(superclassName);
@@ -158,7 +158,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
           oldPos = pos;
           pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
           if (pos == -1) {
-            throw new OCommandSQLParsingException(
+            throw new YTCommandSQLParsingException(
                 "Syntax error after CLUSTER for class "
                     + className
                     + ". Expected the cluster id or name. Use "
@@ -182,22 +182,22 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
               }
 
               if (clusterIds[i] == -1) {
-                throw new OCommandSQLParsingException(
+                throw new YTCommandSQLParsingException(
                     "Cluster with id " + clusterIds[i] + " does not exists", parserText, oldPos);
               }
 
               try {
                 String clusterName = database.getClusterNameById(clusterIds[i]);
                 if (clusterName == null) {
-                  throw new OClusterDoesNotExistException(
+                  throw new YTClusterDoesNotExistException(
                       "Cluster with id "
                           + clusterIds[i]
                           + " does not exist inside of storage "
                           + database.getName());
                 }
               } catch (Exception e) {
-                throw OException.wrapException(
-                    new OCommandSQLParsingException(
+                throw YTException.wrapException(
+                    new YTCommandSQLParsingException(
                         "Cluster with id " + clusterIds[i] + " does not exists",
                         parserText,
                         oldPos),
@@ -209,7 +209,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
           oldPos = pos;
           pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
           if (pos == -1) {
-            throw new OCommandSQLParsingException(
+            throw new YTCommandSQLParsingException(
                 "Syntax error after CLUSTERS for class "
                     + className
                     + ". Expected the number of clusters. Use "
@@ -225,7 +225,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
           oldPos = pos;
           pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
           if (!word.toString().equalsIgnoreCase(KEYWORD_NOT)) {
-            throw new OCommandSQLParsingException(
+            throw new YTCommandSQLParsingException(
                 "Syntax error after IF for class "
                     + className
                     + ". Expected NOT. Use "
@@ -236,7 +236,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
           oldPos = pos;
           pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
           if (!word.toString().equalsIgnoreCase(KEYWORD_EXISTS)) {
-            throw new OCommandSQLParsingException(
+            throw new YTCommandSQLParsingException(
                 "Syntax error after IF NOT for class "
                     + className
                     + ". Expected EXISTS. Use "
@@ -246,7 +246,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
           }
           ifNotExists = true;
         } else {
-          throw new OCommandSQLParsingException("Invalid keyword: " + k);
+          throw new YTCommandSQLParsingException("Invalid keyword: " + k);
         }
 
         oldPos = pos;
@@ -287,7 +287,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (className == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 

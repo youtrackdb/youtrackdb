@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.security;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -66,7 +66,7 @@ public class ORemoteSecurityTests {
         filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
-      } catch (OSecurityException ex) {
+      } catch (YTSecurityException ex) {
       }
     }
   }
@@ -87,7 +87,7 @@ public class ORemoteSecurityTests {
         filteredSession.command("insert into Person SET name = 'bar'");
         filteredSession.commit();
         Assert.fail();
-      } catch (OSecurityException ex) {
+      } catch (YTSecurityException ex) {
       }
     }
   }
@@ -197,7 +197,7 @@ public class ORemoteSecurityTests {
         filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
-      } catch (OSecurityException ex) {
+      } catch (YTSecurityException ex) {
       }
       Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
     }
@@ -221,7 +221,7 @@ public class ORemoteSecurityTests {
         filteredSession.command("update Person set name = 'bar'");
         filteredSession.commit();
         Assert.fail();
-      } catch (OSecurityException ex) {
+      } catch (YTSecurityException ex) {
       }
 
       Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
@@ -248,7 +248,7 @@ public class ORemoteSecurityTests {
         filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
-      } catch (OSecurityException ex) {
+      } catch (YTSecurityException ex) {
       }
 
       Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
@@ -273,7 +273,7 @@ public class ORemoteSecurityTests {
         filteredSession.command("update Person set name = 'bar'");
         filteredSession.commit();
         Assert.fail();
-      } catch (OSecurityException ex) {
+      } catch (YTSecurityException ex) {
       }
 
       Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
@@ -300,7 +300,7 @@ public class ORemoteSecurityTests {
         filteredSession.delete(elem);
         filteredSession.commit();
         Assert.fail();
-      } catch (OSecurityException ex) {
+      } catch (YTSecurityException ex) {
       }
 
       filteredSession.begin();
@@ -338,7 +338,7 @@ public class ORemoteSecurityTests {
         filteredSession.command("delete from Person where name = 'bar'");
         filteredSession.commit();
         Assert.fail();
-      } catch (OSecurityException ex) {
+      } catch (YTSecurityException ex) {
       }
 
       try (OResultSet rs = filteredSession.query("select from Person")) {

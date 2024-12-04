@@ -5,8 +5,8 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -100,7 +100,7 @@ public class ColumnSecurityTest {
     try {
       db.command("create index Person.name_surname on Person (name, surname) NOTUNIQUE");
       Assert.fail();
-    } catch (OIndexException e) {
+    } catch (YTIndexException e) {
 
     }
   }
@@ -413,7 +413,7 @@ public class ColumnSecurityTest {
     try {
       db.save(elem);
       Assert.fail();
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
 
     }
   }
@@ -456,7 +456,7 @@ public class ColumnSecurityTest {
     try {
       db.command("UPDATE Person SET name = 'bar1' WHERE name = 'bar'");
       Assert.fail();
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
 
     }
   }
@@ -493,7 +493,7 @@ public class ColumnSecurityTest {
     try {
       db.command("UPDATE Person SET name = 'invalid'");
       Assert.fail();
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
 
     }
   }

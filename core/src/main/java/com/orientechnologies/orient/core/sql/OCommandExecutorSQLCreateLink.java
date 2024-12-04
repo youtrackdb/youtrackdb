@@ -19,20 +19,20 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
@@ -78,21 +78,21 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_LINK)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_LINK + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_FROM + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -101,7 +101,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
         linkName = word.toString();
 
         if (OStringSerializerHelper.contains(linkName, ' ')) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Link name '" + linkName + "' contains not valid characters", parserText, oldPos);
         }
 
@@ -114,7 +114,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
         pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
 
         if (pos == -1) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Link type missed. Use " + getSyntax(), parserText, oldPos);
         }
 
@@ -125,49 +125,49 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
       }
 
       if (pos == -1 || !word.toString().equals(KEYWORD_FROM)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_FROM + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       String[] parts = word.toString().split("\\.");
       if (parts.length != 2) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       sourceClassName = parts[0];
       if (sourceClassName == null) {
-        throw new OCommandSQLParsingException("Class not found", parserText, pos);
+        throw new YTCommandSQLParsingException("Class not found", parserText, pos);
       }
       sourceField = parts[1];
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TO)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_TO + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       parts = word.toString().split("\\.");
       if (parts.length != 2) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       destClassName = parts[0];
       if (destClassName == null) {
-        throw new OCommandSQLParsingException("Class not found", parserText, pos);
+        throw new YTCommandSQLParsingException("Class not found", parserText, pos);
       }
       destField = parts[1];
 
@@ -177,7 +177,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
       }
 
       if (!word.toString().equalsIgnoreCase("INVERSE")) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missed 'INVERSE'. Use " + getSyntax(), parserText, pos);
       }
 
@@ -194,13 +194,13 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (destField == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final YTDatabaseSessionInternal database = getDatabase();
     if (database.getDatabaseOwner() == null) {
-      throw new OCommandSQLParsingException(
+      throw new YTCommandSQLParsingException(
           "This command supports only the database type YTDatabaseDocumentTx and type '"
               + database.getClass()
               + "' was found");
@@ -211,12 +211,12 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
     YTClass sourceClass =
         database.getMetadata().getImmutableSchemaSnapshot().getClass(sourceClassName);
     if (sourceClass == null) {
-      throw new OCommandExecutionException("Source class '" + sourceClassName + "' not found");
+      throw new YTCommandExecutionException("Source class '" + sourceClassName + "' not found");
     }
 
     YTClass destClass = database.getMetadata().getImmutableSchemaSnapshot().getClass(destClassName);
     if (destClass == null) {
-      throw new OCommandExecutionException("Destination class '" + destClassName + "' not found");
+      throw new YTCommandExecutionException("Destination class '" + destClassName + "' not found");
     }
 
     Object value;
@@ -281,7 +281,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
             if (result == null || result.size() == 0) {
               value = null;
             } else if (result.size() > 1) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot create link because multiple records was found in class '"
                       + destClass.getName()
                       + "' with value "
@@ -391,8 +391,8 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
         progressListener.onCompletition(database, this, false);
       }
 
-      throw OException.wrapException(
-          new OCommandExecutionException("Error on creation of links"), e);
+      throw YTException.wrapException(
+          new YTCommandExecutionException("Error on creation of links"), e);
     }
     return total;
   }

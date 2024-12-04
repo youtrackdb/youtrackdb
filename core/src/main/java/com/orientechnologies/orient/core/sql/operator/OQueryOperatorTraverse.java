@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -115,7 +115,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
       if (target.isNotBound(db)) {
         try {
           target = db.bindToSession(target);
-        } catch (final ORecordNotFoundException ignore) {
+        } catch (final YTRecordNotFoundException ignore) {
           // INVALID RID
           return false;
         }

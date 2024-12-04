@@ -20,13 +20,13 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.comparator.OCaseInsentiveComparator;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -317,7 +317,7 @@ public abstract class YTPropertyImpl implements YTProperty {
         && type != YTType.EMBEDDEDLIST
         && type != YTType.EMBEDDEDMAP
         && type != YTType.LINKBAG) {
-      throw new OSchemaException("Linked class is not supported for type: " + type);
+      throw new YTSchemaException("Linked class is not supported for type: " + type);
     }
   }
 
@@ -332,7 +332,7 @@ public abstract class YTPropertyImpl implements YTProperty {
 
   public static void checkLinkTypeSupport(YTType type) {
     if (type != YTType.EMBEDDEDSET && type != YTType.EMBEDDEDLIST && type != YTType.EMBEDDEDMAP) {
-      throw new OSchemaException("Linked type is not supported for type: " + type);
+      throw new YTSchemaException("Linked type is not supported for type: " + type);
     }
   }
 
@@ -777,7 +777,7 @@ public abstract class YTPropertyImpl implements YTProperty {
 
   public static void checkEmbedded(YTDatabaseSessionInternal session) {
     if (session.isRemote()) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "'Internal' schema modification methods can be used only inside of embedded database");
     }
   }
@@ -788,8 +788,8 @@ public abstract class YTPropertyImpl implements YTProperty {
         try {
           ODateHelper.getDateFormatInstance(session).parse(iDateAsString);
         } catch (ParseException e) {
-          throw OException.wrapException(
-              new OSchemaException(
+          throw YTException.wrapException(
+              new YTSchemaException(
                   "Invalid date format while formatting date '" + iDateAsString + "'"),
               e);
         }
@@ -797,8 +797,8 @@ public abstract class YTPropertyImpl implements YTProperty {
         try {
           ODateHelper.getDateTimeFormatInstance(session).parse(iDateAsString);
         } catch (ParseException e) {
-          throw OException.wrapException(
-              new OSchemaException(
+          throw YTException.wrapException(
+              new YTSchemaException(
                   "Invalid datetime format while formatting date '" + iDateAsString + "'"),
               e);
         }

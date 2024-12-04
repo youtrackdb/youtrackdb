@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -85,7 +85,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     try {
       json.writeAttribute("records", db.countClass(cls.getName()));
-    } catch (OSecurityAccessException e) {
+    } catch (YTSecurityAccessException e) {
       json.writeAttribute("records", "? (Unauthorized)");
     } catch (Exception e) {
       json.writeAttribute("records", "? (Error)");

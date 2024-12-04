@@ -5,12 +5,12 @@ import static org.junit.Assert.assertNull;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import org.junit.Test;
 
 public class RemoteConnetWrongUrlTest {
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testConnectWrongUrl() {
     YTDatabaseSessionInternal doc = new YTDatabaseDocumentTx("remote:wrong:2424/test");
     doc.open("user", "user");
@@ -21,7 +21,7 @@ public class RemoteConnetWrongUrlTest {
     try {
       YTDatabaseSessionInternal doc = new YTDatabaseDocumentTx("remote:wrong:2424/test");
       doc.open("user", "user");
-    } catch (ODatabaseException e) {
+    } catch (YTDatabaseException e) {
 
     }
     assertNull(ODatabaseRecordThreadLocal.instance().getIfDefined());

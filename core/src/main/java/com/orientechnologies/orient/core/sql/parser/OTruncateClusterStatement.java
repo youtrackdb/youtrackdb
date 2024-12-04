@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class OTruncateClusterStatement extends ODDLStatement {
     }
 
     if (clusterId < 0) {
-      throw new ODatabaseException("Cluster with name " + clusterName + " does not exist");
+      throw new YTDatabaseException("Cluster with name " + clusterName + " does not exist");
     }
 
     String name = database.getClusterNameById(clusterId);

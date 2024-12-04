@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class ORemoteScriptSecurityTest {
     youTrackDB.close();
   }
 
-  @Test(expected = OSecurityException.class)
+  @Test(expected = YTSecurityException.class)
   public void testRunJavascript() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
@@ -58,7 +58,7 @@ public class ORemoteScriptSecurityTest {
     }
   }
 
-  @Test(expected = OSecurityException.class)
+  @Test(expected = YTSecurityException.class)
   public void testRunEcmascript() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",

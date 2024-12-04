@@ -11,7 +11,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
@@ -1776,7 +1776,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     try {
       db.query(query);
       fail();
-    } catch (OCommandExecutionException x) {
+    } catch (YTCommandExecutionException x) {
       // passed the test
     }
   }
@@ -1813,7 +1813,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     try {
       db.query(query);
       fail();
-    } catch (OCommandExecutionException x) {
+    } catch (YTCommandExecutionException x) {
       // passed the test
     }
   }

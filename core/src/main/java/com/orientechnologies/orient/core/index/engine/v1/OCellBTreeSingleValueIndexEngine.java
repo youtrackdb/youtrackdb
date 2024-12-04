@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.core.index.engine.v1;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.index.engine.OSingleValueIndexEngine;
@@ -87,7 +87,8 @@ public final class OCellBTreeSingleValueIndexEngine
           atomicOperation, keySerializer, data.getKeyTypes(), data.getKeySize(), encryption);
       versionPositionMap.create(atomicOperation);
     } catch (IOException e) {
-      throw OException.wrapException(new OIndexException("Error of creation of index " + name), e);
+      throw YTException.wrapException(new YTIndexException("Error of creation of index " + name),
+          e);
     }
   }
 
@@ -98,8 +99,8 @@ public final class OCellBTreeSingleValueIndexEngine
       sbTree.delete(atomicOperation);
       versionPositionMap.delete(atomicOperation);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during deletion of index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during deletion of index " + name), e);
     }
   }
 
@@ -110,7 +111,7 @@ public final class OCellBTreeSingleValueIndexEngine
             try {
               sbTree.remove(atomicOperation, key);
             } catch (IOException e) {
-              throw OException.wrapException(new OIndexException("Can not clear index"), e);
+              throw YTException.wrapException(new YTIndexException("Can not clear index"), e);
             }
           });
     }
@@ -130,8 +131,8 @@ public final class OCellBTreeSingleValueIndexEngine
     try {
       versionPositionMap.open();
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during VPM load of index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during VPM load of index " + name), e);
     }
   }
 
@@ -140,8 +141,8 @@ public final class OCellBTreeSingleValueIndexEngine
     try {
       return sbTree.remove(atomicOperation, key) != null;
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during removal of key " + key + " from index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during removal of key " + key + " from index " + name), e);
     }
   }
 
@@ -150,7 +151,8 @@ public final class OCellBTreeSingleValueIndexEngine
     try {
       doClearTree(atomicOperation);
     } catch (IOException e) {
-      throw OException.wrapException(new OIndexException("Error during clear of index " + name), e);
+      throw YTException.wrapException(new YTIndexException("Error during clear of index " + name),
+          e);
     }
   }
 
@@ -197,8 +199,8 @@ public final class OCellBTreeSingleValueIndexEngine
     try {
       sbTree.put(atomicOperation, key, value);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during insertion of key " + key + " into index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during insertion of key " + key + " into index " + name), e);
     }
   }
 
@@ -211,8 +213,8 @@ public final class OCellBTreeSingleValueIndexEngine
     try {
       return sbTree.validatedPut(atomicOperation, key, value, validator);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during insertion of key " + key + " into index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during insertion of key " + key + " into index " + name), e);
     }
   }
 

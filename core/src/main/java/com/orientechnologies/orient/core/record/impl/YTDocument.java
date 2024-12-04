@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.record.impl;
 import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.DB_CUSTOM_SUPPORT;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
@@ -44,13 +44,13 @@ import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -508,7 +508,7 @@ public class YTDocument extends YTRecordAbstract
         entry.disableTracking(this, entry.value);
         entry.value = value;
         entry.enableTracking(this);
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         return null;
       }
     }
@@ -536,7 +536,7 @@ public class YTDocument extends YTRecordAbstract
         if (isLazyLoad()) {
           try {
             return getSession().load(orid);
-          } catch (ORecordNotFoundException e) {
+          } catch (YTRecordNotFoundException e) {
             return null;
           }
         } else {
@@ -682,7 +682,7 @@ public class YTDocument extends YTRecordAbstract
           if (status == STATUS.UNMARSHALLING) {
             recordId = new YTRecordId(value.toString());
           } else {
-            throw new ODatabaseException(
+            throw new YTDatabaseException(
                 "Attribute " + ODocumentHelper.ATTRIBUTE_RID + " is read-only");
           }
 
@@ -691,7 +691,7 @@ public class YTDocument extends YTRecordAbstract
           if (status == STATUS.UNMARSHALLING) {
             setVersion(Integer.parseInt(value.toString()));
           }
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "Attribute " + ODocumentHelper.ATTRIBUTE_VERSION + " is read-only");
         }
       }
@@ -798,7 +798,7 @@ public class YTDocument extends YTRecordAbstract
 
     if (fieldType == YTType.CUSTOM) {
       if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             String.format(
                 "YTType CUSTOM used by serializable types, for value  '%s' is not enabled, set"
                     + " `db.custom.support` to true for enable it",
@@ -839,11 +839,11 @@ public class YTDocument extends YTRecordAbstract
       setClassName(null);
     } else {
       if (ODocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(name)) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Attribute " + ODocumentHelper.ATTRIBUTE_RID + " is read-only");
       } else if (ODocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
         if (ODocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "Attribute " + ODocumentHelper.ATTRIBUTE_VERSION + " is read-only");
         }
       }
@@ -881,7 +881,7 @@ public class YTDocument extends YTRecordAbstract
   }
 
   private static void validateFieldsSecurity(YTDatabaseSessionInternal internal, YTDocument iRecord)
-      throws OValidationException {
+      throws YTValidationException {
     if (internal == null) {
       return;
     }
@@ -894,7 +894,7 @@ public class YTDocument extends YTRecordAbstract
       ODocumentEntry entry = mapEntry.getValue();
       if (entry != null && (entry.isTxChanged() || entry.isTxTrackedModified())) {
         if (!security.isAllowedWrite(internal, iRecord, mapEntry.getKey())) {
-          throw new OSecurityException(
+          throw new YTSecurityException(
               String.format(
                   "Change of field '%s' is not allowed for user '%s'",
                   iRecord.getClassName() + "." + mapEntry.getKey(),
@@ -907,7 +907,7 @@ public class YTDocument extends YTRecordAbstract
   private static void validateField(
       YTDatabaseSessionInternal session, YTImmutableSchema schema, YTDocument iRecord,
       YTImmutableProperty p)
-      throws OValidationException {
+      throws YTValidationException {
     iRecord.checkForBinding();
     iRecord = (YTDocument) iRecord.getRecord();
 
@@ -920,14 +920,14 @@ public class YTDocument extends YTRecordAbstract
       if (p.isNotNull() && fieldValue == null)
       // NULLITY
       {
-        throw new OValidationException(
+        throw new YTValidationException(
             "The field '" + p.getFullName() + "' cannot be null, record: " + iRecord);
       }
 
       if (fieldValue != null && p.getRegexp() != null && p.getType().equals(YTType.STRING)) {
         // REGEXP
         if (!((String) fieldValue).matches(p.getRegexp())) {
-          throw new OValidationException(
+          throw new YTValidationException(
               "The field '"
                   + p.getFullName()
                   + "' does not match the regular expression '"
@@ -941,7 +941,7 @@ public class YTDocument extends YTRecordAbstract
 
     } else {
       if (p.isMandatory()) {
-        throw new OValidationException(
+        throw new YTValidationException(
             "The field '"
                 + p.getFullName()
                 + "' is mandatory, but not found on record: "
@@ -960,7 +960,7 @@ public class YTDocument extends YTRecordAbstract
           break;
         case LINKLIST:
           if (!(fieldValue instanceof List)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as LINKLIST but an incompatible type is used. Value: "
@@ -970,7 +970,7 @@ public class YTDocument extends YTRecordAbstract
           break;
         case LINKSET:
           if (!(fieldValue instanceof Set)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as LINKSET but an incompatible type is used. Value: "
@@ -980,7 +980,7 @@ public class YTDocument extends YTRecordAbstract
           break;
         case LINKMAP:
           if (!(fieldValue instanceof Map)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as LINKMAP but an incompatible type is used. Value: "
@@ -991,7 +991,7 @@ public class YTDocument extends YTRecordAbstract
 
         case LINKBAG:
           if (!(fieldValue instanceof ORidBag)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as LINKBAG but an incompatible type is used. Value: "
@@ -1004,7 +1004,7 @@ public class YTDocument extends YTRecordAbstract
           break;
         case EMBEDDEDLIST:
           if (!(fieldValue instanceof List)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as EMBEDDEDLIST but an incompatible type is used. Value:"
@@ -1025,7 +1025,7 @@ public class YTDocument extends YTRecordAbstract
           break;
         case EMBEDDEDSET:
           if (!(fieldValue instanceof Set)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as EMBEDDEDSET but an incompatible type is used. Value: "
@@ -1045,7 +1045,7 @@ public class YTDocument extends YTRecordAbstract
           break;
         case EMBEDDEDMAP:
           if (!(fieldValue instanceof Map)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as EMBEDDEDMAP but an incompatible type is used. Value: "
@@ -1072,7 +1072,7 @@ public class YTDocument extends YTRecordAbstract
       if (p.getMinComparable().compareTo(fieldValue) > 0) {
         switch (p.getType()) {
           case STRING:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains fewer characters than "
@@ -1080,7 +1080,7 @@ public class YTDocument extends YTRecordAbstract
                     + " requested");
           case DATE:
           case DATETIME:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains the date "
@@ -1089,7 +1089,7 @@ public class YTDocument extends YTRecordAbstract
                     + min
                     + ")");
           case BINARY:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains fewer bytes than "
@@ -1101,14 +1101,14 @@ public class YTDocument extends YTRecordAbstract
           case LINKSET:
           case EMBEDDEDMAP:
           case LINKMAP:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains fewer items than "
                     + min
                     + " requested");
           default:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '" + p.getFullName() + "' is less than " + min);
         }
       }
@@ -1119,7 +1119,7 @@ public class YTDocument extends YTRecordAbstract
       if (p.getMaxComparable().compareTo(fieldValue) < 0) {
         switch (p.getType()) {
           case STRING:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains more characters than "
@@ -1127,7 +1127,7 @@ public class YTDocument extends YTRecordAbstract
                     + " requested");
           case DATE:
           case DATETIME:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains the date "
@@ -1136,7 +1136,7 @@ public class YTDocument extends YTRecordAbstract
                     + max
                     + ")");
           case BINARY:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains more bytes than "
@@ -1148,14 +1148,14 @@ public class YTDocument extends YTRecordAbstract
           case LINKSET:
           case EMBEDDEDMAP:
           case LINKMAP:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains more items than "
                     + max
                     + " requested");
           default:
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '" + p.getFullName() + "' is greater than " + max);
         }
       }
@@ -1175,7 +1175,7 @@ public class YTDocument extends YTRecordAbstract
             || (fieldValue != null && orgVal == null)
             || (fieldValue == null && orgVal != null)
             || (fieldValue != null && !fieldValue.equals(orgVal))) {
-          throw new OValidationException(
+          throw new YTValidationException(
               "The field '"
                   + p.getFullName()
                   + "' is immutable and cannot be altered. Field value is: "
@@ -1213,7 +1213,7 @@ public class YTDocument extends YTRecordAbstract
       final Object value) {
     if (value != null) {
       if (YTType.convert(session, value, p.getLinkedType().getDefaultJavaType()) == null) {
-        throw new OValidationException(
+        throw new YTValidationException(
             "The field '"
                 + p.getFullName()
                 + "' has been declared as "
@@ -1232,7 +1232,7 @@ public class YTDocument extends YTRecordAbstract
       if (allowNull) {
         return;
       } else {
-        throw new OValidationException(
+        throw new YTValidationException(
             "The field '"
                 + p.getFullName()
                 + "' has been declared as "
@@ -1242,7 +1242,7 @@ public class YTDocument extends YTRecordAbstract
     }
 
     if (!(fieldValue instanceof YTIdentifiable)) {
-      throw new OValidationException(
+      throw new YTValidationException(
           "The field '"
               + p.getFullName()
               + "' has been declared as "
@@ -1269,7 +1269,7 @@ public class YTDocument extends YTRecordAbstract
         }
 
         if (cls != null && !schemaClass.isSuperClassOf(cls)) {
-          throw new OValidationException(
+          throw new YTValidationException(
               "The field '"
                   + p.getFullName()
                   + "' has been declared as "
@@ -1291,7 +1291,7 @@ public class YTDocument extends YTRecordAbstract
       return;
     }
     if (fieldValue instanceof YTRecordId) {
-      throw new OValidationException(
+      throw new YTValidationException(
           "The field '"
               + p.getFullName()
               + "' has been declared as "
@@ -1301,7 +1301,7 @@ public class YTDocument extends YTRecordAbstract
     } else {
       if (fieldValue instanceof YTIdentifiable embedded) {
         if (embedded.getIdentity().isValid()) {
-          throw new OValidationException(
+          throw new YTValidationException(
               "The field '"
                   + p.getFullName()
                   + "' has been declared as "
@@ -1314,7 +1314,7 @@ public class YTDocument extends YTRecordAbstract
         if (embeddedRecord instanceof YTDocument doc) {
           final YTClass embeddedClass = p.getLinkedClass();
           if (doc.isVertex()) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1327,7 +1327,7 @@ public class YTDocument extends YTRecordAbstract
           }
 
           if (doc.isEdge()) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1344,7 +1344,7 @@ public class YTDocument extends YTRecordAbstract
         if (embeddedClass != null) {
 
           if (!(embeddedRecord instanceof YTDocument doc)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1355,7 +1355,7 @@ public class YTDocument extends YTRecordAbstract
           }
 
           if (doc.getImmutableSchemaClass() == null) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1366,7 +1366,7 @@ public class YTDocument extends YTRecordAbstract
           }
 
           if (!(doc.getImmutableSchemaClass().isSubClassOf(embeddedClass))) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1382,7 +1382,7 @@ public class YTDocument extends YTRecordAbstract
         }
 
       } else {
-        throw new OValidationException(
+        throw new YTValidationException(
             "The field '"
                 + p.getFullName()
                 + "' has been declared as "
@@ -1424,7 +1424,7 @@ public class YTDocument extends YTRecordAbstract
     checkForBinding();
 
     if (iDestination.isDirty()) {
-      throw new ODatabaseException("Cannot copy to dirty records");
+      throw new YTDatabaseException("Cannot copy to dirty records");
     }
 
     checkForFields();
@@ -1619,7 +1619,7 @@ public class YTDocument extends YTRecordAbstract
    *
    * @param iExpression SQL expression to evaluate.
    * @return The result of expression
-   * @throws OQueryParsingException in case the expression is not valid
+   * @throws YTQueryParsingException in case the expression is not valid
    */
   public Object eval(final String iExpression) {
     checkForBinding();
@@ -1638,13 +1638,13 @@ public class YTDocument extends YTRecordAbstract
    *
    * @param iExpression SQL expression to evaluate.
    * @return The result of expression
-   * @throws OQueryParsingException in case the expression is not valid
+   * @throws YTQueryParsingException in case the expression is not valid
    */
   public Object eval(final String iExpression, @Nonnull final OCommandContext iContext) {
     checkForBinding();
 
     if (iContext.getDatabase() != getSession()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "The context is bound to a different database instance, use the context from the same database instance");
     }
 
@@ -1684,7 +1684,7 @@ public class YTDocument extends YTRecordAbstract
           entry.value = value;
           entry.enableTracking(this);
         }
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         return null;
       }
     }
@@ -2110,7 +2110,7 @@ public class YTDocument extends YTRecordAbstract
 
     if (fieldType == YTType.CUSTOM) {
       if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             String.format(
                 "YTType CUSTOM used by serializable types, for value  '%s' is not enabled, set"
                     + " `db.custom.support` to true for enable it",
@@ -2476,7 +2476,7 @@ public class YTDocument extends YTRecordAbstract
   @Override
   public final YTDocument fromStream(final byte[] iRecordBuffer) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fromStream() on dirty records");
+      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
     }
 
     status = STATUS.UNMARSHALLING;
@@ -2500,7 +2500,7 @@ public class YTDocument extends YTRecordAbstract
   @Override
   protected final YTDocument fromStream(final byte[] iRecordBuffer, YTDatabaseSessionInternal db) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fromStream() on dirty records");
+      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
     }
 
     status = STATUS.UNMARSHALLING;
@@ -2608,7 +2608,7 @@ public class YTDocument extends YTRecordAbstract
    */
   public void undo() {
     if (!trackingChanges) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Cannot undo the document because tracking of changes is disabled");
     }
 
@@ -2629,7 +2629,7 @@ public class YTDocument extends YTRecordAbstract
 
   public YTDocument undo(final String field) {
     if (!trackingChanges) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Cannot undo the document because tracking of changes is disabled");
     }
 
@@ -2790,7 +2790,7 @@ public class YTDocument extends YTRecordAbstract
 
       if (iFieldType == YTType.CUSTOM) {
         if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-          throw new ODatabaseException(
+          throw new YTDatabaseException(
               "YTType CUSTOM used by serializable types is not enabled, set `db.custom.support`"
                   + " to true for enable it");
         }
@@ -3000,11 +3000,11 @@ public class YTDocument extends YTRecordAbstract
    * notNull, min, max, regexp, etc. If the schema is not defined for the current class or there are
    * no constraints then the validation is ignored.
    *
-   * @throws OValidationException if the document breaks some validation constraints defined in the
+   * @throws YTValidationException if the document breaks some validation constraints defined in the
    *                              schema
    * @see YTProperty
    */
-  public void validate() throws OValidationException {
+  public void validate() throws YTValidationException {
     checkForBinding();
 
     checkForFields();
@@ -3023,7 +3023,7 @@ public class YTDocument extends YTRecordAbstract
         // CHECK IF ALL FIELDS ARE DEFINED
         for (String f : fieldNames()) {
           if (immutableSchemaClass.getProperty(f) == null) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "Found additional field '"
                     + f
                     + "'. It cannot be added because the schema class '"
@@ -3193,7 +3193,7 @@ public class YTDocument extends YTRecordAbstract
   protected final YTRecordAbstract fill(
       final YTRID iRid, final int iVersion, final byte[] iBuffer, final boolean iDirty) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fill() on dirty records");
+      throw new YTDatabaseException("Cannot call fill() on dirty records");
     }
 
     schema = null;
@@ -3209,7 +3209,7 @@ public class YTDocument extends YTRecordAbstract
       final boolean iDirty,
       YTDatabaseSessionInternal db) {
     if (dirty) {
-      throw new ODatabaseException("Cannot call fill() on dirty records");
+      throw new YTDatabaseException("Cannot call fill() on dirty records");
     }
 
     schema = null;
@@ -3233,7 +3233,7 @@ public class YTDocument extends YTRecordAbstract
     OGlobalProperty prop = schema.getGlobalPropertyById(id);
     if (prop == null) {
       if (session.isClosed()) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Cannot unmarshall the document because no database is active, use detach for use the"
                 + " document outside the database session scope");
       }
@@ -3359,7 +3359,7 @@ public class YTDocument extends YTRecordAbstract
             newValue.setRecordAndField(recordId, prop.getName());
             for (Object o : ((Collection<Object>) entry.value)) {
               if (!(o instanceof YTIdentifiable)) {
-                throw new OValidationException("Invalid value in ridbag: " + o);
+                throw new YTValidationException("Invalid value in ridbag: " + o);
               }
               newValue.add((YTIdentifiable) o);
             }
@@ -3423,8 +3423,8 @@ public class YTDocument extends YTRecordAbstract
             }
           }
         } catch (Exception e) {
-          throw OException.wrapException(
-              new OValidationException(
+          throw YTException.wrapException(
+              new YTValidationException(
                   "impossible to convert value of field \"" + prop.getName() + "\""),
               e);
         }
@@ -3452,7 +3452,7 @@ public class YTDocument extends YTRecordAbstract
           ((YTDocument) value).setClass(linkedClass);
         } else {
           if (!docClass.isSubClassOf(linkedClass)) {
-            throw new OValidationException(
+            throw new YTValidationException(
                 "impossible to convert value of field \""
                     + prop.getName()
                     + "\", incompatible with "
@@ -3468,14 +3468,14 @@ public class YTDocument extends YTRecordAbstract
           entry.value = newValue;
           newValue.addOwner(this);
         } else {
-          throw new OValidationException(
+          throw new YTValidationException(
               "impossible to convert value of field \"" + prop.getName() + "\"");
         }
       }
 
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OValidationException(
+      throw YTException.wrapException(
+          new YTValidationException(
               "impossible to convert value of field \"" + prop.getName() + "\""),
           e);
     }
@@ -3504,7 +3504,7 @@ public class YTDocument extends YTRecordAbstract
     }
 
     if (recordId.isPersistent()) {
-      throw new ODatabaseException("Cannot add owner to a persistent element");
+      throw new YTDatabaseException("Cannot add owner to a persistent element");
     }
 
     if (owner == null) {
@@ -3535,7 +3535,7 @@ public class YTDocument extends YTRecordAbstract
       final Object fieldValue = entry.value;
       if (fieldValue instanceof ORidBag) {
         if (isEmbedded()) {
-          throw new ODatabaseException("RidBag are supported only at document root");
+          throw new YTDatabaseException("RidBag are supported only at document root");
         }
         ((ORidBag) fieldValue).checkAndConvert();
       }
@@ -3698,7 +3698,7 @@ public class YTDocument extends YTRecordAbstract
               cur = newMap;
             } else {
               if (cur instanceof ORidBag) {
-                throw new ODatabaseException("RidBag are supported only at document root");
+                throw new YTDatabaseException("RidBag are supported only at document root");
               }
             }
           }
@@ -3732,7 +3732,7 @@ public class YTDocument extends YTRecordAbstract
               value = newMap;
             } else {
               if (value instanceof ORidBag) {
-                throw new ODatabaseException("RidBag are supported only at document root");
+                throw new YTDatabaseException("RidBag are supported only at document root");
               }
             }
           }
@@ -3845,7 +3845,8 @@ public class YTDocument extends YTRecordAbstract
     checkForBinding();
 
     if (iClass != null && iClass.isAbstract()) {
-      throw new OSchemaException("Cannot create a document of the abstract class '" + iClass + "'");
+      throw new YTSchemaException(
+          "Cannot create a document of the abstract class '" + iClass + "'");
     }
 
     if (iClass == null) {
@@ -4067,7 +4068,7 @@ public class YTDocument extends YTRecordAbstract
 
   void checkEmbeddable() {
     if (isVertex() || isEdge()) {
-      throw new ODatabaseException("Vertices or Edges cannot be stored as embedded");
+      throw new YTDatabaseException("Vertices or Edges cannot be stored as embedded");
     }
   }
 }

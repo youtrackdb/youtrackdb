@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -42,7 +42,7 @@ public class OAlterSecurityPolicyStatement extends OSimpleExecStatement {
     OSecurityInternal security = db.getSharedContext().getSecurity();
     OSecurityPolicyImpl policy = security.getSecurityPolicy(db, name.getStringValue());
     if (policy == null) {
-      throw new OCommandExecutionException("Cannot find security policy " + name.toString());
+      throw new YTCommandExecutionException("Cannot find security policy " + name.toString());
     }
 
     if (create != null) {

@@ -13,20 +13,20 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLResultsetDelegate;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLSelect;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OIterableRecordSource;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OMatchExecutionPlanner;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -282,7 +282,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       this.returnAliases = result.returnAliases;
       this.limit = result.limit;
     } catch (ParseException e) {
-      OCommandSQLParsingException ex = new OCommandSQLParsingException(e, queryText);
+      YTCommandSQLParsingException ex = new YTCommandSQLParsingException(e, queryText);
       OErrorCode.QUERY_PARSE_ERROR.throwException(ex.getMessage(), ex);
     }
 
@@ -383,16 +383,16 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       OCommandContext context,
       OProgressListener progressListener) {
     if (orderBy != null) {
-      throw new OCommandExecutionException("ORDER BY is not supported in MATCH on the legacy API");
+      throw new YTCommandExecutionException("ORDER BY is not supported in MATCH on the legacy API");
     }
     if (groupBy != null) {
-      throw new OCommandExecutionException("GROUP BY is not supported in MATCH on the legacy API");
+      throw new YTCommandExecutionException("GROUP BY is not supported in MATCH on the legacy API");
     }
     if (unwind != null) {
-      throw new OCommandExecutionException("UNWIND is not supported in MATCH on the legacy API");
+      throw new YTCommandExecutionException("UNWIND is not supported in MATCH on the legacy API");
     }
     if (skip != null) {
-      throw new OCommandExecutionException("SKIP is not supported in MATCH on the legacy API");
+      throw new YTCommandExecutionException("SKIP is not supported in MATCH on the legacy API");
     }
 
     Map<Object, Object> iArgs = context.getInputParameters();
@@ -626,7 +626,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         // This means there must be a cycle in our dependency graph, or all dependency-free nodes
         // are optional.
         // Therefore, the query is invalid.
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "This query contains MATCH conditions that cannot be evaluated, "
                 + "like an undefined alias or a circular dependency on a $matched condition.");
       }
@@ -1054,7 +1054,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         return schemaClass.isSubClassOf(oClass);
       }
       return false;
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return false;
     }
   }
@@ -1120,7 +1120,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       if (!matchContext.matched.containsKey(alias)) {
         String target = aliasClasses.get(alias);
         if (target == null) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Cannot execute MATCH statement on alias " + alias + ": class not defined");
         }
 
@@ -1174,7 +1174,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
                 return false;
               }
             }
-          } catch (ORecordNotFoundException rnf) {
+          } catch (YTRecordNotFoundException rnf) {
             return false;
           }
         }
@@ -1189,7 +1189,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
                 return false;
               }
             }
-          } catch (ORecordNotFoundException rnf) {
+          } catch (YTRecordNotFoundException rnf) {
             return false;
           }
         }
@@ -1421,7 +1421,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     }
 
     if (lowerValue == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot calculate this pattern (maybe a circular dependency on $matched conditions)");
     }
     return lowerValue.getKey();
@@ -1446,7 +1446,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       }
 
       if (!schema.existsClass(className)) {
-        throw new OCommandExecutionException("class not defined: " + className);
+        throw new YTCommandExecutionException("class not defined: " + className);
       }
       YTClass oClass = schema.getClass(className);
       long upperBound;
@@ -1510,7 +1510,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         } else {
           String lower = getLowerSubclass(db, clazz, previousClass);
           if (lower == null) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "classes defined for alias "
                     + alias
                     + " ("
@@ -1531,10 +1531,10 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     YTClass class1 = schema.getClass(className1);
     YTClass class2 = schema.getClass(className2);
     if (class1 == null) {
-      throw new OCommandExecutionException("Class " + className1 + " not found in the schema");
+      throw new YTCommandExecutionException("Class " + className1 + " not found in the schema");
     }
     if (class2 == null) {
-      throw new OCommandExecutionException("Class " + className2 + " not found in the schema");
+      throw new YTCommandExecutionException("Class " + className2 + " not found in the schema");
     }
     if (class1.isSubClassOf(class2)) {
       return class1.getName();

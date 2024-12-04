@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
@@ -66,7 +66,7 @@ public interface YTEntity extends YTRecord {
    *
    * @param name the property name
    * @return the property value as an YTEntity
-   * @throws ODatabaseException if the property is not an YTEntity
+   * @throws YTDatabaseException if the property is not an YTEntity
    */
   @Nullable
   default YTEntity getElementProperty(String name) {
@@ -81,7 +81,7 @@ public interface YTEntity extends YTRecord {
       return identifiable.getElement();
     }
 
-    throw new ODatabaseException(
+    throw new YTDatabaseException(
         "Property "
             + name
             + " is not an element property, it is a "
@@ -94,7 +94,7 @@ public interface YTEntity extends YTRecord {
    *
    * @param propertyName the property name
    * @return the property value as an YTVertex
-   * @throws ODatabaseException if the property is not an YTVertex
+   * @throws YTDatabaseException if the property is not an YTVertex
    */
   @Nullable
   default YTVertex getVertexProperty(String propertyName) {
@@ -105,7 +105,8 @@ public interface YTEntity extends YTRecord {
 
     return element
         .asVertex()
-        .orElseThrow(() -> new ODatabaseException("Property " + propertyName + " is not a vertex"));
+        .orElseThrow(
+            () -> new YTDatabaseException("Property " + propertyName + " is not a vertex"));
   }
 
   /**
@@ -114,7 +115,7 @@ public interface YTEntity extends YTRecord {
    *
    * @param propertyName the property name
    * @return the property value as an YTEdge
-   * @throws ODatabaseException if the property is not an YTEdge
+   * @throws YTDatabaseException if the property is not an YTEdge
    */
   @Nullable
   default YTEdge getEdgeProperty(String propertyName) {
@@ -125,7 +126,7 @@ public interface YTEntity extends YTRecord {
 
     return element
         .asEdge()
-        .orElseThrow(() -> new ODatabaseException("Property " + propertyName + " is not an edge"));
+        .orElseThrow(() -> new YTDatabaseException("Property " + propertyName + " is not an edge"));
   }
 
   /**
@@ -136,7 +137,7 @@ public interface YTEntity extends YTRecord {
    *
    * @param propertyName the property name
    * @return the property value as an YTBlob
-   * @throws ODatabaseException if the property is not an YTBlob
+   * @throws YTDatabaseException if the property is not an YTBlob
    */
   @Nullable
   default YTBlob getBlobProperty(String propertyName) {
@@ -151,7 +152,7 @@ public interface YTEntity extends YTRecord {
       return identifiable.getBlob();
     }
 
-    throw new ODatabaseException(
+    throw new YTDatabaseException(
         "Property "
             + propertyName
             + " is not a blob property, it is a "

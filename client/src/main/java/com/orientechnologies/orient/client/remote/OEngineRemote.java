@@ -18,7 +18,7 @@ package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 /**
@@ -38,7 +38,7 @@ public class OEngineRemote extends OEngineAbstract {
       long doubleWriteLogMaxSegSize,
       int storageId,
       YouTrackDBInternal context) {
-    throw new OStorageException("deprecated");
+    throw new YTStorageException("deprecated");
   }
 
   @Override

@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
@@ -85,13 +85,13 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
 
   public OCommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
       ORecordSerializer serializer)
-      throws OSerializationException {
+      throws YTSerializationException {
     final OMemoryStream buffer = new OMemoryStream(iStream);
     fromStream(db, buffer, serializer);
     return this;
   }
 
-  public byte[] toStream() throws OSerializationException {
+  public byte[] toStream() throws YTSerializationException {
     final OMemoryStream buffer = new OMemoryStream();
     return toStream(buffer);
   }

@@ -36,24 +36,20 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 
 /** Orient Database Sql grammar. */
 public class OrientSql {
 
     private int inputParamCount = 0;
-    private ODatabaseSessionInternal session;
 
-
-    public OrientSql(ODatabaseSessionInternal session, InputStream stream) {
+    public OrientSql(InputStream stream) {
       this(new JavaCharStream(stream));
-      this.session = session;
     }
 
-    public OrientSql(ODatabaseSessionInternal session, InputStream stream, String charset) throws java.io.UnsupportedEncodingException {
+    public OrientSql(InputStream stream, String charset) throws java.io.UnsupportedEncodingException {
       this(new JavaCharStream(stream, charset));
-      this.session = session;
     }
 
 }
@@ -3670,7 +3666,7 @@ OMatchPathItem MultiMatchPathItemArrows():
                 nextItem = BothPathItemOpt()  { jjtThis.addItem(nextItem); }
             ){
                 if(prevItem !=null && prevItem.filter == null){
-                    throw new OQueryParsingException("MATCH sub-pattern with no square brackets");
+                    throw new YTQueryParsingException("MATCH sub-pattern with no square brackets");
                 }
                 prevItem = nextItem;
             }

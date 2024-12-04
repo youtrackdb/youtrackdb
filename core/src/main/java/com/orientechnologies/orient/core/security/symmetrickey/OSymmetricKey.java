@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.core.security.symmetrickey;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.BufferedWriter;
 import java.io.InputStream;
@@ -158,9 +158,9 @@ public class OSymmetricKey {
   /**
    * Uses the specified SecretKey as the private key and sets key algorithm from the SecretKey.
    */
-  public OSymmetricKey(final SecretKey secretKey) throws OSecurityException {
+  public OSymmetricKey(final SecretKey secretKey) throws YTSecurityException {
     if (secretKey == null) {
-      throw new OSecurityException("OSymmetricKey(SecretKey) secretKey is null");
+      throw new YTSecurityException("OSymmetricKey(SecretKey) secretKey is null");
     }
 
     this.secretKey = secretKey;
@@ -170,7 +170,7 @@ public class OSymmetricKey {
   /**
    * Sets the SecretKey based on the specified algorithm and Base64 key specified.
    */
-  public OSymmetricKey(final String algorithm, final String base64Key) throws OSecurityException {
+  public OSymmetricKey(final String algorithm, final String base64Key) throws YTSecurityException {
     this.secretKeyAlgorithm = algorithm;
 
     try {
@@ -178,8 +178,8 @@ public class OSymmetricKey {
 
       this.secretKey = new SecretKeySpec(keyBytes, secretKeyAlgorithm);
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.OSymmetricKey() Exception: " + ex.getMessage()),
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.OSymmetricKey() Exception: " + ex.getMessage()),
           ex);
     }
   }
@@ -199,7 +199,7 @@ public class OSymmetricKey {
 
       secretKey = new SecretKeySpec(tempKey.getEncoded(), secretKeyAlgorithm);
     } catch (Exception ex) {
-      throw new OSecurityException("OSymmetricKey.create() Exception: " + ex);
+      throw new YTSecurityException("OSymmetricKey.create() Exception: " + ex);
     }
   }
 
@@ -231,7 +231,7 @@ public class OSymmetricKey {
           keyConfig.getKeystoreKeyAlias(),
           keyConfig.getKeystoreKeyPassword());
     } else {
-      throw new OSecurityException("OSymmetricKey(OSymmetricKeyConfig) Invalid configuration");
+      throw new YTSecurityException("OSymmetricKey(OSymmetricKeyConfig) Invalid configuration");
     }
   }
 
@@ -261,8 +261,8 @@ public class OSymmetricKey {
         }
       }
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.fromFile() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.fromFile() Exception: " + ex.getMessage()), ex);
     }
   }
 
@@ -275,8 +275,8 @@ public class OSymmetricKey {
     try {
       base64Key = OIOUtils.readStreamAsString(is);
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.fromStream() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.fromStream() Exception: " + ex.getMessage()), ex);
     }
 
     return new OSymmetricKey(algorithm, base64Key);
@@ -309,8 +309,9 @@ public class OSymmetricKey {
         }
       }
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.fromKeystore() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.fromKeystore() Exception: " + ex.getMessage()),
+          ex);
     }
   }
 
@@ -352,15 +353,16 @@ public class OSymmetricKey {
       KeyStore.SecretKeyEntry skEntry = (KeyStore.SecretKeyEntry) ks.getEntry(keyAlias, protParam);
 
       if (skEntry == null) {
-        throw new OSecurityException("SecretKeyEntry is null for key alias: " + keyAlias);
+        throw new YTSecurityException("SecretKeyEntry is null for key alias: " + keyAlias);
       }
 
       SecretKey secretKey = skEntry.getSecretKey();
 
       sk = new OSymmetricKey(secretKey);
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.fromKeystore() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.fromKeystore() Exception: " + ex.getMessage()),
+          ex);
     }
 
     return sk;
@@ -371,7 +373,7 @@ public class OSymmetricKey {
    */
   public String getBase64Key() {
     if (secretKey == null) {
-      throw new OSecurityException("OSymmetricKey.getBase64Key() SecretKey is null");
+      throw new YTSecurityException("OSymmetricKey.getBase64Key() SecretKey is null");
     }
 
     return convertToBase64(secretKey.getEncoded());
@@ -414,8 +416,8 @@ public class OSymmetricKey {
     try {
       return encrypt(value.getBytes(StandardCharsets.UTF_8));
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
     }
   }
 
@@ -431,8 +433,8 @@ public class OSymmetricKey {
     try {
       return encrypt(transform, value.getBytes(StandardCharsets.UTF_8));
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
     }
   }
 
@@ -457,10 +459,10 @@ public class OSymmetricKey {
     String encodedJSON = null;
 
     if (secretKey == null) {
-      throw new OSecurityException("OSymmetricKey.encrypt() SecretKey is null");
+      throw new YTSecurityException("OSymmetricKey.encrypt() SecretKey is null");
     }
     if (transform == null) {
-      throw new OSecurityException(
+      throw new YTSecurityException(
           "OSymmetricKey.encrypt() Cannot determine cipher transformation");
     }
 
@@ -483,8 +485,8 @@ public class OSymmetricKey {
 
       encodedJSON = encodeJSON(encrypted, initVector);
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
     }
 
     return encodedJSON;
@@ -542,8 +544,8 @@ public class OSymmetricKey {
       byte[] decrypted = decrypt(encodedJSON);
       return new String(decrypted, StandardCharsets.UTF_8);
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.decryptAsString() Exception: " + ex.getMessage()),
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.decryptAsString() Exception: " + ex.getMessage()),
           ex);
     }
   }
@@ -559,14 +561,14 @@ public class OSymmetricKey {
     byte[] result = null;
 
     if (encodedJSON == null) {
-      throw new OSecurityException("OSymmetricKey.decrypt(String) encodedJSON is null");
+      throw new YTSecurityException("OSymmetricKey.decrypt(String) encodedJSON is null");
     }
 
     try {
       byte[] decoded = convertFromBase64(encodedJSON);
 
       if (decoded == null) {
-        throw new OSecurityException(
+        throw new YTSecurityException(
             "OSymmetricKey.decrypt(String) encodedJSON could not be decoded");
       }
 
@@ -613,8 +615,8 @@ public class OSymmetricKey {
 
       result = cipher.doFinal(payload);
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.decrypt(String) Exception: " + ex.getMessage()),
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.decrypt(String) Exception: " + ex.getMessage()),
           ex);
     }
 
@@ -626,7 +628,7 @@ public class OSymmetricKey {
    */
   public void saveToStream(final OutputStream os) {
     if (os == null) {
-      throw new OSecurityException("OSymmetricKey.saveToStream() OutputStream is null");
+      throw new YTSecurityException("OSymmetricKey.saveToStream() OutputStream is null");
     }
 
     try {
@@ -642,8 +644,9 @@ public class OSymmetricKey {
         os.close();
       }
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.saveToStream() Exception: " + ex.getMessage()), ex);
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.saveToStream() Exception: " + ex.getMessage()),
+          ex);
     }
   }
 
@@ -653,16 +656,16 @@ public class OSymmetricKey {
   public void saveToKeystore(
       final OutputStream os, final String ksPasswd, final String keyAlias, final String keyPasswd) {
     if (os == null) {
-      throw new OSecurityException("OSymmetricKey.saveToKeystore() OutputStream is null");
+      throw new YTSecurityException("OSymmetricKey.saveToKeystore() OutputStream is null");
     }
     if (ksPasswd == null) {
-      throw new OSecurityException("OSymmetricKey.saveToKeystore() Keystore Password is required");
+      throw new YTSecurityException("OSymmetricKey.saveToKeystore() Keystore Password is required");
     }
     if (keyAlias == null) {
-      throw new OSecurityException("OSymmetricKey.saveToKeystore() Key Alias is required");
+      throw new YTSecurityException("OSymmetricKey.saveToKeystore() Key Alias is required");
     }
     if (keyPasswd == null) {
-      throw new OSecurityException("OSymmetricKey.saveToKeystore() Key Password is required");
+      throw new YTSecurityException("OSymmetricKey.saveToKeystore() Key Password is required");
     }
 
     try {
@@ -682,8 +685,8 @@ public class OSymmetricKey {
       // Save the KeyStore
       ks.store(os, ksPasswdCA);
     } catch (Exception ex) {
-      throw OException.wrapException(
-          new OSecurityException("OSymmetricKey.saveToKeystore() Exception: " + ex.getMessage()),
+      throw YTException.wrapException(
+          new YTSecurityException("OSymmetricKey.saveToKeystore() Exception: " + ex.getMessage()),
           ex);
     }
   }

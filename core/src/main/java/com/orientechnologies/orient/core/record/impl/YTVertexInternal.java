@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -572,10 +572,10 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
     final YTDocument baseDoc = getBaseDocument();
     var db = baseDoc.getSession();
     if (!db.getTransaction().isActive()) {
-      throw new ODatabaseException("This operation is allowed only inside a transaction");
+      throw new YTDatabaseException("This operation is allowed only inside a transaction");
     }
     if (checkDeletedInTx(getIdentity())) {
-      throw new ORecordNotFoundException(
+      throw new YTRecordNotFoundException(
           getIdentity(), "The vertex " + getIdentity() + " has been deleted");
     }
 
@@ -892,7 +892,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
         out = to;
         outType = YTType.LINK;
       } else {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Type of field provided in schema '"
                 + prop.getType()
                 + "' cannot be used for link creation.");
@@ -900,7 +900,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
 
     } else if (found instanceof YTIdentifiable foundId) {
       if (prop != null && propType == YTType.LINK) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Type of field provided in schema '"
                 + prop.getType()
                 + "' cannot be used for creation to hold several links.");
@@ -932,7 +932,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
       ((Collection<YTIdentifiable>) found).add(to);
 
     } else {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Relationship content is invalid on field " + fieldName + ". Found: " + found);
     }
 

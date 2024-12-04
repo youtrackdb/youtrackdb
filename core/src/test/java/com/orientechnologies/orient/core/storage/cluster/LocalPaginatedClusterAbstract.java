@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.cluster;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OHighLevelException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTHighLevelException;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
@@ -1722,7 +1722,7 @@ public abstract class LocalPaginatedClusterAbstract {
   }
 }
 
-final class RollbackException extends OException implements OHighLevelException {
+final class RollbackException extends YTException implements YTHighLevelException {
 
   public RollbackException() {
     super("");

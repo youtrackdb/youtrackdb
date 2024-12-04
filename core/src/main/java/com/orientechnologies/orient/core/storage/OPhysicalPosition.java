@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.storage;
 
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.serialization.OBinaryProtocol;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.io.Externalizable;
@@ -80,7 +80,7 @@ public class OPhysicalPosition implements OSerializableStream, Externalizable {
   }
 
   @Override
-  public OSerializableStream fromStream(final byte[] iStream) throws OSerializationException {
+  public OSerializableStream fromStream(final byte[] iStream) throws YTSerializationException {
     int pos = 0;
 
     clusterPosition = OBinaryProtocol.bytes2long(iStream);
@@ -98,7 +98,7 @@ public class OPhysicalPosition implements OSerializableStream, Externalizable {
   }
 
   @Override
-  public byte[] toStream() throws OSerializationException {
+  public byte[] toStream() throws YTSerializationException {
     final byte[] buffer = new byte[binarySize];
     int pos = 0;
 

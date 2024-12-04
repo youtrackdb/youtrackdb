@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -39,8 +39,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.parser.ODeleteStatement;
@@ -203,7 +203,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
 
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (query == null && indexName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -245,7 +245,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
               .getIndex(database, indexName)
               .getInternal();
       if (index == null) {
-        throw new OCommandExecutionException("Target index '" + indexName + "' not found");
+        throw new YTCommandExecutionException("Target index '" + indexName + "' not found");
       }
 
       OIndexAbstract.manualIndexesWarning();
@@ -357,13 +357,13 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
           if (cls.isSubClassOf("V"))
           // FOUND VERTEX
           {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "'DELETE' command cannot delete vertices. Use 'DELETE VERTEX' command instead, or"
                     + " apply the 'UNSAFE' keyword to force it");
           } else if (cls.isSubClassOf("E"))
           // FOUND EDGE
           {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "'DELETE' command cannot delete edges. Use 'DELETE EDGE' command instead, or"
                     + " apply the 'UNSAFE' keyword to force it");
           }
@@ -395,7 +395,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   /**
    * Parses the returning keyword if found.
    */
-  protected String parseReturn() throws OCommandSQLParsingException {
+  protected String parseReturn() throws YTCommandSQLParsingException {
     final String returning = parserNextWord(true);
 
     if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {

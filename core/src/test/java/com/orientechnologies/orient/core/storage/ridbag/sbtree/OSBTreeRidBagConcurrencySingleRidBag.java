@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -147,7 +147,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
             try {
               document.save();
-            } catch (OConcurrentModificationException e) {
+            } catch (YTConcurrentModificationException e) {
               continue;
             }
 
@@ -210,7 +210,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
             try {
               document.save();
-            } catch (OConcurrentModificationException e) {
+            } catch (YTConcurrentModificationException e) {
               continue;
             }
 

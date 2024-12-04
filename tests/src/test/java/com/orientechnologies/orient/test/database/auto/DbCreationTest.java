@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OCoreException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTCoreException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import java.io.File;
 import java.util.Locale;
 import org.testng.Assert;
@@ -212,7 +212,7 @@ public class DbCreationTest {
       try {
         youTrackDB.drop(dbName);
         Assert.fail();
-      } catch (OStorageException e) {
+      } catch (YTStorageException e) {
         // ignore
       }
 
@@ -236,7 +236,7 @@ public class DbCreationTest {
     try {
       youTrackDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
       Assert.fail();
-    } catch (OCoreException e) {
+    } catch (YTCoreException e) {
       // ignore all is correct
     }
 
@@ -250,7 +250,7 @@ public class DbCreationTest {
     try {
       youTrackDB.drop(DB_NAME + "Remove");
       Assert.fail();
-    } catch (OCoreException e) {
+    } catch (YTCoreException e) {
       // ignore all is correct
     }
   }

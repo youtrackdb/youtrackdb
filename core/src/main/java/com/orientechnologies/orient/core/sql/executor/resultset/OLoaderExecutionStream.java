@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -63,7 +63,7 @@ public final class OLoaderExecutionStream implements OExecutionStream {
             }
             nextResult = res;
             return;
-          } catch (ORecordNotFoundException e) {
+          } catch (YTRecordNotFoundException e) {
             return;
           }
         }

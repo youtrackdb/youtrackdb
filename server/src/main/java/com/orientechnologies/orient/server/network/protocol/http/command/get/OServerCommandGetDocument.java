@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -50,7 +50,7 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
     try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       try {
         rec = db.load(new YTRecordId(rid));
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,
             OHttpUtils.STATUS_NOTFOUND_DESCRIPTION,

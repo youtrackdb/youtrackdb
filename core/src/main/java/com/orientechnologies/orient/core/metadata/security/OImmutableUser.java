@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.metadata.security;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
@@ -69,14 +69,14 @@ public class OImmutableUser implements OSecurityUser {
       final String resourceSpecific,
       final int iOperation) {
     if (roles.isEmpty()) {
-      throw new OSecurityAccessException(name, "User '" + name + "' has no role defined");
+      throw new YTSecurityAccessException(name, "User '" + name + "' has no role defined");
     }
 
     final OSecurityRole role = checkIfAllowed(session, resourceGeneric, resourceSpecific,
         iOperation);
 
     if (role == null) {
-      throw new OSecurityAccessException(
+      throw new YTSecurityAccessException(
           name,
           "User '"
               + name

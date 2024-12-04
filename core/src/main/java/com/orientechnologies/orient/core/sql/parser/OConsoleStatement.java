@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class OConsoleStatement extends OSimpleExecStatement {
     } else if (logLevel.getStringValue().equalsIgnoreCase("debug")) {
       OLogManager.instance().debug(this, "%s", msg);
     } else {
-      throw new OCommandExecutionException("Unsupported log level: " + logLevel);
+      throw new YTCommandExecutionException("Unsupported log level: " + logLevel);
     }
 
     item.setProperty("operation", "console");

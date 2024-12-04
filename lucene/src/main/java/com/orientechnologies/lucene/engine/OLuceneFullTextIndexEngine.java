@@ -18,7 +18,7 @@ package com.orientechnologies.lucene.engine;
 
 import static com.orientechnologies.lucene.builder.OLuceneQueryBuilder.EMPTY_METADATA;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.builder.OLuceneDocumentBuilder;
@@ -36,9 +36,9 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.index.OIndexEngineException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
+import com.orientechnologies.orient.core.index.YTIndexEngineException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.sql.parser.ParseException;
@@ -260,7 +260,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
         return queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
       }
     } catch (final ParseException e) {
-      throw OException.wrapException(new OIndexEngineException("Error parsing query"), e);
+      throw YTException.wrapException(new YTIndexEngineException("Error parsing query"), e);
     }
   }
 
@@ -287,7 +287,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
         return getResults(query, commandContext, changes, EMPTY_METADATA);
       }
     } catch (ParseException e) {
-      throw OException.wrapException(new OIndexEngineException("Error parsing lucene query"), e);
+      throw YTException.wrapException(new YTIndexEngineException("Error parsing lucene query"), e);
     }
   }
 }

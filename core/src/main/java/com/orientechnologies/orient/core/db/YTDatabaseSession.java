@@ -19,16 +19,17 @@
  */
 package com.orientechnologies.orient.core.db;
 
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
-import com.orientechnologies.orient.core.command.script.OCommandScriptException;
+import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.exception.YTTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -41,7 +42,7 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTEdgeInternal;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Iterator;
@@ -252,7 +253,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * records that are not created or loaded by the session. Method returns bounded instance of given
    * record, usage of passed in instance is prohibited.
    * <p>
-   * Method throws {@link ORecordNotFoundException} if record does not exist in database or if
+   * Method throws {@link YTRecordNotFoundException} if record does not exist in database or if
    * record rid is temporary.
    * <p/>
    * You can verify if record already bound to the session by calling
@@ -266,8 +267,8 @@ public interface YTDatabaseSession extends AutoCloseable {
    *                     <b>prohibited</b> for further usage.
    * @param <T>          Type of record.
    * @return Bounded instance of given record.
-   * @throws ORecordNotFoundException if record does not exist in database
-   * @throws ODatabaseException       if the record rid is temporary
+   * @throws YTRecordNotFoundException if record does not exist in database
+   * @throws YTDatabaseException       if the record rid is temporary
    * @see YTRecord#isNotBound(YTDatabaseSession)
    * @see YTIdentifiable#getIdentity()
    * @see YTRID#isPersistent()
@@ -296,19 +297,19 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param id the id of the element to load
    * @return the loaded element
-   * @throws ODatabaseException                                                   if the record is
+   * @throws YTDatabaseException                                                   if the record is
    *                                                                              not an element
-   * @throws com.orientechnologies.orient.core.exception.ORecordNotFoundException if the record does
+   * @throws YTRecordNotFoundException if the record does
    *                                                                              not exist
    */
   @Nonnull
-  default YTEntity loadElement(YTRID id) throws ODatabaseException, ORecordNotFoundException {
+  default YTEntity loadElement(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
     var record = load(id);
     if (record instanceof YTEntity element) {
       return element;
     }
 
-    throw new ODatabaseException(
+    throw new YTDatabaseException(
         "Record with id " + id + " is not an element, but a " + record.getClass().getSimpleName());
   }
 
@@ -317,19 +318,19 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param id the id of the vertex to load
    * @return the loaded vertex
-   * @throws ODatabaseException                                                   if the record is
+   * @throws YTDatabaseException                                                   if the record is
    *                                                                              not a vertex
-   * @throws com.orientechnologies.orient.core.exception.ORecordNotFoundException if the record does
+   * @throws YTRecordNotFoundException if the record does
    *                                                                              not exist
    */
   @Nonnull
-  default YTVertex loadVertex(YTRID id) throws ODatabaseException, ORecordNotFoundException {
+  default YTVertex loadVertex(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
     var record = load(id);
     if (record instanceof YTVertex vertex) {
       return vertex;
     }
 
-    throw new ODatabaseException(
+    throw new YTDatabaseException(
         "Record with id " + id + " is not a vertex, but a " + record.getClass().getSimpleName());
   }
 
@@ -338,19 +339,19 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param id the id of the edge to load
    * @return the loaded edge
-   * @throws ODatabaseException                                                   if the record is
+   * @throws YTDatabaseException                                                   if the record is
    *                                                                              not an edge
-   * @throws com.orientechnologies.orient.core.exception.ORecordNotFoundException if the record does
+   * @throws YTRecordNotFoundException if the record does
    *                                                                              not exist
    */
   @Nonnull
-  default YTEdge loadEdge(YTRID id) throws ODatabaseException, ORecordNotFoundException {
+  default YTEdge loadEdge(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
     var record = load(id);
     if (record instanceof YTEdge edge) {
       return edge;
     }
 
-    throw new ODatabaseException(
+    throw new YTDatabaseException(
         "Record with id " + id + " is not an edge, but a " + record.getClass().getSimpleName());
   }
 
@@ -359,19 +360,19 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param id the id of the blob to load
    * @return the loaded blob
-   * @throws ODatabaseException                                                   if the record is
+   * @throws YTDatabaseException                                                   if the record is
    *                                                                              not a blob
-   * @throws com.orientechnologies.orient.core.exception.ORecordNotFoundException if the record does
+   * @throws YTRecordNotFoundException if the record does
    *                                                                              not exist
    */
   @Nonnull
-  default YTBlob loadBlob(YTRID id) throws ODatabaseException, ORecordNotFoundException {
+  default YTBlob loadBlob(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
     var record = load(id);
     if (record instanceof YTBlob blob) {
       return blob;
     }
 
-    throw new ODatabaseException(
+    throw new YTDatabaseException(
         "Record with id " + id + " is not a blob, but a " + record.getClass().getSimpleName());
   }
 
@@ -457,10 +458,10 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param className the class name
    * @return The object representing the class in the schema
-   * @throws OSchemaException if the class already exists or if V class is not defined (Eg. if it
+   * @throws YTSchemaException if the class already exists or if V class is not defined (Eg. if it
    *                          was deleted from the schema)
    */
-  default YTClass createVertexClass(String className) throws OSchemaException {
+  default YTClass createVertexClass(String className) throws YTSchemaException {
     return createClass(className, "V");
   }
 
@@ -469,7 +470,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param className the class name
    * @return The object representing the class in the schema
-   * @throws OSchemaException if the class already exists or if E class is not defined (Eg. if it
+   * @throws YTSchemaException if the class already exists or if E class is not defined (Eg. if it
    *                          was deleted from the schema)
    */
   default YTClass createEdgeClass(String className) {
@@ -486,7 +487,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param className the class name
    * @return The object representing the class in the schema
-   * @throws OSchemaException if the class already exists or if E class is not defined (Eg. if it
+   * @throws YTSchemaException if the class already exists or if E class is not defined (Eg. if it
    *                          was deleted from the schema)
    */
   default YTClass createLightweightEdgeClass(String className) {
@@ -500,10 +501,10 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param className    the class name
    * @param superclasses a list of superclasses for the class (can be empty)
    * @return the class with the given name
-   * @throws OSchemaException if one of the superclasses does not exist in the schema
+   * @throws YTSchemaException if one of the superclasses does not exist in the schema
    */
   default YTClass createClassIfNotExist(String className, String... superclasses)
-      throws OSchemaException {
+      throws YTSchemaException {
     YTSchema schema = getSchema();
     schema.reload();
 
@@ -640,7 +641,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param throwException If <code>true</code>
    *                       {@link
-   *                       com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException}
+   *                       YTModificationOperationProhibitedException}
    *                       exception will be thrown in case of write command will be performed.
    */
   void freeze(boolean throwException);
@@ -667,10 +668,10 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param className    the class name
    * @param superclasses a list of superclasses for the class (can be empty)
    * @return the class with the given name
-   * @throws OSchemaException if a class with this name already exists or if one of the superclasses
+   * @throws YTSchemaException if a class with this name already exists or if one of the superclasses
    *                          does not exist.
    */
-  default YTClass createClass(String className, String... superclasses) throws OSchemaException {
+  default YTClass createClass(String className, String... superclasses) throws YTSchemaException {
     YTSchema schema = getSchema();
     schema.reload();
     YTClass[] superclassInstances = null;
@@ -680,14 +681,14 @@ public interface YTDatabaseSession extends AutoCloseable {
         String superclass = superclasses[i];
         YTClass superclazz = schema.getClass(superclass);
         if (superclazz == null) {
-          throw new OSchemaException("Class " + superclass + " does not exist");
+          throw new YTSchemaException("Class " + superclass + " does not exist");
         }
         superclassInstances[i] = superclazz;
       }
     }
     YTClass result = schema.getClass(className);
     if (result != null) {
-      throw new OSchemaException("Class " + className + " already exists");
+      throw new YTSchemaException("Class " + className + " already exists");
     }
     if (superclassInstances == null) {
       return schema.createClass(className);
@@ -702,11 +703,11 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param className    the class name
    * @param superclasses a list of superclasses for the class (can be empty)
    * @return the class with the given name
-   * @throws OSchemaException if a class with this name already exists or if one of the superclasses
+   * @throws YTSchemaException if a class with this name already exists or if one of the superclasses
    *                          does not exist.
    */
   default YTClass createAbstractClass(String className, String... superclasses)
-      throws OSchemaException {
+      throws YTSchemaException {
     YTSchema schema = getSchema();
     schema.reload();
     YTClass[] superclassInstances = null;
@@ -716,14 +717,14 @@ public interface YTDatabaseSession extends AutoCloseable {
         String superclass = superclasses[i];
         YTClass superclazz = schema.getClass(superclass);
         if (superclazz == null) {
-          throw new OSchemaException("Class " + superclass + " does not exist");
+          throw new YTSchemaException("Class " + superclass + " does not exist");
         }
         superclassInstances[i] = superclazz;
       }
     }
     YTClass result = schema.getClass(className);
     if (result != null) {
-      throw new OSchemaException("Class " + className + " already exists");
+      throw new YTSchemaException("Class " + className + " already exists");
     }
     if (superclassInstances == null) {
       return schema.createAbstractClass(className);
@@ -737,7 +738,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param recordId The unique record id of the entity to load.
    * @return The loaded entity
-   * @throws com.orientechnologies.orient.core.exception.ORecordNotFoundException if record does not
+   * @throws YTRecordNotFoundException if record does not
    *                                                                              exist in database
    */
   @Nonnull
@@ -754,7 +755,7 @@ public interface YTDatabaseSession extends AutoCloseable {
   default <RET extends YTRecord> RET loadSilently(YTRID recordId) {
     try {
       return load(recordId);
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       return null;
     }
   }
@@ -814,13 +815,13 @@ public interface YTDatabaseSession extends AutoCloseable {
    * otherwise false. If false is returned, then there are still nested transaction that have to be
    * committed.
    */
-  boolean commit() throws OTransactionException;
+  boolean commit() throws YTTransactionException;
 
   /**
    * Aborts the current running transaction. All the pending changed entities will be restored in
    * the data store.
    */
-  void rollback() throws OTransactionException;
+  void rollback() throws YTTransactionException;
 
   /**
    * Executes an SQL query. The result set has to be closed after usage <br>
@@ -836,7 +837,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @return the query result set
    */
   default OResultSet query(String query, Object... args)
-      throws OCommandSQLParsingException, OCommandExecutionException {
+      throws YTCommandSQLParsingException, YTCommandExecutionException {
     throw new UnsupportedOperationException();
   }
 
@@ -856,7 +857,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @return the query result set
    */
   default OResultSet query(String query, Map args)
-      throws OCommandSQLParsingException, OCommandExecutionException {
+      throws YTCommandSQLParsingException, YTCommandExecutionException {
     throw new UnsupportedOperationException();
   }
 
@@ -874,7 +875,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @return the query result set
    */
   default OResultSet command(String query, Object... args)
-      throws OCommandSQLParsingException, OCommandExecutionException {
+      throws YTCommandSQLParsingException, YTCommandExecutionException {
     throw new UnsupportedOperationException();
   }
 
@@ -894,7 +895,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @return
    */
   default OResultSet command(String query, Map args)
-      throws OCommandSQLParsingException, OCommandExecutionException {
+      throws YTCommandSQLParsingException, YTCommandExecutionException {
     throw new UnsupportedOperationException();
   }
 
@@ -917,7 +918,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @return
    */
   default OResultSet execute(String language, String script, Object... args)
-      throws OCommandExecutionException, OCommandScriptException {
+      throws YTCommandExecutionException, YTCommandScriptException {
     throw new UnsupportedOperationException();
   }
 
@@ -943,7 +944,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @return
    */
   default OResultSet execute(String language, String script, Map<String, ?> args)
-      throws OCommandExecutionException, OCommandScriptException {
+      throws YTCommandExecutionException, YTCommandScriptException {
     throw new UnsupportedOperationException();
   }
 

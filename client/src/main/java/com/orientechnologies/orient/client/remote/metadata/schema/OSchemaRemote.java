@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
@@ -87,7 +87,7 @@ public class OSchemaRemote extends OSchemaShared {
       YTClass... superClasses) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
@@ -106,7 +106,7 @@ public class OSchemaRemote extends OSchemaShared {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key)) {
-        throw new OSchemaException("Class '" + className + "' already exists in current database");
+        throw new YTSchemaException("Class '" + className + "' already exists in current database");
       }
 
       checkClustersAreAbsent(clusterIds);
@@ -181,7 +181,7 @@ public class OSchemaRemote extends OSchemaShared {
       YTClass... superClasses) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
@@ -200,7 +200,7 @@ public class OSchemaRemote extends OSchemaShared {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
       if (classes.containsKey(key)) {
-        throw new OSchemaException("Class '" + className + "' already exists in current database");
+        throw new YTSchemaException("Class '" + className + "' already exists in current database");
       }
 
       StringBuilder cmd = new StringBuilder("create class ");
@@ -265,7 +265,7 @@ public class OSchemaRemote extends OSchemaShared {
   public YTView createView(YTDatabaseSessionInternal database, OViewConfig cfg) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(cfg.getName());
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid view name found. Character '"
               + wrongCharacter
               + "' cannot be used in view name '"
@@ -281,7 +281,7 @@ public class OSchemaRemote extends OSchemaShared {
 
       final String key = cfg.getName().toLowerCase(Locale.ENGLISH);
       if (views.containsKey(key)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "View '" + cfg.getName() + "' already exists in current database");
       }
 
@@ -325,7 +325,7 @@ public class OSchemaRemote extends OSchemaShared {
       Map<String, Object> metadata) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
     if (wrongCharacter != null) {
-      throw new OSchemaException(
+      throw new YTSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in view name '"
@@ -341,7 +341,7 @@ public class OSchemaRemote extends OSchemaShared {
 
       final String key = name.toLowerCase(Locale.ENGLISH);
       if (views.containsKey(key)) {
-        throw new OSchemaException("View '" + name + "' already exists in current database");
+        throw new YTSchemaException("View '" + name + "' already exists in current database");
       }
 
       String cmd = "create view " + '`' + name + '`' + " FROM (" + statement + ") ";
@@ -382,7 +382,7 @@ public class OSchemaRemote extends OSchemaShared {
       }
 
       if (clustersToClasses.containsKey(clusterId)) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to class "
@@ -410,11 +410,11 @@ public class OSchemaRemote extends OSchemaShared {
       YTClass cls = classes.get(key);
 
       if (cls == null) {
-        throw new OSchemaException("Class '" + className + "' was not found in current database");
+        throw new YTSchemaException("Class '" + className + "' was not found in current database");
       }
 
       if (!cls.getSubclasses().isEmpty()) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "Class '"
                 + className
                 + "' cannot be dropped because it has sub classes "
@@ -453,11 +453,11 @@ public class OSchemaRemote extends OSchemaShared {
       YTClass cls = views.get(key);
 
       if (cls == null) {
-        throw new OSchemaException("View '" + name + "' was not found in current database");
+        throw new YTSchemaException("View '" + name + "' was not found in current database");
       }
 
       if (!cls.getSubclasses().isEmpty()) {
-        throw new OSchemaException(
+        throw new YTSchemaException(
             "View '"
                 + name
                 + "' cannot be dropped because it has sub classes "
@@ -489,7 +489,7 @@ public class OSchemaRemote extends OSchemaShared {
 
   @Override
   public void checkEmbedded() {
-    throw new OSchemaException(
+    throw new YTSchemaException(
         "'Internal' schema modification methods can be used only inside of embedded database");
   }
 
@@ -502,12 +502,13 @@ public class OSchemaRemote extends OSchemaShared {
 
   @Override
   public int addBlobCluster(YTDatabaseSessionInternal database, int clusterId) {
-    throw new OSchemaException(
+    throw new YTSchemaException(
         "Not supported operation use instead YTDatabaseSession.addBlobCluster");
   }
 
   @Override
   public void removeBlobCluster(YTDatabaseSessionInternal database, String clusterName) {
-    throw new OSchemaException("Not supported operation use instead YTDatabaseSession.dropCluster");
+    throw new YTSchemaException(
+        "Not supported operation use instead YTDatabaseSession.dropCluster");
   }
 }

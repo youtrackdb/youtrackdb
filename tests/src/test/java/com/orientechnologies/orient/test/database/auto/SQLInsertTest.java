@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
@@ -439,7 +439,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     }
   }
 
-  @Test(expectedExceptions = OValidationException.class)
+  @Test(expectedExceptions = YTValidationException.class)
   public void insertSelectFromProjection() {
     database.command("CREATE CLASS ProjectedInsert").close();
     database.command("CREATE property ProjectedInsert.a Integer (max 3)").close();

@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -115,7 +115,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         }
       }
     } else {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "The '" + storageMode + "' storage mode does not exists.");
     }
     return false;
@@ -293,7 +293,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     json.writeAttribute(3, true, "clusterSelection", cls.getClusterSelection().getName());
     try {
       json.writeAttribute(3, false, "records", db.countClass(cls.getName()));
-    } catch (OSecurityAccessException e) {
+    } catch (YTSecurityAccessException e) {
       json.writeAttribute(3, false, "records", "? (Unauthorized)");
     }
 

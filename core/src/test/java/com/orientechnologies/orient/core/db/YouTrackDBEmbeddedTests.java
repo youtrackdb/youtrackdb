@@ -12,8 +12,8 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OStorageDoesNotExistException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTStorageDoesNotExistException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -71,7 +71,7 @@ public class YouTrackDBEmbeddedTests {
     }
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testEmbeddedDoubleCreate() {
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
@@ -210,7 +210,7 @@ public class YouTrackDBEmbeddedTests {
     }
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testUseAfterCloseCreate() {
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
@@ -218,7 +218,7 @@ public class YouTrackDBEmbeddedTests {
     youTrackDb.create("test", ODatabaseType.MEMORY);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testUseAfterCloseOpen() {
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
@@ -226,7 +226,7 @@ public class YouTrackDBEmbeddedTests {
     youTrackDb.open("testUseAfterCloseOpen", "", "");
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testUseAfterCloseList() {
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
@@ -234,7 +234,7 @@ public class YouTrackDBEmbeddedTests {
     youTrackDb.list();
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testUseAfterCloseExists() {
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
@@ -242,7 +242,7 @@ public class YouTrackDBEmbeddedTests {
     youTrackDb.exists("");
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testUseAfterCloseOpenPoolInternal() {
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
@@ -250,7 +250,7 @@ public class YouTrackDBEmbeddedTests {
     youTrackDb.openPool("", "", "", YouTrackDBConfig.defaultConfig());
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testUseAfterCloseDrop() {
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
@@ -593,7 +593,7 @@ public class YouTrackDBEmbeddedTests {
     youTrackDB.close();
   }
 
-  @Test(expected = OStorageDoesNotExistException.class)
+  @Test(expected = YTStorageDoesNotExistException.class)
   public void testOpenNotExistDatabase() {
     try (YouTrackDB youTrackDB =
         new YouTrackDB(

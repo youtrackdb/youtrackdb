@@ -20,13 +20,13 @@
 
 package com.orientechnologies.orient.core.compression;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.compression.impl.OGZIPCompression;
 import com.orientechnologies.orient.core.compression.impl.OHighZIPCompression;
 import com.orientechnologies.orient.core.compression.impl.OLowZIPCompression;
 import com.orientechnologies.orient.core.compression.impl.ONothingCompression;
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -75,11 +75,12 @@ public class OCompressionFactory {
           compression.configure(iOptions);
 
         } catch (Exception e) {
-          throw OException.wrapException(
-              new OSecurityException("Cannot instantiate compression algorithm '" + name + "'"), e);
+          throw YTException.wrapException(
+              new YTSecurityException("Cannot instantiate compression algorithm '" + name + "'"),
+              e);
         }
       } else {
-        throw new OSecurityException("Compression with name '" + name + "' is absent");
+        throw new YTSecurityException("Compression with name '" + name + "' is absent");
       }
     }
     return compression;

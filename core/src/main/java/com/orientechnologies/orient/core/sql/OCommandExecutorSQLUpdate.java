@@ -28,26 +28,26 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.query.OQuery;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
 import com.orientechnologies.orient.core.sql.parser.OUpdateStatement;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -297,7 +297,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (subjectName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -327,7 +327,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       // locks by result(doc)
       try {
         result(querySession, doc);
-      } catch (ORecordDuplicatedException e) {
+      } catch (YTRecordDuplicatedException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
@@ -335,7 +335,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         } else {
           throw e;
         }
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
@@ -343,7 +343,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         } else {
           throw e;
         }
-      } catch (OConcurrentModificationException e) {
+      } catch (YTConcurrentModificationException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
@@ -365,7 +365,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     final YTDocument record = ((YTIdentifiable) iRecord).getRecord();
 
     if (updateEdge && !isRecordInstanceOf(iRecord, "E")) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Using UPDATE EDGE on a record that is not an instance of E");
     }
     if (compiledFilter != null) {
@@ -479,11 +479,11 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
   private void validateOutInForEdge(YTDocument record, Object currentOut, Object currentIn) {
     if (!isRecordInstanceOf(currentOut, "V")) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
     if (!isRecordInstanceOf(currentIn, "V")) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
   }
@@ -570,7 +570,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   /**
    * Parses the returning keyword if found.
    */
-  protected void parseReturn() throws OCommandSQLParsingException {
+  protected void parseReturn() throws YTCommandSQLParsingException {
     parserNextWord(false, " ");
     String mode = parserGetLastWord().trim();
 
@@ -684,7 +684,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         } else if (entry.getValue() instanceof Number) {
           current = (Number) entry.getValue();
         } else {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Increment value is not a number (" + entry.getValue() + ")");
         }
 
@@ -765,7 +765,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         }
       } else {
         if (!(value instanceof YTIdentifiable)) {
-          throw new OCommandExecutionException("Only links or records can be added to LINKBAG");
+          throw new YTCommandExecutionException("Only links or records can be added to LINKBAG");
         }
 
         bag.add((YTIdentifiable) value);
@@ -791,7 +791,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
                 && (property.getType() != null
                 && (!property.getType().equals(YTType.EMBEDDEDMAP)
                 && !property.getType().equals(YTType.LINKMAP)))) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "field " + entry.getKey() + " is not defined as a map");
             }
           }
@@ -812,7 +812,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
             if (property != null
                 && property.getType().equals(YTType.LINKMAP)
                 && !(value instanceof YTIdentifiable)) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "field " + entry.getKey() + " defined of type LINKMAP accept only link values");
             }
           }
@@ -888,7 +888,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
   private boolean removeSingleValueFromBag(ORidBag bag, Object value, YTDocument record) {
     if (!(value instanceof YTIdentifiable)) {
-      throw new OCommandExecutionException("Only links or records can be removed from LINKBAG");
+      throw new YTCommandExecutionException("Only links or records can be removed from LINKBAG");
     }
 
     bag.remove((YTIdentifiable) value);

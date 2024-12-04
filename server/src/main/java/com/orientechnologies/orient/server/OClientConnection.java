@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
-import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
@@ -175,7 +175,7 @@ public class OClientConnection {
       byte[] tokenFromNetwork, OTokenHandler handler, ONetworkProtocolBinary protocol) {
     if (tokenFromNetwork == null || tokenFromNetwork.length == 0) {
       if (!protocols.contains(protocol)) {
-        throw new OTokenSecurityException("No valid session found, provide a token");
+        throw new YTTokenSecurityException("No valid session found, provide a token");
       }
     } else {
       // IF the byte from the network are the same of the one i have a don't check them
@@ -193,19 +193,19 @@ public class OClientConnection {
           token = handler.parseOnlyBinary(tokenFromNetwork);
         }
       } catch (Exception e) {
-        throw OException.wrapException(new OSystemException("Error on token parse"), e);
+        throw YTException.wrapException(new YTSystemException("Error on token parse"), e);
       }
 
       if (token == null || !handler.validateBinaryToken(token)) {
         cleanSession();
         protocol.getServer().getClientConnectionManager().disconnect(this);
-        throw new OTokenSecurityException(
+        throw new YTTokenSecurityException(
             "The token provided is not a valid token, signature does not match");
       }
       if (!handler.validateBinaryToken(token)) {
         cleanSession();
         protocol.getServer().getClientConnectionManager().disconnect(this);
-        throw new OTokenSecurityException("The token provided is expired");
+        throw new YTTokenSecurityException("The token provided is expired");
       }
       if (tokenBased == null) {
         tokenBased = Boolean.TRUE;
@@ -252,7 +252,7 @@ public class OClientConnection {
       data = server.getTokenHandler().getProtocolDataFromToken(this, token.getToken());
 
       if (data == null) {
-        throw new OTokenSecurityException("missing in token data");
+        throw new YTTokenSecurityException("missing in token data");
       }
 
       final String db = token.getToken().getDatabase();

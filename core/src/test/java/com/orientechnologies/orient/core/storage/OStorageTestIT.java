@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -103,7 +103,7 @@ public class OStorageTestIT {
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
-    } catch (OStorageException e) {
+    } catch (YTStorageException e) {
       youTrackDB.close();
       youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
       youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
@@ -166,7 +166,7 @@ public class OStorageTestIT {
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
-    } catch (OStorageException e) {
+    } catch (YTStorageException e) {
       youTrackDB.close();
       youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
       youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");

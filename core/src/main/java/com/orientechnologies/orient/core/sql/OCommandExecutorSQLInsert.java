@@ -28,15 +28,15 @@ import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
@@ -126,7 +126,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
         if (!unsafe && cls.isSubClassOf("E"))
         // FOUND EDGE
         {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "'INSERT' command cannot create Edges. Use 'CREATE EDGE' command instead, or apply"
                   + " the 'UNSAFE' keyword to force it");
         }
@@ -134,7 +134,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
         className = cls.getName();
         clazz = database.getMetadata().getSchema().getClass(className);
         if (clazz == null) {
-          throw new OQueryParsingException("Class '" + className + "' was not found");
+          throw new YTQueryParsingException("Class '" + className + "' was not found");
         }
       }
 
@@ -221,14 +221,14 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     final YTDatabaseSessionInternal database = getDatabase();
     if (newRecords == null && content == null && subQuery == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final OCommandParameters commandParameters = new OCommandParameters(iArgs);
     if (indexName != null) {
       if (newRecords == null) {
-        throw new OCommandExecutionException("No key/value found");
+        throw new YTCommandExecutionException("No key/value found");
       }
 
       OIndexAbstract.manualIndexesWarning();
@@ -236,7 +236,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       final OIndex index =
           database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
       if (index == null) {
-        throw new OCommandExecutionException("Target index '" + indexName + "' not found");
+        throw new YTCommandExecutionException("Target index '" + indexName + "' not found");
       }
 
       // BIND VALUES
@@ -470,19 +470,19 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       blockEnd += OStringSerializerHelper.getParameters(record, 0, -1, values);
 
       if (blockEnd == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Missed closed brace. Use " + getSyntax(), parserText, blockStart);
       }
 
       if (values.isEmpty()) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Set of values is empty. Example: ('Bill', 'Stuart', 300). Use " + getSyntax(),
             parserText,
             blockStart);
       }
 
       if (values.size() != fieldNames.size()) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Fields not match with values", parserText, blockStart);
       }
 
@@ -503,7 +503,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   /**
    * Parses the returning keyword if found.
    */
-  protected void parseReturn(Boolean subQueryExpected) throws OCommandSQLParsingException {
+  protected void parseReturn(Boolean subQueryExpected) throws YTCommandSQLParsingException {
     parserNextWord(false, " ");
     String returning = parserGetLastWord().trim();
     if (returning.startsWith("$") || returning.startsWith("@")) {

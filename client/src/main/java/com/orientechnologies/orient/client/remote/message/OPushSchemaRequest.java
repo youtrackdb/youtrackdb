@@ -2,10 +2,10 @@ package com.orientechnologies.orient.client.remote.message;
 
 import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_SCHEMA;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -31,7 +31,7 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
       schema.setup(session);
       channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, schema));
     } catch (IOException e) {
-      throw OException.wrapException(new ODatabaseException("Error on sending schema updates"),
+      throw YTException.wrapException(new YTDatabaseException("Error on sending schema updates"),
           e);
     }
   }

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.security;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
@@ -75,7 +75,7 @@ public class OTokenSignImpl implements OTokenSign {
       mac.init(keyProvider.getKey(header));
       return mac.doFinal(unsignedToken);
     } catch (Exception ex) {
-      throw OException.wrapException(new OSystemException("Error on token parsing"), ex);
+      throw YTException.wrapException(new YTSystemException("Error on token parsing"), ex);
     } finally {
       mac.reset();
     }
@@ -105,7 +105,8 @@ public class OTokenSignImpl implements OTokenSign {
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {
-      throw OException.wrapException(new OSystemException("Token signature cannot be verified"), e);
+      throw YTException.wrapException(new YTSystemException("Token signature cannot be verified"),
+          e);
     } finally {
       mac.reset();
     }

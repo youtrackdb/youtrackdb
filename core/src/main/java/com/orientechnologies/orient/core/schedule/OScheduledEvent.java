@@ -16,16 +16,16 @@
 
 package com.orientechnologies.orient.core.schedule;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.command.script.OCommandScriptException;
+import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExportException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -93,7 +93,7 @@ public class OScheduledEvent extends ODocumentWrapper {
   public OFunction getFunction(YTDatabaseSession session) {
     final OFunction fun = getFunctionSafe(session);
     if (fun == null) {
-      throw new OCommandScriptException("Function cannot be null");
+      throw new YTCommandScriptException("Function cannot be null");
     }
     return fun;
   }
@@ -312,7 +312,7 @@ public class OScheduledEvent extends ODocumentWrapper {
 
           // OK
           return true;
-        } catch (ONeedRetryException e) {
+        } catch (YTNeedRetryException e) {
           // CONCURRENT UPDATE, PROBABLY EXECUTED BY ANOTHER SERVER
           if (isEventAlreadyExecuted(db)) {
             break;
@@ -327,7 +327,7 @@ public class OScheduledEvent extends ODocumentWrapper {
                   event.nextExecutionId.get(),
                   retry);
 
-        } catch (ORecordNotFoundException e) {
+        } catch (YTRecordNotFoundException e) {
           OLogManager.instance()
               .info(
                   this,
@@ -377,7 +377,7 @@ public class OScheduledEvent extends ODocumentWrapper {
                 try {
                   eventDoc.field(PROP_STATUS, STATUS.WAITING);
                   eventDoc.save();
-                } catch (ONeedRetryException e) {
+                } catch (YTNeedRetryException e) {
                   eventDoc.unload();
                 } catch (Exception e) {
                   OLogManager.instance()
@@ -393,7 +393,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       final YTRecord rec;
       try {
         rec = event.getDocument(session).getIdentity().getRecord();
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         return true;
       }
 

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -77,7 +77,7 @@ public class YTSequenceCached extends YTSequence {
   @Override
   boolean updateParams(
       YTDocument document, YTSequence.CreateParams params, boolean executeViaDistributed)
-      throws ODatabaseException {
+      throws YTDatabaseException {
     boolean any = super.updateParams(document, params, executeViaDistributed);
     if (params.cacheSize != null && this.getCacheSize(document) != params.cacheSize) {
       this.setCacheSize(document, params.cacheSize);
@@ -100,7 +100,7 @@ public class YTSequenceCached extends YTSequence {
       setValue(document, start);
       allocateCache(document, cacheSize, orderType, limitValue);
     } else {
-      throw new OSequenceLimitReachedException("Limit reached");
+      throw new YTSequenceLimitReachedException("Limit reached");
     }
   }
 
@@ -116,7 +116,7 @@ public class YTSequenceCached extends YTSequence {
   }
 
   @Override
-  public long next() throws OSequenceLimitReachedException, ODatabaseException {
+  public long next() throws YTSequenceLimitReachedException, YTDatabaseException {
     checkSecurity();
     return nextWork();
   }
@@ -130,7 +130,7 @@ public class YTSequenceCached extends YTSequence {
   }
 
   @Override
-  public long nextWork() throws OSequenceLimitReachedException {
+  public long nextWork() throws YTSequenceLimitReachedException {
     return callRetry(
         (db, doc) -> {
           var orderType = getOrderType(doc);

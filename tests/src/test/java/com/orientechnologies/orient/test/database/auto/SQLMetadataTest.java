@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
@@ -75,7 +75,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
           .command(new OSQLSynchQuery<YTDocument>("select expand(indexes) from metadata:blaaa"))
           .execute(database);
       Assert.fail();
-    } catch (OQueryParsingException e) {
+    } catch (YTQueryParsingException e) {
     }
   }
 }

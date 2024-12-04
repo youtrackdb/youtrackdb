@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.Map;
 
 /**
@@ -62,8 +62,8 @@ public class OCommandExecutorSQLTransactional extends OCommandExecutorSQLDelegat
       if (txbegun) {
         database.rollback();
       }
-      throw OException.wrapException(
-          new OCommandExecutionException("Transactional command failed"), e);
+      throw YTException.wrapException(
+          new YTCommandExecutionException("Transactional command failed"), e);
     }
   }
 }

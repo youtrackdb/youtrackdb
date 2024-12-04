@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.server.tx;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
+import com.orientechnologies.orient.core.exception.YTTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -80,7 +80,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
               YTDocument updated;
               try {
                 updated = database.load(rid);
-              } catch (ORecordNotFoundException rnf) {
+              } catch (YTRecordNotFoundException rnf) {
                 updated = new YTDocument();
               }
 
@@ -125,7 +125,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             entry.record = rec;
             break;
           default:
-            throw new OTransactionException("Unrecognized tx command: " + recordStatus);
+            throw new YTTransactionException("Unrecognized tx command: " + recordStatus);
         }
 
         // PUT IN TEMPORARY LIST TO GET FETCHED AFTER ALL FOR CACHE
@@ -197,8 +197,8 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
       }
     } catch (Exception e) {
       rollback();
-      throw OException.wrapException(
-          new OSerializationException(
+      throw YTException.wrapException(
+          new YTSerializationException(
               "Cannot read transaction record from the network. Transaction aborted"),
           e);
     }
@@ -319,8 +319,8 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
         }
       }
 
-      throw OException.wrapException(
-          new ODatabaseException("Error on saving record " + record.getIdentity()), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Error on saving record " + record.getIdentity()), e);
     }
   }
 
@@ -378,8 +378,8 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
         }
       }
 
-      throw OException.wrapException(
-          new ODatabaseException("Error on saving record " + record.getIdentity()), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Error on saving record " + record.getIdentity()), e);
     }
   }
 

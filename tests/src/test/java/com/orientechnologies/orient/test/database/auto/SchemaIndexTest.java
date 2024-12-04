@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -76,7 +76,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
     try {
       database.getMetadata().getSchema().dropClass("SchemaSharedIndexSuperTest");
       Assert.fail();
-    } catch (OSchemaException e) {
+    } catch (YTSchemaException e) {
       Assert.assertTrue(
           e.getMessage()
               .startsWith(

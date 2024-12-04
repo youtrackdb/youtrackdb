@@ -6,7 +6,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -142,7 +142,8 @@ public class OArrayConcatExpression extends SimpleNode {
   public SimpleNode splitForAggregation(YTDatabaseSessionInternal session,
       AggregateProjectionSplit aggregateProj) {
     if (isAggregate(session)) {
-      throw new OCommandExecutionException("Cannot use aggregate functions in array concatenation");
+      throw new YTCommandExecutionException(
+          "Cannot use aggregate functions in array concatenation");
     } else {
       return this;
     }

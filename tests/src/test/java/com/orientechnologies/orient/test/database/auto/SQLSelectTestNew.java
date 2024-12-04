@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
@@ -627,7 +627,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     try {
       executeQuery("select from Profile order by name aaaa", database);
       Assert.fail();
-    } catch (OCommandSQLParsingException e) {
+    } catch (YTCommandSQLParsingException e) {
     }
   }
 

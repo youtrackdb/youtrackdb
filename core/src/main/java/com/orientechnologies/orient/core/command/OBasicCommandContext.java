@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import java.util.HashMap;
@@ -367,7 +367,7 @@ public class OBasicCommandContext implements OCommandContext {
           case RETURN:
             return false;
           case EXCEPTION:
-            throw new OTimeoutException("Command execution timeout exceed (" + timeoutMs + "ms)");
+            throw new YTTimeoutException("Command execution timeout exceed (" + timeoutMs + "ms)");
         }
       }
     } else if (parent != null)
@@ -456,7 +456,7 @@ public class OBasicCommandContext implements OCommandContext {
     }
 
     if (database == null && !(this instanceof OServerCommandContext)) {
-      throw new ODatabaseException("No database found in SQL context");
+      throw new YTDatabaseException("No database found in SQL context");
     }
 
     return database;

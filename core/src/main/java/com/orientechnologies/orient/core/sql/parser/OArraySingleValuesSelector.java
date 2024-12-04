@@ -6,7 +6,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -235,7 +235,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
         ((YTEntity) currentValue).removeProperty("" + val);
       }
     } else {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Trying to remove elements from "
               + currentValue
               + " ("

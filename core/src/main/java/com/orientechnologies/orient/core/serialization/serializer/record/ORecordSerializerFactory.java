@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.serialization.serializer.record;
 
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -54,7 +54,7 @@ public class ORecordSerializerFactory {
     defaultRecordSerializer =
         getFormat(YTGlobalConfiguration.DB_DOCUMENT_SERIALIZER.getValueAsString());
     if (defaultRecordSerializer == null) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Impossible to find serializer with name "
               + YTGlobalConfiguration.DB_DOCUMENT_SERIALIZER.getValueAsString());
     }

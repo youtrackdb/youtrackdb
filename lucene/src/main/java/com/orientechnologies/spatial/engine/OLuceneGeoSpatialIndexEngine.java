@@ -16,7 +16,7 @@ package com.orientechnologies.spatial.engine;
 
 import static com.orientechnologies.lucene.builder.OLuceneQueryBuilder.EMPTY_METADATA;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.index.OIndexEngineException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
+import com.orientechnologies.orient.core.index.YTIndexEngineException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -74,10 +74,11 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
         return newGeoSearch((Map<String, Object>) key, changes);
       }
     } catch (Exception e) {
-      if (e instanceof OException forward) {
+      if (e instanceof YTException forward) {
         throw forward;
       } else {
-        throw OException.wrapException(new OIndexEngineException("Error parsing lucene query"), e);
+        throw YTException.wrapException(new YTIndexEngineException("Error parsing lucene query"),
+            e);
       }
     }
 

@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.collection.OSortedMultiIterator;
 import com.orientechnologies.common.concur.resource.OSharedResource;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OProfiler;
@@ -39,14 +39,14 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -56,8 +56,8 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
-import com.orientechnologies.orient.core.index.OIndexEngineException;
 import com.orientechnologies.orient.core.index.OIndexInternal;
+import com.orientechnologies.orient.core.index.YTIndexEngineException;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClusters;
@@ -69,10 +69,10 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OFilterOptimizer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
@@ -575,7 +575,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       if (parsedTarget.getTargetIndex() != null) {
         searchInIndex();
       } else {
-        throw new OQueryParsingException(
+        throw new YTQueryParsingException(
             "No source found in query: specify class, cluster(s), index or single record(s). Use "
                 + getSyntax());
       }
@@ -609,7 +609,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     if (!(id instanceof YTRecord)) {
       try {
         record = getDatabase().load(id.getIdentity());
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         record = null;
       }
 
@@ -1121,7 +1121,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
         String projection = OStringSerializerHelper.smartTrim(projectionItem.trim(), true, true);
 
         if (projectionDefinition == null) {
-          throw new OCommandSQLParsingException(
+          throw new YTCommandSQLParsingException(
               "Projection not allowed with FLATTEN() and EXPAND() operators");
         }
 
@@ -1131,13 +1131,13 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
         if (words.size() > 1 && words.get(1).trim().equalsIgnoreCase(KEYWORD_AS)) {
           // FOUND AS, EXTRACT ALIAS
           if (words.size() < 3) {
-            throw new OCommandSQLParsingException("Found 'AS' without alias");
+            throw new YTCommandSQLParsingException("Found 'AS' without alias");
           }
 
           fieldName = words.get(2).trim();
 
           if (projectionDefinition.containsKey(fieldName)) {
-            throw new OCommandSQLParsingException(
+            throw new YTCommandSQLParsingException(
                 "Field '"
                     + fieldName
                     + "' is duplicated in current SELECT, choose a different name");
@@ -1182,7 +1182,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
           List<String> pars = OStringSerializerHelper.getParameters(projection);
           if (pars.size() != 1) {
-            throw new OCommandSQLParsingException(
+            throw new YTCommandSQLParsingException(
                 "EXPAND/FLATTEN operators expects the field name as parameter. Example EXPAND( out"
                     + " )");
           }
@@ -1284,7 +1284,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
   /**
    * Parses the fetchplan keyword if found.
    */
-  protected boolean parseFetchplan(final String w) throws OCommandSQLParsingException {
+  protected boolean parseFetchplan(final String w) throws YTCommandSQLParsingException {
     if (!w.equals(KEYWORD_FETCHPLAN)) {
       return false;
     }
@@ -1468,7 +1468,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
   /**
    * Parses the NOCACHE keyword if found.
    */
-  protected boolean parseNoCache(final String w) throws OCommandSQLParsingException {
+  protected boolean parseNoCache(final String w) throws YTCommandSQLParsingException {
     if (!w.equals(KEYWORD_NOCACHE)) {
       return false;
     }
@@ -1936,8 +1936,8 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
           break;
         } catch (final ExecutionException e) {
           OLogManager.instance().error(this, "Error on executing parallel query", e);
-          throw OException.wrapException(
-              new OCommandExecutionException("Error on executing parallel query"), e);
+          throw YTException.wrapException(
+              new YTCommandExecutionException("Error on executing parallel query"), e);
         }
       }
     }
@@ -2212,7 +2212,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
             cursor = operator.executeIndexQuery(context, index, keyParams, ascSortOrder);
 
-          } catch (OIndexEngineException e) {
+          } catch (YTIndexEngineException e) {
             throw e;
           } catch (Exception e) {
             OLogManager.instance()
@@ -2378,7 +2378,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
                 metricRecorder.recordInvolvedIndexesMetric(index);
               }
 
-            } catch (OIndexEngineException e) {
+            } catch (YTIndexEngineException e) {
               throw e;
             } catch (Exception e) {
               OLogManager.instance()
@@ -2720,7 +2720,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
         } else if (expandTarget instanceof OSQLFunctionRuntime
             && !hasFieldItemParams((OSQLFunctionRuntime) expandTarget)) {
           if (((OSQLFunctionRuntime) expandTarget).aggregateResults()) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Unsupported operation: aggregate function in expand(" + expandTarget + ")");
           } else {
             Object r = ((OSQLFunctionRuntime) expandTarget).execute(null, null, null, context);
@@ -2813,19 +2813,19 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
             .getIndex(database, parsedTarget.getTargetIndex());
 
     if (index == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Target index '" + parsedTarget.getTargetIndex() + "' not found");
     }
 
     boolean ascOrder = true;
     if (!orderedFields.isEmpty()) {
       if (orderedFields.size() != 1) {
-        throw new OCommandExecutionException("Index can be ordered only by key field");
+        throw new YTCommandExecutionException("Index can be ordered only by key field");
       }
 
       final String fieldName = orderedFields.get(0).getKey();
       if (!fieldName.equalsIgnoreCase("key")) {
-        throw new OCommandExecutionException("Index can be ordered only by key field");
+        throw new YTCommandExecutionException("Index can be ordered only by key field");
       }
 
       final String order = orderedFields.get(0).getValue();
@@ -2839,7 +2839,8 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
     if (compiledFilter != null && compiledFilter.getRootCondition() != null) {
       if (!"KEY".equalsIgnoreCase(compiledFilter.getRootCondition().getLeft().toString())) {
-        throw new OCommandExecutionException("'Key' field is required for queries against indexes");
+        throw new YTCommandExecutionException(
+            "'Key' field is required for queries against indexes");
       }
 
       final OQueryOperator indexOperator = compiledFilter.getRootCondition().getOperator();
@@ -2904,7 +2905,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
         final List<Object> values = new ArrayList<Object>(origValues.size());
         for (Object val : origValues) {
           if (index.getDefinition() instanceof OCompositeIndexDefinition) {
-            throw new OCommandExecutionException("Operator IN not supported yet.");
+            throw new YTCommandExecutionException("Operator IN not supported yet.");
           }
 
           val = getIndexKey(database, index.getDefinition(), val, context);

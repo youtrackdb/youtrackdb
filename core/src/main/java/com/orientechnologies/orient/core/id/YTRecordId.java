@@ -23,8 +23,8 @@ import com.orientechnologies.common.util.OPatternConst;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.serialization.OBinaryProtocol;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
@@ -308,12 +308,12 @@ public class YTRecordId implements YTRID {
   @Nonnull
   public <T extends YTRecord> T getRecord() {
     if (!isValid()) {
-      throw new ORecordNotFoundException(this);
+      throw new YTRecordNotFoundException(this);
     }
 
     final YTDatabaseSession db = ODatabaseRecordThreadLocal.instance().get();
     if (db == null) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "No database found in current thread local space. If you manually control databases over"
               + " threads assure to set the current database before to use it by calling:"
               + " ODatabaseRecordThreadLocal.instance().set(db);");
@@ -324,24 +324,24 @@ public class YTRecordId implements YTRID {
 
   private void checkClusterLimits() {
     if (clusterId < -2) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "RecordId cannot support negative cluster id. Found: " + clusterId);
     }
 
     if (clusterId > CLUSTER_MAX) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "RecordId cannot support cluster id major than 32767. Found: " + clusterId);
     }
   }
 
   protected void checkClusterLimits(int clusterId) {
     if (clusterId < -2) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "RecordId cannot support negative cluster id. Found: " + clusterId);
     }
 
     if (clusterId > CLUSTER_MAX) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "RecordId cannot support cluster id major than 32767. Found: " + clusterId);
     }
   }

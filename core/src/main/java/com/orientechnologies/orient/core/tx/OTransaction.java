@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -59,7 +59,7 @@ public interface OTransaction {
   void clearRecordEntries();
 
   @Nonnull
-  YTRecord loadRecord(YTRID rid) throws ORecordNotFoundException;
+  YTRecord loadRecord(YTRID rid) throws YTRecordNotFoundException;
 
   boolean exists(YTRID rid);
 

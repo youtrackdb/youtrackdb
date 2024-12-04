@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.serialization;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
@@ -93,7 +93,7 @@ public class OStreamableHelper {
         mem.close();
       }
     } else {
-      throw new OSerializationException("Object not supported: " + object);
+      throw new YTSerializationException("Object not supported: " + object);
     }
   }
 
@@ -114,8 +114,8 @@ public class OStreamableHelper {
           }
           ((OStreamable) object).fromStream(in);
         } catch (Exception e) {
-          OException.wrapException(
-              new OSerializationException("Cannot unmarshall object from distributed request"), e);
+          YTException.wrapException(
+              new YTSerializationException("Cannot unmarshall object from distributed request"), e);
         }
         break;
       case SERIALIZABLE:
@@ -139,8 +139,8 @@ public class OStreamableHelper {
           try {
             object = ois.readObject();
           } catch (ClassNotFoundException e) {
-            OException.wrapException(
-                new OSerializationException("Cannot unmarshall object from distributed request"),
+            YTException.wrapException(
+                new YTSerializationException("Cannot unmarshall object from distributed request"),
                 e);
           }
         } finally {
@@ -159,7 +159,7 @@ public class OStreamableHelper {
       case BOOLEAN:
         return in.readBoolean();
       default:
-        throw new OSerializationException("Object type not supported: " + objectType);
+        throw new YTSerializationException("Object type not supported: " + objectType);
     }
     return object;
   }

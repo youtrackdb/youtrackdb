@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -121,7 +121,7 @@ public class OTraverseExecutionPlanner {
       handleSubqueryAsTarget(result, target.getStatement(), ctx, profilingEnabled);
     } else if (target.getFunctionCall() != null) {
       //        handleFunctionCallAsTarget(result, target.getFunctionCall(), ctx);//TODO
-      throw new OCommandExecutionException("function call as target is not supported yet");
+      throw new YTCommandExecutionException("function call as target is not supported yet");
     } else if (target.getInputParam() != null) {
       handleInputParamAsTarget(result, target.getInputParam(), ctx, profilingEnabled);
     } else if (target.getIndex() != null) {
@@ -174,7 +174,7 @@ public class OTraverseExecutionPlanner {
       List<ORid> rids = new ArrayList<>();
       for (Object x : (Iterable) paramValue) {
         if (!(x instanceof YTIdentifiable)) {
-          throw new OCommandExecutionException("Cannot use colleciton as target: " + paramValue);
+          throw new YTCommandExecutionException("Cannot use colleciton as target: " + paramValue);
         }
         YTRID orid = ((YTIdentifiable) x).getIdentity();
 
@@ -190,7 +190,7 @@ public class OTraverseExecutionPlanner {
       }
       handleRidsAsTarget(result, rids, ctx, profilingEnabled);
     } else {
-      throw new OCommandExecutionException("Invalid target: " + paramValue);
+      throw new YTCommandExecutionException("Invalid target: " + paramValue);
     }
   }
 
@@ -208,13 +208,13 @@ public class OTraverseExecutionPlanner {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
-      throw new OCommandExecutionException("Index not found: " + indexName);
+      throw new YTCommandExecutionException("Index not found: " + indexName);
     }
 
     switch (indexIdentifier.getType()) {
       case INDEX:
         if (!index.supportsOrderedIterations()) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index " + indexName + " does not allow iteration without a condition");
         }
 
@@ -225,7 +225,7 @@ public class OTraverseExecutionPlanner {
       case VALUES:
       case VALUESASC:
         if (!index.supportsOrderedIterations()) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(
@@ -235,7 +235,7 @@ public class OTraverseExecutionPlanner {
         break;
       case VALUESDESC:
         if (!index.supportsOrderedIterations()) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Index " + indexName + " does not allow iteration on values");
         }
         result.chain(
@@ -301,7 +301,7 @@ public class OTraverseExecutionPlanner {
         clusterId = db.getClusterIdByName(cluster.getClusterName());
       }
       if (clusterId == null) {
-        throw new OCommandExecutionException("Cluster " + cluster + " does not exist");
+        throw new YTCommandExecutionException("Cluster " + cluster + " does not exist");
       }
       FetchFromClusterExecutionStep step =
           new FetchFromClusterExecutionStep(clusterId, ctx, profilingEnabled);
@@ -320,7 +320,7 @@ public class OTraverseExecutionPlanner {
           clusterId = db.getClusterIdByName(cluster.getClusterName());
         }
         if (clusterId == null) {
-          throw new OCommandExecutionException("Cluster " + cluster + " does not exist");
+          throw new YTCommandExecutionException("Cluster " + cluster + " does not exist");
         }
         clusterIds[i] = clusterId;
       }

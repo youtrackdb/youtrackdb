@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.encryption.impl;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
+import com.orientechnologies.orient.core.exception.YTInvalidStorageEncryptionKeyException;
 import javax.crypto.Cipher;
 
 /**
@@ -39,8 +39,8 @@ public abstract class OAbstractEncryption implements OEncryption {
     try {
       return encryptOrDecrypt(Cipher.ENCRYPT_MODE, content, offset, length);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OInvalidStorageEncryptionKeyException("Cannot encrypt content"), e);
+      throw YTException.wrapException(
+          new YTInvalidStorageEncryptionKeyException("Cannot encrypt content"), e);
     }
   }
 
@@ -49,8 +49,8 @@ public abstract class OAbstractEncryption implements OEncryption {
     try {
       return encryptOrDecrypt(Cipher.DECRYPT_MODE, content, offset, length);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OInvalidStorageEncryptionKeyException("Cannot decrypt content"), e);
+      throw YTException.wrapException(
+          new YTInvalidStorageEncryptionKeyException("Cannot decrypt content"), e);
     }
   }
 }

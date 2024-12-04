@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -180,8 +180,8 @@ public class OServerConfigurationManager {
         try {
           configuration = configurationLoader.load();
         } catch (IOException e) {
-          throw OException.wrapException(
-              new OConfigurationException("Cannot load server configuration"), e);
+          throw YTException.wrapException(
+              new YTConfigurationException("Cannot load server configuration"), e);
         }
       }
     }

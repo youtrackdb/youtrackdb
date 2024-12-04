@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 
@@ -46,8 +46,8 @@ public class OSTGeomFromTextFunction extends OSQLFunctionAbstract {
       return factory.toDoc(geom);
     } catch (Exception e) {
       e.printStackTrace();
-      throw OException.wrapException(
-          new OCommandExecutionException(String.format("Cannot parse geometry {%s}", geom)), e);
+      throw YTException.wrapException(
+          new YTCommandExecutionException(String.format("Cannot parse geometry {%s}", geom)), e);
     }
   }
 

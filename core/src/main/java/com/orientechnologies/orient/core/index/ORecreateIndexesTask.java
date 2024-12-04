@@ -212,7 +212,7 @@ public class ORecreateIndexesTask implements Runnable {
 
     if (indexType == null) {
       OLogManager.instance().error(this, "Index type is null, will process other record", null);
-      throw new OIndexException(
+      throw new YTIndexException(
           "Index type is null, will process other record. Index configuration: " + idx);
     }
     OIndexMetadata m = OIndexAbstract.loadMetadataFromDoc(idx);

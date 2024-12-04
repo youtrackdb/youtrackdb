@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
@@ -45,7 +45,7 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
     serializer =
         (OBinarySerializer<T>) OBinarySerializerFactory.getInstance().getObjectSerializer(iId);
     if (serializer == null) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Runtime index definition cannot find binary serializer with id="
               + iId
               + ". Assure to plug custom serializer into the server.");
@@ -112,7 +112,7 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
         (OBinarySerializer<T>)
             OBinarySerializerFactory.getInstance().getObjectSerializer(keySerializerId);
     if (serializer == null) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Runtime index definition cannot find binary serializer with id="
               + keySerializerId
               + ". Assure to plug custom serializer into the server.");
@@ -123,7 +123,7 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
 
   public Object getDocumentValueToIndex(
       YTDatabaseSessionInternal session, final YTDocument iDocument) {
-    throw new OIndexException("This method is not supported in given index definition.");
+    throw new YTIndexException("This method is not supported in given index definition.");
   }
 
   @Override

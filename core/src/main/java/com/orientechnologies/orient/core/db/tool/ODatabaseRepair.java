@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -151,7 +151,7 @@ public class ODatabaseRepair extends ODatabaseTool {
         if (id.isPersistent()) {
           try {
             final YTRecord connected = ((YTIdentifiable) fieldValue).getRecord();
-          } catch (ORecordNotFoundException rnf) {
+          } catch (YTRecordNotFoundException rnf) {
             return true;
           }
         } else {

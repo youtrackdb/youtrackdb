@@ -16,7 +16,7 @@ import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import java.util.ArrayList;
 import org.junit.Test;
@@ -391,7 +391,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     }
   }
 
-  @Test(expected = ORecordDuplicatedException.class)
+  @Test(expected = YTRecordDuplicatedException.class)
   public void testDuplicateIndexTx() {
     db.begin();
 

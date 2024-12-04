@@ -37,7 +37,7 @@ import com.orientechnologies.orient.core.command.script.transformer.OScriptTrans
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.function.OFunctionUtilWrapper;
 import com.orientechnologies.orient.core.sql.OSQLScriptEngine;
@@ -194,7 +194,7 @@ public class OScriptManager {
       final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(fName);
 
       if (f.getLanguage(db) == null) {
-        throw new OConfigurationException("Database function '" + fName + "' has no language");
+        throw new YTConfigurationException("Database function '" + fName + "' has no language");
       }
 
       if (f.getLanguage(db).equalsIgnoreCase(iLanguage)) {
@@ -220,14 +220,14 @@ public class OScriptManager {
 
   public ScriptEngine getEngine(final String iLanguage) {
     if (iLanguage == null) {
-      throw new OCommandScriptException("No language was specified");
+      throw new YTCommandScriptException("No language was specified");
     }
 
     final String lang = iLanguage.toLowerCase(Locale.ENGLISH);
 
     final ScriptEngineFactory scriptEngineFactory = engines.get(lang);
     if (scriptEngineFactory == null) {
-      throw new OCommandScriptException(
+      throw new YTCommandScriptException(
           "Unsupported language: "
               + iLanguage
               + ". Supported languages are: "
@@ -384,7 +384,7 @@ public class OScriptManager {
     }
 
     if (errorLineNumber <= 0) {
-      throw new OCommandScriptException(
+      throw new YTCommandScriptException(
           "Error on evaluation of the script library. Error: "
               + e.getMessage()
               + "\nScript library was:\n"
@@ -431,7 +431,7 @@ public class OScriptManager {
         scanner.close();
       }
 
-      throw new OCommandScriptException(code.toString());
+      throw new YTCommandScriptException(code.toString());
     }
   }
 

@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.OLiveQueryClientListener;
 import com.orientechnologies.orient.client.remote.ORemoteQueryResult;
@@ -30,7 +30,7 @@ import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
-import com.orientechnologies.orient.core.command.script.OCommandScriptException;
+import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
@@ -44,8 +44,8 @@ import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
@@ -146,7 +146,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     } catch (Exception t) {
       ODatabaseRecordThreadLocal.instance().remove();
 
-      throw OException.wrapException(new ODatabaseException("Error on opening database "), t);
+      throw YTException.wrapException(new YTDatabaseException("Error on opening database "), t);
     }
   }
 
@@ -261,15 +261,15 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
       // WAKE UP LISTENERS
       callOnOpenListeners();
 
-    } catch (OException e) {
+    } catch (YTException e) {
       close();
       ODatabaseRecordThreadLocal.instance().remove();
       throw e;
     } catch (Exception e) {
       close();
       ODatabaseRecordThreadLocal.instance().remove();
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database url=" + getURL()), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Cannot open database url=" + getURL()), e);
     }
   }
 
@@ -432,7 +432,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   @Override
   public OResultSet execute(String language, String script, Object... args)
-      throws OCommandExecutionException, OCommandScriptException {
+      throws YTCommandExecutionException, YTCommandScriptException {
     checkOpenness();
     checkAndSendTransaction();
     ORemoteQueryResult result = storage.execute(this, language, script, args);
@@ -446,7 +446,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   @Override
   public OResultSet execute(String language, String script, Map<String, ?> args)
-      throws OCommandExecutionException, OCommandScriptException {
+      throws YTCommandExecutionException, YTCommandScriptException {
     checkOpenness();
     checkAndSendTransaction();
 
@@ -642,8 +642,8 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
       return storage.recordExists(this, rid);
     } catch (Exception t) {
-      throw OException.wrapException(
-          new ODatabaseException(
+      throw YTException.wrapException(
+          new YTDatabaseException(
               "Error on retrieving record "
                   + rid
                   + " (cluster: "
@@ -668,7 +668,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   public void delete(final YTRecord record) {
     checkOpenness();
     if (record == null) {
-      throw new ODatabaseException("Cannot delete null document");
+      throw new YTDatabaseException("Cannot delete null document");
     }
     if (record instanceof YTVertex) {
       YTVertexInternal.deleteLinks((YTVertex) record);
@@ -680,12 +680,12 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
     try {
       currentTx.deleteRecord((YTRecordAbstract) record);
-    } catch (OException e) {
+    } catch (YTException e) {
       throw e;
     } catch (Exception e) {
       if (record instanceof YTDocument) {
-        throw OException.wrapException(
-            new ODatabaseException(
+        throw YTException.wrapException(
+            new YTDatabaseException(
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
@@ -693,8 +693,8 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
                     + "'"),
             e);
       } else {
-        throw OException.wrapException(
-            new ODatabaseException("Error on deleting record " + record.getIdentity()), e);
+        throw YTException.wrapException(
+            new YTDatabaseException("Error on deleting record " + record.getIdentity()), e);
       }
     }
   }
@@ -767,8 +767,9 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     try {
       return storage.getClusterRecordsSizeByName(clusterName);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Error on reading records size for cluster '" + clusterName + "'"),
+      throw YTException.wrapException(
+          new YTDatabaseException(
+              "Error on reading records size for cluster '" + clusterName + "'"),
           e);
     }
   }
@@ -832,8 +833,8 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     try {
       return storage.getClusterRecordsSizeById(clusterId);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException(
+      throw YTException.wrapException(
+          new YTDatabaseException(
               "Error on reading records size for cluster with id '" + clusterId + "'"),
           e);
     }
@@ -941,7 +942,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     checkIfActive();
 
     if (this.isClosed()) {
-      throw new ODatabaseException("Cannot reload a closed db");
+      throw new YTDatabaseException("Cannot reload a closed db");
     }
     metadata.reload();
     storage.reload(this);
@@ -1020,7 +1021,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     if (currentTx.isActive()) {
       return (OTransactionOptimisticClient) currentTx;
     } else {
-      throw new ODatabaseException("No active transaction found");
+      throw new YTDatabaseException("No active transaction found");
     }
   }
 

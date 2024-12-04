@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntryImpl;
 import com.orientechnologies.orient.core.storage.cache.OCachePointer;
@@ -115,7 +115,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
     fileId = checkFileIdCompatibility(fileId, storageId);
 
     if (deletedFiles.contains(fileId)) {
-      throw new OStorageException("File with id " + fileId + " is deleted.");
+      throw new YTStorageException("File with id " + fileId + " is deleted.");
     }
     final FileChanges changesContainer =
         fileChanges.computeIfAbsent(fileId, k -> new FileChanges());
@@ -159,7 +159,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
     fileId = checkFileIdCompatibility(fileId, storageId);
 
     if (deletedFiles.contains(fileId)) {
-      throw new OStorageException("File with id " + fileId + " is deleted.");
+      throw new YTStorageException("File with id " + fileId + " is deleted.");
     }
 
     final FileChanges changesContainer = fileChanges.get(fileId);
@@ -238,7 +238,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
     fileId = checkFileIdCompatibility(fileId, storageId);
 
     if (deletedFiles.contains(fileId)) {
-      throw new OStorageException("File with id " + fileId + " is deleted.");
+      throw new YTStorageException("File with id " + fileId + " is deleted.");
     }
 
     final FileChanges changesContainer =
@@ -278,7 +278,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
     final OCacheEntryChanges real = (OCacheEntryChanges) cacheEntry;
 
     if (deletedFiles.contains(cacheEntry.getFileId())) {
-      throw new OStorageException("File with id " + cacheEntry.getFileId() + " is deleted.");
+      throw new YTStorageException("File with id " + cacheEntry.getFileId() + " is deleted.");
     }
 
     if (cacheEntry.getCachePointer().getBuffer() != null) {
@@ -292,7 +292,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
   public long filledUpTo(long fileId) {
     fileId = checkFileIdCompatibility(fileId, storageId);
     if (deletedFiles.contains(fileId)) {
-      throw new OStorageException("File with id " + fileId + " is deleted.");
+      throw new YTStorageException("File with id " + fileId + " is deleted.");
     }
     final FileChanges changesContainer = fileChanges.get(fileId);
     return internalFilledUpTo(fileId, changesContainer);
@@ -333,7 +333,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
   @Override
   public long addFile(final String fileName) {
     if (newFileNamesId.containsKey(fileName)) {
-      throw new OStorageException("File with name " + fileName + " already exists.");
+      throw new YTStorageException("File with name " + fileName + " already exists.");
     }
     final long fileId;
     final boolean isNew;
@@ -408,7 +408,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
     }
 
     if (deletedFiles.contains(fileId)) {
-      throw new OStorageException("File with id " + fileId + " was deleted.");
+      throw new YTStorageException("File with id " + fileId + " was deleted.");
     }
 
     return writeCache.fileNameById(fileId);
@@ -538,7 +538,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
                   fileId, pageIndex, writeCache, filePageChanges.verifyCheckSum, startLSN);
           if (cacheEntry == null) {
             if (!filePageChanges.isNew) {
-              throw new OStorageException(
+              throw new YTStorageException(
                   "Page with index " + pageIndex + " is not found in file with id " + fileId);
             }
             do {

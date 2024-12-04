@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Collection;
 import java.util.Map;
 
@@ -18,13 +18,13 @@ public class ORecordSerializerNetworkDistributed extends ORecordSerializerNetwor
     if (!link.getIdentity().isPersistent()) {
       try {
         link = link.getRecord();
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         // IGNORE IT
       }
     }
 
     if (!link.getIdentity().isPersistent() && !link.getIdentity().isTemporary()) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Found not persistent link with no connected record, probably missing save `"
               + link.getIdentity()
               + "` ");

@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClassDescendentOrder;
@@ -37,8 +37,8 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -389,9 +389,9 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
    *
    * @param w
    * @return the limit found as integer, or -1 if no limit is found. -1 means no limits.
-   * @throws OCommandSQLParsingException if no valid limit has been found
+   * @throws YTCommandSQLParsingException if no valid limit has been found
    */
-  protected int parseLimit(final String w) throws OCommandSQLParsingException {
+  protected int parseLimit(final String w) throws YTCommandSQLParsingException {
     if (!w.equals(KEYWORD_LIMIT)) {
       return -1;
     }
@@ -421,9 +421,9 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
    *
    * @param w
    * @return the skip found as integer, or -1 if no skip is found. -1 means no skip.
-   * @throws OCommandSQLParsingException if no valid skip has been found
+   * @throws YTCommandSQLParsingException if no valid skip has been found
    */
-  protected int parseSkip(final String w) throws OCommandSQLParsingException {
+  protected int parseSkip(final String w) throws YTCommandSQLParsingException {
     if (!w.equals(KEYWORD_SKIP) && !w.equals(KEYWORD_OFFSET)) {
       return -1;
     }
@@ -574,7 +574,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
     final IntOpenHashSet clusterIds = new IntOpenHashSet();
     for (String clusterName : parsedTarget.getTargetClusters().keySet()) {
       if (clusterName == null || clusterName.isEmpty()) {
-        throw new OCommandExecutionException("No cluster or schema class selected in query");
+        throw new YTCommandExecutionException("No cluster or schema class selected in query");
       }
 
       database.checkSecurity(
@@ -586,7 +586,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
         // GET THE CLUSTER NUMBER
         for (int clusterId : OStringSerializerHelper.splitIntArray(clusterName)) {
           if (clusterId == -1) {
-            throw new OCommandExecutionException("Cluster '" + clusterName + "' not found");
+            throw new YTCommandExecutionException("Cluster '" + clusterName + "' not found");
           }
 
           clusterIds.add(clusterId);
@@ -595,7 +595,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
         // GET THE CLUSTER NUMBER BY THE CLASS NAME
         final int clusterId = database.getClusterIdByName(clusterName.toLowerCase(Locale.ENGLISH));
         if (clusterId == -1) {
-          throw new OCommandExecutionException("Cluster '" + clusterName + "' not found");
+          throw new YTCommandExecutionException("Cluster '" + clusterName + "' not found");
         }
 
         clusterIds.add(clusterId);

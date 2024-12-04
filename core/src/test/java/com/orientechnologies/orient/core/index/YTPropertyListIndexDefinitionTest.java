@@ -59,7 +59,7 @@ public class YTPropertyListIndexDefinitionTest extends DBTestBase {
     try {
       propertyIndex.createValue(db, Collections.singletonList("tt"));
       Assert.fail();
-    } catch (OIndexException x) {
+    } catch (YTIndexException x) {
 
     }
   }
@@ -118,7 +118,7 @@ public class YTPropertyListIndexDefinitionTest extends DBTestBase {
     Assert.assertEquals(result, 12);
   }
 
-  @Test(expected = OIndexException.class)
+  @Test(expected = YTIndexException.class)
   public void testCreateSingleValueWrongParameter() {
     propertyIndex.createSingleValue(db, "tt");
   }

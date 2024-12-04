@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -29,7 +29,7 @@ public class UpsertStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     var prev = this.prev;
     assert prev != null;
 
@@ -59,7 +59,7 @@ public class UpsertStep extends AbstractExecutionStep {
               .getClassByClusterId(clusterId);
       doc = new YTDocument(clazz);
     } else {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute UPSERT on target '" + commandTarget + "'");
     }
 
@@ -76,7 +76,7 @@ public class UpsertStep extends AbstractExecutionStep {
       return;
     }
     if (flattened.size() > 1) {
-      throw new OCommandExecutionException("Cannot UPSERT on OR conditions");
+      throw new YTCommandExecutionException("Cannot UPSERT on OR conditions");
     }
     OAndBlock andCond = flattened.get(0);
     for (OBooleanExpression condition : andCond.getSubBlocks()) {

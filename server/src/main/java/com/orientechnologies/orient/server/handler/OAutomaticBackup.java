@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -100,7 +100,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
 
         final File f = new File(OSystemVariableResolver.resolveSystemVariables(configFile));
         if (!f.exists()) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Automatic Backup configuration file '"
                   + configFile
                   + "' not found. Automatic Backup will be disabled");
@@ -138,7 +138,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
 
     if (enabled) {
       if (delay <= 0) {
-        throw new OConfigurationException("Cannot find mandatory parameter 'delay'");
+        throw new YTConfigurationException("Cannot find mandatory parameter 'delay'");
       }
       if (!targetDirectory.endsWith("/")) {
         targetDirectory += "/";
@@ -147,7 +147,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       final File filePath = new File(targetDirectory);
       if (filePath.exists()) {
         if (!filePath.isDirectory()) {
-          throw new OConfigurationException("Parameter 'path' points to a file, not a directory");
+          throw new YTConfigurationException("Parameter 'path' points to a file, not a directory");
         }
       } else {
         // CREATE BACKUP FOLDER(S) IF ANY
@@ -289,8 +289,8 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
         configuration = new YTDocument();
         configuration.fromJSON(configurationContent);
       } catch (IOException e) {
-        throw OException.wrapException(
-            new OConfigurationException(
+        throw YTException.wrapException(
+            new YTConfigurationException(
                 "Cannot load Automatic Backup configuration file '"
                     + configFile
                     + "'. Automatic Backup will be disabled"),
@@ -307,8 +307,8 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
         OLogManager.instance()
             .info(this, "Automatic Backup: migrated configuration to file '%s'", f);
       } catch (IOException e) {
-        throw OException.wrapException(
-            new OConfigurationException(
+        throw YTException.wrapException(
+            new YTConfigurationException(
                 "Cannot create Automatic Backup configuration file '"
                     + configFile
                     + "'. Automatic Backup will be disabled"),
@@ -339,8 +339,8 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
             firstTime = cal.getTime();
           }
         } catch (ParseException e) {
-          throw OException.wrapException(
-              new OConfigurationException(
+          throw YTException.wrapException(
+              new YTConfigurationException(
                   "Parameter 'firstTime' has invalid format, expected: HH:mm:ss"),
               e);
         }

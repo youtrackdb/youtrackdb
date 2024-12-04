@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.functions.sql;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -27,7 +27,7 @@ public class OSqlUpdateContentValidationTest extends DBTestBase {
       db.command("update " + id + " CONTENT {\"testNormal\":\"by\"}").close();
       db.commit();
       Assert.fail("Error on update of a record removing a readonly property");
-    } catch (OValidationException val) {
+    } catch (YTValidationException val) {
 
     }
   }

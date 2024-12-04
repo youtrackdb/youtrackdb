@@ -21,14 +21,14 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations;
 
 import com.orientechnologies.common.concur.lock.OOneEntryPerKeyLockManager;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.function.TxConsumer;
 import com.orientechnologies.common.function.TxFunction;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OCoreException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTCoreException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.AtomicOperationIdGen;
@@ -80,7 +80,7 @@ public class OAtomicOperationsManager {
   public OAtomicOperation startAtomicOperation(final byte[] metadata) throws IOException {
     OAtomicOperation operation = currentOperation.get();
     if (operation != null) {
-      throw new OStorageException("Atomic operation already started");
+      throw new YTStorageException("Atomic operation already started");
     }
 
     atomicOperationsFreezer.startOperation();
@@ -117,8 +117,8 @@ public class OAtomicOperationsManager {
       return function.accept(atomicOperation);
     } catch (Exception e) {
       error = e;
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Exception during execution of atomic operation inside of storage "
                   + storage.getName()),
           e);
@@ -135,8 +135,8 @@ public class OAtomicOperationsManager {
       consumer.accept(atomicOperation);
     } catch (Exception e) {
       error = e;
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Exception during execution of atomic operation inside of storage "
                   + storage.getName()),
           e);
@@ -159,13 +159,13 @@ public class OAtomicOperationsManager {
     try {
       consumer.accept(atomicOperation);
     } catch (Exception e) {
-      if (e instanceof OCoreException coreException) {
+      if (e instanceof YTCoreException coreException) {
         coreException.setComponentName(lockName);
         coreException.setDbName(storage.getName());
       }
 
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Exception during execution of component operation inside component "
                   + lockName
                   + " in storage "
@@ -190,8 +190,8 @@ public class OAtomicOperationsManager {
     try {
       return function.accept(atomicOperation);
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OStorageException(
+      throw YTException.wrapException(
+          new YTStorageException(
               "Exception during execution of component operation inside of storage "
                   + storage.getName()),
           e);
@@ -222,7 +222,7 @@ public class OAtomicOperationsManager {
     }
   }
 
-  public long freezeAtomicOperations(Class<? extends OException> exceptionClass, String message) {
+  public long freezeAtomicOperations(Class<? extends YTException> exceptionClass, String message) {
     return atomicOperationsFreezer.freezeOperations(exceptionClass, message);
   }
 
@@ -242,7 +242,7 @@ public class OAtomicOperationsManager {
 
     if (operation == null) {
       OLogManager.instance().error(this, "There is no atomic operation active", null);
-      throw new ODatabaseException("There is no atomic operation active");
+      throw new YTDatabaseException("There is no atomic operation active");
     }
 
     try {

@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.IntStream;
@@ -88,7 +88,7 @@ public class CreateLightWeightEdgesSQLTest {
                               "create edge e from (select from v where id=1) to (select from v"
                                   + " where id=2) ");
                           session1.commit();
-                        } catch (OConcurrentModificationException e) {
+                        } catch (YTConcurrentModificationException e) {
                           // ignore
                         }
                       }

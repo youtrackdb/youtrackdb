@@ -4,7 +4,7 @@ import com.orientechnologies.common.util.OPairLongObject;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
@@ -156,7 +156,7 @@ public class OMatchExecutionPlanner {
         result.chain(new DistinctExecutionStep(context, enableProfiling));
       }
       if (groupBy != null) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Cannot execute GROUP BY in MATCH query with RETURN $elements, $pathElements, $patterns"
                 + " or $paths");
       }
@@ -229,13 +229,13 @@ public class OMatchExecutionPlanner {
       boolean enableProfiling) {
     for (OMatchExpression exp : notMatchExpressions) {
       if (pattern.aliasToNode.get(exp.getOrigin().getAlias()) == null) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "This kind of NOT expression is not supported (yet). "
                 + "The first alias in a NOT expression has to be present in the positive pattern");
       }
 
       if (exp.getOrigin().getFilter() != null) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "This kind of NOT expression is not supported (yet): "
                 + "WHERE condition on the initial alias");
         // TODO implement his
@@ -245,7 +245,7 @@ public class OMatchExecutionPlanner {
       List<AbstractExecutionStep> steps = new ArrayList<>();
       for (OMatchPathItem item : exp.getItems()) {
         if (item instanceof OMultiMatchPathItem) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "This kind of NOT expression is not supported (yet): " + item);
         }
         PatternEdge edge = new PatternEdge();
@@ -386,7 +386,7 @@ public class OMatchExecutionPlanner {
         // This means there must be a cycle in our dependency graph, or all dependency-free nodes
         // are optional.
         // Therefore, the query is invalid.
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "This query contains MATCH conditions that cannot be evaluated, "
                 + "like an undefined alias or a circular dependency on a $matched condition.");
       }
@@ -760,7 +760,7 @@ public class OMatchExecutionPlanner {
         } else {
           String lower = getLowerSubclass(context.getDatabase(), clazz, previousClass);
           if (lower == null) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "classes defined for alias "
                     + alias
                     + " ("
@@ -779,7 +779,7 @@ public class OMatchExecutionPlanner {
         if (previousCluster == null) {
           aliasClusters.put(alias, clusterName);
         } else if (!previousCluster.equalsIgnoreCase(clusterName)) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Invalid expression for alias "
                   + alias
                   + " cannot be of both clusters "
@@ -795,7 +795,7 @@ public class OMatchExecutionPlanner {
         if (previousRid == null) {
           aliasRids.put(alias, rid);
         } else if (!previousRid.equals(rid)) {
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Invalid expression for alias "
                   + alias
                   + " cannot be of both RIDs "
@@ -876,7 +876,7 @@ public class OMatchExecutionPlanner {
 
       if (className != null) {
         if (!schema.existsClass(className)) {
-          throw new OCommandExecutionException("class not defined: " + className);
+          throw new YTCommandExecutionException("class not defined: " + className);
         }
         YTClass oClass = schema.getClass(className);
         long upperBound;
@@ -889,7 +889,7 @@ public class OMatchExecutionPlanner {
         result.put(alias, upperBound);
       } else if (clusterName != null) {
         if (!db.existsCluster(clusterName)) {
-          throw new OCommandExecutionException("cluster not defined: " + clusterName);
+          throw new YTCommandExecutionException("cluster not defined: " + clusterName);
         }
         int clusterId = db.getClusterIdByName(clusterName);
         YTClass oClass = db.getMetadata().getSchema().getClassByClusterId(clusterId);

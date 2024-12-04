@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.enterprise.channel;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -86,10 +86,10 @@ public class OSocketFactory {
     try {
       if (keyStorePath != null && trustStorePath != null) {
         if (keyStorePassword == null || keyStorePassword.equals("")) {
-          throw new OConfigurationException("Please provide a keystore password");
+          throw new YTConfigurationException("Please provide a keystore password");
         }
         if (trustStorePassword == null || trustStorePassword.equals("")) {
-          throw new OConfigurationException("Please provide a truststore password");
+          throw new YTConfigurationException("Please provide a truststore password");
         }
 
         SSLContext context = SSLContext.getInstance("TLS");
@@ -119,8 +119,8 @@ public class OSocketFactory {
         return SSLContext.getDefault();
       }
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OConfigurationException("Failed to create ssl context"), e);
+      throw YTException.wrapException(
+          new YTConfigurationException("Failed to create ssl context"), e);
     }
   }
 

@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -116,7 +116,7 @@ public class GEOTest extends DocumentDBBaseTest {
     try {
       result.get(0).field("x", "--wrong--");
       Assert.fail();
-    } catch (ODatabaseException e) {
+    } catch (YTDatabaseException e) {
       Assert.assertTrue(true);
     }
 

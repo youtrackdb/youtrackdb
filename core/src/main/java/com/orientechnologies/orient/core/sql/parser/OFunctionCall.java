@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OFuncitonAggregationContext;
@@ -137,7 +137,7 @@ public class OFunctionCall extends SimpleNode {
       } else if (record == null) {
         paramValues.add(expr.execute((OResult) record, ctx));
       } else {
-        throw new OCommandExecutionException("Invalid value for $current: " + record);
+        throw new YTCommandExecutionException("Invalid value for $current: " + record);
       }
     }
     OSQLFunction function = OSQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
@@ -159,10 +159,10 @@ public class OFunctionCall extends SimpleNode {
       } else if (record == null) {
         return function.execute(targetObjects, null, null, paramValues.toArray(), ctx);
       } else {
-        throw new OCommandExecutionException("Invalid value for $current: " + record);
+        throw new YTCommandExecutionException("Invalid value for $current: " + record);
       }
     } else {
-      throw new OCommandExecutionException("Funciton not found: " + name);
+      throw new YTCommandExecutionException("Funciton not found: " + name);
     }
   }
 
@@ -178,7 +178,7 @@ public class OFunctionCall extends SimpleNode {
         } else {
           params = function.getMinParams() + "-" + function.getMaxParams(session);
         }
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "Syntax error: function '"
                 + function.getName(session)
                 + "' needs "
@@ -346,7 +346,7 @@ public class OFunctionCall extends SimpleNode {
         } else {
           for (OExpression param : params) {
             if (param.isAggregate(db)) {
-              throw new OCommandExecutionException(
+              throw new YTCommandExecutionException(
                   "Cannot calculate an aggregate function of another aggregate function " + this);
             }
             OIdentifier nextAlias = aggregateProj.getNextAlias();

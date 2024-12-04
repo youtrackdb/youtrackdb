@@ -19,13 +19,13 @@ package com.orientechnologies.lucene.engine;
 import static com.orientechnologies.lucene.analyzer.OLuceneAnalyzerFactory.AnalyzerKind.INDEX;
 import static com.orientechnologies.lucene.analyzer.OLuceneAnalyzerFactory.AnalyzerKind.QUERY;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.analyzer.OLuceneAnalyzerFactory;
 import com.orientechnologies.lucene.builder.OLuceneIndexType;
-import com.orientechnologies.lucene.exception.OLuceneIndexException;
+import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesMultiRid;
@@ -34,12 +34,12 @@ import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
@@ -356,8 +356,8 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
         deleteIndexFolder(storagePath);
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during deletion of Lucene index " + name), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during deletion of Lucene index " + name), e);
     }
   }
 
@@ -445,7 +445,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
             .error(
                 this,
                 "Error on deleting document by query '%s' to Lucene index",
-                new OIndexException("Error deleting document"),
+                new YTIndexException("Error deleting document"),
                 query);
       }
     } catch (IOException e) {
@@ -490,8 +490,8 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
       return searcherManager.acquire();
     } catch (Exception e) {
       OLogManager.instance().error(this, "Error on get searcher from Lucene index", e);
-      throw OException.wrapException(
-          new OLuceneIndexException("Error on get searcher from Lucene index"), e);
+      throw YTException.wrapException(
+          new YTLuceneIndexException("Error on get searcher from Lucene index"), e);
     }
   }
 

@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -326,7 +326,7 @@ public class OBaseExpression extends OMathExpression {
     if (identifier != null) {
       return identifier.getAggregationContext(ctx);
     } else {
-      throw new OCommandExecutionException("cannot aggregate on " + this);
+      throw new YTCommandExecutionException("cannot aggregate on " + this);
     }
   }
 

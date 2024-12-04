@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.serialization;
 
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import java.io.Serializable;
 
 /**
@@ -32,10 +32,10 @@ public interface OSerializableStream extends Serializable {
    * transferred over the network.
    *
    * @return The byte array representation of the object
-   * @throws OSerializationException if the marshalling does not succeed
+   * @throws YTSerializationException if the marshalling does not succeed
    * @see #fromStream(byte[])
    */
-  byte[] toStream() throws OSerializationException;
+  byte[] toStream() throws YTSerializationException;
 
   /**
    * Unmarshalls the object. Fills the current object with the values contained in the byte array
@@ -44,7 +44,7 @@ public interface OSerializableStream extends Serializable {
    * @param iStream byte array representation of the object
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
    * in chain.
-   * @throws OSerializationException if the unmarshalling does not succeed
+   * @throws YTSerializationException if the unmarshalling does not succeed
    */
-  OSerializableStream fromStream(byte[] iStream) throws OSerializationException;
+  OSerializableStream fromStream(byte[] iStream) throws YTSerializationException;
 }

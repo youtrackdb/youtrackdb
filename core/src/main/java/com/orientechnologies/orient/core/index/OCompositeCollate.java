@@ -58,7 +58,7 @@ public class OCompositeCollate implements OCollate {
     } else if (obj instanceof List) {
       keys = (List<Object>) obj;
     } else {
-      throw new OIndexException(
+      throw new YTIndexException(
           "Impossible add as key of a CompositeIndex a value of type " + obj.getClass());
     }
 

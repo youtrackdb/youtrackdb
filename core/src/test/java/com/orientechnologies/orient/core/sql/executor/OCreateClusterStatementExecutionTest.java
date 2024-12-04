@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class OCreateClusterStatementExecutionTest extends DBTestBase {
     try {
       db.command("create cluster " + clusterName);
       Assert.fail();
-    } catch (OCommandExecutionException ex) {
+    } catch (YTCommandExecutionException ex) {
 
     } catch (Exception e) {
       Assert.fail();

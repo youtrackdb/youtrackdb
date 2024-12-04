@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -105,7 +105,7 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
           var record = session.load(rid);
           //noinspection unchecked
           value = (T) record.getIdentity();
-        } catch (ORecordNotFoundException rnf) {
+        } catch (YTRecordNotFoundException rnf) {
           return value;
         }
       }

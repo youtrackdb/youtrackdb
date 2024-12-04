@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v3;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
+import com.orientechnologies.orient.core.exception.YTCommandInterruptedException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -54,7 +54,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
   private void rollbackTx() throws IOException {
     OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
     OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
-    manager.endAtomicOperation(new OCommandInterruptedException(""));
+    manager.endAtomicOperation(new YTCommandInterruptedException(""));
     Assert.assertNull(manager.getCurrentOperation());
   }
 

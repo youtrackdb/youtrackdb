@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.query;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.lucene.exception.OLuceneIndexException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
@@ -111,8 +111,8 @@ public class OLuceneQueryContext {
       return new MultiReader(
           searcher.getIndexReader(), luceneTxChanges.searcher().getIndexReader());
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OLuceneIndexException("unable to create reader on changes"), e);
+      throw YTException.wrapException(
+          new YTLuceneIndexException("unable to create reader on changes"), e);
     }
   }
 

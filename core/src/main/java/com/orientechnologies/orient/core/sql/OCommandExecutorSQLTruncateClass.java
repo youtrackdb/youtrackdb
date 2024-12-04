@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import java.io.IOException;
 import java.util.Collection;
@@ -65,21 +65,21 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
       if (pos == -1) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Expected class name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -87,7 +87,7 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
       schemaClass = database.getMetadata().getSchema().getClass(className);
 
       if (schemaClass == null) {
-        throw new OCommandSQLParsingException(
+        throw new YTCommandSQLParsingException(
             "Class '" + className + "' not found", parserText, oldPos);
       }
 
@@ -116,7 +116,7 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (schemaClass == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -124,11 +124,11 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
     final long recs = schemaClass.count(database, deep);
     if (recs > 0 && !unsafe) {
       if (schemaClass.isSubClassOf("V")) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'TRUNCATE CLASS' command cannot be used on not empty vertex classes. Apply the"
                 + " 'UNSAFE' keyword to force it (at your own risk)");
       } else if (schemaClass.isSubClassOf("E")) {
-        throw new OCommandExecutionException(
+        throw new YTCommandExecutionException(
             "'TRUNCATE CLASS' command cannot be used on not empty edge classes. Apply the 'UNSAFE'"
                 + " keyword to force it (at your own risk)");
       }
@@ -140,12 +140,12 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
         long subclassRecs = schemaClass.count(database);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "'TRUNCATE CLASS' command cannot be used on not empty vertex classes ("
                     + subclass.getName()
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
           } else if (subclass.isSubClassOf("E")) {
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "'TRUNCATE CLASS' command cannot be used on not empty edge classes ("
                     + subclass.getName()
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
@@ -162,8 +162,8 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
         }
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OCommandExecutionException("Error on executing command"), e);
+      throw YTException.wrapException(
+          new YTCommandExecutionException("Error on executing command"), e);
     }
 
     return recs;

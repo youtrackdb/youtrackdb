@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.operationsfreezer;
 
-import com.orientechnologies.common.concur.lock.OInterruptedException;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
+import com.orientechnologies.common.exception.YTException;
 import java.util.concurrent.CountDownLatch;
 
 final class WaitingListNode {
@@ -22,8 +22,8 @@ final class WaitingListNode {
     try {
       linkLatch.await();
     } catch (InterruptedException e) {
-      throw OException.wrapException(
-          new OInterruptedException(
+      throw YTException.wrapException(
+          new YTInterruptedException(
               "Thread was interrupted while was waiting for completion of 'waiting linked list'"
                   + " operation"),
           e);

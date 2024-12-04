@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 /**
  * Checks that all the records from the upstream are of a particular type (or subclasses). Throws
- * OCommandExecutionException in case it's not true
+ * YTCommandExecutionException in case it's not true
  */
 public class CheckRecordTypeStep extends AbstractExecutionStep {
 
@@ -22,7 +22,7 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     assert prev != null;
     OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
@@ -30,16 +30,16 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (!result.isElement()) {
-      throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);
+      throw new YTCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
     YTEntity doc = result.toElement();
     if (doc == null) {
-      throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);
+      throw new YTCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
     Optional<YTClass> schema = doc.getSchemaType();
 
     if (schema.isEmpty() || !schema.get().isSubClassOf(clazz)) {
-      throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);
+      throw new YTCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
     return result;
   }

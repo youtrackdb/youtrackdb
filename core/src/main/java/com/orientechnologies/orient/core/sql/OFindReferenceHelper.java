@@ -23,9 +23,9 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMap;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -114,7 +114,7 @@ public class OFindReferenceHelper {
     final YTClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
     if (clazz == null) {
-      throw new OCommandExecutionException("Class '" + iClassName + "' was not found");
+      throw new YTCommandExecutionException("Class '" + iClassName + "' was not found");
     }
 
     for (int i : clazz.getClusterIds()) {

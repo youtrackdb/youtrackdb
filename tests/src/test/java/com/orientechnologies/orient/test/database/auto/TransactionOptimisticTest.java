@@ -18,14 +18,14 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.tx.ORollbackException;
+import com.orientechnologies.orient.core.tx.YTRollbackException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -127,7 +127,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       Assert.fail();
 
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
       Assert.assertTrue(true);
       database.rollback();
 
@@ -422,7 +422,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       database.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
       database.rollback();
     }
 
@@ -452,7 +452,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       database.begin();
       Assert.fail();
-    } catch (ORollbackException e) {
+    } catch (YTRollbackException e) {
       database.rollback();
     }
 

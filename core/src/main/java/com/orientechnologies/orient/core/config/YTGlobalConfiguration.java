@@ -1198,7 +1198,7 @@ public enum YTGlobalConfiguration {
       "query.maxHeapElementsAllowedPerOp",
       "Maximum number of elements (records) allowed in a single query for memory-intensive"
           + " operations (eg. ORDER BY in heap). If exceeded, the query fails with an"
-          + " OCommandExecutionException. Negative number means no limit.This setting is intended"
+          + " YTCommandExecutionException. Negative number means no limit.This setting is intended"
           + " as a safety measure against excessive resource consumption from a single query (eg."
           + " prevent OutOfMemory)",
       Long.class,

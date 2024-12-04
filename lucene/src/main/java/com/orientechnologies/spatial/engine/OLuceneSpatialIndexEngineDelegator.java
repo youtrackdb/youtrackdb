@@ -14,7 +14,7 @@
  */
 package com.orientechnologies.spatial.engine;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
@@ -24,9 +24,9 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -136,8 +136,8 @@ public class OLuceneSpatialIndexEngineDelegator
     try {
       delegate.put(session, atomicOperation, key, value);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during insertion of key " + key + " in index " + indexName),
+      throw YTException.wrapException(
+          new YTIndexException("Error during insertion of key " + key + " in index " + indexName),
           e);
     }
   }
@@ -149,8 +149,8 @@ public class OLuceneSpatialIndexEngineDelegator
     try {
       delegate.update(session, atomicOperation, key, updater);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during update of key " + key + " in index " + indexName), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during update of key " + key + " in index " + indexName), e);
     }
   }
 
@@ -163,8 +163,8 @@ public class OLuceneSpatialIndexEngineDelegator
     try {
       return delegate.validatedPut(atomicOperation, key, value, validator);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during insertion of key " + key + " in index " + indexName),
+      throw YTException.wrapException(
+          new YTIndexException("Error during insertion of key " + key + " in index " + indexName),
           e);
     }
   }

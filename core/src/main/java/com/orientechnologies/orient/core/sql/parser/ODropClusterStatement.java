@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -37,7 +37,7 @@ public class ODropClusterStatement extends ODDLStatement {
         if (ifExists) {
           return OExecutionStream.empty();
         } else {
-          throw new OCommandExecutionException("Cluster not found: " + name);
+          throw new YTCommandExecutionException("Cluster not found: " + name);
         }
       }
     }
@@ -45,7 +45,7 @@ public class ODropClusterStatement extends ODDLStatement {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId) {
           // IN USE
-          throw new OCommandExecutionException(
+          throw new YTCommandExecutionException(
               "Cannot drop cluster "
                   + clusterId
                   + " because it's used by class "
@@ -60,7 +60,7 @@ public class ODropClusterStatement extends ODDLStatement {
       if (ifExists) {
         return OExecutionStream.empty();
       } else {
-        throw new OCommandExecutionException("Cluster not found: " + clusterId);
+        throw new YTCommandExecutionException("Cluster not found: " + clusterId);
       }
     }
 

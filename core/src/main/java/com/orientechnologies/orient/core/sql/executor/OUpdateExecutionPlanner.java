@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import com.orientechnologies.orient.core.sql.parser.OLimit;
 import com.orientechnologies.orient.core.sql.parser.OProjection;
@@ -205,7 +205,7 @@ public class OUpdateExecutionPlanner {
           case OUpdateOperations.TYPE_PUT:
           case OUpdateOperations.TYPE_INCREMENT:
           case OUpdateOperations.TYPE_ADD:
-            throw new OCommandExecutionException(
+            throw new YTCommandExecutionException(
                 "Cannot execute with UPDATE PUT/ADD/INCREMENT new executor: " + op);
         }
       }

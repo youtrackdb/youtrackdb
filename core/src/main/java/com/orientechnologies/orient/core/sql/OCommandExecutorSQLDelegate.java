@@ -22,11 +22,11 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
-import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.command.YTCommandExecutorNotFoundException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +51,7 @@ public class OCommandExecutorSQLDelegate extends OCommandExecutorSQLAbstract
 
       delegate = OSQLEngine.getInstance().getCommand(textUpperCase);
       if (delegate == null) {
-        throw new OCommandExecutorNotFoundException(
+        throw new YTCommandExecutorNotFoundException(
             "Cannot find a command executor for the command request: " + iCommand);
       }
 
@@ -64,7 +64,7 @@ public class OCommandExecutorSQLDelegate extends OCommandExecutorSQLAbstract
       }
 
     } else {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot find a command executor for the command request: " + iCommand);
     }
     return this;

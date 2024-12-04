@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
@@ -57,10 +57,10 @@ public class OLimit extends SimpleNode {
       if (paramValue instanceof Number) {
         return ((Number) paramValue).intValue();
       } else {
-        throw new OCommandExecutionException("Invalid value for LIMIT: " + paramValue);
+        throw new YTCommandExecutionException("Invalid value for LIMIT: " + paramValue);
       }
     }
-    throw new OCommandExecutionException("No value for LIMIT");
+    throw new YTCommandExecutionException("No value for LIMIT");
   }
 
   public OLimit copy() {

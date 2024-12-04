@@ -17,7 +17,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.method.OSQLMethod;
 
@@ -103,7 +103,7 @@ public abstract class OAbstractSQLMethod implements OSQLMethod {
     try {
       // SEARCH FOR FIELD
       return ((YTDocument) iRecord.getRecord()).field(iValue);
-    } catch (ORecordNotFoundException rnf) {
+    } catch (YTRecordNotFoundException rnf) {
       return null;
     }
   }

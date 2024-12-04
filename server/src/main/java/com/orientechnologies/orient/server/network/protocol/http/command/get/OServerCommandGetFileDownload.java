@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.common.util.OPatternConst;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -88,7 +88,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
             }
           }
         }
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         iResponse.send(
             OHttpUtils.STATUS_INVALIDMETHOD_CODE,
             "Record requested is not a file nor has a readable schema",

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.exception.OSchemaException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -98,7 +98,7 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   }
 
   @Test(
-      expected = OSchemaException.class) // , expectedExceptionsMessageRegExp = "(?s).*recursion.*"
+      expected = YTSchemaException.class) // , expectedExceptionsMessageRegExp = "(?s).*recursion.*"
   // )
   public void testPreventionOfCycles() {
     final YTSchema oSchema = db.getMetadata().getSchema();
@@ -121,7 +121,8 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   }
 
   @Test(
-      expected = OSchemaException.class) // }, expectedExceptionsMessageRegExp = "(?s).*conflict.*")
+      expected = YTSchemaException.class)
+  // }, expectedExceptionsMessageRegExp = "(?s).*conflict.*")
   public void testParametersImpactBadScenario() {
     final YTSchema oSchema = db.getMetadata().getSchema();
     YTClass aClass = oSchema.createAbstractClass("impactBadA");

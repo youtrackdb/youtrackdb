@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,7 +101,7 @@ public class OTraverse implements OCommand, Iterable<YTIdentifiable>, Iterator<Y
 
   public YTIdentifiable next() {
     if (Thread.interrupted()) {
-      throw new OCommandExecutionException("The traverse execution has been interrupted");
+      throw new YTCommandExecutionException("The traverse execution has been interrupted");
     }
 
     if (lastTraversed != null) {

@@ -35,7 +35,7 @@ import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.ArrayList;
@@ -91,7 +91,7 @@ public class IndexTest extends DocumentDBBaseTest {
       // IT SHOULD GIVE ERROR ON DUPLICATED KEY
       Assert.fail();
 
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
       Assert.assertTrue(true);
     }
   }
@@ -224,7 +224,7 @@ public class IndexTest extends DocumentDBBaseTest {
           .getProperty("nick")
           .createIndex(database, INDEX_TYPE.UNIQUE);
       Assert.fail();
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
       Assert.assertTrue(true);
     }
   }
@@ -756,7 +756,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       db.commit();
       Assert.fail();
-    } catch (ORecordDuplicatedException ignored) {
+    } catch (YTRecordDuplicatedException ignored) {
     }
 
     Assert.assertEquals(index.getInternal().size(database), 1);
@@ -797,7 +797,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       db.commit();
       Assert.fail();
-    } catch (ORecordDuplicatedException oie) {
+    } catch (YTRecordDuplicatedException oie) {
       db.rollback();
     }
 
@@ -837,7 +837,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       db.commit();
       Assert.fail();
-    } catch (ORecordDuplicatedException ignored) {
+    } catch (YTRecordDuplicatedException ignored) {
     }
 
     Assert.assertEquals(
@@ -881,7 +881,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       db.commit();
       Assert.fail();
-    } catch (ORecordDuplicatedException oie) {
+    } catch (YTRecordDuplicatedException oie) {
       db.rollback();
     }
 

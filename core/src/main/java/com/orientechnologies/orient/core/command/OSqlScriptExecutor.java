@@ -4,8 +4,8 @@ import com.orientechnologies.orient.core.command.script.OCommandExecutorFunction
 import com.orientechnologies.orient.core.command.script.OCommandFunction;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -34,7 +34,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
 
   @Override
   public OResultSet execute(YTDatabaseSessionInternal database, String script, Object... args)
-      throws OCommandSQLParsingException, OCommandExecutionException {
+      throws YTCommandSQLParsingException, YTCommandExecutionException {
 
     if (!script.trim().endsWith(";")) {
       script += ";";
@@ -99,7 +99,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
           if (((OCommitStatement) stm).getRetry() != null) {
             int nRetries = ((OCommitStatement) stm).getRetry().getValue().intValue();
             if (nRetries <= 0) {
-              throw new OCommandExecutionException("Invalid retry number: " + nRetries);
+              throw new YTCommandExecutionException("Invalid retry number: " + nRetries);
             }
 
             RetryStep step =

@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
@@ -67,13 +67,13 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testWrongPassword() throws IOException {
     try {
       database = createSessionInstance("reader", "swdsds");
-    } catch (OException e) {
+    } catch (YTException e) {
       Assert.assertTrue(
-          e instanceof OSecurityAccessException
+          e instanceof YTSecurityAccessException
               || e.getCause() != null
               && e.getCause()
               .toString()
-              .contains("com.orientechnologies.orient.core.exception.OSecurityAccessException"));
+              .contains("com.orientechnologies.orient.core.exception.YTSecurityAccessException"));
     }
   }
 
@@ -86,7 +86,7 @@ public class SecurityTest extends DocumentDBBaseTest {
       database.commit();
 
       Assert.fail();
-    } catch (OSecurityAccessException e) {
+    } catch (YTSecurityAccessException e) {
       Assert.assertTrue(true);
     } finally {
       database.close();
@@ -113,7 +113,7 @@ public class SecurityTest extends DocumentDBBaseTest {
               new Date())
           .save();
       database.commit();
-    } catch (OSecurityAccessException e) {
+    } catch (YTSecurityAccessException e) {
       Assert.assertTrue(true);
     } finally {
       database.close();
@@ -264,7 +264,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       database = createSessionInstance("noRole", "noRole");
       Assert.fail();
-    } catch (OSecurityAccessException e) {
+    } catch (YTSecurityAccessException e) {
       database = createSessionInstance();
       database.begin();
       security = database.getMetadata().getSecurity();
@@ -299,19 +299,19 @@ public class SecurityTest extends DocumentDBBaseTest {
 
     try {
       database.command(new OCommandSQL("select from ouser")).execute(database);
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
     }
 
     try {
       Assert.assertFalse(database.browseClass("OUser").hasNext());
       Assert.fail();
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
     }
 
     try {
       Assert.assertFalse(database.browseCluster("OUser").hasNext());
       Assert.fail();
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
     }
   }
 
@@ -326,7 +326,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       database.command(new OCommandSQL("alter class Protected superclass OUser")).execute(database);
       Assert.fail();
-    } catch (OSecurityException e) {
+    } catch (YTSecurityException e) {
     } finally {
       database.close();
 
@@ -359,7 +359,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (OValidationException ve) {
+      } catch (YTValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -383,7 +383,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (OValidationException ve) {
+      } catch (YTValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -407,7 +407,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (OValidationException ve) {
+      } catch (YTValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -429,7 +429,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (OValidationException ve) {
+      } catch (YTValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -453,7 +453,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (OValidationException ve) {
+      } catch (YTValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));

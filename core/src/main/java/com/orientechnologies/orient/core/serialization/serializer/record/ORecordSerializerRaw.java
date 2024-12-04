@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.record;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -75,7 +75,7 @@ public class ORecordSerializerRaw implements ORecordSerializer {
       final String message =
           "Error on unmarshalling object in binary format: " + iSource.getIdentity();
       OLogManager.instance().error(this, message, e);
-      throw OException.wrapException(new OSerializationException(message), e);
+      throw YTException.wrapException(new YTSerializationException(message), e);
     }
   }
 

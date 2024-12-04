@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -16,8 +16,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.storage.impl.local.OStorageRecoverEventListener;
 import java.util.Collection;
@@ -185,7 +185,7 @@ public class OGraphRepair {
                 YTDocument outVertex;
                 try {
                   outVertex = out.getRecord();
-                } catch (ORecordNotFoundException e) {
+                } catch (YTRecordNotFoundException e) {
                   outVertex = null;
                 }
 
@@ -229,7 +229,7 @@ public class OGraphRepair {
                 YTDocument inVertex;
                 try {
                   inVertex = in.getRecord();
-                } catch (ORecordNotFoundException e) {
+                } catch (YTRecordNotFoundException e) {
                   inVertex = null;
                 }
 
@@ -517,7 +517,7 @@ public class OGraphRepair {
       YTDocument record = null;
       try {
         record = edgeRID.getIdentity().getRecord();
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         broken = true;
       }
 

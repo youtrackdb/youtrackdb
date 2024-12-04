@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -90,7 +90,7 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
         } else {
           return null;
         }
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
     } else {
@@ -111,7 +111,7 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
         } else {
           return null;
         }
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
     } else {
@@ -139,7 +139,7 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
         } else {
           return null;
         }
-      } catch (ORecordNotFoundException e) {
+      } catch (YTRecordNotFoundException e) {
         return null;
       }
     } else {

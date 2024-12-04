@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import java.util.Set;
 
 /**
@@ -39,7 +39,7 @@ public interface OSQLFunctionFactory {
    *
    * @param name
    * @return OSQLFunction : created function
-   * @throws OCommandExecutionException : when function creation fail
+   * @throws YTCommandExecutionException : when function creation fail
    */
-  OSQLFunction createFunction(String name) throws OCommandExecutionException;
+  OSQLFunction createFunction(String name) throws YTCommandExecutionException;
 }

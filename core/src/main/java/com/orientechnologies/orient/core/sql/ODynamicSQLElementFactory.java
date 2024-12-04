@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
 import com.orientechnologies.orient.core.sql.operator.OQueryOperator;
@@ -54,11 +54,11 @@ public class ODynamicSQLElementFactory
     return FUNCTIONS.containsKey(name);
   }
 
-  public OSQLFunction createFunction(final String name) throws OCommandExecutionException {
+  public OSQLFunction createFunction(final String name) throws YTCommandExecutionException {
     final Object obj = FUNCTIONS.get(name);
 
     if (obj == null) {
-      throw new OCommandExecutionException("Unknown function name :" + name);
+      throw new YTCommandExecutionException("Unknown function name :" + name);
     }
 
     if (obj instanceof OSQLFunction) {
@@ -69,8 +69,8 @@ public class ODynamicSQLElementFactory
       try {
         return (OSQLFunction) clazz.newInstance();
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OCommandExecutionException(
+        throw YTException.wrapException(
+            new YTCommandExecutionException(
                 "Error in creation of function "
                     + name
                     + "(). Probably there is not an empty constructor or the constructor generates"
@@ -85,18 +85,18 @@ public class ODynamicSQLElementFactory
   }
 
   public OCommandExecutorSQLAbstract createCommand(final String name)
-      throws OCommandExecutionException {
+      throws YTCommandExecutionException {
     final Class<? extends OCommandExecutorSQLAbstract> clazz = COMMANDS.get(name);
 
     if (clazz == null) {
-      throw new OCommandExecutionException("Unknown command name :" + name);
+      throw new YTCommandExecutionException("Unknown command name :" + name);
     }
 
     try {
       return clazz.newInstance();
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OCommandExecutionException(
+      throw YTException.wrapException(
+          new YTCommandExecutionException(
               "Error in creation of command "
                   + name
                   + "(). Probably there is not an empty constructor or the constructor generates"

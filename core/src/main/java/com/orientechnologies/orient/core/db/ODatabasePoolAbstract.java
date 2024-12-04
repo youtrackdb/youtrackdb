@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.common.concur.lock.OAdaptiveLock;
-import com.orientechnologies.common.concur.lock.OLockException;
+import com.orientechnologies.common.concur.lock.YTLockException;
 import com.orientechnologies.common.concur.resource.OReentrantResourcePool;
 import com.orientechnologies.common.concur.resource.OResourcePoolListener;
 import com.orientechnologies.common.io.OIOUtils;
@@ -150,7 +150,8 @@ public abstract class ODatabasePoolAbstract extends OAdaptiveLock
   }
 
   public YTDatabaseSession acquire(
-      final String iURL, final String iUserName, final String iUserPassword) throws OLockException {
+      final String iURL, final String iUserName, final String iUserPassword)
+      throws YTLockException {
     return acquire(iURL, iUserName, iUserPassword, null);
   }
 
@@ -159,7 +160,7 @@ public abstract class ODatabasePoolAbstract extends OAdaptiveLock
       final String iUserName,
       final String iUserPassword,
       final Map<String, Object> iOptionalParams)
-      throws OLockException {
+      throws YTLockException {
     final String dbPooledName = OIOUtils.getUnixFileName(iUserName + "@" + iURL);
     OReentrantResourcePool<String, YTDatabaseSession> pool;
     lock();
@@ -255,7 +256,7 @@ public abstract class ODatabasePoolAbstract extends OAdaptiveLock
       unlock();
     }
     if (pool == null) {
-      throw new OLockException(
+      throw new YTLockException(
           "Cannot release a database URL not acquired before. URL: " + iDatabase.getName());
     }
 

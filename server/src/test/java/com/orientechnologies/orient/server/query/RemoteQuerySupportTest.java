@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -94,7 +94,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     db.commit();
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testQueryKilledSession() {
     for (int i = 0; i < 150; i++) {
       YTDocument doc = new YTDocument("Some");
@@ -240,7 +240,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     Assert.assertTrue(record.getIdentity().isPersistent());
   }
 
-  @Test(expected = OSerializationException.class)
+  @Test(expected = YTSerializationException.class)
   public void testBrokenParameter() {
     try {
       db.query("select from Some where prop= ?", new Object()).close();

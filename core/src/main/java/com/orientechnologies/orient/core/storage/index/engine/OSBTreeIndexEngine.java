@@ -20,14 +20,14 @@
 
 package com.orientechnologies.orient.core.storage.index.engine;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
@@ -119,8 +119,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
           encryption);
       versionPositionMap.create(atomicOperation);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during creation of index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during creation of index " + name), e);
     }
   }
 
@@ -132,8 +132,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
       sbTree.delete(atomicOperation);
       versionPositionMap.delete(atomicOperation);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during deletion of index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during deletion of index " + name), e);
     }
   }
 
@@ -144,8 +144,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
             try {
               sbTree.remove(atomicOperation, key);
             } catch (final IOException e) {
-              throw OException.wrapException(
-                  new OIndexException("Error during clearing a tree" + name), e);
+              throw YTException.wrapException(
+                  new YTIndexException("Error during clearing a tree" + name), e);
             }
           });
     }
@@ -171,8 +171,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
     try {
       versionPositionMap.open();
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during VPM load of index " + data.getName()), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during VPM load of index " + data.getName()), e);
     }
   }
 
@@ -181,8 +181,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
     try {
       return sbTree.remove(atomicOperation, key) != null;
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during removal of key " + key + " from index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during removal of key " + key + " from index " + name), e);
     }
   }
 
@@ -191,7 +191,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
     try {
       doClearTree(atomicOperation);
     } catch (IOException e) {
-      throw OException.wrapException(new OIndexException("Error during clear index " + name), e);
+      throw YTException.wrapException(new YTIndexException("Error during clear index " + name), e);
     }
   }
 
@@ -251,8 +251,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
     try {
       sbTree.put(atomicOperation, key, value);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during insertion of key " + key + " in index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during insertion of key " + key + " in index " + name), e);
     }
   }
 
@@ -263,8 +263,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
     try {
       sbTree.update(atomicOperation, key, updater, null);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during update of key " + key + " in index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during update of key " + key + " in index " + name), e);
     }
   }
 
@@ -278,8 +278,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
     try {
       return sbTree.validatedPut(atomicOperation, key, value, (IndexEngineValidator) validator);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OIndexException("Error during insertion of key " + key + " in index " + name), e);
+      throw YTException.wrapException(
+          new YTIndexException("Error during insertion of key " + key + " in index " + name), e);
     }
   }
 

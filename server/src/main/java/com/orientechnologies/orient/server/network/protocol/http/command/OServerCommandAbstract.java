@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestException;
+import com.orientechnologies.orient.server.network.protocol.http.YTHttpRequestException;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponseAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -65,7 +65,7 @@ public abstract class OServerCommandAbstract implements OServerCommand {
       parts.set(i, URLDecoder.decode(parts.get(i), StandardCharsets.UTF_8));
     }
     if (parts.size() < iArgumentCount) {
-      throw new OHttpRequestException(iSyntax);
+      throw new YTHttpRequestException(iSyntax);
     }
 
     return parts.toArray(new String[parts.size()]);

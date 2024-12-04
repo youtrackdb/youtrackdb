@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -45,7 +45,7 @@ public class ODropIndexStatement extends ODDLStatement {
 
     } else {
       if (!idxMgr.existsIndex(name.getValue()) && !ifExists) {
-        throw new OCommandExecutionException("Index not found: " + name.getValue());
+        throw new YTCommandExecutionException("Index not found: " + name.getValue());
       }
       idxMgr.dropIndex(db, name.getValue());
       OResultInternal result = new OResultInternal(db);

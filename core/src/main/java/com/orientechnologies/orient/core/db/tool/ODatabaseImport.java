@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.tool;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
@@ -35,10 +35,10 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.tool.importer.OConverterData;
 import com.orientechnologies.orient.core.db.tool.importer.OLinksRewriter;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -61,10 +61,10 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONReader;
@@ -256,7 +256,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     if (tag.equals("brokenRids")) {
                       processBrokenRids();
                     } else {
-                      throw new ODatabaseImportException(
+                      throw new YTDatabaseImportException(
                           "Invalid format. Found unsupported tag '" + tag + "'");
                     }
                   }
@@ -1170,7 +1170,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             database.addCluster("temp_" + createdClusterId, null);
             createdClusterId = database.addCluster(name);
           } else {
-            throw new OConfigurationException(
+            throw new YTConfigurationException(
                 "Imported cluster '"
                     + name
                     + "' has id="
@@ -1306,8 +1306,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                 null,
                 false,
                 maxRidbagStringSizeBeforeLazyImport, skippedPartsIndexes);
-      } catch (final OSerializationException e) {
-        if (e.getCause() instanceof OSchemaException) {
+      } catch (final YTSerializationException e) {
+        if (e.getCause() instanceof YTSchemaException) {
           // EXTRACT CLASS NAME If ANY
           final int pos = value.indexOf("\"@class\":\"");
           if (pos > -1) {
@@ -1330,8 +1330,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     maxRidbagStringSizeBeforeLazyImport, skippedPartsIndexes);
           }
         } else {
-          throw OException.wrapException(
-              new ODatabaseImportException("Error on importing record"), e);
+          throw YTException.wrapException(
+              new YTDatabaseImportException("Error on importing record"), e);
         }
       }
 
@@ -1503,7 +1503,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                 t);
       }
 
-      if (!(t instanceof ODatabaseException)) {
+      if (!(t instanceof YTDatabaseException)) {
         throw t;
       }
     }
@@ -1652,7 +1652,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     ORidBag bag = doc.getPropertyInternal(fieldName);
 
     if (!(value.charAt(nextIndex) == '[')) {
-      throw new ODatabaseImportException("Cannot import field: " + fieldName + " (too big)");
+      throw new YTDatabaseImportException("Cannot import field: " + fieldName + " (too big)");
     }
 
     StringBuilder ridBuffer = new StringBuilder();

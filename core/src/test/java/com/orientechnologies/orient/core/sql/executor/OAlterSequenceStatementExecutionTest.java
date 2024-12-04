@@ -4,7 +4,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class OAlterSequenceStatementExecutionTest extends DBTestBase {
                 .getSequenceLibrary()
                 .createSequence(
                     sequenceName, YTSequence.SEQUENCE_TYPE.ORDERED, new YTSequence.CreateParams());
-          } catch (ODatabaseException exc) {
+          } catch (YTDatabaseException exc) {
             Assert.fail("Failed to create sequence");
           }
         });
@@ -51,7 +51,7 @@ public class OAlterSequenceStatementExecutionTest extends DBTestBase {
           Assert.assertNotNull(seq);
           try {
             Assert.assertEquals(20, seq.next());
-          } catch (ODatabaseException exc) {
+          } catch (YTDatabaseException exc) {
             Assert.fail("Failed to call next");
           }
         });

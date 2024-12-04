@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,8 +128,8 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
         step.deserialize(serializedStep);
         chain(step);
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OCommandExecutionException("Cannot deserialize execution step:" + serializedStep),
+        throw YTException.wrapException(
+            new YTCommandExecutionException("Cannot deserialize execution step:" + serializedStep),
             e);
       }
     }

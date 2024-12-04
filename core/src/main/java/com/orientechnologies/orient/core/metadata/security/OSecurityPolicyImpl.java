@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.metadata.security;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import javax.annotation.Nonnull;
 
@@ -119,7 +119,7 @@ public class OSecurityPolicyImpl implements OSecurityPolicy {
     }
     try {
       OSQLEngine.parsePredicate(predicate);
-    } catch (OCommandSQLParsingException ex) {
+    } catch (YTCommandSQLParsingException ex) {
       throw new IllegalArgumentException("Invalid predicate: " + predicate);
     }
   }

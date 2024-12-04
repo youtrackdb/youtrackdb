@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.enterprise.OEnterpriseEndpoint;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -47,7 +47,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
 
     OEnterpriseEndpoint ee = db.getEnterpriseEndpoint();
     if (ee == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "HA SET statements are only supported in YouTrackDB Enterprise Edition");
     }
     if (operation.equalsIgnoreCase("status")) {

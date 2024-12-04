@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.storage.cluster;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import java.util.Objects;
@@ -112,7 +112,7 @@ public final class OClusterPositionMapBucket extends ODurablePage {
     final int size = getIntValue(SIZE_OFFSET);
 
     if (index >= size) {
-      throw new OStorageException("Provided index " + index + " is out of range");
+      throw new YTStorageException("Provided index " + index + " is out of range");
     }
 
     final int position = entryPosition(index);
@@ -121,7 +121,7 @@ public final class OClusterPositionMapBucket extends ODurablePage {
     if (flag == ALLOCATED) {
       flag = FILLED;
     } else if (flag != FILLED) {
-      throw new OStorageException("Provided index " + index + " points to removed entry");
+      throw new YTStorageException("Provided index " + index + " points to removed entry");
     }
 
     updateEntry(index, (int) entry.pageIndex, entry.recordPosition, flag);

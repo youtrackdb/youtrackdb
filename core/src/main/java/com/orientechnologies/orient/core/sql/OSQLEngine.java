@@ -35,7 +35,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -98,18 +98,18 @@ public class OSQLEngine {
       List<OStatement> result = osql.parseScript();
       return result;
     } catch (ParseException e) {
-      throw new OCommandSQLParsingException(e, "");
+      throw new YTCommandSQLParsingException(e, "");
     }
   }
 
-  public static OOrBlock parsePredicate(String predicate) throws OCommandSQLParsingException {
+  public static OOrBlock parsePredicate(String predicate) throws YTCommandSQLParsingException {
     final InputStream is = new ByteArrayInputStream(predicate.getBytes());
     try {
       final OrientSql osql = new OrientSql(is);
       OOrBlock result = osql.OrBlock();
       return result;
     } catch (ParseException e) {
-      throw new OCommandSQLParsingException(e, "");
+      throw new YTCommandSQLParsingException(e, "");
     }
   }
 
@@ -120,7 +120,7 @@ public class OSQLEngine {
       OSecurityResourceSegment result = osql.SecurityResourceSegment();
       return result;
     } catch (ParseException e) {
-      throw new OCommandSQLParsingException(e, "");
+      throw new YTCommandSQLParsingException(e, "");
     }
   }
 
@@ -480,7 +480,7 @@ public class OSQLEngine {
             }
           } while (added);
           if (!operators.isEmpty()) {
-            throw new ODatabaseException("Invalid sorting. " + OCollections.toString(pairs));
+            throw new YTDatabaseException("Invalid sorting. " + OCollections.toString(pairs));
           }
           SORTED_OPERATORS = sorted.toArray(new OQueryOperator[sorted.size()]);
         }
@@ -515,7 +515,7 @@ public class OSQLEngine {
       }
     }
 
-    throw new OCommandSQLParsingException(
+    throw new YTCommandSQLParsingException(
         "No function with name '"
             + iFunctionName
             + "', available names are : "

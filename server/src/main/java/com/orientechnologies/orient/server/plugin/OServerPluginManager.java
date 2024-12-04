@@ -24,7 +24,7 @@ import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OService;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -232,7 +232,7 @@ public class OServerPluginManager implements OService {
         server.getListenerByProtocol(ONetworkProtocolHttpAbstract.class);
 
     if (httpListener == null) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "HTTP listener not registered while installing Static Content command");
     }
 

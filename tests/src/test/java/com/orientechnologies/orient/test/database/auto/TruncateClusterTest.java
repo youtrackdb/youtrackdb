@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -88,7 +88,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
       database.truncateCluster("Wrong" + clusterName);
 
       Assert.fail();
-    } catch (OException e) {
+    } catch (YTException e) {
       Assert.assertTrue(true);
     }
 
@@ -119,7 +119,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     try {
       clazz.truncateCluster(database, "Wrong" + clusterName);
       Assert.fail();
-    } catch (OException e) {
+    } catch (YTException e) {
       Assert.assertTrue(true);
     }
 

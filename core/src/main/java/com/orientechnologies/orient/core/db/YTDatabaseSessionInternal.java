@@ -28,8 +28,8 @@ import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFact
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.enterprise.OEnterpriseEndpoint;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -725,7 +725,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
   /**
    * Drops a database.
    *
-   * @throws ODatabaseException if database is closed. @Deprecated use instead
+   * @throws YTDatabaseException if database is closed. @Deprecated use instead
    *                            {@link YouTrackDB#drop}
    */
   @Deprecated
@@ -851,7 +851,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
   @Deprecated
   ODictionary<YTRecord> getDictionary();
 
-  void rollback(boolean force) throws OTransactionException;
+  void rollback(boolean force) throws YTTransactionException;
 
   /**
    * Execute a query against the database. If the OStorage used is remote (OStorageRemote) then the

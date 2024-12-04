@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
-import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
 import com.orientechnologies.common.concur.lock.OReadersWriterSpinLock;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -234,11 +234,11 @@ public class StorageBackupMTStateTest {
             } finally {
               flowLock.releaseReadLock();
             }
-          } catch (ORecordNotFoundException rne) {
+          } catch (YTRecordNotFoundException rne) {
             // retry
-          } catch (OConcurrentModificationException cme) {
+          } catch (YTConcurrentModificationException cme) {
             // retry
-          } catch (OModificationOperationProhibitedException e) {
+          } catch (YTModificationOperationProhibitedException e) {
             System.out.println("Modification prohibited , wait 5s ...");
             Thread.sleep(2000);
             // retry
@@ -273,11 +273,11 @@ public class StorageBackupMTStateTest {
             } finally {
               flowLock.releaseReadLock();
             }
-          } catch (ORecordNotFoundException rne) {
+          } catch (YTRecordNotFoundException rne) {
             // retry
-          } catch (OConcurrentModificationException cme) {
+          } catch (YTConcurrentModificationException cme) {
             // retry
-          } catch (OModificationOperationProhibitedException e) {
+          } catch (YTModificationOperationProhibitedException e) {
             System.out.println("Modification prohibited , wait 5s ...");
             Thread.sleep(2000);
             // retry
@@ -466,12 +466,12 @@ public class StorageBackupMTStateTest {
             } finally {
               flowLock.releaseReadLock();
             }
-          } catch (OModificationOperationProhibitedException mope) {
+          } catch (YTModificationOperationProhibitedException mope) {
             System.out.println("Modification was prohibited ... wait 3s.");
             Thread.sleep(3 * 1000);
-          } catch (ORecordNotFoundException rnfe) {
+          } catch (YTRecordNotFoundException rnfe) {
             // retry
-          } catch (OConcurrentModificationException cme) {
+          } catch (YTConcurrentModificationException cme) {
             // retry
           } catch (RuntimeException e) {
             e.printStackTrace();

@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import org.junit.Test;
 
 public class TestImmutableIndexLoad {
@@ -58,7 +58,7 @@ public class TestImmutableIndexLoad {
       db.save(doc1);
       db.commit();
       fail("It should fail the unique index");
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
       // EXPEXTED
     }
     db.close();

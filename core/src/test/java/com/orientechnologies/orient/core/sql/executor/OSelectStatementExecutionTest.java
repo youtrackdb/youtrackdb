@@ -3,12 +3,12 @@ package com.orientechnologies.orient.core.sql.executor;
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -635,7 +635,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               "select max(a) + max(b) + pippo + pluto as foo, max(d) + max(e), f from " + className)
           .close();
       Assert.fail();
-    } catch (OCommandExecutionException x) {
+    } catch (YTCommandExecutionException x) {
 
     } catch (Exception e) {
       Assert.fail();
@@ -650,7 +650,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     try {
       db.query("select [max(a), max(b), foo] from " + className).close();
       Assert.fail();
-    } catch (OCommandExecutionException x) {
+    } catch (YTCommandExecutionException x) {
 
     } catch (Exception e) {
       Assert.fail();
@@ -4296,7 +4296,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
           result.forEachRemaining(x -> x.getProperty("name"));
         }
         Assert.fail();
-      } catch (OCommandExecutionException ex) {
+      } catch (YTCommandExecutionException ex) {
       }
     } finally {
       YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.setValue(oldValue);
@@ -4474,7 +4474,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
         result.next();
       }
       Assert.fail();
-    } catch (OTimeoutException ex) {
+    } catch (YTTimeoutException ex) {
 
     }
 
@@ -4483,7 +4483,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       while (result.hasNext()) {
         result.next();
       }
-    } catch (OTimeoutException ex) {
+    } catch (YTTimeoutException ex) {
       Assert.fail();
     }
   }

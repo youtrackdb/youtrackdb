@@ -23,10 +23,10 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 
 /**
  * Local cache. it's one to one with record database instances. It is needed to avoid cases when
@@ -74,7 +74,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
       if (loadedRecord == null) {
         underlying.put(record);
       } else if (loadedRecord != record) {
-        throw new ODatabaseException(
+        throw new YTDatabaseException(
             "Record with id "
                 + record.getIdentity()
                 + " already registered in current session, please load "

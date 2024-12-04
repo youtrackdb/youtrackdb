@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -133,7 +133,7 @@ public class OAlterClusterStatement extends ODDLStatement {
     } else {
       final int clusterId = database.getClusterIdByName(name.getStringValue());
       if (clusterId <= 0) {
-        throw new OCommandExecutionException("Cannot find cluster " + name);
+        throw new YTCommandExecutionException("Cannot find cluster " + name);
       }
 
       return IntArrayList.of(clusterId);

@@ -20,9 +20,9 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -77,7 +77,7 @@ public class OSchedulerImpl {
     if (event != null) {
       try {
         session.load(event.getDocument(session).getIdentity());
-      } catch (ORecordNotFoundException ignore) {
+      } catch (YTRecordNotFoundException ignore) {
         // ALREADY DELETED, JUST RETURN
         return;
       }
@@ -160,7 +160,7 @@ public class OSchedulerImpl {
     String name = doc.field(OScheduledEvent.PROP_NAME);
     final OScheduledEvent event = getEvent(name);
     if (event != null && event.getDocument(session) != doc) {
-      throw new ODatabaseException(
+      throw new YTDatabaseException(
           "Scheduled event with name '" + name + "' already exists in database");
     }
     doc.field(OScheduledEvent.PROP_STATUS, OScheduler.STATUS.STOPPED.name());
@@ -176,7 +176,7 @@ public class OSchedulerImpl {
         final Set<String> dirtyFields = new HashSet<>(Arrays.asList(doc.getDirtyFields()));
 
         if (dirtyFields.contains(OScheduledEvent.PROP_NAME)) {
-          throw new OValidationException("Scheduled event cannot change name");
+          throw new YTValidationException("Scheduled event cannot change name");
         }
 
         if (dirtyFields.contains(OScheduledEvent.PROP_RULE)) {

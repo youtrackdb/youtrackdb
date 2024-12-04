@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassEmbedded;
 import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
@@ -58,13 +58,13 @@ public class OCreatePropertyStatement extends ODDLStatement {
     YTClassEmbedded clazz =
         (YTClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());
     if (clazz == null) {
-      throw new OCommandExecutionException("Class not found: " + className.getStringValue());
+      throw new YTCommandExecutionException("Class not found: " + className.getStringValue());
     }
     if (clazz.getProperty(propertyName.getStringValue()) != null) {
       if (ifNotExists) {
         return;
       }
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Property "
               + className.getStringValue()
               + "."
@@ -73,7 +73,7 @@ public class OCreatePropertyStatement extends ODDLStatement {
     }
     YTType type = YTType.valueOf(propertyType.getStringValue().toUpperCase(Locale.ENGLISH));
     if (type == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Invalid property type: " + propertyType.getStringValue());
     }
     YTClass linkedClass = null;

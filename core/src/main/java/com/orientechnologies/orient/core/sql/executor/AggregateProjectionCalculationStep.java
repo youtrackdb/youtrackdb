@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OGroupBy;
@@ -36,7 +36,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     List<OResult> finalResults = executeAggregation(ctx);
     return OExecutionStream.resultIterator(finalResults.iterator());
   }
@@ -44,7 +44,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   private List<OResult> executeAggregation(OCommandContext ctx) {
     long timeoutBegin = System.currentTimeMillis();
     if (prev == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute an aggregation or a GROUP BY without a previous result");
     }
 

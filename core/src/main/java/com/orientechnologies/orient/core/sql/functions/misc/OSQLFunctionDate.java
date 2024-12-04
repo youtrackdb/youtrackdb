@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.sql.functions.misc;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.text.DateFormat;
@@ -88,8 +88,8 @@ public class OSQLFunctionDate extends OSQLFunctionAbstract {
     try {
       return format.parse((String) iParams[0]);
     } catch (ParseException e) {
-      throw OException.wrapException(
-          new OQueryParsingException(
+      throw YTException.wrapException(
+          new YTQueryParsingException(
               "Error on formatting date '"
                   + iParams[0]
                   + "' using the format: "

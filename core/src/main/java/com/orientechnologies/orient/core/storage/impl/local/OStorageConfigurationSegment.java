@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.storage.impl.local;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
@@ -27,8 +27,8 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationImpl;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.fs.OFile;
 import java.io.IOException;
@@ -125,7 +125,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
 
   @Override
   public OStorageConfigurationImpl load(final OContextConfiguration configuration)
-      throws OSerializationException {
+      throws YTSerializationException {
     lock.writeLock().lock();
     try {
       initConfiguration(configuration);
@@ -153,12 +153,12 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
           }
 
           OLogManager.instance().error(this, "Backup configuration file %s is broken too", null);
-          throw new OStorageException(
+          throw new YTStorageException(
               "Invalid format for configuration file " + file + " for storage" + storageName);
         } else {
           OLogManager.instance()
               .error(this, "Backup configuration file %s does not exist", null, backupFile);
-          throw new OStorageException(
+          throw new YTStorageException(
               "Invalid format for configuration file " + file + " for storage" + storageName);
         }
       } else if (Files.exists(backupFile)) {
@@ -176,14 +176,14 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
 
         OLogManager.instance()
             .error(this, "Backup configuration file %s is broken", null, backupFile);
-        throw new OStorageException(
+        throw new YTStorageException(
             "Invalid format for configuration file " + backupFile + " for storage" + storageName);
       } else {
-        throw new OStorageException("Can not find configuration file for storage " + storageName);
+        throw new YTStorageException("Can not find configuration file for storage " + storageName);
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OSerializationException(
+      throw YTException.wrapException(
+          new YTSerializationException(
               "Cannot load database configuration. The database seems corrupted"),
           e);
     } finally {
@@ -192,7 +192,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
   }
 
   @Override
-  public void update() throws OSerializationException {
+  public void update() throws YTSerializationException {
     lock.writeLock().lock();
     try {
       final Charset utf8 = StandardCharsets.UTF_8;
@@ -226,8 +226,8 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
 
         Files.delete(backupFile);
       } catch (Exception e) {
-        throw OException.wrapException(
-            new OSerializationException("Error on update storage configuration"), e);
+        throw YTException.wrapException(
+            new YTSerializationException("Error on update storage configuration"), e);
       }
     } finally {
       lock.writeLock().unlock();

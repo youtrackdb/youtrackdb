@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.client.binary;
 
-import com.orientechnologies.common.concur.lock.OLockException;
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.concur.lock.YTLockException;
+import com.orientechnologies.common.exception.YTException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.OStorageRemoteNodeSession;
@@ -34,8 +34,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.OSocketFactory;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.ONetworkProtocolException;
-import com.orientechnologies.orient.enterprise.channel.binary.OResponseProcessingException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTResponseProcessingException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -102,7 +102,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
         writeByte(OChannelBinaryProtocol.ERROR_MESSAGE_JAVA);
         flush();
       } catch (IOException e) {
-        throw new ONetworkProtocolException(
+        throw new YTNetworkProtocolException(
             "Cannot read protocol version from remote server "
                 + socket.getRemoteSocketAddress()
                 + ": "
@@ -150,7 +150,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
 
     } catch (Exception e) {
       // UNABLE TO REPRODUCE THE SAME SERVER-SIDE EXCEPTION: THROW AN SYSTEM EXCEPTION
-      rootException = OException.wrapException(new OSystemException(iMessage), iPrevious);
+      rootException = YTException.wrapException(new YTSystemException(iMessage), iPrevious);
     }
 
     if (c != null) {
@@ -163,7 +163,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
         }
 
         rootException =
-            OException.wrapException(new OSystemException("Data processing exception"), cause);
+            YTException.wrapException(new YTSystemException("Data processing exception"), cause);
       } catch (InstantiationException ignored) {
       } catch (IllegalAccessException ignored) {
       } catch (InvocationTargetException ignored) {
@@ -227,7 +227,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       currentMessage = readByte();
       handleStatus(db, currentStatus, currentSessionId);
       return tokenBytes;
-    } catch (OLockException e) {
+    } catch (YTLockException e) {
       Thread.currentThread().interrupt();
       // NEVER HAPPENS?
       OLogManager.instance().error(this, "Unexpected error on reading response from channel", e);
@@ -333,14 +333,14 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       if (previous != null) {
         exceptionHandler.onException(new RuntimeException(previous));
       } else {
-        exceptionHandler.onException(new ONetworkProtocolException("Network response error"));
+        exceptionHandler.onException(new YTNetworkProtocolException("Network response error"));
       }
 
     } else {
       // PROTOCOL ERROR
       // close();
       exceptionHandler.onException(
-          new ONetworkProtocolException("Error on reading response from the server"));
+          new YTNetworkProtocolException("Error on reading response from the server"));
     }
 
     return iClientTxId;
@@ -375,12 +375,12 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
   }
 
   public void handleException(Throwable throwable) {
-    if (throwable instanceof OException) {
+    if (throwable instanceof YTException) {
       try {
-        final Class<? extends OException> cls = (Class<? extends OException>) throwable.getClass();
-        final Constructor<? extends OException> constructor;
+        final Class<? extends YTException> cls = (Class<? extends YTException>) throwable.getClass();
+        final Constructor<? extends YTException> constructor;
         constructor = cls.getConstructor(cls);
-        final OException proxyInstance = constructor.newInstance(throwable);
+        final YTException proxyInstance = constructor.newInstance(throwable);
         proxyInstance.addSuppressed(throwable);
         throw proxyInstance;
 
@@ -396,7 +396,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       throw (RuntimeException) throwable;
     }
     if (throwable instanceof Throwable) {
-      throw new OResponseProcessingException("Exception during response processing", throwable);
+      throw new YTResponseProcessingException("Exception during response processing", throwable);
     } else {
       // WRAP IT
       String exceptionType = throwable != null ? throwable.getClass().getName() : "null";

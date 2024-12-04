@@ -136,7 +136,7 @@ public class OIndexFullText extends OIndexMultiValues {
       YTDatabaseSessionInternal session, OIndexMetadata metadata, boolean rebuild,
       OProgressListener progressListener) {
     if (metadata.getIndexDefinition().getFields().size() > 1) {
-      throw new OIndexException(getType() + " indexes cannot be used as composite ones.");
+      throw new YTIndexException(getType() + " indexes cannot be used as composite ones.");
     }
     super.create(session, metadata, rebuild, progressListener);
     return this;

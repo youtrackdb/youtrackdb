@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.types.OModifiableBoolean;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
@@ -30,8 +30,8 @@ import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -122,8 +122,8 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
           try {
             limit = Integer.parseInt(word);
           } catch (Exception e) {
-            throw OException.wrapException(
-                new OCommandSQLParsingException("Invalid LIMIT: " + word), e);
+            throw YTException.wrapException(
+                new YTCommandSQLParsingException("Invalid LIMIT: " + word), e);
           }
         } else if (word.equals(KEYWORD_RETURN)) {
           returning = parseReturn();
@@ -138,7 +138,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
           // GET/CHECK CLASS NAME
           clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(word);
           if (clazz == null) {
-            throw new OCommandSQLParsingException("Class '" + word + "' was not found");
+            throw new YTCommandSQLParsingException("Class '" + word + "' was not found");
           }
         }
 
@@ -182,7 +182,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (rid == null && query == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -213,7 +213,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
       db.commit();
 
     } else {
-      throw new OCommandExecutionException("Invalid target");
+      throw new YTCommandExecutionException("Invalid target");
     }
 
     if (returning.equalsIgnoreCase("COUNT"))
@@ -283,7 +283,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
   /**
    * Parses the returning keyword if found.
    */
-  protected String parseReturn() throws OCommandSQLParsingException {
+  protected String parseReturn() throws YTCommandSQLParsingException {
     final String returning = parserNextWord(true);
 
     if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {
@@ -361,7 +361,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
-      } catch (ORecordNotFoundException rnf) {
+      } catch (YTRecordNotFoundException rnf) {
         return null;
       }
 

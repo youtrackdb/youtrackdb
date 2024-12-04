@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.metadata.function;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.command.OScriptExecutor;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ORetryQueryException;
+import com.orientechnologies.orient.core.exception.YTRetryQueryException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -226,7 +226,7 @@ public class OFunction extends ODocumentWrapper {
 
         break;
 
-      } catch (ONeedRetryException | ORetryQueryException ignore) {
+      } catch (YTNeedRetryException | YTRetryQueryException ignore) {
       }
     }
 

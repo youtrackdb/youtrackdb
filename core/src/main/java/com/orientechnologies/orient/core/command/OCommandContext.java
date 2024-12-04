@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import java.util.Map;
@@ -69,7 +69,7 @@ public interface OCommandContext {
    * Check if timeout is elapsed, if defined.
    *
    * @return false if it the timeout is elapsed and strategy is "return"
-   * @throws OTimeoutException if the strategy is "exception" (default)
+   * @throws YTTimeoutException if the strategy is "exception" (default)
    */
   boolean checkTimeout();
 

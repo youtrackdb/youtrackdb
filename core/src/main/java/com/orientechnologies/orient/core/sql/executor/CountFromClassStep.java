@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -32,7 +32,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -48,7 +48,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
       clazz = schema.getView(target.getStringValue());
     }
     if (clazz == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Class " + target.getStringValue() + " does not exist in the database schema");
     }
     long size = clazz.count(db);

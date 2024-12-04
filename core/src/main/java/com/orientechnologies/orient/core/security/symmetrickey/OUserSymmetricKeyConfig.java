@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.security.symmetrickey;
 
-import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Map;
 
@@ -90,7 +90,7 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
     YTDocument props = doc.field("properties");
 
     if (props == null) {
-      throw new OSecurityException("OUserSymmetricKeyConfig() OUser properties is null");
+      throw new YTSecurityException("OUserSymmetricKeyConfig() OUser properties is null");
     }
 
     this.keyString = props.field("key");
@@ -101,7 +101,8 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
       this.keyAlgorithm = props.field("keyAlgorithm");
 
       if (this.keyAlgorithm == null) {
-        throw new OSecurityException("OUserSymmetricKeyConfig() keyAlgorithm is required with key");
+        throw new YTSecurityException(
+            "OUserSymmetricKeyConfig() keyAlgorithm is required with key");
       }
     } else {
       this.keyFile = props.field("keyFile");
@@ -113,7 +114,7 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
         this.keyAlgorithm = props.field("keyAlgorithm");
 
         if (this.keyAlgorithm == null) {
-          throw new OSecurityException(
+          throw new YTSecurityException(
               "OUserSymmetricKeyConfig() keyAlgorithm is required with keyFile");
         }
       } else {
@@ -128,10 +129,10 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
         this.keystoreKeyPassword = ksDoc.field("keyPassword");
 
         if (this.keystoreFile == null) {
-          throw new OSecurityException("OUserSymmetricKeyConfig() keyStore.file is required");
+          throw new YTSecurityException("OUserSymmetricKeyConfig() keyStore.file is required");
         }
         if (this.keystoreKeyAlias == null) {
-          throw new OSecurityException("OUserSymmetricKeyConfig() keyStore.keyAlias is required");
+          throw new YTSecurityException("OUserSymmetricKeyConfig() keyStore.keyAlias is required");
         }
       }
     }

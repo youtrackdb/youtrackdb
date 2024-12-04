@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.storage.cluster.v2;
 
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.exception.OClusterPositionMapException;
+import com.orientechnologies.orient.core.exception.YTClusterPositionMapException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMap;
@@ -227,7 +227,7 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
 
     final long lastPage = getLastPage(atomicOperation);
     if (pageIndex > lastPage) {
-      throw new OClusterPositionMapException(
+      throw new YTClusterPositionMapException(
           "Passed in cluster position "
               + clusterPosition
               + " is outside of range of cluster-position map",

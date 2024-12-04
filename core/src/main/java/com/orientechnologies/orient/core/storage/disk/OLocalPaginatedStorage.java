@@ -24,11 +24,11 @@ import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal
 import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog.WAL_SEGMENT_EXTENSION;
 
 import com.orientechnologies.common.collection.closabledictionary.OClosableLinkedContainer;
-import com.orientechnologies.common.concur.lock.OInterruptedException;
-import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.exception.OErrorCode;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
@@ -49,11 +49,11 @@ import com.orientechnologies.orient.core.db.YouTrackDBEmbedded;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
-import com.orientechnologies.orient.core.exception.OBackupInProgressException;
-import com.orientechnologies.orient.core.exception.OInvalidInstanceIdException;
-import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTBackupInProgressException;
+import com.orientechnologies.orient.core.exception.YTInvalidInstanceIdException;
+import com.orientechnologies.orient.core.exception.YTInvalidStorageEncryptionKeyException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeMultiValueIndexEngine;
 import com.orientechnologies.orient.core.storage.OChecksumMode;
@@ -528,7 +528,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     }
 
     if (!walDirectory.mkdirs()) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Can not create temporary directory to store files created during incremental backup");
     }
 
@@ -738,7 +738,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
               maxRetries);
     }
 
-    throw new OStorageException(
+    throw new YTStorageException(
         "Cannot delete database '"
             + name
             + "' located in: "
@@ -813,7 +813,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
       final long expectedHash = hash64.hash(iv, 0, iv.length, IV_SEED);
       if (storedHash != expectedHash) {
-        throw new OStorageException("iv data are broken");
+        throw new YTStorageException("iv data are broken");
       }
 
       this.iv = iv;
@@ -948,8 +948,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
       return false;
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during fetching list of files"), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during fetching list of files"), e);
     }
   }
 
@@ -969,7 +969,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     try {
       incrementalBackup(stream, null, false);
     } catch (IOException e) {
-      throw OException.wrapException(new OStorageException("Error during incremental backup"), e);
+      throw YTException.wrapException(new YTStorageException("Error during incremental backup"), e);
     }
   }
 
@@ -989,7 +989,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
               extractDbInstanceUUID(backupDirectory, files[0], configuration.getCharset());
           try {
             checkDatabaseInstanceId(backupUUID);
-          } catch (OInvalidInstanceIdException ex) {
+          } catch (YTInvalidInstanceIdException ex) {
             return false;
           }
         }
@@ -1001,13 +1001,15 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
                     + " finished",
                 null);
       } catch (final IOException e) {
-        throw OException.wrapException(new OStorageException("Error during incremental backup"), e);
+        throw YTException.wrapException(new YTStorageException("Error during incremental backup"),
+            e);
       }
 
       try {
         Files.deleteIfExists(fileLockPath);
       } catch (IOException e) {
-        throw OException.wrapException(new OStorageException("Error during incremental backup"), e);
+        throw YTException.wrapException(new YTStorageException("Error during incremental backup"),
+            e);
       }
     }
     return true;
@@ -1019,7 +1021,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
     if (!backupDirectory.exists()) {
       if (!backupDirectory.mkdirs()) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Backup directory "
                 + backupDirectory.getAbsolutePath()
                 + " does not exist and can not be created");
@@ -1126,8 +1128,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
             throw e;
           }
         } catch (IOException e) {
-          throw OException.wrapException(
-              new OStorageException("Error during incremental backup"), e);
+          throw YTException.wrapException(
+              new YTStorageException("Error during incremental backup"), e);
         } finally {
           try {
             if (rndIBUFile != null) {
@@ -1146,13 +1148,13 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
                   + " finished",
               null);
     } catch (final IOException e) {
-      throw OException.wrapException(new OStorageException("Error during incremental backup"), e);
+      throw YTException.wrapException(new YTStorageException("Error during incremental backup"), e);
     }
 
     try {
       Files.deleteIfExists(fileLockPath);
     } catch (IOException e) {
-      throw OException.wrapException(new OStorageException("Error during incremental backup"), e);
+      throw YTException.wrapException(new YTStorageException("Error during incremental backup"), e);
     }
 
     return fileName;
@@ -1165,7 +1167,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     try {
       rndIBUFile = new RandomAccessFile(ibuFile, "r");
     } catch (FileNotFoundException e) {
-      throw OException.wrapException(new OStorageException("Backup file was not found"), e);
+      throw YTException.wrapException(new YTStorageException("Backup file was not found"), e);
     }
 
     try {
@@ -1202,7 +1204,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     }
 
     if (invalid) {
-      throw new OStorageException("Backup cannot be performed in the storage path");
+      throw new YTStorageException("Backup cannot be performed in the storage path");
     }
   }
 
@@ -1223,7 +1225,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
                 new File(dir, name).length() > 0 && name.toLowerCase().endsWith(IBU_EXTENSION_V3));
 
     if (files == null) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Can not read list of backup files from directory " + backupDirectory.getAbsolutePath());
     }
 
@@ -1253,7 +1255,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     try {
       rndIBUFile = new RandomAccessFile(ibuFile, "r");
     } catch (FileNotFoundException e) {
-      throw OException.wrapException(new OStorageException("Backup file was not found"), e);
+      throw YTException.wrapException(new YTStorageException("Backup file was not found"), e);
     }
 
     try {
@@ -1274,7 +1276,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         rndIBUFile.close();
       }
     } catch (IOException e) {
-      throw OException.wrapException(new OStorageException("Error during read of backup file"), e);
+      throw YTException.wrapException(new YTStorageException("Error during read of backup file"),
+          e);
     } finally {
       try {
         rndIBUFile.close();
@@ -1306,7 +1309,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     checkOpennessAndMigration();
 
     if (singleThread && isIcrementalBackupRunning()) {
-      throw new OBackupInProgressException(
+      throw new YTBackupInProgressException(
           "You are trying to start incremental backup but it is in progress now, please wait till"
               + " it will be finished",
           getName(),
@@ -1322,7 +1325,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       if (!isWriteAllowedDuringIncrementalBackup()) {
         freezeId =
             atomicOperationsManager.freezeAtomicOperations(
-                OModificationOperationProhibitedException.class, "Incremental backup in progress");
+                YTModificationOperationProhibitedException.class, "Incremental backup in progress");
       } else {
         freezeId = -1;
       }
@@ -1399,7 +1402,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
                 && aesKey.length != 16
                 && aesKey.length != 24
                 && aesKey.length != 32) {
-              throw new OInvalidStorageEncryptionKeyException(
+              throw new YTInvalidStorageEncryptionKeyException(
                   "Invalid length of the encryption key, provided size is " + aesKey.length);
             }
 
@@ -1467,7 +1470,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
           OLongSerializer.LONG_SIZE,
           backUpPage.length - OLongSerializer.LONG_SIZE);
     } catch (InvalidKeyException e) {
-      throw OException.wrapException(new OInvalidStorageEncryptionKeyException(e.getMessage()), e);
+      throw YTException.wrapException(new YTInvalidStorageEncryptionKeyException(e.getMessage()),
+          e);
     } catch (InvalidAlgorithmParameterException e) {
       throw new IllegalArgumentException("Invalid IV.", e);
     } catch (IllegalBlockSizeException | BadPaddingException e) {
@@ -1587,7 +1591,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
           aesKeyEncoded == null ? null : Base64.getDecoder().decode(aesKeyEncoded);
 
       if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
-        throw new OInvalidStorageEncryptionKeyException(
+        throw new YTInvalidStorageEncryptionKeyException(
             "Invalid length of the encryption key, provided size is " + aesKey.length);
       }
 
@@ -1603,8 +1607,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
       postProcessIncrementalRestore(session, result.contextConfiguration);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during restore from incremental backup"), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during restore from incremental backup"), e);
     } finally {
       stateLock.writeLock().unlock();
     }
@@ -1634,7 +1638,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   private void restoreFromIncrementalBackup(YTDatabaseSessionInternal session,
       final File backupDirectory) {
     if (!backupDirectory.exists()) {
-      throw new OStorageException(
+      throw new YTStorageException(
           "Directory which should contain incremental backup files (files with extension '"
               + IBU_EXTENSION_V3
               + "') is absent. It should be located at '"
@@ -1645,7 +1649,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     try {
       final String[] files = fetchIBUFiles(backupDirectory);
       if (files.length == 0) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Cannot find incremental backup files (files with extension '"
                 + IBU_EXTENSION_V3
                 + "') in directory '"
@@ -1664,7 +1668,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
             aesKeyEncoded == null ? null : Base64.getDecoder().decode(aesKeyEncoded);
 
         if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
-          throw new OInvalidStorageEncryptionKeyException(
+          throw new YTInvalidStorageEncryptionKeyException(
               "Invalid length of the encryption key, provided size is " + aesKey.length);
         }
 
@@ -1686,7 +1690,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
               final int backupVersion = versionBuffer.getInt();
               if (backupVersion != INCREMENTAL_BACKUP_VERSION) {
-                throw new OStorageException(
+                throw new YTStorageException(
                     "Invalid version of incremental backup version was provided. Expected "
                         + INCREMENTAL_BACKUP_VERSION
                         + " , provided "
@@ -1732,8 +1736,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         stateLock.writeLock().unlock();
       }
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during restore from incremental backup"), e);
+      throw YTException.wrapException(
+          new YTStorageException("Error during restore from incremental backup"), e);
     }
   }
 
@@ -1868,7 +1872,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       }
 
       if (aesKey != null && encryptionIv == null) {
-        throw new OSecurityException("IV can not be null if encryption key is provided");
+        throw new YTSecurityException("IV can not be null if encryption key is provided");
       }
 
       final byte[] binaryFileId = new byte[OLongSerializer.LONG_SIZE];
@@ -1895,7 +1899,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       }
 
       if (!writeCache.fileIdsAreEqual(expectedFileId, fileId)) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "Can not restore database from backup because expected and actual file ids are not the"
                 + " same");
       }
@@ -1910,7 +1914,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
           if (b == -1) {
             if (rb > 0) {
-              throw new OStorageException("Can not read data from file " + fileName);
+              throw new YTStorageException("Can not read data from file " + fileName);
             } else {
               processedFiles.add(fileName);
               continue entryLoop;
@@ -2000,7 +2004,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       final int localRead = zipInputStream.read(iv, read, iv.length - read);
 
       if (localRead < 0) {
-        throw new OStorageException(
+        throw new YTStorageException(
             "End of stream is reached but IV data were not completely read");
       }
 
@@ -2057,8 +2061,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     try {
       return Cipher.getInstance(TRANSFORMATION);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-      throw OException.wrapException(
-          new OSecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
+      throw YTException.wrapException(
+          new YTSecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
           e);
     }
   }
@@ -2070,8 +2074,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         try {
           backupIsDone.await();
         } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("Interrupted wait for backup to finish"), e);
+          throw YTException.wrapException(
+              new YTInterruptedException("Interrupted wait for backup to finish"), e);
         }
       }
     } finally {

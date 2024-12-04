@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTQueryParsingException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -67,7 +67,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
   public List<T> run(final Object... iArgs) {
     final YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     if (database == null) {
-      throw new OQueryParsingException("No database configured");
+      throw new YTQueryParsingException("No database configured");
     }
 
     database.getMetadata().makeThreadLocalSchemaSnapshot();
@@ -110,7 +110,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
 
   public OCommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
       ORecordSerializer serializer)
-      throws OSerializationException {
+      throws YTSerializationException {
     final OMemoryStream buffer = new OMemoryStream(iStream);
 
     queryFromStream(db, buffer, serializer);
@@ -118,7 +118,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     return this;
   }
 
-  public byte[] toStream() throws OSerializationException {
+  public byte[] toStream() throws YTSerializationException {
     return queryToStream().toByteArray();
   }
 

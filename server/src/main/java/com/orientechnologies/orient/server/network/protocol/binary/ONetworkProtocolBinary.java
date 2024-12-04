@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.server.network.protocol.binary;
 
-import com.orientechnologies.common.concur.OOfflineNodeException;
-import com.orientechnologies.common.concur.lock.OInterruptedException;
-import com.orientechnologies.common.concur.lock.OLockException;
+import com.orientechnologies.common.concur.YTOfflineNodeException;
+import com.orientechnologies.common.concur.lock.YTInterruptedException;
+import com.orientechnologies.common.concur.lock.YTLockException;
 import com.orientechnologies.common.exception.OErrorCode;
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OInvalidBinaryChunkException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
@@ -41,14 +41,14 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCoreException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTCoreException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
@@ -59,17 +59,17 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollection
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryServer;
-import com.orientechnologies.orient.enterprise.channel.binary.ONetworkProtocolException;
-import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
+import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OConnectionBinaryExecutor;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerAware;
 import com.orientechnologies.orient.server.distributed.ODistributedDatabase;
-import com.orientechnologies.orient.server.distributed.ODistributedException;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest;
 import com.orientechnologies.orient.server.distributed.ODistributedResponse;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
+import com.orientechnologies.orient.server.distributed.YTDistributedException;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
 import com.orientechnologies.orient.server.plugin.OServerPluginHelper;
@@ -219,7 +219,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
             && requestType != OChannelBinaryProtocol.REQUEST_OK_PUSH) {
           clientTxId = channel.readInt();
           channel.clearInput();
-          sendError(null, clientTxId, new OOfflineNodeException("Node Shutting down"));
+          sendError(null, clientTxId, new YTOfflineNodeException("Node Shutting down"));
         }
         return;
       }
@@ -361,7 +361,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
 
             if (request.requireDatabaseSession()) {
               if (connection.getDatabase() == null) {
-                throw new ODatabaseException("Required database session");
+                throw new YTDatabaseException("Required database session");
               }
             }
             response = request.execute(connection.getExecutor());
@@ -430,7 +430,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
         OLogManager.instance().error(this, "Request not supported. Code: " + requestType, null);
         handleConnectionError(
             connection,
-            new ONetworkProtocolException("Request not supported. Code: " + requestType));
+            new YTNetworkProtocolException("Request not supported. Code: " + requestType));
         sendShutdown();
       }
 
@@ -461,7 +461,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
           // COMPATIBILITY IT'S ONLY IF THERE
           // IS NO CONNECTION
           shutdown();
-          throw new ONetworkProtocolException("Found unknown session " + clientTxId);
+          throw new YTNetworkProtocolException("Found unknown session " + clientTxId);
         }
         connection = server.getClientConnectionManager().connect(this);
         connection.getData().sessionId = clientTxId;
@@ -551,7 +551,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
 
       if (handshakeInfo != null) {
         if (connection == null) {
-          throw new OTokenSecurityException("missing session and token");
+          throw new YTTokenSecurityException("missing session and token");
         }
         connection.acquire();
         connection.validateSession(tokenBytes, server.getTokenHandler(), this);
@@ -579,7 +579,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
             connection.setDisconnectOnAfter(true);
           }
           if (connection == null) {
-            throw new OTokenSecurityException("missing session and token");
+            throw new YTTokenSecurityException("missing session and token");
           }
           connection.acquire();
           connection.validateSession(tokenBytes, server.getTokenHandler(), this);
@@ -623,7 +623,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
           }
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
-          throw OException.wrapException(new OInterruptedException("Request interrupted"), e);
+          throw YTException.wrapException(new YTInterruptedException("Request interrupted"), e);
         }
       }
     }
@@ -647,12 +647,12 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       OClientConnection connection) {
     if (connection.getData().protocolVersion <= OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       if (connection.getServerUser() == null) {
-        throw new OSecurityAccessException("Server user not authenticated");
+        throw new YTSecurityAccessException("Server user not authenticated");
       }
 
       if (!server.getSecurity()
           .isAuthorized(session, connection.getServerUser().getName(session), iResource)) {
-        throw new OSecurityAccessException(
+        throw new YTSecurityAccessException(
             "User '"
                 + connection.getServerUser().getName(session)
                 + "' cannot access to the resource ["
@@ -662,12 +662,12 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       }
     } else {
       if (!connection.getData().serverUser) {
-        throw new OSecurityAccessException("Server user not authenticated");
+        throw new YTSecurityAccessException("Server user not authenticated");
       }
 
       if (!server.getSecurity()
           .isAuthorized(session, connection.getData().serverUsername, iResource)) {
-        throw new OSecurityAccessException(
+        throw new YTSecurityAccessException(
             "User '"
                 + connection.getData().serverUsername
                 + "' cannot access to the resource ["
@@ -693,7 +693,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     if (dbName != null) {
       ddb = manager.getDatabase(dbName);
       if (ddb == null && req.getTask().isNodeOnlineRequired()) {
-        throw new ODistributedException(
+        throw new YTDistributedException(
             "Database configuration not found for database '" + req.getDatabaseName() + "'");
       }
     }
@@ -771,11 +771,11 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
         }
       }
       final Throwable current;
-      if (t instanceof OException
+      if (t instanceof YTException
           && t.getCause() instanceof InterruptedException
           && !server.isActive()) {
-        current = new OOfflineNodeException("Node shutting down");
-      } else if (t instanceof OLockException && t.getCause() instanceof ODatabaseException)
+        current = new YTOfflineNodeException("Node shutting down");
+      } else if (t instanceof YTLockException && t.getCause() instanceof YTDatabaseException)
       // BYPASS THE DB POOL EXCEPTION TO PROPAGATE THE RIGHT SECURITY ONE
       {
         current = t.getCause();
@@ -808,8 +808,8 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       OBinaryResponse error;
       if (handshakeInfo != null) {
         OErrorCode code;
-        if (current instanceof OCoreException) {
-          code = ((OCoreException) current).getErrorCode();
+        if (current instanceof YTCoreException) {
+          code = ((YTCoreException) current).getErrorCode();
           if (code == null) {
             code = OErrorCode.GENERIC_ERROR;
           }
@@ -1013,7 +1013,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       final String message =
           "Error on unmarshalling record " + iRecord.getIdentity().toString() + " (" + e + ")";
 
-      throw OException.wrapException(new OSerializationException(message), e);
+      throw YTException.wrapException(new YTSerializationException(message), e);
     }
   }
 

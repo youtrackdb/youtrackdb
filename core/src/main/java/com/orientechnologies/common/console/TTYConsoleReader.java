@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.console;
 
-import com.orientechnologies.common.exception.OSystemException;
+import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.log.OLogManager;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -125,7 +125,7 @@ public class TTYConsoleReader implements OConsoleReader {
     }
 
     if (inStream == null) {
-      throw new OSystemException(
+      throw new YTSystemException(
           "Cannot access to the input stream. Check permissions of running process");
     }
   }

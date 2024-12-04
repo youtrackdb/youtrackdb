@@ -18,9 +18,9 @@
 
 package com.orientechnologies.lucene.tx;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.lucene.exception.OLuceneIndexException;
+import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import java.io.IOException;
@@ -54,8 +54,8 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
     try {
       writer.addDocument(doc);
     } catch (IOException e) {
-      throw OException.wrapException(
-          new OLuceneIndexException("unable to add document to changes index"), e);
+      throw YTException.wrapException(
+          new YTLuceneIndexException("unable to add document to changes index"), e);
     }
   }
 
@@ -73,8 +73,8 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
         deletedIdx.addDocument(doc);
       }
     } catch (final IOException e) {
-      throw OException.wrapException(
-          new OLuceneIndexException(
+      throw YTException.wrapException(
+          new YTLuceneIndexException(
               "Error while deleting documents in transaction from lucene index"),
           e);
     }

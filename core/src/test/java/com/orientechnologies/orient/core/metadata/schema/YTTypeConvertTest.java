@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,7 +51,7 @@ public class YTTypeConvertTest extends DBTestBase {
     assertNull(result);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testCannotConvert() {
     // Expected behavior is to not convert and return null
     Object result = YTType.convert(db, true, Long.class);
@@ -298,7 +298,7 @@ public class YTTypeConvertTest extends DBTestBase {
     assertEquals(result, true);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testToBooleanFromInvalidString() {
     YTType.convert(db, "invalid", Boolean.class);
   }

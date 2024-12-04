@@ -2,10 +2,10 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
 import java.util.Map;
 import java.util.Objects;
@@ -90,7 +90,7 @@ public class OCreatePropertyAttributeStatement extends SimpleNode {
         internalProp.setMin(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("default")) {
         if (this.settingValue == null) {
-          throw new OCommandExecutionException("");
+          throw new YTCommandExecutionException("");
         }
         internalProp.setDefaultValue(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("collate")) {
@@ -98,11 +98,11 @@ public class OCreatePropertyAttributeStatement extends SimpleNode {
       } else if (attrName.equalsIgnoreCase("regexp")) {
         internalProp.setRegexp(db, "" + attrValue);
       } else {
-        throw new OCommandExecutionException("Invalid attribute definition: '" + attrName + "'");
+        throw new YTCommandExecutionException("Invalid attribute definition: '" + attrName + "'");
       }
     } catch (Exception e) {
-      throw OException.wrapException(
-          new OCommandExecutionException(
+      throw YTException.wrapException(
+          new YTCommandExecutionException(
               "Cannot set attribute on property " + settingName.getStringValue() + " " + attrValue),
           e);
     }

@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.common.concur.OTimeoutException;
+import com.orientechnologies.common.concur.YTNeedRetryException;
+import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
-import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
+import com.orientechnologies.orient.core.exception.YTCommandInterruptedException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import java.util.List;
@@ -35,7 +35,7 @@ public class RetryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -44,7 +44,7 @@ public class RetryStep extends AbstractExecutionStep {
       try {
 
         if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
-          throw new OCommandInterruptedException("The command has been interrupted");
+          throw new YTCommandInterruptedException("The command has been interrupted");
         }
         OScriptExecutionPlan plan = initPlan(body, ctx);
         OExecutionStepInternal result = plan.executeFull();
@@ -52,7 +52,7 @@ public class RetryStep extends AbstractExecutionStep {
           return result.start(ctx);
         }
         break;
-      } catch (ONeedRetryException ex) {
+      } catch (YTNeedRetryException ex) {
         try {
           var db = ctx.getDatabase();
           db.rollback();

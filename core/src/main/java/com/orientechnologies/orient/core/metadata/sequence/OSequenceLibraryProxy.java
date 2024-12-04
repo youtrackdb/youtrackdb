@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.metadata.sequence;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -58,7 +58,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
   @Override
   public YTSequence createSequence(
       String iName, SEQUENCE_TYPE sequenceType, YTSequence.CreateParams params)
-      throws ODatabaseException {
+      throws YTDatabaseException {
     boolean shouldGoOverDistributted =
         database.isDistributed() && (replicationProtocolVersion == 2);
     return createSequence(iName, sequenceType, params, shouldGoOverDistributted);
@@ -70,7 +70,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
       SEQUENCE_TYPE sequenceType,
       YTSequence.CreateParams params,
       boolean executeViaDistributed)
-      throws ODatabaseException {
+      throws YTDatabaseException {
     if (executeViaDistributed) {
       OSequenceAction action =
           new OSequenceAction(OSequenceAction.CREATE, iName, params, sequenceType);
@@ -79,7 +79,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
         return delegate.getSequence(database, sequenceName);
       } catch (InterruptedException | ExecutionException exc) {
         OLogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
-        throw new ODatabaseException(exc.getMessage());
+        throw new YTDatabaseException(exc.getMessage());
       }
     } else {
       return delegate.createSequence(database, iName, sequenceType, params);
@@ -88,21 +88,21 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
 
   @Override
   @Deprecated
-  public void dropSequence(String iName) throws ODatabaseException {
+  public void dropSequence(String iName) throws YTDatabaseException {
     boolean shouldGoOverDistributted =
         database.isDistributed() && (replicationProtocolVersion == 2);
     dropSequence(iName, shouldGoOverDistributted);
   }
 
   @Override
-  void dropSequence(String iName, boolean executeViaDistributed) throws ODatabaseException {
+  void dropSequence(String iName, boolean executeViaDistributed) throws YTDatabaseException {
     if (executeViaDistributed) {
       OSequenceAction action = new OSequenceAction(OSequenceAction.REMOVE, iName, null, null);
       try {
         database.sendSequenceAction(action);
       } catch (InterruptedException | ExecutionException exc) {
         OLogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
-        throw new ODatabaseException(exc.getMessage());
+        throw new YTDatabaseException(exc.getMessage());
       }
     } else {
       delegate.dropSequence(database, iName);

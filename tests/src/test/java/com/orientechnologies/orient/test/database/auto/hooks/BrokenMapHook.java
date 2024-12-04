@@ -2,7 +2,7 @@ package com.orientechnologies.orient.test.database.auto.hooks;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -76,7 +76,7 @@ public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
             });
       }
       return RESULT.RECORD_CHANGED;
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       return RESULT.RECORD_NOT_CHANGED;
     }
   }

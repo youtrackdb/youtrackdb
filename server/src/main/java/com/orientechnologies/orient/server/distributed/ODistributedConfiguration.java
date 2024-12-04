@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -702,7 +702,7 @@ public class ODistributedConfiguration {
    * Returns the list of servers in a data center.
    *
    * @param dataCenter Data center name
-   * @throws OConfigurationException if the list of servers is not found in data center
+   * @throws YTConfigurationException if the list of servers is not found in data center
    *                                 configuration
    */
   public List<String> getDataCenterServers(final String dataCenter) {
@@ -711,7 +711,7 @@ public class ODistributedConfiguration {
 
     final List<String> servers = dc.field(SERVERS);
     if (servers == null || servers.isEmpty()) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Data center '"
               + dataCenter
               + "' does not contain any server in distributed database configuration");
@@ -808,7 +808,7 @@ public class ODistributedConfiguration {
   private YTDocument getConfiguredClusters() {
     final YTDocument clusters = configuration.field(CLUSTERS);
     if (clusters == null) {
-      throw new OConfigurationException(
+      throw new YTConfigurationException(
           "Cannot find '" + CLUSTERS + "' in distributed database configuration");
     }
     return clusters;
@@ -824,7 +824,7 @@ public class ODistributedConfiguration {
    *
    * @param iClusterName Cluster name, or null for *
    * @return Always a YTDocument
-   * @throws OConfigurationException in case "clusters" field is not found in configuration
+   * @throws YTConfigurationException in case "clusters" field is not found in configuration
    */
   protected YTDocument getClusterConfiguration(String iClusterName) {
     final YTDocument clusters = getConfiguredClusters();
@@ -856,14 +856,14 @@ public class ODistributedConfiguration {
    *
    * @param dataCenter Data center name
    * @return Always a YTDocument
-   * @throws OConfigurationException if the data center configuration is not found
+   * @throws YTConfigurationException if the data center configuration is not found
    */
   private YTDocument getDataCenterConfiguration(final String dataCenter) {
     final YTDocument dcs = configuration.field(DCS);
     if (dcs != null) {
       return dcs.field(dataCenter);
     }
-    throw new OConfigurationException(
+    throw new YTConfigurationException(
         "Cannot find the data center '" + dataCenter + "' in distributed database configuration");
   }
 
@@ -909,12 +909,12 @@ public class ODistributedConfiguration {
       } else if (value.toString().equalsIgnoreCase(QUORUM_LOCAL_DC)) {
         final String dc = getDataCenterOfServer(server);
         if (dc == null) {
-          throw new OConfigurationException(
+          throw new YTConfigurationException(
               "Data center not specified for server '" + server + "' in distributed configuration");
         }
         value = getDataCenterWriteQuorum(dc);
       } else {
-        throw new OConfigurationException(
+        throw new YTConfigurationException(
             "The value '"
                 + value
                 + "' is not supported for "

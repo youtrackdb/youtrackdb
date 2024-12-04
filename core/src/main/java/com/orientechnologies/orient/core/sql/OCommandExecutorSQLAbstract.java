@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext.TIMEOUT_STRATEGY;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
@@ -93,23 +93,23 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
   }
 
   protected void throwSyntaxErrorException(final String iText) {
-    throw new OCommandSQLParsingException(
+    throw new YTCommandSQLParsingException(
         iText + ". Use " + getSyntax(), parserText, parserGetPreviousPosition());
   }
 
   protected void throwParsingException(final String iText) {
-    throw new OCommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
+    throw new YTCommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
   }
 
   protected void throwParsingException(final String iText, Exception e) {
-    throw OException.wrapException(
-        new OCommandSQLParsingException(iText, parserText, parserGetPreviousPosition()), e);
+    throw YTException.wrapException(
+        new YTCommandSQLParsingException(iText, parserText, parserGetPreviousPosition()), e);
   }
 
   /**
    * Parses the timeout keyword if found.
    */
-  protected boolean parseTimeout(final String w) throws OCommandSQLParsingException {
+  protected boolean parseTimeout(final String w) throws YTCommandSQLParsingException {
     if (!w.equals(KEYWORD_TIMEOUT)) {
       return false;
     }
@@ -247,7 +247,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
           return builder.toString();
         }
         return result.toString();
-      } catch (OCommandSQLParsingException sqlx) {
+      } catch (YTCommandSQLParsingException sqlx) {
         throw sqlx;
       } catch (Exception e) {
         throwParsingException("Error parsing query: \n" + queryText + "\n" + e.getMessage(), e);

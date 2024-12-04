@@ -18,7 +18,7 @@ package com.orientechnologies.orient.core.sql.functions.text;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
@@ -55,7 +55,7 @@ public class OSQLMethodFromJSON extends OAbstractSQLMethod {
           }
 
           return doc;
-        } catch (ORecordNotFoundException e) {
+        } catch (YTRecordNotFoundException e) {
           return null;
         }
       }

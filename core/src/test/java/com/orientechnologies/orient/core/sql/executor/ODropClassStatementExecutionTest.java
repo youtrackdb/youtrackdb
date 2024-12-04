@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import org.junit.Assert;
@@ -43,7 +43,7 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
     try {
       db.command("drop class " + className).close();
       Assert.fail();
-    } catch (OCommandExecutionException ex1) {
+    } catch (YTCommandExecutionException ex1) {
     } catch (Exception ex2) {
       Assert.fail();
     }

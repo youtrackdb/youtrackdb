@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -357,7 +357,7 @@ public final class OCommandResponse implements OBinaryResponse {
             //
             //                @Override
             //                public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws
-            // OException {
+            // YTException {
             //                  dbCopy.activateOnCurrentThread();
             //                  listener.onLiveResult(iLiveToken, iOp);
             //                }
@@ -370,7 +370,7 @@ public final class OCommandResponse implements OBinaryResponse {
             //              });
             //            }
           } else {
-            throw new OStorageException("Cannot execute live query, returned null token");
+            throw new YTStorageException("Cannot execute live query, returned null token");
           }
         }
       }

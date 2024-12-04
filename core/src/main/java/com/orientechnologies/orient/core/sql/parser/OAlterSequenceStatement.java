@@ -5,10 +5,10 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -39,13 +39,13 @@ public class OAlterSequenceStatement extends ODDLStatement {
     String sequenceName = name.getStringValue();
 
     if (sequenceName == null) {
-      throw new OCommandExecutionException(
+      throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
     final var database = ctx.getDatabase();
     YTSequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
     if (sequence == null) {
-      throw new OCommandExecutionException("Sequence not found: " + sequenceName);
+      throw new YTCommandExecutionException("Sequence not found: " + sequenceName);
     }
 
     YTSequence.CreateParams params = new YTSequence.CreateParams();
@@ -54,21 +54,21 @@ public class OAlterSequenceStatement extends ODDLStatement {
     if (start != null) {
       Object val = start.execute((YTIdentifiable) null, ctx);
       if (!(val instanceof Number)) {
-        throw new OCommandExecutionException("invalid start value for a sequence: " + val);
+        throw new YTCommandExecutionException("invalid start value for a sequence: " + val);
       }
       params.setStart(((Number) val).longValue());
     }
     if (increment != null) {
       Object val = increment.execute((YTIdentifiable) null, ctx);
       if (!(val instanceof Number)) {
-        throw new OCommandExecutionException("invalid increment value for a sequence: " + val);
+        throw new YTCommandExecutionException("invalid increment value for a sequence: " + val);
       }
       params.setIncrement(((Number) val).intValue());
     }
     if (cache != null) {
       Object val = cache.execute((YTIdentifiable) null, ctx);
       if (!(val instanceof Number)) {
-        throw new OCommandExecutionException("invalid cache value for a sequence: " + val);
+        throw new YTCommandExecutionException("invalid cache value for a sequence: " + val);
       }
       params.setCacheSize(((Number) val).intValue());
     }
@@ -82,7 +82,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
     if (limitValue != null) {
       Object val = limitValue.execute((YTIdentifiable) null, ctx);
       if (!(val instanceof Number)) {
-        throw new OCommandExecutionException("invalid cache value for a sequence: " + val);
+        throw new YTCommandExecutionException("invalid cache value for a sequence: " + val);
       }
       params.setLimitValue(((Number) val).longValue());
     }
@@ -92,10 +92,10 @@ public class OAlterSequenceStatement extends ODDLStatement {
 
     try {
       sequence.updateParams(params);
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       OLogManager.instance().error(this, message, exc, (Object) null);
-      throw new OCommandExecutionException(message);
+      throw new YTCommandExecutionException(message);
     }
 
     OResultInternal item = new OResultInternal(ctx.getDatabase());

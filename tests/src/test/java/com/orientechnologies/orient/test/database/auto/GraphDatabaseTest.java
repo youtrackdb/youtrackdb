@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -253,7 +253,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     try {
       database.command("delete from GraphVehicle").close();
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(true);
     }
   }
@@ -262,7 +262,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     try {
       database.command(new OCommandSQL("insert into E set a = 33")).execute(database);
       Assert.fail();
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
       Assert.assertTrue(true);
     }
   }

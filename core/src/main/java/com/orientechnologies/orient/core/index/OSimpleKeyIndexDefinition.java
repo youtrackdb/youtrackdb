@@ -184,7 +184,7 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
 
   public Object getDocumentValueToIndex(
       YTDatabaseSessionInternal session, final YTDocument iDocument) {
-    throw new OIndexException("This method is not supported in given index definition.");
+    throw new YTIndexException("This method is not supported in given index definition.");
   }
 
   @Override

@@ -25,8 +25,8 @@ import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.DB_
 
 import com.orientechnologies.common.concur.resource.OResourcePool;
 import com.orientechnologies.common.concur.resource.OResourcePoolListener;
-import com.orientechnologies.orient.core.exception.OAcquireTimeoutException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTAcquireTimeoutException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 
 /**
  *
@@ -74,7 +74,7 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
   }
 
   @Override
-  public YTDatabaseSession acquire() throws OAcquireTimeoutException {
+  public YTDatabaseSession acquire() throws YTAcquireTimeoutException {
     OResourcePool<Void, YTDatabaseSessionInternal> p;
     synchronized (this) {
       p = pool;
@@ -83,7 +83,7 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
       return p.getResource(
           null, config.getConfigurations().getValueAsLong(DB_POOL_ACQUIRE_TIMEOUT));
     } else {
-      throw new ODatabaseException("The pool is closed");
+      throw new YTDatabaseException("The pool is closed");
     }
   }
 
@@ -111,7 +111,7 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
     if (p != null) {
       pool.returnResource(database);
     } else {
-      throw new ODatabaseException("The pool is closed");
+      throw new YTDatabaseException("The pool is closed");
     }
     lastCloseTime = System.currentTimeMillis();
   }

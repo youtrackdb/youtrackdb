@@ -20,7 +20,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
@@ -73,7 +73,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
       } else if (ioResult instanceof YTIdentifiable) {
         try {
           ioResult = ((YTIdentifiable) ioResult).getRecord();
-        } catch (ORecordNotFoundException rnf) {
+        } catch (YTRecordNotFoundException rnf) {
           OLogManager.instance()
               .error(this, "Error on reading rid with value '%s'", null, ioResult);
           ioResult = null;

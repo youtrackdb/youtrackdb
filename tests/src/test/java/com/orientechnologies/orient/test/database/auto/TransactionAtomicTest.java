@@ -20,14 +20,14 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
+import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.YTTransactionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -97,7 +97,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
       doc.save();
       database.commit();
       Assert.fail();
-    } catch (OConcurrentModificationException e) {
+    } catch (YTConcurrentModificationException e) {
       Assert.assertTrue(true);
     }
   }
@@ -174,7 +174,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     try {
       database.commit();
       Assert.fail();
-    } catch (OTransactionException e) {
+    } catch (YTTransactionException e) {
       Assert.assertTrue(true);
     } finally {
       database.unregisterListener(listener);
@@ -224,7 +224,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
       Assert.fail();
 
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
       Assert.assertTrue(true);
       database.rollback();
     }

@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person2.field("name", "Name2").save();
     person3.field("name", "Name3").save();
 
-    // should not throw ORecordDuplicatedException exception
+    // should not throw YTRecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -119,7 +119,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person1.field("name", "Name1").save();
     person2.field("name", "Name2").save();
 
-    // should not throw ORecordDuplicatedException exception
+    // should not throw YTRecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -149,7 +149,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person2.field("name", "Name2").save();
     person3.field("name", "Name3").save();
 
-    // should not throw ORecordDuplicatedException exception
+    // should not throw YTRecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -194,7 +194,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person2.field("name", "Name2").save();
     person1.field("name", "Name1").save();
 
-    // should not throw ORecordDuplicatedException exception
+    // should not throw YTRecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -226,7 +226,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person2.field("name", "Name2").save();
     person3.delete();
 
-    // should not throw ORecordDuplicatedException exception
+    // should not throw YTRecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -270,7 +270,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person4.field("name", "same").save();
     person2.field("name", "Name2").save();
 
-    // should not throw ORecordDuplicatedException exception
+    // should not throw YTRecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -290,7 +290,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     Assert.assertNull(fetchDocumentFromIndex("same"));
   }
 
-  @Test(expected = ORecordDuplicatedException.class)
+  @Test(expected = YTRecordDuplicatedException.class)
   public void testDuplicateCreateThrows() {
     db.begin();
     YTDocument person1 = db.newInstance("Person");
@@ -303,7 +303,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     YTDocument person4 = db.newInstance("Person");
     person4.field("name", "Name1");
     db.save(person4);
-    //    Assert.assertThrows(ORecordDuplicatedException.class, new Assert.ThrowingRunnable() {
+    //    Assert.assertThrows(YTRecordDuplicatedException.class, new Assert.ThrowingRunnable() {
     //      @Override
     //      public void run() throws Throwable {
     //        db.commit();
@@ -312,7 +312,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     db.commit();
   }
 
-  @Test(expected = ORecordDuplicatedException.class)
+  @Test(expected = YTRecordDuplicatedException.class)
   public void testDuplicateUpdateThrows() {
     db.begin();
     YTDocument person1 = db.newInstance("Person");

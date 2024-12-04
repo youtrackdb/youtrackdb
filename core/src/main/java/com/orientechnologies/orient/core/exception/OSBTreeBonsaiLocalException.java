@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTre
 /**
  * @since 10/2/2015
  */
-public class OSBTreeBonsaiLocalException extends ODurableComponentException {
+public class OSBTreeBonsaiLocalException extends YTDurableComponentException {
 
   public OSBTreeBonsaiLocalException(OSBTreeBonsaiLocalException exception) {
     super(exception);

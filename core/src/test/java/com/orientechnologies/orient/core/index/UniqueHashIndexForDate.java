@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
@@ -32,7 +32,7 @@ public class UniqueHashIndexForDate extends DBTestBase {
       db.save(doc1);
       db.commit();
       Assert.fail("expected exception for duplicate ");
-    } catch (OException e) {
+    } catch (YTException e) {
 
     }
   }

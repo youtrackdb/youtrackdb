@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -179,7 +179,8 @@ public class OLevelZeroIdentifier extends SimpleNode {
 
   public OExpression getExpandContent() {
     if (functionCall.getParams().size() != 1) {
-      throw new OCommandExecutionException("Invalid expand expression: " + functionCall.toString());
+      throw new YTCommandExecutionException(
+          "Invalid expand expression: " + functionCall.toString());
     }
     return functionCall.getParams().get(0);
   }
@@ -241,7 +242,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
         return functionCall.getAggregationContext(ctx);
       }
     }
-    throw new OCommandExecutionException("cannot aggregate on " + this);
+    throw new YTCommandExecutionException("cannot aggregate on " + this);
   }
 
   public OLevelZeroIdentifier copy() {

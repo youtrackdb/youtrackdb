@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -48,7 +48,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
    * Returns the record instance.
    *
    * @return YTRecord instance
-   * @throws com.orientechnologies.orient.core.exception.ORecordNotFoundException if the record does
+   * @throws YTRecordNotFoundException if the record does
    *                                                                              not exist
    */
   @Nonnull
@@ -64,7 +64,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
   default <T extends YTRecord> T getRecordSilently() {
     try {
       return getRecord();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       return null;
     }
   }
@@ -73,7 +73,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
    * Returns the element instance associated with given identifiable, otherwise throws exception.
    *
    * @return YTRecord instance
-   * @throws ODatabaseException if the record is not an element.
+   * @throws YTDatabaseException if the record is not an element.
    */
   @Nonnull
   default YTEntity getElement() {
@@ -82,7 +82,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
       return element;
     }
 
-    throw new ODatabaseException("Record " + getIdentity() + " is not an element.");
+    throw new YTDatabaseException("Record " + getIdentity() + " is not an element.");
   }
 
   /**
@@ -96,7 +96,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
   default YTEntity getElementSilently() {
     try {
       return getElement();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       return null;
     }
   }
@@ -105,7 +105,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
    * Returns the blob instance associated with given identifiable, otherwise throws exception.
    *
    * @return YTRecord instance
-   * @throws ODatabaseException if the record is not a blob.
+   * @throws YTDatabaseException if the record is not a blob.
    */
   @Nonnull
   default YTBlob getBlob() {
@@ -114,7 +114,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
       return blob;
     }
 
-    throw new ODatabaseException("Record " + getIdentity() + " is not a blob.");
+    throw new YTDatabaseException("Record " + getIdentity() + " is not a blob.");
   }
 
   /**
@@ -128,7 +128,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
   default YTBlob getBlobSilently() {
     try {
       return getBlob();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       return null;
     }
   }
@@ -137,7 +137,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
    * Returns the edge instance associated with given identifiable, otherwise throws exception.
    *
    * @return YTRecord instance
-   * @throws ODatabaseException if the record is not an edge.
+   * @throws YTDatabaseException if the record is not an edge.
    */
   @Nonnull
   default YTEdge getEdge() {
@@ -146,7 +146,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
       return edge;
     }
 
-    throw new ODatabaseException("Record " + getIdentity() + " is not an edge.");
+    throw new YTDatabaseException("Record " + getIdentity() + " is not an edge.");
   }
 
   /**
@@ -160,7 +160,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
   default YTEdge getEdgeSilently() {
     try {
       return getEdge();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       return null;
     }
   }
@@ -169,7 +169,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
    * Returns the vertex instance associated with given identifiable, otherwise throws exception.
    *
    * @return YTRecord instance
-   * @throws ODatabaseException if the record is not a vertex.
+   * @throws YTDatabaseException if the record is not a vertex.
    */
   @Nonnull
   default YTVertex getVertex() {
@@ -178,7 +178,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
       return vertex;
     }
 
-    throw new ODatabaseException("Record " + getIdentity() + " is not a vertex.");
+    throw new YTDatabaseException("Record " + getIdentity() + " is not a vertex.");
   }
 
   /**
@@ -192,7 +192,7 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
   default YTVertex getVertexSilently() {
     try {
       return getVertex();
-    } catch (ORecordNotFoundException e) {
+    } catch (YTRecordNotFoundException e) {
       return null;
     }
   }

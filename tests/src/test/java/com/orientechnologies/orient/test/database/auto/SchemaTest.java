@@ -20,10 +20,10 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.YTClusterDoesNotExistException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.HashSet;
@@ -113,7 +113,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     try {
       Assert.assertNull(schema.getClass("Animal33"));
-    } catch (OSchemaException e) {
+    } catch (YTSchemaException e) {
     }
   }
 
@@ -131,7 +131,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     Assert.assertTrue(database.getStorage().countRecords(database) > 0);
   }
 
-  @Test(expectedExceptions = OValidationException.class)
+  @Test(expectedExceptions = YTValidationException.class)
   public void checkErrorOnUserNoPasswd() {
     database.begin();
     database.getMetadata().getSecurity().createUser("error", null, (String) null);
@@ -374,7 +374,7 @@ public class SchemaTest extends DocumentDBBaseTest {
       database.command(new OCommandSQL("create class Antani cluster 212121")).execute(database);
       Assert.fail();
     } catch (Exception e) {
-      Assert.assertTrue(e instanceof OClusterDoesNotExistException);
+      Assert.assertTrue(e instanceof YTClusterDoesNotExistException);
     }
   }
 
@@ -385,7 +385,7 @@ public class SchemaTest extends DocumentDBBaseTest {
       Assert.fail();
 
     } catch (Exception e) {
-      Assert.assertTrue(e instanceof OCommandSQLParsingException);
+      Assert.assertTrue(e instanceof YTCommandSQLParsingException);
     }
   }
 
@@ -397,7 +397,7 @@ public class SchemaTest extends DocumentDBBaseTest {
           .execute(database);
       Assert.fail();
     } catch (Exception e) {
-      Assert.assertTrue(e instanceof OCommandSQLParsingException);
+      Assert.assertTrue(e instanceof YTCommandSQLParsingException);
     }
   }
 
@@ -498,8 +498,8 @@ public class SchemaTest extends DocumentDBBaseTest {
     try {
       database.getMetadata().getSchema().getClass("V").setName(database, "OUser");
       Assert.fail();
-    } catch (OSchemaException e) {
-    } catch (OCommandExecutionException e) {
+    } catch (YTSchemaException e) {
+    } catch (YTCommandExecutionException e) {
     }
   }
 
@@ -508,7 +508,7 @@ public class SchemaTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().getClass("V").setShortName(database, "OUser");
       Assert.fail();
     } catch (IllegalArgumentException e) {
-    } catch (OCommandExecutionException e) {
+    } catch (YTCommandExecutionException e) {
     }
   }
 

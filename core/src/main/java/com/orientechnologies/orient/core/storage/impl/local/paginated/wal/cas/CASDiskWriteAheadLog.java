@@ -4,7 +4,7 @@ import com.orientechnologies.common.concur.lock.ScalableRWLock;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.orientechnologies.common.directmemory.OPointer;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
@@ -12,9 +12,9 @@ import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.common.types.OModifiableLong;
 import com.orientechnologies.common.util.ORawPairLongObject;
 import com.orientechnologies.orient.core.exception.EncryptionKeyAbsentException;
-import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.exception.YTInvalidStorageEncryptionKeyException;
+import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OCheckpointRequestListener;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationMetadata;
@@ -234,12 +234,12 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       throws IOException {
 
     if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
-      throw new OInvalidStorageEncryptionKeyException(
+      throw new YTInvalidStorageEncryptionKeyException(
           "Invalid length of the encryption key, provided size is " + aesKey.length);
     }
 
     if (aesKey != null && iv == null) {
-      throw new OInvalidStorageEncryptionKeyException("IV can not be null");
+      throw new YTInvalidStorageEncryptionKeyException("IV can not be null");
     }
 
     this.keepSingleWALSegment = keepSingleWALSegment;
@@ -533,11 +533,11 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       try {
         wf.get();
       } catch (final InterruptedException e) {
-        throw OException.wrapException(
-            new OStorageException("WAL write for storage " + storageName + " was interrupted"), e);
+        throw YTException.wrapException(
+            new YTStorageException("WAL write for storage " + storageName + " was interrupted"), e);
       } catch (final ExecutionException e) {
-        throw OException.wrapException(
-            new OStorageException("Error during WAL write for storage " + storageName), e);
+        throw YTException.wrapException(
+            new YTStorageException("Error during WAL write for storage " + storageName), e);
       }
     }
   }
@@ -956,18 +956,18 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       try {
         recordsWriterFuture.get();
       } catch (final InterruptedException interruptedException) {
-        throw OException.wrapException(
-            new OStorageException(
+        throw YTException.wrapException(
+            new YTStorageException(
                 "WAL records write task for storage '" + storageName + "'  was interrupted"),
             interruptedException);
       } catch (ExecutionException executionException) {
-        throw OException.wrapException(
-            new OStorageException(
+        throw YTException.wrapException(
+            new YTStorageException(
                 "WAL records write task for storage '" + storageName + "' was finished with error"),
             executionException);
       }
 
-      throw new OStorageException(
+      throw new YTStorageException(
           "WAL records write task for storage '" + storageName + "' was unexpectedly finished");
     }
 
@@ -1268,7 +1268,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     }
 
     if (!recordsWriterFuture.cancel(false) && !recordsWriterFuture.isDone()) {
-      throw new OStorageException("Can not cancel background write thread in WAL");
+      throw new YTStorageException("Can not cancel background write thread in WAL");
     }
 
     cancelRecordsWriting = true;
@@ -1277,8 +1277,8 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     } catch (CancellationException e) {
       // ignore, we canceled scheduled execution
     } catch (InterruptedException | ExecutionException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during writing of WAL records in storage " + storageName),
+      throw YTException.wrapException(
+          new YTStorageException("Error during writing of WAL records in storage " + storageName),
           e);
     }
 
@@ -1289,8 +1289,8 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         try {
           future.get();
         } catch (InterruptedException | ExecutionException e) {
-          throw OException.wrapException(
-              new OStorageException(
+          throw YTException.wrapException(
+              new YTStorageException(
                   "Error during writing of WAL records in storage " + storageName),
               e);
         }
@@ -1407,7 +1407,8 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       buffer.put(outBuffer);
 
     } catch (InvalidKeyException e) {
-      throw OException.wrapException(new OInvalidStorageEncryptionKeyException(e.getMessage()), e);
+      throw YTException.wrapException(new YTInvalidStorageEncryptionKeyException(e.getMessage()),
+          e);
     } catch (InvalidAlgorithmParameterException e) {
       throw new IllegalArgumentException("Invalid IV.", e);
     } catch (IllegalBlockSizeException | BadPaddingException | ShortBufferException e) {
@@ -2039,7 +2040,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       OLogManager.instance().error(this, "WAL write was interrupted", e);
     } catch (final Exception e) {
       OLogManager.instance().error(this, "Error during WAL write", e);
-      throw OException.wrapException(new OStorageException("Error during WAL data write"), e);
+      throw YTException.wrapException(new YTStorageException("Error during WAL data write"), e);
     }
 
     assert file.position() == currentPosition;
@@ -2180,8 +2181,8 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     try {
       return Cipher.getInstance(TRANSFORMATION);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-      throw OException.wrapException(
-          new OSecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
+      throw YTException.wrapException(
+          new YTSecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
           e);
     }
   }

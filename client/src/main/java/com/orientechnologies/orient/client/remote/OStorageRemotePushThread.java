@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
@@ -85,7 +85,7 @@ public class OStorageRemotePushThread extends Thread {
             OLogManager.instance().error(this, "Error executing push request", e);
           }
         }
-      } catch (IOException | OException e) {
+      } catch (IOException | YTException e) {
         pushHandler.onPushDisconnect(this.network, e);
         while (!currentThread().isInterrupted()) {
           try {

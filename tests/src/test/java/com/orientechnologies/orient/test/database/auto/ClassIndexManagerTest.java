@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -173,7 +173,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       docTwo.save();
       database.commit();
 
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
       exceptionThrown = true;
     }
     Assert.assertTrue(exceptionThrown);
@@ -222,7 +222,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       database.begin();
       docTwo.save();
       database.commit();
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
       exceptionThrown = true;
     }
     Assert.assertTrue(exceptionThrown);
@@ -252,7 +252,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
       docTwo.save();
       database.commit();
-    } catch (ORecordDuplicatedException e) {
+    } catch (YTRecordDuplicatedException e) {
       exceptionThrown = true;
     }
     Assert.assertTrue(exceptionThrown);

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.Assert;
@@ -54,7 +54,7 @@ public class OProjectionTest {
     try {
       getParserFor("select expand(foo), bar  from V").parse();
       Assert.fail();
-    } catch (OCommandSQLParsingException ex) {
+    } catch (YTCommandSQLParsingException ex) {
 
     } catch (Exception x) {
       Assert.fail();

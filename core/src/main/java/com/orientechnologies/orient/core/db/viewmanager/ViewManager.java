@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.viewmanager;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
@@ -10,8 +10,8 @@ import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -435,8 +435,8 @@ public class ViewManager {
       }
       return result;
     } catch (Exception e) {
-      throw OException.wrapException(
-          new ODatabaseException("Error on creating indexes for view " + view.getName()), e);
+      throw YTException.wrapException(
+          new YTDatabaseException("Error on creating indexes for view " + view.getName()), e);
     }
   }
 
@@ -476,7 +476,7 @@ public class ViewManager {
         try {
           db.addCluster(clusterName);
           return clusterName;
-        } catch (OConfigurationException e) {
+        } catch (YTConfigurationException e) {
           // Ignore and retry
         }
       }
@@ -668,7 +668,7 @@ public class ViewManager {
     }
 
     @Override
-    public void onError(YTDatabaseSession database, OException exception) {
+    public void onError(YTDatabaseSession database, YTException exception) {
       OLogManager.instance().error(ViewManager.this, "Error updating view " + viewName, exception);
     }
 

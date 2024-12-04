@@ -13,8 +13,8 @@ public class RecordNotFoundExceptionTest {
 
   @Test
   public void simpleExceptionCopyTest() {
-    ORecordNotFoundException ex = new ORecordNotFoundException(new YTRecordId(1, 2));
-    ORecordNotFoundException ex1 = new ORecordNotFoundException(ex);
+    YTRecordNotFoundException ex = new YTRecordNotFoundException(new YTRecordId(1, 2));
+    YTRecordNotFoundException ex1 = new YTRecordNotFoundException(ex);
     assertNotNull(ex1.getRid());
     assertEquals(ex1.getRid().getClusterId(), 1);
     assertEquals(ex1.getRid().getClusterPosition(), 2);

@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OSequenceException;
+import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.orient.core.exception.YTSequenceException;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -36,10 +36,10 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
 
     database.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
 
-    OCommandExecutionException err = null;
+    YTCommandExecutionException err = null;
     try {
       database.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
-    } catch (OCommandExecutionException se) {
+    } catch (YTCommandExecutionException se) {
       err = se;
     }
     Assert.assertTrue(
@@ -87,16 +87,16 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
     YTSequence seq = null;
     try {
       seq = sequenceManager.createSequence("seqSQLOrdered", YTSequence.SEQUENCE_TYPE.ORDERED, null);
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       Assert.fail("Unable to create sequence");
     }
 
-    OSequenceException err = null;
+    YTSequenceException err = null;
     try {
       sequenceManager.createSequence("seqSQLOrdered", YTSequence.SEQUENCE_TYPE.ORDERED, null);
-    } catch (OSequenceException se) {
+    } catch (YTSequenceException se) {
       err = se;
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       Assert.fail("Unable to create sequence");
     }
 
@@ -114,7 +114,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
       database.begin();
       seq.updateParams(new YTSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
       database.commit();
-    } catch (ODatabaseException exc) {
+    } catch (YTDatabaseException exc) {
       Assert.fail("Unable to update paramas");
     }
     testUsage(seq, SECOND_START);

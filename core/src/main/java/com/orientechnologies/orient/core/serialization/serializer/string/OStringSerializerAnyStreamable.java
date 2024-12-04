@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.string;
 
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.util.Base64;
@@ -59,7 +59,7 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
       } catch (Exception e) {
         final String message = "Error on unmarshalling content. Class: " + className;
         OLogManager.instance().error(this, message, e);
-        throw OException.wrapException(new OSerializationException(message), e);
+        throw YTException.wrapException(new YTSerializationException(message), e);
       }
     }
 
@@ -75,7 +75,7 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
   public StringBuilder toStream(final StringBuilder iOutput, Object iValue) {
     if (iValue != null) {
       if (!(iValue instanceof OSerializableStream stream)) {
-        throw new OSerializationException(
+        throw new YTSerializationException(
             "Cannot serialize the object since it's not implements the OSerializableStream"
                 + " interface");
       }

@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -280,7 +280,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     Assert.assertEquals(result, expectedResult);
   }
 
-  @Test(expected = OIndexException.class)
+  @Test(expected = YTIndexException.class)
   public void testCreateCollectionValueTwoCollections() {
     final OCompositeIndexDefinition compositeIndexDefinition =
         new OCompositeIndexDefinition("testCollectionClass");
@@ -293,7 +293,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.createValue(db, Arrays.asList(1, 2), List.of(12));
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testCreateValueWrongParam() {
     compositeIndex.createValue(db, Arrays.asList("1t2", "test"));
   }
@@ -305,7 +305,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     Assert.assertEquals(result, new OCompositeKey(Arrays.asList(12, "test")));
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testCreateValueWrongParamArrayParams() {
     compositeIndex.createValue(db, "1t2", "test");
   }
@@ -624,7 +624,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     Assert.assertEquals(result, expectedResult);
   }
 
-  @Test(expected = OException.class)
+  @Test(expected = YTException.class)
   public void testDocumentToIndexCollectionValueTwoCollections() {
     final YTDocument document = new YTDocument();
 
@@ -641,7 +641,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.getDocumentValueToIndex(db, document);
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = YTDatabaseException.class)
   public void testDocumentToIndexWrongField() {
     final YTDocument document = new YTDocument();
 

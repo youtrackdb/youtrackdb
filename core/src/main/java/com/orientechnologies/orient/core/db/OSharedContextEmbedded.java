@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.index.OIndexException;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexManagerShared;
 import com.orientechnologies.orient.core.index.OIndexes;
@@ -162,7 +162,7 @@ public class OSharedContextEmbedded extends OSharedContext {
       if (factory instanceof ODatabaseLifecycleListener) {
         ((ODatabaseLifecycleListener) factory).onCreate(database);
       }
-    } catch (OIndexException x) {
+    } catch (YTIndexException x) {
       // the index does not exist
     }
 

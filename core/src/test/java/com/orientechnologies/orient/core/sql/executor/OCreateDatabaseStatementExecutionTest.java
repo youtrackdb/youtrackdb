@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.exception.OSecurityAccessException;
+import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,7 +69,7 @@ public class OCreateDatabaseStatementExecutionTest {
       YTDatabaseSession session =
           youTrackDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       Assert.fail();
-    } catch (OSecurityAccessException e) {
+    } catch (YTSecurityAccessException e) {
     } finally {
       youTrackDb.drop(dbName);
       youTrackDb.close();
