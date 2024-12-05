@@ -16,7 +16,7 @@ package com.orientechnologies.spatial.shape;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,8 +88,8 @@ public class OShapeFactory extends OComplexShapeBuilder {
     if (obj instanceof YTDocument) {
       return fromDoc((YTDocument) obj);
     }
-    if (obj instanceof OResult) {
-      YTEntity entity = ((OResult) obj).toElement();
+    if (obj instanceof YTResult) {
+      YTEntity entity = ((YTResult) obj).toElement();
       return fromDoc((YTDocument) entity);
     }
     if (obj instanceof Map) {
@@ -122,8 +122,8 @@ public class OShapeFactory extends OComplexShapeBuilder {
   @Override
   public String asText(Object obj) {
 
-    if (obj instanceof OResult) {
-      YTEntity entity = ((OResult) obj).toElement();
+    if (obj instanceof YTResult) {
+      YTEntity entity = ((YTResult) obj).toElement();
       return asText((YTDocument) entity);
     }
     if (obj instanceof YTDocument) {

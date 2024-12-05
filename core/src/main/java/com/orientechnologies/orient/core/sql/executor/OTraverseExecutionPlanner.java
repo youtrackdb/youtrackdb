@@ -268,7 +268,7 @@ public class OTraverseExecutionPlanner {
       OSelectExecutionPlan plan, List<ORid> rids, OCommandContext ctx, boolean profilingEnabled) {
     List<YTRecordId> actualRids = new ArrayList<>();
     for (ORid rid : rids) {
-      actualRids.add(rid.toRecordId((OResult) null, ctx));
+      actualRids.add(rid.toRecordId((YTResult) null, ctx));
     }
     plan.chain(new FetchFromRidsStep(actualRids, ctx, profilingEnabled));
   }

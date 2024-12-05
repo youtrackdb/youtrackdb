@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
@@ -89,7 +89,7 @@ public class RemoteTokenExpireTest {
 
     session.activateOnCurrentThread();
 
-    try (OResultSet res = session.query("select from Some")) {
+    try (YTResultSet res = session.query("select from Some")) {
 
       Assert.assertEquals(0, res.stream().count());
 
@@ -107,7 +107,7 @@ public class RemoteTokenExpireTest {
     session.activateOnCurrentThread();
 
     session.begin();
-    try (OResultSet res = session.command("insert into V set name = 'foo'")) {
+    try (YTResultSet res = session.command("insert into V set name = 'foo'")) {
       session.commit();
 
       Assert.assertEquals(1, res.stream().count());
@@ -125,7 +125,7 @@ public class RemoteTokenExpireTest {
 
     session.activateOnCurrentThread();
 
-    try (OResultSet res = session.execute("sql", "begin;insert into V set name = 'foo';commit;")) {
+    try (YTResultSet res = session.execute("sql", "begin;insert into V set name = 'foo';commit;")) {
 
       Assert.assertEquals(1, res.stream().count());
 
@@ -140,7 +140,7 @@ public class RemoteTokenExpireTest {
 
     QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(1);
 
-    try (OResultSet res = session.query("select from ORole")) {
+    try (YTResultSet res = session.query("select from ORole")) {
 
       waitAndClean();
       session.activateOnCurrentThread();
@@ -165,7 +165,7 @@ public class RemoteTokenExpireTest {
 
     session.save(session.newElement("Some"));
 
-    try (OResultSet res = session.query("select from Some")) {
+    try (YTResultSet res = session.query("select from Some")) {
       Assert.assertEquals(1, res.stream().count());
     } catch (YTTokenSecurityException e) {
       Assert.fail("It should not get the expire exception");
@@ -181,7 +181,7 @@ public class RemoteTokenExpireTest {
 
     session.save(session.newElement("Some"));
 
-    try (OResultSet resultSet = session.query("select from Some")) {
+    try (YTResultSet resultSet = session.query("select from Some")) {
       Assert.assertEquals(1, resultSet.stream().count());
     }
     waitAndClean();
@@ -214,7 +214,7 @@ public class RemoteTokenExpireTest {
 
     YTDatabaseSession session = pool.acquire();
 
-    try (OResultSet resultSet = session.query("select from Some")) {
+    try (YTResultSet resultSet = session.query("select from Some")) {
       Assert.assertEquals(0, resultSet.stream().count());
     }
 
@@ -223,7 +223,7 @@ public class RemoteTokenExpireTest {
     session.activateOnCurrentThread();
 
     try {
-      try (OResultSet resultSet = session.query("select from Some")) {
+      try (YTResultSet resultSet = session.query("select from Some")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
     } catch (YTTokenSecurityException e) {

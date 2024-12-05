@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OFuncitonAggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.graph.OSQLFunctionMove;
@@ -109,8 +109,8 @@ public class OFunctionCall extends SimpleNode {
     if (record == null) {
       if (targetObjects instanceof YTIdentifiable) {
         record = targetObjects;
-      } else if (targetObjects instanceof OResult) {
-        record = ((OResult) targetObjects).toElement();
+      } else if (targetObjects instanceof YTResult) {
+        record = ((YTResult) targetObjects).toElement();
       } else {
         record = targetObjects;
       }
@@ -120,22 +120,22 @@ public class OFunctionCall extends SimpleNode {
       if (current != null) {
         if (current instanceof YTIdentifiable) {
           record = current;
-        } else if (current instanceof OResult) {
-          record = ((OResult) current).toElement();
+        } else if (current instanceof YTResult) {
+          record = ((YTResult) current).toElement();
         } else {
           record = current;
         }
       }
     }
     for (OExpression expr : this.params) {
-      if (targetObjects instanceof OResult) {
-        paramValues.add(expr.execute((OResult) targetObjects, ctx));
+      if (targetObjects instanceof YTResult) {
+        paramValues.add(expr.execute((YTResult) targetObjects, ctx));
       } else if (record instanceof YTIdentifiable) {
         paramValues.add(expr.execute((YTIdentifiable) record, ctx));
-      } else if (record instanceof OResult) {
-        paramValues.add(expr.execute((OResult) record, ctx));
+      } else if (record instanceof YTResult) {
+        paramValues.add(expr.execute((YTResult) record, ctx));
       } else if (record == null) {
-        paramValues.add(expr.execute((OResult) record, ctx));
+        paramValues.add(expr.execute((YTResult) record, ctx));
       } else {
         throw new YTCommandExecutionException("Invalid value for $current: " + record);
       }
@@ -149,10 +149,10 @@ public class OFunctionCall extends SimpleNode {
       if (record instanceof YTIdentifiable) {
         return function.execute(
             targetObjects, (YTIdentifiable) record, null, paramValues.toArray(), ctx);
-      } else if (record instanceof OResult) {
+      } else if (record instanceof YTResult) {
         return function.execute(
             targetObjects,
-            ((OResult) record).getElement().orElse(null),
+            ((YTResult) record).getElement().orElse(null),
             null,
             paramValues.toArray(),
             ctx);
@@ -483,8 +483,8 @@ public class OFunctionCall extends SimpleNode {
     return result;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
 
     if (name != null) {
       result.setProperty("name", name.serialize(db));
@@ -499,14 +499,14 @@ public class OFunctionCall extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("name") != null) {
       name = OIdentifier.deserialize(fromResult.getProperty("name"));
     }
     if (fromResult.getProperty("params") != null) {
       params = new ArrayList<>();
-      List<OResult> ser = fromResult.getProperty("params");
-      for (OResult item : ser) {
+      List<YTResult> ser = fromResult.getProperty("params");
+      for (YTResult item : ser) {
         OExpression exp = new OExpression(-1);
         exp.deserialize(item);
         params.add(exp);

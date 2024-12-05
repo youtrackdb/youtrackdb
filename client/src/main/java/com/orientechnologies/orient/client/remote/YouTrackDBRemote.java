@@ -24,8 +24,8 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
-import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.client.remote.db.document.OSharedContextRemote;
+import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.client.remote.message.OConnect37Request;
 import com.orientechnologies.orient.client.remote.message.OConnectResponse;
 import com.orientechnologies.orient.client.remote.message.OCreateDatabaseRequest;
@@ -45,13 +45,13 @@ import com.orientechnologies.orient.client.remote.message.OListGlobalConfigurati
 import com.orientechnologies.orient.client.remote.message.OListGlobalConfigurationsResponse;
 import com.orientechnologies.orient.client.remote.message.OReleaseDatabaseRequest;
 import com.orientechnologies.orient.client.remote.message.OReleaseDatabaseResponse;
-import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
 import com.orientechnologies.orient.client.remote.message.OServerInfoRequest;
 import com.orientechnologies.orient.client.remote.message.OServerInfoResponse;
 import com.orientechnologies.orient.client.remote.message.OServerQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OServerQueryResponse;
 import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationRequest;
 import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationResponse;
+import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
@@ -60,10 +60,10 @@ import com.orientechnologies.orient.core.db.OCachedDatabasePoolFactory;
 import com.orientechnologies.orient.core.db.OCachedDatabasePoolFactoryImpl;
 import com.orientechnologies.orient.core.db.ODatabasePoolImpl;
 import com.orientechnologies.orient.core.db.ODatabasePoolInternal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseTask;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSharedContext;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
@@ -74,7 +74,7 @@ import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import java.io.IOException;
@@ -588,7 +588,8 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   @Override
-  public OResultSet executeServerStatementPositionalParams(String statement, String user, String pw,
+  public YTResultSet executeServerStatementPositionalParams(String statement, String user,
+      String pw,
       Object... params) {
     int recordsPerPage =
         getContextConfiguration()
@@ -605,7 +606,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
             ORecordSerializerNetworkV37Client.INSTANCE, recordsPerPage);
 
     OServerQueryResponse response = connectAndSend(null, user, pw, request);
-    return new ORemoteResultSet(
+    return new YTRemoteResultSet(
         null,
         response.getQueryId(),
         response.getResult(),
@@ -615,7 +616,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   @Override
-  public OResultSet executeServerStatementNamedParams(String statement, String user, String pw,
+  public YTResultSet executeServerStatementNamedParams(String statement, String user, String pw,
       Map<String, Object> params) {
     int recordsPerPage =
         getContextConfiguration()
@@ -632,7 +633,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
     OServerQueryResponse response = connectAndSend(null, user, pw, request);
 
-    return new ORemoteResultSet(
+    return new YTRemoteResultSet(
         null,
         response.getQueryId(),
         response.getResult(),

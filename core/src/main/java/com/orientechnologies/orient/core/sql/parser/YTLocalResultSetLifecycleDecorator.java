@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.db.document.OQueryLifecycleListener;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,17 +14,17 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  *
  */
-public class OLocalResultSetLifecycleDecorator implements OResultSet {
+public class YTLocalResultSetLifecycleDecorator implements YTResultSet {
 
   private static final AtomicLong counter = new AtomicLong(0);
 
-  private final OResultSet entity;
+  private final YTResultSet entity;
   private final List<OQueryLifecycleListener> lifecycleListeners = new ArrayList<>();
   private final String queryId;
 
   private boolean hasNextPage;
 
-  public OLocalResultSetLifecycleDecorator(OResultSet entity) {
+  public YTLocalResultSetLifecycleDecorator(YTResultSet entity) {
     this.entity = entity;
     queryId = System.currentTimeMillis() + "_" + counter.incrementAndGet();
   }
@@ -43,7 +43,7 @@ public class OLocalResultSetLifecycleDecorator implements OResultSet {
   }
 
   @Override
-  public OResult next() {
+  public YTResult next() {
     if (!hasNext()) {
       throw new IllegalStateException();
     }
@@ -81,10 +81,10 @@ public class OLocalResultSetLifecycleDecorator implements OResultSet {
   }
 
   public boolean isDetached() {
-    return entity instanceof OInternalResultSet;
+    return entity instanceof YTInternalResultSet;
   }
 
-  public OResultSet getInternal() {
+  public YTResultSet getInternal() {
     return entity;
   }
 }

@@ -27,14 +27,14 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result.isElement()) {
       var element = result.toElement();
       ((YTDocument) element).setClassName(targetClass);
-      if (!(result instanceof OResultInternal)) {
-        result = new OUpdatableResult(ctx.getDatabase(), element);
+      if (!(result instanceof YTResultInternal)) {
+        result = new YTUpdatableResult(ctx.getDatabase(), element);
       } else {
-        ((OResultInternal) result).setIdentifiable(element);
+        ((YTResultInternal) result).setIdentifiable(element);
       }
     }
     return result;

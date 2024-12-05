@@ -4,14 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OResultSerializationTest extends DBTestBase {
+public class YTResultSerializationTest extends DBTestBase {
 
   protected OResultSerializerNetwork serializer;
 
@@ -44,7 +44,7 @@ public class OResultSerializationTest extends DBTestBase {
     try (var orientDB = new YouTrackDB("memory", YouTrackDBConfig.defaultConfig())) {
       orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
       try (var db = (YTDatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
-        OResultInternal document = new OResultInternal(db);
+        YTResultInternal document = new YTResultInternal(db);
 
         document.setProperty("name", "name");
         document.setProperty("age", 20);
@@ -58,7 +58,7 @@ public class OResultSerializationTest extends DBTestBase {
         document.setProperty("date", new Date());
         document.setProperty("recordId", new YTRecordId(10, 10));
 
-        OResultInternal extr = serializeDeserialize(db, document);
+        YTResultInternal extr = serializeDeserialize(db, document);
 
         assertEquals(extr.getPropertyNames(), document.getPropertyNames());
         assertEquals(extr.<String>getProperty("name"), document.getProperty("name"));
@@ -74,8 +74,8 @@ public class OResultSerializationTest extends DBTestBase {
     }
   }
 
-  private OResultInternal serializeDeserialize(YTDatabaseSessionInternal db,
-      OResultInternal document) {
+  private YTResultInternal serializeDeserialize(YTDatabaseSessionInternal db,
+      YTResultInternal document) {
     BytesContainer bytes = new BytesContainer();
     serializer.serialize(document, bytes);
     bytes.offset = 0;
@@ -86,7 +86,7 @@ public class OResultSerializationTest extends DBTestBase {
   @Test
   public void testSimpleLiteralList() {
 
-    OResultInternal document = new OResultInternal(db);
+    YTResultInternal document = new YTResultInternal(db);
     List<String> strings = new ArrayList<>();
     strings.add("a");
     strings.add("b");
@@ -161,7 +161,7 @@ public class OResultSerializationTest extends DBTestBase {
     listMixed.add(null);
     document.setProperty("listMixed", listMixed);
 
-    OResult extr = serializeDeserialize(db, document);
+    YTResult extr = serializeDeserialize(db, document);
 
     assertEquals(extr.getPropertyNames(), document.getPropertyNames());
     assertEquals(extr.<String>getProperty("listStrings"), document.getProperty("listStrings"));
@@ -175,7 +175,7 @@ public class OResultSerializationTest extends DBTestBase {
 
   @Test
   public void testSimpleMapStringLiteral() {
-    OResultInternal document = new OResultInternal(db);
+    YTResultInternal document = new YTResultInternal(db);
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -217,7 +217,7 @@ public class OResultSerializationTest extends DBTestBase {
     bytesMap.put("key1", (byte) 11);
     document.setProperty("bytesMap", bytesMap);
 
-    OResult extr = serializeDeserialize(db, document);
+    YTResult extr = serializeDeserialize(db, document);
 
     assertEquals(extr.getPropertyNames(), document.getPropertyNames());
     assertEquals(extr.<String>getProperty("mapString"), document.getProperty("mapString"));
@@ -230,16 +230,16 @@ public class OResultSerializationTest extends DBTestBase {
 
   @Test
   public void testSimpleEmbeddedDoc() {
-    OResultInternal document = new OResultInternal(db);
-    OResultInternal embedded = new OResultInternal(db);
+    YTResultInternal document = new YTResultInternal(db);
+    YTResultInternal embedded = new YTResultInternal(db);
     embedded.setProperty("name", "test");
     embedded.setProperty("surname", "something");
     document.setProperty("embed", embedded);
 
-    OResult extr = serializeDeserialize(db, document);
+    YTResult extr = serializeDeserialize(db, document);
 
     assertEquals(document.getPropertyNames(), extr.getPropertyNames());
-    OResult emb = extr.getProperty("embed");
+    YTResult emb = extr.getProperty("embed");
     assertNotNull(emb);
     assertEquals(emb.<String>getProperty("name"), embedded.getProperty("name"));
     assertEquals(emb.<String>getProperty("surname"), embedded.getProperty("surname"));
@@ -248,20 +248,20 @@ public class OResultSerializationTest extends DBTestBase {
   @Test
   public void testMapOfEmbeddedDocument() {
 
-    OResultInternal document = new OResultInternal(db);
+    YTResultInternal document = new YTResultInternal(db);
 
-    OResultInternal embeddedInMap = new OResultInternal(db);
+    YTResultInternal embeddedInMap = new YTResultInternal(db);
     embeddedInMap.setProperty("name", "test");
     embeddedInMap.setProperty("surname", "something");
-    Map<String, OResult> map = new HashMap<String, OResult>();
+    Map<String, YTResult> map = new HashMap<String, YTResult>();
     map.put("embedded", embeddedInMap);
     document.setProperty("map", map);
 
-    OResult extr = serializeDeserialize(db, document);
+    YTResult extr = serializeDeserialize(db, document);
 
-    Map<String, OResult> mapS = extr.getProperty("map");
+    Map<String, YTResult> mapS = extr.getProperty("map");
     assertEquals(1, mapS.size());
-    OResult emb = mapS.get("embedded");
+    YTResult emb = mapS.get("embedded");
     assertNotNull(emb);
     assertEquals(emb.<String>getProperty("name"), embeddedInMap.getProperty("name"));
     assertEquals(emb.<String>getProperty("surname"), embeddedInMap.getProperty("surname"));
@@ -270,36 +270,36 @@ public class OResultSerializationTest extends DBTestBase {
   @Test
   public void testCollectionOfEmbeddedDocument() {
 
-    OResultInternal document = new OResultInternal(db);
+    YTResultInternal document = new YTResultInternal(db);
 
-    OResultInternal embeddedInList = new OResultInternal(db);
+    YTResultInternal embeddedInList = new YTResultInternal(db);
     embeddedInList.setProperty("name", "test");
     embeddedInList.setProperty("surname", "something");
 
-    List<OResult> embeddedList = new ArrayList<OResult>();
+    List<YTResult> embeddedList = new ArrayList<YTResult>();
     embeddedList.add(embeddedInList);
     document.setProperty("embeddedList", embeddedList);
 
-    OResultInternal embeddedInSet = new OResultInternal(db);
+    YTResultInternal embeddedInSet = new YTResultInternal(db);
     embeddedInSet.setProperty("name", "test1");
     embeddedInSet.setProperty("surname", "something2");
 
-    Set<OResult> embeddedSet = new HashSet<>();
+    Set<YTResult> embeddedSet = new HashSet<>();
     embeddedSet.add(embeddedInSet);
     document.setProperty("embeddedSet", embeddedSet);
 
-    OResult extr = serializeDeserialize(db, document);
+    YTResult extr = serializeDeserialize(db, document);
 
-    List<OResult> ser = extr.getProperty("embeddedList");
+    List<YTResult> ser = extr.getProperty("embeddedList");
     assertEquals(1, ser.size());
-    OResult inList = ser.get(0);
+    YTResult inList = ser.get(0);
     assertNotNull(inList);
     assertEquals(inList.<String>getProperty("name"), embeddedInList.getProperty("name"));
     assertEquals(inList.<String>getProperty("surname"), embeddedInList.getProperty("surname"));
 
-    Set<OResult> setEmb = extr.getProperty("embeddedSet");
+    Set<YTResult> setEmb = extr.getProperty("embeddedSet");
     assertEquals(1, setEmb.size());
-    OResult inSet = setEmb.iterator().next();
+    YTResult inSet = setEmb.iterator().next();
     assertNotNull(inSet);
     assertEquals(inSet.<String>getProperty("name"), embeddedInSet.getProperty("name"));
     assertEquals(inSet.<String>getProperty("surname"), embeddedInSet.getProperty("surname"));
@@ -307,7 +307,7 @@ public class OResultSerializationTest extends DBTestBase {
 
   @Test
   public void testMetadataSerialization() {
-    OResultInternal document = new OResultInternal(db);
+    YTResultInternal document = new YTResultInternal(db);
 
     document.setProperty("name", "foo");
 
@@ -321,7 +321,7 @@ public class OResultSerializationTest extends DBTestBase {
     document.setMetadata("alive", true);
     document.setMetadata("date", new Date());
 
-    OResultInternal extr = serializeDeserialize(db, document);
+    YTResultInternal extr = serializeDeserialize(db, document);
 
     assertEquals(extr.getPropertyNames(), document.getPropertyNames());
     assertEquals(extr.<String>getProperty("foo"), document.getProperty("foo"));

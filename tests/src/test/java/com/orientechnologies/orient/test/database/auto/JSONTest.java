@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -668,7 +668,7 @@ public class JSONTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OResultSet result = database.query("select from device where domainset.domain contains 'abc'");
+    YTResultSet result = database.query("select from device where domainset.domain contains 'abc'");
     Assert.assertTrue(result.stream().count() > 0);
 
     result = database.query("select from device where domainset[domain = 'abc'] is not null");
@@ -689,7 +689,7 @@ public class JSONTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OResultSet result = database.query("select from device where domainset.domain = 'eee'");
+    YTResultSet result = database.query("select from device where domainset.domain = 'eee'");
     Assert.assertTrue(result.stream().count() > 0);
   }
 
@@ -706,7 +706,7 @@ public class JSONTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OResultSet result =
+    YTResultSet result =
         database.query("select from device where domainset.domain.lvlone.value = 'five'");
 
     Assert.assertTrue(result.stream().count() > 0);

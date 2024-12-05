@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.junit.Before;
@@ -29,7 +29,7 @@ public class LuceneQeuryParserTest extends BaseLuceneTest {
         .close();
 
     // querying with leading wildcard
-    OResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:*tain)\"");
+    YTResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:*tain)\"");
 
     assertThat(docs).hasSize(4);
   }
@@ -45,7 +45,7 @@ public class LuceneQeuryParserTest extends BaseLuceneTest {
                 + "\", \"lowercaseExpandedTerms\": false}")
         .close();
 
-    OResultSet docs = db.query("select * from Song where [author] LUCENE \"Hunter\"");
+    YTResultSet docs = db.query("select * from Song where [author] LUCENE \"Hunter\"");
 
     assertThat(docs).hasSize(97);
 

@@ -28,15 +28,15 @@ public class ProjectionCalculationStep extends AbstractExecutionStep {
     return parentRs.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     Object oldCurrent = ctx.getVariable("$current");
     ctx.setVariable("$current", result);
-    OResult newResult = calculateProjections(ctx, result);
+    YTResult newResult = calculateProjections(ctx, result);
     ctx.setVariable("$current", oldCurrent);
     return newResult;
   }
 
-  private OResult calculateProjections(OCommandContext ctx, OResult next) {
+  private YTResult calculateProjections(OCommandContext ctx, YTResult next) {
     return this.projection.calculateSingle(ctx, next);
   }
 

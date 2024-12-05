@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -44,7 +44,7 @@ public class ORevokeStatement extends OSimpleExecStatement {
       security.removeSecurityPolicy(db, role, resourcePath);
     }
 
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "grant");
     result.setProperty("role", actor.getStringValue());
     if (permission != null) {

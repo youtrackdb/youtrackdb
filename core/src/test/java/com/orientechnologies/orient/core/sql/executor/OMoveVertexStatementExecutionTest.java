@@ -65,7 +65,7 @@ public class OMoveVertexStatementExecutionTest {
             + vertexClassName2);
     db.commit();
 
-    OResultSet rs = db.query("select from " + vertexClassName1);
+    YTResultSet rs = db.query("select from " + vertexClassName1);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -119,7 +119,7 @@ public class OMoveVertexStatementExecutionTest {
             + " BATCH 2");
     db.commit();
 
-    OResultSet rs = db.query("select from " + vertexClassName1);
+    YTResultSet rs = db.query("select from " + vertexClassName1);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());

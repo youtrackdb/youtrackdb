@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -544,7 +544,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     oClass.createProperty(db, "name", YTType.ANY);
 
-    try (OResultSet result = db.query("select from " + className + " where name = 'foo'")) {
+    try (YTResultSet result = db.query("select from " + className + " where name = 'foo'")) {
       assertEquals(result.stream().count(), 1);
     }
   }

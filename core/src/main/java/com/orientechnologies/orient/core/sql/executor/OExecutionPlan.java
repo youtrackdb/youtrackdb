@@ -13,5 +13,5 @@ public interface OExecutionPlan extends Serializable {
 
   String prettyPrint(int depth, int indent);
 
-  OResult toResult(YTDatabaseSessionInternal db);
+  YTResult toResult(YTDatabaseSessionInternal db);
 }

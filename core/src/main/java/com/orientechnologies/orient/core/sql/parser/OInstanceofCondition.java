@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +60,7 @@ public class OInstanceofCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     if (currentRecord == null) {
       return false;
     }

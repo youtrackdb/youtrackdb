@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
 import com.orientechnologies.orient.core.sql.parser.OOrBlock;
@@ -440,7 +440,7 @@ public class OSecurityEngine {
   }
 
   static boolean evaluateSecuirtyPolicyPredicate(
-      YTDatabaseSessionInternal session, OBooleanExpression predicate, OResult record) {
+      YTDatabaseSessionInternal session, OBooleanExpression predicate, YTResult record) {
     if (OBooleanExpression.TRUE.equals(predicate)) {
       return true;
     }

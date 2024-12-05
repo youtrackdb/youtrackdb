@@ -27,8 +27,8 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -82,7 +82,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testFilteredQuery() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    OResultSet result = database.query("select from CMSDocument");
+    YTResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
     database.commit();
   }
@@ -102,7 +102,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance("reader", "reader");
 
     database.begin();
-    OResultSet result = database.query("select from CMSDocument");
+    YTResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
     database.commit();
   }
@@ -112,7 +112,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    OResultSet result = database.query("select from CMSDocument where user = 'writer'");
+    YTResultSet result = database.query("select from CMSDocument where user = 'writer'");
     Assert.assertEquals(result.stream().count(), 1);
     database.commit();
   }
@@ -122,7 +122,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance("writer", "writer");
 
     database.begin();
-    OResultSet result = database.query("select from CMSDocument");
+    YTResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 1);
     database.commit();
   }
@@ -390,7 +390,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
     database = createSessionInstance("writer", "writer");
     database.begin();
-    OResultSet result = database.query("select from TestUpdateRestricted");
+    YTResultSet result = database.query("select from TestUpdateRestricted");
     Assert.assertEquals(result.stream().count(), 0);
     database.commit();
 
@@ -404,7 +404,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
     database.begin();
     result = database.query("select from TestUpdateRestricted");
-    OResult res = result.next();
+    YTResult res = result.next();
     Assert.assertFalse(result.hasNext());
 
     final YTEntity doc = res.getElement().get();

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -55,7 +55,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
 
     try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       OStatement stm = OServerCommandPostCommand.parseStatement("SQL", text, db);
-      OResultSet result = db.query(text);
+      YTResultSet result = db.query(text);
       limit = OServerCommandPostCommand.getLimitFromStatement(stm, limit);
       String localFetchPlan = OServerCommandPostCommand.getFetchPlanFromStatement(stm);
       if (localFetchPlan != null) {

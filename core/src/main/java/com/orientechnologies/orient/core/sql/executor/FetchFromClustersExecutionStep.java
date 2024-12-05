@@ -145,8 +145,8 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
 
     result.setProperty("orderByRidAsc", orderByRidAsc);
     result.setProperty("orderByRidDesc", orderByRidDesc);
@@ -155,7 +155,7 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       this.orderByRidAsc = fromResult.getProperty("orderByRidAsc");

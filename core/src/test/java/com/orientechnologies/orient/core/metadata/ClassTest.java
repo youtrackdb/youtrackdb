@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
@@ -166,7 +166,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
             + " where name = \""
             + SHORTNAME_CLASS_NAME
             + "\"";
-    try (OResultSet result = db.query(selectShortNameSQL)) {
+    try (YTResultSet result = db.query(selectShortNameSQL)) {
       String name = result.next().getProperty("shortName");
       assertFalse(result.hasNext());
       return name;

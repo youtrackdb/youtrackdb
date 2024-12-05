@@ -16,8 +16,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Assert;
@@ -155,11 +155,11 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    try (OResultSet result = db.query("select from testDocFromJsonEmbedded_Class0")) {
+    try (YTResultSet result = db.query("select from testDocFromJsonEmbedded_Class0")) {
       Assert.assertEquals(result.stream().count(), 0);
     }
 
-    try (OResultSet result = db.query("select from testDocFromJsonEmbedded_Class1")) {
+    try (YTResultSet result = db.query("select from testDocFromJsonEmbedded_Class1")) {
       Assert.assertTrue(result.hasNext());
       YTEntity item = result.next().getElement().get();
       YTDocument meta = item.getProperty("meta");
@@ -231,9 +231,9 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     doc2.save();
     db.commit();
 
-    try (OResultSet rs = db.query("SELECT FROM " + className + " WHERE name = 'b'")) {
+    try (YTResultSet rs = db.query("SELECT FROM " + className + " WHERE name = 'b'")) {
       Assert.assertTrue(rs.hasNext());
-      OResult res = rs.next();
+      YTResult res = rs.next();
 
       Object linkedVal = res.getProperty("linked");
       Assert.assertTrue(linkedVal instanceof YTIdentifiable);
@@ -266,9 +266,9 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     db.newEdge(db.bindToSession(doc1), doc2, "testEdge").save();
     db.commit();
 
-    try (OResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
+    try (YTResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
       Assert.assertTrue(rs.hasNext());
-      OResult res = rs.next();
+      YTResult res = rs.next();
 
       Object linkedVal = res.getProperty("o");
       Assert.assertTrue(linkedVal instanceof Collection);
@@ -303,9 +303,9 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     db.newEdge(doc1, doc3, "testEdge").save();
     db.commit();
 
-    try (OResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
+    try (YTResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
       Assert.assertTrue(rs.hasNext());
-      OResult res = rs.next();
+      YTResult res = rs.next();
 
       Object linkedVal = res.getProperty("o");
       Assert.assertTrue(linkedVal instanceof Collection);

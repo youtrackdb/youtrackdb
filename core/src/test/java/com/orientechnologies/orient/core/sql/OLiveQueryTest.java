@@ -31,8 +31,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class OLiveQueryTest {
     }
 
     public List<ORecordOperation> ops = new ArrayList<ORecordOperation>();
-    public List<OResult> created = new ArrayList<OResult>();
+    public List<YTResult> created = new ArrayList<YTResult>();
 
     @Override
     public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws YTException {
@@ -100,17 +100,17 @@ public class OLiveQueryTest {
     }
 
     @Override
-    public void onCreate(YTDatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, YTResult data) {
       created.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, YTResult data) {
     }
 
     @Override
@@ -150,7 +150,7 @@ public class OLiveQueryTest {
     db.commit();
 
     Assert.assertEquals(listener.created.size(), 2);
-    for (OResult res : listener.created) {
+    for (YTResult res : listener.created) {
       Assert.assertEquals(res.getProperty("name"), "foo");
     }
   }
@@ -181,7 +181,7 @@ public class OLiveQueryTest {
       e.printStackTrace();
     }
     Assert.assertEquals(listener.created.size(), 1);
-    for (OResult doc : listener.created) {
+    for (YTResult doc : listener.created) {
       Assert.assertEquals(doc.getProperty("name"), "foo");
       YTRID rid = doc.getProperty("@rid");
       Assert.assertNotNull(rid);
@@ -197,7 +197,7 @@ public class OLiveQueryTest {
     schema.createClass("test", oRestricted);
 
     int liveMatch = 2;
-    OResultSet query = db.query("select from OUSer where name = 'reader'");
+    YTResultSet query = db.query("select from OUSer where name = 'reader'");
 
     final YTIdentifiable reader = query.next().getIdentity().get();
     final YTIdentifiable current = db.getUser().getIdentity(db);
@@ -220,18 +220,18 @@ public class OLiveQueryTest {
                       new OLiveQueryResultListener() {
 
                         @Override
-                        public void onCreate(YTDatabaseSession database, OResult data) {
+                        public void onCreate(YTDatabaseSession database, YTResult data) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
 
                         @Override
                         public void onUpdate(
-                            YTDatabaseSession database, OResult before, OResult after) {
+                            YTDatabaseSession database, YTResult before, YTResult after) {
                         }
 
                         @Override
-                        public void onDelete(YTDatabaseSession database, OResult data) {
+                        public void onDelete(YTDatabaseSession database, YTResult data) {
                         }
 
                         @Override

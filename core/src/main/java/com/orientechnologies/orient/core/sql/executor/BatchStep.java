@@ -25,7 +25,7 @@ public class BatchStep extends AbstractExecutionStep {
     return prevResult.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     var db = ctx.getDatabase();
     if (db.getTransaction().isActive()) {
       if (db.getTransaction().getEntryCount() % batchSize == 0) {

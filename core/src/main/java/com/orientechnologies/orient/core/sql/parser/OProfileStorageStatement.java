@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -28,7 +28,7 @@ public class OProfileStorageStatement extends OSimpleExecStatement {
   // new execution logic
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("operation", "optimize database");
 
     return OExecutionStream.singleton(result);

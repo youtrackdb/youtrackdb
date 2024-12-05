@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import com.orientechnologies.orient.core.sql.executor.OInfoExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInfoExecutionStep;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class OServerQueryResponse implements OBinaryResponse {
 
   private String queryId;
   private boolean txChanges;
-  private List<OResult> result;
+  private List<YTResult> result;
   private Optional<OExecutionPlan> executionPlan;
   private boolean hasNextPage;
   private Map<String, Long> queryStats;
@@ -41,7 +41,7 @@ public class OServerQueryResponse implements OBinaryResponse {
   public OServerQueryResponse(
       String queryId,
       boolean txChanges,
-      List<OResult> result,
+      List<YTResult> result,
       Optional<OExecutionPlan> executionPlan,
       boolean hasNextPage,
       Map<String, Long> queryStats,
@@ -68,7 +68,7 @@ public class OServerQueryResponse implements OBinaryResponse {
     // THIS IS A PREFETCHED COLLECTION NOT YET HERE
     channel.writeInt(0);
     channel.writeInt(result.size());
-    for (OResult res : result) {
+    for (YTResult res : result) {
       OMessageHelper.writeResult(session, res, channel, serializer);
     }
     channel.writeBoolean(hasNextPage);
@@ -140,13 +140,13 @@ public class OServerQueryResponse implements OBinaryResponse {
       return Optional.empty();
     }
     OInfoExecutionPlan result = new OInfoExecutionPlan();
-    OResult read = OMessageHelper.readResult(db, network);
+    YTResult read = OMessageHelper.readResult(db, network);
     result.setCost(((Number) read.getProperty("cost")).intValue());
     result.setType(read.getProperty("type"));
     result.setJavaType(read.getProperty("javaType"));
     result.setPrettyPrint(read.getProperty("prettyPrint"));
     result.setStmText(read.getProperty("stmText"));
-    List<OResult> subSteps = read.getProperty("steps");
+    List<YTResult> subSteps = read.getProperty("steps");
     if (subSteps != null) {
       subSteps.forEach(x -> result.getSteps().add(toInfoStep(x)));
     }
@@ -157,7 +157,7 @@ public class OServerQueryResponse implements OBinaryResponse {
     return queryId;
   }
 
-  public List<OResult> getResult() {
+  public List<YTResult> getResult() {
     return result;
   }
 
@@ -173,14 +173,14 @@ public class OServerQueryResponse implements OBinaryResponse {
     return queryStats;
   }
 
-  private OExecutionStep toInfoStep(OResult x) {
+  private OExecutionStep toInfoStep(YTResult x) {
     OInfoExecutionStep result = new OInfoExecutionStep();
     result.setName(x.getProperty("name"));
     result.setType(x.getProperty("type"));
     result.setTargetNode(x.getProperty("targetNode"));
     result.setJavaType(x.getProperty("javaType"));
     result.setCost(x.getProperty("cost") == null ? -1 : x.getProperty("cost"));
-    List<OResult> ssteps = x.getProperty("subSteps");
+    List<YTResult> ssteps = x.getProperty("subSteps");
     if (ssteps != null) {
       ssteps.stream().forEach(sstep -> result.getSubSteps().add(toInfoStep(sstep)));
     }

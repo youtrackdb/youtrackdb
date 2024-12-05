@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -332,8 +332,8 @@ public class OFromItem extends SimpleNode {
     this.inputParams = inputParams;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (rids != null) {
       result.setProperty(
           "rids", rids.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
@@ -373,11 +373,11 @@ public class OFromItem extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("rids") != null) {
-      List<OResult> serRids = fromResult.getProperty("rids");
+      List<YTResult> serRids = fromResult.getProperty("rids");
       rids = new ArrayList<>();
-      for (OResult res : serRids) {
+      for (YTResult res : serRids) {
         ORid rid = new ORid(-1);
         rid.deserialize(res);
         rids.add(rid);
@@ -385,9 +385,9 @@ public class OFromItem extends SimpleNode {
     }
 
     if (fromResult.getProperty("inputParams") != null) {
-      List<OResult> ser = fromResult.getProperty("inputParams");
+      List<YTResult> ser = fromResult.getProperty("inputParams");
       inputParams = new ArrayList<>();
-      for (OResult res : ser) {
+      for (YTResult res : ser) {
         inputParams.add(OInputParameter.deserializeFromOResult(res));
       }
     }

@@ -3,9 +3,9 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +29,7 @@ public class OLetStatement extends OSimpleExecStatement {
   public OExecutionStream executeSimple(OCommandContext ctx) {
     Object result;
     if (expression != null) {
-      result = expression.execute((OResult) null, ctx);
+      result = expression.execute((YTResult) null, ctx);
     } else {
       Map<Object, Object> params = ctx.getInputParameters();
       if (statement.originalStatement == null) {
@@ -37,11 +37,11 @@ public class OLetStatement extends OSimpleExecStatement {
       }
       result = statement.execute(ctx.getDatabase(), params, ctx, false);
     }
-    if (result instanceof OResultSet) {
-      OInternalResultSet rs = new OInternalResultSet();
-      ((OResultSet) result).stream().forEach(x -> rs.add(x));
-      rs.setPlan(((OResultSet) result).getExecutionPlan().orElse(null));
-      ((OResultSet) result).close();
+    if (result instanceof YTResultSet) {
+      YTInternalResultSet rs = new YTInternalResultSet();
+      ((YTResultSet) result).stream().forEach(x -> rs.add(x));
+      rs.setPlan(((YTResultSet) result).getExecutionPlan().orElse(null));
+      ((YTResultSet) result).close();
       result = rs;
     }
 

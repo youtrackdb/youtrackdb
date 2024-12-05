@@ -110,8 +110,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return new OMultipleExecutionStream(res);
   }
 
-  private OResult readResult(YTDatabaseSessionInternal session, ORawPair<Object, YTRID> entry) {
-    OResultInternal result = new OResultInternal(session);
+  private YTResult readResult(YTDatabaseSessionInternal session, ORawPair<Object, YTRID> entry) {
+    YTResultInternal result = new YTResultInternal(session);
     YTRID value = entry.second;
     index.remove(session, entry.first, value);
     return result;
@@ -119,7 +119,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private boolean filter(ORawPair<Object, YTRID> entry, OCommandContext ctx) {
     if (ridCondition != null) {
-      OResultInternal res = new OResultInternal(ctx.getDatabase());
+      YTResultInternal res = new YTResultInternal(ctx.getDatabase());
       res.setProperty("rid", entry.second);
       return ridCondition.evaluate(res, ctx);
     } else {
@@ -189,8 +189,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       boolean fromKeyIncluded,
       OCollection toKey,
       boolean toKeyIncluded) {
-    Object secondValue = fromKey.execute((OResult) null, ctx);
-    Object thirdValue = toKey.execute((OResult) null, ctx);
+    Object secondValue = fromKey.execute((YTResult) null, ctx);
+    Object thirdValue = toKey.execute((YTResult) null, ctx);
     OIndexDefinition indexDef = index.getDefinition();
     Stream<ORawPair<Object, YTRID>> stream;
     var database = ctx.getDatabase();
@@ -239,8 +239,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     OExpression second = ((OBetweenCondition) condition).getSecond();
     OExpression third = ((OBetweenCondition) condition).getThird();
 
-    Object secondValue = second.execute((OResult) null, ctx);
-    Object thirdValue = third.execute((OResult) null, ctx);
+    Object secondValue = second.execute((YTResult) null, ctx);
+    Object thirdValue = third.execute((YTResult) null, ctx);
     Stream<ORawPair<Object, YTRID>> stream =
         index.streamEntriesBetween(session,
             toBetweenIndexKey(session, definition, secondValue),
@@ -258,7 +258,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = ((OBinaryCondition) condition).getRight().execute((OResult) null, ctx);
+    Object rightValue = ((OBinaryCondition) condition).getRight().execute((YTResult) null, ctx);
     Stream<ORawPair<Object, YTRID>> stream =
         createStream(ctx.getDatabase(), operator, definition, rightValue);
     storeAcquiredStream(stream, acquiredStreams);

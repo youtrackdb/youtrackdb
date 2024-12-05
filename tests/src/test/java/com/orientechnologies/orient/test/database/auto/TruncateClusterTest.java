@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -60,7 +60,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     Assert.assertEquals(database.countClass(className), 1);
     Assert.assertEquals(database.countClusterElements(clusterId), 1);
 
-    OResultSet indexQuery = database.query("select from TruncateClusterClass where value='val'");
+    YTResultSet indexQuery = database.query("select from TruncateClusterClass where value='val'");
     Assert.assertEquals(indexQuery.stream().count(), 1);
 
     database.truncateCluster(clusterName);

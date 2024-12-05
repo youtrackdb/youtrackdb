@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNull;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.functions.misc.OSQLFunctionUUID;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class OSQLFunctionUUIDTest {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
 
-        try (final OResultSet result = db.query("select uuid() as uuid")) {
+        try (final YTResultSet result = db.query("select uuid() as uuid")) {
           assertNotNull(result.next().getProperty("uuid"));
           assertFalse(result.hasNext());
         }

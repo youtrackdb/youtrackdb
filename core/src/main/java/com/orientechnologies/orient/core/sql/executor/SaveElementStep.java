@@ -29,7 +29,7 @@ public class SaveElementStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result.isElement()) {
       var db = ctx.getDatabase();
 

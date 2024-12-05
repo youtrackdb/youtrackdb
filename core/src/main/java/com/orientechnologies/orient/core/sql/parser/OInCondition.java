@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
@@ -69,7 +69,7 @@ public class OInCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     Object rightVal = evaluateRight(currentRecord, ctx);
     if (rightVal == null) {
       return false;
@@ -87,7 +87,7 @@ public class OInCondition extends OBooleanExpression {
     return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
-  private boolean evaluateAny(OResult currentRecord, Object rightVal, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, Object rightVal, OCommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       if (evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
@@ -97,7 +97,8 @@ public class OInCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(OResult currentRecord, Object rightVal, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, Object rightVal,
+      OCommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       if (!evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
@@ -107,7 +108,7 @@ public class OInCondition extends OBooleanExpression {
     return true;
   }
 
-  public Object evaluateRight(OResult currentRecord, OCommandContext ctx) {
+  public Object evaluateRight(YTResult currentRecord, OCommandContext ctx) {
     Object rightVal = null;
     if (rightStatement != null) {
       rightVal = executeQuery(rightStatement, ctx);
@@ -119,14 +120,14 @@ public class OInCondition extends OBooleanExpression {
     return rightVal;
   }
 
-  public Object evaluateLeft(OResult currentRecord, OCommandContext ctx) {
+  public Object evaluateLeft(YTResult currentRecord, OCommandContext ctx) {
     return left.execute(currentRecord, ctx);
   }
 
   protected static Object executeQuery(OSelectStatement rightStatement, OCommandContext ctx) {
     OBasicCommandContext subCtx = new OBasicCommandContext();
     subCtx.setParentWithoutOverridingChild(ctx);
-    OResultSet result = rightStatement.execute(ctx.getDatabase(), ctx.getInputParameters(), false);
+    YTResultSet result = rightStatement.execute(ctx.getDatabase(), ctx.getInputParameters(), false);
     return result.stream().collect(Collectors.toSet());
   }
 
@@ -171,7 +172,7 @@ public class OInCondition extends OBooleanExpression {
           return true;
         }
       }
-    } else if (iRight instanceof OResultSet rsRight) {
+    } else if (iRight instanceof YTResultSet rsRight) {
       rsRight.reset();
 
       while (rsRight.hasNext()) {
@@ -190,10 +191,10 @@ public class OInCondition extends OBooleanExpression {
       return true;
     }
 
-    if (leftItem instanceof OResult && ((OResult) leftItem).getPropertyNames().size() == 1) {
+    if (leftItem instanceof YTResult && ((YTResult) leftItem).getPropertyNames().size() == 1) {
       Object propValue =
-          ((OResult) leftItem)
-              .getProperty(((OResult) leftItem).getPropertyNames().iterator().next());
+          ((YTResult) leftItem)
+              .getProperty(((YTResult) leftItem).getPropertyNames().iterator().next());
       return OQueryOperatorEquals.equals(session, propValue, rightItem);
     }
 
@@ -446,7 +447,7 @@ public class OInCondition extends OBooleanExpression {
     Optional<OPath> path = left.getPath();
     if (path.isPresent()) {
       if (rightMathExpression != null && rightMathExpression.isEarlyCalculated(ctx)) {
-        Object value = rightMathExpression.execute((OResult) null, ctx);
+        Object value = rightMathExpression.execute((YTResult) null, ctx);
         return info.findExactIndex(path.get(), value, ctx);
       }
     }

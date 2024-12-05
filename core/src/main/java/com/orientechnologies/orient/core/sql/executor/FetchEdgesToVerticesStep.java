@@ -84,8 +84,8 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
   }
 
   private OExecutionStream edges(YTDatabaseSessionInternal db, Object from) {
-    if (from instanceof OResult) {
-      from = ((OResult) from).toElement();
+    if (from instanceof YTResult) {
+      from = ((YTResult) from).toElement();
     }
     if (from instanceof YTIdentifiable && !(from instanceof YTEntity)) {
       from = ((YTIdentifiable) from).getRecord();
@@ -94,10 +94,10 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
       var vertex = ((YTEntity) from).toVertex();
       assert vertex != null;
       Iterable<YTEdge> edges = vertex.getEdges(ODirection.IN);
-      Stream<OResult> stream =
+      Stream<YTResult> stream =
           StreamSupport.stream(edges.spliterator(), false)
               .filter((edge) -> matchesClass(edge) && matchesCluster(edge))
-              .map(e -> new OResultInternal(db, e));
+              .map(e -> new YTResultInternal(db, e));
       return OExecutionStream.resultIterator(stream.iterator());
     } else {
       throw new YTCommandExecutionException("Invalid vertex: " + from);

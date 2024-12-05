@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,7 +52,7 @@ public class OLuceneGraphTxTest extends OLuceneBaseTest {
     db.commit();
 
     db.begin();
-    OResultSet resultSet = db.command("select from City where search_class('London') =true ");
+    YTResultSet resultSet = db.command("select from City where search_class('London') =true ");
 
     assertThat(resultSet).hasSize(1);
 

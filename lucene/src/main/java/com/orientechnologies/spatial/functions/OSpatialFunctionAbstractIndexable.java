@@ -22,8 +22,8 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
@@ -115,12 +115,12 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
 
         Object next = ((Collection) shape).iterator().next();
 
-        if (next instanceof OResult inner) {
+        if (next instanceof YTResult inner) {
           var propertyNames = inner.getPropertyNames();
           if (propertyNames.size() == 1) {
             Object property = inner.getProperty(propertyNames.iterator().next());
-            if (property instanceof OResult) {
-              shape = ((OResult) property).toElement();
+            if (property instanceof YTResult) {
+              shape = ((YTResult) property).toElement();
             }
           } else {
             return new OLuceneResultSetEmpty();
@@ -131,8 +131,8 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
       }
     }
 
-    if (shape instanceof OResultInternal) {
-      shape = ((OResultInternal) shape).toElement();
+    if (shape instanceof YTResultInternal) {
+      shape = ((YTResultInternal) shape).toElement();
     }
     queryParams.put(SpatialQueryBuilderAbstract.SHAPE, shape);
 

@@ -5,8 +5,8 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -310,8 +310,8 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
                 + "return $top")
         .close();
 
-    try (final OResultSet resultSet = database.query("select * from " + className)) {
-      try (Stream<OResult> stream = resultSet.stream()) {
+    try (final YTResultSet resultSet = database.query("select * from " + className)) {
+      try (Stream<YTResult> stream = resultSet.stream()) {
         Assert.assertEquals(stream.count(), 0);
       }
     }

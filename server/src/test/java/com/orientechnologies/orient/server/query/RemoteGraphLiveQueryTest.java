@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.server.query;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,9 +29,9 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
     db.commit();
 
     db.begin();
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.command("create edge TestEdge  from (select from FirstV) to (select from SecondV)")) {
-      OResult result = resultSet.stream().iterator().next();
+      YTResult result = resultSet.stream().iterator().next();
 
       Assert.assertTrue(result.isEdge());
     }
@@ -44,7 +44,7 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
         new OLiveQueryResultListener() {
 
           @Override
-          public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
+          public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
             l.incrementAndGet();
           }
 
@@ -57,11 +57,11 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
           }
 
           @Override
-          public void onDelete(YTDatabaseSession database, OResult data) {
+          public void onDelete(YTDatabaseSession database, YTResult data) {
           }
 
           @Override
-          public void onCreate(YTDatabaseSession database, OResult data) {
+          public void onCreate(YTDatabaseSession database, YTResult data) {
           }
         },
         new HashMap<String, String>());

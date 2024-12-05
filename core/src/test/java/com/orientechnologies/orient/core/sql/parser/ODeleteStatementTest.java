@@ -4,8 +4,8 @@ import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -67,11 +67,11 @@ public class ODeleteStatementTest extends DBTestBase {
     db.command("delete from (select expand(arr) from Bar) where k = 'key2'").close();
     db.commit();
 
-    try (OResultSet result = db.query("select from Foo")) {
+    try (YTResultSet result = db.query("select from Foo")) {
       Assert.assertNotNull(result);
       int count = 0;
       while (result.hasNext()) {
-        OResult doc = result.next();
+        YTResult doc = result.next();
         Assert.assertNotEquals(doc.getProperty("k"), "key2");
         count += 1;
       }

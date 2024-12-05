@@ -35,9 +35,9 @@ public class LetExpressionStep extends AbstractExecutionStep {
     return prev.start(ctx).map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     Object value = expression.execute(result, ctx);
-    ((OResultInternal) result)
+    ((YTResultInternal) result)
         .setMetadata(varname.getStringValue(), OProjectionItem.convert(value, ctx));
     return result;
   }
@@ -49,8 +49,8 @@ public class LetExpressionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     if (varname != null) {
       result.setProperty("varname", varname.serialize(db));
     }
@@ -61,7 +61,7 @@ public class LetExpressionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       if (fromResult.getProperty("varname") != null) {

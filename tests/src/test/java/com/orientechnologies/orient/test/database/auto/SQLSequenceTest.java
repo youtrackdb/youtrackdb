@@ -3,9 +3,9 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTSequenceException;
-import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;
@@ -74,7 +74,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
   }
 
   private long sequenceSql(String sequenceName, String cmd) {
-    try (OResultSet ret =
+    try (YTResultSet ret =
         database.command("SELECT sequence('" + sequenceName + "')." + cmd + " as value")) {
       return ret.next().getProperty("value");
     }

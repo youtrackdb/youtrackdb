@@ -21,7 +21,7 @@ package com.orientechnologies.lucene.tests;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,11 +59,11 @@ public class OLuceneGraphEmbeddedTest extends OLuceneBaseTest {
 
     db.begin();
 
-    OResultSet docs = db.query("SELECT from City where name = 'London / a' ");
+    YTResultSet docs = db.query("SELECT from City where name = 'London / a' ");
 
     Assertions.assertThat(docs).hasSize(1);
 
-    OResultSet resultSet = db.query("SELECT from City where name = 'London / a' ");
+    YTResultSet resultSet = db.query("SELECT from City where name = 'London / a' ");
 
     Assertions.assertThat(resultSet).hasSize(1);
     resultSet.close();
@@ -97,7 +97,7 @@ public class OLuceneGraphEmbeddedTest extends OLuceneBaseTest {
     db.save(two);
     db.commit();
 
-    OResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
+    YTResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
 
     resultSet.getExecutionPlan().ifPresent(x -> System.out.println(x.prettyPrint(0, 2)));
     Assertions.assertThat(resultSet).hasSize(1);

@@ -76,8 +76,8 @@ public class ODDLExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OResult toResult(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult toResult(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("type", "DDLExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());
     result.setProperty("stmText", statement.toString());

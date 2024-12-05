@@ -1,13 +1,13 @@
 package com.orientechnologies.spatial;
 
+import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.File;
 import java.util.List;
@@ -81,7 +81,7 @@ public class LuceneSpatialDropTest {
       db.save(doc);
       db.commit();
     }
-    OResultSet result = db.query("select * from test");
+    YTResultSet result = db.query("select * from test");
     Assert.assertEquals(count, result.stream().count());
   }
 }

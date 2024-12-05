@@ -6,9 +6,9 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +66,7 @@ public class OCollection extends SimpleNode {
     return result;
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (OExpression exp : expressions) {
       result.add(convert(exp.execute(iCurrentRecord, ctx)));
@@ -75,8 +75,8 @@ public class OCollection extends SimpleNode {
   }
 
   private Object convert(Object item) {
-    if (item instanceof OResultSet) {
-      return ((OResultSet) item).stream().collect(Collectors.toList());
+    if (item instanceof YTResultSet) {
+      return ((YTResultSet) item).stream().collect(Collectors.toList());
     }
     return item;
   }
@@ -166,8 +166,8 @@ public class OCollection extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (expressions != null) {
       result.setProperty(
           "expressions",
@@ -176,11 +176,11 @@ public class OCollection extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("expressions") != null) {
       expressions = new ArrayList<>();
-      List<OResult> ser = fromResult.getProperty("expressions");
-      for (OResult item : ser) {
+      List<YTResult> ser = fromResult.getProperty("expressions");
+      for (YTResult item : ser) {
         OExpression exp = new OExpression(-1);
         exp.deserialize(item);
         expressions.add(exp);

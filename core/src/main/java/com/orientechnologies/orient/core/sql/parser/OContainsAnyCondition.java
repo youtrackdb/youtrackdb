@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
@@ -49,9 +49,9 @@ public class OContainsAnyCondition extends OBooleanExpression {
           if (((Collection) left).contains(next)) {
             return true;
           }
-          if (next instanceof OResult
-              && ((OResult) next).isElement()
-              && ((Collection) left).contains(((OResult) next).toElement())) {
+          if (next instanceof YTResult
+              && ((YTResult) next).isElement()
+              && ((Collection) left).contains(((YTResult) next).toElement())) {
             return true;
           }
         }
@@ -76,12 +76,12 @@ public class OContainsAnyCondition extends OBooleanExpression {
             return true;
           }
           Object leftElem =
-              leftItem instanceof OResult && ((OResult) leftItem).isElement()
-                  ? ((OResult) leftItem).getElement().get()
+              leftItem instanceof YTResult && ((YTResult) leftItem).isElement()
+                  ? ((YTResult) leftItem).getElement().get()
                   : rightItem;
           Object rightElem =
-              rightItem instanceof OResult && ((OResult) rightItem).isElement()
-                  ? ((OResult) rightItem).getElement().get()
+              rightItem instanceof YTResult && ((YTResult) rightItem).isElement()
+                  ? ((YTResult) rightItem).getElement().get()
                   : rightItem;
           if (leftElem != null && leftElem.equals(rightElem)) {
             return true;
@@ -109,8 +109,8 @@ public class OContainsAnyCondition extends OBooleanExpression {
           if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
             return false;
           }
-        } else if (item instanceof OResult) {
-          if (!rightBlock.evaluate((OResult) item, ctx)) {
+        } else if (item instanceof YTResult) {
+          if (!rightBlock.evaluate((YTResult) item, ctx)) {
             return false;
           }
         } else {
@@ -122,7 +122,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
@@ -138,8 +138,8 @@ public class OContainsAnyCondition extends OBooleanExpression {
           if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
             return false;
           }
-        } else if (item instanceof OResult) {
-          if (!rightBlock.evaluate((OResult) item, ctx)) {
+        } else if (item instanceof YTResult) {
+          if (!rightBlock.evaluate((YTResult) item, ctx)) {
             return false;
           }
         } else {
@@ -380,7 +380,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
     Optional<OPath> path = left.getPath();
     if (path.isPresent()) {
       if (right.isEarlyCalculated(ctx)) {
-        Object value = right.execute((OResult) null, ctx);
+        Object value = right.execute((YTResult) null, ctx);
         return info.findExactIndex(path.get(), value, ctx);
       }
     }

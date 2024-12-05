@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -63,7 +63,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
   public void shouldUseRangeQueryOnSingleFloatField() {
 
     //noinspection EmptyTryBlock
-    try (final OResultSet command =
+    try (final YTResultSet command =
         db.command("create index Person.weight on Person(weight) FULLTEXT ENGINE LUCENE")) {
     }
 
@@ -78,13 +78,13 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     db.commit();
 
     // range
-    try (final OResultSet results =
+    try (final YTResultSet results =
         db.command("SELECT FROM Person WHERE search_class('weight:[0.0 TO 1.1]') = true")) {
       assertThat(results).hasSize(2);
     }
 
     // single value
-    try (final OResultSet results =
+    try (final YTResultSet results =
         db.command("SELECT FROM Person WHERE search_class('weight:7.1') = true")) {
       assertThat(results).hasSize(1);
     }
@@ -94,7 +94,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
   public void shouldUseRangeQueryOnSingleIntegerField() {
 
     //noinspection EmptyTryBlock
-    try (OResultSet command =
+    try (YTResultSet command =
         db.command("create index Person.age on Person(age) FULLTEXT ENGINE LUCENE")) {
     }
 
@@ -109,14 +109,15 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     db.commit();
 
     // range
-    try (OResultSet results =
+    try (YTResultSet results =
         db.command("SELECT FROM Person WHERE search_class('age:[5 TO 6]') = true")) {
 
       assertThat(results).hasSize(2);
     }
 
     // single value
-    try (OResultSet results = db.command("SELECT FROM Person WHERE search_class('age:5') = true")) {
+    try (YTResultSet results = db.command(
+        "SELECT FROM Person WHERE search_class('age:5') = true")) {
       assertThat(results).hasSize(1);
     }
   }
@@ -124,7 +125,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
   @Test
   public void shouldUseRangeQueryOnSingleDateField() {
     //noinspection EmptyTryBlock
-    try (OResultSet command =
+    try (YTResultSet command =
         db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE")) {
     }
 
@@ -144,7 +145,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // range
-    try (final OResultSet results =
+    try (final YTResultSet results =
         db.command(
             "SELECT FROM Person WHERE search_class('date:["
                 + fiveDaysAgo
@@ -160,7 +161,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
   public void shouldUseRangeQueryMultipleField() {
 
     //noinspection EmptyTryBlock
-    try (OResultSet command =
+    try (YTResultSet command =
         db.command(
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE"
                 + " LUCENE")) {
@@ -182,14 +183,14 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // name and age range
-    try (OResultSet results =
+    try (YTResultSet results =
         db.command("SELECT * FROM Person WHERE search_class('age:[5 TO 6] name:robert  ')=true")) {
 
       assertThat(results).hasSize(3);
     }
 
     // date range
-    try (OResultSet results =
+    try (YTResultSet results =
         db.command(
             "SELECT FROM Person WHERE search_class('date:["
                 + fiveDaysAgo
@@ -201,7 +202,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     }
 
     // age and date range with MUST
-    try (OResultSet results =
+    try (YTResultSet results =
         db.command(
             "SELECT FROM Person WHERE search_class('+age:[4 TO 7]  +date:["
                 + fiveDaysAgo
@@ -215,7 +216,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
   @Test
   public void shouldUseRangeQueryMultipleFieldWithDirectIndexAccess() {
     //noinspection EmptyTryBlock
-    try (OResultSet command =
+    try (YTResultSet command =
         db.command(
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE"
                 + " LUCENE")) {

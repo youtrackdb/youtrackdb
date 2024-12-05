@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.math.BigDecimal;
 import java.util.Date;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class OSQLFunctionConvertTest extends DBTestBase {
     db.command("update TestConversion set selfrid = 'foo" + doc.getIdentity() + "'").close();
     db.commit();
 
-    OResultSet results = db.query("select string.asString() as convert from TestConversion");
+    YTResultSet results = db.query("select string.asString() as convert from TestConversion");
 
     assertTrue(results.next().getProperty("convert") instanceof String);
     assertFalse(results.hasNext());

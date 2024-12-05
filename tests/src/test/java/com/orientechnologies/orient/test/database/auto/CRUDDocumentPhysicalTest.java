@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -870,7 +870,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     database.command("insert into TestExport set anything = 2.3").close();
     database.commit();
 
-    OResultSet result = database.command("select count(*) from TestExport where anything = 3");
+    YTResultSet result = database.command("select count(*) from TestExport where anything = 3");
     Assert.assertNotNull(result);
     Assert.assertEquals(result.stream().count(), 1);
 

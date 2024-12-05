@@ -5,9 +5,9 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import java.util.Collections;
 
 /**
- * Static Factories of OScriptResultSet objects
+ * Static Factories of YTScriptResultSet objects
  *
- * <p>Used in script results with conversion to OResult for single iteration
+ * <p>Used in script results with conversion to YTResult for single iteration
  * on 27/01/17.
  */
 public class OScriptResultSets {
@@ -17,8 +17,8 @@ public class OScriptResultSets {
    *
    * @return
    */
-  public static OScriptResultSet empty(YTDatabaseSessionInternal db) {
-    return new OScriptResultSet(db, Collections.EMPTY_LIST.iterator(), null);
+  public static YTScriptResultSet empty(YTDatabaseSessionInternal db) {
+    return new YTScriptResultSet(db, Collections.EMPTY_LIST.iterator(), null);
   }
 
   /**
@@ -26,8 +26,8 @@ public class OScriptResultSets {
    *
    * @return
    */
-  public static OScriptResultSet singleton(YTDatabaseSessionInternal db, Object entity,
+  public static YTScriptResultSet singleton(YTDatabaseSessionInternal db, Object entity,
       OScriptTransformer transformer) {
-    return new OScriptResultSet(db, Collections.singletonList(entity).iterator(), transformer);
+    return new YTScriptResultSet(db, Collections.singletonList(entity).iterator(), transformer);
   }
 }

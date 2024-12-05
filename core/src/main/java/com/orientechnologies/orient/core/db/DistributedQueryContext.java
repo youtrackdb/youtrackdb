@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 
 /**
@@ -11,7 +11,7 @@ public class DistributedQueryContext {
 
   private String queryId;
   private YTDatabaseSessionInternal db;
-  private OResultSet resultSet;
+  private YTResultSet resultSet;
 
   public String getQueryId() {
     return queryId;
@@ -29,15 +29,15 @@ public class DistributedQueryContext {
     this.db = (YTDatabaseSessionInternal) db;
   }
 
-  public OResultSet getResultSet() {
+  public YTResultSet getResultSet() {
     return resultSet;
   }
 
-  public void setResultSet(OResultSet resultSet) {
+  public void setResultSet(YTResultSet resultSet) {
     this.resultSet = resultSet;
   }
 
-  public List<OResult> fetchNextPage() {
+  public List<YTResult> fetchNextPage() {
     YTDatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();

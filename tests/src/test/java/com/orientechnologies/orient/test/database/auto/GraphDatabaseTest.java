@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -80,7 +80,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     tom = database.bindToSession(tom);
     Assert.assertEquals(CollectionUtils.size(tom.getEdges(ODirection.OUT, "drives")), 2);
 
-    OResultSet result =
+    YTResultSet result =
         database.query("select out_[in.@class = 'GraphCar'].in_ from V where name = 'Tom'");
     Assert.assertEquals(result.stream().count(), 1);
 
@@ -180,7 +180,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     database.commit();
 
     String query1 = "select driver from V where out().car contains 'ford'";
-    OResultSet result = database.query(query1);
+    YTResultSet result = database.query(query1);
     Assert.assertEquals(result.stream().count(), 1);
 
     String query2 = "select driver from V where outE()[color='red'].inV().car contains 'ford'";
@@ -224,7 +224,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
     database.commit();
     String subquery = "select out('owns') as out from V where name = 'UK'";
-    List<OResult> result = database.query(subquery).stream().collect(Collectors.toList());
+    List<YTResult> result = database.query(subquery).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
     Assert.assertEquals(((Collection) result.get(0).getProperty("out")).size(), 2);
@@ -233,7 +233,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     result = database.query(subquery).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (OResult value : result) {
+    for (YTResult value : result) {
       Assert.assertTrue(value.hasProperty("lat"));
     }
 
@@ -243,7 +243,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     result = database.query(query).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (OResult oResult : result) {
+    for (YTResult oResult : result) {
       Assert.assertTrue(oResult.hasProperty("lat"));
       Assert.assertTrue(oResult.hasProperty("distance"));
     }

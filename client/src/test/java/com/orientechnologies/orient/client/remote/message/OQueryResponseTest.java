@@ -2,8 +2,8 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,9 +22,9 @@ public class OQueryResponseTest extends DBTestBase {
   @Test
   public void test() throws IOException {
 
-    List<OResult> resuls = new ArrayList<>();
+    List<YTResult> resuls = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      OResultInternal item = new OResultInternal(db);
+      YTResultInternal item = new YTResultInternal(db);
       item.setProperty("name", "foo");
       item.setProperty("counter", i);
       resuls.add(item);
@@ -43,11 +43,11 @@ public class OQueryResponseTest extends DBTestBase {
     OQueryResponse newResponse = new OQueryResponse();
 
     newResponse.read(db, channel, null);
-    Iterator<OResult> responseRs = newResponse.getResult().iterator();
+    Iterator<YTResult> responseRs = newResponse.getResult().iterator();
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(responseRs.hasNext());
-      OResult item = responseRs.next();
+      YTResult item = responseRs.next();
       Assert.assertEquals("foo", item.getProperty("name"));
       Assert.assertEquals((Integer) i, item.getProperty("counter"));
     }

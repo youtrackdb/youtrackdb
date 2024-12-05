@@ -15,9 +15,9 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -119,7 +119,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     if (star) {
       return iCurrentRecord;
     }
@@ -142,9 +142,9 @@ public class OSuffixIdentifier extends SimpleNode {
         if (iCurrentRecord.getMetadataKeys().contains(varName)) {
           return iCurrentRecord.getMetadata(varName);
         }
-        if (iCurrentRecord instanceof OResultInternal
-            && ((OResultInternal) iCurrentRecord).getTemporaryProperties().contains(varName)) {
-          return ((OResultInternal) iCurrentRecord).getTemporaryProperty(varName);
+        if (iCurrentRecord instanceof YTResultInternal
+            && ((YTResultInternal) iCurrentRecord).getTemporaryProperties().contains(varName)) {
+          return ((YTResultInternal) iCurrentRecord).getTemporaryProperty(varName);
         }
       }
       return null;
@@ -159,7 +159,7 @@ public class OSuffixIdentifier extends SimpleNode {
 
   public Object execute(Map iCurrentRecord, OCommandContext ctx) {
     if (star) {
-      OResultInternal result = new OResultInternal(ctx.getDatabase());
+      YTResultInternal result = new YTResultInternal(ctx.getDatabase());
       if (iCurrentRecord != null) {
         for (Map.Entry<Object, Object> x : ((Map<Object, Object>) iCurrentRecord).entrySet()) {
           result.setProperty("" + x.getKey(), x.getValue());
@@ -206,9 +206,9 @@ public class OSuffixIdentifier extends SimpleNode {
     while (iterator.hasNext()) {
       result.add(execute(iterator.next(), ctx));
     }
-    if (iterator instanceof OResultSet) {
+    if (iterator instanceof YTResultSet) {
       try {
-        ((OResultSet) iterator).reset();
+        ((YTResultSet) iterator).reset();
       } catch (Exception ignore) {
       }
     }
@@ -233,8 +233,8 @@ public class OSuffixIdentifier extends SimpleNode {
   }
 
   public Object execute(Object currentValue, OCommandContext ctx) {
-    if (currentValue instanceof OResult) {
-      return execute((OResult) currentValue, ctx);
+    if (currentValue instanceof YTResult) {
+      return execute((YTResult) currentValue, ctx);
     }
     if (currentValue instanceof YTIdentifiable) {
       return execute((YTIdentifiable) currentValue, ctx);
@@ -252,7 +252,7 @@ public class OSuffixIdentifier extends SimpleNode {
       return execute((Iterator) currentValue, ctx);
     }
     if (currentValue == null) {
-      return execute((OResult) null, ctx);
+      return execute((YTResult) null, ctx);
     }
 
     return null;
@@ -347,8 +347,8 @@ public class OSuffixIdentifier extends SimpleNode {
   }
 
   public void setValue(Object target, Object value, OCommandContext ctx) {
-    if (target instanceof OResult) {
-      setValue((OResult) target, value, ctx);
+    if (target instanceof YTResult) {
+      setValue((YTResult) target, value, ctx);
     } else if (target instanceof YTIdentifiable) {
       setValue((YTIdentifiable) target, value, ctx);
     } else if (target instanceof Map) {
@@ -395,11 +395,11 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public void setValue(OResult target, Object value, OCommandContext ctx) {
+  public void setValue(YTResult target, Object value, OCommandContext ctx) {
     if (target == null) {
       return;
     }
-    if (target instanceof OResultInternal intTarget) {
+    if (target instanceof YTResultInternal intTarget) {
       if (identifier != null) {
         intTarget.setProperty(identifier.getStringValue(), value);
       } else if (recordAttribute != null) {
@@ -416,8 +416,8 @@ public class OSuffixIdentifier extends SimpleNode {
       return;
     }
     if (identifier != null) {
-      if (currentValue instanceof OResultInternal) {
-        ((OResultInternal) currentValue).removeProperty(identifier.getStringValue());
+      if (currentValue instanceof YTResultInternal) {
+        ((YTResultInternal) currentValue).removeProperty(identifier.getStringValue());
       } else if (currentValue instanceof YTEntity) {
         ((YTEntity) currentValue).removeProperty(identifier.getStringValue());
       } else if (currentValue instanceof Map) {
@@ -426,8 +426,8 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (identifier != null) {
       result.setProperty("identifier", identifier.serialize(db));
     }
@@ -438,7 +438,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("identifier") != null) {
       identifier = OIdentifier.deserialize(fromResult.getProperty("identifier"));
     }
@@ -449,7 +449,7 @@ public class OSuffixIdentifier extends SimpleNode {
     star = fromResult.getProperty("star");
   }
 
-  public boolean isDefinedFor(OResult currentRecord) {
+  public boolean isDefinedFor(YTResult currentRecord) {
     if (identifier != null) {
       return currentRecord.hasProperty(identifier.getStringValue());
     }
@@ -463,7 +463,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return true;
   }
 
-  public OCollate getCollate(OResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
     if (identifier != null && currentRecord != null) {
       return currentRecord
           .getRecord()

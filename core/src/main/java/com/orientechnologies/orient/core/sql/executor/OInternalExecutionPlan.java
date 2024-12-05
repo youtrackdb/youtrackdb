@@ -28,11 +28,11 @@ public interface OInternalExecutionPlan extends OExecutionPlan {
 
   long getCost();
 
-  default OResult serialize(YTDatabaseSessionInternal db) {
+  default YTResult serialize(YTDatabaseSessionInternal db) {
     throw new UnsupportedOperationException();
   }
 
-  default void deserialize(OResult serializedExecutionPlan) {
+  default void deserialize(YTResult serializedExecutionPlan) {
     throw new UnsupportedOperationException();
   }
 

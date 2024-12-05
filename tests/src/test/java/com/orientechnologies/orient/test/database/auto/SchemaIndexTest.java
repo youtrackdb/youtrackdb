@@ -5,8 +5,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -151,12 +151,12 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
     assertContains(polymorpicIdsPropagationSuperSuper.getPolymorphicClusterIds(), clusterId2);
     assertContains(polymorpicIdsPropagationSuper.getPolymorphicClusterIds(), clusterId2);
 
-    try (OResultSet result =
+    try (YTResultSet result =
         database.query("select from polymorpicIdsPropagationSuperSuper where value = 'val12'")) {
 
       Assert.assertTrue(result.hasNext());
 
-      OResult doc = result.next();
+      YTResult doc = result.next();
       Assert.assertFalse(result.hasNext());
       Assert.assertEquals(doc.getProperty("@class"), "polymorpicIdsPropagation");
     }
@@ -165,7 +165,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
     assertDoesNotContain(polymorpicIdsPropagationSuperSuper.getPolymorphicClusterIds(), clusterId2);
     assertDoesNotContain(polymorpicIdsPropagationSuper.getPolymorphicClusterIds(), clusterId2);
 
-    try (OResultSet result =
+    try (YTResultSet result =
         database.query("select from polymorpicIdsPropagationSuperSuper  where value = 'val12'")) {
 
       Assert.assertFalse(result.hasNext());

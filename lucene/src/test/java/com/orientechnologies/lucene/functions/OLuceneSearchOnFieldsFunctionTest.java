@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +32,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearchOnSingleField() throws Exception {
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query("SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true");
     assertThat(resultSet).hasSize(2);
     resultSet.close();
@@ -41,7 +41,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnSingleFieldWithLeadingWildcard() throws Exception {
     // TODO: metadata still not used
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], '*EVE*', {'allowLeadingWildcard':"
                 + " true}) = true");
@@ -51,7 +51,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearhOnTwoFieldsInOR() throws Exception {
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true OR"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
@@ -61,7 +61,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearchOnTwoFieldsInAND() throws Exception {
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
@@ -71,7 +71,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearhOnTwoFieldsWithLeadingWildcardInAND() throws Exception {
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob', {'allowLeadingWildcard': true}) = true ");
@@ -81,7 +81,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
   @Test
   public void shouldSearchOnMultiFieldIndex() throws Exception {
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['lyrics','description'],"
                 + " '(description:happiness) (lyrics:sad)  ') = true ");
@@ -119,7 +119,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     db.command("create vertex RockSong set title=\"This is only rock\", author=\"A cool rocker\"");
     db.commit();
 
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query("SELECT from RockSong where SEARCH_FIELDS(['title'], '+only +rock') = true ");
     assertThat(resultSet).hasSize(1);
     resultSet.close();
@@ -156,7 +156,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    final OResultSet result =
+    final YTResultSet result =
         db.query(
             "SELECT out('"
                 + classNameE
@@ -164,7 +164,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
                 + className
                 + " WHERE id = 1;");
     assertThat(result.hasNext());
-    final OResult item = result.next();
+    final YTResult item = result.next();
     assertThat((Object) item.getProperty("theList")).isInstanceOf(List.class);
     assertThat((List) item.getProperty("theList")).hasSize(3);
     result.close();

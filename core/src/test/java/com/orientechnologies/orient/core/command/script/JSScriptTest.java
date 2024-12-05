@@ -4,8 +4,8 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -24,9 +24,9 @@ public class JSScriptTest extends DBTestBase {
 
   @Test
   public void jsSimpleTest() {
-    OResultSet resultSet = db.execute("javascript", "'foo'");
+    YTResultSet resultSet = db.execute("javascript", "'foo'");
     Assert.assertTrue(resultSet.hasNext());
-    OResult result = resultSet.next();
+    YTResult result = resultSet.next();
     String ret = result.getProperty("value");
     Assert.assertEquals("foo", ret);
   }
@@ -34,10 +34,10 @@ public class JSScriptTest extends DBTestBase {
   @Test
   public void jsQueryTest() {
     String script = "db.query('select from OUser')";
-    OResultSet resultSet = db.execute("javascript", script);
+    YTResultSet resultSet = db.execute("javascript", script);
     Assert.assertTrue(resultSet.hasNext());
 
-    List<OResult> results = resultSet.stream().collect(Collectors.toList());
+    List<YTResult> results = resultSet.stream().collect(Collectors.toList());
     Assert.assertEquals(1, results.size()); // no default users anymore, 'admin' created
 
     results.stream()
@@ -52,14 +52,14 @@ public class JSScriptTest extends DBTestBase {
   @Test
   public void jsScriptTest() throws IOException {
     InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptTest.js");
-    OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
+    YTResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
     Assert.assertTrue(resultSet.hasNext());
 
-    List<OResult> results = resultSet.stream().collect(Collectors.toList());
+    List<YTResult> results = resultSet.stream().collect(Collectors.toList());
     Assert.assertEquals(1, results.size());
 
     Object value = results.get(0).getProperty("value");
-    Collection<OResult> values = (Collection<OResult>) value;
+    Collection<YTResult> values = (Collection<YTResult>) value;
     values.stream()
         .map(r -> r.getElement().get())
         .forEach(
@@ -72,10 +72,10 @@ public class JSScriptTest extends DBTestBase {
   @Test
   public void jsScriptCountTest() throws IOException {
     InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptCountTest.js");
-    OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
+    YTResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
     Assert.assertTrue(resultSet.hasNext());
 
-    List<OResult> results = resultSet.stream().collect(Collectors.toList());
+    List<YTResult> results = resultSet.stream().collect(Collectors.toList());
     Assert.assertEquals(1, results.size());
 
     Number value = results.get(0).getProperty("value");
@@ -85,7 +85,7 @@ public class JSScriptTest extends DBTestBase {
   @Test
   public void jsSandboxTestWithJavaType() {
     try {
-      final OResultSet result =
+      final YTResultSet result =
           db.execute(
               "javascript", "var File = Java.type(\"java.io.File\");\n  File.pathSeparator;");
 
@@ -106,7 +106,7 @@ public class JSScriptTest extends DBTestBase {
     try {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.lang.System")));
 
-      OResultSet resultSet =
+      YTResultSet resultSet =
           db.execute(
               "javascript", "var System = Java.type('java.lang.System'); System.nanoTime();");
       Assert.assertEquals(0, resultSet.stream().count());
@@ -117,14 +117,14 @@ public class JSScriptTest extends DBTestBase {
 
   @Test
   public void jsSandboxWithMathTest() {
-    OResultSet resultSet = db.execute("javascript", "Math.random()");
+    YTResultSet resultSet = db.execute("javascript", "Math.random()");
     Assert.assertEquals(1, resultSet.stream().count());
     resultSet.close();
   }
 
   @Test
   public void jsSandboxWithDB() {
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.execute(
             "javascript",
             """
@@ -144,7 +144,7 @@ public class JSScriptTest extends DBTestBase {
     try {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.math.BigDecimal")));
 
-      try (OResultSet resultSet =
+      try (YTResultSet resultSet =
           db.execute(
               "javascript",
               "var BigDecimal = Java.type('java.math.BigDecimal'); new BigDecimal(1.0);")) {
@@ -167,7 +167,7 @@ public class JSScriptTest extends DBTestBase {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.math.*")));
       scriptManager.closeAll();
 
-      try (OResultSet resultSet = db.execute("javascript", "new java.math.BigDecimal(1.0);")) {
+      try (YTResultSet resultSet = db.execute("javascript", "new java.math.BigDecimal(1.0);")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
 
@@ -179,14 +179,14 @@ public class JSScriptTest extends DBTestBase {
 
   @Test
   public void jsSandboxWithOrient() {
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.execute("javascript", "Orient.instance().getScriptManager().addAllowedPackages([])")) {
       Assert.assertEquals(1, resultSet.stream().count());
     } catch (Exception e) {
       Assert.assertEquals(ScriptException.class, e.getCause().getClass());
     }
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.execute(
             "javascript",
             "com.orientechnologies.orient.core.Orient.instance().getScriptManager().addAllowedPackages([])")) {
@@ -199,7 +199,7 @@ public class JSScriptTest extends DBTestBase {
           e.getCause().getClass());
     }
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.execute(
             "javascript",
             "Java.type('com.orientechnologies.orient.core.Orient').instance().getScriptManager().addAllowedPackages([])")) {

@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.List;
@@ -178,7 +178,7 @@ public class YouTrackDBRemoteTest {
           try {
             assertThat(db.isActiveOnCurrentThread()).isTrue();
 
-            OResultSet res = db.query("SELECT * FROM OUser");
+            YTResultSet res = db.query("SELECT * FROM OUser");
 
             assertEquals(3, res.stream().count());
 
@@ -252,9 +252,9 @@ public class YouTrackDBRemoteTest {
   public void testCreateDatabaseViaSQL() {
     String dbName = "testCreateDatabaseViaSQL";
 
-    try (OResultSet result = factory.execute("create database " + dbName + " plocal")) {
+    try (YTResultSet result = factory.execute("create database " + dbName + " plocal")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
     Assert.assertTrue(factory.exists(dbName));

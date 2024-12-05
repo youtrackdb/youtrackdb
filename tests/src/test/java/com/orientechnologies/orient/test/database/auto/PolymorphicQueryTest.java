@@ -22,8 +22,8 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
@@ -278,7 +278,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
       indexUsageReverted = 0;
     }
 
-    OResultSet result =
+    YTResultSet result =
         database.query(
             "select from IndexInSubclassesTestBaseFail where name > 'name9995' and name <"
                 + " 'name9999' order by name ASC");
@@ -309,12 +309,12 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
     }
 
     // crashed with OIOException, issue #3632
-    OResultSet result =
+    YTResultSet result =
         database.query("SELECT FROM GenericCrash WHERE @class='GenericCrash' ORDER BY @rid DESC");
 
     int count = 0;
     while (result.hasNext()) {
-      OResult doc = result.next();
+      YTResult doc = result.next();
       Assert.assertEquals(doc.getProperty("name"), "foo");
       count++;
     }

@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +55,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
             "Sequence " + name.getStringValue() + " already exists");
       }
     }
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "create sequence");
     result.setProperty("name", name.getStringValue());
 
@@ -70,7 +70,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
     return OExecutionStream.singleton(result);
   }
 
-  private void executeInternal(OCommandContext ctx, OResultInternal result)
+  private void executeInternal(OCommandContext ctx, YTResultInternal result)
       throws ExecutionException, InterruptedException {
     YTSequence.CreateParams params = createParams(ctx, result);
     YTSequence.SEQUENCE_TYPE seqType =
@@ -82,7 +82,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
         .createSequence(this.name.getStringValue(), seqType, params);
   }
 
-  private YTSequence.CreateParams createParams(OCommandContext ctx, OResultInternal result) {
+  private YTSequence.CreateParams createParams(OCommandContext ctx, YTResultInternal result) {
     YTSequence.CreateParams params = new YTSequence.CreateParams();
     if (start != null) {
       Object o = start.execute((YTIdentifiable) null, ctx);

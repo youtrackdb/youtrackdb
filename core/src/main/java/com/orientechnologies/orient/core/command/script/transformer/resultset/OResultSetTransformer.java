@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.command.script.transformer.resultset;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 
 /**
  *
  */
 public interface OResultSetTransformer<T> {
 
-  OResultSet transform(T value);
+  YTResultSet transform(T value);
 }

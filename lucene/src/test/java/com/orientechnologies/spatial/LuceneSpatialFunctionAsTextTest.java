@@ -20,8 +20,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.text.ParseException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -77,11 +77,11 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   }
 
   protected void queryAndAssertGeom(String name, String wkt) {
-    OResultSet results =
+    YTResultSet results =
         db.command("select *, ST_AsText(geometry) as text from Location where name = ? ", name);
 
     assertTrue(results.hasNext());
-    OResult doc = results.next();
+    YTResult doc = results.next();
 
     String asText = doc.getProperty("text");
 

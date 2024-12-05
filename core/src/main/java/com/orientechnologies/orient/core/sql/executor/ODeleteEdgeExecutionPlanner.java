@@ -181,7 +181,7 @@ public class ODeleteEdgeExecutionPlanner {
       result.chain(
           new FetchFromRidsStep(
               rids.stream()
-                  .map(x -> x.toRecordId((OResult) null, ctx))
+                  .map(x -> x.toRecordId((YTResult) null, ctx))
                   .collect(Collectors.toList()),
               ctx,
               profilingEnabled));

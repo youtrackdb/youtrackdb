@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 
 /**
  *
@@ -29,7 +29,7 @@ public final class OLinkConverter implements OValuesConverter<YTIdentifiable> {
       return OImportConvertersFactory.BROKEN_LINK;
     }
 
-    try (final OResultSet resultSet =
+    try (final YTResultSet resultSet =
         converterData.session.query(
             "select value from " + ODatabaseImport.EXPORT_IMPORT_CLASS_NAME + " where key = ?",
             rid.toString())) {

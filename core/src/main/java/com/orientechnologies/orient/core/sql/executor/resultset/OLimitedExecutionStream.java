@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 
 public class OLimitedExecutionStream implements OExecutionStream {
 
@@ -24,11 +24,11 @@ public class OLimitedExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     if (count >= limit) {
       throw new IllegalStateException();
     } else {
-      OResult read = upstream.next(ctx);
+      YTResult read = upstream.next(ctx);
       this.count += 1;
       return read;
     }

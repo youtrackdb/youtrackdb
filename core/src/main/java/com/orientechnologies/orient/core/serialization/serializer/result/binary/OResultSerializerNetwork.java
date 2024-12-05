@@ -38,8 +38,8 @@ import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OSerializableWrapper;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OVarIntSerializer;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -69,8 +69,8 @@ public class OResultSerializerNetwork {
   public OResultSerializerNetwork() {
   }
 
-  public OResultInternal deserialize(YTDatabaseSessionInternal db, final BytesContainer bytes) {
-    final OResultInternal document = new OResultInternal(db);
+  public YTResultInternal deserialize(YTDatabaseSessionInternal db, final BytesContainer bytes) {
+    final YTResultInternal document = new YTResultInternal(db);
     String fieldName;
     YTType type;
     int size = OVarIntSerializer.readAsInteger(bytes);
@@ -111,7 +111,7 @@ public class OResultSerializerNetwork {
   }
 
   @SuppressWarnings("unchecked")
-  public void serialize(final OResult result, final BytesContainer bytes) {
+  public void serialize(final YTResult result, final BytesContainer bytes) {
     var propertyNames = result.getPropertyNames();
 
     OVarIntSerializer.write(bytes, propertyNames.size());
@@ -119,9 +119,9 @@ public class OResultSerializerNetwork {
       writeString(bytes, property);
       Object propertyValue = result.getProperty(property);
       if (propertyValue != null) {
-        if (propertyValue instanceof OResult) {
-          if (((OResult) propertyValue).isElement()) {
-            YTEntity elem = ((OResult) propertyValue).getElement().get();
+        if (propertyValue instanceof YTResult) {
+          if (((YTResult) propertyValue).isElement()) {
+            YTEntity elem = ((YTResult) propertyValue).getElement().get();
             writeOType(bytes, bytes.alloc(1), YTType.LINK);
             serializeValue(bytes, elem.getIdentity(), YTType.LINK, null);
           } else {
@@ -151,7 +151,7 @@ public class OResultSerializerNetwork {
       writeString(bytes, field);
       final Object value = result.getMetadata(field);
       if (value != null) {
-        if (value instanceof OResult) {
+        if (value instanceof YTResult) {
           writeOType(bytes, bytes.alloc(1), YTType.EMBEDDED);
           serializeValue(bytes, value, YTType.EMBEDDED, null);
         } else {
@@ -412,10 +412,10 @@ public class OResultSerializerNetwork {
         OVarIntSerializer.write(bytes, dateValue / MILLISEC_PER_DAY);
         break;
       case EMBEDDED:
-        if (!(value instanceof OResult)) {
+        if (!(value instanceof YTResult)) {
           throw new UnsupportedOperationException();
         }
-        serialize((OResult) value, bytes);
+        serialize((YTResult) value, bytes);
         break;
       case EMBEDDEDSET:
       case EMBEDDEDLIST:
@@ -439,8 +439,8 @@ public class OResultSerializerNetwork {
         writeLinkCollection(bytes, ridCollection);
         break;
       case LINK:
-        if (value instanceof OResult && ((OResult) value).isElement()) {
-          value = ((OResult) value).getElement().get();
+        if (value instanceof YTResult && ((YTResult) value).isElement()) {
+          value = ((YTResult) value).getElement().get();
         }
         if (!(value instanceof YTIdentifiable)) {
           throw new YTValidationException("Value '" + value + "' is not a YTIdentifiable");
@@ -506,7 +506,7 @@ public class OResultSerializerNetwork {
       writeString(bytes, field);
       final Object value = map.get(field);
       if (value != null) {
-        if (value instanceof OResult) {
+        if (value instanceof YTResult) {
           writeOType(bytes, bytes.alloc(1), YTType.EMBEDDED);
           serializeValue(bytes, value, YTType.EMBEDDED, null);
         } else {
@@ -580,11 +580,11 @@ public class OResultSerializerNetwork {
   }
 
   private YTType getTypeFromValueEmbedded(final Object fieldValue) {
-    if (fieldValue instanceof OResult && ((OResult) fieldValue).isElement()) {
+    if (fieldValue instanceof YTResult && ((YTResult) fieldValue).isElement()) {
       return YTType.LINK;
     }
     YTType type =
-        fieldValue instanceof OResult ? YTType.EMBEDDED : YTType.getTypeByValue(fieldValue);
+        fieldValue instanceof YTResult ? YTType.EMBEDDED : YTType.getTypeByValue(fieldValue);
     if (type == YTType.LINK
         && fieldValue instanceof YTDocument
         && !((YTDocument) fieldValue).getIdentity().isValid()) {
@@ -654,13 +654,13 @@ public class OResultSerializerNetwork {
     return toCalendar.getTimeInMillis();
   }
 
-  public void toStream(OResult item, OChannelDataOutput channel) throws IOException {
+  public void toStream(YTResult item, OChannelDataOutput channel) throws IOException {
     final BytesContainer bytes = new BytesContainer();
     this.serialize(item, bytes);
     channel.writeBytes(bytes.fitBytes());
   }
 
-  public OResultInternal fromStream(YTDatabaseSessionInternal db, OChannelDataInput channel)
+  public YTResultInternal fromStream(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     BytesContainer bytes = new BytesContainer();
     bytes.bytes = channel.readBytes();

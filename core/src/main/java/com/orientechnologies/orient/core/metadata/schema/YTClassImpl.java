@@ -33,16 +33,16 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionFactory;
-import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingClusterSelectionStrategy;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
@@ -1381,7 +1381,7 @@ public abstract class YTClassImpl implements YTClass {
     final boolean strictSQL =
         ((YTDatabaseSessionInternal) database).getStorageInfo().getConfiguration().isStrictSql();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         database.query(
             "select from "
                 + getEscapedName(name, strictSQL)
@@ -1410,7 +1410,7 @@ public abstract class YTClassImpl implements YTClass {
     final boolean strictSQL =
         ((YTDatabaseSessionInternal) database).getStorageInfo().getConfiguration().isStrictSql();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         database.query(
             "select from "
                 + getEscapedName(name, strictSQL)
@@ -1465,7 +1465,7 @@ public abstract class YTClassImpl implements YTClass {
           .append(".size() <> 0 limit 1");
     }
 
-    try (final OResultSet res = database.command(builder.toString())) {
+    try (final YTResultSet res = database.command(builder.toString())) {
       if (res.hasNext()) {
         throw new YTSchemaException(
             "The database contains some schema-less data in the property '"
@@ -1494,9 +1494,9 @@ public abstract class YTClassImpl implements YTClass {
       builder.append(" and ").append(getEscapedName(propertyName, true)).append(".size() > 0");
     }
 
-    try (final OResultSet res = database.command(builder.toString())) {
+    try (final YTResultSet res = database.command(builder.toString())) {
       while (res.hasNext()) {
-        OResult item = res.next();
+        YTResult item = res.next();
         switch (type) {
           case EMBEDDEDLIST:
           case LINKLIST:
@@ -1548,8 +1548,8 @@ public abstract class YTClassImpl implements YTClass {
   }
 
   protected static boolean matchesType(Object x, YTClass linkedClass) {
-    if (x instanceof OResult) {
-      x = ((OResult) x).toElement();
+    if (x instanceof YTResult) {
+      x = ((YTResult) x).toElement();
     }
     if (x instanceof YTRID) {
       try {

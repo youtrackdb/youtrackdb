@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public class DateBinaryComparatorTest extends DBTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("dateParam", new SimpleDateFormat(dateFormat).parse(dateValue));
 
-    try (OResultSet result = db.query(str, params)) {
+    try (YTResultSet result = db.query(str, params)) {
       assertEquals(1, result.stream().count());
     }
   }

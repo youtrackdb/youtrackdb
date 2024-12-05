@@ -85,8 +85,8 @@ import com.orientechnologies.orient.core.serialization.serializer.OStringSeriali
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -712,8 +712,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     } else if (result != null
         && result instanceof List
         && ((List) result).size() == 1
-        && ((List) result).get(0) instanceof OResult) {
-      message(((OResult) (((List) result).get(0))).getProperty("executionPlanAsString"));
+        && ((List) result).get(0) instanceof YTResult) {
+      message(((YTResult) (((List) result).get(0))).getProperty("executionPlanAsString"));
     } else if (result != null
         && result instanceof List
         && ((List) result).size() == 1
@@ -761,7 +761,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     resetResultSet();
     final long start = System.currentTimeMillis();
 
-    OResultSet rs = currentDatabase.command(command);
+    YTResultSet rs = currentDatabase.command(command);
     final List<YTIdentifiable> result =
         rs.stream().map(x -> x.toElement()).collect(Collectors.toList());
     rs.close();
@@ -1133,7 +1133,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     }
 
     long start = System.currentTimeMillis();
-    OResultSet rs = currentDatabase.command("traverse " + iQueryText);
+    YTResultSet rs = currentDatabase.command("traverse " + iQueryText);
     setResultset(rs.stream().map(x -> x.toElement()).collect(Collectors.toList()));
     rs.close();
 
@@ -1187,10 +1187,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final long start = System.currentTimeMillis();
     List<YTIdentifiable> result = new ArrayList<>();
-    try (OResultSet rs = currentDatabase.query(iQueryText)) {
+    try (YTResultSet rs = currentDatabase.query(iQueryText)) {
       int count = 0;
       while (rs.hasNext() && (queryLimit < 0 || count < queryLimit)) {
-        OResult item = rs.next();
+        YTResult item = rs.next();
         if (item.isBlob()) {
           result.add(item.getBlob().get());
         } else {
@@ -1245,7 +1245,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final long start = System.currentTimeMillis();
     List<YTIdentifiable> result = new ArrayList<>();
-    OResultSet rs = currentDatabase.query(iQueryText);
+    YTResultSet rs = currentDatabase.query(iQueryText);
     int count = 0;
     while (rs.hasNext() && (queryLimit < 0 || count < queryLimit)) {
       result.add(rs.next().toElement());
@@ -3051,11 +3051,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           if (properties.get(OConsoleProperties.LIMIT) != null) {
             displayLimit = Integer.parseInt(properties.get(OConsoleProperties.LIMIT));
           }
-          OResultSet rs = youTrackDB.execute(iCommand);
+          YTResultSet rs = youTrackDB.execute(iCommand);
           int count = 0;
           List<YTIdentifiable> result = new ArrayList<>();
           while (rs.hasNext() && (displayLimit < 0 || count < displayLimit)) {
-            OResult item = rs.next();
+            YTResult item = rs.next();
             if (item.isBlob()) {
               result.add(item.getBlob().get());
             } else {
@@ -3418,7 +3418,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     long start = System.currentTimeMillis();
 
-    OResultSet rs = currentDatabase.execute(iLanguage, iText);
+    YTResultSet rs = currentDatabase.execute(iLanguage, iText);
     currentResult = rs.stream().map(x -> x.toElement()).collect(Collectors.toList());
     rs.close();
     float elapsedSeconds = getElapsedSecs(start);
@@ -3595,7 +3595,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     final long start = System.currentTimeMillis();
 
     final Object result;
-    try (OResultSet rs = currentDatabase.command(iReceivedCommand)) {
+    try (YTResultSet rs = currentDatabase.command(iReceivedCommand)) {
       result = rs.stream().map(x -> x.toElement()).collect(Collectors.toList());
     }
     float elapsedSeconds = getElapsedSecs(start);

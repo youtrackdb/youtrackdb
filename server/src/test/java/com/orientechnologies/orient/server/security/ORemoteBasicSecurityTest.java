@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -61,7 +61,7 @@ public class ORemoteBasicSecurityTest {
         writer.begin();
         writer.save(new YTDocument("one"));
         writer.commit();
-        try (OResultSet rs = writer.query("select from one")) {
+        try (YTResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 2);
         }
       }
@@ -74,7 +74,7 @@ public class ORemoteBasicSecurityTest {
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
       try (YTDatabaseSession writer = writerOrient.open("test", "reader", "reader")) {
-        try (OResultSet rs = writer.query("select from one")) {
+        try (YTResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 1);
         }
       }

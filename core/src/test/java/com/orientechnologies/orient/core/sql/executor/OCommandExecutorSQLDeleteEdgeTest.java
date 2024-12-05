@@ -52,7 +52,7 @@ public class OCommandExecutorSQLDeleteEdgeTest extends DBTestBase {
   @Test
   public void testFromSelect() {
     db.begin();
-    OResultSet res =
+    YTResultSet res =
         db.command(
             "delete edge CanAccess from (select from User where username = 'gongolo') to "
                 + folderId1);
@@ -64,7 +64,7 @@ public class OCommandExecutorSQLDeleteEdgeTest extends DBTestBase {
   @Test
   public void testFromSelectToSelect() {
     db.begin();
-    OResultSet res =
+    YTResultSet res =
         db.command(
             "delete edge CanAccess from ( select from User where username = 'gongolo' ) to ( select"
                 + " from Folder where keyId = '01234567893' )");
@@ -77,14 +77,14 @@ public class OCommandExecutorSQLDeleteEdgeTest extends DBTestBase {
   @Test
   public void testDeleteByRID() {
     db.begin();
-    OResultSet result = db.command("delete edge [" + edges.get(0).getIdentity() + "]");
+    YTResultSet result = db.command("delete edge [" + edges.get(0).getIdentity() + "]");
     db.commit();
     assertEquals((long) result.next().getProperty("count"), 1L);
   }
 
   @Test
   public void testDeleteEdgeWithVertexRid() {
-    OResultSet vertexes = db.command("select from v limit 1");
+    YTResultSet vertexes = db.command("select from v limit 1");
     try {
       db.begin();
       db.command("delete edge [" + vertexes.next().getIdentity().get() + "]").close();
@@ -115,7 +115,7 @@ public class OCommandExecutorSQLDeleteEdgeTest extends DBTestBase {
     db.command("delete edge CanAccess batch 5").close();
     db.commit();
 
-    OResultSet result = db.query("select expand( in('CanAccess') ) from " + folderId1);
+    YTResultSet result = db.query("select expand( in('CanAccess') ) from " + folderId1);
     assertEquals(result.stream().count(), 0);
   }
 }

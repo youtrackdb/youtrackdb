@@ -40,7 +40,7 @@ public class SubQueryStep extends AbstractExecutionStep {
     return parentRs.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     ctx.setVariable("$current", result);
     return result;
   }

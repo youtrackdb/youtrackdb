@@ -2,28 +2,28 @@ package com.orientechnologies.orient.core.db.document;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 
 public class OQueryDatabaseState {
 
-  private OResultSet resultSet = null;
+  private YTResultSet resultSet = null;
   private final IntArrayList usedClusters = new IntArrayList();
   private final ArrayList<String> usedIndexes = new ArrayList<>();
 
   public OQueryDatabaseState() {
   }
 
-  public OQueryDatabaseState(OResultSet resultSet) {
+  public OQueryDatabaseState(YTResultSet resultSet) {
     this.resultSet = resultSet;
   }
 
-  public void setResultSet(OResultSet resultSet) {
+  public void setResultSet(YTResultSet resultSet) {
     this.resultSet = resultSet;
   }
 
-  public OResultSet getResultSet() {
+  public YTResultSet getResultSet() {
     return resultSet;
   }
 

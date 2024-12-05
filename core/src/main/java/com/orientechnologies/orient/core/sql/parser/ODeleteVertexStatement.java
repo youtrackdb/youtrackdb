@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.ODeleteExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.ODeleteVertexExecutionPlanner;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +30,7 @@ public class ODeleteVertexStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
@@ -45,11 +45,11 @@ public class ODeleteVertexStatement extends OStatement {
       executionPlan = (ODeleteExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new OLocalResultSet(executionPlan);
+    return new YTLocalResultSet(executionPlan);
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
       boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -71,7 +71,7 @@ public class ODeleteVertexStatement extends OStatement {
       executionPlan = (ODeleteExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new OLocalResultSet(executionPlan);
+    return new YTLocalResultSet(executionPlan);
   }
 
   public ODeleteExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {

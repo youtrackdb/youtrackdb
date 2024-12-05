@@ -28,10 +28,10 @@ public class DistinctExecutionStepTest extends DBTestBase {
 
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            List<OResult> result = new ArrayList<>();
+            List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                OResultInternal item = new OResultInternal(ctx.getDatabase());
+                YTResultInternal item = new YTResultInternal(ctx.getDatabase());
                 item.setProperty("name", i % 2 == 0 ? "foo" : "bar");
                 result.add(item);
               }

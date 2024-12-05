@@ -36,10 +36,10 @@ public class OAlterSequenceStatementExecutionTest extends DBTestBase {
         });
 
     db.begin();
-    OResultSet result = db.command("alter sequence " + sequenceName + " increment 20");
+    YTResultSet result = db.command("alter sequence " + sequenceName + " increment 20");
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals((Object) 20, next.getProperty("increment"));
     result.close();

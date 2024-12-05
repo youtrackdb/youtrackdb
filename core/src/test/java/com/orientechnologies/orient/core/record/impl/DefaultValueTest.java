@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.util.Date;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class DefaultValueTest extends DBTestBase {
     assertNotNull(saved.field("id"));
 
     db.begin();
-    OResult inserted = db.command("insert into ClassA content {}").next();
+    YTResult inserted = db.command("insert into ClassA content {}").next();
     db.commit();
 
     YTDocument seved1 = db.load(inserted.getIdentity().get());
@@ -89,7 +89,8 @@ public class DefaultValueTest extends DBTestBase {
     assertNotNull(saved.field("id"));
 
     db.begin();
-    OResult inserted = db.command("insert into ClassA content {\"date\":\"" + value + "\"}").next();
+    YTResult inserted = db.command("insert into ClassA content {\"date\":\"" + value + "\"}")
+        .next();
     db.commit();
 
     YTDocument seved1 = db.load(inserted.getIdentity().get());

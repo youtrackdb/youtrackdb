@@ -2,12 +2,12 @@ package com.orientechnologies.lucene.benchmark;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -106,14 +106,14 @@ public class FulltextIndexFunctionBenchmark {
 
   @Benchmark
   public void searchOnSingleField() {
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query("SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true");
     resultSet.close();
   }
 
   @Benchmark
   public void searhOnTwoFieldsInOR() {
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true OR"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
@@ -122,7 +122,7 @@ public class FulltextIndexFunctionBenchmark {
 
   @Benchmark
   public void searhOnTwoFieldsInAND() throws Exception {
-    final OResultSet resultSet =
+    final YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");

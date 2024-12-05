@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message.live;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 
 /**
  *
@@ -12,10 +12,10 @@ public class OLiveQueryResult {
   public static final byte DELETE_EVENT = 3;
 
   private byte eventType;
-  private OResult currentValue;
-  private OResult oldValue;
+  private YTResult currentValue;
+  private YTResult oldValue;
 
-  public OLiveQueryResult(byte eventType, OResult currentValue, OResult oldValue) {
+  public OLiveQueryResult(byte eventType, YTResult currentValue, YTResult oldValue) {
     this.eventType = eventType;
     this.currentValue = currentValue;
     this.oldValue = oldValue;
@@ -25,15 +25,15 @@ public class OLiveQueryResult {
     return eventType;
   }
 
-  public void setOldValue(OResult oldValue) {
+  public void setOldValue(YTResult oldValue) {
     this.oldValue = oldValue;
   }
 
-  public OResult getCurrentValue() {
+  public YTResult getCurrentValue() {
     return currentValue;
   }
 
-  public void setCurrentValue(OResult currentValue) {
+  public void setCurrentValue(YTResult currentValue) {
     this.currentValue = currentValue;
   }
 
@@ -41,7 +41,7 @@ public class OLiveQueryResult {
     this.eventType = eventType;
   }
 
-  public OResult getOldValue() {
+  public YTResult getOldValue() {
     return oldValue;
   }
 }

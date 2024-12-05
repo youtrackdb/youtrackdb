@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class TransactionQueryIndexTests {
     YTDocument doc = database.newInstance("test");
     doc.setProperty("test", "abcdefg");
     database.save(doc);
-    OResultSet res = database.query("select from Test where test='abcdefg' ");
+    YTResultSet res = database.query("select from Test where test='abcdefg' ");
 
     assertEquals(1L, res.stream().count());
     res.close();
@@ -65,7 +65,7 @@ public class TransactionQueryIndexTests {
     doc.setProperty("foo", "abcdefg");
     doc.setProperty("bar", "abcdefg");
     database.save(doc);
-    OResultSet res = database.query("select from Test2 where foo='abcdefg' and bar = 'abcdefg' ");
+    YTResultSet res = database.query("select from Test2 where foo='abcdefg' and bar = 'abcdefg' ");
 
     assertEquals(1L, res.stream().count());
     res.close();

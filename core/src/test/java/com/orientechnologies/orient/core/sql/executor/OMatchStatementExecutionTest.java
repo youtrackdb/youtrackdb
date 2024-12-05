@@ -1642,7 +1642,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "MATCH \n"
                 + "{class: testMatched1_Foo, as: foo}.out('testMatched1_Foo_Bar') {as: bar}, \n"
@@ -1868,7 +1868,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "    as: foo\n"
             + "} RETURN $patterns";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     assertEquals(1, result.stream().count());
   }
 
@@ -1886,7 +1886,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     return db.command(new OCommandSQL(query)).execute(db);
   }
 
-  private List<YTDocument> collect(OResultSet set) {
+  private List<YTDocument> collect(YTResultSet set) {
     return set.stream()
         .map(
             (r) -> {
@@ -1899,7 +1899,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
         .collect(Collectors.toList());
   }
 
-  private List<YTIdentifiable> collectIdentifiable(OResultSet set) {
+  private List<YTIdentifiable> collectIdentifiable(YTResultSet set) {
     return set.stream().map((r) -> (YTDocument) r.toElement()).collect(Collectors.toList());
   }
 

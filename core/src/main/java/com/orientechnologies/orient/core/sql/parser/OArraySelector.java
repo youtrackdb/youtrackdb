@@ -5,8 +5,8 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -74,7 +74,7 @@ public class OArraySelector extends SimpleNode {
     return result;
   }
 
-  public Object getValue(OResult iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Object getValue(YTResult iCurrentRecord, Object iResult, OCommandContext ctx) {
     Object result = null;
     if (inputParam != null) {
       result = inputParam.getValue(ctx.getInputParameters());
@@ -153,7 +153,7 @@ public class OArraySelector extends SimpleNode {
     return expression != null && expression.refersToParent();
   }
 
-  public void setValue(OResult currentRecord, Object target, Object value, OCommandContext ctx) {
+  public void setValue(YTResult currentRecord, Object target, Object value, OCommandContext ctx) {
     Object idx = null;
     if (this.rid != null) {
       idx = this.rid.toRecordId(currentRecord, ctx);
@@ -218,8 +218,8 @@ public class OArraySelector extends SimpleNode {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (rid != null) {
       result.setProperty("rid", rid.serialize(db));
     }
@@ -235,7 +235,7 @@ public class OArraySelector extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("rid") != null) {
       rid = new ORid(-1);
       rid.deserialize(fromResult.getProperty("rid"));

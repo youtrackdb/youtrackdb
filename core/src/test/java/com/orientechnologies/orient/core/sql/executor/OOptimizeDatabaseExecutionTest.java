@@ -34,16 +34,16 @@ public class OOptimizeDatabaseExecutionTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    OResultSet createREs =
+    YTResultSet createREs =
         db.command(
             "create edge " + eClass + " from " + v1.getIdentity() + " to " + v2.getIdentity());
     db.commit();
 
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
-    OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
+    YTResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("v2", next.getProperty("name"));
     result.close();
@@ -52,7 +52,7 @@ public class OOptimizeDatabaseExecutionTest extends DBTestBase {
     db.command("optimize database -LWEDGES").close();
     db.commit();
 
-    OResultSet rs = db.query("select from E");
+    YTResultSet rs = db.query("select from E");
     Assert.assertFalse(rs.hasNext());
     rs.close();
   }

@@ -38,15 +38,15 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    OResultSet createREs =
+    YTResultSet createREs =
         db.command(
             "create edge " + eClass + " from " + v1.getIdentity() + " to " + v2.getIdentity());
     db.commit();
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
-    OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
+    YTResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("v2", next.getProperty("name"));
     result.close();
@@ -83,7 +83,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    OResultSet createREs =
+    YTResultSet createREs =
         db.command(
             "create edge "
                 + eClass
@@ -95,10 +95,10 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     db.commit();
 
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
-    OResultSet result = db.query("select expand(outE()) from " + v1.getIdentity());
+    YTResultSet result = db.query("select expand(outE()) from " + v1.getIdentity());
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("theEdge", next.getProperty("name"));
     result.close();
@@ -123,7 +123,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     }
 
     db.begin();
-    OResultSet createREs =
+    YTResultSet createREs =
         db.command(
             "create edge "
                 + eClass
@@ -135,12 +135,12 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     db.commit();
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
 
-    OResultSet result = db.query("select expand(out()) from " + vClass + " where name = 'v0'");
+    YTResultSet result = db.query("select expand(out()) from " + vClass + " where name = 'v0'");
 
     Assert.assertNotNull(result);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     result.close();
@@ -150,7 +150,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     Assert.assertNotNull(result);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     result.close();
@@ -202,7 +202,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet rs = db.query("SELECT FROM " + eClass);
+    YTResultSet rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -223,7 +223,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
     rs = db.query("SELECT FROM " + eclazz);
     for (int i = 0; i < 4; i++) {
       Assert.assertTrue(rs.hasNext());
-      OResult item = rs.next();
+      YTResult item = rs.next();
       Assert.assertEquals("bar", item.getProperty("name"));
     }
     Assert.assertFalse(rs.hasNext());
@@ -276,7 +276,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet rs = db.query("SELECT FROM " + eClass);
+    YTResultSet rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -349,7 +349,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet rs = db.query("SELECT FROM " + eClass);
+    YTResultSet rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -448,7 +448,7 @@ public class OCreateEdgeStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + eClass + " where out.name = 'v0' AND in.name = 'v1'");
     Assert.assertTrue(result.hasNext());
     result.close();

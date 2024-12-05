@@ -5,18 +5,18 @@ import com.orientechnologies.orient.core.command.script.OCommandFunction;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.ORetryExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OScriptExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.RetryStep;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.OBeginStatement;
 import com.orientechnologies.orient.core.sql.parser.OCommitStatement;
 import com.orientechnologies.orient.core.sql.parser.OLetStatement;
-import com.orientechnologies.orient.core.sql.parser.OLocalResultSet;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
+import com.orientechnologies.orient.core.sql.parser.YTLocalResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +33,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(YTDatabaseSessionInternal database, String script, Object... args)
+  public YTResultSet execute(YTDatabaseSessionInternal database, String script, Object... args)
       throws YTCommandSQLParsingException, YTCommandExecutionException {
 
     if (!script.trim().endsWith(";")) {
@@ -55,7 +55,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
+  public YTResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
     if (!script.trim().endsWith(";")) {
       script += ";";
     }
@@ -69,7 +69,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
     return executeInternal(statements, scriptContext);
   }
 
-  private OResultSet executeInternal(List<OStatement> statements, OCommandContext scriptContext) {
+  private YTResultSet executeInternal(List<OStatement> statements, OCommandContext scriptContext) {
     OScriptExecutionPlan plan = new OScriptExecutionPlan(scriptContext);
 
     plan.setStatement(
@@ -127,7 +127,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
         scriptContext.declareScriptVariable(((OLetStatement) stm).getName().getStringValue());
       }
     }
-    return new OLocalResultSet(plan);
+    return new YTLocalResultSet(plan);
   }
 
   @Override

@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Collection;
 import java.util.List;
 
@@ -121,8 +121,8 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
         return null;
       }
       source = OMultiValue.getFirstValue(source);
-      if (source instanceof OResult && ((OResult) source).isElement()) {
-        source = ((OResult) source).getElement().get();
+      if (source instanceof YTResult && ((YTResult) source).isElement()) {
+        source = ((YTResult) source).getElement().get();
       }
     }
     return source;
@@ -139,8 +139,8 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
    * returned indicating an error If source is not a map-like object, it is returned
    */
   protected Object getSingleProperty(Object source, boolean requireSingleProperty) {
-    if (source instanceof OResult result) {
-      // TODO we might want to add .size() and iterator with .next() to OResult. The current
+    if (source instanceof YTResult result) {
+      // TODO we might want to add .size() and iterator with .next() to YTResult. The current
       // implementation is
       // quite heavy compared to the result we actually want (the single first property).
       final Collection<String> propertyNames = result.getPropertyNames();

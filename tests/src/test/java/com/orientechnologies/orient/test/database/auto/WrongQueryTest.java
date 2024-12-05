@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -30,7 +30,8 @@ public class WrongQueryTest extends DocumentDBBaseTest {
   }
 
   public void queryFieldOperatorNotSupported() {
-    try (OResultSet result = database.command("select * from Account where name.not() like 'G%'")) {
+    try (YTResultSet result = database.command(
+        "select * from Account where name.not() like 'G%'")) {
 
       Assert.fail();
     } catch (YTCommandSQLParsingException e) {

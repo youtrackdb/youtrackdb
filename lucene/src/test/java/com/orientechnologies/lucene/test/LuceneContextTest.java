@@ -20,8 +20,8 @@ package com.orientechnologies.lucene.test;
 
 import static org.junit.Assert.assertFalse;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class LuceneContextTest extends BaseLuceneTest {
   @Test
   public void testContext() {
 
-    OResultSet docs =
+    YTResultSet docs =
         db.query(
             "select *,$score from Song where [title] LUCENE \"(title:man)\" order by $score desc");
 
@@ -53,7 +53,7 @@ public class LuceneContextTest extends BaseLuceneTest {
     int count = 0;
     while (docs.hasNext()) {
       count++;
-      OResult doc = docs.next();
+      YTResult doc = docs.next();
       Float score = doc.getProperty("$score");
       Assert.assertNotNull(score);
       Assert.assertTrue(score <= latestScore);
@@ -66,7 +66,7 @@ public class LuceneContextTest extends BaseLuceneTest {
             "select *,$totalHits,$Song_title_totalHits from Song where [title] LUCENE"
                 + " \"(title:man)\" limit 1");
 
-    OResult doc = docs.next();
+    YTResult doc = docs.next();
     Assert.assertEquals(Long.valueOf(14), doc.<Long>getProperty("$totalHits"));
     Assert.assertEquals(Long.valueOf(14), doc.<Long>getProperty("$Song_title_totalHits"));
     assertFalse(docs.hasNext());

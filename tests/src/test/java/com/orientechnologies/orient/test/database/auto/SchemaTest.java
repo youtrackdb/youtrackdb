@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.HashSet;
 import java.util.List;
@@ -417,7 +417,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    OResultSet result = database.query("select from RenameClassTest");
+    YTResultSet result = database.query("select from RenameClassTest");
     Assert.assertEquals(result.stream().count(), 2);
     database.commit();
 
@@ -580,7 +580,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    try (OResultSet rs =
+    try (YTResultSet rs =
         database.command(
             "select from "
                 + className
@@ -593,7 +593,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    try (OResultSet rs =
+    try (YTResultSet rs =
         database.command(
             "select from "
                 + className
@@ -604,7 +604,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    try (OResultSet rs =
+    try (YTResultSet rs =
         database.command(
             "select from "
                 + className
@@ -618,7 +618,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    try (OResultSet rs =
+    try (YTResultSet rs =
         database.command(
             "select from "
                 + className

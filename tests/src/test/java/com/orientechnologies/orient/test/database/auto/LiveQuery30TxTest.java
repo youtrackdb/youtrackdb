@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,23 +43,23 @@ public class LiveQuery30TxTest extends DocumentDBBaseTest implements OCommandOut
 
   class MyLiveQueryListener implements OLiveQueryResultListener {
 
-    public List<OPair<String, OResult>> ops = new ArrayList<>();
+    public List<OPair<String, YTResult>> ops = new ArrayList<>();
     public int unsubscribe;
 
     @Override
-    public void onCreate(YTDatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, YTResult data) {
       ops.add(new OPair<>("create", data));
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
       ops.add(new OPair<>("update", after));
       latch.countDown();
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, YTResult data) {
       ops.add(new OPair<>("delete", data));
       latch.countDown();
     }
@@ -103,7 +103,7 @@ public class LiveQuery30TxTest extends DocumentDBBaseTest implements OCommandOut
     Assert.assertEquals(listener.ops.size(), 2);
     for (OPair doc : listener.ops) {
       Assert.assertEquals(doc.getKey(), "create");
-      OResult res = (OResult) doc.getValue();
+      YTResult res = (YTResult) doc.getValue();
       Assert.assertEquals((res).getProperty("name"), "foo");
       Assert.assertNotNull(res.getProperty("@rid"));
       Assert.assertTrue(((YTRID) res.getProperty("@rid")).getClusterPosition() >= 0);

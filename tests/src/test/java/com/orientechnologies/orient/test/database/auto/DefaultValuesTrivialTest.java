@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -98,7 +98,7 @@ public class DefaultValuesTrivialTest {
   }
 
   private static Date getDatabaseSysdate(YTDatabaseSession database) {
-    try (OResultSet dates = database.query("SELECT sysdate() as sysdate")) {
+    try (YTResultSet dates = database.query("SELECT sysdate() as sysdate")) {
       return dates.next().getProperty("sysdate");
     }
   }

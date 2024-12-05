@@ -41,7 +41,7 @@ public class UpsertStep extends AbstractExecutionStep {
     return OExecutionStream.singleton(createNewRecord(ctx, commandTarget, initialFilter));
   }
 
-  private OResult createNewRecord(
+  private YTResult createNewRecord(
       OCommandContext ctx, OFromClause commandTarget, OWhereClause initialFilter) {
     YTDocument doc;
     if (commandTarget.getItem().getIdentifier() != null) {
@@ -63,14 +63,14 @@ public class UpsertStep extends AbstractExecutionStep {
           "Cannot execute UPSERT on target '" + commandTarget + "'");
     }
 
-    OUpdatableResult result = new OUpdatableResult(ctx.getDatabase(), doc);
+    YTUpdatableResult result = new YTUpdatableResult(ctx.getDatabase(), doc);
     if (initialFilter != null) {
       setContent(result, initialFilter);
     }
     return result;
   }
 
-  private void setContent(OResultInternal doc, OWhereClause initialFilter) {
+  private void setContent(YTResultInternal doc, OWhereClause initialFilter) {
     List<OAndBlock> flattened = initialFilter.flatten();
     if (flattened.isEmpty()) {
       return;

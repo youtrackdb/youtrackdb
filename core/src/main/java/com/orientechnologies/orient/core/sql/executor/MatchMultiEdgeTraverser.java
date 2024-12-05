@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
 
-  public MatchMultiEdgeTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
+  public MatchMultiEdgeTraverser(YTResult lastUpstreamRecord, EdgeTraversal edge) {
     super(lastUpstreamRecord, edge);
   }
 
@@ -43,7 +43,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     //    }
 
     OMultiMatchPathItem item = (OMultiMatchPathItem) this.item;
-    List<OResult> result = new ArrayList<>();
+    List<YTResult> result = new ArrayList<>();
 
     List<Object> nextStep = new ArrayList<>();
     nextStep.add(startingPoint);
@@ -51,7 +51,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     var db = iCommandContext.getDatabase();
     Object oldCurrent = iCommandContext.getVariable("$current");
     for (OMatchPathItem sub : item.getItems()) {
-      List<OResult> rightSide = new ArrayList<>();
+      List<YTResult> rightSide = new ArrayList<>();
       for (Object o : nextStep) {
         OWhereClause whileCond =
             sub.getFilter() == null ? null : sub.getFilter().getWhileCondition();
@@ -63,8 +63,8 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
 
         if (whileCond != null) {
           Object current = o;
-          if (current instanceof OResult) {
-            current = ((OResult) current).getElement().orElse(null);
+          if (current instanceof YTResult) {
+            current = ((YTResult) current).getElement().orElse(null);
           }
           MatchEdgeTraverser subtraverser = new MatchEdgeTraverser(null, sub);
           OExecutionStream rightStream =
@@ -86,24 +86,24 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
                         matchesCondition(x, sub.getFilter(), iCommandContext))
                 .forEach(i -> rightSide.add(i));
           } else if (nextSteps instanceof YTIdentifiable) {
-            OResultInternal res = new OResultInternal(db, (YTIdentifiable) nextSteps);
+            YTResultInternal res = new YTResultInternal(db, (YTIdentifiable) nextSteps);
             if (matchesCondition(res, sub.getFilter(), iCommandContext)) {
               rightSide.add(res);
             }
-          } else if (nextSteps instanceof OResultInternal) {
-            if (matchesCondition((OResultInternal) nextSteps, sub.getFilter(), iCommandContext)) {
-              rightSide.add((OResultInternal) nextSteps);
+          } else if (nextSteps instanceof YTResultInternal) {
+            if (matchesCondition((YTResultInternal) nextSteps, sub.getFilter(), iCommandContext)) {
+              rightSide.add((YTResultInternal) nextSteps);
             }
           } else if (nextSteps instanceof Iterable) {
             for (Object step : (Iterable) nextSteps) {
-              OResultInternal converted = toOResultInternal(db, step);
+              YTResultInternal converted = toOResultInternal(db, step);
               if (matchesCondition(converted, sub.getFilter(), iCommandContext)) {
                 rightSide.add(converted);
               }
             }
           } else if (nextSteps instanceof Iterator iterator) {
             while (iterator.hasNext()) {
-              OResultInternal converted = toOResultInternal(db, iterator.next());
+              YTResultInternal converted = toOResultInternal(db, iterator.next());
               if (matchesCondition(converted, sub.getFilter(), iCommandContext)) {
                 rightSide.add(converted);
               }
@@ -121,7 +121,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     return OExecutionStream.resultIterator(result.iterator());
   }
 
-  private boolean matchesCondition(OResultInternal x, OMatchFilter filter, OCommandContext ctx) {
+  private boolean matchesCondition(YTResultInternal x, OMatchFilter filter, OCommandContext ctx) {
     if (filter == null) {
       return true;
     }
@@ -132,12 +132,12 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     return where.matchesFilters(x, ctx);
   }
 
-  private static OResultInternal toOResultInternal(YTDatabaseSessionInternal db, Object x) {
-    if (x instanceof OResultInternal) {
-      return (OResultInternal) x;
+  private static YTResultInternal toOResultInternal(YTDatabaseSessionInternal db, Object x) {
+    if (x instanceof YTResultInternal) {
+      return (YTResultInternal) x;
     }
     if (x instanceof YTIdentifiable) {
-      return new OResultInternal(db, (YTIdentifiable) x);
+      return new YTResultInternal(db, (YTIdentifiable) x);
     }
     throw new YTCommandExecutionException("Cannot execute traversal on " + x);
   }

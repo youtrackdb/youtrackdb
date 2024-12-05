@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    OResultSet vertices = db.query("select from C1 where name lucene \"abc\" ");
+    YTResultSet vertices = db.query("select from C1 where name lucene \"abc\" ");
 
     Assert.assertEquals(1, vertices.stream().count());
   }

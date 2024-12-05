@@ -6,8 +6,8 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.operator.OQueryOperatorEquals;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,9 +37,10 @@ public class OContainsCondition extends OBooleanExpression {
       if (right instanceof Collection) {
         if (((Collection) right).size() == 1) {
           Object item = ((Collection) right).iterator().next();
-          if (item instanceof OResult && ((OResult) item).getPropertyNames().size() == 1) {
+          if (item instanceof YTResult && ((YTResult) item).getPropertyNames().size() == 1) {
             Object propValue =
-                ((OResult) item).getProperty(((OResult) item).getPropertyNames().iterator().next());
+                ((YTResult) item).getProperty(
+                    ((YTResult) item).getPropertyNames().iterator().next());
             if (((Collection) left).contains(propValue)) {
               return true;
             }
@@ -47,8 +48,8 @@ public class OContainsCondition extends OBooleanExpression {
           if (((Collection) left).contains(item)) {
             return true;
           }
-          if (item instanceof OResult) {
-            item = ((OResult) item).getElement().orElse(null);
+          if (item instanceof YTResult) {
+            item = ((YTResult) item).getElement().orElse(null);
           }
           if (item instanceof YTIdentifiable && ((Collection) left).contains(item)) {
             return true;
@@ -142,7 +143,7 @@ public class OContainsCondition extends OBooleanExpression {
         Object item = iter.next();
         if (item instanceof YTIdentifiable && condition.evaluate((YTIdentifiable) item, ctx)) {
           return true;
-        } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
+        } else if (item instanceof YTResult && condition.evaluate((YTResult) item, ctx)) {
           return true;
         }
       }
@@ -151,7 +152,7 @@ public class OContainsCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -173,10 +174,10 @@ public class OContainsCondition extends OBooleanExpression {
         Object item = iter.next();
         if (item instanceof YTIdentifiable && condition.evaluate((YTIdentifiable) item, ctx)) {
           return true;
-        } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
+        } else if (item instanceof YTResult && condition.evaluate((YTResult) item, ctx)) {
           return true;
         } else if (item instanceof Map) {
-          OResultInternal res = new OResultInternal(ctx.getDatabase());
+          YTResultInternal res = new YTResultInternal(ctx.getDatabase());
           ((Map<String, Object>) item)
               .entrySet()
               .forEach(x -> res.setProperty(x.getKey(), x.getValue()));
@@ -189,7 +190,7 @@ public class OContainsCondition extends OBooleanExpression {
     }
   }
 
-  private boolean evaluateAny(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, OCommandContext ctx) {
     if (right != null) {
       for (String s : currentRecord.getPropertyNames()) {
         Object leftVal = currentRecord.getProperty(s);
@@ -211,10 +212,10 @@ public class OContainsCondition extends OBooleanExpression {
           Object item = iter.next();
           if (item instanceof YTIdentifiable && condition.evaluate((YTIdentifiable) item, ctx)) {
             return true;
-          } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
+          } else if (item instanceof YTResult && condition.evaluate((YTResult) item, ctx)) {
             return true;
           } else if (item instanceof Map) {
-            OResultInternal res = new OResultInternal(ctx.getDatabase());
+            YTResultInternal res = new YTResultInternal(ctx.getDatabase());
             ((Map<String, Object>) item)
                 .entrySet()
                 .forEach(x -> res.setProperty(x.getKey(), x.getValue()));
@@ -228,7 +229,7 @@ public class OContainsCondition extends OBooleanExpression {
     }
   }
 
-  private boolean evaluateAllFunction(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
     if (right != null) {
       for (String s : currentRecord.getPropertyNames()) {
         Object leftVal = currentRecord.getProperty(s);
@@ -252,11 +253,11 @@ public class OContainsCondition extends OBooleanExpression {
           if (item instanceof YTIdentifiable && condition.evaluate((YTIdentifiable) item, ctx)) {
             found = true;
             break;
-          } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
+          } else if (item instanceof YTResult && condition.evaluate((YTResult) item, ctx)) {
             found = true;
             break;
           } else if (item instanceof Map) {
-            OResultInternal res = new OResultInternal(ctx.getDatabase());
+            YTResultInternal res = new YTResultInternal(ctx.getDatabase());
             ((Map<String, Object>) item)
                 .entrySet()
                 .forEach(x -> res.setProperty(x.getKey(), x.getValue()));

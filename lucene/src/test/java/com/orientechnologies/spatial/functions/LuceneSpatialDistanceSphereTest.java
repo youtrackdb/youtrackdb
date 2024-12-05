@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +30,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
   @Test
   public void testDistanceSphereNoIndex() {
 
-    OResultSet execute =
+    YTResultSet execute =
         db.command(
             "select ST_Distance(ST_GEOMFROMTEXT('POINT(12.4662748"
                 + " 41.8914114)'),ST_GEOMFROMTEXT('POINT(12.4664632 41.8904382)')) as distanceDeg,"
@@ -39,7 +39,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
                 + " 41.8914114)'),ST_GEOMFROMTEXT('POINT(12.4664632 41.8904382)')) as"
                 + " distanceMeter");
 
-    OResult next = execute.next();
+    YTResult next = execute.next();
 
     Double distanceDeg = next.getProperty("distanceDeg");
     Double distanceMeter = next.getProperty("distanceMeter");
@@ -79,7 +79,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index Place.l on Place (location) SPATIAL engine lucene").close();
-    OResultSet execute =
+    YTResultSet execute =
         db.command(
             "SELECT from Place where ST_Distance_Sphere(location, ST_GeomFromText('POINT(12.468933"
                 + " 41.890303)')) < 50");
@@ -122,7 +122,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("CREATE INDEX bla ON Restaurant (location) SPATIAL ENGINE LUCENE;\n").close();
-    List<OResult> execute =
+    List<YTResult> execute =
         db
             .query(
                 "SELECT  ST_Distance_Sphere(location, St_GeomFromText(\"POINT (-0.1277583"
@@ -135,12 +135,12 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testNullObject() {
-    OResultSet execute =
+    YTResultSet execute =
         db.command(
             "select ST_Distance({ locationCoordinates: null },ST_GEOMFROMTEXT('POINT(12.4664632"
                 + " 41.8904382)')) as distanceMeter");
 
-    OResult next = execute.next();
+    YTResult next = execute.next();
     Assert.assertNull(next.getProperty("distanceMeter"));
     Assert.assertFalse(execute.hasNext());
     execute.close();
@@ -148,12 +148,12 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testSphereNullObject() {
-    OResultSet execute =
+    YTResultSet execute =
         db.command(
             "select ST_Distance_Sphere({ locationCoordinates: null"
                 + " },ST_GEOMFROMTEXT('POINT(12.4664632 41.8904382)')) as distanceMeter");
 
-    OResult next = execute.next();
+    YTResult next = execute.next();
     Assert.assertNull(next.getProperty("distanceMeter"));
     Assert.assertFalse(execute.hasNext());
     execute.close();

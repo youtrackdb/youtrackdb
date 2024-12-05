@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -86,7 +86,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
     return result;
   }
 
-  public Object execute(OResult iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, Object iResult, OCommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (OArraySelector item : items) {
       Object index = item.getValue(iCurrentRecord, iResult, ctx);
@@ -190,7 +190,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
     return false;
   }
 
-  public void setValue(OResult currentRecord, Object target, Object value, OCommandContext ctx) {
+  public void setValue(YTResult currentRecord, Object target, Object value, OCommandContext ctx) {
     if (items != null) {
       for (OArraySelector item : items) {
         item.setValue(currentRecord, target, value, ctx);
@@ -199,7 +199,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
   }
 
   public void applyRemove(
-      Object currentValue, OResultInternal originalRecord, OCommandContext ctx) {
+      Object currentValue, YTResultInternal originalRecord, OCommandContext ctx) {
     if (currentValue == null) {
       return;
     }
@@ -258,8 +258,8 @@ public class OArraySingleValuesSelector extends SimpleNode {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (items != null) {
       result.setProperty(
           "items", items.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
@@ -267,12 +267,12 @@ public class OArraySingleValuesSelector extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
 
     if (fromResult.getProperty("items") != null) {
-      List<OResult> ser = fromResult.getProperty("items");
+      List<YTResult> ser = fromResult.getProperty("items");
       items = new ArrayList<>();
-      for (OResult r : ser) {
+      for (YTResult r : ser) {
         OArraySelector exp = new OArraySelector(-1);
         exp.deserialize(r);
         items.add(exp);

@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Map;
 import java.util.Objects;
 
@@ -159,8 +159,8 @@ public class ONestedProjectionItem extends SimpleNode {
     return expansion.apply(expression, value, ctx);
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("exclude", exclude);
     result.setProperty("star", star);
     if (expression != null) {
@@ -176,7 +176,7 @@ public class ONestedProjectionItem extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     exclude = fromResult.getProperty("exclude");
     star = fromResult.getProperty("star");
     if (fromResult.getProperty("field") != null) {

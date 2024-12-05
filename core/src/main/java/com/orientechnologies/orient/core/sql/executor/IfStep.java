@@ -34,7 +34,7 @@ public class IfStep extends AbstractExecutionStep {
   }
 
   public OScriptExecutionPlan producePlan(OCommandContext ctx) {
-    if (condition.evaluate((OResult) null, ctx)) {
+    if (condition.evaluate((YTResult) null, ctx)) {
       OScriptExecutionPlan positivePlan = initPositivePlan(ctx);
       return positivePlan;
     } else {

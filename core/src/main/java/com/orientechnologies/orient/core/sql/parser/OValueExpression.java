@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +30,7 @@ public class OValueExpression extends OExpression {
     return value;
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     return value;
   }
 
@@ -137,7 +137,7 @@ public class OValueExpression extends OExpression {
     return null;
   }
 
-  public void applyRemove(OResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
     throw new YTCommandExecutionException("Cannot apply REMOVE " + this);
   }
 
@@ -145,17 +145,17 @@ public class OValueExpression extends OExpression {
     return false;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
+  public YTResult serialize(YTDatabaseSessionInternal db) {
     throw new UnsupportedOperationException(
         "Cannot serialize value expression (not supported yet)");
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     throw new UnsupportedOperationException(
         "Cannot deserialize value expression (not supported yet)");
   }
 
-  public boolean isDefinedFor(OResult currentRecord) {
+  public boolean isDefinedFor(YTResult currentRecord) {
     return true;
   }
 
@@ -163,7 +163,7 @@ public class OValueExpression extends OExpression {
     return true;
   }
 
-  public OCollate getCollate(OResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
     return null;
   }
 

@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -126,8 +126,8 @@ public class OFetchPlanItem extends SimpleNode {
     return result;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("star", star);
     if (leftDepth != null) {
       result.setProperty("leftDepth", leftDepth.serialize(db));
@@ -142,7 +142,7 @@ public class OFetchPlanItem extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     star = fromResult.getProperty("star");
     if (fromResult.getProperty("leftDepth") != null) {
       leftDepth = new OInteger(-1);

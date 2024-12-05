@@ -41,13 +41,13 @@ public class UnwindStep extends AbstractExecutionStep {
     return resultSet.flatMap((res, res2) -> fetchNextResults(db, res));
   }
 
-  private OExecutionStream fetchNextResults(YTDatabaseSessionInternal db, OResult res) {
+  private OExecutionStream fetchNextResults(YTDatabaseSessionInternal db, YTResult res) {
     return OExecutionStream.resultIterator(unwind(db, res, unwindFields).iterator());
   }
 
-  private static Collection<OResult> unwind(YTDatabaseSessionInternal db, final OResult doc,
+  private static Collection<YTResult> unwind(YTDatabaseSessionInternal db, final YTResult doc,
       final List<String> unwindFields) {
-    final List<OResult> result = new ArrayList<>();
+    final List<YTResult> result = new ArrayList<>();
 
     if (unwindFields.isEmpty()) {
       result.add(doc);
@@ -73,7 +73,7 @@ public class UnwindStep extends AbstractExecutionStep {
         iterator = ((Iterable<?>) fieldValue).iterator();
       }
       if (!iterator.hasNext()) {
-        OResultInternal unwindedDoc = new OResultInternal(db);
+        YTResultInternal unwindedDoc = new YTResultInternal(db);
         copy(doc, unwindedDoc);
 
         unwindedDoc.setProperty(firstField, null);
@@ -81,7 +81,7 @@ public class UnwindStep extends AbstractExecutionStep {
       } else {
         do {
           Object o = iterator.next();
-          OResultInternal unwindedDoc = new OResultInternal(db);
+          YTResultInternal unwindedDoc = new YTResultInternal(db);
           copy(doc, unwindedDoc);
           unwindedDoc.setProperty(firstField, o);
           result.addAll(unwind(db, unwindedDoc, nextFields));
@@ -92,7 +92,7 @@ public class UnwindStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static void copy(OResult from, OResultInternal to) {
+  private static void copy(YTResult from, YTResultInternal to) {
     for (String prop : from.getPropertyNames()) {
       to.setProperty(prop, from.getProperty(prop));
     }

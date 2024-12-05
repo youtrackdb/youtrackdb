@@ -3,7 +3,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +53,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OResultSet resultTwo =
+    YTResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -107,7 +107,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OResultSet resultTwo =
+    YTResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -162,7 +162,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OResultSet resultTwo =
+    YTResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -304,7 +304,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OResultSet result = database.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
+    YTResultSet result = database.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
     Assert.assertEquals(result.stream().count(), 1);
 
     result = database.query("SELECT expand(in()[name = ' from ']) FROM FromInStringV");

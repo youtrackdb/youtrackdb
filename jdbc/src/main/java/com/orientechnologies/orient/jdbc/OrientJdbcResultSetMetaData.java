@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.math.BigDecimal;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -114,7 +114,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
   @Override
   public int getColumnType(final int column) throws SQLException {
-    final OResult currentRecord = getCurrentRecord();
+    final YTResult currentRecord = getCurrentRecord();
 
     if (column > fieldNames.length) {
       return Types.NULL;
@@ -194,8 +194,8 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     return typesSqlTypes.get(otype);
   }
 
-  protected OResult getCurrentRecord() throws SQLException {
-    final OResult currentRecord = resultSet.unwrap(OResult.class);
+  protected YTResult getCurrentRecord() throws SQLException {
+    final YTResult currentRecord = resultSet.unwrap(YTResult.class);
     if (currentRecord == null) {
       throw new SQLException("No current record");
     }
@@ -232,7 +232,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
   @Override
   public String getColumnTypeName(final int column) throws SQLException {
-    final OResult currentRecord = getCurrentRecord();
+    final YTResult currentRecord = getCurrentRecord();
 
     String columnLabel = fieldNames[column - 1];
 
@@ -254,7 +254,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public String getSchemaName(final int column) throws SQLException {
-    final OResult currentRecord = getCurrentRecord();
+    final YTResult currentRecord = getCurrentRecord();
     if (currentRecord == null) {
       return "";
     } else {
@@ -300,7 +300,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
   }
 
   public boolean isSigned(final int column) throws SQLException {
-    final OResult currentRecord = getCurrentRecord();
+    final YTResult currentRecord = getCurrentRecord();
     YTType otype =
         currentRecord
             .toElement()

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_More([#"
                 + defCluster
@@ -47,7 +47,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_More([#"
                 + defCluster
@@ -65,7 +65,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "SELECT from Song where author ='Hunter' AND SEARCH_More([#"
                 + defCluster
@@ -88,7 +88,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_More([#"
                 + defCluster
@@ -108,7 +108,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
     YTClass clazz = db.getMetadata().getSchema().getClass("Song");
     int defCluster = clazz.getDefaultClusterId();
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_More( [#"
                 + defCluster
@@ -126,7 +126,7 @@ public class OLuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
 
     db.command("create index Song.multi on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "SELECT from Song  let $a=(SELECT @rid FROM Song WHERE author = 'Hunter')  where"
                 + " SEARCH_More( $a, { 'minTermFreq':1, 'minDocFreq':1} ) = true")) {

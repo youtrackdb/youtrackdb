@@ -41,7 +41,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return OExecutionStream.iterator(data).map(this::setContext);
   }
 
-  private OResult setContext(OResult result, OCommandContext context) {
+  private YTResult setContext(YTResult result, OCommandContext context) {
     context.setVariable("$current", result);
     return result;
   }
@@ -118,14 +118,14 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("className", className);
     return result;
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       className = fromResult.getProperty("className");

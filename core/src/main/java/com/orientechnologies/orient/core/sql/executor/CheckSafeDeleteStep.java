@@ -31,7 +31,7 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result.isElement()) {
       var elem = result.toElement();
       YTClass clazz = ODocumentInternal.getImmutableSchemaClass((YTDocument) elem);

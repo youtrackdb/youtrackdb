@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -81,7 +81,7 @@ public class YTClassSecurityTest {
 
     db = (YTDatabaseSessionInternal) orient.open(DB_NAME, "reader",
         OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    try (final OResultSet resultSet = db.query("SELECT from Person")) {
+    try (final YTResultSet resultSet = db.query("SELECT from Person")) {
       Assert.assertFalse(resultSet.hasNext());
     }
   }

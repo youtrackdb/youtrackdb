@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,7 +60,7 @@ public class OCompositeIndexSQLInsertTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet res =
+    YTResultSet res =
         db.query("select from CompositeIndexWithRangeAndConditions where id > 0 and bar = 1");
 
     long count = res.stream().count();

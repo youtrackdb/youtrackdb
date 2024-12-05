@@ -7,8 +7,8 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -150,7 +150,7 @@ public class OInputParameter extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public static OInputParameter deserializeFromOResult(OResult doc) {
+  public static OInputParameter deserializeFromOResult(YTResult doc) {
     try {
       OInputParameter result =
           (OInputParameter)
@@ -174,13 +174,13 @@ public class OInputParameter extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     throw new UnsupportedOperationException();
   }
 }

@@ -115,9 +115,9 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
               ((OBinaryCondition) ridRangeCondition)
                   .getRight()
                   .getRid()
-                  .toRecordId((OResult) null, ctx);
+                  .toRecordId((YTResult) null, ctx);
         } else {
-          obj = ((OBinaryCondition) ridRangeCondition).getRight().execute((OResult) null, ctx);
+          obj = ((OBinaryCondition) ridRangeCondition).getRight().execute((YTResult) null, ctx);
         }
 
         conditionRid = ((YTIdentifiable) obj).getIdentity();
@@ -166,15 +166,15 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("clusterId", clusterId);
     result.setProperty("order", order);
     return result;
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       this.clusterId = fromResult.getProperty("clusterId");

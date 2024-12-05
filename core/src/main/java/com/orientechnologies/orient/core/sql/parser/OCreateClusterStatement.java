@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -53,7 +53,7 @@ public class OCreateClusterStatement extends ODDLStatement {
       }
     }
 
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "create cluster");
     result.setProperty("clusterName", name.getStringValue());
 

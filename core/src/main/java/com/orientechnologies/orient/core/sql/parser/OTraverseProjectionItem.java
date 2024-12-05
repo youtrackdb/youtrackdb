@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class OTraverseProjectionItem extends SimpleNode {
     super(p, id);
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     if (isStar()) {
       return handleStar(iCurrentRecord, ctx);
     }
@@ -47,7 +47,7 @@ public class OTraverseProjectionItem extends SimpleNode {
     return modifier != null && modifier.refersToParent();
   }
 
-  private Object handleStar(OResult iCurrentRecord, OCommandContext ctx) {
+  private Object handleStar(YTResult iCurrentRecord, OCommandContext ctx) {
     Set<Object> result = new HashSet<>();
     for (String prop : iCurrentRecord.getPropertyNames()) {
       Object val = iCurrentRecord.getProperty(prop);
@@ -65,9 +65,9 @@ public class OTraverseProjectionItem extends SimpleNode {
               result.add(sub);
             }
           }
-        } else if (val instanceof OResultSet) {
-          while (((OResultSet) val).hasNext()) {
-            result.add(((OResultSet) val).next());
+        } else if (val instanceof YTResultSet) {
+          while (((YTResultSet) val).hasNext()) {
+            result.add(((YTResultSet) val).next());
           }
         }
       }
@@ -83,7 +83,7 @@ public class OTraverseProjectionItem extends SimpleNode {
   }
 
   private boolean isOResult(Object val) {
-    return val instanceof OResult;
+    return val instanceof YTResult;
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {

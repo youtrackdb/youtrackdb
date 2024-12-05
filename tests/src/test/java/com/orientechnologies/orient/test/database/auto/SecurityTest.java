@@ -29,8 +29,8 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -135,7 +135,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     Assert.assertEquals(updated.intValue(), 1);
 
     database.begin();
-    OResultSet result = database.query("select from ouser where name = 'reader'");
+    YTResultSet result = database.query("select from ouser where name = 'reader'");
     Assert.assertNotEquals(result.next().getProperty("password"), "test");
     database.commit();
 
@@ -278,7 +278,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    List<OResult> result =
+    List<YTResult> result =
         database.command("select from ouser").stream().collect(Collectors.toList());
     Assert.assertFalse(result.isEmpty());
     database.commit();

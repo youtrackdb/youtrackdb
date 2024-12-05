@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +60,7 @@ public class OCreateIndexStatement extends ODDLStatement {
   public OExecutionStream executeDDL(OCommandContext ctx) {
     Object execResult = execute(ctx);
     if (execResult != null) {
-      OResultInternal result = new OResultInternal(ctx.getDatabase());
+      YTResultInternal result = new YTResultInternal(ctx.getDatabase());
       result.setProperty("operation", "create index");
       result.setProperty("name", name.getValue());
       return OExecutionStream.singleton(result);

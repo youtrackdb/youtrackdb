@@ -21,12 +21,12 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.ODDLStatement;
 import com.orientechnologies.orient.core.sql.parser.OFetchPlan;
 import com.orientechnologies.orient.core.sql.parser.OLimit;
@@ -120,7 +120,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
         txBegun = true;
       }
 
-      OResultSet result = executeStatement(language, text, params, db);
+      YTResultSet result = executeStatement(language, text, params, db);
       limit = getLimitFromStatement(stm, limit);
       String localFetchPlan = getFetchPlanFromStatement(stm);
       if (localFetchPlan != null) {
@@ -230,9 +230,9 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     return previousLimit;
   }
 
-  protected OResultSet executeStatement(
+  protected YTResultSet executeStatement(
       String language, String text, Object params, YTDatabaseSession db) {
-    OResultSet result;
+    YTResultSet result;
     if ("sql".equalsIgnoreCase(language)) {
       if (params instanceof Map) {
         result = db.command(text, (Map) params);

@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 
 /**
  * takes a result set made of OUpdatableRecord instances and transforms it in another result set
- * made of normal OResultInternal instances.
+ * made of normal YTResultInternal instances.
  *
  * <p>This is the opposite of ConvertToUpdatableResultStep
  */
@@ -25,11 +25,11 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private OResult filterMap(OResult result, OCommandContext ctx) {
-    if (result instanceof OUpdatableResult) {
+  private YTResult filterMap(YTResult result, OCommandContext ctx) {
+    if (result instanceof YTUpdatableResult) {
       var element = result.toElement();
       if (element != null) {
-        return new OResultInternal(ctx.getDatabase(), element);
+        return new YTResultInternal(ctx.getDatabase(), element);
       }
       return result;
     }

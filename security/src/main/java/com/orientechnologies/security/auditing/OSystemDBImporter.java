@@ -20,8 +20,8 @@ import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 
 public class OSystemDBImporter extends Thread {
@@ -116,14 +116,14 @@ public class OSystemDBImporter extends Thread {
       while (isRunning) {
         db.activateOnCurrentThread();
         // Retrieve the auditing log records from the local database.
-        OResultSet result = db.query(sql, limit);
+        YTResultSet result = db.query(sql, limit);
 
         int count = 0;
 
         String lastRID = null;
 
         while (result.hasNext()) {
-          OResult doc = result.next();
+          YTResult doc = result.next();
           try {
             YTEntity copy = new YTDocument();
 

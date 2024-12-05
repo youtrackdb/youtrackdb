@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.command.script.transformer;
 
-import com.orientechnologies.orient.core.command.script.OScriptResultSet;
 import com.orientechnologies.orient.core.command.script.OScriptResultSets;
+import com.orientechnologies.orient.core.command.script.YTScriptResultSet;
 import com.orientechnologies.orient.core.command.script.transformer.result.MapTransformer;
 import com.orientechnologies.orient.core.command.script.transformer.result.OResultTransformer;
 import com.orientechnologies.orient.core.command.script.transformer.resultset.OResultSetTransformer;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,14 +37,14 @@ public class OScriptTransformerImpl implements OScriptTransformer {
             c,
             new OResultTransformer() {
               @Override
-              public OResult transform(YTDatabaseSessionInternal db, Object value) {
-                OResultInternal internal = new OResultInternal(db);
+              public YTResult transform(YTDatabaseSessionInternal db, Object value) {
+                YTResultInternal internal = new YTResultInternal(db);
 
                 final List res = new ArrayList();
                 internal.setProperty("value", res);
 
                 for (Object v : ((Map) value).values()) {
-                  res.add(new OResultInternal(db, (YTIdentifiable) v));
+                  res.add(new YTResultInternal(db, (YTIdentifiable) v));
                 }
 
                 return internal;
@@ -58,14 +58,14 @@ public class OScriptTransformerImpl implements OScriptTransformer {
   }
 
   @Override
-  public OResultSet toResultSet(YTDatabaseSessionInternal db, Object value) {
+  public YTResultSet toResultSet(YTDatabaseSessionInternal db, Object value) {
     if (value instanceof Value v) {
       if (v.isNull()) {
         return null;
       } else if (v.hasArrayElements()) {
         final List<Object> array = new ArrayList<>((int) v.getArraySize());
         for (int i = 0; i < v.getArraySize(); ++i) {
-          array.add(new OResultInternal(db, v.getArrayElement(i).asHostObject()));
+          array.add(new YTResultInternal(db, v.getArrayElement(i).asHostObject()));
         }
         value = array;
       } else if (v.isHostObject()) {
@@ -82,10 +82,10 @@ public class OScriptTransformerImpl implements OScriptTransformer {
     if (value == null) {
       return OScriptResultSets.empty(db);
     }
-    if (value instanceof OResultSet) {
-      return (OResultSet) value;
+    if (value instanceof YTResultSet) {
+      return (YTResultSet) value;
     } else if (value instanceof Iterator) {
-      return new OScriptResultSet(db, (Iterator) value, this);
+      return new YTScriptResultSet(db, (Iterator) value, this);
     }
     OResultSetTransformer oResultSetTransformer = resultSetTransformers.get(value.getClass());
 
@@ -95,12 +95,12 @@ public class OScriptTransformerImpl implements OScriptTransformer {
     return defaultResultSet(db, value);
   }
 
-  private OResultSet defaultResultSet(YTDatabaseSessionInternal db, Object value) {
-    return new OScriptResultSet(db, Collections.singletonList(value).iterator(), this);
+  private YTResultSet defaultResultSet(YTDatabaseSessionInternal db, Object value) {
+    return new YTScriptResultSet(db, Collections.singletonList(value).iterator(), this);
   }
 
   @Override
-  public OResult toResult(YTDatabaseSessionInternal db, Object value) {
+  public YTResult toResult(YTDatabaseSessionInternal db, Object value) {
 
     OResultTransformer transformer = getTransformer(value.getClass());
 
@@ -126,8 +126,8 @@ public class OScriptTransformerImpl implements OScriptTransformer {
     return getTransformer(value.getClass()) != null;
   }
 
-  private OResult defaultTransformer(YTDatabaseSessionInternal db, Object value) {
-    OResultInternal internal = new OResultInternal(db);
+  private YTResult defaultTransformer(YTDatabaseSessionInternal db, Object value) {
+    YTResultInternal internal = new YTResultInternal(db);
     internal.setProperty("value", value);
     return internal;
   }

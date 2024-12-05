@@ -29,10 +29,10 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
 
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            List<OResult> result = new ArrayList<>();
+            List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                result.add(new OResultInternal(ctx.getDatabase(), new YTDocument(className)));
+                result.add(new YTResultInternal(ctx.getDatabase(), new YTDocument(className)));
               }
               done = true;
             }
@@ -59,11 +59,11 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
 
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            List<OResult> result = new ArrayList<>();
+            List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new OResultInternal(ctx.getDatabase(),
+                    new YTResultInternal(ctx.getDatabase(),
                         new YTDocument(i % 2 == 0 ? parentClass : childClass)));
               }
               done = true;
@@ -91,11 +91,11 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
 
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            List<OResult> result = new ArrayList<>();
+            List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new OResultInternal(ctx.getDatabase(),
+                    new YTResultInternal(ctx.getDatabase(),
                         new YTDocument(i % 2 == 0 ? firstClassName : secondClassName)));
               }
               done = true;

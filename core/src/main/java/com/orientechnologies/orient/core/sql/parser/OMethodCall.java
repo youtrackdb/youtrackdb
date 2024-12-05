@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFiltered;
 import com.orientechnologies.orient.core.sql.method.OSQLMethod;
@@ -144,8 +144,8 @@ public class OMethodCall extends SimpleNode {
       OCommandContext ctx,
       Object val,
       List<Object> paramValues) {
-    if (val instanceof OResult) {
-      val = ((OResult) val).getElement().orElse(null);
+    if (val instanceof YTResult) {
+      val = ((YTResult) val).getElement().orElse(null);
     }
     return method.execute(
         targetObjects, (YTIdentifiable) val, ctx, targetObjects, paramValues.toArray());
@@ -159,8 +159,8 @@ public class OMethodCall extends SimpleNode {
       List<Object> paramValues) {
     if (graphFunction instanceof OSQLFunctionFiltered) {
       Object current = ctx.getVariable("$current");
-      if (current instanceof OResult) {
-        current = ((OResult) current).getElement().orElse(null);
+      if (current instanceof YTResult) {
+        current = ((YTResult) current).getElement().orElse(null);
       }
       return ((OSQLFunctionFiltered) graphFunction)
           .execute(
@@ -175,10 +175,10 @@ public class OMethodCall extends SimpleNode {
       if (current instanceof YTIdentifiable) {
         return graphFunction.execute(
             targetObjects, (YTIdentifiable) current, null, paramValues.toArray(), ctx);
-      } else if (current instanceof OResult) {
+      } else if (current instanceof YTResult) {
         return graphFunction.execute(
             targetObjects,
-            ((OResult) current).getElement().orElse(null),
+            ((YTResult) current).getElement().orElse(null),
             null,
             paramValues.toArray(),
             ctx);
@@ -209,12 +209,12 @@ public class OMethodCall extends SimpleNode {
     for (OExpression expr : iParams) {
       if (val instanceof YTIdentifiable) {
         paramValues.add(expr.execute((YTIdentifiable) val, ctx));
-      } else if (val instanceof OResult) {
-        paramValues.add(expr.execute((OResult) val, ctx));
+      } else if (val instanceof YTResult) {
+        paramValues.add(expr.execute((YTResult) val, ctx));
       } else if (targetObjects instanceof YTIdentifiable) {
         paramValues.add(expr.execute((YTIdentifiable) targetObjects, ctx));
-      } else if (targetObjects instanceof OResult) {
-        paramValues.add(expr.execute((OResult) targetObjects, ctx));
+      } else if (targetObjects instanceof YTResult) {
+        paramValues.add(expr.execute((YTResult) targetObjects, ctx));
       } else {
         throw new YTCommandExecutionException("Invalild value for $current: " + val);
       }
@@ -329,8 +329,8 @@ public class OMethodCall extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (methodName != null) {
       result.setProperty("methodName", methodName.serialize(db));
     }
@@ -342,14 +342,14 @@ public class OMethodCall extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("methodName") != null) {
       methodName = OIdentifier.deserialize(fromResult.getProperty("methodName"));
     }
     if (fromResult.getProperty("params") != null) {
-      List<OResult> ser = fromResult.getProperty("params");
+      List<YTResult> ser = fromResult.getProperty("params");
       params = new ArrayList<>();
-      for (OResult r : ser) {
+      for (YTResult r : ser) {
         OExpression exp = new OExpression(-1);
         exp.deserialize(r);
         params.add(exp);

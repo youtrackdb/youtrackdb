@@ -32,10 +32,10 @@ public class CountStepTest extends DBTestBase {
 
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            List<OResult> result = new ArrayList<>();
+            List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 100; i++) {
-                OResultInternal item = new OResultInternal(ctx.getDatabase());
+                YTResultInternal item = new YTResultInternal(ctx.getDatabase());
                 item.setProperty(PROPERTY_NAME, PROPERTY_VALUE);
                 result.add(item);
               }

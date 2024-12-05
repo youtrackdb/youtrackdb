@@ -49,7 +49,7 @@ import com.orientechnologies.orient.core.serialization.serializer.OStringSeriali
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import com.orientechnologies.orient.core.sql.method.OSQLMethod;
@@ -155,8 +155,8 @@ public class ODocumentHelper {
         return (RET) new YTRecordId((String) iValue);
       } else if (OMultiValue.isMultiValue(iValue) && OMultiValue.getSize(iValue) == 1) {
         Object val = OMultiValue.getFirstValue(iValue);
-        if (val instanceof OResult) {
-          val = ((OResult) val).getIdentity().orElse(null);
+        if (val instanceof YTResult) {
+          val = ((YTResult) val).getIdentity().orElse(null);
         }
         if (val instanceof YTIdentifiable) {
           return (RET) val;

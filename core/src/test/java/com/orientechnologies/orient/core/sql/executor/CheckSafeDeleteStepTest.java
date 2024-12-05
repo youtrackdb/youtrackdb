@@ -53,12 +53,12 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
 
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            List<OResult> result = new ArrayList<>();
+            List<YTResult> result = new ArrayList<>();
             String simpleClassName = createClassInstance().getName();
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new OResultInternal(db,
+                    new YTResultInternal(db,
                         new YTDocument(i % 2 == 0 ? simpleClassName : className)));
               }
               done = true;
@@ -84,11 +84,11 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
 
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            List<OResult> result = new ArrayList<>();
+            List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new OResultInternal(db, new YTDocument(createClassInstance().getName())));
+                    new YTResultInternal(db, new YTDocument(createClassInstance().getName())));
               }
               done = true;
             }

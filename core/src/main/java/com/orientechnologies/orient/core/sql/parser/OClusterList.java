@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +85,8 @@ public class OClusterList extends SimpleNode {
     return clusters != null ? clusters.hashCode() : 0;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (clusters != null) {
       result.setProperty(
           "clusters", clusters.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
@@ -94,11 +94,11 @@ public class OClusterList extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("clusters") != null) {
       clusters = new ArrayList<>();
-      List<OResult> ser = fromResult.getProperty("clusters");
-      for (OResult item : ser) {
+      List<YTResult> ser = fromResult.getProperty("clusters");
+      for (YTResult item : ser) {
         OIdentifier id = OIdentifier.deserialize(item);
         clusters.add(id);
       }

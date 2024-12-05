@@ -113,7 +113,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     updateIndexStats();
   }
 
-  private OResult readResult(OCommandContext ctx, ORawPair<Object, YTRID> nextEntry) {
+  private YTResult readResult(OCommandContext ctx, ORawPair<Object, YTRID> nextEntry) {
     if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
       throw new YTCommandInterruptedException("The command has been interrupted");
     }
@@ -121,7 +121,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     Object key = nextEntry.first;
     YTIdentifiable value = nextEntry.second;
 
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("key", convertKey(key));
     result.setProperty("rid", value);
     ctx.setVariable("$current", result);
@@ -208,16 +208,17 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = inCondition.evaluateRight((OResult) null, ctx);
+    Object rightValue = inCondition.evaluateRight((YTResult) null, ctx);
     OEqualsCompareOperator equals = new OEqualsCompareOperator(-1);
     if (OMultiValue.isMultiValue(rightValue)) {
       for (Object item : OMultiValue.getMultiValueIterable(rightValue)) {
-        if (item instanceof OResult) {
-          if (((OResult) item).isElement()) {
-            item = ((OResult) item).getElement().orElseThrow(IllegalStateException::new);
-          } else if (((OResult) item).getPropertyNames().size() == 1) {
+        if (item instanceof YTResult) {
+          if (((YTResult) item).isElement()) {
+            item = ((YTResult) item).getElement().orElseThrow(IllegalStateException::new);
+          } else if (((YTResult) item).getPropertyNames().size() == 1) {
             item =
-                ((OResult) item).getProperty(((OResult) item).getPropertyNames().iterator().next());
+                ((YTResult) item).getProperty(
+                    ((YTResult) item).getPropertyNames().iterator().next());
           }
         }
 
@@ -315,7 +316,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
     for (int i = 0; i < secondValueCombinations.size(); i++) {
 
-      Object secondValue = secondValueCombinations.get(i).execute((OResult) null, ctx);
+      Object secondValue = secondValueCombinations.get(i).execute((YTResult) null, ctx);
       if (secondValue instanceof List
           && ((List<?>) secondValue).size() == 1
           && indexDef.getFields().size() == 1
@@ -324,7 +325,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       }
       secondValue = unboxOResult(secondValue);
       // TODO unwind collections!
-      Object thirdValue = thirdValueCombinations.get(i).execute((OResult) null, ctx);
+      Object thirdValue = thirdValueCombinations.get(i).execute((YTResult) null, ctx);
       if (thirdValue instanceof List
           && ((List<?>) thirdValue).size() == 1
           && indexDef.getFields().size() == 1
@@ -449,7 +450,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   /**
-   * this is for subqueries, when a OResult is found
+   * this is for subqueries, when a YTResult is found
    *
    * <ul>
    *   <li>if it's a projection with a single column, the value is returned
@@ -462,14 +463,14 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         return stream.map(FetchFromIndexStep::unboxOResult).collect(Collectors.toList());
       }
     }
-    if (value instanceof OResult) {
-      if (((OResult) value).isElement()) {
-        return ((OResult) value).getIdentity().orElse(null);
+    if (value instanceof YTResult) {
+      if (((YTResult) value).isElement()) {
+        return ((YTResult) value).getIdentity().orElse(null);
       }
 
-      var props = ((OResult) value).getPropertyNames();
+      var props = ((YTResult) value).getPropertyNames();
       if (props.size() == 1) {
-        return ((OResult) value).getProperty(props.iterator().next());
+        return ((YTResult) value).getProperty(props.iterator().next());
       }
     }
     return value;
@@ -487,7 +488,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
     var db = ctx.getDatabase();
     OExpression nextElementInKey = key.getExpressions().get(0);
-    Object value = nextElementInKey.execute(new OResultInternal(db), ctx);
+    Object value = nextElementInKey.execute(new YTResultInternal(db), ctx);
     if (value instanceof Iterable && !(value instanceof YTIdentifiable)) {
       List<OCollection> result = new ArrayList<>();
       for (Object elemInKey : (Collection<?>) value) {
@@ -586,9 +587,9 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     OExpression second = ((OBetweenCondition) condition).getSecond();
     OExpression third = ((OBetweenCondition) condition).getThird();
 
-    Object secondValue = second.execute((OResult) null, ctx);
+    Object secondValue = second.execute((YTResult) null, ctx);
     secondValue = unboxOResult(secondValue);
-    Object thirdValue = third.execute((OResult) null, ctx);
+    Object thirdValue = third.execute((YTResult) null, ctx);
     thirdValue = unboxOResult(thirdValue);
     var db = ctx.getDatabase();
     Stream<ORawPair<Object, YTRID>> stream =
@@ -618,7 +619,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = ((OBinaryCondition) condition).getRight().execute((OResult) null, ctx);
+    Object rightValue = ((OBinaryCondition) condition).getRight().execute((YTResult) null, ctx);
     Stream<ORawPair<Object, YTRID>> stream =
         createCursor(session, index, operator, definition, rightValue, isOrderAsc, condition);
     if (acquiredStreams.add(stream)) {
@@ -824,8 +825,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("indexName", desc.getIndex().getName());
     if (desc.getKeyCondition() != null) {
       result.setProperty("condition", desc.getKeyCondition().serialize(db));
@@ -839,7 +840,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       String indexName = fromResult.getProperty("indexName");

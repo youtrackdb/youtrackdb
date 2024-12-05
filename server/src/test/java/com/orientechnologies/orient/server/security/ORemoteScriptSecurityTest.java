@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.YTSecurityException;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -52,7 +52,7 @@ public class ORemoteScriptSecurityTest {
         YouTrackDBConfig.defaultConfig())) {
       try (YTDatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
-        try (OResultSet rs = writer.execute("javascript", "1+1;")) {
+        try (YTResultSet rs = writer.execute("javascript", "1+1;")) {
         }
       }
     }
@@ -66,7 +66,7 @@ public class ORemoteScriptSecurityTest {
       try (YTDatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
 
-        try (OResultSet rs = writer.execute("ecmascript", "1+1;")) {
+        try (YTResultSet rs = writer.execute("ecmascript", "1+1;")) {
         }
       }
     }

@@ -16,11 +16,11 @@ public class OCommitStatementExecutionTest extends DBTestBase {
     Assert.assertTrue(db.getTransaction() == null || !db.getTransaction().isActive());
     db.begin();
     Assert.assertFalse(db.getTransaction() == null || !db.getTransaction().isActive());
-    OResultSet result = db.command("commit");
+    YTResultSet result = db.command("commit");
     printExecutionPlan(null, result);
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("commit", item.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     Assert.assertTrue(db.getTransaction() == null || !db.getTransaction().isActive());

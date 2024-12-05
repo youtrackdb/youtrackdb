@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.storage.impl.local.OStorageRecoverEventListener;
 import java.util.Objects;
 import org.junit.Assert;
@@ -117,7 +117,7 @@ public class GraphRecoveringTest {
         session.begin();
         for (var e :
             session.query("select from E").stream()
-                .map(OResult::toElement)
+                .map(YTResult::toElement)
                 .map(YTEntity::toEdge)
                 .toList()) {
           e.<YTDocument>getRecord().removeField("out");
@@ -155,7 +155,7 @@ public class GraphRecoveringTest {
         session.begin();
         for (var v :
             session.query("select from V").stream()
-                .map(OResult::toElement)
+                .map(YTResult::toElement)
                 .filter(Objects::nonNull)
                 .map(YTEntity::toVertex)
                 .toList()) {

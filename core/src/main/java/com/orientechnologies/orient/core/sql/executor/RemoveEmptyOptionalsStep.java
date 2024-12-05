@@ -21,10 +21,10 @@ public class RemoveEmptyOptionalsStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     for (String s : result.getPropertyNames()) {
       if (OptionalMatchEdgeTraverser.isEmptyOptional(result.getProperty(s))) {
-        ((OResultInternal) result).setProperty(s, null);
+        ((YTResultInternal) result).setProperty(s, null);
       }
     }
     return result;

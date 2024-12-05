@@ -15,8 +15,8 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTStorageDoesNotExistException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.io.File;
 import java.util.List;
@@ -114,7 +114,7 @@ public class YouTrackDBEmbeddedTests {
             YTDatabaseSession db = pool.acquire();
             try {
               assertThat(db.isActiveOnCurrentThread()).isTrue();
-              final OResultSet res = db.query("SELECT * FROM OUser");
+              final YTResultSet res = db.query("SELECT * FROM OUser");
               assertThat(res).hasSize(1); // Only 'admin' created in this test
             } finally {
               db.close();
@@ -721,9 +721,9 @@ public class YouTrackDBEmbeddedTests {
     String dbName = "testCreateDatabaseViaSQL";
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
-    try (OResultSet result = youTrackDb.execute("create database " + dbName + " plocal")) {
+    try (YTResultSet result = youTrackDb.execute("create database " + dbName + " plocal")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
     Assert.assertTrue(youTrackDb.exists(dbName));

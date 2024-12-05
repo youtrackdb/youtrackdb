@@ -22,8 +22,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -69,11 +69,11 @@ public class TruncateClassTest extends DocumentDBBaseTest {
         new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
     database.commit();
 
-    List<OResult> result =
+    List<YTResult> result =
         database.query("select from test_class").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     Set<Integer> set = new HashSet<Integer>();
-    for (OResult document : result) {
+    for (YTResult document : result) {
       set.addAll(document.getProperty("data"));
     }
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));
@@ -105,7 +105,7 @@ public class TruncateClassTest extends DocumentDBBaseTest {
       Assert.fail();
     } catch (Exception e) {
     }
-    OResultSet result = database.query("select from TestTruncateVertexClass");
+    YTResultSet result = database.query("select from TestTruncateVertexClass");
     Assert.assertEquals(result.stream().count(), 1);
 
     database.command("truncate class TestTruncateVertexClass unsafe").close();
@@ -128,7 +128,7 @@ public class TruncateClassTest extends DocumentDBBaseTest {
     database.command("insert into TestTruncateVertexClassSubclass set name = 'bar'").close();
     database.commit();
 
-    OResultSet result = database.query("select from TestTruncateVertexClassSuperclass");
+    YTResultSet result = database.query("select from TestTruncateVertexClassSuperclass");
     Assert.assertEquals(result.stream().count(), 2);
 
     database.command("truncate class TestTruncateVertexClassSuperclass ").close();
@@ -216,7 +216,7 @@ public class TruncateClassTest extends DocumentDBBaseTest {
     database.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     database.commit();
 
-    OResultSet result = database.query("select from test_class");
+    YTResultSet result = database.query("select from test_class");
     Assert.assertEquals(result.stream().count(), 2);
 
     database.command("truncate class test_class").close();

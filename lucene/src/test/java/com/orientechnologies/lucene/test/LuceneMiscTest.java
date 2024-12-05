@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.command("insert into Test set attr1='bar', attr2='foo'").close();
     db.commit();
 
-    OResultSet results =
+    YTResultSet results =
         db.command("select from Test where attr1 lucene 'foo*' OR attr2 lucene 'foo*'");
     Assert.assertEquals(2, results.stream().count());
 
@@ -80,7 +80,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.command("insert into Person set name='Enrico', age=18").close();
     db.commit();
 
-    OResultSet results =
+    YTResultSet results =
         db.query("select  from (select from Person where age = 18) where name lucene 'Enrico'");
     Assert.assertEquals(1, results.stream().count());
 
@@ -107,7 +107,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     Map params = new HashMap();
     params.put("name", "FOO or");
-    OResultSet results = db.query("select from Test where attr1 lucene :name", params);
+    YTResultSet results = db.query("select from Test where attr1 lucene :name", params);
     Assert.assertEquals(1, results.stream().count());
   }
 
@@ -150,7 +150,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.save(edge);
     db.commit();
 
-    OResultSet results = db.query("select from AuthorOf");
+    YTResultSet results = db.query("select from AuthorOf");
     Assert.assertEquals(results.stream().count(), 1);
 
     List<?> results1 =
@@ -175,7 +175,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     Map params = new HashMap();
     params.put("name", "anyPerson");
-    OResultSet results = db.command("select from Test where _attr1 lucene :name", params);
+    YTResultSet results = db.command("select from Test where _attr1 lucene :name", params);
     Assert.assertEquals(results.stream().count(), 1);
   }
 }

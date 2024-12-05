@@ -54,7 +54,7 @@ public class OScriptExecutionPlan implements OInternalExecutionPlan {
     if (!executed) {
       executeUntilReturn();
       executed = true;
-      List<OResult> collected = new ArrayList<>();
+      List<YTResult> collected = new ArrayList<>();
       OExecutionStream results = lastStep.start(ctx);
       while (results.hasNext(ctx)) {
         collected.add(results.next(ctx));
@@ -102,8 +102,8 @@ public class OScriptExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OResult toResult(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult toResult(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("type", "ScriptExecutionPlan");
     result.setProperty("javaType", getClass().getName());
     result.setProperty("cost", getCost());

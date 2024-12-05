@@ -6,7 +6,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,9 +48,9 @@ public class OContainsAllCondition extends OBooleanExpression {
           boolean found = false;
           if (((Collection) left).contains(next)) {
             found = true;
-          } else if (next instanceof OResult
-              && ((OResult) next).isElement()
-              && ((Collection) left).contains(((OResult) next).toElement())) {
+          } else if (next instanceof YTResult
+              && ((YTResult) next).isElement()
+              && ((Collection) left).contains(((YTResult) next).toElement())) {
             found = true;
           }
           if (!found) {
@@ -107,8 +107,8 @@ public class OContainsAllCondition extends OBooleanExpression {
           if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
             return false;
           }
-        } else if (item instanceof OResult) {
-          if (!rightBlock.evaluate((OResult) item, ctx)) {
+        } else if (item instanceof YTResult) {
+          if (!rightBlock.evaluate((YTResult) item, ctx)) {
             return false;
           }
         } else {
@@ -120,7 +120,7 @@ public class OContainsAllCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -133,7 +133,7 @@ public class OContainsAllCondition extends OBooleanExpression {
     return evaluateSingle(leftValue, currentRecord, ctx);
   }
 
-  private boolean evaluateAllFunction(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
       if (!evaluateSingle(leftValue, currentRecord, ctx)) {
@@ -143,7 +143,7 @@ public class OContainsAllCondition extends OBooleanExpression {
     return true;
   }
 
-  private boolean evaluateAny(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, OCommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
       if (evaluateSingle(leftValue, currentRecord, ctx)) {
@@ -153,7 +153,7 @@ public class OContainsAllCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateSingle(Object leftValue, OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateSingle(Object leftValue, YTResult currentRecord, OCommandContext ctx) {
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
       return execute(leftValue, rightValue);
@@ -168,8 +168,8 @@ public class OContainsAllCondition extends OBooleanExpression {
           if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
             return false;
           }
-        } else if (item instanceof OResult) {
-          if (!rightBlock.evaluate((OResult) item, ctx)) {
+        } else if (item instanceof YTResult) {
+          if (!rightBlock.evaluate((YTResult) item, ctx)) {
             return false;
           }
         } else {

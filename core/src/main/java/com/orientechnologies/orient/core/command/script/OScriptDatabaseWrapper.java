@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Map;
 
 /**
@@ -39,27 +39,28 @@ public class OScriptDatabaseWrapper {
     this.database = database;
   }
 
-  public OResultSet query(final String iText, final Object... iParameters) {
+  public YTResultSet query(final String iText, final Object... iParameters) {
     return this.database.query(iText, iParameters);
   }
 
-  public OResultSet query(final String query, Map<String, Object> iParameters) {
+  public YTResultSet query(final String query, Map<String, Object> iParameters) {
     return this.database.query(query, iParameters);
   }
 
-  public OResultSet command(final String iText, final Object... iParameters) {
+  public YTResultSet command(final String iText, final Object... iParameters) {
     return this.database.command(iText, iParameters);
   }
 
-  public OResultSet command(final String query, Map<String, Object> iParameters) {
+  public YTResultSet command(final String query, Map<String, Object> iParameters) {
     return this.database.query(query, iParameters);
   }
 
-  public OResultSet execute(String language, final String script, final Object... iParameters) {
+  public YTResultSet execute(String language, final String script, final Object... iParameters) {
     return this.database.execute(language, script, iParameters);
   }
 
-  public OResultSet execute(String language, final String script, Map<String, Object> iParameters) {
+  public YTResultSet execute(String language, final String script,
+      Map<String, Object> iParameters) {
     return this.database.execute(language, script, iParameters);
   }
 

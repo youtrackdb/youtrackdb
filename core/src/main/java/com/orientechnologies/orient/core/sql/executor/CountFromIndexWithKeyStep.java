@@ -44,14 +44,14 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(this::produce).limit(1);
   }
 
-  private OResult produce(OCommandContext ctx) {
+  private YTResult produce(OCommandContext ctx) {
     OIndex idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
     var db = ctx.getDatabase();
     Object val =
         idx.getDefinition()
-            .createValue(db, keyValue.execute(new OResultInternal(db), ctx));
+            .createValue(db, keyValue.execute(new YTResultInternal(db), ctx));
     long size = idx.getInternal().getRids(db, val).distinct().count();
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty(alias, size);
     return result;
   }

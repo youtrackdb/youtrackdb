@@ -23,7 +23,7 @@ public class OScriptExecutionTest extends DBTestBase {
             + " SET name = 'foo';INSERT INTO "
             + className
             + " SET name = 'bar';commit;");
-    OResultSet rs = db.query("SELECT count(*) as count from " + className);
+    YTResultSet rs = db.query("SELECT count(*) as count from " + className);
     Assert.assertEquals((Object) 2L, rs.next().getProperty("count"));
   }
 
@@ -43,7 +43,7 @@ public class OScriptExecutionTest extends DBTestBase {
     script += "};";
     script += "commit;";
     db.execute("SQL", script);
-    OResultSet rs = db.query("SELECT count(*) as count from " + className);
+    YTResultSet rs = db.query("SELECT count(*) as count from " + className);
     Assert.assertEquals((Object) 2L, rs.next().getProperty("count"));
   }
 
@@ -64,7 +64,7 @@ public class OScriptExecutionTest extends DBTestBase {
     script += "commit;";
 
     db.execute("SQL", script);
-    OResultSet rs = db.query("SELECT count(*) as count from " + className);
+    YTResultSet rs = db.query("SELECT count(*) as count from " + className);
     Assert.assertEquals((Object) 2L, rs.next().getProperty("count"));
   }
 
@@ -80,9 +80,9 @@ public class OScriptExecutionTest extends DBTestBase {
     script += "   RETURN 'OK';";
     script += "}";
     script += "RETURN 'FAIL';";
-    OResultSet result = db.execute("SQL", script);
+    YTResultSet result = db.execute("SQL", script);
 
-    OResult item = result.next();
+    YTResult item = result.next();
 
     Assert.assertEquals("OK", item.getProperty("value"));
     result.close();
@@ -102,9 +102,9 @@ public class OScriptExecutionTest extends DBTestBase {
     script += "}";
     script += "COMMIT;";
     script += "RETURN 'OK';";
-    OResultSet result = db.execute("SQL", script);
+    YTResultSet result = db.execute("SQL", script);
 
-    OResult item = result.next();
+    YTResult item = result.next();
 
     Assert.assertEquals("OK", item.getProperty("value"));
     result.close();
@@ -121,9 +121,9 @@ public class OScriptExecutionTest extends DBTestBase {
     script += "   RETURN 'FAIL';";
     script += "}";
     script += "RETURN 'OK';";
-    OResultSet result = db.execute("SQL", script);
+    YTResultSet result = db.execute("SQL", script);
 
-    OResult item = result.next();
+    YTResult item = result.next();
 
     Assert.assertEquals("OK", item.getProperty("value"));
     result.close();
@@ -144,9 +144,9 @@ public class OScriptExecutionTest extends DBTestBase {
     script += "COMMIT RETRY 10;";
     db.execute("SQL", script);
 
-    OResultSet result = db.query("select from " + className);
+    YTResultSet result = db.query("select from " + className);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals(4, (int) item.getProperty("attempt"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -168,7 +168,7 @@ public class OScriptExecutionTest extends DBTestBase {
     } catch (YTConcurrentModificationException x) {
     }
 
-    OResultSet result = db.query("select from " + className);
+    YTResultSet result = db.query("select from " + className);
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -190,9 +190,9 @@ public class OScriptExecutionTest extends DBTestBase {
 
     db.execute("SQL", script);
 
-    OResultSet result = db.query("select from " + className);
+    YTResultSet result = db.query("select from " + className);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("foo", item.getProperty("name"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -216,9 +216,9 @@ public class OScriptExecutionTest extends DBTestBase {
 
     db.execute("SQL", script);
 
-    OResultSet result = db.query("select from " + className);
+    YTResultSet result = db.query("select from " + className);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("foo", item.getProperty("name"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -245,9 +245,9 @@ public class OScriptExecutionTest extends DBTestBase {
 
     }
 
-    OResultSet result = db.query("select from " + className);
+    YTResultSet result = db.query("select from " + className);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("foo", item.getProperty("name"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -274,9 +274,9 @@ public class OScriptExecutionTest extends DBTestBase {
 
     }
 
-    OResultSet result = db.query("select from " + className);
+    YTResultSet result = db.query("select from " + className);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("foo", item.getProperty("name"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -294,9 +294,9 @@ public class OScriptExecutionTest extends DBTestBase {
 
     }
 
-    OResultSet rs = db.execute("SQL", script);
+    YTResultSet rs = db.execute("SQL", script);
     Assert.assertTrue(rs.hasNext());
-    OResult item = rs.next();
+    YTResult item = rs.next();
     Assert.assertTrue(item.getProperty("result") instanceof BigDecimal);
     Assert.assertFalse(rs.hasNext());
 
@@ -333,7 +333,7 @@ public class OScriptExecutionTest extends DBTestBase {
 
     db.execute("sql", script).close();
 
-    try (OResultSet rs = db.query("select from IndirectEdge")) {
+    try (YTResultSet rs = db.query("select from IndirectEdge")) {
       Assert.assertEquals("foo2", rs.next().getProperty("Source"));
       Assert.assertFalse(rs.hasNext());
     }

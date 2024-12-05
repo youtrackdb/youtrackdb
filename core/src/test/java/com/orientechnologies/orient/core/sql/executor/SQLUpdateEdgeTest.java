@@ -61,7 +61,7 @@ public class SQLUpdateEdgeTest extends DBTestBase {
     assertEquals(v4.getProperty("name"), "wow");
 
     db.begin();
-    OResultSet edges =
+    YTResultSet edges =
         db.command("create edge E1 from " + v1.getIdentity() + " to " + v2.getIdentity());
     YTEdge edge = edges.next().getEdge().get();
     assertFalse(edges.hasNext());
@@ -79,12 +79,12 @@ public class SQLUpdateEdgeTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
-    OResult vertex4 = result.next();
+    YTResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
+    YTResult vertex4 = result.next();
     Assert.assertEquals(vertex4.getProperty("vid"), "v4");
 
     result = db.query("select expand(in('E1')) from " + v4.getIdentity());
-    OResult vertex3 = result.next();
+    YTResult vertex3 = result.next();
     Assert.assertEquals(vertex3.getProperty("vid"), "v3");
 
     result = db.query("select expand(out('E1')) from " + v1.getIdentity());
@@ -104,14 +104,14 @@ public class SQLUpdateEdgeTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    OResultSet edges =
+    YTResultSet edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
     YTEdge edge = edges.next().toEdge();
 
     db.command("UPDATE EDGE " + edge.getIdentity() + " SET in = " + v3.getIdentity());
     db.commit();
 
-    OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
+    YTResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertEquals(result.next().getIdentity().get(), v3.getIdentity());
 
     result = db.query("select expand(in()) from " + v3.getIdentity());

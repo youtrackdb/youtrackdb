@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Test;
 
 public class HookReadTest extends DBTestBase {
@@ -43,7 +43,7 @@ public class HookReadTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    OResultSet res = db.query("select from TestClass");
+    YTResultSet res = db.query("select from TestClass");
     assertEquals(res.next().getProperty("read"), "test");
     db.commit();
   }

@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -100,7 +100,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
           return null;
         }
       } else {
-        if (iThis instanceof OResult result) {
+        if (iThis instanceof YTResult result) {
           iThis = result.asElement();
         }
       }
@@ -137,7 +137,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
 
   private static Object copy(YTDatabaseSessionInternal db, final YTDocument document,
       final Object[] iFieldNames) {
-    var result = new OResultInternal(db);
+    var result = new YTResultInternal(db);
 
     var propertyNames = new HashSet<>(document.getPropertyNames());
     for (Object iFieldName : iFieldNames) {
@@ -164,9 +164,9 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
     return result;
   }
 
-  private OResult copy(YTDatabaseSessionInternal database, final Map<String, ?> map,
+  private YTResult copy(YTDatabaseSessionInternal database, final Map<String, ?> map,
       final Object[] iFieldNames) {
-    var result = new OResultInternal(database);
+    var result = new YTResultInternal(database);
 
     var propertyNames = new HashSet<>(map.keySet());
 

@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.List;
 import org.testng.Assert;
@@ -51,7 +51,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
   @Test
   public void findSimpleReference() {
-    List<OResult> result = database.command("find references " + carID).stream().toList();
+    List<YTResult> result = database.command("find references " + carID).stream().toList();
 
     Assert.assertEquals(result.size(), 1);
     Assert.assertEquals(result.iterator().next().getProperty("referredBy"), johnDoeID);
@@ -64,7 +64,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
     result = database.command("find references " + chuckNorrisID).stream().toList();
     Assert.assertEquals(result.size(), 2);
 
-    for (OResult rid : result) {
+    for (YTResult rid : result) {
       Assert.assertTrue(
           rid.getProperty("referredBy").equals(ctuID)
               || rid.getProperty("referredBy").equals(fbiID));
@@ -78,7 +78,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
   @Test
   public void findReferenceByClassAndClusters() {
-    List<OResult> result =
+    List<YTResult> result =
         database.command("find references " + janeDoeID + " [" + WORKPLACE + "]").stream().toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -92,7 +92,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 3);
 
-    for (OResult res : result) {
+    for (YTResult res : result) {
       YTIdentifiable rid = res.getProperty("referredBy");
       Assert.assertTrue(rid.equals(ctuID) || rid.equals(fbiID) || rid.equals(carID));
     }

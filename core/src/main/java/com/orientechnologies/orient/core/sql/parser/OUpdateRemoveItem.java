@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -72,21 +72,21 @@ public class OUpdateRemoveItem extends SimpleNode {
     return result;
   }
 
-  public void applyUpdate(OResultInternal result, OCommandContext ctx) {
+  public void applyUpdate(YTResultInternal result, OCommandContext ctx) {
     if (right != null) {
       Object leftVal = left.execute(result, ctx);
       Object rightVal = right.execute(result, ctx);
-      if (rightVal instanceof OResult && ((OResult) rightVal).isElement()) {
-        rightVal = ((OResult) rightVal).getElement().get();
+      if (rightVal instanceof YTResult && ((YTResult) rightVal).isElement()) {
+        rightVal = ((YTResult) rightVal).getElement().get();
       }
       if (rightVal instanceof Collection
           && ((Collection) rightVal)
-          .stream().allMatch(x -> x instanceof OResult && ((OResult) x).isElement())) {
+          .stream().allMatch(x -> x instanceof YTResult && ((YTResult) x).isElement())) {
         rightVal =
             ((Collection) rightVal)
                 .stream()
                 .map(o -> o)
-                .map(x -> ((OResult) x).getElement().get())
+                .map(x -> ((YTResult) x).getElement().get())
                 .collect(Collectors.toList());
       }
       if (OMultiValue.isMultiValue(leftVal)) {
@@ -95,8 +95,8 @@ public class OUpdateRemoveItem extends SimpleNode {
           Iterator<?> iter = OMultiValue.getMultiValueIterator(rightVal);
           while (iter.hasNext()) {
             Object item = iter.next();
-            if (item instanceof OResult && ((OResult) item).getIdentity().isPresent()) {
-              OMultiValue.remove(leftVal, ((OResult) item).getIdentity().get(), false);
+            if (item instanceof YTResult && ((YTResult) item).getIdentity().isPresent()) {
+              OMultiValue.remove(leftVal, ((YTResult) item).getIdentity().get(), false);
             } else {
               OMultiValue.remove(leftVal, item, false);
             }

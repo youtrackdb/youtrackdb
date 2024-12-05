@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import java.util.Collections;
@@ -30,7 +30,7 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+        public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
           return true;
         }
 
@@ -115,7 +115,7 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+        public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
           return false;
         }
 
@@ -197,7 +197,7 @@ public abstract class OBooleanExpression extends SimpleNode {
 
   public abstract boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx);
 
-  public abstract boolean evaluate(OResult currentRecord, OCommandContext ctx);
+  public abstract boolean evaluate(YTResult currentRecord, OCommandContext ctx);
 
   /**
    * @return true if this expression can be calculated in plain Java, false otherwise (eg. LUCENE
@@ -266,7 +266,7 @@ public abstract class OBooleanExpression extends SimpleNode {
   public void translateLuceneOperator() {
   }
 
-  public static OBooleanExpression deserializeFromOResult(OResult doc) {
+  public static OBooleanExpression deserializeFromOResult(YTResult doc) {
     try {
       OBooleanExpression result =
           (OBooleanExpression)
@@ -280,13 +280,13 @@ public abstract class OBooleanExpression extends SimpleNode {
     return null;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     throw new UnsupportedOperationException();
   }
 

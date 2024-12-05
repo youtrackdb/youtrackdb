@@ -37,7 +37,7 @@ public class GlobalLetExpressionStep extends AbstractExecutionStep {
     if (executed) {
       return;
     }
-    Object value = expression.execute((OResult) null, ctx);
+    Object value = expression.execute((YTResult) null, ctx);
     ctx.setVariable(varname.getStringValue(), value);
     executed = true;
   }

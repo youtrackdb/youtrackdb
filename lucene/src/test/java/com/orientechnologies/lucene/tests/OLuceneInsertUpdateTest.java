@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,7 +46,7 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
 
     oClass.createProperty(db, "name", YTType.STRING);
     //noinspection EmptyTryBlock
-    try (OResultSet command =
+    try (YTResultSet command =
         db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
     }
   }

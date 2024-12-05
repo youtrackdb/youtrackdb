@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.tests;
 import static com.orientechnologies.lucene.functions.OLuceneFunctionsUtils.doubleEscape;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class OLuceneMetadataFieldsTest extends OLuceneBaseTest {
 
     int cluster = db.getMetadata().getSchema().getClass("Song").getClusterIds()[1];
 
-    OResultSet results =
+    YTResultSet results =
         db.query("SELECT FROM Song WHERE search_class('+_CLUSTER:" + cluster + "')=true ");
 
     assertThat(results).hasSize(73);
@@ -47,7 +47,7 @@ public class OLuceneMetadataFieldsTest extends OLuceneBaseTest {
     var songs = db.query("SELECT FROM Song limit 2").toList();
 
     String ridQuery = doubleEscape(songs.get(0).getRecordId() + " " + songs.get(1).getRecordId());
-    OResultSet results =
+    YTResultSet results =
         db.query("SELECT FROM Song WHERE search_class('RID:(" + ridQuery + ") ')=true ");
 
     assertThat(results).hasSize(2);

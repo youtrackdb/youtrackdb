@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.query;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +29,11 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
     db.commit();
 
     db.begin();
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.command(
             "create edge TestEdge  from ( select from FirstV where id = '1') to ( select from"
                 + " SecondV where id = '2')")) {
-      OResult result = resultSet.stream().iterator().next();
+      YTResult result = resultSet.stream().iterator().next();
 
       Assert.assertTrue(result.isEdge());
     }
@@ -56,10 +56,10 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
 
     db.begin();
     Assert.assertEquals(0, db.query("select from TestEdge").stream().count());
-    List<OResult> results =
+    List<YTResult> results =
         db.query("select bothE().size() as count from V").stream().collect(Collectors.toList());
 
-    for (OResult result : results) {
+    for (YTResult result : results) {
       Assert.assertEquals(0, (int) result.getProperty("count"));
     }
     db.commit();

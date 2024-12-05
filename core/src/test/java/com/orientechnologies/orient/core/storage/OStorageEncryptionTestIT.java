@@ -17,8 +17,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.File;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -64,10 +64,10 @@ public class OStorageEncryptionTestIT {
 
         final Random random = ThreadLocalRandom.current();
         for (int i = 0; i < 1_000; i++) {
-          try (OResultSet resultSet =
+          try (YTResultSet resultSet =
               session.query("select from EncryptedData where id = ?", random.nextInt(10_000_000))) {
             if (resultSet.hasNext()) {
-              final OResult result = resultSet.next();
+              final YTResult result = resultSet.next();
               result.getElement().ifPresent(YTRecord::delete);
             }
           }
@@ -198,7 +198,7 @@ public class OStorageEncryptionTestIT {
                 + " ");
         document.save();
 
-        try (OResultSet resultSet = session.query("select from EncryptedData where id = ?", 10)) {
+        try (YTResultSet resultSet = session.query("select from EncryptedData where id = ?", 10)) {
           assertTrue(resultSet.hasNext());
         }
       }

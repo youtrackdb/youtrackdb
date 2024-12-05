@@ -26,9 +26,9 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
 
     Assert.assertNotNull(db.getMetadata().getSequenceLibrary().getSequence(name));
     db.begin();
-    OResultSet result = db.command("drop sequence " + name);
+    YTResultSet result = db.command("drop sequence " + name);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop sequence", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -43,7 +43,7 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
     OSequenceLibrary lib = db.getMetadata().getSequenceLibrary();
     Assert.assertNull(lib.getSequence(name));
     try {
-      OResultSet result = db.command("drop sequence " + name);
+      YTResultSet result = db.command("drop sequence " + name);
       Assert.fail();
     } catch (YTCommandExecutionException ex1) {
 
@@ -58,7 +58,7 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
     OSequenceLibrary lib = db.getMetadata().getSequenceLibrary();
     Assert.assertNull(lib.getSequence(name));
 
-    OResultSet result = db.command("drop sequence " + name + " if exists");
+    YTResultSet result = db.command("drop sequence " + name + " if exists");
     Assert.assertFalse(result.hasNext());
 
     try {
@@ -73,7 +73,7 @@ public class ODropSequenceStatementExecutionTest extends DBTestBase {
     db.begin();
     result = db.command("drop sequence " + name + " if exists");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop sequence", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();

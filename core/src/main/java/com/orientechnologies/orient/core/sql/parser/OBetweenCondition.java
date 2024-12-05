@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +57,7 @@ public class OBetweenCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
 
     var db = ctx.getDatabase();
     if (first.isFunctionAny()) {
@@ -98,7 +98,7 @@ public class OBetweenCondition extends OBooleanExpression {
     return leftResult >= 0 && rightResult <= 0;
   }
 
-  private boolean evaluateAny(YTDatabaseSession session, OResult currentRecord,
+  private boolean evaluateAny(YTDatabaseSession session, YTResult currentRecord,
       OCommandContext ctx) {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
@@ -112,7 +112,7 @@ public class OBetweenCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
 

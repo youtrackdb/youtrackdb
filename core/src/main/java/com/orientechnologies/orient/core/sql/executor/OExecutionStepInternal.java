@@ -82,20 +82,20 @@ public interface OExecutionStepInternal extends OExecutionStep {
     // do nothing
   }
 
-  default OResult serialize(YTDatabaseSessionInternal db) {
+  default YTResult serialize(YTDatabaseSessionInternal db) {
     throw new UnsupportedOperationException();
   }
 
-  default void deserialize(OResult fromResult) {
+  default void deserialize(YTResult fromResult) {
     throw new UnsupportedOperationException();
   }
 
-  static OResultInternal basicSerialize(YTDatabaseSessionInternal db,
+  static YTResultInternal basicSerialize(YTDatabaseSessionInternal db,
       OExecutionStepInternal step) {
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty(OInternalExecutionPlan.JAVA_TYPE, step.getClass().getName());
     if (step.getSubSteps() != null && !step.getSubSteps().isEmpty()) {
-      List<OResult> serializedSubsteps = new ArrayList<>();
+      List<YTResult> serializedSubsteps = new ArrayList<>();
       for (OExecutionStep substep : step.getSubSteps()) {
         serializedSubsteps.add(((OExecutionStepInternal) substep).serialize(db));
       }
@@ -103,7 +103,7 @@ public interface OExecutionStepInternal extends OExecutionStep {
     }
 
     if (step.getSubExecutionPlans() != null && !step.getSubExecutionPlans().isEmpty()) {
-      List<OResult> serializedSubPlans = new ArrayList<>();
+      List<YTResult> serializedSubPlans = new ArrayList<>();
       for (OExecutionPlan substep : step.getSubExecutionPlans()) {
         serializedSubPlans.add(((OInternalExecutionPlan) substep).serialize(db));
       }
@@ -112,11 +112,11 @@ public interface OExecutionStepInternal extends OExecutionStep {
     return result;
   }
 
-  static void basicDeserialize(OResult serialized, OExecutionStepInternal step)
+  static void basicDeserialize(YTResult serialized, OExecutionStepInternal step)
       throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-    List<OResult> serializedSubsteps = serialized.getProperty("subSteps");
+    List<YTResult> serializedSubsteps = serialized.getProperty("subSteps");
     if (serializedSubsteps != null) {
-      for (OResult serializedSub : serializedSubsteps) {
+      for (YTResult serializedSub : serializedSubsteps) {
         String className = serializedSub.getProperty(OInternalExecutionPlan.JAVA_TYPE);
         OExecutionStepInternal subStep =
             (OExecutionStepInternal) Class.forName(className).newInstance();
@@ -125,9 +125,9 @@ public interface OExecutionStepInternal extends OExecutionStep {
       }
     }
 
-    List<OResult> serializedPlans = serialized.getProperty("subExecutionPlans");
+    List<YTResult> serializedPlans = serialized.getProperty("subExecutionPlans");
     if (serializedSubsteps != null) {
-      for (OResult serializedSub : serializedPlans) {
+      for (YTResult serializedSub : serializedPlans) {
         String className = serializedSub.getProperty(OInternalExecutionPlan.JAVA_TYPE);
         OInternalExecutionPlan subStep =
             (OInternalExecutionPlan) Class.forName(className).newInstance();

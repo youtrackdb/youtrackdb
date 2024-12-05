@@ -12,8 +12,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -67,7 +67,7 @@ public class OBaseIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     if (levelZero != null) {
       return levelZero.execute(iCurrentRecord, ctx);
     }
@@ -303,7 +303,7 @@ public class OBaseIdentifier extends SimpleNode {
     return levelZero;
   }
 
-  public void applyRemove(OResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
     if (suffix != null) {
       suffix.applyRemove(result, ctx);
     } else {
@@ -311,8 +311,8 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (levelZero != null) {
       result.setProperty("levelZero", levelZero.serialize(db));
     }
@@ -322,7 +322,7 @@ public class OBaseIdentifier extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("levelZero") != null) {
       levelZero = new OLevelZeroIdentifier(-1);
       levelZero.deserialize(fromResult.getProperty("levelZero"));
@@ -333,7 +333,7 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public boolean isDefinedFor(OResult currentRecord) {
+  public boolean isDefinedFor(YTResult currentRecord) {
     if (suffix != null) {
       return suffix.isDefinedFor(currentRecord);
     }
@@ -359,7 +359,7 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public OCollate getCollate(OResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
     return suffix == null ? null : suffix.getCollate(currentRecord, ctx);
   }
 

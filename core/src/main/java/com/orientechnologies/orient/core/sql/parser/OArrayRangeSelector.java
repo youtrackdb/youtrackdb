@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -119,7 +119,7 @@ public class OArrayRangeSelector extends SimpleNode {
     return Arrays.asList(Arrays.copyOfRange(arrayResult, lFrom, lTo));
   }
 
-  public Object execute(OResult iCurrentRecord, Object result, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, Object result, OCommandContext ctx) {
     if (result == null) {
       return null;
     }
@@ -346,7 +346,7 @@ public class OArrayRangeSelector extends SimpleNode {
   }
 
   public void applyRemove(
-      Object currentValue, OResultInternal originalRecord, OCommandContext ctx) {
+      Object currentValue, YTResultInternal originalRecord, OCommandContext ctx) {
     if (currentValue == null) {
       return;
     }
@@ -404,8 +404,8 @@ public class OArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("from", from);
     result.setProperty("to", to);
     result.setProperty("newRange", newRange);
@@ -422,7 +422,7 @@ public class OArrayRangeSelector extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     from = fromResult.getProperty("from");
     to = fromResult.getProperty("to");
     newRange = fromResult.getProperty("newRange");

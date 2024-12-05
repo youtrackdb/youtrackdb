@@ -10,9 +10,9 @@ import java.util.Optional;
 /**
  *
  */
-public class OInternalResultSet implements OResultSet, OResettable {
+public class YTInternalResultSet implements YTResultSet, OResettable {
 
-  private List<OResult> content = new ArrayList<>();
+  private List<YTResult> content = new ArrayList<>();
   private int next = 0;
   protected OExecutionPlan plan;
 
@@ -22,7 +22,7 @@ public class OInternalResultSet implements OResultSet, OResettable {
   }
 
   @Override
-  public OResult next() {
+  public YTResult next() {
     return content.get(next++);
   }
 
@@ -45,7 +45,7 @@ public class OInternalResultSet implements OResultSet, OResettable {
     return new HashMap<>();
   }
 
-  public void add(OResult nextResult) {
+  public void add(YTResult nextResult) {
     content.add(nextResult);
   }
 
@@ -57,8 +57,8 @@ public class OInternalResultSet implements OResultSet, OResettable {
     return content.size();
   }
 
-  public OInternalResultSet copy() {
-    OInternalResultSet result = new OInternalResultSet();
+  public YTInternalResultSet copy() {
+    YTInternalResultSet result = new YTInternalResultSet();
     result.content = this.content;
     return result;
   }

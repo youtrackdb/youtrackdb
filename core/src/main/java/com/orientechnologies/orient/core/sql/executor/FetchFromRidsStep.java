@@ -42,8 +42,8 @@ public class FetchFromRidsStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     if (rids != null) {
       result.setProperty(
           "rids", rids.stream().map(YTRecordId::toString).collect(Collectors.toList()));
@@ -52,7 +52,7 @@ public class FetchFromRidsStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       if (fromResult.getProperty("rids") != null) {

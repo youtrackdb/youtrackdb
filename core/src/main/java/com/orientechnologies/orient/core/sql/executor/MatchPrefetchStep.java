@@ -38,7 +38,7 @@ public class MatchPrefetchStep extends AbstractExecutionStep {
     }
 
     OExecutionStream nextBlock = prefetchExecutionPlan.start();
-    List<OResult> prefetched = new ArrayList<>();
+    List<YTResult> prefetched = new ArrayList<>();
     while (nextBlock.hasNext(ctx)) {
       prefetched.add(nextBlock.next(ctx));
     }

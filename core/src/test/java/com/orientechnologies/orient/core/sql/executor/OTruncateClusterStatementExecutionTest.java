@@ -39,7 +39,7 @@ public class OTruncateClusterStatementExecutionTest extends DBTestBase {
     Assert.assertEquals(db.countClass(className), 1);
     Assert.assertEquals(db.countClusterElements(clusterId), 1);
 
-    OResultSet indexQuery = db.query("select from TruncateClusterClass where value='val'");
+    YTResultSet indexQuery = db.query("select from TruncateClusterClass where value='val'");
     Assert.assertEquals(toList(indexQuery).size(), 1);
     indexQuery.close();
 
@@ -54,8 +54,8 @@ public class OTruncateClusterStatementExecutionTest extends DBTestBase {
     indexQuery.close();
   }
 
-  private List<OResult> toList(OResultSet input) {
-    List<OResult> result = new ArrayList<>();
+  private List<YTResult> toList(YTResultSet input) {
+    List<YTResult> result = new ArrayList<>();
     while (input.hasNext()) {
       result.add(input.next());
     }

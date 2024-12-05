@@ -4,10 +4,10 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
@@ -19,19 +19,19 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionFactory;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition.INDEX_BY;
-import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.OIndexConfigProperty;
+import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
+import com.orientechnologies.orient.core.metadata.schema.OViewIndexConfig;
+import com.orientechnologies.orient.core.metadata.schema.OViewRemovedMetadata;
+import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
-import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
 import com.orientechnologies.orient.core.metadata.schema.YTViewImpl;
-import com.orientechnologies.orient.core.metadata.schema.OViewIndexConfig;
-import com.orientechnologies.orient.core.metadata.schema.OViewRemovedMetadata;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.OProjection;
 import com.orientechnologies.orient.core.sql.parser.OProjectionItem;
 import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
@@ -385,10 +385,10 @@ public class ViewManager {
       String clusterName,
       List<OIndex> indexes) {
     int iterationCount = 0;
-    try (OResultSet rs = db.query(query)) {
+    try (YTResultSet rs = db.query(query)) {
       db.begin();
       while (rs.hasNext()) {
-        OResult item = rs.next();
+        YTResult item = rs.next();
         addItemToView(item, db, originRidField, viewName, clusterName, indexes);
         if (iterationCount % 100 == 0) {
           db.commit();
@@ -401,7 +401,7 @@ public class ViewManager {
   }
 
   private void addItemToView(
-      OResult item,
+      YTResult item,
       YTDatabaseSessionInternal db,
       String originRidField,
       String viewName,
@@ -483,7 +483,7 @@ public class ViewManager {
     }
   }
 
-  private YTEntity copyElement(OResult item, YTDatabaseSession db) {
+  private YTEntity copyElement(YTResult item, YTDatabaseSession db) {
     YTEntity newRow = db.newElement();
     for (String prop : item.getPropertyNames()) {
       if (!prop.equalsIgnoreCase("@rid") && !prop.equalsIgnoreCase("@class")) {
@@ -590,7 +590,7 @@ public class ViewManager {
     }
 
     @Override
-    public void onCreate(YTDatabaseSession db, OResult data) {
+    public void onCreate(YTDatabaseSession db, YTResult data) {
 //      YTView view = db.getMetadata().getSchema().getView(viewName);
 //      var dbInternal = (YTDatabaseSessionInternal) db;
 //      if (view != null) {
@@ -606,15 +606,15 @@ public class ViewManager {
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession db, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession db, YTResult before, YTResult after) {
 //      YTView view = db.getMetadata().getSchema().getView(viewName);
 //      if (view != null && view.getOriginRidField() != null) {
-//        try (OResultSet rs =
+//        try (YTResultSet rs =
 //            db.query(
 //                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
 //                (Object) after.getProperty("@rid"))) {
 //          while (rs.hasNext()) {
-//            OResult row = rs.next();
+//            YTResult row = rs.next();
 //            row.getElement()
 //                .ifPresent(elem -> updateViewRow(elem, after, view, (YTDatabaseSessionInternal) db));
 //          }
@@ -623,7 +623,7 @@ public class ViewManager {
     }
 
     private void updateViewRow(
-        YTEntity viewRow, OResult origin, YTView view, YTDatabaseSessionInternal db) {
+        YTEntity viewRow, YTResult origin, YTView view, YTDatabaseSessionInternal db) {
       db.executeInTx(
           () -> {
             var boundRow = db.bindToSession(viewRow);
@@ -653,10 +653,10 @@ public class ViewManager {
     }
 
     @Override
-    public void onDelete(YTDatabaseSession db, OResult data) {
+    public void onDelete(YTDatabaseSession db, YTResult data) {
 //      YTView view = db.getMetadata().getSchema().getView(viewName);
 //      if (view != null && view.getOriginRidField() != null) {
-//        try (OResultSet rs =
+//        try (YTResultSet rs =
 //            db.query(
 //                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
 //                (Object) data.getProperty("@rid"))) {

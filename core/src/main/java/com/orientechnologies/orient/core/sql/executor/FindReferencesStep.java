@@ -51,7 +51,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     var db = ctx.getDatabase();
     Set<YTRID> rids = fetchRidsToFind(ctx);
     List<ORecordIteratorCluster<YTRecord>> clustersIterators = initClusterIterators(ctx);
-    Stream<OResult> stream =
+    Stream<YTResult> stream =
         clustersIterators.stream()
             .flatMap(
                 (iterator) -> {
@@ -62,15 +62,15 @@ public class FindReferencesStep extends AbstractExecutionStep {
     return OExecutionStream.resultIterator(stream.iterator());
   }
 
-  private static Stream<? extends OResult> findMatching(YTDatabaseSessionInternal db,
+  private static Stream<? extends YTResult> findMatching(YTDatabaseSessionInternal db,
       Set<YTRID> rids,
       YTRecord record) {
-    OResultInternal rec = new OResultInternal(db, record);
-    List<OResult> results = new ArrayList<>();
+    YTResultInternal rec = new YTResultInternal(db, record);
+    List<YTResult> results = new ArrayList<>();
     for (YTRID rid : rids) {
       List<String> resultForRecord = checkObject(Collections.singleton(rid), rec, record, "");
       if (!resultForRecord.isEmpty()) {
-        OResultInternal nextResult = new OResultInternal(db);
+        YTResultInternal nextResult = new YTResultInternal(db);
         nextResult.setProperty("rid", rid);
         nextResult.setProperty("referredBy", rec);
         nextResult.setProperty("fields", resultForRecord);
@@ -126,7 +126,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     assert prevStep != null;
     OExecutionStream nextSlot = prevStep.start(ctx);
     while (nextSlot.hasNext(ctx)) {
-      OResult nextRes = nextSlot.next(ctx);
+      YTResult nextRes = nextSlot.next(ctx);
       if (nextRes.isElement()) {
         ridsToFind.add(nextRes.toElement().getIdentity());
       }
@@ -137,8 +137,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
 
   private static List<String> checkObject(
       final Set<YTRID> iSourceRIDs, final Object value, final YTRecord iRootObject, String prefix) {
-    if (value instanceof OResult) {
-      return checkRoot(iSourceRIDs, (OResult) value, iRootObject, prefix).stream()
+    if (value instanceof YTResult) {
+      return checkRoot(iSourceRIDs, (YTResult) value, iRootObject, prefix).stream()
           .map(y -> value + "." + y)
           .collect(Collectors.toList());
     } else if (value instanceof YTIdentifiable) {
@@ -209,7 +209,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkRoot(
-      final Set<YTRID> iSourceRIDs, final OResult value, final YTRecord iRootObject,
+      final Set<YTRID> iSourceRIDs, final YTResult value, final YTRecord iRootObject,
       String prefix) {
     List<String> result = new ArrayList<>();
     for (String fieldName : value.getPropertyNames()) {

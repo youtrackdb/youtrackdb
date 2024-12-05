@@ -41,8 +41,8 @@ import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStepInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -474,35 +474,35 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testOperatorPriority() {
 
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select * from foo where name ='a' and bar = 1000 or name = 'b'").stream()
             .toList();
 
-    List<OResult> qResult2 =
+    List<YTResult> qResult2 =
         db.command("select * from foo where name = 'b' or name ='a' and bar = 1000").stream()
             .toList();
 
-    List<OResult> qResult3 =
+    List<YTResult> qResult3 =
         db.command("select * from foo where name = 'b' or (name ='a' and bar = 1000)").stream()
             .toList();
 
-    List<OResult> qResult4 =
+    List<YTResult> qResult4 =
         db.command("select * from foo where (name ='a' and bar = 1000) or name = 'b'").stream()
             .toList();
 
-    List<OResult> qResult5 =
+    List<YTResult> qResult5 =
         db.command("select * from foo where ((name ='a' and bar = 1000) or name = 'b')").stream()
             .toList();
 
-    List<OResult> qResult6 =
+    List<YTResult> qResult6 =
         db.command("select * from foo where ((name ='a' and (bar = 1000)) or name = 'b')").stream()
             .toList();
 
-    List<OResult> qResult7 =
+    List<YTResult> qResult7 =
         db.command("select * from foo where (((name ='a' and bar = 1000)) or name = 'b')").stream()
             .toList();
 
-    List<OResult> qResult8 =
+    List<YTResult> qResult8 =
         db
             .command("select * from foo where (((name ='a' and bar = 1000)) or (name = 'b'))")
             .stream()
@@ -519,7 +519,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testOperatorPriority2() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db
             .command(
                 "select * from bar where name ='a' and foo = 1 or name='b' or name='c' and foo = 3"
@@ -527,7 +527,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .stream()
             .toList();
 
-    List<OResult> qResult2 =
+    List<YTResult> qResult2 =
         db
             .command(
                 "select * from bar where (name ='a' and foo = 1) or name='b' or (name='c' and foo ="
@@ -535,7 +535,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .stream()
             .toList();
 
-    List<OResult> qResult3 =
+    List<YTResult> qResult3 =
         db
             .command(
                 "select * from bar where (name ='a' and foo = 1) or (name='b') or (name='c' and foo"
@@ -543,7 +543,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .stream()
             .toList();
 
-    List<OResult> qResult4 =
+    List<YTResult> qResult4 =
         db
             .command(
                 "select * from bar where (name ='a' and foo = 1) or ((name='b') or (name='c' and"
@@ -552,7 +552,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .stream()
             .toList();
 
-    List<OResult> qResult5 =
+    List<YTResult> qResult5 =
         db
             .command(
                 "select * from bar where (name ='a' and foo = 1) or ((name='b') or (name='c' and"
@@ -569,7 +569,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testOperatorPriority3() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db
             .command(
                 "select * from bar where name <> 'a' and foo = 1 or name='b' or name='c' and foo ="
@@ -577,7 +577,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .stream()
             .toList();
 
-    List<OResult> qResult2 =
+    List<YTResult> qResult2 =
         db
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or name='b' or (name='c' and foo"
@@ -586,7 +586,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .stream()
             .toList();
 
-    List<OResult> qResult3 =
+    List<YTResult> qResult3 =
         db
             .command(
                 "select * from bar where ( name <> 'a' and foo = 1) or (name='b') or (name='c' and"
@@ -595,7 +595,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .stream()
             .toList();
 
-    List<OResult> qResult4 =
+    List<YTResult> qResult4 =
         db
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or ( (name='b') or (name='c' and"
@@ -604,7 +604,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .stream()
             .toList();
 
-    List<OResult> qResult5 =
+    List<YTResult> qResult5 =
         db
             .command(
                 "select * from bar where (name <> 'a' and foo = 1) or ((name='b') or (name='c' and"
@@ -621,7 +621,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testExpandOnEmbedded() {
-    try (OResultSet qResult = db.command("select expand(address) from foo where name = 'a'")) {
+    try (YTResultSet qResult = db.command("select expand(address) from foo where name = 'a'")) {
       assertEquals("NY", qResult.next().getProperty("city"));
       assertFalse(qResult.hasNext());
     }
@@ -639,25 +639,25 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testLimit() {
-    OResultSet qResult = db.query("select from foo limit 3");
+    YTResultSet qResult = db.query("select from foo limit 3");
     assertEquals(3, qResult.stream().count());
   }
 
   @Test
   public void testLimitWithMetadataQuery() {
-    OResultSet qResult = db.query("select expand(classes) from metadata:schema limit 3");
+    YTResultSet qResult = db.query("select expand(classes) from metadata:schema limit 3");
     assertEquals(3, qResult.stream().count());
   }
 
   @Test
   public void testOrderByWithMetadataQuery() {
-    OResultSet qResult = db.query("select expand(classes) from metadata:schema order by name");
+    YTResultSet qResult = db.query("select expand(classes) from metadata:schema order by name");
     assertTrue(qResult.stream().count() > 0);
   }
 
   @Test
   public void testLimitWithUnnamedParam() {
-    OResultSet qResult = db.query("select from foo limit ?", 3);
+    YTResultSet qResult = db.query("select from foo limit ?", 3);
     assertEquals(3, qResult.stream().count());
   }
 
@@ -665,7 +665,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testLimitWithNamedParam() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("lim", 2);
-    OResultSet qResult = db.command("select from foo limit :lim", params);
+    YTResultSet qResult = db.command("select from foo limit :lim", params);
     assertEquals(2, qResult.stream().count());
   }
 
@@ -674,7 +674,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     // issue #5493
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("limit", 2);
-    OResultSet qResult = db.command("select from foo limit :limit", params);
+    YTResultSet qResult = db.command("select from foo limit :limit", params);
     assertEquals(2, qResult.stream().count());
   }
 
@@ -682,7 +682,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testParamsInLetSubquery() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo");
-    OResultSet qResult =
+    YTResultSet qResult =
         db.command(
             "select from TestParams let $foo = (select name from TestParams where surname = :name)"
                 + " where surname in $foo.name ",
@@ -693,14 +693,14 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testBooleanParams() {
     // issue #4224
-    OResultSet qResult =
+    YTResultSet qResult =
         db.command("select name from TestParams where name = ? and active = ?", "foo", true);
     assertEquals(1, qResult.stream().count());
   }
 
   @Test
   public void testFromInSquareBrackets() {
-    try (OResultSet qResult = db.command("select tags[' from '] as a from TestFromInSquare")) {
+    try (YTResultSet qResult = db.command("select tags[' from '] as a from TestFromInSquare")) {
       assertEquals("foo", qResult.next().getProperty("a"));
       assertFalse(qResult.hasNext());
     }
@@ -708,18 +708,18 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testNewline() {
-    OResultSet qResult = db.command("select\n1 as ACTIVE\nFROM foo");
+    YTResultSet qResult = db.command("select\n1 as ACTIVE\nFROM foo");
     assertEquals(5, qResult.stream().count());
   }
 
   @Test
   public void testOrderByRid() {
-    OResultSet qResult = db.query("select from ridsorttest order by @rid ASC");
+    YTResultSet qResult = db.query("select from ridsorttest order by @rid ASC");
     assertTrue(qResult.hasNext());
 
-    OResult prev = qResult.next();
+    YTResult prev = qResult.next();
     while (qResult.hasNext()) {
-      OResult next = qResult.next();
+      YTResult next = qResult.next();
       assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) <= 0);
       prev = next;
     }
@@ -730,7 +730,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
     prev = qResult.next();
     while (qResult.hasNext()) {
-      OResult next = qResult.next();
+      YTResult next = qResult.next();
       assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) >= 0);
       prev = next;
     }
@@ -741,7 +741,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
     prev = qResult.next();
     while (qResult.hasNext()) {
-      OResult next = qResult.next();
+      YTResult next = qResult.next();
       assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) >= 0);
       prev = next;
     }
@@ -749,11 +749,11 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testUnwind() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select from unwindtest unwind coll").stream().toList();
 
     assertEquals(4, qResult.size());
-    for (OResult doc : qResult) {
+    for (YTResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -763,11 +763,11 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testUnwind2() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select from unwindtest2 unwind coll").stream().toList();
 
     assertEquals(1, qResult.size());
-    for (OResult doc : qResult) {
+    for (YTResult doc : qResult) {
       Object coll = doc.getProperty("coll");
       assertNull(coll);
       assertFalse(doc.getIdentity().isPresent());
@@ -776,12 +776,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testUnwindOrder() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select from unwindtest order by coll unwind coll").stream()
             .toList();
 
     assertEquals(4, qResult.size());
-    for (OResult doc : qResult) {
+    for (YTResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -791,12 +791,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testUnwindSkip() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select from unwindtest unwind coll skip 1").stream()
             .toList();
 
     assertEquals(3, qResult.size());
-    for (OResult doc : qResult) {
+    for (YTResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -805,12 +805,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testUnwindLimit() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select from unwindtest unwind coll limit 1").stream()
             .toList();
 
     assertEquals(1, qResult.size());
-    for (OResult doc : qResult) {
+    for (YTResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -819,12 +819,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testUnwindLimit3() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select from unwindtest unwind coll limit 3").stream()
             .toList();
 
     assertEquals(3, qResult.size());
-    for (OResult doc : qResult) {
+    for (YTResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -833,12 +833,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testUnwindSkipAndLimit() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select from unwindtest unwind coll skip 1 limit 1").stream()
             .toList();
 
     assertEquals(1, qResult.size());
-    for (OResult doc : qResult) {
+    for (YTResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -847,7 +847,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testMultipleClusters() {
-    OResultSet qResult = db.command("select from cluster:[testmultipleclusters1]");
+    YTResultSet qResult = db.command("select from cluster:[testmultipleclusters1]");
 
     assertEquals(1, qResult.stream().count());
 
@@ -869,7 +869,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testStarPosition() {
-    List<OResult> result =
+    List<YTResult> result =
         db.query("select *, name as blabla from foo where name = 'a'").stream()
             .collect(Collectors.toList());
 
@@ -893,14 +893,14 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testQuotedClassName() {
-    OResultSet qResult = db.query("select from `edge`");
+    YTResultSet qResult = db.query("select from `edge`");
 
     assertEquals(0, qResult.stream().count());
   }
 
   public void testUrl() {
 
-    List<OResult> qResult = db.command("select from TestUrl").stream().toList();
+    List<YTResult> qResult = db.command("select from TestUrl").stream().toList();
 
     assertEquals(1, qResult.size());
     assertEquals("http://www.google.com", qResult.get(0).getProperty("url"));
@@ -908,12 +908,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testUnwindSkipAndLimit2() {
-    List<OResult> qResult =
+    List<YTResult> qResult =
         db.command("select from unwindtest unwind coll skip 1 limit 2").stream()
             .toList();
 
     assertEquals(2, qResult.size());
-    for (OResult doc : qResult) {
+    for (YTResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
@@ -924,7 +924,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testMultipleParamsWithSameName() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "foo");
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query("select from TestParams where name like '%' + :param1 + '%'", params);
     assertEquals(2, qResult.stream().count());
 
@@ -945,43 +945,43 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   // /*** from issue #2743
   @Test
   public void testBasicQueryOrdered() {
-    OResultSet results = db.query("SELECT from alphabet ORDER BY letter");
+    YTResultSet results = db.query("SELECT from alphabet ORDER BY letter");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipZeroOrdered() {
-    OResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 0");
+    YTResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 0");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipOrdered() {
-    OResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7");
+    YTResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7");
     assertEquals(19, results.stream().count());
   }
 
   @Test
   public void testLimitOrdered() {
-    OResultSet results = db.query("SELECT from alphabet ORDER BY letter LIMIT 9");
+    YTResultSet results = db.query("SELECT from alphabet ORDER BY letter LIMIT 9");
     assertEquals(9, results.stream().count());
   }
 
   @Test
   public void testLimitMinusOneOrdered() {
-    OResultSet results = db.query("SELECT from alphabet ORDER BY letter LIMIT -1");
+    YTResultSet results = db.query("SELECT from alphabet ORDER BY letter LIMIT -1");
     assertEquals(26, results.stream().count());
   }
 
   @Test
   public void testSkipAndLimitOrdered() {
-    OResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT 9");
+    YTResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT 9");
     assertEquals(9, results.stream().count());
   }
 
   @Test
   public void testSkipAndLimitMinusOneOrdered() {
-    OResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT -1");
+    YTResultSet results = db.query("SELECT from alphabet ORDER BY letter SKIP 7 LIMIT -1");
     assertEquals(19, results.stream().count());
   }
 
@@ -989,7 +989,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testLetAsListAsString() {
     String sql =
         "SELECT $ll as lll from unwindtest let $ll = coll.asList().asString() where name = 'bar'";
-    List<OResult> results = db.query(sql).stream().toList();
+    List<YTResult> results = db.query(sql).stream().toList();
     assertEquals(1, results.size());
     assertNotNull(results.get(0).getProperty("lll"));
     assertEquals("[bar1, bar2]", results.get(0).getProperty("lll"));
@@ -1046,9 +1046,9 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     String sql =
         "SELECT 1 AS integer, 'Test' AS string, NULL AS nothing, [] AS array, {} AS object";
 
-    List<OResult> results = db.query(sql).stream().toList();
+    List<YTResult> results = db.query(sql).stream().toList();
     assertEquals(1, results.size());
-    OResult doc = results.get(0);
+    YTResult doc = results.get(0);
     assertThat(doc.<Integer>getProperty("integer")).isEqualTo(1);
     assertEquals("Test", doc.getProperty("string"));
     assertNull(doc.getProperty("nothing"));
@@ -1066,18 +1066,18 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testExpandSkipLimit() {
     initExpandSkipLimit(db);
     // issue #4985
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "SELECT expand(linked) from ExpandSkipLimit where parent = true order by nnum skip 1"
                 + " limit 1");
-    OResult doc = results.next();
+    YTResult doc = results.next();
     assertThat(doc.<Integer>getProperty("nnum")).isEqualTo(1);
   }
 
   @Test
   public void testBacktick() {
-    OResultSet results = db.query("SELECT `foo-bar` as r from TestBacktick");
-    OResult doc = results.next();
+    YTResultSet results = db.query("SELECT `foo-bar` as r from TestBacktick");
+    YTResult doc = results.next();
     assertThat(doc.<Integer>getProperty("r")).isEqualTo(10);
   }
 
@@ -1086,7 +1086,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     // issue #4949
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("paramvalue", "count");
-    OResultSet qResult =
+    YTResultSet qResult =
         db.command("select from TestParamsEmbedded order by emb[:paramvalue] DESC", parameters);
     Map embedded = qResult.next().getProperty("emb");
     assertEquals(1, embedded.get("count"));
@@ -1098,7 +1098,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     // issue #4949
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("paramvalue", "count");
-    OResultSet qResult =
+    YTResultSet qResult =
         db.command("select from TestParamsEmbedded order by emb[:paramvalue] ASC", parameters);
     Map embedded = qResult.next().getProperty("emb");
     assertEquals(0, embedded.get("count"));
@@ -1112,12 +1112,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testMassiveOrderAscSkipLimit() {
     initMassiveOrderSkipLimit(db);
     int skip = 1000;
-    OResultSet results =
+    YTResultSet results =
         db.query("SELECT from MassiveOrderSkipLimit order by nnum asc skip " + skip + " limit 5");
 
     int i = 0;
     while (results.hasNext()) {
-      OResult doc = results.next();
+      YTResult doc = results.next();
       assertThat(doc.<Integer>getProperty("nnum")).isEqualTo(skip + i);
       i++;
     }
@@ -1128,11 +1128,11 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testMassiveOrderDescSkipLimit() {
     initMassiveOrderSkipLimit(db);
     int skip = 1000;
-    OResultSet results =
+    YTResultSet results =
         db.query("SELECT from MassiveOrderSkipLimit order by nnum desc skip " + skip + " limit 5");
     int i = 0;
     while (results.hasNext()) {
-      OResult doc = results.next();
+      YTResult doc = results.next();
       assertThat(doc.<Integer>getProperty("nnum")).isEqualTo(ORDER_SKIP_LIMIT_ITEMS - 1 - skip - i);
       i++;
     }
@@ -1142,13 +1142,13 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testIntersectExpandLet() {
     // issue #5121
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "select expand(intersect($q1, $q2)) "
                 + "let $q1 = (select from OUser where name ='admin'),"
                 + "$q2 = (select from OUser where name ='admin')");
     assertTrue(results.hasNext());
-    OResult doc = results.next();
+    YTResult doc = results.next();
     assertEquals("admin", doc.getProperty("name"));
     assertFalse(results.hasNext());
   }
@@ -1158,7 +1158,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     initDatesSet(db);
     // issue #3526
 
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "select from OCommandExecutorSQLSelectTest_datesSet where foo contains '2015-10-21'");
     assertEquals(1, results.stream().count());
@@ -1169,7 +1169,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     // issue #5229
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "adm.*");
-    OResultSet results = db.query("select from OUser where name matches :param1", params);
+    YTResultSet results = db.query("select from OUser where name matches :param1", params);
     assertEquals(1, results.stream().count());
   }
 
@@ -1179,7 +1179,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     // issue #5229
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", ".*admin[name].*"); // will not work
-    OResultSet results = db.query("select from matchesstuff where name matches :param1", params);
+    YTResultSet results = db.query("select from matchesstuff where name matches :param1", params);
     assertEquals(0, results.stream().count());
     params.put("param1", Pattern.quote("admin[name]") + ".*"); // should work
     results = db.query("select from matchesstuff where name matches :param1", params);
@@ -1191,7 +1191,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     initMatchesWithRegex(db);
     // issue #5229
     String pattern = Pattern.quote("adm") + ".*";
-    OResultSet results = db.query("SELECT FROM matchesstuff WHERE (name matches ?)", pattern);
+    YTResultSet results = db.query("SELECT FROM matchesstuff WHERE (name matches ?)", pattern);
     assertEquals(1, results.stream().count());
   }
 
@@ -1199,7 +1199,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testMatchesWithQuotes2() {
     initMatchesWithRegex(db);
     // issue #5229
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "SELECT FROM matchesstuff WHERE (name matches '\\\\Qadm\\\\E.*' and not ( name matches"
                 + " '(.*)foo(.*)' ) )");
@@ -1210,7 +1210,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testMatchesWithQuotes3() {
     initMatchesWithRegex(db);
     // issue #5229
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "SELECT FROM matchesstuff WHERE (name matches '\\\\Qadm\\\\E.*' and  ( name matches"
                 + " '\\\\Qadmin\\\\E.*' ) )");
@@ -1223,7 +1223,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "adm.*");
     params.put("param2", "foo.*");
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "select from OUser where (name matches :param1 and not (name matches :param2))",
             params);
@@ -1240,7 +1240,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testDistinctLimit() {
     initDistinctLimit(db);
-    OResultSet results = db.query("select distinct(name) from DistinctLimit limit 1");
+    YTResultSet results = db.query("select distinct(name) from DistinctLimit limit 1");
     assertEquals(1, results.stream().count());
 
     results = db.query("select distinct(name) from DistinctLimit limit 2");
@@ -1258,7 +1258,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     initDistinctLimit(db);
     YTClass clazz = db.getMetadata().getSchema().getClass("DistinctLimit");
     int clusterId = clazz.getClusterIds()[0];
-    OResultSet results = db.query("select from cluster:" + clusterId + " limit 1");
+    YTResultSet results = db.query("select from cluster:" + clusterId + " limit 1");
     assertEquals(1, results.stream().count());
   }
 
@@ -1296,9 +1296,9 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     initLinkListSequence(db);
     String sql =
         "select expand(children[0].children[0].children) from LinkListSequence where name = 'root'";
-    List<OResult> results = db.query(sql).stream().toList();
+    List<YTResult> results = db.query(sql).stream().toList();
     assertEquals(2, results.size());
-    for (OResult result : results) {
+    for (YTResult result : results) {
       String value = result.getProperty("name");
       assertTrue(value.equals("1.1.1") || value.equals("1.1.2"));
     }
@@ -1308,7 +1308,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testMaxLongNumber() {
     initMaxLongNumber(db);
     // issue #5664
-    OResultSet results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
+    YTResultSet results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
     assertEquals(3, results.stream().count());
     db.begin();
     db.command("update MaxLongNumberTest set last = max(91,ifnull(last,0))").close();
@@ -1323,7 +1323,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     // issue http://www.prjhub.com/#/issues/6199
 
     String sql = "SELECT FROM FilterAndOrderByTest WHERE active = true ORDER BY dc DESC";
-    List<OResult> results = db.query(sql).stream().toList();
+    List<YTResult> results = db.query(sql).stream().toList();
     assertEquals(3, results.size());
 
     Calendar cal = new GregorianCalendar();
@@ -1347,7 +1347,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     // issues #513 #5451
 
     String sql = "SELECT expand(collection[name = 'n1']) FROM ComplexFilterInSquareBrackets2";
-    List<OResult> results = db.query(sql).stream().collect(Collectors.toList());
+    List<YTResult> results = db.query(sql).stream().collect(Collectors.toList());
     assertEquals(1, results.size());
     assertEquals("n1", results.iterator().next().getProperty("name"));
 
@@ -1366,7 +1366,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
         "SELECT expand(collection[name = 'n1' or value = -1]) FROM ComplexFilterInSquareBrackets2";
     results = db.query(sql).stream().collect(Collectors.toList());
     assertEquals(2, results.size());
-    for (OResult doc : results) {
+    for (YTResult doc : results) {
       assertTrue(doc.getProperty("name").equals("n1") || doc.getProperty("value").equals(-1));
     }
 
@@ -1444,7 +1444,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
                 + " OCommandExecutorSqlSelectTest_testCountUniqueIndex(AAA) unique")
         .close();
 
-    List<OResult> results =
+    List<YTResult> results =
         db
             .query(
                 "select count(*) as count from OCommandExecutorSqlSelectTest_testCountUniqueIndex"
@@ -1460,7 +1460,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testEvalLong() {
     // http://www.prjhub.com/#/issues/6472
-    List<OResult> results =
+    List<YTResult> results =
         db.query("SELECT EVAL(\"86400000 * 26\") AS value").stream().toList();
     assertEquals(1, results.size());
 
@@ -1487,7 +1487,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testParamConcat() {
     // issue #6049
-    OResultSet results = db.query("select from TestParams where surname like ? + '%'", "fo");
+    YTResultSet results = db.query("select from TestParams where surname like ? + '%'", "fo");
     assertEquals(1, results.stream().count());
   }
 
@@ -1552,7 +1552,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   @Test
   public void testDateFormat() {
-    List<OResult> results =
+    List<YTResult> results =
         db.query("select date('2015-07-20', 'yyyy-MM-dd').format('dd.MM.yyyy') as dd").stream()
             .toList();
     assertEquals(1, results.size());
@@ -1562,7 +1562,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testConcatenateNamedParams() {
     // issue #5572
-    OResultSet results =
+    YTResultSet results =
         db.query("select from TestMultipleClusters where name like :p1 + '%'", "fo");
     assertEquals(1, results.stream().count());
 
@@ -1573,7 +1573,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testMethodsOnStrings() {
     // issue #5671
-    List<OResult> results =
+    List<YTResult> results =
         db.query("select '1'.asLong() as long").stream().toList();
     assertEquals(1, results.size());
     //    assertEquals(results.get(0).field("long"), 1L);
@@ -1583,7 +1583,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   @Test
   public void testDifferenceOfInlineCollections() {
     // issue #5294
-    List<OResult> results =
+    List<YTResult> results =
         db.query("select difference([1,2,3],[1,2]) as difference").stream()
             .toList();
     assertEquals(1, results.size());
@@ -1604,7 +1604,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("insert into testFoo set val = 5, name = 'bar'");
     db.commit();
 
-    OResultSet results = db.query("select sum(val), name from testFoo group by name");
+    YTResultSet results = db.query("select sum(val), name from testFoo group by name");
     assertEquals(2, results.stream().count());
   }
 
@@ -1619,7 +1619,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("insert into TestDateComparison set dateProp = '2016-05-01'").close();
     db.commit();
 
-    OResultSet results = db.query("SELECT from TestDateComparison WHERE dateProp >= '2016-05-01'");
+    YTResultSet results = db.query("SELECT from TestDateComparison WHERE dateProp >= '2016-05-01'");
 
     assertEquals(1, results.stream().count());
     results = db.query("SELECT from TestDateComparison WHERE dateProp <= '2016-05-01'");
@@ -1642,12 +1642,12 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
       db.commit();
     }
 
-    List<OResult> results =
+    List<YTResult> results =
         db.query("SELECT from TestOrderByRidDescMultiCluster order by @rid desc").stream()
             .collect(Collectors.toList());
     assertEquals(100, results.size());
-    OResult lastDoc = null;
-    for (OResult doc : results) {
+    YTResult lastDoc = null;
+    for (YTResult doc : results) {
       if (lastDoc != null) {
         assertTrue(doc.getIdentity().get().compareTo(lastDoc.getIdentity().get()) < 0);
       }
@@ -1659,7 +1659,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
             .toList();
     assertEquals(100, results.size());
     lastDoc = null;
-    for (OResult doc : results) {
+    for (YTResult doc : results) {
       if (lastDoc != null) {
         assertTrue(doc.getIdentity().get().compareTo(lastDoc.getIdentity().get()) > 0);
       }
@@ -1704,7 +1704,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("insert into testCountOnSubclassIndexes_sub2 set name = 'e', foo = false").close();
     db.commit();
 
-    List<OResult> results =
+    List<YTResult> results =
         db
             .query("SELECT count(*) as count from testCountOnSubclassIndexes_sub1 where foo = true")
             .stream()
@@ -1735,7 +1735,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   public void testDoubleExponentNotation() {
     // issue #7013
 
-    List<OResult> results = db.query("select 1e-2 as a").stream().toList();
+    List<YTResult> results = db.query("select 1e-2 as a").stream().toList();
     assertEquals(1, results.size());
     assertEquals((Object) 0.01f, results.get(0).getProperty("a"));
   }
@@ -1750,7 +1750,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("insert into testConvertDouble set num = 100000").close();
     db.commit();
 
-    OResultSet results =
+    YTResultSet results =
         db.query("SELECT FROM testConvertDouble WHERE num >= 50000 AND num <=300000000");
 
     assertEquals(1, results.stream().count());
@@ -1793,7 +1793,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("INSERT INTO " + className + " set state = 2").close();
     db.commit();
 
-    OResultSet results = db.query("select from " + className + " where state in [1]");
+    YTResultSet results = db.query("select from " + className + " where state in [1]");
     assertEquals(2, results.stream().count());
 
     results = db.query("select from " + className + " where [1] contains state");
@@ -1818,7 +1818,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     enums.add(YTType.STRING);
     enums.add(YTType.BYTE);
     params.put("status", enums);
-    OResultSet results = db.query("select from " + className + " where status in :status", params);
+    YTResultSet results = db.query("select from " + className + " where status in :status", params);
     assertEquals(2, results.stream().count());
   }
 
@@ -1846,7 +1846,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "select from "
                 + className
@@ -1867,7 +1867,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("insert into " + className + " SET name = \"2\"").close();
     db.commit();
 
-    OResultSet results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
+    YTResultSet results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
     assertEquals(2, results.stream().count());
 
     results = db.query("SELECT * FROM " + className + " WHERE \"0\" <= name");
@@ -1898,7 +1898,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
     db.command("insert into " + className + " SET x = 2").close();
     db.commit();
 
-    OResultSet results = db.query("SELECT * FROM " + className + " WHERE name is defined");
+    YTResultSet results = db.query("SELECT * FROM " + className + " WHERE name is defined");
     assertEquals(1, (int) results.next().getProperty("x"));
     results.close();
     results = db.query("SELECT * FROM " + className + " WHERE name is not defined");

@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -56,9 +56,9 @@ public class OLuceneBooleanIndexTest extends OLuceneBaseTest {
   @Test
   public void shouldQueryBooleanField() {
 
-    OResultSet docs = db.query("select from Person where search_class('false') = true");
+    YTResultSet docs = db.query("select from Person where search_class('false') = true");
 
-    List<OResult> results = docs.stream().collect(Collectors.toList());
+    List<YTResult> results = docs.stream().collect(Collectors.toList());
     assertThat(results).hasSize(500);
 
     assertThat(results.get(0).<Boolean>getProperty("isDeleted")).isFalse();

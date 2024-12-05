@@ -35,10 +35,10 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper.ODbRelatedCall;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import java.util.Arrays;
@@ -121,7 +121,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                 }
 
                 databaseTwo.activateOnCurrentThread();
-                try (final OResultSet resultSet =
+                try (final YTResultSet resultSet =
                     databaseTwo.query(
                         "select value from "
                             + ODatabaseImport.EXPORT_IMPORT_CLASS_NAME

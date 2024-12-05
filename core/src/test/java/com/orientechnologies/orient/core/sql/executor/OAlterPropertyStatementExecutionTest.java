@@ -21,13 +21,13 @@ public class OAlterPropertyStatementExecutionTest extends DBTestBase {
     YTProperty prop = clazz.createProperty(db, "name", YTType.STRING);
     prop.setMax(db, "15");
 
-    OResultSet result = db.command("alter property " + className + ".name max 30");
+    YTResultSet result = db.command("alter property " + className + ".name max 30");
     printExecutionPlan(null, result);
     Object currentValue = prop.getMax();
 
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("15", next.getProperty("oldValue"));
     Assert.assertEquals("30", currentValue);
@@ -42,13 +42,13 @@ public class OAlterPropertyStatementExecutionTest extends DBTestBase {
     YTProperty prop = clazz.createProperty(db, "name", YTType.STRING);
     prop.setCustom(db, "foo", "bar");
 
-    OResultSet result = db.command("alter property " + className + ".name custom foo='baz'");
+    YTResultSet result = db.command("alter property " + className + ".name custom foo='baz'");
     printExecutionPlan(null, result);
     Object currentValue = prop.getCustom("foo");
 
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("bar", next.getProperty("oldValue"));
     Assert.assertEquals("baz", currentValue);

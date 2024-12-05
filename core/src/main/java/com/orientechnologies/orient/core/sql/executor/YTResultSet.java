@@ -16,13 +16,13 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, AutoCloseable {
+public interface YTResultSet extends Spliterator<YTResult>, Iterator<YTResult>, AutoCloseable {
 
   @Override
   boolean hasNext();
 
   @Override
-  OResult next();
+  YTResult next();
 
   default void remove() {
     throw new UnsupportedOperationException();
@@ -38,7 +38,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
     throw new UnsupportedOperationException("Implement RESET on " + getClass().getSimpleName());
   }
 
-  default boolean tryAdvance(Consumer<? super OResult> action) {
+  default boolean tryAdvance(Consumer<? super YTResult> action) {
     if (hasNext()) {
       action.accept(next());
       return true;
@@ -46,11 +46,11 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
     return false;
   }
 
-  default void forEachRemaining(Consumer<? super OResult> action) {
+  default void forEachRemaining(Consumer<? super YTResult> action) {
     Spliterator.super.forEachRemaining(action);
   }
 
-  default OResultSet trySplit() {
+  default YTResultSet trySplit() {
     return null;
   }
 
@@ -67,20 +67,20 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
    *
    * @return
    */
-  default Stream<OResult> stream() {
+  default Stream<YTResult> stream() {
     return StreamSupport.stream(this, false).onClose(this::close);
   }
 
-  default List<OResult> toList() {
+  default List<YTResult> toList() {
     return stream().toList();
   }
 
   @Nonnull
-  default OResult findFirst() {
+  default YTResult findFirst() {
     return stream().findFirst().orElse(null);
   }
 
-  default OResult findFirstOrThrow() {
+  default YTResult findFirstOrThrow() {
     return stream().findFirst().orElseThrow(() -> new IllegalStateException("No result found"));
   }
 
@@ -123,7 +123,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               @Override
               public boolean tryAdvance(Consumer<? super YTEntity> action) {
                 while (hasNext()) {
-                  OResult elem = next();
+                  YTResult elem = next();
                   if (elem.isElement()) {
                     action.accept(elem.getElement().get());
                     return true;
@@ -167,7 +167,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               @Override
               public boolean tryAdvance(Consumer<? super YTVertex> action) {
                 while (hasNext()) {
-                  OResult elem = next();
+                  YTResult elem = next();
                   if (elem.isVertex()) {
                     action.accept(elem.getVertex().get());
                     return true;
@@ -211,7 +211,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               @Override
               public boolean tryAdvance(Consumer<? super YTEdge> action) {
                 while (hasNext()) {
-                  OResult nextElem = next();
+                  YTResult nextElem = next();
                   if (nextElem != null && nextElem.isEdge()) {
                     action.accept(nextElem.getEdge().get());
                     return true;

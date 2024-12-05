@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class OLuceneQueryErrorTest extends OLuceneBaseTest {
   public void testQueryError() {
 
     String query = "select * from Song where search_class(\"\")=true ";
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
 
     Assertions.assertThat(result).isEmpty();
     result.close();

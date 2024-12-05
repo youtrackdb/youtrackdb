@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,8 +84,8 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
     final int items = iParams.length > 1 ? (Integer) iParams[1] : 1;
 
     Collection stack = (Collection) iContext.getVariable("stack");
-    if (stack == null && iThis instanceof OResult) {
-      stack = (Collection) ((OResult) iThis).getMetadata("$stack");
+    if (stack == null && iThis instanceof YTResult) {
+      stack = (Collection) ((YTResult) iThis).getMetadata("$stack");
     }
     if (stack == null) {
       throw new YTCommandExecutionException(

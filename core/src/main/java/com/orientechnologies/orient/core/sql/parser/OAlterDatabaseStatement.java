@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +43,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
     }
   }
 
-  private OResult executeCustomAlter(
+  private YTResult executeCustomAlter(
       OIdentifier customPropertyName, OExpression customPropertyValue, OCommandContext ctx) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
     db.checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_UPDATE);
@@ -61,7 +61,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
     Object finalValue = customPropertyValue.execute((YTIdentifiable) null, ctx);
     db.setCustom(customPropertyName.getStringValue(), finalValue);
 
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "alter database");
     result.setProperty("customAttribute", customPropertyName.getStringValue());
     result.setProperty("oldValue", oldValue);
@@ -69,7 +69,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
     return result;
   }
 
-  private OResult executeSimpleAlter(
+  private YTResult executeSimpleAlter(
       OIdentifier settingName, OExpression settingValue, OCommandContext ctx) {
     ATTRIBUTES attribute =
         ATTRIBUTES.valueOf(
@@ -80,7 +80,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
     Object finalValue = settingValue.execute((YTIdentifiable) null, ctx);
     db.setInternal(attribute, finalValue);
 
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "alter database");
     result.setProperty("attribute", settingName.getStringValue());
     result.setProperty("oldValue", oldValue);

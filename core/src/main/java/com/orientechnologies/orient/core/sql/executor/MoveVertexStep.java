@@ -37,7 +37,7 @@ public class MoveVertexStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     result.getVertex().ifPresent(x -> x.moveTo(targetClass, targetCluster));
     return result;
   }

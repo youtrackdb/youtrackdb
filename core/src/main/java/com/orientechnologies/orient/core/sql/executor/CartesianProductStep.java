@@ -25,8 +25,8 @@ public class CartesianProductStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Stream<OResult[]> stream = null;
-    OResult[] productTuple = new OResult[this.subPlans.size()];
+    Stream<YTResult[]> stream = null;
+    YTResult[] productTuple = new YTResult[this.subPlans.size()];
 
     for (int i = 0; i < this.subPlans.size(); i++) {
       OInternalExecutionPlan ep = this.subPlans.get(i);
@@ -58,16 +58,16 @@ public class CartesianProductStep extends AbstractExecutionStep {
     }
     assert stream != null;
     var db = ctx.getDatabase();
-    Stream<OResult> finalStream = stream.map(path -> produceResult(db, path));
+    Stream<YTResult> finalStream = stream.map(path -> produceResult(db, path));
     return OExecutionStream.resultIterator(finalStream.iterator())
         .onClose((context) -> finalStream.close());
   }
 
-  private static OResult produceResult(YTDatabaseSessionInternal db, OResult[] path) {
+  private static YTResult produceResult(YTDatabaseSessionInternal db, YTResult[] path) {
 
-    OResultInternal nextRecord = new OResultInternal(db);
+    YTResultInternal nextRecord = new YTResultInternal(db);
 
-    for (OResult res : path) {
+    for (YTResult res : path) {
       for (String s : res.getPropertyNames()) {
         nextRecord.setProperty(s, res.getProperty(s));
       }

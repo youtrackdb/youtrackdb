@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +50,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     person.createProperty(db, "name", YTType.STRING);
     person.createProperty(db, "tags", YTType.EMBEDDEDLIST, YTType.STRING);
     //noinspection EmptyTryBlock
-    try (OResultSet command =
+    try (YTResultSet command =
         db.command("create index Person.name_tags on Person (name,tags) FULLTEXT ENGINE LUCENE")) {
     }
 
@@ -58,7 +58,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     city.createProperty(db, "name", YTType.STRING);
     city.createProperty(db, "tags", YTType.EMBEDDEDLIST, YTType.STRING);
     //noinspection EmptyTryBlock
-    try (OResultSet command =
+    try (YTResultSet command =
         db.command("create index City.tags on City (tags) FULLTEXT ENGINE LUCENE")) {
     }
   }
@@ -128,7 +128,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     }
     assertThat(coll).hasSize(1);
 
-    try (OResultSet query = db.query("select from City where search_class('Beautiful') =true ")) {
+    try (YTResultSet query = db.query("select from City where search_class('Beautiful') =true ")) {
 
       assertThat(query).hasSize(2);
     }
@@ -189,26 +189,26 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     }
     assertThat(coll).hasSize(2);
 
-    try (OResultSet query =
+    try (YTResultSet query =
         db.query("select from Person where search_class('name:Enrico') =true ")) {
       assertThat(query).hasSize(1);
-      try (OResultSet queryTwo =
+      try (YTResultSet queryTwo =
           db.query("select from (select from Person search_class('name:Enrico')=true)")) {
 
         assertThat(queryTwo).hasSize(1);
-        try (OResultSet queryThree =
+        try (YTResultSet queryThree =
             db.query("select from Person where search_class('Jared')=true")) {
 
           assertThat(queryThree).hasSize(1);
-          try (OResultSet queryFour =
+          try (YTResultSet queryFour =
               db.query("select from Person where search_class('Funny') =true")) {
 
             assertThat(queryFour).hasSize(1);
-            try (OResultSet queryFive =
+            try (YTResultSet queryFive =
                 db.query("select from Person where search_class('Geek')=true")) {
 
               assertThat(queryFive).hasSize(2);
-              try (OResultSet querySix =
+              try (YTResultSet querySix =
                   db.query(
                       "select from Person where search_class('(name:Enrico AND tags:Geek)"
                           + " ')=true")) {

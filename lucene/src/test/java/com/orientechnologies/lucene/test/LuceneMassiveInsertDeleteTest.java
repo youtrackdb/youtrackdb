@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,11 +61,11 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
       db.commit();
     }
     String query = "select * from City where name LUCENE 'name:Rome'";
-    OResultSet docs = db.query(query);
+    YTResultSet docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), size);
 
     db.close();
-    db = (YTDatabaseSessionInternal) openDatabase();
+    db = openDatabase();
 
     docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), size);
@@ -78,7 +78,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     Assert.assertEquals(docs.stream().count(), 0);
 
     db.close();
-    db = (YTDatabaseSessionInternal) openDatabase();
+    db = openDatabase();
     docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), 0);
 

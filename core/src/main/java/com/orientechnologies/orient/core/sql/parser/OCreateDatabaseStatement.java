@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
   @Override
   public OExecutionStream executeSimple(OServerCommandContext ctx) {
     YouTrackDBInternal server = ctx.getServer();
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create database");
     String dbName =
         name != null
@@ -107,7 +107,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
 
   private YouTrackDBConfigBuilder mapOrientDBConfig(
       OJson config, OServerCommandContext ctx, YouTrackDBConfigBuilder builder) {
-    Map<String, Object> configMap = config.toMap(new OResultInternal(ctx.getDatabase()), ctx);
+    Map<String, Object> configMap = config.toMap(new YTResultInternal(ctx.getDatabase()), ctx);
 
     Object globalConfig = configMap.get("config");
     if (globalConfig != null && globalConfig instanceof Map) {

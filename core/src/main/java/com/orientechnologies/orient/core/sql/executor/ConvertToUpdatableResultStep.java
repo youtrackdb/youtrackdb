@@ -25,14 +25,14 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private OResult filterMap(OResult result, OCommandContext ctx) {
-    if (result instanceof OUpdatableResult) {
+  private YTResult filterMap(YTResult result, OCommandContext ctx) {
+    if (result instanceof YTUpdatableResult) {
       return result;
     }
     if (result.isElement()) {
       var element = result.toElement();
       if (element != null) {
-        return new OUpdatableResult(ctx.getDatabase(), element);
+        return new YTUpdatableResult(ctx.getDatabase(), element);
       }
       return result;
     }

@@ -20,8 +20,8 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,16 +45,16 @@ public class OLuceneContextTest extends OLuceneBaseTest {
   @Test
   public void shouldReturnScore() {
 
-    OResultSet docs =
+    YTResultSet docs =
         db.query("select *,$score from Song where search_index('Song.title', 'title:man')= true ");
 
-    List<OResult> results = docs.stream().collect(Collectors.toList());
+    List<YTResult> results = docs.stream().collect(Collectors.toList());
 
     assertThat(results).hasSize(14);
     Float latestScore = 100f;
 
     // results are ordered by score desc
-    for (OResult doc : results) {
+    for (YTResult doc : results) {
       Float score = doc.getProperty("$score");
       assertThat(score).isNotNull().isLessThanOrEqualTo(latestScore);
       latestScore = score;
@@ -64,15 +64,15 @@ public class OLuceneContextTest extends OLuceneBaseTest {
 
   @Test
   public void shouldReturnTotalHits() throws Exception {
-    OResultSet docs =
+    YTResultSet docs =
         db.query(
             "select *,$totalHits,$Song_title_totalHits from Song where search_class('title:man')="
                 + " true  limit 1");
 
-    List<OResult> results = docs.stream().collect(Collectors.toList());
+    List<YTResult> results = docs.stream().collect(Collectors.toList());
     assertThat(results).hasSize(1);
 
-    OResult doc = results.get(0);
+    YTResult doc = results.get(0);
     System.out.println("doc.toElement().toJSON() = " + doc.toElement().toJSON());
 
     assertThat(doc.<Long>getProperty("$totalHits")).isEqualTo(14L);

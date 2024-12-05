@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -140,7 +140,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
 
       for (int i = 0; i < cycle; i++) {
 
-        OResultSet resultSet =
+        YTResultSet resultSet =
             db.query("select from City where SEARCH_FIELDS(['name'], 'Rome') =true ");
 
         if (resultSet.hasNext()) {

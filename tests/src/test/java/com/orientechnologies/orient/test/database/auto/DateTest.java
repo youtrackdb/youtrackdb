@@ -17,8 +17,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,7 +60,7 @@ public class DateTest extends DocumentDBBaseTest {
     Assert.assertTrue(doc2.field("date", YTType.DATE) instanceof Date);
     Assert.assertTrue(doc2.field("date", Date.class) instanceof Date);
 
-    OResultSet result =
+    YTResultSet result =
         database.command("select * from Order where date >= ? and context = 'test'", begin);
 
     Assert.assertEquals(result.stream().count(), 2);
@@ -81,7 +81,7 @@ public class DateTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    List<OResult> result =
+    List<YTResult> result =
         database
             .command(
                 "select * from Order where date >= ? and context = 'testPrecision'", dateAsString)
@@ -116,7 +116,7 @@ public class DateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OResultSet result = database.query("select from TimeTest where firstname = ?", "Robert");
+    YTResultSet result = database.query("select from TimeTest where firstname = ?", "Robert");
     Assert.assertEquals(result.next().getProperty("birthDate"), date);
     Assert.assertFalse(result.hasNext());
   }

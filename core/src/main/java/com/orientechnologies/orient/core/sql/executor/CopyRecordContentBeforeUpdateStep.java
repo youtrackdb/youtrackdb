@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 
 /**
  * Reads an upstream result set and returns a new result set that contains copies of the original
- * OResult instances
+ * YTResult instances
  *
  * <p>This is mainly used from statements that need to copy of the original data before modifying
  * it, eg. UPDATE ... RETURN BEFORE
@@ -28,10 +28,10 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
     return lastFetched.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     var db = ctx.getDatabase();
-    if (result instanceof OUpdatableResult) {
-      OResultInternal prevValue = new OResultInternal(db);
+    if (result instanceof YTUpdatableResult) {
+      YTResultInternal prevValue = new YTResultInternal(db);
       var rec = result.toElement();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
@@ -45,7 +45,7 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
               propName, OLiveQueryHookV2.unboxRidbags(result.getProperty(propName)));
         }
       }
-      ((OUpdatableResult) result).previousValue = prevValue;
+      ((YTUpdatableResult) result).previousValue = prevValue;
     } else {
       throw new YTCommandExecutionException("Cannot fetch previous value: " + result);
     }

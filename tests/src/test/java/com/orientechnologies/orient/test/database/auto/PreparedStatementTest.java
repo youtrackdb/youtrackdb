@@ -16,8 +16,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -179,11 +179,12 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
   @Test
   public void testUnnamedParamFlat() {
-    OResultSet result = database.query("select from PreparedStatementTest1 where name = ?", "foo1");
+    YTResultSet result = database.query("select from PreparedStatementTest1 where name = ?",
+        "foo1");
 
     boolean found = false;
     while (result.hasNext()) {
-      OResult doc = result.next();
+      YTResult doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -194,12 +195,12 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testNamedParamFlat() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
-    OResultSet result =
+    YTResultSet result =
         database.query("select from PreparedStatementTest1 where name = :name", params);
 
     boolean found = false;
     while (result.hasNext()) {
-      OResult doc = result.next();
+      YTResult doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -280,7 +281,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
   @Test
   public void testSubqueryUnnamedParamFlat() {
-    OResultSet result =
+    YTResultSet result =
         database.query(
             "select from (select from PreparedStatementTest1 where name = ?) where name = ?",
             "foo1",
@@ -288,7 +289,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
     boolean found = false;
     while (result.hasNext()) {
-      OResult doc = result.next();
+      YTResult doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -299,7 +300,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testSubqueryNamedParamFlat() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
-    OResultSet result =
+    YTResultSet result =
         database.query(
             "select from (select from PreparedStatementTest1 where name = :name) where name ="
                 + " :name",
@@ -307,7 +308,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
     boolean found = false;
     while (result.hasNext()) {
-      OResult doc = result.next();
+      YTResult doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -319,11 +320,11 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("one", 1);
     params.put("three", 3);
-    OResultSet result = database.query("select max(:one, :three) as maximo", params);
+    YTResultSet result = database.query("select max(:one, :three) as maximo", params);
 
     boolean found = false;
     while (result.hasNext()) {
-      OResult doc = result.next();
+      YTResult doc = result.next();
       found = true;
       Assert.assertEquals(doc.<Object>getProperty("maximo"), 3);
     }

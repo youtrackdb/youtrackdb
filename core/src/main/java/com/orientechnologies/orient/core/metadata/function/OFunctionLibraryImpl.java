@@ -30,8 +30,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,9 +76,9 @@ public class OFunctionLibraryImpl {
 
     // LOAD ALL THE FUNCTIONS IN MEMORY
     if (db.getMetadata().getImmutableSchemaSnapshot().existsClass("OFunction")) {
-      try (OResultSet result = db.query("select from OFunction order by name")) {
+      try (YTResultSet result = db.query("select from OFunction order by name")) {
         while (result.hasNext()) {
-          OResult res = result.next();
+          YTResult res = result.next();
           YTDocument d = (YTDocument) res.getElement().get();
           // skip the function records which do not contain real data
           if (d.fields() == 0) {

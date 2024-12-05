@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Iterator;
 
 public class OIteratorExecutionStream implements OExecutionStream {
@@ -20,18 +20,18 @@ public class OIteratorExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     Object val = iterator.next();
-    if (val instanceof OResult) {
-      return (OResult) val;
+    if (val instanceof YTResult) {
+      return (YTResult) val;
     }
 
-    OResultInternal result;
+    YTResultInternal result;
     var db = ctx.getDatabase();
     if (val instanceof YTIdentifiable) {
-      result = new OResultInternal(db, (YTIdentifiable) val);
+      result = new YTResultInternal(db, (YTIdentifiable) val);
     } else {
-      result = new OResultInternal(db);
+      result = new YTResultInternal(db);
       result.setProperty("value", val);
     }
     return result;

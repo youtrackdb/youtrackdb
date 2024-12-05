@@ -14,7 +14,7 @@ public class OCreateClusterStatementExecutionTest extends DBTestBase {
   @Test
   public void testPlain() {
     String clusterName = "testPlain";
-    OResultSet result = db.command("create cluster " + clusterName);
+    YTResultSet result = db.command("create cluster " + clusterName);
     Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
     result.close();
   }
@@ -36,12 +36,12 @@ public class OCreateClusterStatementExecutionTest extends DBTestBase {
   @Test
   public void testWithNumber() {
     String clusterName = "testWithNumber";
-    OResultSet result = db.command("create cluster " + clusterName + " id 1000");
+    YTResultSet result = db.command("create cluster " + clusterName + " id 1000");
     Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
     Assert.assertNotNull(db.getClusterNameById(1000));
 
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     Assert.assertEquals((Object) 1000, next.getProperty("requestedId"));
@@ -51,7 +51,7 @@ public class OCreateClusterStatementExecutionTest extends DBTestBase {
   @Test
   public void testBlob() {
     String clusterName = "testBlob";
-    OResultSet result = db.command("create blob cluster " + clusterName);
+    YTResultSet result = db.command("create blob cluster " + clusterName);
     Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
     Assert.assertTrue(db.getStorage().getClusterIdByName(clusterName) >= 0);
     // TODO test that it's a blob cluster
@@ -61,12 +61,12 @@ public class OCreateClusterStatementExecutionTest extends DBTestBase {
   @Test
   public void testIfNotExists() {
     String clusterName = "testIfNotExists";
-    OResultSet result = db.command("create cluster " + clusterName + " IF NOT EXISTS id 2000");
+    YTResultSet result = db.command("create cluster " + clusterName + " IF NOT EXISTS id 2000");
     Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
     Assert.assertNotNull(db.getClusterNameById(2000));
 
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     Assert.assertEquals((Object) 2000, next.getProperty("requestedId"));

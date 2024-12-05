@@ -28,11 +28,11 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     }
 
     db.begin();
-    OResultSet result = db.command("delete from  " + className + " where name = 'name4'");
+    YTResultSet result = db.command("delete from  " + className + " where name = 'name4'");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals((Object) 1L, item.getProperty("count"));
     }
@@ -42,7 +42,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotEquals("name4", item.getProperty("name"));
     }
@@ -66,7 +66,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
       db.commit();
     }
     try {
-      OResultSet result = db.command("delete from  " + className + " where name = 'name4'");
+      YTResultSet result = db.command("delete from  " + className + " where name = 'name4'");
       Assert.fail();
     } catch (YTCommandExecutionException ex) {
 
@@ -92,12 +92,12 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     }
 
     db.begin();
-    OResultSet result = db.command("delete from  " + className + " where name = 'name4' unsafe");
+    YTResultSet result = db.command("delete from  " + className + " where name = 'name4' unsafe");
 
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals((Object) 1L, item.getProperty("count"));
     }
@@ -107,7 +107,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotEquals("name4", item.getProperty("name"));
     }
@@ -134,12 +134,12 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     }
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("delete from  " + className + " return before where name = 'name4' ");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(fourthId, item.getRecordId());
     }
@@ -149,7 +149,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 9; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotEquals("name4", item.getProperty("name"));
     }
@@ -169,11 +169,11 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
       db.commit();
     }
     db.begin();
-    OResultSet result = db.command("delete from  " + className + " limit 5");
+    YTResultSet result = db.command("delete from  " + className + " limit 5");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals((Object) 5L, item.getProperty("count"));
     }
@@ -183,7 +183,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());

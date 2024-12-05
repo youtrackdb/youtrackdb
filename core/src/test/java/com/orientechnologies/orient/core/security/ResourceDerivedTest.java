@@ -25,7 +25,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,7 +126,7 @@ public class ResourceDerivedTest {
     db.close();
   }
 
-  private OResultSet query(YTDatabaseSession db, String sql, Object... params) {
+  private YTResultSet query(YTDatabaseSession db, String sql, Object... params) {
     return db.query(sql, params);
   }
 
@@ -142,7 +142,7 @@ public class ResourceDerivedTest {
     YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      OResultSet result = query(db, "SELECT FROM Customer");
+      YTResultSet result = query(db, "SELECT FROM Customer");
 
       assertThat(result).hasSize(3);
     } finally {
@@ -157,7 +157,7 @@ public class ResourceDerivedTest {
     YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      OResultSet result = query(db, "SELECT FROM Customer_t2");
+      YTResultSet result = query(db, "SELECT FROM Customer_t2");
 
       assertThat(result).hasSize(1);
     } finally {
@@ -170,7 +170,7 @@ public class ResourceDerivedTest {
     YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      OResultSet result = query(db, "SELECT FROM Customer_u2");
+      YTResultSet result = query(db, "SELECT FROM Customer_u2");
       assertThat(result).hasSize(0);
     } finally {
       db.close();
@@ -182,7 +182,7 @@ public class ResourceDerivedTest {
     YTDatabaseSession db = youTrackDB.open("test", "tenant2", "password");
 
     try {
-      OResultSet result = query(db, "SELECT FROM Customer");
+      YTResultSet result = query(db, "SELECT FROM Customer");
       assertThat(result).hasSize(0);
     } finally {
       db.close();
@@ -197,7 +197,7 @@ public class ResourceDerivedTest {
     YTDatabaseSession db = youTrackDB.open("test", "tenant2", "password");
 
     try {
-      OResultSet result = query(db, "SELECT FROM Customer_t2");
+      YTResultSet result = query(db, "SELECT FROM Customer_t2");
 
       assertThat(result).hasSize(2);
     } finally {

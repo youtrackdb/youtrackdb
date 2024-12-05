@@ -48,7 +48,7 @@ public class OInfoExecutionStep implements OExecutionStep {
   }
 
   @Override
-  public OResult toResult(YTDatabaseSessionInternal db) {
+  public YTResult toResult(YTDatabaseSessionInternal db) {
     return null;
   }
 

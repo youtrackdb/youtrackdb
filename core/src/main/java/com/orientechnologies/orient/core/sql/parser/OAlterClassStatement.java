@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -442,7 +442,7 @@ public class OAlterClassStatement extends ODDLStatement {
       oClass.setDefaultClusterId(database, clusterId);
     }
 
-    OResultInternal result = new OResultInternal(database);
+    YTResultInternal result = new YTResultInternal(database);
     result.setProperty("operation", "ALTER CLASS");
     result.setProperty("className", name.getStringValue());
     result.setProperty("result", "OK");

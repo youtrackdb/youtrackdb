@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.Collection;
 import java.util.HashMap;
@@ -152,7 +152,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
             UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;
             commit;
             """;
-    OResultSet qResult = db.execute("sql", script);
+    YTResultSet qResult = db.execute("sql", script);
 
     assertThat(qResult.next().getElement().orElseThrow().<Long>getProperty("weight")).isEqualTo(4L);
   }
@@ -342,7 +342,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
     map.put("name", "bozo");
     map.put("_name2", "bozi");
 
-    OResultSet rs = db.execute("sql", script, map);
+    YTResultSet rs = db.execute("sql", script, map);
     rs.close();
 
     rs = db.query("SELECT FROM " + className + " WHERE name = ?", "bozo");
@@ -368,7 +368,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
             + "COMMIT;"
             + "RETURN $edge;";
 
-    OResultSet rs = db.execute("sql", script, "bozo", "bozi");
+    YTResultSet rs = db.execute("sql", script, "bozo", "bozi");
     rs.close();
 
     rs = db.query("SELECT FROM " + className + " WHERE name = ?", "bozo");

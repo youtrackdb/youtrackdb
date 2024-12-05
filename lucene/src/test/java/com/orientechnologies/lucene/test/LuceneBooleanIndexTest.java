@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -63,7 +63,7 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
       db.commit();
     }
 
-    OResultSet docs = db.query("select from Person where isDeleted lucene false");
+    YTResultSet docs = db.query("select from Person where isDeleted lucene false");
 
     Assert.assertEquals(
         500, docs.stream().filter((doc) -> !((Boolean) doc.getProperty("isDeleted"))).count());

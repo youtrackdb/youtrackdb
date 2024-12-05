@@ -1,22 +1,22 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import java.io.Serializable;
 import java.util.Collection;
@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public class OResultInternal implements OResult {
+public class YTResultInternal implements YTResult {
 
   protected Map<String, Object> content;
   protected Map<String, Object> temporaryContent;
@@ -47,12 +47,12 @@ public class OResultInternal implements OResult {
   @Nullable
   protected YTDatabaseSessionInternal session;
 
-  public OResultInternal(@Nullable YTDatabaseSessionInternal session) {
+  public YTResultInternal(@Nullable YTDatabaseSessionInternal session) {
     content = new LinkedHashMap<>();
     this.session = session;
   }
 
-  public OResultInternal(@Nullable YTDatabaseSessionInternal session, YTIdentifiable ident) {
+  public YTResultInternal(@Nullable YTDatabaseSessionInternal session, YTIdentifiable ident) {
     setIdentifiable(ident);
     this.session = session;
   }
@@ -66,8 +66,8 @@ public class OResultInternal implements OResult {
       throw new IllegalStateException("Impossible to mutate result set");
     }
     checkType(value);
-    if (value instanceof OResult && ((OResult) value).isElement()) {
-      content.put(name, ((OResult) value).getElement().get());
+    if (value instanceof YTResult && ((YTResult) value).isElement()) {
+      content.put(name, ((YTResult) value).getElement().get());
     } else {
       content.put(name, value);
     }
@@ -98,7 +98,7 @@ public class OResultInternal implements OResult {
     if (value instanceof YTIdentifiable) {
       return;
     }
-    if (value instanceof OResult) {
+    if (value instanceof YTResult) {
       return;
     }
     if (value instanceof Collection || value instanceof Map) {
@@ -108,7 +108,7 @@ public class OResultInternal implements OResult {
       return;
     }
     throw new IllegalArgumentException(
-        "Invalid property value for OResult: " + value + " - " + value.getClass().getName());
+        "Invalid property value for YTResult: " + value + " - " + value.getClass().getName());
   }
 
   public void setTemporaryProperty(String name, Object value) {
@@ -118,8 +118,8 @@ public class OResultInternal implements OResult {
     if (value instanceof Optional) {
       value = ((Optional) value).orElse(null);
     }
-    if (value instanceof OResult && ((OResult) value).isElement()) {
-      temporaryContent.put(name, ((OResult) value).getElement().get());
+    if (value instanceof YTResult && ((YTResult) value).isElement()) {
+      temporaryContent.put(name, ((YTResult) value).getElement().get());
     } else {
       temporaryContent.put(name, value);
     }
@@ -174,8 +174,8 @@ public class OResultInternal implements OResult {
       }
     }
 
-    if (result instanceof OResult) {
-      result = ((OResult) result).getRecord().orElse(null);
+    if (result instanceof YTResult) {
+      result = ((YTResult) result).getRecord().orElse(null);
     }
 
     if (result instanceof YTRID) {
@@ -197,8 +197,8 @@ public class OResultInternal implements OResult {
       }
     }
 
-    if (result instanceof OResult) {
-      result = ((OResult) result).getRecord().orElse(null);
+    if (result instanceof YTResult) {
+      result = ((YTResult) result).getRecord().orElse(null);
     }
 
     if (result instanceof YTRID) {
@@ -220,8 +220,8 @@ public class OResultInternal implements OResult {
       }
     }
 
-    if (result instanceof OResult) {
-      result = ((OResult) result).getRecord().orElse(null);
+    if (result instanceof YTResult) {
+      result = ((YTResult) result).getRecord().orElse(null);
     }
 
     if (result instanceof YTRID) {
@@ -243,8 +243,8 @@ public class OResultInternal implements OResult {
       }
     }
 
-    if (result instanceof OResult) {
-      result = ((OResult) result).getRecord().orElse(null);
+    if (result instanceof YTResult) {
+      result = ((YTResult) result).getRecord().orElse(null);
     }
 
     if (result instanceof YTRID) {
@@ -256,7 +256,7 @@ public class OResultInternal implements OResult {
 
   private static Object wrap(YTDatabaseSessionInternal session, Object input) {
     if (input instanceof YTEntityInternal elem && !((YTEntity) input).getIdentity().isValid()) {
-      OResultInternal result = new OResultInternal(session);
+      YTResultInternal result = new YTResultInternal(session);
       for (String prop : elem.getPropertyNamesInternal()) {
         result.setProperty(prop, elem.getPropertyInternal(prop));
       }
@@ -482,8 +482,8 @@ public class OResultInternal implements OResult {
   }
 
   private Object convertToElement(Object property) {
-    if (property instanceof OResult) {
-      return ((OResult) property).toElement();
+    if (property instanceof YTResult) {
+      return ((YTResult) property).toElement();
     }
     if (property instanceof List) {
       return ((List) property).stream().map(x -> convertToElement(x)).collect(Collectors.toList());
@@ -562,7 +562,7 @@ public class OResultInternal implements OResult {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof OResultInternal resultObj)) {
+    if (!(obj instanceof YTResultInternal resultObj)) {
       return false;
     }
     if (identifiable != null) {

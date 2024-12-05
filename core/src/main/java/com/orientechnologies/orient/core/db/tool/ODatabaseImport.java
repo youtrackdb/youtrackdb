@@ -70,8 +70,8 @@ import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONReader;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.ORidSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.OStorage;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -603,7 +603,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
           final YTIdentifiable newRid;
           if (!document.<Boolean>field("binary")) {
-            try (final OResultSet result =
+            try (final YTResultSet result =
                 database.query(
                     "select value from " + EXPORT_IMPORT_CLASS_NAME + " where key = ?",
                     String.valueOf(oldRid))) {
@@ -620,7 +620,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                 (ORuntimeKeyIndexDefinition<?>) index.getDefinition();
             OBinarySerializer<?> binarySerializer = runtimeKeyIndexDefinition.getSerializer();
 
-            try (final OResultSet result =
+            try (final YTResultSet result =
                 database.query(
                     "select value from " + EXPORT_IMPORT_CLASS_NAME + " where key = ?",
                     String.valueOf(document.<YTIdentifiable>field("rid")))) {

@@ -43,8 +43,8 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
 
     OExecutionStream resultSet = prev.start(ctx);
     return new OExecutionStream() {
-      private final List<OResult> entryPoints = new ArrayList<>();
-      private final List<OResult> results = new ArrayList<>();
+      private final List<YTResult> entryPoints = new ArrayList<>();
+      private final List<YTResult> results = new ArrayList<>();
       private final Set<YTRID> traversed = new ORidSet();
 
       @Override
@@ -56,11 +56,11 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
       }
 
       @Override
-      public OResult next(OCommandContext ctx) {
+      public YTResult next(OCommandContext ctx) {
         if (!hasNext(ctx)) {
           throw new IllegalStateException();
         }
-        OResult result = results.remove(0);
+        YTResult result = results.remove(0);
         if (result.isElement()) {
           this.traversed.add(result.toElement().getIdentity());
         }
@@ -75,8 +75,8 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
 
   private void fetchNextBlock(
       OCommandContext ctx,
-      List<OResult> entryPoints,
-      List<OResult> results,
+      List<YTResult> entryPoints,
+      List<YTResult> results,
       Set<YTRID> traversed,
       OExecutionStream resultSet) {
     if (!results.isEmpty()) {
@@ -99,11 +99,12 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
   protected abstract void fetchNextEntryPoints(
       OExecutionStream toFetch,
       OCommandContext ctx,
-      List<OResult> entryPoints,
+      List<YTResult> entryPoints,
       Set<YTRID> traversed);
 
   protected abstract void fetchNextResults(
-      OCommandContext ctx, List<OResult> results, List<OResult> entryPoints, Set<YTRID> traversed);
+      OCommandContext ctx, List<YTResult> results, List<YTResult> entryPoints,
+      Set<YTRID> traversed);
 
   @Override
   public String toString() {

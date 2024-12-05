@@ -21,7 +21,7 @@ package com.orientechnologies.lucene.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Assert;
@@ -72,7 +72,8 @@ public class OLuceneCreateIndexTest extends OLuceneBaseTest {
 
   @Test
   public void testQueries() {
-    OResultSet docs = db.query("select * from Song where search_fields(['title'],'mountain')=true");
+    YTResultSet docs = db.query(
+        "select * from Song where search_fields(['title'],'mountain')=true");
 
     assertThat(docs).hasSize(4);
     docs.close();
@@ -97,7 +98,7 @@ public class OLuceneCreateIndexTest extends OLuceneBaseTest {
   @Test
   public void testQeuryOnAddedDocs() {
     String query = "select * from Song where search_fields(['title'],'local')=true ";
-    OResultSet docs = db.query(query);
+    YTResultSet docs = db.query(query);
 
     assertThat(docs).hasSize(1);
     docs.close();

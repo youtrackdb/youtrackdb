@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class UpdateWithRidParameters extends DBTestBase {
 
     db.command("INSERT INTO testingClass2 SET id = ?", 456).close();
     YTRID orid;
-    try (OResultSet docs = db.query("SELECT FROM testingClass2 WHERE id = ?", 456)) {
+    try (YTResultSet docs = db.query("SELECT FROM testingClass2 WHERE id = ?", 456)) {
       orid = docs.next().getProperty("@rid");
     }
 
@@ -32,7 +32,7 @@ public class UpdateWithRidParameters extends DBTestBase {
     // This does work.
     db.command("UPDATE testingClass set linkedlist = linkedlist || " + orid.toString()).close();
     List<YTRID> lst;
-    try (OResultSet docs = db.query("SELECT FROM testingClass WHERE id = ?", 123)) {
+    try (YTResultSet docs = db.query("SELECT FROM testingClass WHERE id = ?", 123)) {
       lst = docs.next().getProperty("linkedlist");
     }
 

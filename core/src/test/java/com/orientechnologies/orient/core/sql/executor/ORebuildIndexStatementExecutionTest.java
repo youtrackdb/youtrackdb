@@ -44,9 +44,9 @@ public class ORebuildIndexStatementExecutionTest extends DBTestBase {
     db.commit();
 
     // when
-    OResultSet result = db.command("rebuild index " + className + "index1");
+    YTResultSet result = db.command("rebuild index " + className + "index1");
     Assert.assertTrue(result.hasNext());
-    OResult resultRecord = result.next();
+    YTResult resultRecord = result.next();
     Assert.assertEquals(2L, resultRecord.<Object>getProperty("totalIndexed"));
     Assert.assertFalse(result.hasNext());
     assertEquals(

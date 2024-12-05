@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -30,7 +30,7 @@ public class TestOrderBy extends DBTestBase {
     YTRecord res3 = db.save(new YTDocument("test").field("name", "Zebra"));
     db.commit();
 
-    List<OResult> queryRes =
+    List<YTResult> queryRes =
         db.query("select from test order by name").stream().collect(Collectors.toList());
     assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());
     assertEquals(queryRes.get(1).getIdentity().get(), res1.getIdentity());
@@ -53,7 +53,7 @@ public class TestOrderBy extends DBTestBase {
     YTRecord res1 = db.save(new YTDocument("test").field("name", "Ähhhh"));
     YTRecord res2 = db.save(new YTDocument("test").field("name", "Ahhhh"));
     YTRecord res3 = db.save(new YTDocument("test").field("name", "Zebra"));
-    List<OResult> queryRes =
+    List<YTResult> queryRes =
         db.query("select from test order by name").stream().collect(Collectors.toList());
     assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());
     assertEquals(queryRes.get(1).getIdentity().get(), res1.getIdentity());

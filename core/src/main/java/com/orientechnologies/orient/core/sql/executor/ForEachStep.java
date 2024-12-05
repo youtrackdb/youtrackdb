@@ -56,7 +56,7 @@ public class ForEachStep extends AbstractExecutionStep {
 
   protected Iterator<?> init(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    Object val = source.execute(new OResultInternal(db), ctx);
+    Object val = source.execute(new YTResultInternal(db), ctx);
     return OMultiValue.getMultiValueIterator(val);
   }
 

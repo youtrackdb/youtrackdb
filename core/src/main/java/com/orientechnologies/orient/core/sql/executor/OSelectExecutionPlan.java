@@ -87,8 +87,8 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OResult toResult(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult toResult(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());
     result.setProperty("cost", getCost());
@@ -105,8 +105,8 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
     return 0L;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());
     result.setProperty("cost", getCost());
@@ -118,9 +118,9 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
     return result;
   }
 
-  public void deserialize(OResult serializedExecutionPlan) {
-    List<OResult> serializedSteps = serializedExecutionPlan.getProperty("steps");
-    for (OResult serializedStep : serializedSteps) {
+  public void deserialize(YTResult serializedExecutionPlan) {
+    List<YTResult> serializedSteps = serializedExecutionPlan.getProperty("steps");
+    for (YTResult serializedStep : serializedSteps) {
       try {
         String className = serializedStep.getProperty(JAVA_TYPE);
         OExecutionStepInternal step =

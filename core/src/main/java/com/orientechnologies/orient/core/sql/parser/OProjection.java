@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -120,7 +120,7 @@ public class OProjection extends SimpleNode {
     }
   }
 
-  public OResult calculateSingle(OCommandContext iContext, OResult iRecord) {
+  public YTResult calculateSingle(OCommandContext iContext, YTResult iRecord) {
     initExcludes(iContext);
     if (isExpand()) {
       throw new IllegalStateException(
@@ -132,7 +132,7 @@ public class OProjection extends SimpleNode {
       return iRecord;
     }
 
-    OResultInternal result = new OResultInternal(iContext.getDatabase());
+    YTResultInternal result = new YTResultInternal(iContext.getDatabase());
     for (OProjectionItem item : items) {
       if (item.exclude) {
         continue;
@@ -193,7 +193,7 @@ public class OProjection extends SimpleNode {
     }
   }
 
-  public OLegacyResultSet calculateExpand(OCommandContext iContext, OResult iRecord) {
+  public OLegacyResultSet calculateExpand(OCommandContext iContext, YTResult iRecord) {
     if (!isExpand()) {
       throw new IllegalStateException("This is not an expand projection:" + this);
     }
@@ -279,8 +279,8 @@ public class OProjection extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("distinct", distinct);
     if (items != null) {
       result.setProperty(
@@ -290,13 +290,13 @@ public class OProjection extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     distinct = fromResult.getProperty("distinct");
     if (fromResult.getProperty("items") != null) {
       items = new ArrayList<>();
 
-      List<OResult> ser = fromResult.getProperty("items");
-      for (OResult x : ser) {
+      List<YTResult> ser = fromResult.getProperty("items");
+      for (YTResult x : ser) {
         OProjectionItem item = new OProjectionItem(-1);
         item.deserialize(x);
         items.add(item);

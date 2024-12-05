@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.util.ArrayList;
@@ -48,10 +48,10 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
       db.commit();
     }
 
-    OResultSet res = db.query("select from Some");
+    YTResultSet res = db.query("select from Some");
     for (int i = 0; i < 150; i++) {
       assertTrue(res.hasNext());
-      OResult item = res.next();
+      YTResult item = res.next();
       assertEquals(item.getProperty("prop"), "value");
     }
   }
@@ -66,10 +66,10 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
       db.commit();
     }
 
-    OResultSet res = db.command("select from Some");
+    YTResultSet res = db.command("select from Some");
     for (int i = 0; i < 150; i++) {
       assertTrue(res.hasNext());
-      OResult item = res.next();
+      YTResult item = res.next();
       assertEquals(item.getProperty("prop"), "value");
     }
   }
@@ -85,10 +85,10 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     }
 
     db.begin();
-    OResultSet res = db.command("insert into V from select from Some");
+    YTResultSet res = db.command("insert into V from select from Some");
     for (int i = 0; i < 150; i++) {
       assertTrue(res.hasNext());
-      OResult item = res.next();
+      YTResult item = res.next();
       assertEquals(item.getProperty("prop"), "value");
     }
     db.commit();
@@ -101,7 +101,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
       doc.setProperty("prop", "value");
       db.save(doc);
     }
-    OResultSet res = db.query("select from Some");
+    YTResultSet res = db.query("select from Some");
 
     for (OClientConnection conn : server.getClientConnectionManager().getConnections()) {
       conn.close();
@@ -110,7 +110,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
     for (int i = 0; i < 150; i++) {
       assertTrue(res.hasNext());
-      OResult item = res.next();
+      YTResult item = res.next();
       assertEquals(item.getProperty("prop"), "value");
     }
   }
@@ -126,11 +126,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     db.save(doc);
     db.commit();
 
-    OResultSet res = db.query("select emb from Some");
+    YTResultSet res = db.query("select emb from Some");
 
-    OResult item = res.next();
+    YTResult item = res.next();
     assertNotNull(item.getProperty("emb"));
-    assertEquals(((OResult) item.getProperty("emb")).getProperty("one"), "value");
+    assertEquals(((YTResult) item.getProperty("emb")).getProperty("one"), "value");
   }
 
   @Test
@@ -148,13 +148,13 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     db.save(doc);
     db.commit();
 
-    OResultSet res = db.query("select emb from Some");
+    YTResultSet res = db.query("select emb from Some");
 
-    OResult item = res.next();
+    YTResult item = res.next();
     assertNotNull(item.getProperty("emb"));
-    OResult resEmb = item.getProperty("emb");
+    YTResult resEmb = item.getProperty("emb");
     assertEquals(resEmb.getProperty("one"), "value");
-    assertEquals(((OResult) resEmb.getProperty("secEmb")).getProperty("two"), "value");
+    assertEquals(((YTResult) resEmb.getProperty("secEmb")).getProperty("two"), "value");
   }
 
   @Test
@@ -170,12 +170,12 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     db.save(doc);
     db.commit();
 
-    OResultSet res = db.query("select list from Some");
+    YTResultSet res = db.query("select list from Some");
 
-    OResult item = res.next();
+    YTResult item = res.next();
     assertNotNull(item.getProperty("list"));
-    assertEquals(((List<OResult>) item.getProperty("list")).size(), 1);
-    assertEquals(((List<OResult>) item.getProperty("list")).get(0).getProperty("one"), "value");
+    assertEquals(((List<YTResult>) item.getProperty("list")).size(), 1);
+    assertEquals(((List<YTResult>) item.getProperty("list")).get(0).getProperty("one"), "value");
   }
 
   @Test
@@ -191,13 +191,13 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     db.save(doc);
     db.commit();
 
-    OResultSet res = db.query("select set from Some");
+    YTResultSet res = db.query("select set from Some");
 
-    OResult item = res.next();
+    YTResult item = res.next();
     assertNotNull(item.getProperty("set"));
-    assertEquals(((Set<OResult>) item.getProperty("set")).size(), 1);
+    assertEquals(((Set<YTResult>) item.getProperty("set")).size(), 1);
     assertEquals(
-        ((Set<OResult>) item.getProperty("set")).iterator().next().getProperty("one"), "value");
+        ((Set<YTResult>) item.getProperty("set")).iterator().next().getProperty("one"), "value");
   }
 
   @Test
@@ -213,13 +213,13 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     db.save(doc);
     db.commit();
 
-    OResultSet res = db.query("select map from Some");
+    YTResultSet res = db.query("select map from Some");
 
-    OResult item = res.next();
+    YTResult item = res.next();
     assertNotNull(item.getProperty("map"));
-    assertEquals(((Map<String, OResult>) item.getProperty("map")).size(), 1);
+    assertEquals(((Map<String, YTResult>) item.getProperty("map")).size(), 1);
     assertEquals(
-        ((Map<String, OResult>) item.getProperty("map")).get("key").getProperty("one"), "value");
+        ((Map<String, YTResult>) item.getProperty("map")).get("key").getProperty("one"), "value");
   }
 
   @Test
@@ -231,7 +231,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
     YTRecord record;
 
-    try (OResultSet resultSet = db.command("insert into Some set prop = 'value'")) {
+    try (YTResultSet resultSet = db.command("insert into Some set prop = 'value'")) {
       record = resultSet.next().getRecord().get();
     }
 
@@ -272,7 +272,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     script += "COMMIT ;";
     script += "RETURN [$q1,$q2]";
 
-    OResultSet rs = db.execute("sql", script);
+    YTResultSet rs = db.execute("sql", script);
 
     rs.forEachRemaining(System.out::println);
     rs.close();
@@ -291,7 +291,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
             + " letVertex where name = 'b');");
     db.commit();
 
-    OResultSet rs =
+    YTResultSet rs =
         db.query("select $someNode.in('letEdge') from letVertex LET $someNode =out('letEdge');");
     assertEquals(rs.stream().count(), 2);
   }

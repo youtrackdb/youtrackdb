@@ -8,11 +8,11 @@ import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 /**
  *
  */
-public class OUpdatableResult extends OResultInternal {
+public class YTUpdatableResult extends YTResultInternal {
 
-  protected OResultInternal previousValue = null;
+  protected YTResultInternal previousValue = null;
 
-  public OUpdatableResult(YTDatabaseSessionInternal session, YTEntity element) {
+  public YTUpdatableResult(YTDatabaseSessionInternal session, YTEntity element) {
     super(session, element);
   }
 

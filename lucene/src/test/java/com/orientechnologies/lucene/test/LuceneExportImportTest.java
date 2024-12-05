@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
@@ -65,7 +65,7 @@ public class LuceneExportImportTest extends BaseLuceneTest {
 
     String file = "./target/exportTest.json";
 
-    OResultSet query = db.query("select from City where name lucene 'Rome'");
+    YTResultSet query = db.query("select from City where name lucene 'Rome'");
 
     Assert.assertEquals(query.stream().count(), 1);
 

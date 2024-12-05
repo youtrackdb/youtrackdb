@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,12 +50,12 @@ public class ODropPropertyStatement extends ODDLStatement {
           "Property '" + propertyName + "' not found on class " + className);
     }
     final List<OIndex> indexes = relatedIndexes(propertyName.getStringValue(), database);
-    List<OResult> rs = new ArrayList<>();
+    List<YTResult> rs = new ArrayList<>();
     if (!indexes.isEmpty()) {
       if (force) {
         for (final OIndex index : indexes) {
           database.getMetadata().getIndexManager().dropIndex(index.getName());
-          OResultInternal result = new OResultInternal(database);
+          YTResultInternal result = new YTResultInternal(database);
           result.setProperty("operation", "cascade drop index");
           result.setProperty("indexName", index.getName());
           rs.add(result);
@@ -84,7 +84,7 @@ public class ODropPropertyStatement extends ODDLStatement {
     // REMOVE THE PROPERTY
     sourceClass.dropProperty(database, propertyName.getStringValue());
 
-    OResultInternal result = new OResultInternal(database);
+    YTResultInternal result = new YTResultInternal(database);
     result.setProperty("operation", "drop property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyname", propertyName.getStringValue());

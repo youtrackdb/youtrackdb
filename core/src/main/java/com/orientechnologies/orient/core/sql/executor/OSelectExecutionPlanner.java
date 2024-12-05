@@ -1405,9 +1405,9 @@ public class OSelectExecutionPlanner {
               ((OBinaryCondition) ridRangeCondition)
                   .getRight()
                   .getRid()
-                  .toRecordId((OResult) null, ctx);
+                  .toRecordId((YTResult) null, ctx);
         } else {
-          obj = ((OBinaryCondition) ridRangeCondition).getRight().execute((OResult) null, ctx);
+          obj = ((OBinaryCondition) ridRangeCondition).getRight().execute((YTResult) null, ctx);
         }
 
         conditionRid = ((YTIdentifiable) obj).getIdentity();
@@ -1452,9 +1452,9 @@ public class OSelectExecutionPlanner {
       if (operator.isRangeOperator() && cond.getLeft().toString().equalsIgnoreCase("@rid")) {
         Object obj;
         if (cond.getRight().getRid() != null) {
-          obj = cond.getRight().getRid().toRecordId((OResult) null, ctx);
+          obj = cond.getRight().getRid().toRecordId((YTResult) null, ctx);
         } else {
-          obj = cond.getRight().execute((OResult) null, ctx);
+          obj = cond.getRight().execute((YTResult) null, ctx);
         }
         return obj instanceof YTIdentifiable;
       }
@@ -1722,7 +1722,7 @@ public class OSelectExecutionPlanner {
       OSelectExecutionPlan plan, List<ORid> rids, OCommandContext ctx, boolean profilingEnabled) {
     List<YTRecordId> actualRids = new ArrayList<>();
     for (ORid rid : rids) {
-      actualRids.add(rid.toRecordId((OResult) null, ctx));
+      actualRids.add(rid.toRecordId((YTResult) null, ctx));
     }
     plan.chain(new FetchFromRidsStep(actualRids, ctx, profilingEnabled));
   }

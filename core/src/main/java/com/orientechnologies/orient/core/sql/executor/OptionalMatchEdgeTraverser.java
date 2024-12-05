@@ -8,9 +8,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  */
 public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
 
-  public static final OResult EMPTY_OPTIONAL = new OResultInternal(null);
+  public static final YTResult EMPTY_OPTIONAL = new YTResultInternal(null);
 
-  public OptionalMatchEdgeTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
+  public OptionalMatchEdgeTraverser(YTResult lastUpstreamRecord, EdgeTraversal edge) {
     super(lastUpstreamRecord, edge);
   }
 
@@ -23,7 +23,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
     }
   }
 
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     init(ctx);
     if (!downstream.hasNext(ctx)) {
       throw new IllegalStateException();
@@ -31,7 +31,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
 
     String endPointAlias = getEndpointAlias();
     Object prevValue = sourceRecord.getProperty(endPointAlias);
-    OResult next = downstream.next(ctx);
+    YTResult next = downstream.next(ctx);
 
     if (isEmptyOptional(prevValue)) {
       return sourceRecord;
@@ -43,7 +43,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
     }
 
     var db = ctx.getDatabase();
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     for (String prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
@@ -56,6 +56,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
       return true;
     }
 
-    return elem instanceof OResult && EMPTY_OPTIONAL == ((OResult) elem).getElement().orElse(null);
+    return elem instanceof YTResult && EMPTY_OPTIONAL == ((YTResult) elem).getElement()
+        .orElse(null);
   }
 }

@@ -13,9 +13,9 @@ import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterable;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterator;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -158,9 +158,9 @@ public class OProjectionItem extends SimpleNode {
       }
       return result;
     }
-    if (value instanceof OInternalResultSet) {
-      ((OInternalResultSet) value).reset();
-      value = ((OInternalResultSet) value).stream().collect(Collectors.toList());
+    if (value instanceof YTInternalResultSet) {
+      ((YTInternalResultSet) value).reset();
+      value = ((YTInternalResultSet) value).stream().collect(Collectors.toList());
     }
     if (value instanceof OExecutionStream) {
       value = ((OExecutionStream) value).stream(context).collect(Collectors.toList());
@@ -186,7 +186,7 @@ public class OProjectionItem extends SimpleNode {
     return value;
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     Object result;
     if (all) {
       result = iCurrentRecord;
@@ -322,8 +322,8 @@ public class OProjectionItem extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("all", all);
     if (alias != null) {
       result.setProperty("alias", alias.serialize(db));
@@ -339,7 +339,7 @@ public class OProjectionItem extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     all = fromResult.getProperty("all");
     if (fromResult.getProperty("alias") != null) {
       alias = OIdentifier.deserialize(fromResult.getProperty("alias"));

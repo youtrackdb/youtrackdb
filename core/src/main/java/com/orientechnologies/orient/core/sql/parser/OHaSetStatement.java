@@ -5,8 +5,8 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.enterprise.OEnterpriseEndpoint;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +28,16 @@ public class OHaSetStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    List<OResult> result = new ArrayList<>();
+    List<YTResult> result = new ArrayList<>();
 
     String operation = this.operation.getStringValue();
     var db = ctx.getDatabase();
-    Object key = this.key.execute(new OResultInternal(db), ctx);
+    Object key = this.key.execute(new YTResultInternal(db), ctx);
     if (key == null) {
       key = this.key.getDefaultAlias();
     }
 
-    Object value = this.value.execute(new OResultInternal(db), ctx);
+    Object value = this.value.execute(new YTResultInternal(db), ctx);
     if (value == null) {
       value = this.value.getDefaultAlias();
       if (value.equals("null")) {
@@ -58,7 +58,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      OResultInternal item = new OResultInternal(db);
+      YTResultInternal item = new YTResultInternal(db);
       item.setProperty("operation", "ha set status");
       item.setProperty("result", finalResult);
       result.add(item);
@@ -70,7 +70,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      OResultInternal item = new OResultInternal(db);
+      YTResultInternal item = new YTResultInternal(db);
       item.setProperty("operation", "ha set owner");
       item.setProperty("result", finalResult);
       result.add(item);
@@ -82,7 +82,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      OResultInternal item = new OResultInternal(db);
+      YTResultInternal item = new YTResultInternal(db);
       item.setProperty("operation", "ha set role");
       item.setProperty("result", finalResult);
       result.add(item);

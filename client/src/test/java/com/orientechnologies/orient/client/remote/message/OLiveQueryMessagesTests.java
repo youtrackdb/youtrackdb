@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,14 +65,14 @@ public class OLiveQueryMessagesTests extends DBTestBase {
   public void testLiveQueryPushRequest() throws IOException {
 
     List<OLiveQueryResult> events = new ArrayList<>();
-    OResultInternal res = new OResultInternal(db);
+    YTResultInternal res = new YTResultInternal(db);
     res.setProperty("one", "one");
     res.setProperty("two", 10);
     events.add(new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, res, null));
     events.add(
         new OLiveQueryResult(
-            OLiveQueryResult.UPDATE_EVENT, new OResultInternal(db), new OResultInternal(db)));
-    events.add(new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new OResultInternal(db), null));
+            OLiveQueryResult.UPDATE_EVENT, new YTResultInternal(db), new YTResultInternal(db)));
+    events.add(new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new YTResultInternal(db), null));
 
     OLiveQueryPushRequest pushRequest =
         new OLiveQueryPushRequest(10, OLiveQueryPushRequest.END, events);

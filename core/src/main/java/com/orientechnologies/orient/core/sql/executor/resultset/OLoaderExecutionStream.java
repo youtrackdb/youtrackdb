@@ -5,13 +5,13 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Iterator;
 
 public final class OLoaderExecutionStream implements OExecutionStream {
 
-  private OResult nextResult = null;
+  private YTResult nextResult = null;
   private final Iterator<? extends YTIdentifiable> iterator;
 
   public OLoaderExecutionStream(Iterator<? extends YTIdentifiable> iterator) {
@@ -27,12 +27,12 @@ public final class OLoaderExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     if (!hasNext(ctx)) {
       throw new IllegalStateException();
     }
 
-    OResult result = nextResult;
+    YTResult result = nextResult;
     nextResult = null;
     ctx.setVariable("$current", result);
     return result;
@@ -52,12 +52,12 @@ public final class OLoaderExecutionStream implements OExecutionStream {
 
       if (nextRid != null) {
         if (nextRid instanceof YTRecord record) {
-          nextResult = new OResultInternal(db, record);
+          nextResult = new YTResultInternal(db, record);
           return;
         } else {
           try {
             YTRecord nextDoc = db.load(nextRid.getIdentity());
-            OResultInternal res = new OResultInternal(db, nextDoc);
+            YTResultInternal res = new YTResultInternal(db, nextDoc);
             if (nextRid instanceof YTContextualRecordId) {
               res.addMetadata(((YTContextualRecordId) nextRid).getContext());
             }

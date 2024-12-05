@@ -9,5 +9,5 @@ public interface AggregationContext {
 
   Object getFinalValue();
 
-  void apply(OResult next, OCommandContext ctx);
+  void apply(YTResult next, OCommandContext ctx);
 }

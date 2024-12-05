@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,13 +27,13 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
   @Test
   public void testContainsNoIndex() {
 
-    OResultSet execute =
+    YTResultSet execute =
         db.command(
             "select ST_Contains(smallc,smallc) as smallinsmall,ST_Contains(smallc, bigc) As"
                 + " smallinbig, ST_Contains(bigc,smallc) As biginsmall from (SELECT"
                 + " ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20) As"
                 + " smallc,ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40) As bigc)");
-    OResult next = execute.next();
+    YTResult next = execute.next();
 
     Assert.assertTrue(next.getProperty("smallinsmall"));
     Assert.assertFalse(next.getProperty("smallinbig"));
@@ -54,7 +54,7 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
-    OResultSet execute =
+    YTResultSet execute =
         db.command("SELECT from Polygon where ST_Contains(geometry, 'POINT(50 50)') = true");
 
     Assert.assertEquals(2, execute.stream().count());
@@ -89,7 +89,7 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
 
     String testGeometry =
         "{'@type':'d','@class':'OGeometryCollection','geometries':[{'@type':'d','@class':'OPolygon','coordinates':[[[1,1],[2,1],[2,2],[1,2],[1,1]]]}]}";
-    OResultSet execute =
+    YTResultSet execute =
         db.command(
             "SELECT from TestInsert where ST_Contains(geometry, " + testGeometry + ") = true");
 

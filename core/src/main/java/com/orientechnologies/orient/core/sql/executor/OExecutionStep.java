@@ -28,8 +28,8 @@ public interface OExecutionStep {
     return -1L;
   }
 
-  default OResult toResult(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  default YTResult toResult(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("name", getName());
     result.setProperty("type", getType());
     result.setProperty("targetNode", getType());

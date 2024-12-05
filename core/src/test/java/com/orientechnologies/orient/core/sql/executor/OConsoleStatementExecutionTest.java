@@ -12,10 +12,10 @@ public class OConsoleStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testError() {
-    OResultSet result = db.command("console.error 'foo bar'");
+    YTResultSet result = db.command("console.error 'foo bar'");
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals("error", item.getProperty("level"));
     Assert.assertEquals("foo bar", item.getProperty("message"));
@@ -23,10 +23,10 @@ public class OConsoleStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testLog() {
-    OResultSet result = db.command("console.log 'foo bar'");
+    YTResultSet result = db.command("console.log 'foo bar'");
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals("log", item.getProperty("level"));
     Assert.assertEquals("foo bar", item.getProperty("message"));

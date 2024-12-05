@@ -16,8 +16,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +52,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
     Object total = execute(ctx);
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create link");
     result.setProperty("name", name.getValue());
     result.setProperty("count", total);
@@ -156,7 +156,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
               }
             }
 
-            try (OResultSet rs = database.query(txCmd + value)) {
+            try (YTResultSet rs = database.query(txCmd + value)) {
               result = toList(rs);
             }
 
@@ -289,7 +289,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
     return total[0];
   }
 
-  private List<YTDocument> toList(OResultSet rs) {
+  private List<YTDocument> toList(YTResultSet rs) {
     if (!rs.hasNext()) {
       return null;
     }

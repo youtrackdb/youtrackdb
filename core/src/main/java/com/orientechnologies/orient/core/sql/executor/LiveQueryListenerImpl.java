@@ -79,7 +79,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
       context.setDatabase(db);
       this.rids =
           statement.getTarget().getItem().getRids().stream()
-              .map(x -> x.toRecordId(new OResultInternal(db), context))
+              .map(x -> x.toRecordId(new YTResultInternal(db), context))
               .collect(Collectors.toList());
     }
     execInSeparateDatabase(
@@ -137,11 +137,11 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     execDb.activateOnCurrentThread();
 
     for (OLiveQueryHookV2.OLiveQueryOp iRecord : iRecords) {
-      OResultInternal record;
+      YTResultInternal record;
       if (iRecord.type == ORecordOperation.CREATED || iRecord.type == ORecordOperation.UPDATED) {
         record = copy(execDb, iRecord.after);
         if (iRecord.type == ORecordOperation.UPDATED) {
-          OResultInternal before = copy(execDb, iRecord.before);
+          YTResultInternal before = copy(execDb, iRecord.before);
           record.setMetadata(BEFORE_METADATA_KEY, before);
         }
       } else {
@@ -156,8 +156,8 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
             clientListener.onDelete(execDb, applyProjections(record));
             break;
           case ORecordOperation.UPDATED:
-            OResult before =
-                applyProjections((OResultInternal) record.getMetadata(BEFORE_METADATA_KEY));
+            YTResult before =
+                applyProjections((YTResultInternal) record.getMetadata(BEFORE_METADATA_KEY));
             record.setMetadata(BEFORE_METADATA_KEY, null);
             clientListener.onUpdate(execDb, before, applyProjections(record));
             break;
@@ -172,20 +172,20 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
   }
 
-  private OResultInternal applyProjections(OResultInternal record) {
+  private YTResultInternal applyProjections(YTResultInternal record) {
     var ctx = new OBasicCommandContext();
     ctx.setDatabase(execDb);
 
     if (statement.getProjection() != null) {
-      OResultInternal result =
-          (OResultInternal)
+      YTResultInternal result =
+          (YTResultInternal)
               statement.getProjection().calculateSingle(ctx, record);
       return result;
     }
     return record;
   }
 
-  private boolean filter(OResult record) {
+  private boolean filter(YTResult record) {
     // filter by class
     if (className != null) {
       Object filterClass = record.getProperty("@class");
@@ -230,11 +230,11 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     return where.matchesFilters(record, ctx);
   }
 
-  private OResultInternal copy(YTDatabaseSessionInternal db, OResult item) {
+  private YTResultInternal copy(YTDatabaseSessionInternal db, YTResult item) {
     if (item == null) {
       return null;
     }
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
 
     for (String prop : item.getPropertyNames()) {
       result.setProperty(prop, item.getProperty(prop));

@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import javax.management.InstanceAlreadyExistsException;
@@ -62,7 +62,7 @@ public class SocketIdleCleanupIT {
     ORemoteConnectionPool pool =
         connectionManager.getPool(connectionManager.getURLs().iterator().next());
     assertFalse(pool.getPool().getResources().iterator().next().isConnected());
-    try (OResultSet result = session.query("select from V")) {
+    try (YTResultSet result = session.query("select from V")) {
       assertEquals(result.stream().count(), 1);
     }
   }

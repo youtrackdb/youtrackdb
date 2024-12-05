@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
 import org.junit.After;
@@ -111,7 +111,7 @@ public class ORemoteSecurityTests {
 
     db.close();
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (OResultSet rs = filteredSession.query("select from Person")) {
+      try (YTResultSet rs = filteredSession.query("select from Person")) {
         Assert.assertTrue(rs.hasNext());
         rs.next();
         Assert.assertFalse(rs.hasNext());
@@ -139,7 +139,7 @@ public class ORemoteSecurityTests {
     db.commit();
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (OResultSet rs = filteredSession.query("select from Person where name = 'bar'")) {
+      try (YTResultSet rs = filteredSession.query("select from Person where name = 'bar'")) {
 
         Assert.assertFalse(rs.hasNext());
       }
@@ -168,9 +168,9 @@ public class ORemoteSecurityTests {
     db.commit();
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (OResultSet rs = filteredSession.query("select from Person where name = 'foo'")) {
+      try (YTResultSet rs = filteredSession.query("select from Person where name = 'foo'")) {
         Assert.assertTrue(rs.hasNext());
-        OResult item = rs.next();
+        YTResult item = rs.next();
         Assert.assertEquals("foo", item.getProperty("surname"));
         Assert.assertFalse(rs.hasNext());
       }
@@ -341,7 +341,7 @@ public class ORemoteSecurityTests {
       } catch (YTSecurityException ex) {
       }
 
-      try (OResultSet rs = filteredSession.query("select from Person")) {
+      try (YTResultSet rs = filteredSession.query("select from Person")) {
         Assert.assertTrue(rs.hasNext());
         Assert.assertEquals("bar", rs.next().getProperty("name"));
         Assert.assertFalse(rs.hasNext());
@@ -367,7 +367,7 @@ public class ORemoteSecurityTests {
     db.commit();
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (OResultSet rs = filteredSession.query("select count(*) as count from Person")) {
+      try (YTResultSet rs = filteredSession.query("select count(*) as count from Person")) {
         Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
       }
     }
@@ -394,12 +394,12 @@ public class ORemoteSecurityTests {
 
     db.close();
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (OResultSet rs =
+      try (YTResultSet rs =
           filteredSession.query("select count(*) as count from Person where name = 'bar'")) {
         Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
       }
 
-      try (OResultSet rs =
+      try (YTResultSet rs =
           filteredSession.query("select count(*) as count from Person where name = 'foo'")) {
         Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
       }
@@ -426,12 +426,12 @@ public class ORemoteSecurityTests {
     db.commit();
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (final OResultSet resultSet =
+      try (final YTResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "bar")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
 
-      try (final OResultSet resultSet =
+      try (final YTResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "foo")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
@@ -458,12 +458,12 @@ public class ORemoteSecurityTests {
     db.commit();
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (final OResultSet resultSet =
+      try (final YTResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "bar")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
 
-      try (final OResultSet resultSet =
+      try (final YTResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "foo")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
@@ -487,8 +487,8 @@ public class ORemoteSecurityTests {
     db.close();
 
     db = orient.open(DB_NAME, "reader", "reader");
-    try (final OResultSet resultSet = db.query("SELECT from Person")) {
-      OResult item = resultSet.next();
+    try (final YTResultSet resultSet = db.query("SELECT from Person")) {
+      YTResult item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
     }
   }
@@ -510,10 +510,10 @@ public class ORemoteSecurityTests {
     db.close();
 
     db = orient.open(DB_NAME, "reader", "reader");
-    try (final OResultSet resultSet = db.query("SELECT from Person")) {
+    try (final YTResultSet resultSet = db.query("SELECT from Person")) {
       try {
         db.begin();
-        OResult item = resultSet.next();
+        YTResult item = resultSet.next();
         YTEntity doc = item.getElement().get();
         doc.setProperty("name", "bar");
 

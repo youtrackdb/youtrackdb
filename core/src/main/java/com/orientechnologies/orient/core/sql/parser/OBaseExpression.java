@@ -12,8 +12,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
 import java.util.Collections;
 import java.util.List;
@@ -122,7 +122,7 @@ public class OBaseExpression extends OMathExpression {
     return result;
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     Object result = null;
     if (number != null) {
       result = number.getValue();
@@ -264,7 +264,7 @@ public class OBaseExpression extends OMathExpression {
   }
 
   @Override
-  public OCollate getCollate(OResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
     return identifier != null && modifier == null
         ? identifier.getCollate(currentRecord, ctx)
         : null;
@@ -406,7 +406,7 @@ public class OBaseExpression extends OMathExpression {
   }
 
   @Override
-  public void applyRemove(OResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
     if (identifier != null) {
       if (modifier == null) {
         identifier.applyRemove(result, ctx);
@@ -417,8 +417,8 @@ public class OBaseExpression extends OMathExpression {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = (OResultInternal) super.serialize(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = (YTResultInternal) super.serialize(db);
 
     if (number != null) {
       result.setProperty("number", number.serialize(db));
@@ -438,7 +438,7 @@ public class OBaseExpression extends OMathExpression {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     super.deserialize(fromResult);
 
     if (fromResult.getProperty("number") != null) {
@@ -463,7 +463,7 @@ public class OBaseExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isDefinedFor(OResult currentRecord) {
+  public boolean isDefinedFor(YTResult currentRecord) {
     if (this.identifier != null) {
       if (modifier == null) {
         return identifier.isDefinedFor(currentRecord);

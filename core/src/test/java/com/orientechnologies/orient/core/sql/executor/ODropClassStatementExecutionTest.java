@@ -20,9 +20,9 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
 
     Assert.assertNotNull(schema.getClass(className));
 
-    OResultSet result = db.command("drop class " + className);
+    YTResultSet result = db.command("drop class " + className);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -47,9 +47,9 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
     } catch (Exception ex2) {
       Assert.fail();
     }
-    OResultSet result = db.command("drop class " + className + " unsafe");
+    YTResultSet result = db.command("drop class " + className + " unsafe");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -64,9 +64,9 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
 
     Assert.assertNotNull(schema.getClass(className));
 
-    OResultSet result = db.command("drop class " + className + " if exists");
+    YTResultSet result = db.command("drop class " + className + " if exists");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -85,9 +85,9 @@ public class ODropClassStatementExecutionTest extends DBTestBase {
 
     Assert.assertNotNull(schema.getClass(className));
 
-    OResultSet result = db.command("drop class ?", className);
+    YTResultSet result = db.command("drop class ?", className);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();

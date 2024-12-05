@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutio
 import java.util.Map;
 
 /**
- * Returns an OResult containing metadata regarding the database
+ * Returns an YTResult containing metadata regarding the database
  */
 public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
 
@@ -26,12 +26,12 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(this::produce).limit(1);
   }
 
-  private OResult produce(OCommandContext ctx) {
+  private YTResult produce(OCommandContext ctx) {
     YTDatabaseSessionInternal session = ctx.getDatabase();
     OSharedContextEmbedded value = (OSharedContextEmbedded) session.getSharedContext();
 
     Map<String, Object> map = value.loadDistributedConfig(session);
-    OResultInternal result = new OResultInternal(session);
+    YTResultInternal result = new YTResultInternal(session);
 
     for (var entry : map.entrySet()) {
       result.setProperty(entry.getKey(), entry.getValue());

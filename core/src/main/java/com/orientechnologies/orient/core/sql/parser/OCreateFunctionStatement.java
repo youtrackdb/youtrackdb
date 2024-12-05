@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
     }
     f.save(database);
     YTRID functionId = f.getId(database);
-    OResultInternal result = new OResultInternal(database);
+    YTResultInternal result = new YTResultInternal(database);
     result.setProperty("operation", "create function");
     result.setProperty("functionName", name.getStringValue());
     result.setProperty("finalId", functionId);

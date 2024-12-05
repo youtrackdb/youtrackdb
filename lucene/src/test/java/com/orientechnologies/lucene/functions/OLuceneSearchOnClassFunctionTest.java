@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.tests.OLuceneBaseTest;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
   @Test
   public void shouldSearchOnClass() throws Exception {
 
-    OResultSet resultSet = db.query("SELECT from Song where SEARCH_Class('BELIEVE') = true");
+    YTResultSet resultSet = db.query("SELECT from Song where SEARCH_Class('BELIEVE') = true");
 
     assertThat(resultSet).hasSize(2);
 
@@ -36,7 +36,7 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
   @Test
   public void shouldSearchOnSingleFieldWithLeadingWildcard() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_CLASS( '*EVE*', {'allowLeadingWildcard': true}) = true");
 
@@ -48,7 +48,7 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
   @Test
   public void shouldSearchInOr() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_CLASS('BELIEVE') = true OR SEARCH_CLASS('GOODNIGHT') ="
                 + " true ");
@@ -60,7 +60,7 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
   @Test
   public void shouldSearchInAnd() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_CLASS('GOODNIGHT') = true AND SEARCH_CLASS( 'Irene',"
                 + " {'allowLeadingWildcard': true}) = true ");
@@ -71,7 +71,7 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
 
   public void shouldThrowExceptionWithWrongClass() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Author where SEARCH_CLASS('(description:happiness) (lyrics:sad)  ') = true"
                 + " ");
@@ -83,7 +83,7 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
 
     db.command("create index Song.author on Song (author) FULLTEXT ENGINE LUCENE ");
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query("SELECT from Song where SEARCH_CLASS('not important, will fail') = true ");
     resultSet.close();
   }
@@ -91,7 +91,7 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
   @Test
   public void shouldHighlightTitle() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT title, $title_hl from Song where SEARCH_CLASS('believe', {highlight: { fields:"
                 + " ['title'], 'start': '<span>', 'end': '</span>' } }) = true ");
@@ -116,7 +116,7 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
     db.command("insert into Song set description = 'shouldHighlightWithNullValues'");
     db.commit();
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT title, $title_hl,description, $description_hl  from Song where"
                 + " SEARCH_CLASS('shouldHighlightWithNullValues', {highlight: { fields:"

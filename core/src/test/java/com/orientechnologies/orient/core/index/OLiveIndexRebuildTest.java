@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -136,7 +136,7 @@ public class OLiveIndexRebuildTest {
           try {
             long start = System.nanoTime();
 
-            final OResultSet result =
+            final YTResultSet result =
                 database.query(
                     "select from "
                         + className

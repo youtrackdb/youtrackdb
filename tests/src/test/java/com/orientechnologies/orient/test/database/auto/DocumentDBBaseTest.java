@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStepInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,42 +67,42 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
   protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db,
       Object... args) {
     return db.query(sql, args).stream()
-        .map(OResult::toElement)
+        .map(YTResult::toElement)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
-        .map(OResult::toElement)
+        .map(YTResult::toElement)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db) {
     return db.query(sql).stream()
-        .map(OResult::toElement)
+        .map(YTResult::toElement)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql, Object... args) {
     return database.query(sql, args).stream()
-        .map(OResult::toElement)
+        .map(YTResult::toElement)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql, Map<?, ?> args) {
     return database.query(sql, args).stream()
-        .map(OResult::toElement)
+        .map(YTResult::toElement)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql) {
     return database.query(sql).stream()
-        .map(OResult::toElement)
+        .map(YTResult::toElement)
         .map(element -> (YTDocument) element)
         .toList();
   }
@@ -604,10 +604,10 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     motoNode = database.bindToSession(motoNode);
     database.newEdge(carNode, motoNode).save();
 
-    List<OResult> result =
+    List<YTResult> result =
         database.query("select from GraphVehicle").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
-    for (OResult v : result) {
+    for (YTResult v : result) {
       Assert.assertTrue(v.getElement().get().getSchemaType().get().isSubClassOf(vehicleClass));
     }
 
@@ -618,7 +618,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     YTEdge edge1 = null;
     YTEdge edge2 = null;
 
-    for (OResult v : result) {
+    for (YTResult v : result) {
       Assert.assertTrue(v.getElement().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
 
       if (v.getElement().get().getSchemaType().isPresent()

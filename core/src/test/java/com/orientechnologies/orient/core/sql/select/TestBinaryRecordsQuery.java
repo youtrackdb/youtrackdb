@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.save(new YTRecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
-    OResultSet res = db.query("select from cluster:BlobCluster");
+    YTResultSet res = db.query("select from cluster:BlobCluster");
 
     assertEquals(1, res.stream().count());
   }
@@ -40,7 +40,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.save(new YTRecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
-    OResultSet res = db.query("select @rid from cluster:BlobCluster");
+    YTResultSet res = db.query("select @rid from cluster:BlobCluster");
     assertEquals(1, res.stream().count());
   }
 
@@ -51,7 +51,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.commit();
 
     db.begin();
-    OResultSet res = db.command("delete from (select from cluster:BlobCluster)");
+    YTResultSet res = db.command("delete from (select from cluster:BlobCluster)");
     db.commit();
 
     assertEquals(1, (long) res.next().getProperty("count"));
@@ -78,7 +78,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.commit();
 
     db.begin();
-    OResultSet res =
+    YTResultSet res =
         db.command("delete from cluster:BlobCluster where @rid in (select ref from RecordPointer)");
     db.commit();
 
@@ -113,7 +113,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.commit();
 
     db.begin();
-    OResultSet res = db.command("delete from (select expand(ref) from RecordPointer)");
+    YTResultSet res = db.command("delete from (select expand(ref) from RecordPointer)");
     assertEquals(2, (long) res.next().getProperty("count"));
     db.commit();
 

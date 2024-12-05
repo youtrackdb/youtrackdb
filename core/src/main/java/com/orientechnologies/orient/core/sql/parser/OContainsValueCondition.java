@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
@@ -53,7 +53,7 @@ public class OContainsValueCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -79,7 +79,7 @@ public class OContainsValueCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
       if (leftValue instanceof Map map) {
@@ -107,7 +107,7 @@ public class OContainsValueCondition extends OBooleanExpression {
     return true;
   }
 
-  private boolean evaluateAny(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, OCommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
       if (leftValue instanceof Map map) {
@@ -298,7 +298,7 @@ public class OContainsValueCondition extends OBooleanExpression {
     Optional<OPath> path = left.getPath();
     if (path.isPresent()) {
       if (expression != null && expression.isEarlyCalculated(ctx)) {
-        Object value = expression.execute((OResult) null, ctx);
+        Object value = expression.execute((YTResult) null, ctx);
         return info.findByValueIndex(path.get(), value, ctx);
       }
     }

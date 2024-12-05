@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -101,7 +101,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
                 + " {'closeAfterInterval':1000 , 'firstFlushAfter':1000 }")
         .close();
 
-    OResultSet docs = db.query("select from Song where title lucene 'mountain'");
+    YTResultSet docs = db.query("select from Song where title lucene 'mountain'");
 
     assertThat(docs).hasSize(4);
     TimeUnit.SECONDS.sleep(5);

@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ public class OAlterSystemRoleStatement extends OSimpleExecServerStatement {
 
     return systemDb.executeWithDB(
         (db) -> {
-          List<OResult> rs = new ArrayList<>();
+          List<YTResult> rs = new ArrayList<>();
 
           OSecurityInternal security = db.getSharedContext().getSecurity();
 
@@ -64,7 +64,7 @@ public class OAlterSystemRoleStatement extends OSimpleExecServerStatement {
             throw new YTCommandExecutionException("role not found: " + name.getStringValue());
           }
           for (Op op : operations) {
-            OResultInternal result = new OResultInternal(db);
+            YTResultInternal result = new YTResultInternal(db);
             result.setProperty("operation", "alter system role");
             result.setProperty("name", name.getStringValue());
             result.setProperty("resource", op.resource.toString());

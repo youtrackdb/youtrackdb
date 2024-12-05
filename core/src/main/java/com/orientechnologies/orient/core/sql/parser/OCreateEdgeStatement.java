@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OCreateEdgeExecutionPlanner;
 import com.orientechnologies.orient.core.sql.executor.OInsertExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,7 +37,7 @@ public class OCreateEdgeStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
       boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -59,11 +59,11 @@ public class OCreateEdgeStatement extends OStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new OLocalResultSet(executionPlan);
+    return new YTLocalResultSet(executionPlan);
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
@@ -78,7 +78,7 @@ public class OCreateEdgeStatement extends OStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new OLocalResultSet(executionPlan);
+    return new YTLocalResultSet(executionPlan);
   }
 
   public OInsertExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {

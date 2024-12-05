@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class TestManyProperties {
         clazz.createProperty(session, "property23", YTType.STRING);
         clazz.createProperty(session, "property24", YTType.STRING);
 
-        try (OResultSet set =
+        try (YTResultSet set =
             session.query(
                 "SELECT FROM test WHERE (((property1 is null) or (property1 = #107:150)) and"
                     + " ((property2 is null) or (property2 = #107:150)) and ((property3 is null) or"

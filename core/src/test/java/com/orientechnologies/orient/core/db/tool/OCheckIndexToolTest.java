@@ -4,7 +4,7 @@ import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
     db.commit();
 
     db.begin();
-    OResultSet result = db.query("SELECT FROM Foo");
+    YTResultSet result = db.query("SELECT FROM Foo");
     Assert.assertEquals(N_RECORDS + 1, result.stream().count());
 
     OCheckIndexTool tool = new OCheckIndexTool();

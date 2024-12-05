@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -171,7 +171,7 @@ public class PredicateSecurityTest {
     this.db =
         (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    OResultSet rs = db.query("select from Person");
+    YTResultSet rs = db.query("select from Person");
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -212,7 +212,7 @@ public class PredicateSecurityTest {
     this.db =
         (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    OResultSet rs = db.query("select from Person where name = 'bar'");
+    YTResultSet rs = db.query("select from Person where name = 'bar'");
     Assert.assertFalse(rs.hasNext());
     rs.close();
   }
@@ -253,9 +253,9 @@ public class PredicateSecurityTest {
     this.db =
         (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    OResultSet rs = db.query("select from Person where name = 'foo'");
+    YTResultSet rs = db.query("select from Person where name = 'foo'");
     Assert.assertTrue(rs.hasNext());
-    OResult item = rs.next();
+    YTResult item = rs.next();
     Assert.assertEquals("foo", item.getProperty("surname"));
     Assert.assertFalse(rs.hasNext());
     rs.close();
@@ -531,7 +531,7 @@ public class PredicateSecurityTest {
     } catch (YTSecurityException ex) {
     }
 
-    OResultSet rs = db.query("select from Person");
+    YTResultSet rs = db.query("select from Person");
     Assert.assertTrue(rs.hasNext());
     Assert.assertEquals("bar", rs.next().getProperty("name"));
     Assert.assertFalse(rs.hasNext());
@@ -571,7 +571,7 @@ public class PredicateSecurityTest {
     this.db =
         (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    OResultSet rs = db.query("select count(*) as count from Person");
+    YTResultSet rs = db.query("select count(*) as count from Person");
     Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
     rs.close();
   }
@@ -610,7 +610,7 @@ public class PredicateSecurityTest {
     this.db =
         (YTDatabaseSessionInternal)
             orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
-    OResultSet rs = db.query("select count(*) as count from Person where name = 'bar'");
+    YTResultSet rs = db.query("select count(*) as count from Person where name = 'bar'");
     Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
     rs.close();
 

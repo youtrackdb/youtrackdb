@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,9 +21,9 @@ public class OSQLFunctionIndexKeySizeTest extends DBTestBase {
     db.command("insert into Test set name = 'b'").close();
     db.commit();
 
-    try (OResultSet rs = db.query("select indexKeySize('testindex') as foo")) {
+    try (YTResultSet rs = db.query("select indexKeySize('testindex') as foo")) {
       Assert.assertTrue(rs.hasNext());
-      OResult item = rs.next();
+      YTResult item = rs.next();
       Assert.assertEquals((Object) 2L, item.getProperty("foo"));
       Assert.assertFalse(rs.hasNext());
     }

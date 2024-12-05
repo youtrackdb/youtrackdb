@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class OLuceneSortTest extends OLuceneBaseTest {
 
     db.command("create index Author.ft on Author (name,score) FULLTEXT ENGINE LUCENE ");
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"
                 + "sort: [ { reverse:true, type:'DOC' }]"
@@ -44,7 +44,7 @@ public class OLuceneSortTest extends OLuceneBaseTest {
 
     db.command("create index Author.ft on Author (score) FULLTEXT ENGINE LUCENE ");
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"
                 + "sort: [ { 'field': 'score', reverse:true, type:'INT' }]"
@@ -62,7 +62,7 @@ public class OLuceneSortTest extends OLuceneBaseTest {
 
     db.command("create index Author.ft on Author (name) FULLTEXT ENGINE LUCENE ");
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"
                 + "sort: [ {field: 'name', type:'STRING' , reverse:true}] "
@@ -90,7 +90,7 @@ public class OLuceneSortTest extends OLuceneBaseTest {
 
     db.save(artist);
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"
                 + "sort: [ {field: 'name', type:'STRING' , reverse:true}] "
@@ -130,7 +130,7 @@ public class OLuceneSortTest extends OLuceneBaseTest {
 
     db.command("create index Author.ft on Author (name,score) FULLTEXT ENGINE LUCENE ");
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {sort: [ { 'field': 'score',"
                 + " reverse:true, type:'INT' },{field: 'name', type:'STRING' , reverse:true}] } ) ="

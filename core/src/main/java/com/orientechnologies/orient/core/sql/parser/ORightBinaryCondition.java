@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -77,7 +77,7 @@ public class ORightBinaryCondition extends SimpleNode {
     }
   }
 
-  public Object execute(OResult iCurrentRecord, Object elementToFilter, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, Object elementToFilter, OCommandContext ctx) {
     if (elementToFilter == null) {
       return null;
     }
@@ -147,7 +147,7 @@ public class ORightBinaryCondition extends SimpleNode {
     return false;
   }
 
-  private boolean matchesFilters(OResult iCurrentRecord, Object element, OCommandContext ctx) {
+  private boolean matchesFilters(YTResult iCurrentRecord, Object element, OCommandContext ctx) {
     if (operator != null) {
       return operator.execute(element, right.execute(iCurrentRecord, ctx));
     } else if (inOperator != null) {
@@ -169,7 +169,7 @@ public class ORightBinaryCondition extends SimpleNode {
     return right.execute(currentRecord, ctx);
   }
 
-  public Object evaluateRight(OResult currentRecord, OCommandContext ctx) {
+  public Object evaluateRight(YTResult currentRecord, OCommandContext ctx) {
     return right.execute(currentRecord, ctx);
   }
 
@@ -187,8 +187,8 @@ public class ORightBinaryCondition extends SimpleNode {
     return right != null && right.refersToParent();
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operator", operator.getClass().getName());
     result.setProperty("not", not);
     result.setProperty("in", inOperator != null);
@@ -196,7 +196,7 @@ public class ORightBinaryCondition extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       operator =
           (OBinaryCompareOperator)

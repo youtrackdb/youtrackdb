@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandDocumentAbstract;
@@ -177,7 +177,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
             }
           }
 
-          OResultSet result;
+          YTResultSet result;
           if (params == null) {
             result = db.execute(language, commandAsString);
           } else {
@@ -221,7 +221,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
             params = ((Collection) params).toArray();
           }
 
-          OResultSet result;
+          YTResultSet result;
           if (params == null) {
             result = db.execute(language, text.toString());
           } else {

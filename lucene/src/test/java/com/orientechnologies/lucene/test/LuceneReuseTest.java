@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
               .field("age", i));
       db.commit();
     }
-    OResultSet results =
+    YTResultSet results =
         db.command("SELECT FROM Reuse WHERE name='John' and surname LUCENE 'Reese'");
 
     Assert.assertEquals(10, results.stream().count());
@@ -85,7 +85,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
             .field("surname", "Franklin")
             .field("age", 11));
     db.commit();
-    OResultSet results =
+    YTResultSet results =
         db.command("SELECT FROM Reuse WHERE name='John' and [name,surname] LUCENE 'Reese'");
 
     Assert.assertEquals(10, results.stream().count());

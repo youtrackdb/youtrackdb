@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.select;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class TestSqlEmbeddedResult extends DBTestBase {
             .query(
                 "select $current as el " + " from (select expand(rel.include('format')) from Test)")
             .stream()
-            .map(OResult::toElement)
+            .map(YTResult::toElement)
             .collect(Collectors.toList());
     Assert.assertEquals(res.size(), 1);
     YTEntity ele = res.get(0);
@@ -41,7 +41,7 @@ public class TestSqlEmbeddedResult extends DBTestBase {
 
     res =
         db.query("select rel as el " + " from (select rel from Test)").stream()
-            .map(OResult::toElement)
+            .map(YTResult::toElement)
             .toList();
 
     Assert.assertEquals(res.size(), 1);

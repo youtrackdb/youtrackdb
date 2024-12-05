@@ -5,11 +5,11 @@ package com.orientechnologies.orient.core.sql.executor;
  */
 public class ExecutionPlanPrintUtils {
 
-  public static void printExecutionPlan(OResultSet result) {
+  public static void printExecutionPlan(YTResultSet result) {
     printExecutionPlan(null, result);
   }
 
-  public static void printExecutionPlan(String query, OResultSet result) {
+  public static void printExecutionPlan(String query, YTResultSet result) {
     //    if (query != null) {
     //      System.out.println(query);
     //    }

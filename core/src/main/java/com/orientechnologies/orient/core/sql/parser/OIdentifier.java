@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,7 +42,7 @@ public class OIdentifier extends SimpleNode {
     super(id);
   }
 
-  public static OIdentifier deserialize(OResult fromResult) {
+  public static OIdentifier deserialize(YTResult fromResult) {
     OIdentifier identifier = new OIdentifier(-1);
     identifier.value = fromResult.getProperty("value");
     identifier.quoted = fromResult.getProperty("quoted");
@@ -167,8 +167,8 @@ public class OIdentifier extends SimpleNode {
     return result;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("value", value);
     result.setProperty("quoted", quoted);
     return result;

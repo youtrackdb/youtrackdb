@@ -38,7 +38,7 @@ public class FilterStep extends AbstractExecutionStep {
     return resultSet;
   }
 
-  private OResult filterMap(OResult result, OCommandContext ctx) {
+  private YTResult filterMap(YTResult result, OCommandContext ctx) {
     if (whereClause.matchesFilters(result, ctx)) {
       return result;
     }
@@ -60,8 +60,8 @@ public class FilterStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     if (whereClause != null) {
       result.setProperty("whereClause", whereClause.serialize(db));
     }
@@ -70,7 +70,7 @@ public class FilterStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       whereClause = new OWhereClause(-1);

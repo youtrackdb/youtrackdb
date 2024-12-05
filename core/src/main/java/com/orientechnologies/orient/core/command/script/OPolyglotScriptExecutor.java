@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +109,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   }
 
   @Override
-  public OResultSet execute(YTDatabaseSessionInternal database, String script, Object... params) {
+  public YTResultSet execute(YTDatabaseSessionInternal database, String script, Object... params) {
     preExecute(database, script, params);
 
     Int2ObjectOpenHashMap<Object> par = new Int2ObjectOpenHashMap<>();
@@ -121,7 +121,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   }
 
   @Override
-  public OResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
+  public YTResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
 
     preExecute(database, script, params);
 
@@ -135,7 +135,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
       scriptManager.bindContextVariables(null, bindings, database, null, params);
 
       Value result = ctx.eval(language, script);
-      OResultSet transformedResult = transformer.toResultSet(database, result);
+      YTResultSet transformedResult = transformer.toResultSet(database, result);
       scriptManager.unbind(null, bindings, null, null);
       return transformedResult;
 
@@ -178,7 +178,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
       } else if (result.hasArrayElements()) {
         final List<Object> array = new ArrayList<>((int) result.getArraySize());
         for (int i = 0; i < result.getArraySize(); ++i) {
-          array.add(new OResultInternal(result.getArrayElement(i).asHostObject()));
+          array.add(new YTResultInternal(result.getArrayElement(i).asHostObject()));
         }
         finalResult = array;
       } else if (result.isHostObject()) {

@@ -7,11 +7,11 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,17 +33,17 @@ public class ORemoteLiveQueryPushTest {
     public boolean end;
 
     @Override
-    public void onCreate(YTDatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, YTResult data) {
       countCreate++;
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
       countUpdate++;
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, YTResult data) {
       countDelete++;
     }
 
@@ -85,13 +85,13 @@ public class ORemoteLiveQueryPushTest {
     storage.registerLiveListener(10, new OLiveQueryClientListener(database, mock));
     List<OLiveQueryResult> events = new ArrayList<>();
     events.add(
-        new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, new OResultInternal(database), null));
+        new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, new YTResultInternal(database), null));
     events.add(
         new OLiveQueryResult(
-            OLiveQueryResult.UPDATE_EVENT, new OResultInternal(database),
-            new OResultInternal(database)));
+            OLiveQueryResult.UPDATE_EVENT, new YTResultInternal(database),
+            new YTResultInternal(database)));
     events.add(
-        new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new OResultInternal(database), null));
+        new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new YTResultInternal(database), null));
 
     OLiveQueryPushRequest request =
         new OLiveQueryPushRequest(10, OLiveQueryPushRequest.END, events);

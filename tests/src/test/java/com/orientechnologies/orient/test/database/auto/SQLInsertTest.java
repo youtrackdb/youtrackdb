@@ -27,8 +27,8 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -314,7 +314,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @Test
   public void insertWithNoSpaces() {
     database.begin();
-    OResultSet res =
+    YTResultSet res =
         database.command("insert into O (id, title)values(10, 'NoSQL movement')");
     database.commit();
 
@@ -329,7 +329,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    OResult doc = database.command("INSERT INTO test(text) VALUES ('(Hello World)')").next();
+    YTResult doc = database.command("INSERT INTO test(text) VALUES ('(Hello World)')").next();
     database.commit();
 
     Assert.assertNotNull(doc);
@@ -343,7 +343,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
       schema.createClass("test");
     }
 
-    final OResultSet usersCount = database.query("select count(*) as count from OUser");
+    final YTResultSet usersCount = database.query("select count(*) as count from OUser");
     final long uCount = usersCount.next().getProperty("count");
     usersCount.close();
 
@@ -464,13 +464,13 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getClassName(), "Actor2");
     // RETURN with @rid
-    try (OResultSet resultSet1 =
+    try (YTResultSet resultSet1 =
         database.command("INSERT INTO Actor2 SET FirstName=\"Butch 1\" RETURN @rid")) {
       Object res1 = resultSet1.next().getProperty("@rid");
       Assert.assertTrue(res1 instanceof YTRecordId);
       Assert.assertTrue(((YTIdentifiable) res1).getIdentity().isValid());
       // Create many records and return @rid
-      try (OResultSet resultSet2 =
+      try (YTResultSet resultSet2 =
           database.command(
               "INSERT INTO Actor2(FirstName,LastName) VALUES"
                   + " ('Jay','Miner'),('Frank','Hermier'),('Emily','Saut')  RETURN @rid")) {
@@ -722,12 +722,12 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    List<OResult> result =
+    List<YTResult> result =
         database.query("select from TestEmbeddedDates").stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
     boolean found = false;
-    OResult doc = result.get(0);
+    YTResult doc = result.get(0);
     Collection events = doc.getProperty("events");
     for (Object event : events) {
       Assert.assertTrue(event instanceof Map);
@@ -844,7 +844,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    List<OResult> result =
+    List<YTResult> result =
         database.query("SELECT FROM InsertWithClusterAsFieldName").stream()
             .collect(Collectors.toList());
 
@@ -866,7 +866,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    List<OResult> result =
+    List<YTResult> result =
         database.query("SELECT FROM TestInsertEmbeddedBigDecimal").stream()
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);

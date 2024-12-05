@@ -3,17 +3,17 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -138,7 +138,7 @@ public class OUpdateItem extends SimpleNode {
     return result;
   }
 
-  public void applyUpdate(OResultInternal doc, OCommandContext ctx) {
+  public void applyUpdate(YTResultInternal doc, OCommandContext ctx) {
     Object rightValue = right.execute(doc, ctx);
     YTClass linkedType = calculateLinkedTypeForThisItem(doc, ctx);
     if (leftModifier == null) {
@@ -154,7 +154,7 @@ public class OUpdateItem extends SimpleNode {
     }
   }
 
-  private Object initSchemafullCollections(OResultInternal doc, String propName) {
+  private Object initSchemafullCollections(YTResultInternal doc, String propName) {
     YTClass oClass = doc.getElement().flatMap(x -> x.getSchemaType()).orElse(null);
     if (oClass == null) {
       return null;
@@ -182,7 +182,7 @@ public class OUpdateItem extends SimpleNode {
     return result;
   }
 
-  private YTClass calculateLinkedTypeForThisItem(OResultInternal doc, OCommandContext ctx) {
+  private YTClass calculateLinkedTypeForThisItem(YTResultInternal doc, OCommandContext ctx) {
     if (doc.isElement()) {
       var elem = doc.toElement();
 
@@ -190,7 +190,7 @@ public class OUpdateItem extends SimpleNode {
     return null;
   }
 
-  private YTType calculateTypeForThisItem(OResultInternal doc, String propertyName,
+  private YTType calculateTypeForThisItem(YTResultInternal doc, String propertyName,
       OCommandContext ctx) {
     YTEntity elem = doc.toElement();
     YTClass clazz = elem.getSchemaType().orElse(null);
@@ -222,7 +222,7 @@ public class OUpdateItem extends SimpleNode {
   }
 
   public void applyOperation(
-      OResultInternal doc, OIdentifier attrName, Object rightValue, OCommandContext ctx) {
+      YTResultInternal doc, OIdentifier attrName, Object rightValue, OCommandContext ctx) {
 
     switch (operator) {
       case OPERATOR_EQ:
@@ -262,7 +262,7 @@ public class OUpdateItem extends SimpleNode {
   }
 
   public static Object convertToPropertyType(
-      OResultInternal res, OIdentifier attrName, Object newValue, OCommandContext ctx) {
+      YTResultInternal res, OIdentifier attrName, Object newValue, OCommandContext ctx) {
     YTEntity doc = res.toElement();
     Optional<YTClass> optSchema = doc.getSchemaType();
     if (!optSchema.isPresent()) {
@@ -355,8 +355,8 @@ public class OUpdateItem extends SimpleNode {
   }
 
   public static Object convertResultToDocument(Object value) {
-    if (value instanceof OResult) {
-      return ((OResult) value).toElement();
+    if (value instanceof YTResult) {
+      return ((YTResult) value).toElement();
     }
     if (value instanceof YTIdentifiable) {
       return value;
@@ -373,11 +373,11 @@ public class OUpdateItem extends SimpleNode {
   }
 
   public static boolean containsOResult(Collection value) {
-    return value.stream().anyMatch(x -> x instanceof OResult);
+    return value.stream().anyMatch(x -> x instanceof YTResult);
   }
 
   private Object calculateNewValue(
-      OResultInternal doc, OCommandContext ctx, OMathExpression.Operator explicitOperator) {
+      YTResultInternal doc, OCommandContext ctx, OMathExpression.Operator explicitOperator) {
     OExpression leftEx = new OExpression(left.copy());
     if (leftModifier != null) {
       ((OBaseExpression) leftEx.mathExpression).modifier = leftModifier.copy();

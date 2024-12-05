@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,7 +36,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(YTDatabaseSessionInternal database, String script, Object... params) {
+  public YTResultSet execute(YTDatabaseSessionInternal database, String script, Object... params) {
 
     preExecute(database, script, params);
 
@@ -49,7 +49,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
+  public YTResultSet execute(YTDatabaseSessionInternal database, String script, Map params) {
 
     preExecute(database, script, params);
 

@@ -34,11 +34,11 @@ import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemParameter;
@@ -90,10 +90,10 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
       return comparesValues(iLeft, (YTRecord) iRight, true);
     }
     /*till this is only legacy query engine */
-    else if (iRight instanceof OResult) {
-      return comparesValues(iLeft, (OResult) iRight, true);
-    } else if (iRight instanceof OResult) {
-      return comparesValues(iLeft, (OResult) iRight, true);
+    else if (iRight instanceof YTResult) {
+      return comparesValues(iLeft, (YTResult) iRight, true);
+    } else if (iRight instanceof YTResult) {
+      return comparesValues(iLeft, (YTResult) iRight, true);
     }
 
     // NUMBERS
@@ -146,7 +146,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   protected static boolean comparesValues(
-      final Object iValue, final OResult iRecord, final boolean iConsiderIn) {
+      final Object iValue, final YTResult iRecord, final boolean iConsiderIn) {
     if (iRecord.getIdentity().isPresent() && iRecord.getIdentity().get().isPersistent()) {
       return iRecord.getIdentity().get().equals(iValue);
     } else {

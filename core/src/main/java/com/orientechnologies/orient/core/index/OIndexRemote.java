@@ -27,9 +27,9 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
@@ -126,7 +126,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public boolean contains(final Object iKey) {
-    try (OResultSet result =
+    try (YTResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_CONTAINS, name), iKey)) {
       if (!result.hasNext()) {
         return false;
@@ -136,7 +136,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public long count(YTDatabaseSessionInternal session, final Object iKey) {
-    try (OResultSet result =
+    try (YTResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_COUNT, name), iKey)) {
       if (!result.hasNext()) {
         return 0;
@@ -171,7 +171,7 @@ public abstract class OIndexRemote implements OIndex {
       query.append(QUERY_GET_VALUES_LIMIT).append(maxValuesToFetch);
     }
 
-    try (OResultSet rs = getDatabase().indexQuery(name, query.toString(), iRangeFrom, iRangeTo)) {
+    try (YTResultSet rs = getDatabase().indexQuery(name, query.toString(), iRangeFrom, iRangeTo)) {
       return rs.next().getProperty("value");
     }
   }
@@ -248,7 +248,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public long rebuild(YTDatabaseSessionInternal session) {
-    try (OResultSet rs = getDatabase().command(String.format(QUERY_REBUILD, name))) {
+    try (YTResultSet rs = getDatabase().command(String.format(QUERY_REBUILD, name))) {
       return rs.next().getProperty("totalIndexed");
     }
   }
@@ -259,7 +259,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public long getSize(YTDatabaseSessionInternal session) {
-    try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_SIZE, name))) {
+    try (YTResultSet result = getDatabase().indexQuery(name, String.format(QUERY_SIZE, name))) {
       if (result.hasNext()) {
         return result.next().getProperty("size");
       }
@@ -268,7 +268,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public long getKeySize() {
-    try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_KEY_SIZE, name))) {
+    try (YTResultSet result = getDatabase().indexQuery(name, String.format(QUERY_KEY_SIZE, name))) {
       if (result.hasNext()) {
         return result.next().getProperty("size");
       }
@@ -347,7 +347,7 @@ public abstract class OIndexRemote implements OIndex {
       }
     }
 
-    try (OResultSet rs =
+    try (YTResultSet rs =
         getDatabase()
             .indexQuery(name, String.format(QUERY_GET_ENTRIES, name, params), iKeys.toArray())) {
       return rs.stream().map((res) -> (YTDocument) res.toElement()).collect(Collectors.toList());
@@ -427,8 +427,8 @@ public abstract class OIndexRemote implements OIndex {
       }
     }
 
-    final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
-    try (OResultSet res =
+    final YTInternalResultSet copy = new YTInternalResultSet(); // TODO a raw array instead...?
+    try (YTResultSet res =
         getDatabase()
             .indexQuery(
                 name,
@@ -445,7 +445,7 @@ public abstract class OIndexRemote implements OIndex {
         if (!copy.hasNext()) {
           return null;
         }
-        final OResult next = copy.next();
+        final YTResult next = copy.next();
         return new Map.Entry<Object, YTIdentifiable>() {
           @Override
           public Object getKey() {
@@ -468,8 +468,8 @@ public abstract class OIndexRemote implements OIndex {
 
   @Override
   public OIndexCursor cursor(YTDatabaseSessionInternal session) {
-    final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
-    try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_ENTRIES, name))) {
+    final YTInternalResultSet copy = new YTInternalResultSet(); // TODO a raw array instead...?
+    try (YTResultSet result = getDatabase().indexQuery(name, String.format(QUERY_ENTRIES, name))) {
       result.forEachRemaining(x -> copy.add(x));
     }
 
@@ -481,7 +481,7 @@ public abstract class OIndexRemote implements OIndex {
           return null;
         }
 
-        final OResult value = copy.next();
+        final YTResult value = copy.next();
 
         return new Map.Entry<Object, YTIdentifiable>() {
           @Override
@@ -505,8 +505,8 @@ public abstract class OIndexRemote implements OIndex {
 
   @Override
   public OIndexCursor descCursor(YTDatabaseSessionInternal session) {
-    final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
-    try (OResultSet result =
+    final YTInternalResultSet copy = new YTInternalResultSet(); // TODO a raw array instead...?
+    try (YTResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_ENTRIES_DESC, name))) {
       result.forEachRemaining(x -> copy.add(x));
     }
@@ -519,7 +519,7 @@ public abstract class OIndexRemote implements OIndex {
           return null;
         }
 
-        final OResult value = copy.next();
+        final YTResult value = copy.next();
 
         return new Map.Entry<Object, YTIdentifiable>() {
           @Override
@@ -543,8 +543,8 @@ public abstract class OIndexRemote implements OIndex {
 
   @Override
   public OIndexKeyCursor keyCursor() {
-    final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
-    try (final OResultSet result =
+    final YTInternalResultSet copy = new YTInternalResultSet(); // TODO a raw array instead...?
+    try (final YTResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_KEYS, name))) {
       result.forEachRemaining(x -> copy.add(x));
     }
@@ -556,7 +556,7 @@ public abstract class OIndexRemote implements OIndex {
           return null;
         }
 
-        final OResult value = copy.next();
+        final YTResult value = copy.next();
 
         return value.getProperty("key");
       }

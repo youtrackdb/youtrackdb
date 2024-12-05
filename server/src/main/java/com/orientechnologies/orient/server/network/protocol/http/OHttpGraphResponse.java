@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -107,9 +107,9 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       while (iIterator.hasNext()) {
         Object entry = iIterator.next();
 
-        if (entry != null && entry instanceof OResult && ((OResult) entry).isElement()) {
+        if (entry != null && entry instanceof YTResult && ((YTResult) entry).isElement()) {
 
-          entry = ((OResult) entry).getElement().get();
+          entry = ((YTResult) entry).getElement().get();
 
         } else if (entry == null || !(entry instanceof YTIdentifiable)) {
           // IGNORE IT

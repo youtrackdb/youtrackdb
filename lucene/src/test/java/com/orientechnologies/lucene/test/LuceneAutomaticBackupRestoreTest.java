@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.handler.OAutomaticBackup;
@@ -161,7 +161,7 @@ public class LuceneAutomaticBackupRestoreTest {
   @Test
   public void shouldExportImport() throws IOException, InterruptedException {
 
-    try (OResultSet query = db.query("select from City where name lucene 'Rome'")) {
+    try (YTResultSet query = db.query("select from City where name lucene 'Rome'")) {
       assertThat(query).hasSize(1);
     }
 

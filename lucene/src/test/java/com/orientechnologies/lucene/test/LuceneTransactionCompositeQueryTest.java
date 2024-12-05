@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -61,7 +61,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.save(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
-    OResultSet vertices = db.query(query);
+    YTResultSet vertices = db.query(query);
 
     assertThat(vertices).hasSize(1);
     db.rollback();
@@ -91,7 +91,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.delete(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
-    OResultSet vertices = db.query(query);
+    YTResultSet vertices = db.query(query);
 
     Collection coll;
     try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
@@ -144,7 +144,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.save(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
-    OResultSet vertices = db.query(query);
+    YTResultSet vertices = db.query(query);
     Collection coll;
     try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());
@@ -216,7 +216,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.save(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
-    OResultSet vertices = db.command(query);
+    YTResultSet vertices = db.command(query);
     Collection coll;
     try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());

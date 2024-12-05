@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class OOrderBy extends SimpleNode {
     }
   }
 
-  public int compare(OResult a, OResult b, OCommandContext ctx) {
+  public int compare(YTResult a, YTResult b, OCommandContext ctx) {
     for (OOrderByItem item : items) {
       int result = item.compare(a, b, ctx);
       if (result != 0) {
@@ -119,8 +119,8 @@ public class OOrderBy extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (items != null) {
       result.setProperty(
           "items", items.stream().map(oOrderByItem -> oOrderByItem.serialize(db))
@@ -129,12 +129,12 @@ public class OOrderBy extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
 
     if (fromResult.getProperty("items") != null) {
-      List<OResult> ser = fromResult.getProperty("items");
+      List<YTResult> ser = fromResult.getProperty("items");
       items = new ArrayList<>();
-      for (OResult r : ser) {
+      for (YTResult r : ser) {
         OOrderByItem exp = new OOrderByItem();
         exp.deserialize(r);
         items.add(exp);

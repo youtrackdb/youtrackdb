@@ -19,18 +19,18 @@ import java.util.Optional;
  */
 public class MatchEdgeTraverser {
 
-  protected OResult sourceRecord;
+  protected YTResult sourceRecord;
   protected EdgeTraversal edge;
   protected OMatchPathItem item;
   protected OExecutionStream downstream;
 
-  public MatchEdgeTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
+  public MatchEdgeTraverser(YTResult lastUpstreamRecord, EdgeTraversal edge) {
     this.sourceRecord = lastUpstreamRecord;
     this.edge = edge;
     this.item = edge.edge.item;
   }
 
-  public MatchEdgeTraverser(OResult lastUpstreamRecord, OMatchPathItem item) {
+  public MatchEdgeTraverser(YTResult lastUpstreamRecord, OMatchPathItem item) {
     this.sourceRecord = lastUpstreamRecord;
     this.item = item;
   }
@@ -40,13 +40,13 @@ public class MatchEdgeTraverser {
     return downstream.hasNext(ctx);
   }
 
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     init(ctx);
     if (!downstream.hasNext(ctx)) {
       throw new IllegalStateException();
     }
     String endPointAlias = getEndpointAlias();
-    OResult nextR = downstream.next(ctx);
+    YTResult nextR = downstream.next(ctx);
     YTIdentifiable nextElement = nextR.getElement().get();
     Object prevValue = sourceRecord.getProperty(endPointAlias);
     if (prevValue != null && !equals(prevValue, nextElement)) {
@@ -54,7 +54,7 @@ public class MatchEdgeTraverser {
     }
 
     var db = ctx.getDatabase();
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     for (String prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
@@ -70,17 +70,17 @@ public class MatchEdgeTraverser {
   }
 
   protected boolean equals(Object prevValue, YTIdentifiable nextElement) {
-    if (prevValue instanceof OResult) {
-      prevValue = ((OResult) prevValue).getElement().orElse(null);
+    if (prevValue instanceof YTResult) {
+      prevValue = ((YTResult) prevValue).getElement().orElse(null);
     }
-    if (nextElement instanceof OResult) {
-      nextElement = ((OResult) nextElement).getElement().orElse(null);
+    if (nextElement instanceof YTResult) {
+      nextElement = ((YTResult) nextElement).getElement().orElse(null);
     }
     return prevValue != null && prevValue.equals(nextElement);
   }
 
   protected static Object toResult(YTDatabaseSessionInternal db, YTIdentifiable nextElement) {
-    return new OResultInternal(db, nextElement);
+    return new YTResultInternal(db, nextElement);
   }
 
   protected String getStartingPointAlias() {
@@ -97,8 +97,8 @@ public class MatchEdgeTraverser {
   protected void init(OCommandContext ctx) {
     if (downstream == null) {
       Object startingElem = sourceRecord.getProperty(getStartingPointAlias());
-      if (startingElem instanceof OResult) {
-        startingElem = ((OResult) startingElem).getElement().orElse(null);
+      if (startingElem instanceof YTResult) {
+        startingElem = ((YTResult) startingElem).getElement().orElse(null);
       }
       downstream = executeTraversal(ctx, this.item, (YTIdentifiable) startingElem, 0, null);
     }
@@ -145,7 +145,7 @@ public class MatchEdgeTraverser {
                   iCommandContext, theFilter, theClassName, theClusterId, theTargetRid, next, ctx));
     } else { // in this case also zero level (starting point) is considered and traversal depth is
       // given by the while condition
-      List<OResult> result = new ArrayList<>();
+      List<YTResult> result = new ArrayList<>();
       iCommandContext.setVariable("$depth", depth);
       Object previousMatch = iCommandContext.getVariable("$currentMatch");
       iCommandContext.setVariable("$currentMatch", startingPoint);
@@ -154,7 +154,7 @@ public class MatchEdgeTraverser {
           && matchesClass(iCommandContext, className, startingPoint)
           && matchesCluster(iCommandContext, clusterId, startingPoint)
           && matchesRid(iCommandContext, targetRid, startingPoint)) {
-        OResultInternal rs = new OResultInternal(iCommandContext.getDatabase(), startingPoint);
+        YTResultInternal rs = new YTResultInternal(iCommandContext.getDatabase(), startingPoint);
         // set traversal depth in the metadata
         rs.setMetadata("$depth", depth);
         // set traversal path in the metadata
@@ -170,7 +170,7 @@ public class MatchEdgeTraverser {
         OExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
 
         while (queryResult.hasNext(iCommandContext)) {
-          OResult origin = queryResult.next(iCommandContext);
+          YTResult origin = queryResult.next(iCommandContext);
           //          if(origin.equals(startingPoint)){
           //            continue;
           //          }
@@ -187,7 +187,7 @@ public class MatchEdgeTraverser {
           OExecutionStream subResult =
               executeTraversal(iCommandContext, item, elem, depth + 1, newPath);
           while (subResult.hasNext(iCommandContext)) {
-            OResult sub = subResult.next(iCommandContext);
+            YTResult sub = subResult.next(iCommandContext);
             result.add(sub);
           }
         }
@@ -197,16 +197,16 @@ public class MatchEdgeTraverser {
     }
   }
 
-  private OResult filter(
+  private YTResult filter(
       OCommandContext iCommandContext,
       final OWhereClause theFilter,
       final String theClassName,
       final Integer theClusterId,
       final ORid theTargetRid,
-      OResult next,
+      YTResult next,
       OCommandContext ctx) {
     Object previousMatch = ctx.getVariable("$currentMatch");
-    OResultInternal matched = (OResultInternal) ctx.getVariable("matched");
+    YTResultInternal matched = (YTResultInternal) ctx.getVariable("matched");
     if (matched != null) {
       matched.setProperty(
           getStartingPointAlias(), sourceRecord.getProperty(getStartingPointAlias()));
@@ -317,7 +317,7 @@ public class MatchEdgeTraverser {
       return OExecutionStream.empty();
     }
     if (qR instanceof YTIdentifiable) {
-      return OExecutionStream.singleton(new OResultInternal(
+      return OExecutionStream.singleton(new YTResultInternal(
           iCommandContext.getDatabase(), (YTIdentifiable) qR));
     }
     if (qR instanceof Iterable) {

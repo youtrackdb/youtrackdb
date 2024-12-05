@@ -14,7 +14,7 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   @Test
   public void testPlain() {
     String className = "testPlain";
-    OResultSet result = db.command("create class " + className);
+    YTResultSet result = db.command("create class " + className);
     YTSchema schema = db.getMetadata().getSchema();
     YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
@@ -25,7 +25,7 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   @Test
   public void testAbstract() {
     String className = "testAbstract";
-    OResultSet result = db.command("create class " + className + " abstract ");
+    YTResultSet result = db.command("create class " + className + " abstract ");
     YTSchema schema = db.getMetadata().getSchema();
     YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
@@ -36,7 +36,7 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   @Test
   public void testCluster() {
     String className = "testCluster";
-    OResultSet result = db.command("create class " + className + " cluster 1235, 1236, 1255");
+    YTResultSet result = db.command("create class " + className + " cluster 1235, 1236, 1255");
     YTSchema schema = db.getMetadata().getSchema();
     YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
@@ -48,7 +48,7 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   @Test
   public void testClusters() {
     String className = "testClusters";
-    OResultSet result = db.command("create class " + className + " clusters 32");
+    YTResultSet result = db.command("create class " + className + " clusters 32");
     YTSchema schema = db.getMetadata().getSchema();
     YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);
@@ -60,7 +60,7 @@ public class OCreateClassStatementExecutionTest extends DBTestBase {
   @Test
   public void testIfNotExists() {
     String className = "testIfNotExists";
-    OResultSet result = db.command("create class " + className + " if not exists");
+    YTResultSet result = db.command("create class " + className + " if not exists");
     YTSchema schema = db.getMetadata().getSchema();
     YTClass clazz = schema.getClass(className);
     Assert.assertNotNull(clazz);

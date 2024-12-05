@@ -6,15 +6,15 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 /**
  *
  */
-public class OTraverseResult extends OResultInternal {
+public class YTTraverseResult extends YTResultInternal {
 
   protected Integer depth;
 
-  public OTraverseResult(YTDatabaseSessionInternal db) {
+  public YTTraverseResult(YTDatabaseSessionInternal db) {
     super(db);
   }
 
-  public OTraverseResult(YTDatabaseSessionInternal db, YTIdentifiable element) {
+  public YTTraverseResult(YTDatabaseSessionInternal db, YTIdentifiable element) {
     super(db, element);
   }
 

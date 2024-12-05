@@ -6,8 +6,8 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -61,7 +61,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.command("DELETE FROM RidBagIndexTestClass").close();
     database.commit();
 
-    OResultSet result = database.query("select from RidBagIndexTestClass");
+    YTResultSet result = database.query("select from RidBagIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
 
     if (!database.getStorage().isRemote()) {
@@ -709,10 +709,10 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    OResultSet result =
+    YTResultSet result =
         database.query(
             "select * from RidBagIndexTestClass where ridBag contains ?", docOne.getIdentity());
-    OResult res = result.next();
+    YTResult res = result.next();
 
     List<YTIdentifiable> listResult = new ArrayList<>();
     for (YTIdentifiable identifiable : res.<ORidBag>getProperty("ridBag")) {

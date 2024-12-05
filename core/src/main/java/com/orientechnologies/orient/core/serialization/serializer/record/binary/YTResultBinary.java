@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public class OResultBinary implements OResult {
+public class YTResultBinary implements YTResult {
 
   private final ODocumentSerializer serializer;
   @Nullable
@@ -46,7 +46,7 @@ public class OResultBinary implements OResult {
   private final YTImmutableSchema schema;
   private final YTDatabaseSessionInternal db;
 
-  public OResultBinary(
+  public YTResultBinary(
       YTDatabaseSessionInternal db,
       YTImmutableSchema schema,
       byte[] bytes,
@@ -63,7 +63,7 @@ public class OResultBinary implements OResult {
 
   }
 
-  public OResultBinary(
+  public YTResultBinary(
       YTDatabaseSessionInternal db,
       byte[] bytes,
       int offset,

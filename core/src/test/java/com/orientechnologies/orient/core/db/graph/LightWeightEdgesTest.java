@@ -10,8 +10,8 @@ import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,17 +43,17 @@ public class LightWeightEdgesTest {
     session.save(v);
     session.commit();
 
-    try (OResultSet res =
+    try (YTResultSet res =
         session.query(" select expand(out('Edge')) from `Vertex` where name = 'aName'")) {
       assertTrue(res.hasNext());
-      OResult r = res.next();
+      YTResult r = res.next();
       assertEquals(r.getProperty("name"), "bName");
     }
 
-    try (OResultSet res =
+    try (YTResultSet res =
         session.query(" select expand(in('Edge')) from `Vertex` where name = 'bName'")) {
       assertTrue(res.hasNext());
-      OResult r = res.next();
+      YTResult r = res.next();
       assertEquals(r.getProperty("name"), "aName");
     }
   }

@@ -17,9 +17,9 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.jdbc.OrientJdbcParameterMetadata.ParameterDefinition;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,9 +87,9 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
 
     if (sql.equalsIgnoreCase("select 1")) {
       // OPTIMIZATION
-      OResultInternal element = new OResultInternal(database);
+      YTResultInternal element = new YTResultInternal(database);
       element.setProperty("1", 1);
-      OInternalResultSet rs = new OInternalResultSet();
+      YTInternalResultSet rs = new YTInternalResultSet();
       rs.add(element);
       oResultSet = rs;
     } else {
@@ -116,7 +116,7 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
   }
 
   @Override
-  protected OResultSet executeCommand(String query) throws SQLException {
+  protected YTResultSet executeCommand(String query) throws SQLException {
 
     try {
       database.activateOnCurrentThread();

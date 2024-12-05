@@ -21,13 +21,13 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
@@ -48,13 +48,13 @@ import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationI
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OGlobalUser;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -428,7 +428,7 @@ public class OSecurityShared implements OSecurityInternal {
 
   public boolean dropUser(final YTDatabaseSession session, final String iUserName) {
     final Number removed;
-    try (OResultSet res = session.command("delete from OUser where name = ?", iUserName)) {
+    try (YTResultSet res = session.command("delete from OUser where name = ?", iUserName)) {
       removed = res.next().getProperty("count");
     }
 
@@ -455,7 +455,7 @@ public class OSecurityShared implements OSecurityInternal {
       return null;
     }
 
-    try (final OResultSet result =
+    try (final YTResultSet result =
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new ORole(session,
@@ -471,7 +471,7 @@ public class OSecurityShared implements OSecurityInternal {
       return null;
     }
 
-    try (final OResultSet result =
+    try (final YTResultSet result =
         session.query("select @rid as rid from ORole where name = ? limit 1", iRoleName)) {
 
       if (result.hasNext()) {
@@ -499,7 +499,7 @@ public class OSecurityShared implements OSecurityInternal {
 
   public boolean dropRole(final YTDatabaseSession session, final String iRoleName) {
     final Number removed;
-    try (OResultSet result =
+    try (YTResultSet result =
         session.command("delete from ORole where name = '" + iRoleName + "'")) {
       removed = result.next().getProperty("count");
     }
@@ -508,13 +508,13 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   public List<YTDocument> getAllUsers(final YTDatabaseSession session) {
-    try (OResultSet rs = session.query("select from OUser")) {
+    try (YTResultSet rs = session.query("select from OUser")) {
       return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
     }
   }
 
   public List<YTDocument> getAllRoles(final YTDatabaseSession session) {
-    try (OResultSet rs = session.query("select from ORole")) {
+    try (YTResultSet rs = session.query("select from ORole")) {
       return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
     }
   }
@@ -622,11 +622,11 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public OSecurityPolicyImpl getSecurityPolicy(YTDatabaseSession session, String name) {
-    try (OResultSet rs =
+    try (YTResultSet rs =
         session.query(
             "SELECT FROM " + OSecurityPolicy.class.getSimpleName() + " WHERE name = ?", name)) {
       if (rs.hasNext()) {
-        OResult result = rs.next();
+        YTResult result = rs.next();
         return new OSecurityPolicyImpl(result.getElement().get());
       }
     }
@@ -1218,7 +1218,7 @@ public class OSecurityShared implements OSecurityInternal {
     return (OUser)
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
-              try (OResultSet result =
+              try (YTResultSet result =
                   session.query("select from OUser where name = ? limit 1", iUserName)) {
                 if (result.hasNext()) {
                   return new OUser(session,
@@ -1287,7 +1287,7 @@ public class OSecurityShared implements OSecurityInternal {
     return (YTRID)
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
-              try (OResultSet result =
+              try (YTResultSet result =
                   session.query("select @rid as rid from OUser where name = ? limit 1", userName)) {
 
                 if (result.hasNext()) {
@@ -1350,9 +1350,9 @@ public class OSecurityShared implements OSecurityInternal {
     session.executeInTx(
         () -> {
           synchronized (this) {
-            try (OResultSet rs = session.query("select name, policies from ORole")) {
+            try (YTResultSet rs = session.query("select name, policies from ORole")) {
               while (rs.hasNext()) {
-                OResult item = rs.next();
+                YTResult item = rs.next();
                 String roleName = item.getProperty("name");
 
                 Map<String, YTIdentifiable> policies = item.getProperty("policies");
@@ -1521,7 +1521,7 @@ public class OSecurityShared implements OSecurityInternal {
               this,
               "database.class.`" + className + "`.`" + propertyName + "`",
               OSecurityPolicy.Scope.BEFORE_UPDATE);
-      OResultInternal originalRecord = calculateOriginalValue(document,
+      YTResultInternal originalRecord = calculateOriginalValue(document,
           session);
 
       if (!OSecurityEngine.evaluateSecuirtyPolicyPredicate(
@@ -1667,7 +1667,7 @@ public class OSecurityShared implements OSecurityInternal {
 
       // TODO avoid calculating original valueif not needed!!!
 
-      OResultInternal originalRecord = calculateOriginalValue(record, sessionInternal);
+      YTResultInternal originalRecord = calculateOriginalValue(record, sessionInternal);
       if (!OSecurityEngine.evaluateSecuirtyPolicyPredicate(
           session, beforePredicate, originalRecord)) {
         return false;
@@ -1687,14 +1687,14 @@ public class OSecurityShared implements OSecurityInternal {
     return true;
   }
 
-  private OResultInternal calculateOriginalValue(YTRecord record, YTDatabaseSessionInternal db) {
+  private YTResultInternal calculateOriginalValue(YTRecord record, YTDatabaseSessionInternal db) {
     return calculateBefore(record.getRecord(), db);
   }
 
-  public static OResultInternal calculateBefore(YTDocument iDocument,
+  public static YTResultInternal calculateBefore(YTDocument iDocument,
       YTDatabaseSessionInternal db) {
     // iDocument = db.load(iDocument.getIdentity(), null, true);
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       result.setProperty(prop, unboxRidbags(iDocument.getProperty(prop)));
     }
@@ -1884,9 +1884,9 @@ public class OSecurityShared implements OSecurityInternal {
         .existsClass("ORole")) {
       return Collections.emptySet();
     }
-    try (OResultSet rs = session.query("select policies from ORole")) {
+    try (YTResultSet rs = session.query("select policies from ORole")) {
       while (rs.hasNext()) {
-        OResult item = rs.next();
+        YTResult item = rs.next();
         Map<String, YTIdentifiable> policies = item.getProperty("policies");
         if (policies != null) {
           for (Map.Entry<String, YTIdentifiable> policyEntry : policies.entrySet()) {

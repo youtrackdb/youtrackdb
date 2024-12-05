@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTRecordFlat;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Base64;
 
 public class ORecordSerializerBinary implements ORecordSerializer {
@@ -174,8 +174,8 @@ public class ORecordSerializerBinary implements ORecordSerializer {
     return NAME;
   }
 
-  public OResult getBinaryResult(YTDatabaseSessionInternal db, byte[] bytes, YTRecordId id) {
+  public YTResult getBinaryResult(YTDatabaseSessionInternal db, byte[] bytes, YTRecordId id) {
     ODocumentSerializer serializer = getSerializer(bytes[0]);
-    return new OResultBinary(db, bytes, 1, bytes.length, serializer, id);
+    return new YTResultBinary(db, bytes, 1, bytes.length, serializer, id);
   }
 }

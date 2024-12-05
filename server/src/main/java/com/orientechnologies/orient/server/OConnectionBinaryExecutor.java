@@ -177,9 +177,9 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.sql.parser.OLocalResultSetLifecycleDecorator;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.orient.core.sql.parser.YTLocalResultSetLifecycleDecorator;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
@@ -1318,7 +1318,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeServerQuery(OServerQueryRequest request) {
     YouTrackDB youTrackDB = server.getContext();
 
-    OResultSet rs;
+    YTResultSet rs;
 
     if (request.isNamedParams()) {
       rs = youTrackDB.execute(request.getStatement(), request.getNamedParameters());
@@ -1327,10 +1327,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     // copy the result-set to make sure that the execution is successful
-    List<OResult> rsCopy = rs.stream().collect(Collectors.toList());
+    List<YTResult> rsCopy = rs.stream().collect(Collectors.toList());
 
     return new OServerQueryResponse(
-        ((OLocalResultSetLifecycleDecorator) rs).getQueryId(),
+        ((YTLocalResultSetLifecycleDecorator) rs).getQueryId(),
         false,
         rsCopy,
         rs.getExecutionPlan(),
@@ -1347,7 +1347,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (database.getTransaction().isActive()) {
       ((OTransactionOptimistic) database.getTransaction()).resetChangesTracking();
     }
-    OResultSet rs;
+    YTResultSet rs;
     if (OQueryRequest.QUERY == request.getOperationType()) {
       // TODO Assert is sql.
       if (request.isNamedParams()) {
@@ -1378,13 +1378,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     // copy the result-set to make sure that the execution is successful
-    Stream<OResult> stream = rs.stream();
+    Stream<YTResult> stream = rs.stream();
     if (database
         .getActiveQueries()
-        .containsKey(((OLocalResultSetLifecycleDecorator) rs).getQueryId())) {
+        .containsKey(((YTLocalResultSetLifecycleDecorator) rs).getQueryId())) {
       stream = stream.limit(request.getRecordsPerPage());
     }
-    List<OResult> rsCopy = stream.collect(Collectors.toList());
+    List<YTResult> rsCopy = stream.collect(Collectors.toList());
 
     boolean hasNext = rs.hasNext();
     boolean txChanges = false;
@@ -1394,7 +1394,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     database.getSharedContext().unregisterListener(metadataListener);
 
     return new OQueryResponse(
-        ((OLocalResultSetLifecycleDecorator) rs).getQueryId(),
+        ((YTLocalResultSetLifecycleDecorator) rs).getQueryId(),
         txChanges,
         rsCopy,
         rs.getExecutionPlan(),
@@ -1407,7 +1407,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse closeQuery(OCloseQueryRequest oQueryRequest) {
     String queryId = oQueryRequest.getQueryId();
     YTDatabaseSessionInternal db = connection.getDatabase();
-    OResultSet query = db.getActiveQuery(queryId);
+    YTResultSet query = db.getActiveQuery(queryId);
     if (query != null) {
       query.close();
     }
@@ -1418,8 +1418,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeQueryNextPage(OQueryNextPageRequest request) {
     YTDatabaseSessionInternal database = connection.getDatabase();
     YouTrackDBInternal orientDB = database.getSharedContext().getYouTrackDB();
-    OLocalResultSetLifecycleDecorator rs =
-        (OLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
+    YTLocalResultSetLifecycleDecorator rs =
+        (YTLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
 
     if (rs == null) {
       throw new YTDatabaseException(
@@ -1430,9 +1430,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     try {
       orientDB.startCommand(Optional.empty());
       // copy the result-set to make sure that the execution is successful
-      List<OResult> rsCopy = new ArrayList<>(request.getRecordsPerPage());
+      List<YTResult> rsCopy = new ArrayList<>(request.getRecordsPerPage());
       int i = 0;
-      // if it's OInternalResultSet it means that it's a Command, not a Query, so the result has to
+      // if it's YTInternalResultSet it means that it's a Command, not a Query, so the result has to
       // be
       // sent as it is, not streamed
       while (rs.hasNext() && (rs.isDetached() || i < request.getRecordsPerPage())) {

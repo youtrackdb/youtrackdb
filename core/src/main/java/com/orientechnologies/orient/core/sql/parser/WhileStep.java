@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.sql.executor.AbstractExecutionStep;
 import com.orientechnologies.orient.core.sql.executor.EmptyStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStepInternal;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OScriptExecutionPlan;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class WhileStep extends AbstractExecutionStep {
     }
 
     var db = ctx.getDatabase();
-    while (condition.evaluate(new OResultInternal(db), ctx)) {
+    while (condition.evaluate(new YTResultInternal(db), ctx)) {
       if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
         throw new YTCommandInterruptedException("The command has been interrupted");
       }

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,7 +50,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
     db.command("CREATE INDEX POI.location ON POI(location) SPATIAL ENGINE LUCENE");
     db.command("CREATE INDEX Country.geometry ON Country(geometry) SPATIAL ENGINE LUCENE;");
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "select name from Country let locations = (select from Poi) where ST_Contains(geometry,"
                 + " $locations[0].location) = true")) {
@@ -58,7 +58,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
       assertThat(resultSet.stream().count()).isEqualTo(1);
     }
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {
@@ -66,7 +66,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
       assertThat(resultSet.stream().count()).isEqualTo(1);
     }
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "select name from Country where ST_Contains(geometry, (select name,location from POI))"
                 + " = true;")) {
@@ -81,7 +81,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
         .close();
     db.commit();
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {
@@ -95,7 +95,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
     db.command("delete vertex Poi").close();
     db.commit();
 
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {

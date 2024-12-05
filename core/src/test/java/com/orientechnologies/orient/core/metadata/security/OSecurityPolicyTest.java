@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.metadata.security;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,7 +13,7 @@ public class OSecurityPolicyTest extends DBTestBase {
 
   @Test
   public void testSecurityPolicyCreate() {
-    OResultSet rs =
+    YTResultSet rs =
         db.query(
             "select from " + OSecurityPolicy.class.getSimpleName() + " WHERE name = ?", "test");
     Assert.assertFalse(rs.hasNext());
@@ -28,7 +28,7 @@ public class OSecurityPolicyTest extends DBTestBase {
         db.query(
             "select from " + OSecurityPolicy.class.getSimpleName() + " WHERE name = ?", "test");
     Assert.assertTrue(rs.hasNext());
-    OResult item = rs.next();
+    YTResult item = rs.next();
     Assert.assertEquals("test", item.getProperty("name"));
     Assert.assertFalse(rs.hasNext());
     rs.close();
@@ -145,7 +145,7 @@ public class OSecurityPolicyTest extends DBTestBase {
     db.commit();
 
     YTRID policyRid = policy.getElement(db).getIdentity();
-    try (OResultSet rs = db.query("select from ORole where name = 'reader'")) {
+    try (YTResultSet rs = db.query("select from ORole where name = 'reader'")) {
       Map<String, YTIdentifiable> rolePolicies = rs.next().getProperty("policies");
       YTIdentifiable id = rolePolicies.get(resource);
       Assert.assertEquals(id.getIdentity(), policyRid);

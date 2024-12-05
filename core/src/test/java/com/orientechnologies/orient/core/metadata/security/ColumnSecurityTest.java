@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -224,12 +224,12 @@ public class ColumnSecurityTest {
 
     db.close();
     this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
-    OResultSet rs = db.query("select from Person");
+    YTResultSet rs = db.query("select from Person");
     boolean fooFound = false;
     boolean nullFound = false;
 
     for (int i = 0; i < 2; i++) {
-      OResult item = rs.next();
+      YTResult item = rs.next();
       if ("foo".equals(item.getProperty("name"))) {
         fooFound = true;
       }
@@ -271,7 +271,7 @@ public class ColumnSecurityTest {
 
     db.close();
     this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
-    OResultSet rs = db.query("select from Person where name = 'foo'");
+    YTResultSet rs = db.query("select from Person where name = 'foo'");
     Assert.assertTrue(rs.hasNext());
     rs.next();
     Assert.assertFalse(rs.hasNext());
@@ -306,12 +306,12 @@ public class ColumnSecurityTest {
     elem.setProperty("name", "bar");
     db.save(elem);
 
-    OResultSet rs = db.query("select from Person");
+    YTResultSet rs = db.query("select from Person");
     boolean fooFound = false;
     boolean barFound = false;
 
     for (int i = 0; i < 2; i++) {
-      OResult item = rs.next();
+      YTResult item = rs.next();
       if ("foo".equals(item.getProperty("name"))) {
         fooFound = true;
       }
@@ -335,7 +335,7 @@ public class ColumnSecurityTest {
     boolean nullFound = false;
 
     for (int i = 0; i < 2; i++) {
-      OResult item = rs.next();
+      YTResult item = rs.next();
       if ("foo".equals(item.getProperty("name"))) {
         fooFound = true;
       }
@@ -377,9 +377,9 @@ public class ColumnSecurityTest {
     db.close();
 
     this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
-    OResultSet rs = db.query("select from Person where name = 'foo' OR name = 'bar'");
+    YTResultSet rs = db.query("select from Person where name = 'foo' OR name = 'bar'");
 
-    OResult item = rs.next();
+    YTResult item = rs.next();
     Assert.assertEquals("foo", item.getProperty("name"));
 
     Assert.assertFalse(rs.hasNext());
@@ -447,7 +447,7 @@ public class ColumnSecurityTest {
 
     db.command("UPDATE Person SET name = 'foo1' WHERE name = 'foo'");
 
-    try (OResultSet rs = db.query("SELECT FROM Person WHERE name = 'foo1'")) {
+    try (YTResultSet rs = db.query("SELECT FROM Person WHERE name = 'foo1'")) {
       Assert.assertTrue(rs.hasNext());
       rs.next();
       Assert.assertFalse(rs.hasNext());
@@ -484,7 +484,7 @@ public class ColumnSecurityTest {
 
     db.command("UPDATE Person SET name = 'foo1' WHERE name = 'foo'");
 
-    try (OResultSet rs = db.query("SELECT FROM Person WHERE name = 'foo1'")) {
+    try (YTResultSet rs = db.query("SELECT FROM Person WHERE name = 'foo1'")) {
       Assert.assertTrue(rs.hasNext());
       rs.next();
       Assert.assertFalse(rs.hasNext());
@@ -512,8 +512,8 @@ public class ColumnSecurityTest {
     db.close();
 
     db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
-    try (final OResultSet resultSet = db.query("SELECT from Person")) {
-      OResult item = resultSet.next();
+    try (final YTResultSet resultSet = db.query("SELECT from Person")) {
+      YTResult item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
     }
   }
@@ -533,8 +533,8 @@ public class ColumnSecurityTest {
     db.close();
 
     db = (YTDatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
-    try (final OResultSet resultSet = db.query("SELECT from Person")) {
-      OResult item = resultSet.next();
+    try (final YTResultSet resultSet = db.query("SELECT from Person")) {
+      YTResult item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
       YTEntity doc = item.getElement().get();
       doc.setProperty("name", "bar");

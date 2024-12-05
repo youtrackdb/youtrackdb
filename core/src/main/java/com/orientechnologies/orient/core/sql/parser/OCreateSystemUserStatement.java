@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +114,7 @@ public class OCreateSystemUserStatement extends OSimpleExecServerStatement {
             }
           }
           sb.append("])");
-          Stream<OResult> stream =
+          Stream<YTResult> stream =
               db.computeInTx(() -> db.command(sb.toString(), params.toArray()).stream());
           return OExecutionStream.resultIterator(stream.iterator())
               .onClose((context) -> stream.close());

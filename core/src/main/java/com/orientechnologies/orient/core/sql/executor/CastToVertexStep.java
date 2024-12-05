@@ -22,16 +22,16 @@ public class CastToVertexStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result.getElement().orElse(null) instanceof YTVertex) {
       return result;
     }
     var db = ctx.getDatabase();
     if (result.isVertex()) {
-      if (result instanceof OResultInternal) {
-        ((OResultInternal) result).setIdentifiable(result.toElement().toVertex());
+      if (result instanceof YTResultInternal) {
+        ((YTResultInternal) result).setIdentifiable(result.toElement().toVertex());
       } else {
-        result = new OResultInternal(db, result.toElement().toVertex());
+        result = new YTResultInternal(db, result.toElement().toVertex());
       }
     } else {
       throw new YTCommandExecutionException("Current element is not a vertex: " + result);

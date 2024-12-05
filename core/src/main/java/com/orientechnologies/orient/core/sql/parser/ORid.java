@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Map;
 import java.util.Objects;
 
@@ -53,7 +53,7 @@ public class ORid extends SimpleNode {
     }
   }
 
-  public YTRecordId toRecordId(OResult target, OCommandContext ctx) {
+  public YTRecordId toRecordId(YTResult target, OCommandContext ctx) {
     if (legacy || (expression == null && cluster != null && position != null)) {
       return new YTRecordId(cluster.value.intValue(), position.value.longValue());
     } else {
@@ -143,7 +143,7 @@ public class ORid extends SimpleNode {
 
   public OInteger getCluster() {
     if (expression != null) {
-      YTRecordId rid = toRecordId((OResult) null, new OBasicCommandContext());
+      YTRecordId rid = toRecordId((YTResult) null, new OBasicCommandContext());
       if (rid != null) {
         OInteger result = new OInteger(-1);
         result.setValue(rid.getClusterId());
@@ -155,7 +155,7 @@ public class ORid extends SimpleNode {
 
   public OInteger getPosition() {
     if (expression != null) {
-      YTRecordId rid = toRecordId((OResult) null, new OBasicCommandContext());
+      YTRecordId rid = toRecordId((YTResult) null, new OBasicCommandContext());
       if (rid != null) {
         OInteger result = new OInteger(-1);
         result.setValue(rid.getClusterPosition());
@@ -165,8 +165,8 @@ public class ORid extends SimpleNode {
     return position;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (cluster != null) {
       result.setProperty("cluster", cluster.serialize(db));
     }
@@ -180,7 +180,7 @@ public class ORid extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("cluster") != null) {
       cluster = new OInteger(-1);
       cluster.deserialize(fromResult.getProperty("cluster"));

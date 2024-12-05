@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class LuceneSpatialFunctionFromGeoJSONTest extends BaseSpatialLuceneTest 
 
   protected void queryAndMatch(String input, String match) {
 
-    OResultSet query =
+    YTResultSet query =
         db.query(
             "SELECT ST_AsGeoJSON(ST_GeomFromText(:geo)) as geo;",
             new HashMap() {
@@ -46,7 +46,7 @@ public class LuceneSpatialFunctionFromGeoJSONTest extends BaseSpatialLuceneTest 
                 put("geo", input);
               }
             });
-    OResult result = query.stream().findFirst().get();
+    YTResult result = query.stream().findFirst().get();
     String geo = result.getProperty("geo");
     Assert.assertEquals(match, geo);
   }

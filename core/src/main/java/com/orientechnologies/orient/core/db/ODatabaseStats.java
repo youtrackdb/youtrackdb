@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import javax.annotation.Nonnull;
 
 public class ODatabaseStats {
@@ -16,8 +16,8 @@ public class ODatabaseStats {
   public long minRidbagPrefetchTimeMs;
   public long maxRidbagPrefetchTimeMs;
 
-  public OResult toResult(@Nonnull YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult toResult(@Nonnull YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
 
     result.setProperty("loadedRecords", loadedRecords);
     result.setProperty("averageLoadRecordTimeMs", averageLoadRecordTimeMs);

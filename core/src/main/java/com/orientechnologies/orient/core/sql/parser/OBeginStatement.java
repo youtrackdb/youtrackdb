@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
 
@@ -21,7 +21,7 @@ public class OBeginStatement extends OSimpleExecStatement {
   public OExecutionStream executeSimple(OCommandContext ctx) {
     var db = ctx.getDatabase();
     db.begin();
-    OResultInternal item = new OResultInternal(db);
+    YTResultInternal item = new YTResultInternal(db);
     item.setProperty("operation", "begin");
     return OExecutionStream.singleton(item);
   }

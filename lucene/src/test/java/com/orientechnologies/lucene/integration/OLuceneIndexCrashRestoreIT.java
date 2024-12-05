@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import java.io.File;
@@ -131,7 +131,7 @@ public class OLuceneIndexCrashRestoreIT {
   public void testEntriesAddition() throws Exception {
     List<DataPropagationTask> futures = new ArrayList<>();
     YTDatabaseSessionInternal db;
-    OResultSet res;
+    YTResultSet res;
     try {
       createSchema(databasePool);
 
@@ -330,7 +330,7 @@ public class OLuceneIndexCrashRestoreIT {
             testDB.commit();
           }
           if (id % 2000 == 0) {
-            final OResultSet resultSet =
+            final YTResultSet resultSet =
                 testDB.command("delete from Person where name lucene 'Robert' ");
             System.out.println(
                 Thread.currentThread().getName()

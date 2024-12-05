@@ -10,9 +10,9 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import java.util.Map;
 
@@ -57,28 +57,29 @@ public class OStatement extends SimpleNode {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());
   }
 
-  public OResultSet execute(YTDatabaseSessionInternal db, Object[] args) {
+  public YTResultSet execute(YTDatabaseSessionInternal db, Object[] args) {
     return execute(db, args, true);
   }
 
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public OResultSet execute(YTDatabaseSessionInternal db, Map args) {
+  public YTResultSet execute(YTDatabaseSessionInternal db, Map args) {
     return execute(db, args, true);
   }
 
-  public OResultSet execute(YTDatabaseSessionInternal db, Map args, OCommandContext parentContext) {
+  public YTResultSet execute(YTDatabaseSessionInternal db, Map args,
+      OCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public OResultSet execute(YTDatabaseSessionInternal db, Object[] args, boolean usePlanCache) {
+  public YTResultSet execute(YTDatabaseSessionInternal db, Object[] args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db,
       Object[] args,
       OCommandContext parentContext,
@@ -86,11 +87,11 @@ public class OStatement extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public OResultSet execute(YTDatabaseSessionInternal db, Map args, boolean usePlanCache) {
+  public YTResultSet execute(YTDatabaseSessionInternal db, Map args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map args, OCommandContext parentContext, boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
@@ -133,7 +134,7 @@ public class OStatement extends SimpleNode {
     return false;
   }
 
-  public static OStatement deserializeFromOResult(OResult doc) {
+  public static OStatement deserializeFromOResult(YTResult doc) {
     try {
       OStatement result =
           (OStatement)
@@ -147,13 +148,13 @@ public class OStatement extends SimpleNode {
     return null;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     throw new UnsupportedOperationException();
   }
 

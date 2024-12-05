@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -379,12 +379,12 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
     throw new UnsupportedOperationException();
   }
 
-  default OResultSet executeServerStatementNamedParams(String script, String user, String pw,
+  default YTResultSet executeServerStatementNamedParams(String script, String user, String pw,
       Map<String, Object> params) {
     throw new UnsupportedOperationException();
   }
 
-  default OResultSet executeServerStatementPositionalParams(String script, String user, String pw,
+  default YTResultSet executeServerStatementPositionalParams(String script, String user, String pw,
       Object... params) {
     throw new UnsupportedOperationException();
   }

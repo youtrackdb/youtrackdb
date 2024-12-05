@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.IntStream;
 import org.junit.After;
@@ -45,7 +45,7 @@ public class CreateLightWeightEdgesSQLTest {
         "create edge e from (select from v where name='a') to (select from v where name='a') ");
     session.commit();
 
-    try (OResultSet res = session.query("select expand(out()) from v where name='a' ")) {
+    try (YTResultSet res = session.query("select expand(out()) from v where name='a' ")) {
       assertEquals(res.stream().count(), 1);
     }
     session.close();
@@ -102,8 +102,8 @@ public class CreateLightWeightEdgesSQLTest {
     latch.await();
 
     session = pool.acquire();
-    try (OResultSet res = session.query("select sum(out().size()) as size from V where id = 1");
-        OResultSet res1 = session.query("select sum(in().size()) as size from V where id = 2")) {
+    try (YTResultSet res = session.query("select sum(out().size()) as size from V where id = 1");
+        YTResultSet res1 = session.query("select sum(in().size()) as size from V where id = 2")) {
 
       Integer s1 = res.stream().findFirst().get().getProperty("size");
       Integer s2 = res1.stream().findFirst().get().getProperty("size");

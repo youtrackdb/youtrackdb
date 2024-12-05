@@ -38,7 +38,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLTarget;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
@@ -385,8 +385,8 @@ public class OSQLEngine {
       return result;
     } else if (iCurrent instanceof YTIdentifiable) {
       return iCallable.call((YTIdentifiable) iCurrent);
-    } else if (iCurrent instanceof OResult) {
-      return iCallable.call(((OResult) iCurrent).toElement());
+    } else if (iCurrent instanceof YTResult) {
+      return iCallable.call(((YTResult) iCurrent).toElement());
     }
 
     return null;

@@ -26,9 +26,9 @@ public class ODropIndexStatementExecutionTest extends BaseMemoryInternalDatabase
     db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNotNull((db.getMetadata().getIndexManagerInternal()).getIndex(db, indexName));
 
-    OResultSet result = db.command("drop index " + indexName);
+    YTResultSet result = db.command("drop index " + indexName);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop index", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -50,9 +50,9 @@ public class ODropIndexStatementExecutionTest extends BaseMemoryInternalDatabase
     db.getMetadata().getIndexManagerInternal().reload(db);
     Assert.assertNotNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
 
-    OResultSet result = db.command("drop index *");
+    YTResultSet result = db.command("drop index *");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop index", next.getProperty("operation"));
     result.close();
     db.getMetadata().getIndexManagerInternal().reload(db);
@@ -68,7 +68,7 @@ public class ODropIndexStatementExecutionTest extends BaseMemoryInternalDatabase
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
 
     try {
-      OResultSet result = db.command("drop index " + indexName);
+      YTResultSet result = db.command("drop index " + indexName);
       Assert.fail();
     } catch (YTCommandExecutionException ex) {
     } catch (Exception e) {
@@ -84,7 +84,7 @@ public class ODropIndexStatementExecutionTest extends BaseMemoryInternalDatabase
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, indexName));
 
     try {
-      OResultSet result = db.command("drop index " + indexName + " if exists");
+      YTResultSet result = db.command("drop index " + indexName + " if exists");
     } catch (Exception e) {
       Assert.fail();
     }

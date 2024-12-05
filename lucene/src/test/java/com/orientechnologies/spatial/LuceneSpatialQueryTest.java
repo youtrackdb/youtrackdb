@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -99,8 +99,8 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
             doc.field("country", nextLine[1]);
             try {
 
-              Double lat = ((Double) YTType.convert(db, nextLine[5], Double.class)).doubleValue();
-              Double lng = ((Double) YTType.convert(db, nextLine[6], Double.class)).doubleValue();
+              Double lat = YTType.convert(db, nextLine[5], Double.class).doubleValue();
+              Double lng = YTType.convert(db, nextLine[6], Double.class).doubleValue();
               doc.field("latitude", lat);
               doc.field("longitude", lng);
             } catch (Exception e) {
@@ -133,7 +133,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
     String query =
         "select *,$distance from Place where [latitude,longitude,$spatial] NEAR"
             + " [41.893056,12.482778,{\"maxDistance\": 0.5}]";
-    OResultSet docs = db.query(query);
+    YTResultSet docs = db.query(query);
 
     Assert.assertTrue(docs.hasNext());
 
@@ -151,7 +151,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
     String query =
         "select * from Place where [latitude,longitude] WITHIN"
             + " [[51.507222,-0.1275],[55.507222,-0.1275]]";
-    OResultSet docs = db.query(query);
+    YTResultSet docs = db.query(query);
     Assert.assertEquals(238, docs.stream().count());
   }
 }

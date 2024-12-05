@@ -27,13 +27,13 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -45,7 +45,7 @@ import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.io.Serializable;
@@ -579,7 +579,7 @@ public enum YTType {
                             "Error in conversion of value '%s' to type '%s'", value, targetClass)),
                     e);
               }
-            } else if (o instanceof OResult res && res.isElement()) {
+            } else if (o instanceof YTResult res && res.isElement()) {
               result.add(res.getRecordId());
             }
           }
@@ -642,17 +642,17 @@ public enum YTType {
           && !Collection.class.isAssignableFrom(targetClass)) {
         // this must be a comparison with the result of a subquery, try to unbox the collection
         return convert(session, ((Collection) value).iterator().next(), targetClass);
-      } else if (value instanceof OResult
-          && ((OResult) value).getPropertyNames().size() == 1
-          && !OResult.class.isAssignableFrom(targetClass)) {
-        // try to unbox OResult with a single property, for subqueries
+      } else if (value instanceof YTResult
+          && ((YTResult) value).getPropertyNames().size() == 1
+          && !YTResult.class.isAssignableFrom(targetClass)) {
+        // try to unbox YTResult with a single property, for subqueries
         return convert(session,
-            ((OResult) value).getProperty(((OResult) value).getPropertyNames().iterator().next()),
+            ((YTResult) value).getProperty(((YTResult) value).getPropertyNames().iterator().next()),
             targetClass);
       } else if (value instanceof YTEntity
           && ((YTEntityInternal) value).getPropertyNamesInternal().size() == 1
           && !YTEntity.class.isAssignableFrom(targetClass)) {
-        // try to unbox OResult with a single property, for subqueries
+        // try to unbox YTResult with a single property, for subqueries
         return convert(session,
             ((YTEntity) value)
                 .getProperty(

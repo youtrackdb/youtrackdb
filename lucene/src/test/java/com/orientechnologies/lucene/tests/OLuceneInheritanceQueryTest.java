@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,7 +50,7 @@ public class OLuceneInheritanceQueryTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    OResultSet resultSet = db.query("select from C1 where search_class(\"abc\")=true ");
+    YTResultSet resultSet = db.query("select from C1 where search_class(\"abc\")=true ");
 
     assertThat(resultSet).hasSize(1);
     resultSet.close();

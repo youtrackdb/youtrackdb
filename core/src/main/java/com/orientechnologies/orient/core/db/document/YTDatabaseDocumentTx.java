@@ -11,12 +11,12 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
@@ -55,7 +55,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.shutdown.OShutdownHandler;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -1269,13 +1269,13 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public OResultSet query(String query, Object... args) {
+  public YTResultSet query(String query, Object... args) {
     checkOpenness();
     return internal.query(query, args);
   }
 
   @Override
-  public OResultSet query(String query, Map args)
+  public YTResultSet query(String query, Map args)
       throws YTCommandSQLParsingException, YTCommandExecutionException {
     checkOpenness();
     return internal.query(query, args);
@@ -1330,13 +1330,13 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public OResultSet command(String query, Object... args)
+  public YTResultSet command(String query, Object... args)
       throws YTCommandSQLParsingException, YTCommandExecutionException {
     checkOpenness();
     return internal.command(query, args);
   }
 
-  public OResultSet command(String query, Map args)
+  public YTResultSet command(String query, Map args)
       throws YTCommandSQLParsingException, YTCommandExecutionException {
     checkOpenness();
     return internal.command(query, args);
@@ -1370,14 +1370,14 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public OResultSet execute(String language, String script, Object... args)
+  public YTResultSet execute(String language, String script, Object... args)
       throws YTCommandExecutionException, YTCommandScriptException {
     checkOpenness();
     return internal.execute(language, script, args);
   }
 
   @Override
-  public OResultSet execute(String language, String script, Map<String, ?> args)
+  public YTResultSet execute(String language, String script, Map<String, ?> args)
       throws YTCommandExecutionException, YTCommandScriptException {
     checkOpenness();
     return internal.execute(language, script, args);

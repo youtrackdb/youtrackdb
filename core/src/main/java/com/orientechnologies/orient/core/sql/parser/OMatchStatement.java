@@ -29,9 +29,9 @@ import com.orientechnologies.orient.core.sql.OIterableRecordSource;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OMatchExecutionPlanner;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.PatternEdge;
 import com.orientechnologies.orient.core.sql.executor.PatternNode;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.filter.OSQLTarget;
 import com.orientechnologies.orient.core.sql.query.OBasicLegacyResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
@@ -174,7 +174,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
       boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -196,11 +196,11 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new OLocalResultSet(executionPlan);
+    return new YTLocalResultSet(executionPlan);
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
@@ -215,7 +215,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new OLocalResultSet(executionPlan);
+    return new YTLocalResultSet(executionPlan);
   }
 
   public OInternalExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {

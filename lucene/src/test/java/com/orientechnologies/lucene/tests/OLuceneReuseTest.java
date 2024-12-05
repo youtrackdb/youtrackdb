@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Date;
 import org.junit.Test;
 
@@ -40,7 +40,7 @@ public class OLuceneReuseTest extends OLuceneBaseTest {
       db.commit();
     }
 
-    OResultSet results =
+    YTResultSet results =
         db.command("SELECT FROM Reuse WHERE name='John' and search_class('Reese') =true");
 
     assertThat(results).hasSize(10);
@@ -88,7 +88,7 @@ public class OLuceneReuseTest extends OLuceneBaseTest {
     db.commit();
 
     // exact query on name uses Reuse.conposite
-    OResultSet results =
+    YTResultSet results =
         db.command("SELECT FROM Reuse WHERE name='John' and search_class('Reese')=true");
 
     assertThat(results).hasSize(10);

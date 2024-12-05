@@ -13,8 +13,8 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Map;
 import java.util.Objects;
 
@@ -72,17 +72,17 @@ public class ORecordAttribute extends SimpleNode {
     this.name = name;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("name", name);
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     name = fromResult.getProperty("name");
   }
 
-  public Object evaluate(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object evaluate(YTResult iCurrentRecord, OCommandContext ctx) {
     if (name.equalsIgnoreCase("@rid")) {
       YTRID identity = iCurrentRecord.getIdentity().orElse(null);
       if (identity == null) {

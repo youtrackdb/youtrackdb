@@ -11,10 +11,10 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSelectExecutionPlanner;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -283,7 +283,7 @@ public class OSelectStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
       boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -305,12 +305,12 @@ public class OSelectStatement extends OStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    OLocalResultSet result = new OLocalResultSet(executionPlan);
+    YTLocalResultSet result = new YTLocalResultSet(executionPlan);
     return result;
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
@@ -325,7 +325,7 @@ public class OSelectStatement extends OStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    OLocalResultSet result = new OLocalResultSet(executionPlan);
+    YTLocalResultSet result = new YTLocalResultSet(executionPlan);
     return result;
   }
 
@@ -492,8 +492,8 @@ public class OSelectStatement extends OStatement {
     this.noCache = noCache;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = (OResultInternal) super.serialize(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = (YTResultInternal) super.serialize(db);
     if (target != null) {
       result.setProperty("target", target.serialize(db));
     }
@@ -532,7 +532,7 @@ public class OSelectStatement extends OStatement {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("target") != null) {
       target = new OFromClause(-1);
       target.deserialize(fromResult.getProperty("target"));

@@ -2,12 +2,12 @@ package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.MatchEdgeTraverser;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 
 public final class OResultSetEdgeTraverser implements OExecutionStream {
 
   private final MatchEdgeTraverser trav;
-  private OResult nextResult;
+  private YTResult nextResult;
 
   public OResultSetEdgeTraverser(MatchEdgeTraverser trav) {
     this.trav = trav;
@@ -20,11 +20,11 @@ public final class OResultSetEdgeTraverser implements OExecutionStream {
   }
 
   @Override
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     if (!hasNext(ctx)) {
       throw new IllegalStateException();
     }
-    OResult result = nextResult;
+    YTResult result = nextResult;
     ctx.setVariable("$matched", result);
     nextResult = null;
     return result;

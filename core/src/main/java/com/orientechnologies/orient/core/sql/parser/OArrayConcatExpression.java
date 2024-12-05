@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -95,7 +95,7 @@ public class OArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     Object result = childExpressions.get(0).execute(iCurrentRecord, ctx);
     for (int i = 1; i < childExpressions.size(); i++) {
       result = apply(result, childExpressions.get(i).execute(iCurrentRecord, ctx));
@@ -227,8 +227,8 @@ public class OArrayConcatExpression extends SimpleNode {
     return childExpressions != null ? childExpressions.hashCode() : 0;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (childExpressions != null) {
       result.setProperty(
           "childExpressions",
@@ -237,12 +237,12 @@ public class OArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
 
     if (fromResult.getProperty("childExpressions") != null) {
-      List<OResult> ser = fromResult.getProperty("childExpressions");
+      List<YTResult> ser = fromResult.getProperty("childExpressions");
       childExpressions = new ArrayList<>();
-      for (OResult r : ser) {
+      for (YTResult r : ser) {
         OArrayConcatExpressionElement exp = new OArrayConcatExpressionElement(-1);
         exp.deserialize(r);
         childExpressions.add(exp);

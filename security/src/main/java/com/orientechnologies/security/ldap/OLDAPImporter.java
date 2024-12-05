@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityAuthenticator;
 import com.orientechnologies.orient.core.security.OSecurityComponent;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -619,10 +619,10 @@ public class OLDAPImporter implements OSecurityComponent {
     try {
       String sql = String.format("SELECT FROM `%s` WHERE Domain = ?", oldapUserClass);
 
-      OResultSet users = odb.query(sql, domain);
+      YTResultSet users = odb.query(sql, domain);
 
       while (users.hasNext()) {
-        OResult userDoc = users.next();
+        YTResult userDoc = users.next();
         String roles = userDoc.getProperty("Roles");
 
         if (roles != null) {
@@ -667,10 +667,10 @@ public class OLDAPImporter implements OSecurityComponent {
       if (ignoreLocal) {
         sql = "SELECT FROM OUser WHERE _externalUser = true";
       }
-      OResultSet users = odb.query(sql);
+      YTResultSet users = odb.query(sql);
 
       while (users.hasNext()) {
-        OResult user = users.next();
+        YTResult user = users.next();
         String name = user.getProperty("name");
 
         if (name != null) {

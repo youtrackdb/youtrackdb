@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,7 +57,7 @@ public class OIndexRemoteMultiValue extends OIndexRemote {
 
   @Deprecated
   public Collection<YTIdentifiable> get(YTDatabaseSessionInternal session, final Object key) {
-    try (OResultSet result =
+    try (YTResultSet result =
         getDatabase().indexQuery(getName(), String.format(QUERY_GET, name), key)) {
       //noinspection resource
       return result.stream()

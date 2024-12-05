@@ -15,17 +15,17 @@ package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
 import com.orientechnologies.orient.core.sql.parser.OrientSql;
 import com.orientechnologies.orient.core.sql.parser.ParseException;
@@ -66,9 +66,9 @@ public class OrientJdbcResultSet implements ResultSet {
 
   private final OrientJdbcResultSetMetaData resultSetMetaData;
   private final List<String> fieldNames;
-  private List<OResult> records;
+  private List<YTResult> records;
   private final OrientJdbcStatement statement;
-  private OResult result;
+  private YTResult result;
 
   private int cursor = -1;
   private int rowCount = 0;
@@ -80,7 +80,7 @@ public class OrientJdbcResultSet implements ResultSet {
 
   protected OrientJdbcResultSet(
       final OrientJdbcStatement statement,
-      final OResultSet oResultSet,
+      final YTResultSet oResultSet,
       final int type,
       final int concurrency,
       int holdability)
@@ -100,7 +100,7 @@ public class OrientJdbcResultSet implements ResultSet {
     if (!records.isEmpty()) {
       result = records.get(0);
     } else {
-      result = new OResultInternal(statement.database);
+      result = new YTResultInternal(statement.database);
     }
 
     fieldNames = extractFieldNames(statement);

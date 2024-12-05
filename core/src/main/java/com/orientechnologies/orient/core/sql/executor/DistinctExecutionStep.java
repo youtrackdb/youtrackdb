@@ -32,13 +32,13 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
     assert prev != null;
     OExecutionStream resultSet = prev.start(ctx);
-    Set<OResult> pastItems = new HashSet<>();
+    Set<YTResult> pastItems = new HashSet<>();
     ORidSet pastRids = new ORidSet();
 
     return resultSet.filter((result, context) -> filterMap(result, pastRids, pastItems));
   }
 
-  private OResult filterMap(OResult result, Set<YTRID> pastRids, Set<OResult> pastItems) {
+  private YTResult filterMap(YTResult result, Set<YTRID> pastRids, Set<YTResult> pastItems) {
     if (alreadyVisited(result, pastRids, pastItems)) {
       return null;
     } else {
@@ -47,7 +47,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  private void markAsVisited(OResult nextValue, Set<YTRID> pastRids, Set<OResult> pastItems) {
+  private void markAsVisited(YTResult nextValue, Set<YTRID> pastRids, Set<YTResult> pastItems) {
     if (nextValue.isElement()) {
       YTRID identity = nextValue.toElement().getIdentity();
       int cluster = identity.getClusterId();
@@ -69,7 +69,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  private boolean alreadyVisited(OResult nextValue, Set<YTRID> pastRids, Set<OResult> pastItems) {
+  private boolean alreadyVisited(YTResult nextValue, Set<YTRID> pastRids, Set<YTResult> pastItems) {
     if (nextValue.isElement()) {
       YTRID identity = nextValue.toElement().getIdentity();
       int cluster = identity.getClusterId();

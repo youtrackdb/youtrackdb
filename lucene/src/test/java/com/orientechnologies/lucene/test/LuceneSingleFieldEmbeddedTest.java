@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,7 +32,7 @@ public class LuceneSingleFieldEmbeddedTest extends BaseLuceneTest {
   @Test
   public void loadAndTest() {
 
-    OResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:mountain)\"");
+    YTResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:mountain)\"");
 
     Assert.assertEquals(docs.stream().count(), 4);
 

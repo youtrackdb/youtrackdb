@@ -25,8 +25,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -57,7 +57,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     db.begin();
     db.save(doc);
 
-    OResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
+    YTResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
     Assert.assertEquals(vertices.stream().count(), 1);
     db.rollback();
@@ -77,7 +77,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     db.save(doc);
 
-    OResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
+    YTResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
     Assert.assertEquals(1, vertices.stream().count());
 
@@ -86,7 +86,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
-    OResult result = vertices.next();
+    YTResult result = vertices.next();
     db.begin();
 
     Assert.assertFalse(vertices.hasNext());
@@ -144,7 +144,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     db.save(doc);
 
-    OResultSet vertices = db.query("select from C1 where p1 lucene \"update\" ");
+    YTResultSet vertices = db.query("select from C1 where p1 lucene \"update\" ");
 
     Assert.assertEquals(vertices.stream().count(), 1);
 
@@ -159,7 +159,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
       coll = stream.collect(Collectors.toList());
     }
 
-    OResult res = vertices.next();
+    YTResult res = vertices.next();
     Assert.assertFalse(vertices.hasNext());
     Assert.assertEquals(coll.size(), 1);
     Assert.assertEquals(index.getInternal().size(db), 1);
@@ -236,7 +236,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     doc.field("p1", "removed");
     db.save(doc);
 
-    OResultSet vertices = db.query("select from C1 where p1 lucene \"abc\"");
+    YTResultSet vertices = db.query("select from C1 where p1 lucene \"abc\"");
     Collection coll;
     try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());

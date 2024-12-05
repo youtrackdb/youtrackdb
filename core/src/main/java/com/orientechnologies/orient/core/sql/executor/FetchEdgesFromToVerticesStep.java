@@ -84,7 +84,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
             .filter((e) -> filterResult(e, toList))
             .map(
                 (edge) -> {
-                  return (OResult) new OResultInternal(db, edge);
+                  return (YTResult) new YTResultInternal(db, edge);
                 })
             .iterator());
   }
@@ -104,8 +104,8 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       final Set<YTRID> toList = new HashSet<YTRID>();
       while (toIter.hasNext()) {
         Object elem = toIter.next();
-        if (elem instanceof OResult) {
-          elem = ((OResult) elem).toElement();
+        if (elem instanceof YTResult) {
+          elem = ((YTResult) elem).toElement();
         }
         if (elem instanceof YTIdentifiable && !(elem instanceof YTEntity)) {
           elem = ((YTIdentifiable) elem).getRecord();
@@ -141,8 +141,8 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
   }
 
   private Iterable<YTEdge> loadNextResults(Object from) {
-    if (from instanceof OResult) {
-      from = ((OResult) from).toElement();
+    if (from instanceof YTResult) {
+      from = ((YTResult) from).toElement();
     }
     if (from instanceof YTIdentifiable && !(from instanceof YTEntity)) {
       from = ((YTIdentifiable) from).getRecord();

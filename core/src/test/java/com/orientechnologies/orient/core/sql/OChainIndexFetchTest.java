@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Test;
 
 public class OChainIndexFetchTest extends DBTestBase {
@@ -40,7 +40,7 @@ public class OChainIndexFetchTest extends DBTestBase {
     db.save(doc1);
     db.commit();
 
-    OResultSet res = db.query(" select from BaseClass where ref.id ='wrong_referred' ");
+    YTResultSet res = db.query(" select from BaseClass where ref.id ='wrong_referred' ");
 
     assertEquals(0, res.stream().count());
   }

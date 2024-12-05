@@ -3,7 +3,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +41,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    List<OResult> result =
+    List<YTResult> result =
         database.query("select from CreateVertexByContent").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
 
@@ -51,7 +51,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
 
     List<String> resultMessages = new ArrayList<String>();
 
-    for (OResult document : result) {
+    for (YTResult document : result) {
       resultMessages.add(document.getProperty("message"));
     }
 

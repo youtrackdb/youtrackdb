@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -955,14 +955,14 @@ public class IndexTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "createInheritanceIndex")
   public void testIndexReturnOnlySpecifiedClass() {
 
-    try (OResultSet result =
+    try (YTResultSet result =
         database.command("select * from ChildTestClass where testParentProperty = 10")) {
 
       Assert.assertEquals(10L, result.next().<Object>getProperty("testParentProperty"));
       Assert.assertFalse(result.hasNext());
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         database.command("select * from AnotherChildTestClass where testParentProperty = 11")) {
       Assert.assertEquals(11L, result.next().<Object>getProperty("testParentProperty"));
       Assert.assertFalse(result.hasNext());
@@ -1598,7 +1598,7 @@ public class IndexTest extends DocumentDBBaseTest {
         null,
         metadata, new String[]{"birth"});
 
-    OResultSet result = database.query("SELECT FROM NullIterationTest ORDER BY birth ASC");
+    YTResultSet result = database.query("SELECT FROM NullIterationTest ORDER BY birth ASC");
     Assert.assertEquals(result.stream().count(), 3);
 
     result = database.query("SELECT FROM NullIterationTest ORDER BY birth DESC");
@@ -2258,7 +2258,7 @@ public class IndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(results.size(), 1);
   }
 
-  private void assertIndexUsage(OResultSet resultSet) {
+  private void assertIndexUsage(YTResultSet resultSet) {
     var executionPlan = resultSet.getExecutionPlan().orElseThrow();
     for (var step : executionPlan.getSteps()) {
       if (assertIndexUsage(step, "Profile.nick")) {

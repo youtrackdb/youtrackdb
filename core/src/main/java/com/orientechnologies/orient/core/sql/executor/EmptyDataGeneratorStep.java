@@ -26,8 +26,8 @@ public class EmptyDataGeneratorStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(EmptyDataGeneratorStep::create).limit(size);
   }
 
-  private static OResult create(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+  private static YTResult create(OCommandContext ctx) {
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     ctx.setVariable("$current", result);
     return result;
   }

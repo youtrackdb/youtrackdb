@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassEmbedded;
 import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class OCreatePropertyStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyName", propertyName.getStringValue());
@@ -53,7 +53,7 @@ public class OCreatePropertyStatement extends ODDLStatement {
     return OExecutionStream.singleton(result);
   }
 
-  private void executeInternal(OCommandContext ctx, OResultInternal result) {
+  private void executeInternal(OCommandContext ctx, YTResultInternal result) {
     var db = ctx.getDatabase();
     YTClassEmbedded clazz =
         (YTClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());

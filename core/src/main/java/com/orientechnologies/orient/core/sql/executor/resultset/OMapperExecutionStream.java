@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 
 public class OMapperExecutionStream implements OExecutionStream {
 
@@ -22,7 +22,7 @@ public class OMapperExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     return this.mapper.map(upstream.next(ctx), ctx);
   }
 

@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -377,7 +377,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     teri.save();
     database.commit();
 
-    OResultSet result = database.command("select from MyProfile ");
+    YTResultSet result = database.command("select from MyProfile ");
 
     Assert.assertTrue(result.stream().findAny().isPresent());
   }
@@ -642,7 +642,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    final OResultSet result1 = database.command("select from TRPerson");
+    final YTResultSet result1 = database.command("select from TRPerson");
     Assert.assertEquals(result1.stream().count(), cnt);
 
     try {
@@ -689,7 +689,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       Assert.assertTrue(true);
     }
 
-    final OResultSet result2 = database.command("select from TRPerson");
+    final YTResultSet result2 = database.command("select from TRPerson");
     Assert.assertNotNull(result2);
     Assert.assertEquals(result2.stream().count(), cnt);
   }

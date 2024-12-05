@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 import org.junit.Test;
 
@@ -66,7 +66,7 @@ public class TxUniqueIndexWithCollationTest extends DBTestBase {
 
     db.command("update user set name='abd' where name='Aby'").close();
 
-    final OResultSet r = db.command("select * from user where name like '%B%' order by name");
+    final YTResultSet r = db.command("select * from user where name like '%B%' order by name");
     assertEquals("abc", r.next().getProperty("name"));
     assertEquals("abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));
@@ -82,7 +82,7 @@ public class TxUniqueIndexWithCollationTest extends DBTestBase {
 
     db.command("update user set name='Abd' where name='Aby'").close();
 
-    final OResultSet r = db.command("select * from user where name >= 'abd' order by name");
+    final YTResultSet r = db.command("select * from user where name >= 'abd' order by name");
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));
     assertFalse(r.hasNext());

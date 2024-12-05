@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Map;
 import org.junit.Test;
 
@@ -19,11 +19,11 @@ public class SQLUpdateMapTest extends DBTestBase {
     db.command("create property vRecord.attrs EMBEDDEDMAP ").close();
 
     db.begin();
-    try (OResultSet rs = db.command("insert into vRecord (title) values('first record')")) {
+    try (YTResultSet rs = db.command("insert into vRecord (title) values('first record')")) {
       ret = (YTDocument) rs.next().getRecord().get();
     }
 
-    try (OResultSet rs = db.command("insert into vRecord (title) values('second record')")) {
+    try (YTResultSet rs = db.command("insert into vRecord (title) values('second record')")) {
       ret1 = (YTDocument) rs.next().getRecord().get();
     }
     db.commit();

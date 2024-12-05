@@ -27,7 +27,7 @@ public class OInfoExecutionPlan implements OExecutionPlan {
   }
 
   @Override
-  public OResult toResult(YTDatabaseSessionInternal db) {
+  public YTResult toResult(YTDatabaseSessionInternal db) {
     return null;
   }
 

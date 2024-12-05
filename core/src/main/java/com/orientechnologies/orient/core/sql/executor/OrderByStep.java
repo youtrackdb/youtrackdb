@@ -41,7 +41,7 @@ public class OrderByStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-    List<OResult> results;
+    List<YTResult> results;
 
     if (prev != null) {
       results = init(prev, ctx);
@@ -52,9 +52,9 @@ public class OrderByStep extends AbstractExecutionStep {
     return OExecutionStream.resultIterator(results.iterator());
   }
 
-  private List<OResult> init(OExecutionStepInternal p, OCommandContext ctx) {
+  private List<YTResult> init(OExecutionStepInternal p, OCommandContext ctx) {
     long timeoutBegin = System.currentTimeMillis();
-    List<OResult> cachedResult = new ArrayList<>();
+    List<YTResult> cachedResult = new ArrayList<>();
     final long maxElementsAllowed =
         YTGlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong();
     boolean sorted = true;
@@ -64,7 +64,7 @@ public class OrderByStep extends AbstractExecutionStep {
         sendTimeout();
       }
 
-      OResult item = lastBatch.next(ctx);
+      YTResult item = lastBatch.next(ctx);
       cachedResult.add(item);
       if (maxElementsAllowed >= 0 && maxElementsAllowed < cachedResult.size()) {
         throw new YTCommandExecutionException(

@@ -27,12 +27,12 @@ public class MatchStep extends AbstractExecutionStep {
     return resultSet.flatMap(this::createNextResultSet);
   }
 
-  public OExecutionStream createNextResultSet(OResult lastUpstreamRecord, OCommandContext ctx) {
+  public OExecutionStream createNextResultSet(YTResult lastUpstreamRecord, OCommandContext ctx) {
     MatchEdgeTraverser trav = createTraverser(lastUpstreamRecord);
     return new OResultSetEdgeTraverser(trav);
   }
 
-  protected MatchEdgeTraverser createTraverser(OResult lastUpstreamRecord) {
+  protected MatchEdgeTraverser createTraverser(YTResult lastUpstreamRecord) {
     if (edge.edge.item instanceof OMultiMatchPathItem) {
       return new MatchMultiEdgeTraverser(lastUpstreamRecord, edge);
     } else if (edge.edge.item instanceof OFieldMatchPathItem) {

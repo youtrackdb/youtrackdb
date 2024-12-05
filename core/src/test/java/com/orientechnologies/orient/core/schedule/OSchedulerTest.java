@@ -10,14 +10,14 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseThreadLocalFactory;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseThreadLocalFactory;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -273,9 +273,9 @@ public class OSchedulerTest {
   }
 
   private Long getLogCounter(final YTDatabaseSession db) {
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query("select count(*) as count from scheduler_log where note = 'test'");
-    OResult result = resultSet.stream().findFirst().orElseThrow();
+    YTResult result = resultSet.stream().findFirst().orElseThrow();
     var count = result.<Long>getProperty("count");
     resultSet.close();
     return count;

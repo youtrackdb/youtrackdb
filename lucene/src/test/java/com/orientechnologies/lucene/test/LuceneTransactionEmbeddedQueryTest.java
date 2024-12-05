@@ -28,8 +28,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
@@ -59,7 +59,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"abc\" ";
-      OResultSet vertices = db.query(query);
+      YTResultSet vertices = db.query(query);
 
       Assert.assertEquals(vertices.stream().count(), 1);
       db.rollback();
@@ -96,7 +96,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"abc\" ";
-      OResultSet vertices = db.query(query);
+      YTResultSet vertices = db.query(query);
 
       Assert.assertEquals(1, vertices.stream().count());
 
@@ -106,7 +106,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       query = "select from C1 where p1 lucene \"abc\" ";
       vertices = db.query(query);
 
-      OResult res = vertices.next();
+      YTResult res = vertices.next();
       db.begin();
       Assert.assertEquals(1, index.getInternal().size(db));
 
@@ -167,7 +167,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"update\" ";
-      OResultSet vertices = db.query(query);
+      YTResultSet vertices = db.query(query);
 
       Assert.assertEquals(vertices.stream().count(), 1);
 
@@ -184,7 +184,7 @@ public class LuceneTransactionEmbeddedQueryTest {
         coll = stream.collect(Collectors.toList());
       }
 
-      OResult resultRecord = vertices.next();
+      YTResult resultRecord = vertices.next();
       Assert.assertEquals(2, coll.size());
       Assert.assertEquals(2, index.getInternal().size(db));
 
@@ -272,7 +272,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"abc\"";
-      OResultSet vertices = db.query(query);
+      YTResultSet vertices = db.query(query);
       Collection coll;
       try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());

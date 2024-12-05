@@ -43,10 +43,10 @@ import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.security.ODefaultSecuritySystem;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.sql.parser.OLocalResultSetLifecycleDecorator;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.OServerStatement;
+import com.orientechnologies.orient.core.sql.parser.YTLocalResultSetLifecycleDecorator;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.config.OClusterBasedStorageConfiguration;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
@@ -1201,42 +1201,42 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     return scriptManager;
   }
 
-  public OResultSet executeServerStatementNamedParams(String script, String username, String pw,
+  public YTResultSet executeServerStatementNamedParams(String script, String username, String pw,
       Map<String, Object> args) {
     OServerStatement statement = OSQLEngine.parseServerStatement(script, this);
-    OResultSet original = statement.execute(this, args, true);
-    OLocalResultSetLifecycleDecorator result;
+    YTResultSet original = statement.execute(this, args, true);
+    YTLocalResultSetLifecycleDecorator result;
     //    if (!statement.isIdempotent()) {
     // fetch all, close and detach
     // TODO pagination!
-    OInternalResultSet prefetched = new OInternalResultSet();
+    YTInternalResultSet prefetched = new YTInternalResultSet();
     original.forEachRemaining(x -> prefetched.add(x));
     original.close();
-    result = new OLocalResultSetLifecycleDecorator(prefetched);
+    result = new YTLocalResultSetLifecycleDecorator(prefetched);
     //    } else {
     // stream, keep open and attach to the current DB
-    //      result = new OLocalResultSetLifecycleDecorator(original);
+    //      result = new YTLocalResultSetLifecycleDecorator(original);
     //      this.queryStarted(result.getQueryId(), result);
     //      result.addLifecycleListener(this);
     //    }
     return result;
   }
 
-  public OResultSet executeServerStatementPositionalParams(
+  public YTResultSet executeServerStatementPositionalParams(
       String script, String username, String pw, Object... args) {
     OServerStatement statement = OSQLEngine.parseServerStatement(script, this);
-    OResultSet original = statement.execute(this, args, true);
-    OLocalResultSetLifecycleDecorator result;
+    YTResultSet original = statement.execute(this, args, true);
+    YTLocalResultSetLifecycleDecorator result;
     //    if (!statement.isIdempotent()) {
     // fetch all, close and detach
     // TODO pagination!
-    OInternalResultSet prefetched = new OInternalResultSet();
+    YTInternalResultSet prefetched = new YTInternalResultSet();
     original.forEachRemaining(x -> prefetched.add(x));
     original.close();
-    result = new OLocalResultSetLifecycleDecorator(prefetched);
+    result = new YTLocalResultSetLifecycleDecorator(prefetched);
     //    } else {
     // stream, keep open and attach to the current DB
-    //      result = new OLocalResultSetLifecycleDecorator(original);
+    //      result = new YTLocalResultSetLifecycleDecorator(original);
     //      this.queryStarted(result.getQueryId(), result);
     //      result.addLifecycleListener(this);
     //    }

@@ -51,12 +51,12 @@ public class OTraverseStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result =
+    YTResultSet result =
         db.query("traverse out() from (select from " + classPrefix + "V where name = 'a')");
 
     for (int i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -104,7 +104,7 @@ public class OTraverseStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "traverse out() from (select from "
                 + classPrefix
@@ -112,7 +112,7 @@ public class OTraverseStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -160,13 +160,13 @@ public class OTraverseStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "traverse out() from (select from " + classPrefix + "V where name = 'a') MAXDEPTH 1");
 
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -178,7 +178,7 @@ public class OTraverseStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -226,7 +226,7 @@ public class OTraverseStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "traverse out() from (select from "
                 + classPrefix
@@ -234,7 +234,7 @@ public class OTraverseStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(i, item.getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
@@ -267,9 +267,9 @@ public class OTraverseStatementExecutionTest extends DBTestBase {
     script += "commit;";
     script += "return $top";
 
-    OResultSet result = db.execute("sql", script);
+    YTResultSet result = db.execute("sql", script);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Object val = item.getProperty("value");
     Assert.assertTrue(val instanceof Collection);
     Assert.assertEquals(1, ((Collection) val).size());

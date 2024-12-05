@@ -32,7 +32,7 @@ public class ODeleteEdgeStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
+    YTResultSet rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 
@@ -87,7 +87,7 @@ public class ODeleteEdgeStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
+    YTResultSet rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 

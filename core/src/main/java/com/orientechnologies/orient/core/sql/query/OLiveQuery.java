@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import javax.annotation.Nonnull;
 
 /**
@@ -78,7 +78,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
     protected int token;
 
     @Override
-    public void onCreate(YTDatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, YTResult data) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
@@ -86,7 +86,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
@@ -94,7 +94,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, YTResult data) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,

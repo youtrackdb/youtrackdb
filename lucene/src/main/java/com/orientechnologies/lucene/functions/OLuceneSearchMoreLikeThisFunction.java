@@ -16,7 +16,7 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
@@ -158,13 +158,13 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     List<String> rids = new ArrayList<>();
     while (iter.hasNext()) {
       Object item = iter.next();
-      if (item instanceof OResult) {
-        if (((OResult) item).isElement()) {
-          rids.add(((OResult) item).getIdentity().get().toString());
+      if (item instanceof YTResult) {
+        if (((YTResult) item).isElement()) {
+          rids.add(((YTResult) item).getIdentity().get().toString());
         } else {
-          var properties = ((OResult) item).getPropertyNames();
+          var properties = ((YTResult) item).getPropertyNames();
           if (properties.size() == 1) {
-            Object val = ((OResult) item).getProperty(properties.iterator().next());
+            Object val = ((YTResult) item).getProperty(properties.iterator().next());
             if (val instanceof YTIdentifiable) {
               rids.add(((YTIdentifiable) val).getIdentity().toString());
             }

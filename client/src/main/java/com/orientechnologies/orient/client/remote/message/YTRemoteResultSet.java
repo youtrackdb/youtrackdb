@@ -4,9 +4,9 @@ import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionR
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import java.util.List;
 import java.util.Map;
@@ -15,19 +15,19 @@ import java.util.Optional;
 /**
  *
  */
-public class ORemoteResultSet implements OResultSet {
+public class YTRemoteResultSet implements YTResultSet {
 
   private final YTDatabaseSessionRemote db;
   private final String queryId;
-  private List<OResult> currentPage;
+  private List<YTResult> currentPage;
   private Optional<OExecutionPlan> executionPlan;
   private Map<String, Long> queryStats;
   private boolean hasNextPage;
 
-  public ORemoteResultSet(
+  public YTRemoteResultSet(
       YTDatabaseSessionRemote db,
       String queryId,
-      List<OResult> currentPage,
+      List<YTResult> currentPage,
       Optional<OExecutionPlan> executionPlan,
       Map<String, Long> queryStats,
       boolean hasNextPage) {
@@ -39,9 +39,9 @@ public class ORemoteResultSet implements OResultSet {
     this.hasNextPage = hasNextPage;
     if (db != null) {
       db.queryStarted(queryId, new OQueryDatabaseState(this));
-      for (OResult result : currentPage) {
-        if (result instanceof OResultInternal) {
-          ((OResultInternal) result).bindToCache(db);
+      for (YTResult result : currentPage) {
+        if (result instanceof YTResultInternal) {
+          ((YTResultInternal) result).bindToCache(db);
         }
       }
     }
@@ -66,7 +66,7 @@ public class ORemoteResultSet implements OResultSet {
   }
 
   @Override
-  public OResult next() {
+  public YTResult next() {
     if (currentPage.isEmpty()) {
       if (!hasNextPage()) {
         throw new IllegalStateException();
@@ -76,12 +76,12 @@ public class ORemoteResultSet implements OResultSet {
     if (currentPage.isEmpty()) {
       throw new IllegalStateException();
     }
-    OResult internal = currentPage.remove(0);
+    YTResult internal = currentPage.remove(0);
 
     if (internal.isRecord() && db != null && db.getTransaction().isActive()) {
       YTRecord record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
       if (record != null && record != OTransactionAbstract.DELETED_RECORD) {
-        internal = new OResultInternal(db, record);
+        internal = new YTResultInternal(db, record);
       }
     }
     return internal;
@@ -106,7 +106,7 @@ public class ORemoteResultSet implements OResultSet {
     return queryStats;
   }
 
-  public void add(OResultInternal item) {
+  public void add(YTResultInternal item) {
     currentPage.add(item);
   }
 
@@ -119,7 +119,7 @@ public class ORemoteResultSet implements OResultSet {
   }
 
   public void fetched(
-      List<OResult> result,
+      List<YTResult> result,
       boolean hasNextPage,
       Optional<OExecutionPlan> executionPlan,
       Map<String, Long> queryStats) {

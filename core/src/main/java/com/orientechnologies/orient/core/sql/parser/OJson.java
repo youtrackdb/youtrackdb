@@ -7,12 +7,12 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.OFieldTypesString;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OUpdatableResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTUpdatableResult;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -87,7 +87,7 @@ public class OJson extends SimpleNode {
     return doc;
   }
 
-  private YTDocument toDocument(OResult source, OCommandContext ctx, String className) {
+  private YTDocument toDocument(YTResult source, OCommandContext ctx, String className) {
     YTDocument retDoc = new YTDocument(className);
     Map<String, Character> types = null;
     for (OJsonItem item : items) {
@@ -128,7 +128,7 @@ public class OJson extends SimpleNode {
    * @param ctx
    * @return
    */
-  public Object toObjectDetermineType(OResult source, OCommandContext ctx) {
+  public Object toObjectDetermineType(YTResult source, OCommandContext ctx) {
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
     if (className != null || ("d".equalsIgnoreCase(type))) {
@@ -143,13 +143,13 @@ public class OJson extends SimpleNode {
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
     if (className != null || ("d".equalsIgnoreCase(type))) {
-      OUpdatableResult element = null;
+      YTUpdatableResult element = null;
       if (source != null) {
         var identity = source.getIdentity();
         if (identity.isPersistent()) {
-          element = new OUpdatableResult(db, db.load(source.getIdentity()));
+          element = new YTUpdatableResult(db, db.load(source.getIdentity()));
         } else if (identity instanceof YTEntity el) {
-          element = new OUpdatableResult(db, el);
+          element = new YTUpdatableResult(db, el);
         }
       }
       return toDocument(element, ctx, className);
@@ -172,7 +172,7 @@ public class OJson extends SimpleNode {
     return doc;
   }
 
-  public Map<String, Object> toMap(OResult source, OCommandContext ctx) {
+  public Map<String, Object> toMap(YTResult source, OCommandContext ctx) {
     Map<String, Object> doc = new LinkedHashMap<String, Object>();
     for (OJsonItem item : items) {
       String name = item.getLeftValue();
@@ -190,7 +190,7 @@ public class OJson extends SimpleNode {
     for (OJsonItem item : items) {
       String left = item.getLeftValue();
       if (left != null && left.toLowerCase(Locale.ENGLISH).equals("@class")) {
-        return "" + item.right.execute((OResult) null, ctx);
+        return "" + item.right.execute((YTResult) null, ctx);
       }
     }
     return null;
@@ -200,7 +200,7 @@ public class OJson extends SimpleNode {
     for (OJsonItem item : items) {
       String left = item.getLeftValue();
       if (left != null && left.toLowerCase(Locale.ENGLISH).equals("@type")) {
-        return "" + item.right.execute((OResult) null, ctx);
+        return "" + item.right.execute((YTResult) null, ctx);
       }
     }
     return null;
@@ -276,8 +276,8 @@ public class OJson extends SimpleNode {
     return false;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (items != null) {
       result.setProperty(
           "items",
@@ -286,12 +286,12 @@ public class OJson extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
 
     if (fromResult.getProperty("items") != null) {
-      List<OResult> ser = fromResult.getProperty("items");
+      List<YTResult> ser = fromResult.getProperty("items");
       items = new ArrayList<>();
-      for (OResult r : ser) {
+      for (YTResult r : ser) {
         OJsonItem exp = new OJsonItem();
         exp.deserialize(r);
         items.add(exp);

@@ -3,18 +3,18 @@ package com.orientechnologies.orient.core.storage;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.fs.OFile;
@@ -316,10 +316,10 @@ public class OStorageTestIT {
 
     final YTDatabaseSession session =
         youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
-    try (OResultSet resultSet = session.query("SELECT FROM metadata:storage")) {
+    try (YTResultSet resultSet = session.query("SELECT FROM metadata:storage")) {
       Assert.assertTrue(resultSet.hasNext());
 
-      final OResult result = resultSet.next();
+      final YTResult result = resultSet.next();
       Assert.assertEquals(OConstants.getVersion(), result.getProperty("createdAtVersion"));
     }
   }

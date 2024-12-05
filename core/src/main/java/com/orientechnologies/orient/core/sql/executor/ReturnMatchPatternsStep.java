@@ -21,10 +21,10 @@ public class ReturnMatchPatternsStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult next, OCommandContext ctx) {
+  private YTResult mapResult(YTResult next, OCommandContext ctx) {
     next.getPropertyNames().stream()
         .filter(s -> s.startsWith(OMatchExecutionPlanner.DEFAULT_ALIAS_PREFIX))
-        .forEach(((OResultInternal) next)::removeProperty);
+        .forEach(((YTResultInternal) next)::removeProperty);
     return next;
   }
 

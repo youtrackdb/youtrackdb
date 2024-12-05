@@ -26,9 +26,9 @@ public class CreateRecordStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(CreateRecordStep::produce).limit(total);
   }
 
-  private static OResult produce(OCommandContext ctx) {
+  private static YTResult produce(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    return new OUpdatableResult(db, db.newInstance());
+    return new YTUpdatableResult(db, db.newInstance());
   }
 
   @Override

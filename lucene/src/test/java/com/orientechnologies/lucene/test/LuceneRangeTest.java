@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -72,7 +72,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
     db.commit();
 
     // range
-    OResultSet results = db.command("SELECT FROM Person WHERE age LUCENE 'age:[5 TO 6]'");
+    YTResultSet results = db.command("SELECT FROM Person WHERE age LUCENE 'age:[5 TO 6]'");
 
     assertThat(results).hasSize(2);
 
@@ -102,7 +102,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // range
-    OResultSet results =
+    YTResultSet results =
         db.command(
             "SELECT FROM Person WHERE date LUCENE 'date:[" + fiveDaysAgo + " TO " + today + "]'");
 
@@ -132,7 +132,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // name and age range
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "SELECT * FROM Person WHERE [name,surname,date,age] LUCENE 'age:[5 TO 6] name:robert "
                 + " '");
@@ -221,7 +221,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
 
     int cluster = db.getMetadata().getSchema().getClass("Person").getClusterIds()[1];
 
-    OResultSet results =
+    YTResultSet results =
         db.command("SELECT FROM Person WHERE name LUCENE '+_CLUSTER:" + cluster + "'");
 
     assertThat(results).hasSize(2);

@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class OLuceneQueryParserTest extends OLuceneBaseTest {
             + " {\"allowLeadingWildcard\": true}");
 
     // querying with leading wildcard
-    OResultSet docs = db.query("select * from Song where search_class(\"(title:*tain)\") = true");
+    YTResultSet docs = db.query("select * from Song where search_class(\"(title:*tain)\") = true");
 
     assertThat(docs).hasSize(4);
     docs.close();
@@ -47,7 +47,7 @@ public class OLuceneQueryParserTest extends OLuceneBaseTest {
             + KeywordAnalyzer.class.getCanonicalName()
             + "\", \"lowercaseExpandedTerms\": false}");
 
-    OResultSet docs = db.query("select * from Song where search_class('Hunter') =true");
+    YTResultSet docs = db.query("select * from Song where search_class('Hunter') =true");
 
     assertThat(docs).hasSize(97);
     docs.close();
@@ -67,7 +67,7 @@ public class OLuceneQueryParserTest extends OLuceneBaseTest {
             + " {\"allowLeadingWildcard\": true}");
 
     // querying with leading wildcard
-    OResultSet docs = db.query("select * from Song where search_class ('title:*tain')=true");
+    YTResultSet docs = db.query("select * from Song where search_class ('title:*tain')=true");
 
     assertThat(docs).hasSize(4);
     docs.close();
@@ -79,7 +79,7 @@ public class OLuceneQueryParserTest extends OLuceneBaseTest {
     db.command("create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     // querying with boost
-    OResultSet rs =
+    YTResultSet rs =
         db.query(
             "select * from Song where search_class ('(title:forever)^2 OR author:Boudleaux')=true");
     List<String> boostedDocs =
@@ -122,7 +122,7 @@ public class OLuceneQueryParserTest extends OLuceneBaseTest {
     db.command("create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     // querying with boost
-    OResultSet rs =
+    YTResultSet rs =
         db.query(
             "select * from Song where search_class ('title:forever OR author:Boudleaux' ,"
                 + " {'boost':{ 'title': 2  }  })=true");
@@ -167,7 +167,7 @@ public class OLuceneQueryParserTest extends OLuceneBaseTest {
     db.command("create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     // querying with boost
-    OResultSet rs =
+    YTResultSet rs =
         db.query(
             "select $score from Song where search_class ('title:forever OR author:Boudleaux' ,"
                 + " {'boost':{ 'title': 2  }  })=true order by $score desc");
@@ -201,7 +201,7 @@ public class OLuceneQueryParserTest extends OLuceneBaseTest {
     db.command("create index Song.title_author on Song (title,author) FULLTEXT ENGINE LUCENE ");
 
     // querying with boost
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "select * from Song where search_class ('title:forever OR author:boudleaux' , "
                 + "{'customAnalysis': true, "

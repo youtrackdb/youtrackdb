@@ -38,7 +38,7 @@ public class CountFromIndexStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(this::produce).limit(1);
   }
 
-  private OResult produce(OCommandContext ctx) {
+  private YTResult produce(OCommandContext ctx) {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndexInternal idx =
         database
@@ -47,7 +47,7 @@ public class CountFromIndexStep extends AbstractExecutionStep {
             .getIndex(database, target.getIndexName())
             .getInternal();
     long size = idx.size(database);
-    OResultInternal result = new OResultInternal(database);
+    YTResultInternal result = new YTResultInternal(database);
     result.setProperty(alias, size);
     return result;
   }

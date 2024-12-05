@@ -24,14 +24,14 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private OResult filterMap(OResult result, OCommandContext ctx) {
+  private YTResult filterMap(YTResult result, OCommandContext ctx) {
     if (!matchesPattern(result, ctx)) {
       return result;
     }
     return null;
   }
 
-  private boolean matchesPattern(OResult nextItem, OCommandContext ctx) {
+  private boolean matchesPattern(YTResult nextItem, OCommandContext ctx) {
     OSelectExecutionPlan plan = createExecutionPlan(nextItem, ctx);
     OExecutionStream rs = plan.start();
     try {
@@ -41,7 +41,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
     }
   }
 
-  private OSelectExecutionPlan createExecutionPlan(OResult nextItem, OCommandContext ctx) {
+  private OSelectExecutionPlan createExecutionPlan(YTResult nextItem, OCommandContext ctx) {
     OSelectExecutionPlan plan = new OSelectExecutionPlan(ctx);
     var db = ctx.getDatabase();
     plan.chain(
@@ -52,8 +52,8 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
             return OExecutionStream.singleton(copy(nextItem));
           }
 
-          private OResult copy(OResult nextItem) {
-            OResultInternal result = new OResultInternal(db);
+          private YTResult copy(YTResult nextItem) {
+            YTResultInternal result = new YTResultInternal(db);
             for (String prop : nextItem.getPropertyNames()) {
               result.setProperty(prop, nextItem.getProperty(prop));
             }

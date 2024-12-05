@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OInsertExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     if (expression != null) {
       return expression.execute(iCurrentRecord, ctx);
     }
@@ -63,12 +63,12 @@ public class OParenthesisExpression extends OMathExpression {
       if (execPlan instanceof OInsertExecutionPlan) {
         ((OInsertExecutionPlan) execPlan).executeInternal();
       }
-      OLocalResultSet rs = new OLocalResultSet(execPlan);
-      List<OResult> result = new ArrayList<>();
+      YTLocalResultSet rs = new YTLocalResultSet(execPlan);
+      List<YTResult> result = new ArrayList<>();
       while (rs.hasNext()) {
         result.add(rs.next());
       }
-      //      List<OResult> result = rs.stream().collect(Collectors.toList());//TODO streamed...
+      //      List<YTResult> result = rs.stream().collect(Collectors.toList());//TODO streamed...
       rs.close();
       return result;
     }
@@ -217,7 +217,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public void applyRemove(OResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
     if (expression != null) {
       expression.applyRemove(result, ctx);
     } else {
@@ -225,8 +225,8 @@ public class OParenthesisExpression extends OMathExpression {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = (OResultInternal) super.serialize(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = (YTResultInternal) super.serialize(db);
     if (expression != null) {
       result.setProperty("expression", expression.serialize(db));
     }
@@ -236,7 +236,7 @@ public class OParenthesisExpression extends OMathExpression {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     super.deserialize(fromResult);
     if (fromResult.getProperty("expression") != null) {
       expression = new OExpression(-1);

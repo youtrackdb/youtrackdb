@@ -18,7 +18,7 @@ public class OProfileStatementExecutionTest extends DBTestBase {
     db.command("insert into testProfile set name ='bar'");
     db.commit();
 
-    OResultSet result = db.query("PROFILE SELECT FROM testProfile WHERE name ='bar'");
+    YTResultSet result = db.query("PROFILE SELECT FROM testProfile WHERE name ='bar'");
     Assert.assertTrue(result.getExecutionPlan().get().prettyPrint(0, 2).contains("μs"));
 
     result.close();

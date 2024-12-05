@@ -6,8 +6,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -73,7 +73,7 @@ public class OAlterClusterStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    List<OResult> result = new ArrayList<>();
+    List<YTResult> result = new ArrayList<>();
     IntArrayList clustersToUpdate = getClusters(ctx);
 
     Object finalValue = attributeValue.execute((YTIdentifiable) null, ctx);
@@ -94,7 +94,7 @@ public class OAlterClusterStatement extends ODDLStatement {
     for (final int clusterId : clustersToUpdate) {
       storage.setClusterAttribute(clusterId, attribute, finalValue);
 
-      OResultInternal resultItem = new OResultInternal(ctx.getDatabase());
+      YTResultInternal resultItem = new YTResultInternal(ctx.getDatabase());
       resultItem.setProperty("cluster", storage.getClusterName(ctx.getDatabase(), clusterId));
       result.add(resultItem);
     }

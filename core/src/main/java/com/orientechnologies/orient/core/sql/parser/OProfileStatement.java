@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlan;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -40,7 +40,7 @@ public class OProfileStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
       boolean usePlanCache) {
     db.resetRecordLoadStats();
@@ -68,14 +68,14 @@ public class OProfileStatement extends OStatement {
       ((OUpdateExecutionPlan) executionPlan).executeInternal();
     }
 
-    OLocalResultSet rs = new OLocalResultSet((OInternalExecutionPlan) executionPlan);
+    YTLocalResultSet rs = new YTLocalResultSet((OInternalExecutionPlan) executionPlan);
 
     while (rs.hasNext()) {
       rs.next();
     }
     ODatabaseStats dbStats = db.getStats();
-    OExplainResultSet result =
-        new OExplainResultSet(db,
+    YTExplainResultSet result =
+        new YTExplainResultSet(db,
             rs.getExecutionPlan()
                 .orElseThrow(
                     () -> new YTCommandExecutionException("Cannot profile command: " + statement)),
@@ -85,7 +85,7 @@ public class OProfileStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map args, OCommandContext parentCtx, boolean usePlanCache) {
     db.resetRecordLoadStats();
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -102,14 +102,14 @@ public class OProfileStatement extends OStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, true);
     }
 
-    OLocalResultSet rs = new OLocalResultSet((OInternalExecutionPlan) executionPlan);
+    YTLocalResultSet rs = new YTLocalResultSet((OInternalExecutionPlan) executionPlan);
 
     while (rs.hasNext()) {
       rs.next();
     }
     ODatabaseStats dbStats = db.getStats();
-    OExplainResultSet result =
-        new OExplainResultSet(db,
+    YTExplainResultSet result =
+        new YTExplainResultSet(db,
             rs.getExecutionPlan()
                 .orElseThrow(
                     () -> new YTCommandExecutionException("Cannot profile command: " + statement)),

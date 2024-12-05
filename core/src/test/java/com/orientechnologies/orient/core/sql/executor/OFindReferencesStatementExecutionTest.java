@@ -45,13 +45,13 @@ public class OFindReferencesStatementExecutionTest extends DBTestBase {
       }
     }
 
-    OResultSet result = db.query("find references " + linked.getIdentity());
+    YTResultSet result = db.query("find references " + linked.getIdentity());
 
     printExecutionPlan(result);
 
     for (int i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       ridsToMatch.remove(next.getProperty("referredBy"));
     }
 

@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,7 @@ public class OAlterRoleStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    List<OResult> rs = new ArrayList<>();
+    List<YTResult> rs = new ArrayList<>();
     var db = ctx.getDatabase();
     OSecurityInternal security = db.getSharedContext().getSecurity();
     ORole role = db.getMetadata().getSecurity().getRole(name.getStringValue());
@@ -57,7 +57,7 @@ public class OAlterRoleStatement extends OSimpleExecStatement {
       throw new YTCommandExecutionException("role not found: " + name.getStringValue());
     }
     for (Op op : operations) {
-      OResultInternal result = new OResultInternal(db);
+      YTResultInternal result = new YTResultInternal(db);
       result.setProperty("operation", "alter role");
       result.setProperty("name", name.getStringValue());
       result.setProperty("resource", op.resource.toString());

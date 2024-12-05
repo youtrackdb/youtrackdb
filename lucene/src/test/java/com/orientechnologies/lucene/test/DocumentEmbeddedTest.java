@@ -21,7 +21,7 @@ package com.orientechnologies.lucene.test;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    OResultSet results = db.query("select from City where name lucene 'London'");
+    YTResultSet results = db.query("select from City where name lucene 'London'");
 
     Assert.assertEquals(results.stream().count(), 1);
   }
@@ -76,7 +76,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
     db.commit();
 
-    OResultSet results = db.query("select from City where name lucene 'Berlin'");
+    YTResultSet results = db.query("select from City where name lucene 'Berlin'");
 
     Assert.assertEquals(results.stream().count(), 1);
   }

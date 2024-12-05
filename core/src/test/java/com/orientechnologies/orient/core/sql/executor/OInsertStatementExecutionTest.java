@@ -28,13 +28,13 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OResultSet result = db.command("insert into " + className + " set name = 'name1'");
+    YTResultSet result = db.command("insert into " + className + " set name = 'name1'");
     db.commit();
 
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -43,7 +43,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -57,14 +57,14 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("insert into " + className + "  (name, surname) values ('name1', 'surname1')");
     db.commit();
 
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
       Assert.assertEquals("surname1", item.getProperty("surname"));
@@ -74,7 +74,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -88,7 +88,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "insert into "
                 + className
@@ -99,7 +99,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name" + (i + 1), item.getProperty("name"));
       Assert.assertEquals("surname" + (i + 1), item.getProperty("surname"));
@@ -112,7 +112,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       names.remove(item.getProperty("name"));
@@ -140,14 +140,15 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     }
 
     db.begin();
-    OResultSet result = db.command("insert into " + className2 + " from select from " + className1);
+    YTResultSet result = db.command(
+        "insert into " + className2 + " from select from " + className1);
     db.commit();
 
     printExecutionPlan(result);
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       Assert.assertNotNull(item.getProperty("surname"));
@@ -161,7 +162,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className2);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       names.remove(item.getProperty("name"));
@@ -189,7 +190,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     }
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("insert into " + className2 + " ( select from " + className1 + ")");
     db.commit();
 
@@ -197,7 +198,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       Assert.assertNotNull(item.getProperty("surname"));
@@ -211,7 +212,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className2);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       names.remove(item.getProperty("name"));
@@ -228,14 +229,14 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("insert into " + className + " content {'name':'name1', 'surname':'surname1'}");
     db.commit();
 
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -244,7 +245,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
       Assert.assertEquals("surname1", item.getProperty("surname"));
@@ -259,7 +260,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "insert into "
                 + className
@@ -270,7 +271,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     printExecutionPlan(result);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -279,7 +280,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
       Assert.assertEquals("surname1", item.getProperty("surname"));
@@ -300,13 +301,13 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     params.put("theContent", theContent);
 
     db.begin();
-    OResultSet result = db.command("insert into " + className + " content :theContent", params);
+    YTResultSet result = db.command("insert into " + className + " content :theContent", params);
     db.commit();
 
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -315,7 +316,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
       Assert.assertEquals("surname1", item.getProperty("surname"));
@@ -357,10 +358,10 @@ public class OInsertStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result = db.query("SELECT FROM " + className2);
+    YTResultSet result = db.query("SELECT FROM " + className2);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult row = result.next();
+      YTResult row = result.next();
       Object val = row.getProperty("processingType");
       Assert.assertNotNull(val);
       Assert.assertTrue(val instanceof YTIdentifiable);
@@ -382,19 +383,19 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.command("INSERT INTO " + className2 + " SET name='Active', sub = [{'name':'foo'}];").close();
     db.commit();
 
-    OResultSet result = db.query("SELECT FROM " + className2);
+    YTResultSet result = db.query("SELECT FROM " + className2);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult row = result.next();
+      YTResult row = result.next();
       Object list = row.getProperty("sub");
       Assert.assertNotNull(list);
       Assert.assertTrue(list instanceof List);
       Assert.assertEquals(1, ((List) list).size());
 
       Object o = ((List) list).get(0);
-      Assert.assertTrue(o instanceof OResult);
-      Assert.assertEquals("foo", ((OResult) o).getProperty("name"));
-      Assert.assertEquals(className1, ((OResult) o).toElement().getSchemaType().get().getName());
+      Assert.assertTrue(o instanceof YTResult);
+      Assert.assertEquals("foo", ((YTResult) o).getProperty("name"));
+      Assert.assertEquals(className1, ((YTResult) o).toElement().getSchemaType().get().getName());
     }
     result.close();
   }
@@ -414,19 +415,19 @@ public class OInsertStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result = db.query("SELECT FROM " + className2);
+    YTResultSet result = db.query("SELECT FROM " + className2);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult row = result.next();
+      YTResult row = result.next();
       Object list = row.getProperty("sub");
       Assert.assertNotNull(list);
       Assert.assertTrue(list instanceof List);
       Assert.assertEquals(1, ((List) list).size());
 
       Object o = ((List) list).get(0);
-      Assert.assertTrue(o instanceof OResult);
-      Assert.assertEquals("foo", ((OResult) o).getProperty("name"));
-      Assert.assertEquals(className1, ((OResult) o).toElement().getSchemaType().get().getName());
+      Assert.assertTrue(o instanceof YTResult);
+      Assert.assertEquals("foo", ((YTResult) o).getProperty("name"));
+      Assert.assertEquals(className1, ((YTResult) o).toElement().getSchemaType().get().getName());
     }
     result.close();
   }
@@ -437,14 +438,14 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("insert into " + className + " set name = 'name1' RETURN 'OK' as result");
     db.commit();
 
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("OK", item.getProperty("result"));
     }
@@ -453,7 +454,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -467,7 +468,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "insert into "
                 + className
@@ -481,7 +482,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     result = db.query("SELECT FROM " + className);
 
     for (int i = 0; i < 2; i++) {
-      OResult item = result.next();
+      YTResult item = result.next();
       if (item.getProperty("name").equals("parent")) {
         Assert.assertTrue(item.getProperty("children") instanceof Collection);
         Assert.assertEquals(1, ((Collection) item.getProperty("children")).size());
@@ -510,9 +511,9 @@ public class OInsertStatementExecutionTest extends DBTestBase {
             + " WHERE name = 'test')})");
     db.commit();
 
-    OResultSet result = db.query("SELECT FROM " + className);
+    YTResultSet result = db.query("SELECT FROM " + className);
 
-    OResult item = result.next();
+    YTResult item = result.next();
     Map theMap = item.getProperty("mymap");
     Assert.assertEquals(1, theMap.size());
     Assert.assertNotNull(theMap.get("A-1"));
@@ -534,9 +535,9 @@ public class OInsertStatementExecutionTest extends DBTestBase {
             + " CONTENT { name: \"jack\", memo: \"this is a \\n multi line text\" }");
     db.commit();
 
-    OResultSet result = db.query("SELECT FROM " + className);
+    YTResultSet result = db.query("SELECT FROM " + className);
 
-    OResult item = result.next();
+    YTResult item = result.next();
     String memo = item.getProperty("memo");
     Assert.assertEquals("this is a \n multi line text", memo);
 
@@ -549,14 +550,14 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.command("CREATE INDEX testInsert UNIQUE STRING ");
 
     db.begin();
-    try (OResultSet insert = db.command("INSERT INTO index:testInsert set key='one', rid=#5:0")) {
+    try (YTResultSet insert = db.command("INSERT INTO index:testInsert set key='one', rid=#5:0")) {
       assertEquals((long) insert.next().getProperty("count"), 1L);
       assertFalse(insert.hasNext());
     }
     db.commit();
 
-    try (OResultSet result = db.query("SELECT FROM index:testInsert ")) {
-      OResult item = result.next();
+    try (YTResultSet result = db.query("SELECT FROM index:testInsert ")) {
+      YTResult item = result.next();
       assertEquals(item.getProperty("key"), "one");
       assertEquals(item.getProperty("rid"), new YTRecordId(5, 0));
       assertFalse(result.hasNext());

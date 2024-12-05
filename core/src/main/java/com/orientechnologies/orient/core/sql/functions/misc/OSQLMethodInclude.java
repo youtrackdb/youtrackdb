@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +95,7 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
         } catch (YTRecordNotFoundException rnf) {
           return null;
         }
-      } else if (iThis instanceof OResult result) {
+      } else if (iThis instanceof YTResult result) {
         iThis = result.asElement();
       }
       if (iThis instanceof YTDocument) {

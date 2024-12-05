@@ -16,18 +16,18 @@ public class ReturnMatchElementsStep extends AbstractUnrollStep {
   }
 
   @Override
-  protected Collection<OResult> unroll(OResult doc, OCommandContext iContext) {
-    List<OResult> result = new ArrayList<>();
+  protected Collection<YTResult> unroll(YTResult doc, OCommandContext iContext) {
+    List<YTResult> result = new ArrayList<>();
     for (String s : doc.getPropertyNames()) {
       if (!s.startsWith(OMatchExecutionPlanner.DEFAULT_ALIAS_PREFIX)) {
         Object elem = doc.getProperty(s);
         if (elem instanceof YTIdentifiable) {
-          OResultInternal newelem = new OResultInternal(iContext.getDatabase(),
+          YTResultInternal newelem = new YTResultInternal(iContext.getDatabase(),
               (YTIdentifiable) elem);
           elem = newelem;
         }
-        if (elem instanceof OResult) {
-          result.add((OResult) elem);
+        if (elem instanceof YTResult) {
+          result.add((YTResult) elem);
         }
         // else...? TODO
       }

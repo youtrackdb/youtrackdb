@@ -44,9 +44,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSelectNoTarget() {
-    OResultSet result = db.query("select 1 as one, 2 as two, 2+3");
+    YTResultSet result = db.query("select 1 as one, 2 as two, 2+3");
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1, item.<Object>getProperty("one"));
     Assert.assertEquals(2, item.<Object>getProperty("two"));
@@ -73,12 +73,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    final OResultSet result =
+    final YTResultSet result =
         db.query(
             "select address, count(*) as occurrencies from InputTx where address is not null group"
                 + " by address limit 10");
     while (result.hasNext()) {
-      final OResult row = result.next();
+      final YTResult row = result.next();
       Assert.assertNotNull(row.getProperty("address")); // <== FALSE!
       Assert.assertNotNull(row.getProperty("occurrencies"));
     }
@@ -87,7 +87,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSelectNoTargetSkip() {
-    OResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 1");
+    YTResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 1");
     Assert.assertFalse(result.hasNext());
     printExecutionPlan(result);
 
@@ -96,9 +96,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSelectNoTargetSkipZero() {
-    OResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 0");
+    YTResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 0");
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1, item.<Object>getProperty("one"));
     Assert.assertEquals(2, item.<Object>getProperty("two"));
@@ -110,7 +110,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSelectNoTargetLimit0() {
-    OResultSet result = db.query("select 1 as one, 2 as two, 2+3 limit 0");
+    YTResultSet result = db.query("select 1 as one, 2 as two, 2+3 limit 0");
     Assert.assertFalse(result.hasNext());
     printExecutionPlan(result);
 
@@ -119,9 +119,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSelectNoTargetLimit1() {
-    OResultSet result = db.query("select 1 as one, 2 as two, 2+3 limit 1");
+    YTResultSet result = db.query("select 1 as one, 2 as two, 2+3 limit 1");
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1, item.<Object>getProperty("one"));
     Assert.assertEquals(2, item.<Object>getProperty("two"));
@@ -133,7 +133,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSelectNoTargetLimitx() {
-    OResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 0 limit 0");
+    YTResultSet result = db.query("select 1 as one, 2 as two, 2+3 skip 0 limit 0");
     printExecutionPlan(result);
     result.close();
   }
@@ -151,10 +151,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className);
+    YTResultSet result = db.query("select from " + className);
     for (int i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -175,12 +175,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select from " + className + " ORDER BY @rid ASC");
+    YTResultSet result = db.query("select from " + className + " ORDER BY @rid ASC");
     printExecutionPlan(result);
     YTIdentifiable lastItem = null;
     for (int i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
       if (lastItem != null) {
@@ -207,12 +207,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " ORDER BY @rid DESC");
+    YTResultSet result = db.query("select from " + className + " ORDER BY @rid DESC");
     printExecutionPlan(result);
     YTIdentifiable lastItem = null;
     for (int i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
       if (lastItem != null) {
@@ -238,12 +238,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select from " + className + " limit 10");
+    YTResultSet result = db.query("select from " + className + " limit 10");
     printExecutionPlan(result);
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -263,12 +263,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select from " + className + " skip 100 limit 10");
+    YTResultSet result = db.query("select from " + className + " skip 100 limit 10");
     printExecutionPlan(result);
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -288,13 +288,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select from " + className + " order by surname desc");
+    YTResultSet result = db.query("select from " + className + " order by surname desc");
     printExecutionPlan(result);
 
     String lastSurname = null;
     for (int i = 0; i < 30; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       String thisSurname = item.getProperty("surname");
       if (lastSurname != null) {
@@ -318,13 +318,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select from " + className + " order by surname asc");
+    YTResultSet result = db.query("select from " + className + " order by surname asc");
     printExecutionPlan(result);
 
     String lastSurname = null;
     for (int i = 0; i < 30; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       String thisSurname = item.getProperty("surname");
       if (lastSurname != null) {
@@ -349,12 +349,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " order by surname asc limit 100");
+    YTResultSet result = db.query("select from " + className + " order by surname asc limit 100");
     printExecutionPlan(result);
 
     for (int i = 0; i < 100; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("surname0", item.getProperty("surname"));
     }
@@ -375,13 +375,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select name from " + className + " order by surname asc");
+    YTResultSet result = db.query("select name from " + className + " order by surname asc");
     printExecutionPlan(result);
 
     String lastName = null;
     for (int i = 0; i < 100; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       String name = item.getProperty("name");
       Assert.assertNotNull(name);
@@ -407,14 +407,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select name from " + className + " order by name asc, surname asc");
     printExecutionPlan(result);
 
     String lastName = null;
     for (int i = 0; i < 100; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       String name = item.getProperty("name");
       Assert.assertNotNull(name);
@@ -441,13 +441,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name1' or name = 'name7' ");
     printExecutionPlan(result);
 
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Object name = item.getProperty("name");
       Assert.assertTrue("name1".equals(name) || "name7".equals(name));
@@ -468,12 +468,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select from " + className + " where name <> 'name1' ");
+    YTResultSet result = db.query("select from " + className + " where name <> 'name1' ");
     printExecutionPlan(result);
 
     for (int i = 0; i < 299; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Object name = item.getProperty("name");
       Assert.assertNotEquals("name1", name);
@@ -494,12 +494,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select name from " + className);
+    YTResultSet result = db.query("select name from " + className);
     printExecutionPlan(result);
 
     for (int i = 0; i < 300; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       String name = item.getProperty("name");
       String surname = item.getProperty("surname");
@@ -525,11 +525,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     }
 
     try {
-      OResultSet result = db.query("select count(*) from " + className);
+      YTResultSet result = db.query("select count(*) from " + className);
       printExecutionPlan(result);
       Assert.assertNotNull(result);
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals(7L, (Object) next.getProperty("count(*)"));
       Assert.assertFalse(result.hasNext());
@@ -553,12 +553,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
     try {
-      OResultSet result = db.query("select count(*), name from " + className + " group by name");
+      YTResultSet result = db.query("select count(*), name from " + className + " group by name");
       printExecutionPlan(result);
       Assert.assertNotNull(result);
       for (int i = 0; i < 5; i++) {
         Assert.assertTrue(result.hasNext());
-        OResult next = result.next();
+        YTResult next = result.next();
         Assert.assertNotNull(next);
         Assert.assertEquals(2L, (Object) next.getProperty("count(*)"));
       }
@@ -582,11 +582,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.commit();
 
     try {
-      OResultSet result = db.query("select count(*) from " + className + " where name = 'foo'");
+      YTResultSet result = db.query("select count(*) from " + className + " where name = 'foo'");
       printExecutionPlan(result);
       Assert.assertNotNull(result);
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals(0L, (Object) next.getProperty("count(*)"));
       Assert.assertFalse(result.hasNext());
@@ -609,12 +609,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.commit();
 
     try {
-      OResultSet result =
+      YTResultSet result =
           db.query("select count(*) as a from " + className + " where name = 'foo'");
       printExecutionPlan(result);
       Assert.assertNotNull(result);
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals(0L, (Object) next.getProperty("a"));
       Assert.assertFalse(result.hasNext());
@@ -664,7 +664,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     try {
       String query = "select [max(a), max(b)] from " + className;
-      OResultSet result = db.query(query);
+      YTResultSet result = db.query(query);
       printExecutionPlan(query, result);
       result.close();
     } catch (Exception x) {
@@ -678,7 +678,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     try {
-      OResultSet result =
+      YTResultSet result =
           db.query(
               "select max(a + b) + (max(b + c * 2) + 1 + 2) * 3 as foo, max(d) + max(e), f from "
                   + className);
@@ -704,10 +704,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select sum(val) from " + className);
+    YTResultSet result = db.query("select sum(val) from " + className);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(45, (Object) item.getProperty("sum(val)"));
 
@@ -726,13 +726,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select sum(val), type from " + className + " group by type");
+    YTResultSet result = db.query("select sum(val), type from " + className + " group by type");
     printExecutionPlan(result);
     boolean evenFound = false;
     boolean oddFound = false;
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       if ("even".equals(item.getProperty("type"))) {
         Assert.assertEquals(20, item.<Object>getProperty("sum(val)"));
@@ -760,14 +760,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result =
+    YTResultSet result =
         db.query("select sum(val), max(val), min(val), type from " + className + " group by type");
     printExecutionPlan(result);
     boolean evenFound = false;
     boolean oddFound = false;
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       if ("even".equals(item.getProperty("type"))) {
         Assert.assertEquals(20, item.<Object>getProperty("sum(val)"));
@@ -799,13 +799,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select sum(val) from " + className + " group by type");
+    YTResultSet result = db.query("select sum(val) from " + className + " group by type");
     printExecutionPlan(result);
     boolean evenFound = false;
     boolean oddFound = false;
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Object sum = item.getProperty("sum(val)");
       if (sum.equals(20)) {
@@ -832,12 +832,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result =
+    YTResultSet result =
         db.query("select sum(val) from " + className + " group by type.substring(0,1)");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Object sum = item.getProperty("sum(val)");
       Assert.assertEquals(45, sum);
@@ -862,12 +862,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from cluster:" + targetClusterName);
+    YTResultSet result = db.query("select from cluster:" + targetClusterName);
     printExecutionPlan(result);
     int sum = 0;
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertNotNull(val);
       sum += val;
@@ -892,13 +892,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save(targetClusterName);
       db.commit();
     }
-    OResultSet result =
+    YTResultSet result =
         db.query("select from cluster:" + targetClusterName + " order by @rid desc");
     printExecutionPlan(result);
     int sum = 0;
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertEquals(i, 9 - val);
     }
@@ -922,12 +922,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save(targetClusterName);
       db.commit();
     }
-    OResultSet result = db.query("select from cluster:" + targetClusterName + " order by @rid asc");
+    YTResultSet result = db.query(
+        "select from cluster:" + targetClusterName + " order by @rid asc");
     printExecutionPlan(result);
     int sum = 0;
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertEquals((Object) i, val);
     }
@@ -966,7 +967,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from cluster:["
                 + targetClusterName
@@ -977,7 +978,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 20; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertEquals((Object) (i % 10), val);
     }
@@ -1000,13 +1001,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from (select from " + className + " where val > 2)  where val < 8");
     printExecutionPlan(result);
 
     for (int i = 0; i < 5; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Integer val = item.getProperty("val");
       Assert.assertTrue(val > 2);
       Assert.assertTrue(val < 8);
@@ -1017,12 +1018,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testQuerySchema() {
-    OResultSet result = db.query("select from metadata:schema");
+    YTResultSet result = db.query("select from metadata:schema");
     printExecutionPlan(result);
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item.getProperty("classes"));
     }
     Assert.assertFalse(result.hasNext());
@@ -1031,11 +1032,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testQueryMetadataIndexManager() {
-    OResultSet result = db.query("select from metadata:indexmanager");
+    YTResultSet result = db.query("select from metadata:indexmanager");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item.getProperty("indexes"));
     }
     Assert.assertFalse(result.hasNext());
@@ -1044,7 +1045,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testQueryMetadataIndexManager2() {
-    OResultSet result = db.query("select expand(indexes) from metadata:indexmanager");
+    YTResultSet result = db.query("select expand(indexes) from metadata:indexmanager");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     result.close();
@@ -1052,11 +1053,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testQueryMetadataDatabase() {
-    OResultSet result = db.query("select from metadata:database");
+    YTResultSet result = db.query("select from metadata:database");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("testQueryMetadataDatabase", item.getProperty("name"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1064,11 +1065,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testQueryMetadataStorage() {
-    OResultSet result = db.query("select from metadata:storage");
+    YTResultSet result = db.query("select from metadata:storage");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("testQueryMetadataStorage", item.getProperty("name"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1076,7 +1077,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testNonExistingRids() {
-    OResultSet result = db.query("select from #0:100000000");
+    YTResultSet result = db.query("select from #0:100000000");
     printExecutionPlan(result);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1084,7 +1085,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testFetchFromSingleRid() {
-    OResultSet result = db.query("select from #0:1");
+    YTResultSet result = db.query("select from #0:1");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1094,7 +1095,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testFetchFromSingleRid2() {
-    OResultSet result = db.query("select from [#0:1]");
+    YTResultSet result = db.query("select from [#0:1]");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1104,7 +1105,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testFetchFromSingleRidParam() {
-    OResultSet result = db.query("select from ?", new YTRecordId(0, 1));
+    YTResultSet result = db.query("select from ?", new YTRecordId(0, 1));
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1119,7 +1120,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     document.save(db.getClusterNameById(0));
     db.commit();
 
-    OResultSet result = db.query("select from [#0:1, #0:2]");
+    YTResultSet result = db.query("select from [#0:1, #0:2]");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1136,7 +1137,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     document.save(db.getClusterNameById(0));
     db.commit();
 
-    OResultSet result = db.query("select from [#0:1, #0:2, #0:100000]");
+    YTResultSet result = db.query("select from [#0:1, #0:2, #0:100000]");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
@@ -1161,11 +1162,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " where name = 'name2'");
+    YTResultSet result = db.query("select from " + className + " where name = 'name2'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals("name2", next.getProperty("name"));
 
@@ -1198,11 +1199,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from index:" + indexName + " where key = 'name2'");
+    YTResultSet result = db.query("select from index:" + indexName + " where key = 'name2'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
 
     Assert.assertFalse(result.hasNext());
@@ -1244,11 +1245,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + classNameExt + " where name = 'name6'");
+    YTResultSet result = db.query("select from " + classNameExt + " where name = 'name6'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
 
     Assert.assertFalse(result.hasNext());
@@ -1283,13 +1284,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name2' or surname = 'surname3'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
     for (int i = 0; i < 2; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertTrue(
           "name2".equals(next.getProperty("name"))
@@ -1327,7 +1328,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from "
                 + className
@@ -1357,7 +1358,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from "
                 + className
@@ -1366,7 +1367,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     Assert.assertTrue(result.hasNext());
     for (int i = 0; i < 2; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertTrue(
           "name2".equals(next.getProperty("name"))
@@ -1396,7 +1397,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from "
                 + className
@@ -1406,7 +1407,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     Assert.assertTrue(result.hasNext());
     for (int i = 0; i < 2; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertTrue(
           "name2".equals(next.getProperty("name"))
@@ -1436,13 +1437,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name3' and surname >= 'surname1'");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
     for (int i = 0; i < 1; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals("name3", next.getProperty("name"));
     }
@@ -1470,7 +1471,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name3' and surname > 'surname3'");
     printExecutionPlan(result);
 
@@ -1497,11 +1498,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name3' and surname >= 'surname3'");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals("name3", next.getProperty("name"));
     }
@@ -1528,7 +1529,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name3' and surname < 'surname3'");
     printExecutionPlan(result);
 
@@ -1555,11 +1556,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name3' and surname <= 'surname3'");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
       Assert.assertEquals("name3", next.getProperty("name"));
     }
@@ -1586,11 +1587,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " where name > 'name3' ");
+    YTResultSet result = db.query("select from " + className + " where name > 'name3' ");
     printExecutionPlan(result);
     for (int i = 0; i < 6; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1616,10 +1617,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " where name >= 'name3' ");
+    YTResultSet result = db.query("select from " + className + " where name >= 'name3' ");
     printExecutionPlan(result);
     for (int i = 0; i < 7; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1645,10 +1646,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " where name < 'name3' ");
+    YTResultSet result = db.query("select from " + className + " where name < 'name3' ");
     printExecutionPlan(result);
     for (int i = 0; i < 3; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1674,10 +1675,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " where name <= 'name3' ");
+    YTResultSet result = db.query("select from " + className + " where name <= 'name3' ");
     printExecutionPlan(result);
     for (int i = 0; i < 4; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1703,11 +1704,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name > 'name3' and name < 'name5'");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1736,7 +1737,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from "
                 + className
@@ -1769,13 +1770,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name6' and surname = 'surname6' ");
     printExecutionPlan(result);
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1804,13 +1805,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name6' and surname >= 'surname6' ");
     printExecutionPlan(result);
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1842,12 +1843,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select expand(linked) from " + parentClassName);
+    YTResultSet result = db.query("select expand(linked) from " + parentClassName);
     printExecutionPlan(result);
 
     for (int i = 0; i < count; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1879,12 +1880,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     }
     db.commit();
 
-    OResultSet result = db.query("select expand(linked) from " + parentClassName);
+    YTResultSet result = db.query("select expand(linked) from " + parentClassName);
     printExecutionPlan(result);
 
     for (int i = 0; i < count * collSize; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1916,14 +1917,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     }
     db.commit();
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select expand(linked) from " + parentClassName + " order by name");
     printExecutionPlan(result);
 
     String last = null;
     for (int i = 0; i < count * collSize; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       if (i > 0) {
         Assert.assertTrue(last.compareTo(next.getProperty("name")) <= 0);
       }
@@ -1950,12 +1951,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select distinct name, surname from " + className);
+    YTResultSet result = db.query("select distinct name, surname from " + className);
     printExecutionPlan(result);
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1978,12 +1979,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select distinct(name) from " + className);
+    YTResultSet result = db.query("select distinct(name) from " + className);
     printExecutionPlan(result);
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult next = result.next();
+      YTResult next = result.next();
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
@@ -1992,9 +1993,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testLet1() {
-    OResultSet result = db.query("select $a as one, $b as two let $a = 1, $b = 1+1");
+    YTResultSet result = db.query("select $a as one, $b as two let $a = 1, $b = 1+1");
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1, item.<Object>getProperty("one"));
     Assert.assertEquals(2, item.<Object>getProperty("two"));
@@ -2004,9 +2005,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testLet1Long() {
-    OResultSet result = db.query("select $a as one, $b as two let $a = 1L, $b = 1L+1");
+    YTResultSet result = db.query("select $a as one, $b as two let $a = 1L, $b = 1L+1");
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals(1L, item.<Object>getProperty("one"));
     Assert.assertEquals(2L, item.<Object>getProperty("two"));
@@ -2016,26 +2017,26 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testLet2() {
-    OResultSet result = db.query("select $a as one let $a = (select 1 as a)");
+    YTResultSet result = db.query("select $a as one let $a = (select 1 as a)");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Object one = item.getProperty("one");
     Assert.assertTrue(one instanceof List);
     Assert.assertEquals(1, ((List) one).size());
     Object x = ((List) one).get(0);
-    Assert.assertTrue(x instanceof OResult);
-    Assert.assertEquals(1, (Object) ((OResult) x).getProperty("a"));
+    Assert.assertTrue(x instanceof YTResult);
+    Assert.assertEquals(1, (Object) ((YTResult) x).getProperty("a"));
     result.close();
   }
 
   @Test
   public void testLet3() {
-    OResultSet result = db.query("select $a[0].foo as one let $a = (select 1 as foo)");
+    YTResultSet result = db.query("select $a[0].foo as one let $a = (select 1 as foo)");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Object one = item.getProperty("one");
     Assert.assertEquals(1, one);
@@ -2056,7 +2057,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select name, surname, $nameAndSurname as fullname from "
                 + className
@@ -2064,7 +2065,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     printExecutionPlan(result);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(
           item.getProperty("fullname"),
@@ -2088,7 +2089,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from "
                 + className
@@ -2098,7 +2099,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -2120,7 +2121,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select $foo as name from "
                 + className
@@ -2130,7 +2131,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     printExecutionPlan(result);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       Assert.assertTrue(item.getProperty("name") instanceof Collection);
@@ -2153,7 +2154,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select $bar as name from "
                 + className
@@ -2165,7 +2166,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     printExecutionPlan(result);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       Assert.assertTrue(item.getProperty("name") instanceof String);
@@ -2204,10 +2205,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     String queryString =
         "SELECT $x, name FROM " + vertexClassName + " let $x = out(\"" + edgeClassName + "\")";
-    OResultSet resultSet = db.query(queryString);
+    YTResultSet resultSet = db.query(queryString);
     int counter = 0;
     while (resultSet.hasNext()) {
-      OResult result = resultSet.next();
+      YTResult result = resultSet.next();
       Iterable edge = result.getProperty("$x");
       Iterator<YTIdentifiable> iter = edge.iterator();
       while (iter.hasNext()) {
@@ -2235,7 +2236,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select $current.*, $b.*, $b.@class from (select 1 as sqa, @class as sqc from "
                 + className
@@ -2243,17 +2244,17 @@ public class OSelectStatementExecutionTest extends DBTestBase {
                 + "let $b = $current");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Object currentProperty = item.getProperty("$current.*");
-    Assert.assertTrue(currentProperty instanceof OResult);
-    final OResult currentResult = (OResult) currentProperty;
+    Assert.assertTrue(currentProperty instanceof YTResult);
+    final YTResult currentResult = (YTResult) currentProperty;
     Assert.assertTrue(currentResult.isProjection());
     Assert.assertEquals(Integer.valueOf(1), currentResult.<Integer>getProperty("sqa"));
     Assert.assertEquals(className, currentResult.getProperty("sqc"));
     Object bProperty = item.getProperty("$b.*");
-    Assert.assertTrue(bProperty instanceof OResult);
-    final OResult bResult = (OResult) bProperty;
+    Assert.assertTrue(bProperty instanceof YTResult);
+    final YTResult bResult = (YTResult) bProperty;
     Assert.assertTrue(bResult.isProjection());
     Assert.assertEquals(Integer.valueOf(1), bResult.<Integer>getProperty("sqa"));
     Assert.assertEquals(className, bResult.getProperty("sqc"));
@@ -2274,11 +2275,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select i, iSeq from " + className + " unwind iSeq");
+    YTResultSet result = db.query("select i, iSeq from " + className + " unwind iSeq");
     printExecutionPlan(result);
     for (int i = 0; i < 30; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("i"));
       Assert.assertNotNull(item.getProperty("iSeq"));
@@ -2308,11 +2309,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select i, iSeq from " + className + " unwind iSeq");
+    YTResultSet result = db.query("select i, iSeq from " + className + " unwind iSeq");
     printExecutionPlan(result);
     for (int i = 0; i < 30; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("i"));
       Assert.assertNotNull(item.getProperty("iSeq"));
@@ -2353,13 +2354,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + parent + " where name = 'name1'");
+    YTResultSet result = db.query("select from " + parent + " where name = 'name1'");
     printExecutionPlan(result);
     OInternalExecutionPlan plan = (OInternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2397,14 +2398,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
     OInternalExecutionPlan plan = (OInternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2441,7 +2442,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
     OInternalExecutionPlan plan = (OInternalExecutionPlan) result.getExecutionPlan().get();
@@ -2449,7 +2450,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
         plan.getSteps().get(0) instanceof FetchFromClassExecutionStep); // no index used
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2493,7 +2494,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
     OInternalExecutionPlan plan = (OInternalExecutionPlan) result.getExecutionPlan().get();
@@ -2503,7 +2504,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
             FetchFromClassExecutionStep); // no index, because the superclass is not empty
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2555,14 +2556,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
     OInternalExecutionPlan plan = (OInternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2613,14 +2614,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
     OInternalExecutionPlan plan = (OInternalExecutionPlan) result.getExecutionPlan().get();
     Assert.assertTrue(plan.getSteps().get(0) instanceof FetchFromClassExecutionStep);
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
     }
     Assert.assertFalse(result.hasNext());
@@ -2650,13 +2651,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name1' order by surname ASC");
     printExecutionPlan(result);
     String lastSurname = null;
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
 
@@ -2698,13 +2699,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name1' order by surname DESC");
     printExecutionPlan(result);
     String lastSurname = null;
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
 
@@ -2746,14 +2747,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from " + className + " where name = 'name1' order by name DESC, surname DESC");
     printExecutionPlan(result);
     String lastSurname = null;
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
 
@@ -2795,14 +2796,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from " + className + " where name = 'name1' order by name ASC, surname ASC");
     printExecutionPlan(result);
     String lastSurname = null;
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
 
@@ -2845,13 +2846,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name1' order by surname ASC");
     printExecutionPlan(result);
     String lastSurname = null;
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
       String surname = item.getProperty("surname");
@@ -2893,13 +2894,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name1' order by surname DESC");
     printExecutionPlan(result);
     String lastSurname = null;
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
       String surname = item.getProperty("surname");
@@ -2941,13 +2942,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = 'name1' order by address DESC");
     printExecutionPlan(result);
 
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
@@ -2986,13 +2987,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select from " + className + " where name = 'name1' order by name ASC, surname DESC");
     printExecutionPlan(result);
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
@@ -3032,11 +3033,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " order by name , surname ASC");
+    YTResultSet result = db.query("select from " + className + " order by name , surname ASC");
     printExecutionPlan(result);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
@@ -3076,11 +3077,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " order by name desc, surname desc");
+    YTResultSet result = db.query("select from " + className + " order by name desc, surname desc");
     printExecutionPlan(result);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
@@ -3120,11 +3121,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " order by name asc, surname desc");
+    YTResultSet result = db.query("select from " + className + " order by name asc, surname desc");
     printExecutionPlan(result);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
@@ -3164,12 +3165,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " order by name");
+    YTResultSet result = db.query("select from " + className + " order by name");
     printExecutionPlan(result);
     String last = null;
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       String name = item.getProperty("name");
@@ -3202,12 +3203,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select from ?", className);
+    YTResultSet result = db.query("select from ?", className);
     printExecutionPlan(result);
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -3228,12 +3229,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     }
     Map<Object, Object> params = new HashMap<>();
     params.put("target", className);
-    OResultSet result = db.query("select from :target", params);
+    YTResultSet result = db.query("select from :target", params);
     printExecutionPlan(result);
 
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
     }
@@ -3254,12 +3255,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    OResultSet result = db.query("select from " + className + " where name matches 'name1'");
+    YTResultSet result = db.query("select from " + className + " where name matches 'name1'");
     printExecutionPlan(result);
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(item.getProperty("name"), "name1");
     }
@@ -3278,12 +3279,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     doc.save();
     db.commit();
 
-    OResultSet result = db.query("select name[0..3] as names from " + className);
+    YTResultSet result = db.query("select name[0..3] as names from " + className);
     printExecutionPlan(result);
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Object names = item.getProperty("names");
       if (names == null) {
@@ -3316,12 +3317,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     doc.save();
     db.commit();
 
-    OResultSet result = db.query("select name[?..?] as names from " + className, 0, 3);
+    YTResultSet result = db.query("select name[?..?] as names from " + className, 0, 3);
     printExecutionPlan(result);
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Object names = item.getProperty("names");
       if (names == null) {
@@ -3357,12 +3358,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     Map<String, Object> params = new HashMap<>();
     params.put("a", 0);
     params.put("b", 3);
-    OResultSet result = db.query("select name[:a..:b] as names from " + className, params);
+    YTResultSet result = db.query("select name[:a..:b] as names from " + className, params);
     printExecutionPlan(result);
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Object names = item.getProperty("names");
       if (names == null) {
@@ -3395,12 +3396,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     doc.save();
     db.commit();
 
-    OResultSet result = db.query("select name[0...2] as names from " + className);
+    YTResultSet result = db.query("select name[0...2] as names from " + className);
     printExecutionPlan(result);
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Object names = item.getProperty("names");
       if (names == null) {
@@ -3427,9 +3428,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testNewRid() {
-    OResultSet result = db.query("select {\"@rid\":\"#12:0\"} as theRid ");
+    YTResultSet result = db.query("select {\"@rid\":\"#12:0\"} as theRid ");
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Object rid = item.getProperty("theRid");
     Assert.assertTrue(rid instanceof YTIdentifiable);
     YTIdentifiable id = (YTIdentifiable) rid;
@@ -3467,15 +3468,15 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     db.commit();
 
-    OResultSet result =
+    YTResultSet result =
         db.query(
             "select name, elem1:{*}, elem2:{!surname} from " + className + " where name = 'd'");
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     // TODO refine this!
-    Assert.assertTrue(item.getProperty("elem1") instanceof OResult);
-    Assert.assertEquals("a", ((OResult) item.getProperty("elem1")).getProperty("name"));
+    Assert.assertTrue(item.getProperty("elem1") instanceof YTResult);
+    Assert.assertEquals("a", ((YTResult) item.getProperty("elem1")).getProperty("name"));
     printExecutionPlan(result);
 
     result.close();
@@ -3496,9 +3497,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     elem1.save();
     db.commit();
 
-    OResultSet result = db.query("select coll[='foo'] as filtered from " + className);
+    YTResultSet result = db.query("select coll[='foo'] as filtered from " + className);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     List res = item.getProperty("filtered");
     Assert.assertEquals(1, res.size());
     Assert.assertEquals("foo", res.get(0));
@@ -3550,7 +3551,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     elem2.save();
     db.commit();
 
-    OResultSet result = db.query("select from " + className + " where coll contains 1");
+    YTResultSet result = db.query("select from " + className + " where coll contains 1");
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3581,7 +3582,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + " set id = 1 , name = 'Bar'").close();
     db.commit();
 
-    OResultSet result = db.query("select from " + className + " where name = 'Bar'");
+    YTResultSet result = db.query("select from " + className + " where name = 'Bar'");
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3601,7 +3602,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     Map<String, Object> params = new HashMap<>();
     params.put("p1", "Foo");
     params.put("p2", "Fox");
-    OResultSet result =
+    YTResultSet result =
         db.query("select from " + className + " where name = :p1 and surname = :p2", params);
     Assert.assertTrue(result.hasNext());
     result.next();
@@ -3623,7 +3624,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     Map<String, Object> params = new HashMap<>();
     params.put("p1", "Foo");
-    OResultSet result = db.query("select from " + className + " where name = :p1", params);
+    YTResultSet result = db.query("select from " + className + " where name = :p1", params);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3641,7 +3642,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + " set sur = 'Barz'").close();
     db.commit();
 
-    OResultSet result = db.query("select from " + className + " where name is defined");
+    YTResultSet result = db.query("select from " + className + " where name is defined");
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3659,7 +3660,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + " set sur = 'Barz'").close();
     db.commit();
 
-    OResultSet result = db.query("select from " + className + " where name is not defined");
+    YTResultSet result = db.query("select from " + className + " where name is not defined");
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -3681,7 +3682,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + 2 + "  set tags = ['foo']");
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query(
             "select from "
                 + className
@@ -3714,7 +3715,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + 2 + "  set tags = ['foo']");
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query(
             "select from "
                 + className
@@ -3743,21 +3744,21 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + "  set tags = ['bbb', 'FFF']");
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsany ['foo','baz']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsany ['foo','bar']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsany ['foo','bbb']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3766,12 +3767,12 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       Assert.assertFalse(result.hasNext());
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsany ['xx','baz']")) {
       Assert.assertFalse(result.hasNext());
     }
 
-    try (OResultSet result = db.query("select from " + className + " where tags containsany []")) {
+    try (YTResultSet result = db.query("select from " + className + " where tags containsany []")) {
       Assert.assertFalse(result.hasNext());
     }
   }
@@ -3788,7 +3789,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + "  set tags = ['bbb', 'FFF']");
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsany ['foo','baz']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3798,7 +3799,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsany ['foo','bar']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3808,7 +3809,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsany ['foo','bbb']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3820,7 +3821,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsany ['xx','baz']")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
@@ -3828,7 +3829,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (OResultSet result = db.query("select from " + className + " where tags containsany []")) {
+    try (YTResultSet result = db.query("select from " + className + " where tags containsany []")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
           result.getExecutionPlan().get().getSteps().stream()
@@ -3847,14 +3848,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + "  set tags = ['foo', 'FFF']");
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsall ['foo','bar']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where tags containsall ['foo']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -3876,7 +3877,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + "  set name = 'foo4', val = 4");
     db.commit();
 
-    try (OResultSet result = db.query("select from " + className + " where val between 2 and 3")) {
+    try (YTResultSet result = db.query("select from " + className + " where val between 2 and 3")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertTrue(result.hasNext());
@@ -3897,7 +3898,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + "  set tag = 'bar'");
     db.commit();
 
-    try (OResultSet result = db.query("select from " + className + " where tag in ['foo','baz']")) {
+    try (YTResultSet result = db.query(
+        "select from " + className + " where tag in ['foo','baz']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
@@ -3906,7 +3908,8 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (OResultSet result = db.query("select from " + className + " where tag in ['foo','bar']")) {
+    try (YTResultSet result = db.query(
+        "select from " + className + " where tag in ['foo','bar']")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertTrue(result.hasNext());
@@ -3917,7 +3920,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
-    try (OResultSet result = db.query("select from " + className + " where tag in []")) {
+    try (YTResultSet result = db.query("select from " + className + " where tag in []")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
           result.getExecutionPlan().get().getSteps().stream()
@@ -3927,7 +3930,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     List<String> params = new ArrayList<>();
     params.add("foo");
     params.add("bar");
-    try (OResultSet result = db.query("select from " + className + " where tag in (?)", params)) {
+    try (YTResultSet result = db.query("select from " + className + " where tag in (?)", params)) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertTrue(result.hasNext());
@@ -3976,10 +3979,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     elem1.save();
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className1 + " where next.next.name = ?", "John")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals("right", item.getProperty("name"));
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
@@ -4034,10 +4037,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     elem1.save();
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className1 + " where next.next.name CONTAINSANY ['John']")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals("right", item.getProperty("name"));
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
@@ -4066,10 +4069,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where themap CONTAINSKEY ?", "key10")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Map<String, Object> map = item.getProperty("themap");
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
@@ -4105,13 +4108,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query(
             "select from " + className + " where themap CONTAINSKEY ? AND thestring = ?",
             "key10",
             "thestring10")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Map<String, Object> map = item.getProperty("themap");
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
@@ -4141,10 +4144,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where themap CONTAINSVALUE ?", "val10")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Map<String, Object> map = item.getProperty("themap");
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
@@ -4166,7 +4169,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("INSERT INTO " + className + " SET thelist = [{name:\"Joe\"}]").close();
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where thelist CONTAINS ( name = ?)", "Jack")) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -4188,11 +4191,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("INSERT INTO " + className + " SET name = 'd', idx = 3").close();
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " order by name asc collate ci")) {
       for (int i = 0; i < 5; i++) {
         Assert.assertTrue(result.hasNext());
-        OResult item = result.next();
+        YTResult item = result.next();
         int val = item.getProperty("idx");
         Assert.assertEquals(i, val);
       }
@@ -4230,7 +4233,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    try (OResultSet result = db.query("select from " + className + " where test contains []")) {
+    try (YTResultSet result = db.query("select from " + className + " where test contains []")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
@@ -4267,7 +4270,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    try (OResultSet result = db.query("select from " + className + " where test contains [1]")) {
+    try (YTResultSet result = db.query("select from " + className + " where test contains [1]")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
@@ -4292,7 +4295,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
 
       try {
-        try (OResultSet result = db.query("select from " + className + " ORDER BY name")) {
+        try (YTResultSet result = db.query("select from " + className + " ORDER BY name")) {
           result.forEachRemaining(x -> x.getProperty("name"));
         }
         Assert.fail();
@@ -4305,9 +4308,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testXor() {
-    try (OResultSet result = db.query("select 15 ^ 4 as foo")) {
+    try (YTResultSet result = db.query("select 15 ^ 4 as foo")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(11, (int) item.getProperty("foo"));
       Assert.assertFalse(result.hasNext());
     }
@@ -4324,34 +4327,34 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("INSERT INTO " + className + " content {\"name\": \"test[]{}()|*^.test\"}").close();
     db.commit();
 
-    try (OResultSet result = db.query("select from " + className + " where name LIKE 'foo%'")) {
+    try (YTResultSet result = db.query("select from " + className + " where name LIKE 'foo%'")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select from " + className + " where name LIKE '%foo%baz%'")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
-    try (OResultSet result = db.query("select from " + className + " where name LIKE '%bar%'")) {
+    try (YTResultSet result = db.query("select from " + className + " where name LIKE '%bar%'")) {
       Assert.assertTrue(result.hasNext());
       result.next();
       Assert.assertFalse(result.hasNext());
     }
 
-    try (OResultSet result = db.query("select from " + className + " where name LIKE 'bar%'")) {
+    try (YTResultSet result = db.query("select from " + className + " where name LIKE 'bar%'")) {
       Assert.assertFalse(result.hasNext());
     }
 
-    try (OResultSet result = db.query("select from " + className + " where name LIKE '%bar'")) {
+    try (YTResultSet result = db.query("select from " + className + " where name LIKE '%bar'")) {
       Assert.assertFalse(result.hasNext());
     }
 
     String specialChars = "[]{}()|*^.";
     for (char c : specialChars.toCharArray()) {
-      try (OResultSet result =
+      try (YTResultSet result =
           db.query("select from " + className + " where name LIKE '%" + c + "%'")) {
         Assert.assertTrue(result.hasNext());
         result.next();
@@ -4373,11 +4376,11 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    OResultSet result = db.query("select count(val) as count from " + className + " limit 3");
+    YTResultSet result = db.query("select count(val) as count from " + className + " limit 3");
     printExecutionPlan(result);
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals(10L, (long) item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -4468,7 +4471,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.setProperty("val", i);
       doc.save();
     }
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select " + funcitonName + "(), * from " + className + " timeout 1")) {
       while (result.hasNext()) {
         result.next();
@@ -4478,7 +4481,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     }
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query("select " + funcitonName + "(), * from " + className + " timeout 1000")) {
       while (result.hasNext()) {
         result.next();
@@ -4502,7 +4505,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    final OResultSet result = db.query("select from " + className + " WHERE name >= 'name5'");
+    final YTResultSet result = db.query("select from " + className + " WHERE name >= 'name5'");
     printExecutionPlan(result);
 
     for (int i = 0; i < 5; i++) {
@@ -4527,7 +4530,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       doc.save();
       db.commit();
     }
-    final OResultSet result = db.query("select from " + className + " WHERE name <= 'name5'");
+    final YTResultSet result = db.query("select from " + className + " WHERE name <= 'name5'");
     printExecutionPlan(result);
 
     for (int i = 0; i < 6; i++) {
@@ -4554,7 +4557,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.commit();
     }
 
-    final OResultSet result = db.query("select from " + className + " WHERE name >= 'name5'");
+    final YTResultSet result = db.query("select from " + className + " WHERE name >= 'name5'");
     printExecutionPlan(result);
 
     for (int i = 0; i < 5; i++) {
@@ -4603,7 +4606,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     db.commit();
 
-    try (OResultSet rs =
+    try (YTResultSet rs =
         db.query(
             "SELECT FROM "
                 + classNamePrefix
@@ -4611,7 +4614,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       Assert.assertTrue(rs.hasNext());
     }
 
-    try (OResultSet rs =
+    try (YTResultSet rs =
         db.query(
             "SELECT FROM " + classNamePrefix + "A WHERE b.c.name = 'foo' AND b.c.d.name = 'foo'")) {
       Assert.assertTrue(rs.hasNext());
@@ -4668,7 +4671,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    try (OResultSet rs =
+    try (YTResultSet rs =
         db.query(
             "select from "
                 + classNamePrefix
@@ -4692,7 +4695,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
                 + "Report(id) unique;")
         .close();
 
-    try (OResultSet rs =
+    try (YTResultSet rs =
         db.query(
             "select from "
                 + classNamePrefix
@@ -4720,9 +4723,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     doc.save();
     db.commit();
 
-    OResultSet result = db.query("select *, !surname from " + className);
+    YTResultSet result = db.query("select *, !surname from " + className);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals("foo", item.getProperty("name"));
     Assert.assertNull(item.getProperty("surname"));
@@ -4746,23 +4749,23 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     doc.save();
     db.commit();
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query(
             "select from "
                 + className
                 + " LET $order = name.substring(1) ORDER BY $order ASC LIMIT 1")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("baaa", item.getProperty("name"));
     }
-    try (OResultSet result =
+    try (YTResultSet result =
         db.query(
             "select from "
                 + className
                 + " LET $order = name.substring(1) ORDER BY $order DESC LIMIT 1")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("abbb", item.getProperty("name"));
     }
@@ -4782,9 +4785,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
         .close();
     db.commit();
 
-    try (OResultSet rs = db.query("select themap.tojson() as x from " + className)) {
+    try (YTResultSet rs = db.query("select themap.tojson() as x from " + className)) {
       Assert.assertTrue(rs.hasNext());
-      OResult item = rs.next();
+      YTResult item = rs.next();
       Assert.assertTrue(((String) item.getProperty("x")).contains("foo bar"));
     }
   }
@@ -4801,10 +4804,10 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("insert into " + className + " set field=true").close();
     db.commit();
 
-    try (OResultSet rs =
+    try (YTResultSet rs =
         db.query("select count(*) as count from " + className + " where field=true")) {
       Assert.assertTrue(rs.hasNext());
-      OResult item = rs.next();
+      YTResult item = rs.next();
       Assert.assertEquals((long) item.getProperty("count"), 1L);
       Assert.assertFalse(rs.hasNext());
     }

@@ -4,8 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class OExistsSystemUserStatement extends OSimpleExecServerStatement {
     OSystemDatabase systemDb = ctx.getServer().getSystemDatabase();
     var res = systemDb.executeWithDB(
         (db) -> {
-          OResultInternal result = new OResultInternal(db);
+          YTResultInternal result = new YTResultInternal(db);
           result.setProperty("operation", "exists system user");
           if (name != null) {
             result.setProperty("name", name.getStringValue());
@@ -46,7 +46,7 @@ public class OExistsSystemUserStatement extends OSimpleExecServerStatement {
           }
           // INSERT INTO OUser SET
 
-          try (OResultSet rs = db.command("SELECT FROM OUser WHERE name = ?", params.toArray())) {
+          try (YTResultSet rs = db.command("SELECT FROM OUser WHERE name = ?", params.toArray())) {
             if (rs.hasNext()) {
               result.setProperty("exists", true);
             } else {

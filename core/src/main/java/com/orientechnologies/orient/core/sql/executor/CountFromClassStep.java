@@ -40,7 +40,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(this::produce).limit(1);
   }
 
-  private OResult produce(OCommandContext ctx) {
+  private YTResult produce(OCommandContext ctx) {
     var db = ctx.getDatabase();
     YTImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
     YTClass clazz = schema.getClass(target.getStringValue());
@@ -52,7 +52,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
           "Class " + target.getStringValue() + " does not exist in the database schema");
     }
     long size = clazz.count(db);
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty(alias, size);
     return result;
   }

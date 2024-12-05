@@ -14,12 +14,12 @@ public class OSleepStatementExecutionTest extends DBTestBase {
   @Test
   public void testBasic() {
     long begin = System.currentTimeMillis();
-    OResultSet result = db.command("sleep 1000");
+    YTResultSet result = db.command("sleep 1000");
     Assert.assertTrue(System.currentTimeMillis() - begin >= 1000);
     printExecutionPlan(null, result);
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("sleep", item.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
   }

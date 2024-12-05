@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,12 +27,12 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
   @Test
   public void testDWithinNoIndex() {
 
-    OResultSet execute =
+    YTResultSet execute =
         db.query(
             "SELECT ST_DWithin(ST_GeomFromText('POLYGON((0 0, 10 0, 10 5, 0 5, 0 0))'),"
                 + " ST_GeomFromText('POLYGON((12 0, 14 0, 14 6, 12 6, 12 0))'), 2.0d) as distance");
 
-    OResult next = execute.next();
+    YTResult next = execute.next();
 
     Assert.assertEquals(true, next.getProperty("distance"));
     Assert.assertFalse(execute.hasNext());
@@ -55,14 +55,14 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
 
-    OResultSet execute =
+    YTResultSet execute =
         db.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");
 
     Assert.assertEquals(1, execute.stream().count());
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");

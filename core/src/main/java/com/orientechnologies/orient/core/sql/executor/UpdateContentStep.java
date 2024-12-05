@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OInputParameter;
@@ -43,8 +43,8 @@ public class UpdateContentStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
-    if (result instanceof OResultInternal) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+    if (result instanceof YTResultInternal) {
       var elem = result.toElement();
       assert elem != null;
       handleContent((YTEntityInternal) elem, ctx);

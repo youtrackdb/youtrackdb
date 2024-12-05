@@ -74,7 +74,7 @@ public class OFindReferencesExecutionPlanner {
     if (rid != null) {
       plan.chain(
           new FetchFromRidsStep(
-              Collections.singleton(rid.toRecordId((OResult) null, ctx)), ctx, profilingEnabled));
+              Collections.singleton(rid.toRecordId((YTResult) null, ctx)), ctx, profilingEnabled));
     }
   }
 }

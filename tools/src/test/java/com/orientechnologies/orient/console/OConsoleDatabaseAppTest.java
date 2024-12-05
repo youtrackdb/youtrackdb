@@ -6,8 +6,8 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -82,8 +82,8 @@ public class OConsoleDatabaseAppTest {
 
       var db = console.getCurrentDatabase();
       try {
-        OResultSet result = db.query("select from foo where name = 'foo'");
-        OResult doc = result.next();
+        YTResultSet result = db.query("select from foo where name = 'foo'");
+        YTResult doc = result.next();
         Assert.assertNull(doc.getProperty("surname"));
         Assert.assertFalse(result.hasNext());
       } finally {
@@ -248,8 +248,8 @@ public class OConsoleDatabaseAppTest {
       console.run();
 
       var db = console.getCurrentDatabase();
-      OResultSet result = db.query("select from foo where name = 'foo'");
-      OResult doc = result.next();
+      YTResultSet result = db.query("select from foo where name = 'foo'");
+      YTResult doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));
       Assert.assertFalse(result.hasNext());
       result.close();
@@ -313,8 +313,8 @@ public class OConsoleDatabaseAppTest {
       console.run();
 
       var db = console.getCurrentDatabase();
-      OResultSet result = db.query("select from foo where name = 'foo'");
-      OResult doc = result.next();
+      YTResultSet result = db.query("select from foo where name = 'foo'");
+      YTResult doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));
       Assert.assertFalse(result.hasNext());
       result.close();

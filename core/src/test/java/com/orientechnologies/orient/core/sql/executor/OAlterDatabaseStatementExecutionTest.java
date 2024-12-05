@@ -16,13 +16,13 @@ public class OAlterDatabaseStatementExecutionTest extends DBTestBase {
   public void testSetProperty() {
     Object previousValue = db.get(ATTRIBUTES.MINIMUMCLUSTERS);
 
-    OResultSet result = db.command("alter database MINIMUMCLUSTERS 12");
+    YTResultSet result = db.command("alter database MINIMUMCLUSTERS 12");
 
     Object currentValue = db.get(ATTRIBUTES.MINIMUMCLUSTERS);
 
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals(previousValue, next.getProperty("oldValue"));
     Assert.assertEquals(12, currentValue);
@@ -40,7 +40,7 @@ public class OAlterDatabaseStatementExecutionTest extends DBTestBase {
         prev = entry.value;
       }
     }
-    OResultSet result = db.command("alter database custom foo = 'bar'");
+    YTResultSet result = db.command("alter database custom foo = 'bar'");
 
     previousCustoms = (List<OStorageEntryConfiguration>) db.get(ATTRIBUTES.CUSTOM);
     Object after = null;
@@ -52,7 +52,7 @@ public class OAlterDatabaseStatementExecutionTest extends DBTestBase {
 
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next);
     Assert.assertEquals(prev, next.getProperty("oldValue"));
     Assert.assertEquals("bar", after);

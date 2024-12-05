@@ -5,8 +5,8 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -66,7 +66,7 @@ public class OArrayNumberSelector extends SimpleNode {
     return null;
   }
 
-  public Integer getValue(OResult iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Integer getValue(YTResult iCurrentRecord, Object iResult, OCommandContext ctx) {
     Object result = null;
     if (inputValue != null) {
       result = inputValue.getValue(ctx.getInputParameters());
@@ -138,8 +138,8 @@ public class OArrayNumberSelector extends SimpleNode {
     return expressionValue != null && expressionValue.refersToParent();
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (inputValue != null) {
       result.setProperty("inputValue", inputValue.serialize(db));
     }
@@ -150,7 +150,7 @@ public class OArrayNumberSelector extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("inputValue") != null) {
       inputValue = OInputParameter.deserializeFromOResult(fromResult.getProperty("inputValue"));
     }

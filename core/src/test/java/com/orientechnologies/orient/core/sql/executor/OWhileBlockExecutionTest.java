@@ -25,12 +25,12 @@ public class OWhileBlockExecutionTest extends DBTestBase {
     script += "  commit;";
     script += "}";
     script += "SELECT FROM " + className;
-    OResultSet results = db.execute("sql", script);
+    YTResultSet results = db.execute("sql", script);
 
     int tot = 0;
     int sum = 0;
     while (results.hasNext()) {
-      OResult item = results.next();
+      YTResult item = results.next();
       sum += item.<Integer>getProperty("value");
       tot++;
     }
@@ -57,14 +57,14 @@ public class OWhileBlockExecutionTest extends DBTestBase {
     script += "  LET $i = $i + 1;";
     script += "}";
 
-    OResultSet results = db.execute("sql", script);
+    YTResultSet results = db.execute("sql", script);
     results.close();
     results = db.query("SELECT FROM " + className);
 
     int tot = 0;
     int sum = 0;
     while (results.hasNext()) {
-      OResult item = results.next();
+      YTResult item = results.next();
       sum += item.<Integer>getProperty("value");
       tot++;
     }

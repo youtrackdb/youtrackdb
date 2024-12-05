@@ -26,16 +26,16 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
@@ -162,7 +162,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   public void testQueryCount() {
     database.getMetadata().reload();
     final long vertexesCount = database.countClass("V");
-    List<OResult> result =
+    List<YTResult> result =
         database.query("select count(*) as count from V").stream().collect(Collectors.toList());
     Assert.assertEquals(result.get(0).<Object>getProperty("count"), vertexesCount);
   }
@@ -2236,23 +2236,23 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     elem4.save();
     database.commit();
 
-    OResultSet result =
+    YTResultSet result =
         database.query(
             "select name, elem1:{*}, elem2:{!surname} from " + className + " where name = 'd'");
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
-    Assert.assertTrue(item.getProperty("elem1") instanceof OResult);
-    Assert.assertEquals("a", ((OResult) item.getProperty("elem1")).getProperty("name"));
-    Assert.assertEquals("b", ((OResult) item.getProperty("elem2")).getProperty("name"));
-    Assert.assertNull(((OResult) item.getProperty("elem2")).getProperty("surname"));
+    Assert.assertTrue(item.getProperty("elem1") instanceof YTResult);
+    Assert.assertEquals("a", ((YTResult) item.getProperty("elem1")).getProperty("name"));
+    Assert.assertEquals("b", ((YTResult) item.getProperty("elem2")).getProperty("name"));
+    Assert.assertNull(((YTResult) item.getProperty("elem2")).getProperty("surname"));
     result.close();
   }
 
   @Override
   protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db,
       Object... args) {
-    OResultSet rs = db.query(sql, args);
+    YTResultSet rs = db.query(sql, args);
     List<YTDocument> result = new ArrayList<>();
     while (rs.hasNext()) {
       result.add((YTDocument) rs.next().toElement());

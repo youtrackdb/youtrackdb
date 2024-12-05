@@ -29,8 +29,8 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -370,7 +370,7 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertTrue(response instanceof OBeginTransactionResponse);
 
-    List<OResult> results =
+    List<YTResult> results =
         database.command("insert into test set name = 'update'").stream()
             .collect(Collectors.toList());
 
@@ -392,7 +392,7 @@ public class OConnectionExecutorTransactionTest {
 
     assertEquals(1, database.countClass("test"));
 
-    OResultSet query = database.query("select from test where name = 'update'");
+    YTResultSet query = database.query("select from test where name = 'update'");
 
     results = query.stream().collect(Collectors.toList());
 

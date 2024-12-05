@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -42,7 +42,7 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
       database.commit();
 
       // Ensure that the people made it in correctly
-      final OResultSet result1 = database.query("select from Person");
+      final YTResultSet result1 = database.query("select from Person");
       while (result1.hasNext()) {
         System.out.println(result1.next());
       }
@@ -70,7 +70,7 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
       database.rollback();
     }
 
-    final OResultSet result2 = database.command("select from Person");
+    final YTResultSet result2 = database.command("select from Person");
     System.out.println("After transaction 2");
     while (result2.hasNext()) {
       System.out.println(result2.next());

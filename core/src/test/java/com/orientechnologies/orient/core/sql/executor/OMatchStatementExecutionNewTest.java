@@ -267,11 +267,11 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testSimple() throws Exception {
-    OResultSet qResult = db.query("match {class:Person, as: person} return person");
+    YTResultSet qResult = db.query("match {class:Person, as: person} return person");
     printExecutionPlan(qResult);
 
     for (int i = 0; i < 6; i++) {
-      OResult item = qResult.next();
+      YTResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
       YTEntity person = db.load(item.getProperty("person"));
 
@@ -283,12 +283,12 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testSimpleWhere() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return person");
 
     for (int i = 0; i < 2; i++) {
-      OResult item = qResult.next();
+      YTResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
       YTEntity personId = db.load(item.getProperty("person"));
 
@@ -301,7 +301,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testSimpleLimit() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return person"
                 + " limit 1");
@@ -313,7 +313,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testSimpleLimit2() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return person"
                 + " limit -1");
@@ -327,7 +327,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testSimpleLimit3() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, as: person, where: (name = 'n1' or name = 'n2')} return person"
                 + " limit 3");
@@ -340,7 +340,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testSimpleUnnamedParams() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, as: person, where: (name = ? or name = ?)} return person",
             "n1",
@@ -349,7 +349,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     printExecutionPlan(qResult);
     for (int i = 0; i < 2; i++) {
 
-      OResult item = qResult.next();
+      YTResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
       YTEntity person = db.load(item.getProperty("person"));
 
@@ -362,14 +362,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testCommonFriends() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -378,14 +378,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testCommonFriendsPatterns() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $patterns)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -393,14 +393,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testPattens() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $patterns");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals(1, item.getPropertyNames().size());
     Assert.assertEquals("friend", item.getPropertyNames().iterator().next());
     Assert.assertFalse(qResult.hasNext());
@@ -409,14 +409,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testPaths() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $paths");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals(3, item.getPropertyNames().size());
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -424,14 +424,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testElements() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $elements");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -439,7 +439,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testPathElements() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
@@ -451,7 +451,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     expected.add("n4");
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(qResult.hasNext());
-      OResult item = qResult.next();
+      YTResult item = qResult.next();
       expected.remove(item.getProperty("name"));
     }
     Assert.assertFalse(qResult.hasNext());
@@ -462,14 +462,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testCommonFriendsMatches() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return $matches)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -478,14 +478,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testCommonFriendsArrows() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend-{as:friend}-Friend-{class: Person, where:(name = 'n4')} return"
                 + " friend)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -494,14 +494,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testCommonFriendsArrowsPatterns() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend-{as:friend}-Friend-{class: Person, where:(name = 'n4')} return"
                 + " $patterns)");
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -510,14 +510,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testCommonFriends2() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend.name as name");
 
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -526,13 +526,13 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testCommonFriends2Arrows() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class: Person,"
                 + " where:(name = 'n4')} return friend.name as name");
 
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -540,13 +540,13 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testReturnMethod() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend.name.toUpperCase(Locale.ENGLISH) as name");
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("N2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -554,12 +554,12 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testReturnMethodArrows() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class: Person,"
                 + " where:(name = 'n4')} return friend.name.toUpperCase(Locale.ENGLISH) as name");
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("N2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -567,14 +567,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testReturnExpression() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend.name + ' ' +friend.name as name");
 
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2 n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -582,13 +582,13 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testReturnExpressionArrows() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class: Person,"
                 + " where:(name = 'n4')} return friend.name + ' ' +friend.name as name");
 
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2 n2", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -596,14 +596,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testReturnDefaultAlias() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name ="
                 + " 'n1')}.both('Friend'){as:friend}.both('Friend'){class: Person, where:(name ="
                 + " 'n4')} return friend.name");
 
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("friend.name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -611,13 +611,13 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testReturnDefaultAliasArrows() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, where:(name = 'n1')}-Friend-{as:friend}-Friend-{class: Person,"
                 + " where:(name = 'n4')} return friend.name");
 
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n2", item.getProperty("friend.name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -625,14 +625,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testFriendsOfFriends() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.out('Friend').out('Friend'){as:friend} return $matches)");
 
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n4", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -640,13 +640,13 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testFriendsOfFriendsArrows() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend->{}-Friend->{as:friend} return $matches)");
 
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertEquals("n4", item.getProperty("name"));
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
@@ -654,7 +654,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testFriendsOfFriends2() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                 + " me}.both('Friend').both('Friend'){as:friend, where: ($matched.me !="
@@ -670,7 +670,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testFriendsOfFriends2Arrows() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name = 'n1'), as:"
                 + " me}-Friend-{}-Friend-{as:friend, where: ($matched.me != $currentMatch)} return"
@@ -685,7 +685,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testFriendsWithName() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1 ="
                 + " 2)}.out('Friend'){as:friend, where:(name = 'n2' and 1 + 1 = 2)} return"
@@ -699,7 +699,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testFriendsWithNameArrows() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name = 'n1' and 1 + 1 ="
                 + " 2)}-Friend->{as:friend, where:(name = 'n2' and 1 + 1 = 2)} return friend)");
@@ -712,7 +712,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testWhile() throws Exception {
 
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.out('Friend'){as:friend, while: ($depth < 1)} return friend)");
@@ -757,7 +757,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     qResult.close();
   }
 
-  private int size(OResultSet qResult) {
+  private int size(YTResultSet qResult) {
     int result = 0;
     while (qResult.hasNext()) {
       result++;
@@ -768,7 +768,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testWhileArrows() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend->{as:friend, while: ($depth < 1)} return friend)");
@@ -801,7 +801,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testMaxDepth() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}.out('Friend'){as:friend, maxDepth: 1, where: ($depth=1) } return"
@@ -834,7 +834,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testMaxDepthArrow() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name from (match {class:Person, where:(name ="
                 + " 'n1')}-Friend->{as:friend, maxDepth: 1, where: ($depth=1) } return friend)");
@@ -894,9 +894,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  return manager"
             + ")";
 
-    OResultSet qResult = db.query(query);
+    YTResultSet qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
     return item.getElement().get().getRecord();
@@ -915,10 +915,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  return manager"
             + ")";
 
-    OResultSet qResult = db.query(query);
+    YTResultSet qResult = db.query(query);
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
     return item.getElement().get().getRecord();
@@ -941,7 +941,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertEquals("b", getManager2Arrows("p11").getProperty("name"));
   }
 
-  private OResult getManager2(String personName) {
+  private YTResult getManager2(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -957,15 +957,15 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  return manager"
             + ")";
 
-    OResultSet qResult = db.query(query);
+    YTResultSet qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
     return item;
   }
 
-  private OResult getManager2Arrows(String personName) {
+  private YTResult getManager2Arrows(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -979,9 +979,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  return manager"
             + ")";
 
-    OResultSet qResult = db.query(query);
+    YTResultSet qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
-    OResult item = qResult.next();
+    YTResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
     return item;
@@ -992,14 +992,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     initOrgChart();
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    OResultSet managedByA = getManagedBy("a");
+    YTResultSet managedByA = getManagedBy("a");
     Assert.assertTrue(managedByA.hasNext());
-    OResult item = managedByA.next();
+    YTResult item = managedByA.next();
     Assert.assertFalse(managedByA.hasNext());
     Assert.assertEquals("p1", item.getProperty("name"));
     managedByA.close();
 
-    OResultSet managedByB = getManagedBy("b");
+    YTResultSet managedByB = getManagedBy("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -1010,7 +1010,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Set<String> names = new HashSet<String>();
     for (int i = 0; i < 5; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      OResult id = managedByB.next();
+      YTResult id = managedByB.next();
       String name = id.getProperty("name");
       names.add(name);
     }
@@ -1018,7 +1018,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     managedByB.close();
   }
 
-  private OResultSet getManagedBy(String managerName) {
+  private YTResultSet getManagedBy(String managerName) {
     String query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
@@ -1041,13 +1041,13 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     initOrgChart();
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    OResultSet managedByA = getManagedByArrows("a");
+    YTResultSet managedByA = getManagedByArrows("a");
     Assert.assertTrue(managedByA.hasNext());
-    OResult item = managedByA.next();
+    YTResult item = managedByA.next();
     Assert.assertFalse(managedByA.hasNext());
     Assert.assertEquals("p1", item.getProperty("name"));
     managedByA.close();
-    OResultSet managedByB = getManagedByArrows("b");
+    YTResultSet managedByB = getManagedByArrows("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -1058,7 +1058,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Set<String> names = new HashSet<String>();
     for (int i = 0; i < 5; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      OResult id = managedByB.next();
+      YTResult id = managedByB.next();
       String name = id.getProperty("name");
       names.add(name);
     }
@@ -1066,7 +1066,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     managedByB.close();
   }
 
-  private OResultSet getManagedByArrows(String managerName) {
+  private YTResultSet getManagedByArrows(String managerName) {
     String query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
@@ -1087,13 +1087,13 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     initOrgChart();
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    OResultSet managedByA = getManagedBy2("a");
+    YTResultSet managedByA = getManagedBy2("a");
     Assert.assertTrue(managedByA.hasNext());
-    OResult item = managedByA.next();
+    YTResult item = managedByA.next();
     Assert.assertFalse(managedByA.hasNext());
     Assert.assertEquals("p1", item.getProperty("name"));
     managedByA.close();
-    OResultSet managedByB = getManagedBy2("b");
+    YTResultSet managedByB = getManagedBy2("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -1104,7 +1104,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Set<String> names = new HashSet<String>();
     for (int i = 0; i < 5; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      OResult id = managedByB.next();
+      YTResult id = managedByB.next();
       String name = id.getProperty("name");
       names.add(name);
     }
@@ -1112,7 +1112,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     managedByB.close();
   }
 
-  private OResultSet getManagedBy2(String managerName) {
+  private YTResultSet getManagedBy2(String managerName) {
     String query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
@@ -1135,13 +1135,13 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     initOrgChart();
     // people managed by a manager are people who belong to his department or people who belong to
     // sub-departments without a manager
-    OResultSet managedByA = getManagedBy2Arrows("a");
+    YTResultSet managedByA = getManagedBy2Arrows("a");
     Assert.assertTrue(managedByA.hasNext());
-    OResult item = managedByA.next();
+    YTResult item = managedByA.next();
     Assert.assertFalse(managedByA.hasNext());
     Assert.assertEquals("p1", item.getProperty("name"));
     managedByA.close();
-    OResultSet managedByB = getManagedBy2Arrows("b");
+    YTResultSet managedByB = getManagedBy2Arrows("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("p2");
@@ -1152,7 +1152,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Set<String> names = new HashSet<String>();
     for (int i = 0; i < 5; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      OResult id = managedByB.next();
+      YTResult id = managedByB.next();
       String name = id.getProperty("name");
       names.add(name);
     }
@@ -1160,7 +1160,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     managedByB.close();
   }
 
-  private OResultSet getManagedBy2Arrows(String managerName) {
+  private YTResultSet getManagedBy2Arrows(String managerName) {
     String query =
         "select expand(managed) from ("
             + "  match {class:Employee, where: (name = '"
@@ -1189,7 +1189,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
 
     printExecutionPlan(result);
 
@@ -1207,7 +1207,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + " -TriangleE-> {as: friend3},{class:TriangleV, as: friend1} -TriangleE-> {as:"
             + " friend3}return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -1226,10 +1226,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     YTEntity friend1 = db.load(doc.getProperty("friend1"));
     YTEntity friend2 = db.load(doc.getProperty("friend2"));
     YTEntity friend3 = db.load(doc.getProperty("friend3"));
@@ -1251,9 +1251,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $patterns";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     YTEntity friend1 = db.load(doc.getProperty("friend1"));
     YTEntity friend2 = db.load(doc.getProperty("friend2"));
@@ -1276,9 +1276,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     YTEntity friend1 = db.load(doc.getProperty("friend1"));
     YTEntity friend2 = db.load(doc.getProperty("friend2"));
@@ -1301,9 +1301,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1320,9 +1320,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  .out('TriangleE'){as: friend3}"
             + "return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1339,9 +1339,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  -TriangleE->{as: friend3}"
             + "return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1358,10 +1358,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "  .outE('TriangleE').inV(){as: friend3}"
             + "return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1375,12 +1375,12 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     printExecutionPlan(result);
 
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult doc = result.next();
+      YTResult doc = result.next();
       YTEntity friend1 = db.load(doc.getProperty("friend1"));
       Assert.assertEquals(friend1.<Object>getProperty("uid"), 1);
     }
@@ -1393,7 +1393,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     initEdgeIndexTest();
     String query = "match " + "{class:IndexedVertex, as: one}" + "return $patterns";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     printExecutionPlan(result);
 
     result
@@ -1421,10 +1421,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
             + "return $matches LIMIT 1";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
 
     Assert.assertTrue(result.hasNext());
-    OResult d = result.next();
+    YTResult d = result.next();
     YTEntity friend1 = db.load(d.getProperty("friend1"));
     Assert.assertEquals(friend1.<Object>getProperty("uid"), 1);
     Assert.assertFalse(result.hasNext());
@@ -1439,11 +1439,11 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0] as foo";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
 
     Assert.assertTrue(result.hasNext());
 
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Object foo = db.load(doc.getProperty("foo"));
     Assert.assertNotNull(foo);
     Assert.assertTrue(((YTEntity) foo).isVertex());
@@ -1458,9 +1458,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0,1] as foo";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     Object foo = doc.getProperty("foo");
     Assert.assertNotNull(foo);
@@ -1477,9 +1477,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..1] as foo";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
 
     Object foo = doc.getProperty("foo");
@@ -1497,9 +1497,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..2] as foo";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
 
     Object foo = doc.getProperty("foo");
@@ -1517,9 +1517,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[0..3] as foo";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
 
     Object foo = doc.getProperty("foo");
@@ -1537,9 +1537,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:TriangleV, as: friend1, where: (uid = 0)}"
             + "return friend1.out('TriangleE')[uid = 2] as foo";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
 
     Object foo = doc.getProperty("foo");
@@ -1560,10 +1560,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + ".out('IndexedEdge'){class:IndexedVertex, as: two, where: (uid = 1)}"
             + "return one, two";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1577,9 +1577,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "-IndexedEdge->{class:IndexedVertex, as: two, where: (uid = 1)}"
             + "return one, two";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1592,9 +1592,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'uuid':one.uid}";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
 
     //    YTDocument doc = result.get(0);
@@ -1611,9 +1611,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': {'uuid':one.uid}}";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
@@ -1629,9 +1629,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + "{class:IndexedVertex, as: one, where: (uid = 0)} "
             + "return {'name':'foo', 'sub': [{'uuid':one.uid}]}";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
     //    YTDocument doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
@@ -1649,10 +1649,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return DISTINCT one, two");
 
-    OResultSet result = db.query(query.toString());
+    YTResultSet result = db.query(query.toString());
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
 
     query = new StringBuilder();
@@ -1682,10 +1682,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return one, two");
 
-    OResultSet result = db.query(query.toString());
+    YTResultSet result = db.query(query.toString());
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult doc = result.next();
+    YTResult doc = result.next();
     Assert.assertTrue(result.hasNext());
     doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1712,7 +1712,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testManagedElements() {
     initOrgChart();
-    OResultSet managedByB = getManagedElements("b");
+    YTResultSet managedByB = getManagedElements("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("b");
@@ -1724,7 +1724,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Set<String> names = new HashSet<String>();
     for (int i = 0; i < 6; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      OResult doc = managedByB.next();
+      YTResult doc = managedByB.next();
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -1733,7 +1733,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     managedByB.close();
   }
 
-  private OResultSet getManagedElements(String managerName) {
+  private YTResultSet getManagedElements(String managerName) {
     String query =
         "  match {class:Employee, as:boss, where: (name = '"
             + managerName
@@ -1750,7 +1750,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   @Test
   public void testManagedPathElements() {
     initOrgChart();
-    OResultSet managedByB = getManagedPathElements("b");
+    YTResultSet managedByB = getManagedPathElements("b");
 
     Set<String> expectedNames = new HashSet<String>();
     expectedNames.add("department1");
@@ -1766,7 +1766,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Set<String> names = new HashSet<String>();
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(managedByB.hasNext());
-      OResult doc = managedByB.next();
+      YTResult doc = managedByB.next();
       String name = doc.getProperty("name");
       names.add(name);
     }
@@ -1777,7 +1777,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testOptional() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, as: person} -NonExistingEdge-> {as:b, optional:true} return"
                 + " person, b.name");
@@ -1785,7 +1785,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     printExecutionPlan(qResult);
     for (int i = 0; i < 6; i++) {
       Assert.assertTrue(qResult.hasNext());
-      OResult doc = qResult.next();
+      YTResult doc = qResult.next();
       Assert.assertEquals(2, doc.getPropertyNames().size());
       YTEntity person = db.load(doc.getProperty("person"));
 
@@ -1796,14 +1796,14 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testOptional2() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "match {class:Person, as: person} --> {as:b, optional:true, where:(nonExisting = 12)}"
                 + " return person, b.name");
 
     for (int i = 0; i < 6; i++) {
       Assert.assertTrue(qResult.hasNext());
-      OResult doc = qResult.next();
+      YTResult doc = qResult.next();
       Assert.assertEquals(2, doc.getPropertyNames().size());
       YTEntity person = db.load(doc.getProperty("person"));
 
@@ -1814,7 +1814,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   @Test
   public void testOptional3() throws Exception {
-    OResultSet qResult =
+    YTResultSet qResult =
         db.query(
             "select friend.name as name, b from (match {class:Person, as:a, where:(name = 'n1' and"
                 + " 1 + 1 = 2)}.out('Friend'){as:friend, where:(name = 'n2' and 1 + 1 ="
@@ -1823,7 +1823,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
-    OResult doc = qResult.next();
+    YTResult doc = qResult.next();
     Assert.assertEquals("n2", doc.getProperty("name"));
     Assert.assertNull(doc.getProperty("b"));
     Assert.assertFalse(qResult.hasNext());
@@ -1842,7 +1842,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     String query = "MATCH { class: testOrderByAsc, as:a} RETURN a.name as name order by name asc";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     Assert.assertEquals("aaa", result.next().getProperty("name"));
     Assert.assertTrue(result.hasNext());
@@ -1867,7 +1867,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     String query = "MATCH { class: testOrderByDesc, as:a} RETURN a.name as name order by name desc";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     Assert.assertEquals("zzz", result.next().getProperty("name"));
     Assert.assertTrue(result.hasNext());
@@ -1891,10 +1891,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     String query = "MATCH { class: " + clazz + ", as:a} RETURN a:{name}, 'x' ";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
-    OResult a = item.getProperty("a");
+    YTResult item = result.next();
+    YTResult a = item.getProperty("a");
     Assert.assertEquals("bbb", a.getProperty("name"));
     Assert.assertNull(a.getProperty("surname"));
     Assert.assertFalse(result.hasNext());
@@ -1920,9 +1920,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + clazz
             + ", as:a} RETURN a.name as a, max(a.num) as maxNum group by a.name order by a.name";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("aaa", item.getProperty("a"));
     Assert.assertEquals(3, (int) item.getProperty("maxNum"));
 
@@ -1951,10 +1951,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + clazz
             + ", as:a} RETURN a.name as name, a.num as num order by a.num2 asc";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     for (int i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals("aaa", item.getProperty("name"));
       Assert.assertEquals(i, (int) item.getProperty("num"));
     }
@@ -1979,10 +1979,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + clazz
             + ", as:a} RETURN a.name as name, a.num as num order by a.num2 desc";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     for (int i = 2; i >= 0; i--) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals("aaa", item.getProperty("name"));
       Assert.assertEquals(i, (int) item.getProperty("num"));
     }
@@ -2005,10 +2005,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
         "MATCH { class: " + clazz + ", as:a} RETURN a.name as name, a.coll as num unwind num";
 
     int sum = 0;
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     for (int i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       sum += item.<Integer>getProperty("num");
     }
 
@@ -2035,10 +2035,10 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + clazz
             + ", as:a} RETURN a.name as name ORDER BY name ASC skip 1 limit 2";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("bbb", item.getProperty("name"));
 
     Assert.assertTrue(result.hasNext());
@@ -2090,12 +2090,12 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + ", as:a, where:(name = 'aaa')} --> {as:b, while:($depth<10), depthAlias: xy} RETURN"
             + " a.name as name, b.name as bname, xy";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
 
     int sum = 0;
     for (int i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Object depth = item.getProperty("xy");
       Assert.assertTrue(depth instanceof Integer);
       Assert.assertEquals("aaa", item.getProperty("name"));
@@ -2163,11 +2163,11 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
             + ", as:a, where:(name = 'aaa')} --> {as:b, while:($depth<10), pathAlias: xy} RETURN"
             + " a.name as name, b.name as bname, xy";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
 
     for (int i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Object path = item.getProperty("xy");
       Assert.assertTrue(path instanceof List);
       List<YTIdentifiable> thePath = (List<YTIdentifiable>) path;
@@ -2221,7 +2221,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     query += " NOT {as:a} --> {as:c}";
     query += " RETURN $patterns";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -2257,7 +2257,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     query += " NOT {as:a} --> {as:c}";
     query += " RETURN $patterns";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertFalse(result.hasNext());
 
     result.close();
@@ -2291,7 +2291,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     query += " NOT {as:a} --> {as:c, where:(name <> 'c')}";
     query += " RETURN $patterns";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -2328,9 +2328,9 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     String query = "MATCH { class:" + clazz + ", as:a}.next{as:b, where:(name ='b')}";
     query += " RETURN a.name as a, b.name as b";
 
-    OResultSet result = db.query(query);
+    YTResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertEquals("a", item.getProperty("a"));
     Assert.assertEquals("b", item.getProperty("b"));
 
@@ -2352,7 +2352,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     result.close();
   }
 
-  private OResultSet getManagedPathElements(String managerName) {
+  private YTResultSet getManagedPathElements(String managerName) {
     String query =
         "  match {class:Employee, as:boss, where: (name = '"
             + managerName
@@ -2377,7 +2377,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
 
     String query = "MATCH {class: `" + className + "`, as:foo} RETURN $elements";
 
-    try (OResultSet rs = db.query(query)) {
+    try (YTResultSet rs = db.query(query)) {
       Assert.assertEquals(1L, rs.stream().count());
     }
   }
@@ -2386,11 +2386,11 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     return YouTrackDBManager.instance().getProfiler();
   }
 
-  private void printExecutionPlan(OResultSet result) {
+  private void printExecutionPlan(YTResultSet result) {
     printExecutionPlan(null, result);
   }
 
-  private void printExecutionPlan(String query, OResultSet result) {
+  private void printExecutionPlan(String query, YTResultSet result) {
     //    if (query != null) {
     //      System.out.println(query);
     //    }

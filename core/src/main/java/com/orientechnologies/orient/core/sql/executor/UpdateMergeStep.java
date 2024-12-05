@@ -26,10 +26,10 @@ public class UpdateMergeStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
-    if (result instanceof OResultInternal) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+    if (result instanceof YTResultInternal) {
       if (!(result.getElement().orElse(null) instanceof YTDocument)) {
-        ((OResultInternal) result).setIdentifiable(result.toElement().getRecord());
+        ((YTResultInternal) result).setIdentifiable(result.toElement().getRecord());
       }
       if (!(result.getElement().orElse(null) instanceof YTDocument)) {
         return result;

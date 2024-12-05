@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.HashMap;
@@ -196,7 +196,7 @@ public class TraverseTest extends DocumentDBBaseTest {
                     + tomCruise.getIdentity()
                     + " while $depth <= 1 ) where @class = 'Movie'")
             .stream()
-            .map(OResult::toElement)
+            .map(YTResult::toElement)
             .toList();
     Assert.assertTrue(result1.isEmpty());
 

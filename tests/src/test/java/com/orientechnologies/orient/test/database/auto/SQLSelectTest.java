@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1477,7 +1477,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     database.save(bytes, "binarycluster");
     database.commit();
 
-    OResultSet result = database.query("select from cluster:binarycluster");
+    YTResultSet result = database.query("select from cluster:binarycluster");
 
     Assert.assertEquals(result.stream().count(), 1);
 
@@ -1511,7 +1511,8 @@ public class SQLSelectTest extends AbstractSelectTest {
         .close();
     database.commit();
 
-    OResultSet result = database.query("select expand(out()) from TestExpandSkip where name = '1'");
+    YTResultSet result = database.query(
+        "select expand(out()) from TestExpandSkip where name = '1'");
 
     Assert.assertEquals(result.stream().count(), 3);
 
@@ -1563,7 +1564,7 @@ public class SQLSelectTest extends AbstractSelectTest {
         .close();
     database.commit();
 
-    OResultSet result =
+    YTResultSet result =
         database.query(
             "select expand(out('TestPolymorphicEdges_E1')) from TestPolymorphicEdges_V where name ="
                 + " '1'");
@@ -1593,7 +1594,7 @@ public class SQLSelectTest extends AbstractSelectTest {
         .close();
     database.commit();
 
-    OResultSet result =
+    YTResultSet result =
         database.query(
             " select from (select from TestSizeOfLink where name = '1') where out()[name=2].size()"
                 + " > 0");
@@ -1645,7 +1646,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     database.command("CREATE VERTEX LetWithQuotedValue set name = \"\\\"foo\\\"\"").close();
     database.commit();
 
-    OResultSet result =
+    YTResultSet result =
         database.query(
             " select expand($a) let $a = (select from LetWithQuotedValue where name ="
                 + " \"\\\"foo\\\"\")");

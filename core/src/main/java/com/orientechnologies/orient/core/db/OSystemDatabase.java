@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.ODefaultSecuritySystem;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import javax.annotation.Nonnull;
@@ -98,14 +98,14 @@ public class OSystemDatabase {
   }
 
   public <R> R execute(
-      @Nonnull final BiFunction<OResultSet, YTDatabaseSession, R> callback, final String sql,
+      @Nonnull final BiFunction<YTResultSet, YTDatabaseSession, R> callback, final String sql,
       final Object... args) {
     final YTDatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance()
         .getIfDefined();
     try {
       // BYPASS SECURITY
       try (final YTDatabaseSession db = openSystemDatabase()) {
-        try (OResultSet result = db.command(sql, args)) {
+        try (YTResultSet result = db.command(sql, args)) {
           return callback.apply(result, db);
         }
       }

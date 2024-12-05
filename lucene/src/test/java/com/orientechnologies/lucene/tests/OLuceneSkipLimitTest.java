@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class OLuceneSkipLimitTest extends OLuceneBaseTest {
   @Test
   public void testContext() {
 
-    OResultSet docs =
+    YTResultSet docs =
         db.query("select * from Song where search_fields(['title'],\"(title:man)\")=true");
 
     Assertions.assertThat(docs).hasSize(14);

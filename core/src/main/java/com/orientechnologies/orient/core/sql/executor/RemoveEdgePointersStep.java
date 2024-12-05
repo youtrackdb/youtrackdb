@@ -23,20 +23,20 @@ public class RemoveEdgePointersStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     var propNames = result.getPropertyNames();
     for (String propName :
         propNames.stream().filter(x -> x.startsWith("in_") || x.startsWith("out_")).toList()) {
       Object val = result.getProperty(propName);
       if (val instanceof YTEntity) {
         if (((YTEntity) val).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
-          ((OResultInternal) result).removeProperty(propName);
+          ((YTResultInternal) result).removeProperty(propName);
         }
       } else if (val instanceof Iterable<?> iterable) {
         for (Object o : iterable) {
           if (o instanceof YTEntity) {
             if (((YTEntity) o).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
-              ((OResultInternal) result).removeProperty(propName);
+              ((YTResultInternal) result).removeProperty(propName);
               break;
             }
           }

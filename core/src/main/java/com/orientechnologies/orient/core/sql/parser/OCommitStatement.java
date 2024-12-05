@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class OCommitStatement extends OSimpleExecStatement {
   public OExecutionStream executeSimple(OCommandContext ctx) {
     var db = ctx.getDatabase();
     db.commit(); // no RETRY and ELSE here, that case is allowed only for batch scripts;
-    OResultInternal item = new OResultInternal(db);
+    YTResultInternal item = new YTResultInternal(db);
     item.setProperty("operation", "commit");
     return OExecutionStream.singleton(item);
   }

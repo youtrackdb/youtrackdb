@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Test;
 
 /**
@@ -23,7 +23,7 @@ public class TestNullFieldQuery extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    OResultSet res = db.query("select from Test where name= 'some' ");
+    YTResultSet res = db.query("select from Test where name= 'some' ");
     assertEquals(0, res.stream().count());
   }
 
@@ -38,7 +38,7 @@ public class TestNullFieldQuery extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    OResultSet res = db.query("select from Test where name= 'some' ");
+    YTResultSet res = db.query("select from Test where name= 'some' ");
     assertEquals(0, res.stream().count());
   }
 }

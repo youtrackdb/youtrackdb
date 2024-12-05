@@ -24,7 +24,7 @@ public class ODropDatabaseStatementExecutionTest {
                 .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
-      try (OResultSet result =
+      try (YTResultSet result =
           youTrackDb.execute(
               "create database "
                   + dbName
@@ -33,7 +33,7 @@ public class ODropDatabaseStatementExecutionTest {
                   + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
                   + "' role admin)")) {
         Assert.assertTrue(result.hasNext());
-        OResult item = result.next();
+        YTResult item = result.next();
         Assert.assertEquals(true, item.getProperty("created"));
       }
       Assert.assertTrue(youTrackDb.exists(dbName));
@@ -59,7 +59,7 @@ public class ODropDatabaseStatementExecutionTest {
                 .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
-      try (OResultSet result =
+      try (YTResultSet result =
           youTrackDb.execute(
               "create database "
                   + dbName
@@ -68,7 +68,7 @@ public class ODropDatabaseStatementExecutionTest {
                   + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
                   + "' role admin)")) {
         Assert.assertTrue(result.hasNext());
-        OResult item = result.next();
+        YTResult item = result.next();
         Assert.assertEquals(true, item.getProperty("created"));
       }
       Assert.assertTrue(youTrackDb.exists(dbName));

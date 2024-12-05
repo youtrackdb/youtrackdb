@@ -13,8 +13,8 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
@@ -60,9 +60,9 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
       }
     }
     if (iThis instanceof YTIdentifiable) {
-      iThis = new OResultInternal(ctx.getDatabase(), (YTIdentifiable) iThis);
+      iThis = new YTResultInternal(ctx.getDatabase(), (YTIdentifiable) iThis);
     }
-    OResult result = (OResult) iThis;
+    YTResult result = (YTResult) iThis;
 
     YTEntity element = result.toElement();
     if (!element.getSchemaType().isPresent()) {

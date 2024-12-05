@@ -25,10 +25,10 @@ public class OSelectStatementExecutionTestIT extends DBTestBase {
 
     for (int run = 0; run < 5; run++) {
       long begin = System.nanoTime();
-      OResultSet result = db.query("select name from " + className + " where name <> 'name1' ");
+      YTResultSet result = db.query("select name from " + className + " where name <> 'name1' ");
       for (int i = 0; i < 999999; i++) {
         //        Assert.assertTrue(result.hasNext());
-        OResult item = result.next();
+        YTResult item = result.next();
         //        Assert.assertNotNull(item);
         Object name = item.getProperty("name");
         Assert.assertNotEquals("name1", name);

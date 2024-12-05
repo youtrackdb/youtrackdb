@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -90,7 +90,7 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     String query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    OResultSet docs = db.query(query);
+    YTResultSet docs = db.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
 

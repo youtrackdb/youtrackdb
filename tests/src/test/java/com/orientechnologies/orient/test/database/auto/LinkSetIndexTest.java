@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -56,7 +56,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.command("DELETE FROM LinkSetIndexTestClass").close();
     database.commit();
 
-    OResultSet result = database.command("select from LinkSetIndexTestClass");
+    YTResultSet result = database.command("select from LinkSetIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
 
     if (database.getStorage().isRemote()) {
@@ -703,7 +703,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    OResultSet result =
+    YTResultSet result =
         database.query(
             "select * from LinkSetIndexTestClass where linkSet contains ?", docOne.getIdentity());
 

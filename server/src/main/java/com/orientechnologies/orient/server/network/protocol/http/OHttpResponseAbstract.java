@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -217,7 +217,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       } else if (OMultiValue.isMultiValue(iResult)
           && (OMultiValue.getSize(iResult) > 0
           && !((OMultiValue.getFirstValue(iResult) instanceof YTIdentifiable)
-          || ((OMultiValue.getFirstValue(iResult) instanceof OResult))))) {
+          || ((OMultiValue.getFirstValue(iResult) instanceof YTResult))))) {
         newResult = Collections.singleton(new YTDocument().field("value", iResult)).iterator();
       } else if (iResult instanceof YTIdentifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
@@ -326,7 +326,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
               while (it.hasNext()) {
                 final Object r = it.next();
 
-                if (r instanceof OResult result) {
+                if (r instanceof YTResult result) {
 
                   records.add(result.toElement());
 
@@ -496,8 +496,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             buffer.append(", ");
           }
 
-          if (entry instanceof OResult) {
-            objectJson = ((OResult) entry).toJSON();
+          if (entry instanceof YTResult) {
+            objectJson = ((YTResult) entry).toJSON();
             buffer.append(objectJson);
           } else if (entry instanceof YTIdentifiable identifiable) {
             try {

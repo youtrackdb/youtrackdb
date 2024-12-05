@@ -15,9 +15,9 @@ public class ODropClusterStatementExecutionTest extends DBTestBase {
     db.getStorage().addCluster(db, cluster);
 
     Assert.assertTrue(db.getClusterIdByName(cluster) > 0);
-    OResultSet result = db.command("drop cluster " + cluster);
+    YTResultSet result = db.command("drop cluster " + cluster);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop cluster", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -31,9 +31,9 @@ public class ODropClusterStatementExecutionTest extends DBTestBase {
     db.getStorage().addCluster(db, cluster);
 
     Assert.assertTrue(db.getClusterIdByName(cluster) > 0);
-    OResultSet result = db.command("drop cluster " + cluster + " IF EXISTS");
+    YTResultSet result = db.command("drop cluster " + cluster + " IF EXISTS");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop cluster", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();

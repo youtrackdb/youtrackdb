@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
   @Test
   public void testMixQuery() {
 
-    OResultSet docs =
+    YTResultSet docs =
         db.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics]  LUCENE"
                 + " \"(title:mountain)\" ");
@@ -75,7 +75,7 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
   //  @Ignore
   public void testMixCompositeQuery() {
 
-    OResultSet docs =
+    YTResultSet docs =
         db.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics] LUCENE"
                 + " \"title:mountain\" ");

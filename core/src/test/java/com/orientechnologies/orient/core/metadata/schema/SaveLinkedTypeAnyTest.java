@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class SaveLinkedTypeAnyTest extends DBTestBase {
     db.command("insert into TestRemoveLinkedType set prop = [4]").close();
     db.commit();
 
-    try (OResultSet result = db.query("select from TestRemoveLinkedType")) {
+    try (YTResultSet result = db.query("select from TestRemoveLinkedType")) {
       Assert.assertTrue(result.hasNext());
       Collection coll = result.next().getProperty("prop");
       Assert.assertFalse(result.hasNext());
@@ -42,7 +42,7 @@ public class SaveLinkedTypeAnyTest extends DBTestBase {
     db.command("insert into TestRemoveLinkedType set prop = [4]").close();
     db.commit();
 
-    try (OResultSet result = db.query("select from TestRemoveLinkedType")) {
+    try (YTResultSet result = db.query("select from TestRemoveLinkedType")) {
       Assert.assertTrue(result.hasNext());
       Collection coll = result.next().getProperty("prop");
       Assert.assertFalse(result.hasNext());

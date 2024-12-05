@@ -1,23 +1,24 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 
 /**
  *
  */
 public class ORemoteQueryResult {
 
-  private final OResultSet result;
+  private final YTResultSet result;
   private final boolean transactionUpdated;
   private final boolean reloadMetadata;
 
-  public ORemoteQueryResult(OResultSet result, boolean transactionUpdated, boolean reloadMetadata) {
+  public ORemoteQueryResult(YTResultSet result, boolean transactionUpdated,
+      boolean reloadMetadata) {
     this.result = result;
     this.transactionUpdated = transactionUpdated;
     this.reloadMetadata = reloadMetadata;
   }
 
-  public OResultSet getResult() {
+  public YTResultSet getResult() {
     return result;
   }
 

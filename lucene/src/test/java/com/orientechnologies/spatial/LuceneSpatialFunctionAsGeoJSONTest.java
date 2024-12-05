@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class LuceneSpatialFunctionAsGeoJSONTest extends DBTestBase {
 
   protected void queryAndMatch(String wkt, String geoJson) {
 
-    OResultSet query =
+    YTResultSet query =
         db.query(
             "SELECT ST_GeomFromText(:wkt) as wkt,ST_GeomFromGeoJSON(:geoJson) as geoJson;",
             new HashMap() {
@@ -49,13 +49,13 @@ public class LuceneSpatialFunctionAsGeoJSONTest extends DBTestBase {
                 put("wkt", wkt);
               }
             });
-    OResult result = query.stream().findFirst().get();
-    OResult jsonGeom = result.getProperty("geoJson");
-    OResult wktGeom = result.getProperty("wkt");
+    YTResult result = query.stream().findFirst().get();
+    YTResult jsonGeom = result.getProperty("geoJson");
+    YTResult wktGeom = result.getProperty("wkt");
     assertGeometry(wktGeom, jsonGeom);
   }
 
-  private void assertGeometry(OResult source, OResult geom) {
+  private void assertGeometry(YTResult source, YTResult geom) {
     Assert.assertNotNull(geom);
 
     Assert.assertNotNull(geom.getProperty("coordinates"));

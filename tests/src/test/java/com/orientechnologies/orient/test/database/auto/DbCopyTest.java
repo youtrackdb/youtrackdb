@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -90,7 +90,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
     }
 
     database.begin();
-    OResultSet result = database.query("SELECT FROM " + className);
+    YTResultSet result = database.query("SELECT FROM " + className);
     Assert.assertEquals(result.stream().count(), 25);
     database.commit();
   }

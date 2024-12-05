@@ -34,7 +34,7 @@ public class FilterByClassStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private OResult filterMap(OResult result, OCommandContext ctx) {
+  private YTResult filterMap(YTResult result, OCommandContext ctx) {
     if (result.isElement()) {
       Optional<YTClass> clazz = result.toElement().getSchemaType();
       if (clazz.isPresent() && clazz.get().isSubClassOf(className)) {
@@ -60,15 +60,15 @@ public class FilterByClassStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("identifier", identifier.serialize(db));
 
     return result;
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       identifier = OIdentifier.deserialize(fromResult.getProperty("identifier"));

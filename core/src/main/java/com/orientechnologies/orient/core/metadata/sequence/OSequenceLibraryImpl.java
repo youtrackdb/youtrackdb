@@ -21,14 +21,14 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.concur.YTNeedRetryException;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSequenceException;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -51,9 +51,9 @@ public class OSequenceLibraryImpl {
     sequences.clear();
 
     if (db.getMetadata().getImmutableSchemaSnapshot().existsClass(YTSequence.CLASS_NAME)) {
-      try (final OResultSet result = db.query("SELECT FROM " + YTSequence.CLASS_NAME)) {
+      try (final YTResultSet result = db.query("SELECT FROM " + YTSequence.CLASS_NAME)) {
         while (result.hasNext()) {
-          OResult res = result.next();
+          YTResult res = result.next();
 
           final YTSequence sequence =
               OSequenceHelper.createSequence((YTDocument) res.getElement().get());

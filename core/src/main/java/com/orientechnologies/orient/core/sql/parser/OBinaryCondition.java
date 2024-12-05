@@ -10,8 +10,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
@@ -43,7 +43,7 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -64,7 +64,7 @@ public class OBinaryCondition extends OBooleanExpression {
     return operator.execute(leftVal, rightVal);
   }
 
-  private boolean evaluateAny(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, OCommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       Object rightVal = right.execute(currentRecord, ctx);
@@ -78,7 +78,7 @@ public class OBinaryCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       Object rightVal = right.execute(currentRecord, ctx);
@@ -155,13 +155,13 @@ public class OBinaryCondition extends OBooleanExpression {
 
   public long estimateIndexed(OFromClause target, OCommandContext context) {
     return left.estimateIndexedFunction(
-        target, context, operator, right.execute((OResult) null, context));
+        target, context, operator, right.execute((YTResult) null, context));
   }
 
   public Iterable<YTIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext context) {
     return left.executeIndexedFunction(
-        target, context, operator, right.execute((OResult) null, context));
+        target, context, operator, right.execute((YTResult) null, context));
   }
 
   /**
@@ -176,7 +176,7 @@ public class OBinaryCondition extends OBooleanExpression {
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context) {
     return left.canExecuteIndexedFunctionWithoutIndex(
-        target, context, operator, right.execute((OResult) null, context));
+        target, context, operator, right.execute((YTResult) null, context));
   }
 
   /**
@@ -191,7 +191,7 @@ public class OBinaryCondition extends OBooleanExpression {
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context) {
     return left.allowsIndexedFunctionExecutionOnTarget(
-        target, context, operator, right.execute((OResult) null, context));
+        target, context, operator, right.execute((YTResult) null, context));
   }
 
   /**
@@ -208,7 +208,7 @@ public class OBinaryCondition extends OBooleanExpression {
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context) {
     return left.executeIndexedFunctionAfterIndexSearch(
-        target, context, operator, right.execute((OResult) null, context));
+        target, context, operator, right.execute((YTResult) null, context));
   }
 
   public List<OBinaryCondition> getIndexedFunctionConditions(
@@ -422,15 +422,15 @@ public class OBinaryCondition extends OBooleanExpression {
     return result;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("left", left.serialize(db));
     result.setProperty("operator", operator.getClass().getName());
     result.setProperty("right", right.serialize(db));
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     left = new OExpression(-1);
     left.deserialize(fromResult.getProperty("left"));
     try {
@@ -512,7 +512,7 @@ public class OBinaryCondition extends OBooleanExpression {
     if (path.isPresent()) {
       OPath p = path.get();
       if (right.isEarlyCalculated(ctx)) {
-        Object value = right.execute((OResult) null, ctx);
+        Object value = right.execute((YTResult) null, ctx);
         if (operator instanceof OEqualsCompareOperator) {
           return info.findExactIndex(p, value, ctx);
         } else if (operator instanceof OContainsKeyOperator) {

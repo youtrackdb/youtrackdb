@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class OCommandExecutorSQLCreateLinkTest extends DBTestBase {
     db.command("CREATE LINK theLink type link FROM Basic1.fk TO Basic2.pk ").close();
     db.commit();
 
-    OResultSet result = db.query("select pk, theLink.pk as other from Basic1 order by pk");
+    YTResultSet result = db.query("select pk, theLink.pk as other from Basic1 order by pk");
 
     Object otherKey = result.next().getProperty("other");
     Assert.assertNotNull(otherKey);
@@ -77,14 +77,14 @@ public class OCommandExecutorSQLCreateLinkTest extends DBTestBase {
     db.command("CREATE LINK theLink TYPE LINKSET FROM Inverse1.fk TO Inverse2.pk INVERSE").close();
     db.commit();
 
-    OResultSet result = db.query("select pk, theLink.pk as other from Inverse2 order by pk");
-    OResult first = result.next();
+    YTResultSet result = db.query("select pk, theLink.pk as other from Inverse2 order by pk");
+    YTResult first = result.next();
     Object otherKeys = first.getProperty("other");
     Assert.assertNotNull(otherKeys);
     Assert.assertTrue(otherKeys instanceof List);
     Assert.assertEquals(((List) otherKeys).get(0), "pkb1_1");
 
-    OResult second = result.next();
+    YTResult second = result.next();
     otherKeys = second.getProperty("other");
     Assert.assertNotNull(otherKeys);
     Assert.assertTrue(otherKeys instanceof List);

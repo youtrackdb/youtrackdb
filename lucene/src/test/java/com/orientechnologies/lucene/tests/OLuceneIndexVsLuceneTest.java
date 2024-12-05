@@ -24,7 +24,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.lucene.analyzer.OLucenePerFieldAnalyzerWrapper;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -117,7 +117,7 @@ public class OLuceneIndexVsLuceneTest extends OLuceneBaseTest {
     final TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
     ScoreDoc[] hits = docs.scoreDocs;
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query("select *,$score from Song where search_class('down the')=true");
 
     resultSet.stream()

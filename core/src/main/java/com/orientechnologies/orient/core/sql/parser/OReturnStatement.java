@@ -4,9 +4,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +27,19 @@ public class OReturnStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    List<OResult> rs = new ArrayList<>();
+    List<YTResult> rs = new ArrayList<>();
 
     var database = ctx.getDatabase();
-    Object result = expression == null ? null : expression.execute((OResult) null, ctx);
-    if (result instanceof OResult) {
-      rs.add((OResult) result);
+    Object result = expression == null ? null : expression.execute((YTResult) null, ctx);
+    if (result instanceof YTResult) {
+      rs.add((YTResult) result);
     } else if (result instanceof YTIdentifiable) {
-      OResultInternal res = new OResultInternal(database, (YTIdentifiable) result);
+      YTResultInternal res = new YTResultInternal(database, (YTIdentifiable) result);
       rs.add(res);
-    } else if (result instanceof OResultSet) {
-      if (!((OResultSet) result).hasNext()) {
+    } else if (result instanceof YTResultSet) {
+      if (!((YTResultSet) result).hasNext()) {
         try {
-          ((OResultSet) result).reset();
+          ((YTResultSet) result).reset();
         } catch (UnsupportedOperationException ignore) {
           // just try to reset the RS, in case it was already used during the script execution
           // already
@@ -49,11 +49,11 @@ public class OReturnStatement extends OSimpleExecStatement {
           // this operation does not hurt
         }
       }
-      return OExecutionStream.resultIterator(((OResultSet) result).stream().iterator());
+      return OExecutionStream.resultIterator(((YTResultSet) result).stream().iterator());
     } else if (result instanceof OExecutionStream) {
       return (OExecutionStream) result;
     } else {
-      OResultInternal res = new OResultInternal(database);
+      YTResultInternal res = new YTResultInternal(database);
       res.setProperty("value", result);
       rs.add(res);
     }

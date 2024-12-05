@@ -59,7 +59,7 @@ public class OMoveVertexExecutionPlanner {
   }
 
   /**
-   * add a step that transforms a normal OResult in a specific object that under setProperty()
+   * add a step that transforms a normal YTResult in a specific object that under setProperty()
    * updates the actual YTIdentifiable
    *
    * @param plan the execution plan

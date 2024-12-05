@@ -66,7 +66,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     Iterator<?> fromIter = fetchFroms();
     List<Object> toList = fetchTo();
     OIndex uniqueIndex = findIndex(this.uniqueIndexName);
-    Stream<OResult> stream =
+    Stream<YTResult> stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
             .map(CreateEdgesStep::asVertex)
             .flatMap((currentFrom) -> mapTo(ctx.getDatabase(), toList, currentFrom, uniqueIndex));
@@ -93,15 +93,15 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     } else if (!(toValues instanceof Iterator)) {
       toValues = Collections.singleton(toValues).iterator();
     }
-    if (toValues instanceof OInternalResultSet) {
-      toValues = ((OInternalResultSet) toValues).copy();
+    if (toValues instanceof YTInternalResultSet) {
+      toValues = ((YTInternalResultSet) toValues).copy();
     }
 
     Iterator<?> toIter = (Iterator<?>) toValues;
 
-    if (toIter instanceof OResultSet) {
+    if (toIter instanceof YTResultSet) {
       try {
-        ((OResultSet) toIter).reset();
+        ((YTResultSet) toIter).reset();
       } catch (Exception ignore) {
       }
     }
@@ -119,20 +119,20 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     } else if (!(fromValues instanceof Iterator)) {
       fromValues = Collections.singleton(fromValues).iterator();
     }
-    if (fromValues instanceof OInternalResultSet) {
-      fromValues = ((OInternalResultSet) fromValues).copy();
+    if (fromValues instanceof YTInternalResultSet) {
+      fromValues = ((YTInternalResultSet) fromValues).copy();
     }
     Iterator<?> fromIter = (Iterator<?>) fromValues;
-    if (fromIter instanceof OResultSet) {
+    if (fromIter instanceof YTResultSet) {
       try {
-        ((OResultSet) fromIter).reset();
+        ((YTResultSet) fromIter).reset();
       } catch (Exception ignore) {
       }
     }
     return fromIter;
   }
 
-  public Stream<OResult> mapTo(YTDatabaseSessionInternal db, List<Object> to, YTVertex currentFrom,
+  public Stream<YTResult> mapTo(YTDatabaseSessionInternal db, List<Object> to, YTVertex currentFrom,
       OIndex uniqueIndex) {
     return to.stream()
         .map(
@@ -167,7 +167,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               currentTo.save();
               edgeToUpdate.save();
 
-              return new OUpdatableResult(db, edgeToUpdate);
+              return new YTUpdatableResult(db, edgeToUpdate);
             });
   }
 
@@ -196,10 +196,10 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     if (currentFrom instanceof YTRID) {
       currentFrom = ((YTRID) currentFrom).getRecord();
     }
-    if (currentFrom instanceof OResult) {
+    if (currentFrom instanceof YTResult) {
       Object from = currentFrom;
       currentFrom =
-          ((OResult) currentFrom)
+          ((YTResult) currentFrom)
               .getVertex()
               .orElseThrow(
                   () ->

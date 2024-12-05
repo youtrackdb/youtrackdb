@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import org.junit.Before;
@@ -21,7 +21,7 @@ public class OSQLMethodKeysTest extends DBTestBase {
   @Test
   public void testWithOResult() {
 
-    OResultInternal resultInternal = new OResultInternal(db);
+    YTResultInternal resultInternal = new YTResultInternal(db);
     resultInternal.setProperty("name", "Foo");
     resultInternal.setProperty("surname", "Bar");
 

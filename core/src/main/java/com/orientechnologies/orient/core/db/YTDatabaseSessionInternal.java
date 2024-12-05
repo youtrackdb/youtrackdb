@@ -52,7 +52,7 @@ import com.orientechnologies.orient.core.record.impl.YTEdgeInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -186,7 +186,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
 
   void checkForClusterPermissions(String name);
 
-  default OResultSet getActiveQuery(String id) {
+  default YTResultSet getActiveQuery(String id) {
     throw new UnsupportedOperationException();
   }
 
@@ -247,9 +247,9 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * @param nodeName        the node name
    * @param executionPlan   the execution plan
    * @param inputParameters the input parameters for execution
-   * @return an OResultSet to fetch the results of the query execution
+   * @return an YTResultSet to fetch the results of the query execution
    */
-  default OResultSet queryOnNode(
+  default YTResultSet queryOnNode(
       String nodeName, OExecutionPlan executionPlan, Map<Object, Object> inputParameters) {
     throw new UnsupportedOperationException();
   }
@@ -271,7 +271,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
 
   String getClusterName(final YTRecord record);
 
-  default OResultSet indexQuery(String indexName, String query, Object... args) {
+  default YTResultSet indexQuery(String indexName, String query, Object... args) {
     return command(query, args);
   }
 

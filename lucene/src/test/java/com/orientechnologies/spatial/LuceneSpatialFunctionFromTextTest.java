@@ -18,8 +18,8 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.spatial.shape.legacy.OPointLegecyBuilder;
 import java.io.IOException;
 import java.util.List;
@@ -41,11 +41,11 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
   protected void checkFromText(YTDocument source, String query) {
 
-    OResultSet docs = db.command(query);
+    YTResultSet docs = db.command(query);
 
     assertTrue(docs.hasNext());
 
-    YTEntity geom = ((OResult) docs.next().getProperty("geom")).toElement();
+    YTEntity geom = ((YTResult) docs.next().getProperty("geom")).toElement();
     assertGeometry(source, geom);
     assertFalse(docs.hasNext());
   }
@@ -112,10 +112,10 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
   protected void checkFromCollectionText(YTDocument source, String query) {
 
-    OResultSet docs = db.command(query);
+    YTResultSet docs = db.command(query);
 
     assertTrue(docs.hasNext());
-    YTEntity geom = ((OResult) docs.next().getProperty("geom")).toElement();
+    YTEntity geom = ((YTResult) docs.next().getProperty("geom")).toElement();
     assertFalse(docs.hasNext());
     Assert.assertNotNull(geom);
 

@@ -43,7 +43,7 @@ import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTEdgeInternal;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -76,8 +76,8 @@ public interface YTDatabaseSession extends AutoCloseable {
 
   /**
    * Splits data provided by iterator in batches and execute every batch in separate transaction.
-   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them to
-   * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
+   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them
+   * to the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
    * avoid described problems.
    *
    * @param <T>       Type of data
@@ -101,8 +101,8 @@ public interface YTDatabaseSession extends AutoCloseable {
 
   /**
    * Splits data provided by iterator in batches and execute every batch in separate transaction.
-   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them to
-   * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
+   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them
+   * to the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
    * avoid described problems.
    *
    * @param <T>       Type of data
@@ -126,8 +126,8 @@ public interface YTDatabaseSession extends AutoCloseable {
 
   /**
    * Splits data provided by stream in batches and execute every batch in separate transaction.
-   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them to
-   * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
+   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them
+   * to the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
    * avoid described problems.
    * <p>
    * Stream is closed after processing.
@@ -293,14 +293,22 @@ public interface YTDatabaseSession extends AutoCloseable {
   int activeTxCount();
 
   /**
+   * Returns if the current session has an active transaction.
+   *
+   * @return <code>true</code> if the session has an active transaction, <code>false</code>
+   * otherwise.
+   */
+  default boolean isTxActive() {
+    return activeTxCount() > 0;
+  }
+
+  /**
    * Loads an element by its id, throws an exception if record is not an element or does not exist.
    *
    * @param id the id of the element to load
    * @return the loaded element
-   * @throws YTDatabaseException                                                   if the record is
-   *                                                                              not an element
-   * @throws YTRecordNotFoundException if the record does
-   *                                                                              not exist
+   * @throws YTDatabaseException       if the record is not an element
+   * @throws YTRecordNotFoundException if the record does not exist
    */
   @Nonnull
   default YTEntity loadElement(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
@@ -318,10 +326,8 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param id the id of the vertex to load
    * @return the loaded vertex
-   * @throws YTDatabaseException                                                   if the record is
-   *                                                                              not a vertex
-   * @throws YTRecordNotFoundException if the record does
-   *                                                                              not exist
+   * @throws YTDatabaseException       if the record is not a vertex
+   * @throws YTRecordNotFoundException if the record does not exist
    */
   @Nonnull
   default YTVertex loadVertex(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
@@ -339,10 +345,8 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param id the id of the edge to load
    * @return the loaded edge
-   * @throws YTDatabaseException                                                   if the record is
-   *                                                                              not an edge
-   * @throws YTRecordNotFoundException if the record does
-   *                                                                              not exist
+   * @throws YTDatabaseException       if the record is not an edge
+   * @throws YTRecordNotFoundException if the record does not exist
    */
   @Nonnull
   default YTEdge loadEdge(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
@@ -360,10 +364,8 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param id the id of the blob to load
    * @return the loaded blob
-   * @throws YTDatabaseException                                                   if the record is
-   *                                                                              not a blob
-   * @throws YTRecordNotFoundException if the record does
-   *                                                                              not exist
+   * @throws YTDatabaseException       if the record is not a blob
+   * @throws YTRecordNotFoundException if the record does not exist
    */
   @Nonnull
   default YTBlob loadBlob(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
@@ -459,7 +461,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param className the class name
    * @return The object representing the class in the schema
    * @throws YTSchemaException if the class already exists or if V class is not defined (Eg. if it
-   *                          was deleted from the schema)
+   *                           was deleted from the schema)
    */
   default YTClass createVertexClass(String className) throws YTSchemaException {
     return createClass(className, "V");
@@ -471,7 +473,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param className the class name
    * @return The object representing the class in the schema
    * @throws YTSchemaException if the class already exists or if E class is not defined (Eg. if it
-   *                          was deleted from the schema)
+   *                           was deleted from the schema)
    */
   default YTClass createEdgeClass(String className) {
     var edgeClass = createClass(className, "E");
@@ -488,7 +490,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param className the class name
    * @return The object representing the class in the schema
    * @throws YTSchemaException if the class already exists or if E class is not defined (Eg. if it
-   *                          was deleted from the schema)
+   *                           was deleted from the schema)
    */
   default YTClass createLightweightEdgeClass(String className) {
     return createAbstractClass(className, "E");
@@ -639,9 +641,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * <p>IMPORTANT: This command is not reentrant.
    *
-   * @param throwException If <code>true</code>
-   *                       {@link
-   *                       YTModificationOperationProhibitedException}
+   * @param throwException If <code>true</code> {@link YTModificationOperationProhibitedException}
    *                       exception will be thrown in case of write command will be performed.
    */
   void freeze(boolean throwException);
@@ -668,8 +668,8 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param className    the class name
    * @param superclasses a list of superclasses for the class (can be empty)
    * @return the class with the given name
-   * @throws YTSchemaException if a class with this name already exists or if one of the superclasses
-   *                          does not exist.
+   * @throws YTSchemaException if a class with this name already exists or if one of the
+   *                           superclasses does not exist.
    */
   default YTClass createClass(String className, String... superclasses) throws YTSchemaException {
     YTSchema schema = getSchema();
@@ -703,8 +703,8 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param className    the class name
    * @param superclasses a list of superclasses for the class (can be empty)
    * @return the class with the given name
-   * @throws YTSchemaException if a class with this name already exists or if one of the superclasses
-   *                          does not exist.
+   * @throws YTSchemaException if a class with this name already exists or if one of the
+   *                           superclasses does not exist.
    */
   default YTClass createAbstractClass(String className, String... superclasses)
       throws YTSchemaException {
@@ -738,8 +738,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param recordId The unique record id of the entity to load.
    * @return The loaded entity
-   * @throws YTRecordNotFoundException if record does not
-   *                                                                              exist in database
+   * @throws YTRecordNotFoundException if record does not exist in database
    */
   @Nonnull
   <RET extends YTRecord> RET load(YTRID recordId);
@@ -829,14 +828,14 @@ public interface YTDatabaseSession extends AutoCloseable {
    * Sample usage:
    *
    * <p><code>
-   * OResultSet rs = db.query("SELECT FROM V where name = ?", "John"); while(rs.hasNext()){ OResult
-   * item = rs.next(); ... } rs.close(); </code>
+   * YTResultSet rs = db.query("SELECT FROM V where name = ?", "John"); while(rs.hasNext()){
+   * YTResult item = rs.next(); ... } rs.close(); </code>
    *
    * @param query the query string
    * @param args  query parameters (positional)
    * @return the query result set
    */
-  default OResultSet query(String query, Object... args)
+  default YTResultSet query(String query, Object... args)
       throws YTCommandSQLParsingException, YTCommandExecutionException {
     throw new UnsupportedOperationException();
   }
@@ -848,15 +847,15 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * <p><code>
    * Map&lt;String, Object&gt params = new HashMapMap&lt;&gt(); params.put("name", "John");
-   * OResultSet rs = db.query("SELECT FROM V where name = :name", params); while(rs.hasNext()){
-   * OResult item = rs.next(); ... } rs.close();
+   * YTResultSet rs = db.query("SELECT FROM V where name = :name", params); while(rs.hasNext()){
+   * YTResult item = rs.next(); ... } rs.close();
    * </code>
    *
    * @param query the query string
    * @param args  query parameters (named)
    * @return the query result set
    */
-  default OResultSet query(String query, Map args)
+  default YTResultSet query(String query, Map args)
       throws YTCommandSQLParsingException, YTCommandExecutionException {
     throw new UnsupportedOperationException();
   }
@@ -868,13 +867,14 @@ public interface YTDatabaseSession extends AutoCloseable {
    * Sample usage:
    *
    * <p><code>
-   * OResultSet rs = db.command("INSERT INTO Person SET name = ?", "John"); ... rs.close(); </code>
+   * YTResultSet rs = db.command("INSERT INTO Person SET name = ?", "John"); ... rs.close();
+   * </code>
    *
    * @param query
    * @param args  query arguments
    * @return the query result set
    */
-  default OResultSet command(String query, Object... args)
+  default YTResultSet command(String query, Object... args)
       throws YTCommandSQLParsingException, YTCommandExecutionException {
     throw new UnsupportedOperationException();
   }
@@ -887,14 +887,14 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * <p><code>
    * Map&lt;String, Object&gt params = new HashMapMap&lt;&gt(); params.put("name", "John");
-   * OResultSet rs = db.query("INSERT INTO Person SET name = :name", params); ... rs.close();
+   * YTResultSet rs = db.query("INSERT INTO Person SET name = :name", params); ... rs.close();
    * </code>
    *
    * @param query
    * @param args
    * @return
    */
-  default OResultSet command(String query, Map args)
+  default YTResultSet command(String query, Map args)
       throws YTCommandSQLParsingException, YTCommandExecutionException {
     throw new UnsupportedOperationException();
   }
@@ -909,7 +909,8 @@ public interface YTDatabaseSession extends AutoCloseable {
    * String script = "INSERT INTO Person SET name = 'foo', surname = ?;"+ "INSERT INTO Person SET
    * name = 'bar', surname = ?;"+ "INSERT INTO Person SET name = 'baz', surname = ?;";
    * <p>
-   * OResultSet rs = db.execute("sql", script, "Surname1", "Surname2", "Surname3"); ... rs.close();
+   * YTResultSet rs = db.execute("sql", script, "Surname1", "Surname2", "Surname3"); ...
+   * rs.close();
    * </code>
    *
    * @param language
@@ -917,7 +918,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param args
    * @return
    */
-  default OResultSet execute(String language, String script, Object... args)
+  default YTResultSet execute(String language, String script, Object... args)
       throws YTCommandExecutionException, YTCommandScriptException {
     throw new UnsupportedOperationException();
   }
@@ -936,14 +937,14 @@ public interface YTDatabaseSession extends AutoCloseable {
    * Person SET name = 'bar', surname = :surname2;"+ "INSERT INTO Person SET name = 'baz', surname =
    * :surname3;";
    * <p>
-   * OResultSet rs = db.execute("sql", script, params); ... rs.close(); </code>
+   * YTResultSet rs = db.execute("sql", script, params); ... rs.close(); </code>
    *
    * @param language
    * @param script
    * @param args
    * @return
    */
-  default OResultSet execute(String language, String script, Map<String, ?> args)
+  default YTResultSet execute(String language, String script, Map<String, ?> args)
       throws YTCommandExecutionException, YTCommandScriptException {
     throw new UnsupportedOperationException();
   }

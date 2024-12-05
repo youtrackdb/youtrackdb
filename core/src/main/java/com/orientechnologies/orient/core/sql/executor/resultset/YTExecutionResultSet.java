@@ -2,18 +2,18 @@ package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Map;
 import java.util.Optional;
 
-public class OExecutionResultSet implements OResultSet {
+public class YTExecutionResultSet implements YTResultSet {
 
   private final OExecutionStream stream;
   private final OCommandContext context;
   private final Optional<OExecutionPlan> plan;
 
-  public OExecutionResultSet(
+  public YTExecutionResultSet(
       OExecutionStream stream, OCommandContext context, OExecutionPlan plan) {
     super();
     this.stream = stream;
@@ -27,7 +27,7 @@ public class OExecutionResultSet implements OResultSet {
   }
 
   @Override
-  public OResult next() {
+  public YTResult next() {
     return stream.next(context);
   }
 

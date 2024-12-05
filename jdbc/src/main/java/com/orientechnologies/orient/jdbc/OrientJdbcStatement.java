@@ -18,10 +18,10 @@ import static java.lang.Boolean.parseBoolean;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,7 +49,7 @@ public class OrientJdbcStatement implements Statement {
   protected String sql;
   //  protected       List<YTDocument>      documents;
   protected boolean closed;
-  protected OResultSet oResultSet;
+  protected YTResultSet oResultSet;
   protected OrientJdbcResultSet resultSet;
 
   public OrientJdbcStatement(final OrientJdbcConnection iConnection) {
@@ -102,9 +102,9 @@ public class OrientJdbcStatement implements Statement {
     sql = mayCleanForSpark(sqlCommand);
 
     if (sql.equalsIgnoreCase("select 1")) {
-      OResultInternal element = new OResultInternal(database);
+      YTResultInternal element = new YTResultInternal(database);
       element.setProperty("1", 1);
-      OInternalResultSet rs = new OInternalResultSet();
+      YTInternalResultSet rs = new YTInternalResultSet();
       rs.add(element);
       oResultSet = rs;
     } else {
@@ -141,7 +141,7 @@ public class OrientJdbcStatement implements Statement {
   private int doExecuteUpdate(String sql) throws SQLException {
     try {
       oResultSet = executeCommand(sql);
-      Optional<OResult> res = oResultSet.stream().findFirst();
+      Optional<YTResult> res = oResultSet.stream().findFirst();
 
       if (res.isPresent()) {
         if (res.get().getProperty("count") != null) {
@@ -159,7 +159,7 @@ public class OrientJdbcStatement implements Statement {
     }
   }
 
-  protected OResultSet executeCommand(String query) throws SQLException {
+  protected YTResultSet executeCommand(String query) throws SQLException {
 
     try {
       return database.command(query);

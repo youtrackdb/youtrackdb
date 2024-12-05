@@ -2,8 +2,8 @@ package com.orientechnologies.orient.client.remote.metadata.security;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
@@ -20,9 +20,9 @@ import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +115,7 @@ public class OSecurityRemote implements OSecurityInternal {
       return null;
     }
 
-    try (final OResultSet result =
+    try (final YTResultSet result =
         session.query("select @rid as rid from ORole where name = ? limit 1", iRoleName)) {
 
       if (result.hasNext()) {
@@ -126,7 +126,7 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   public YTRID getUserRID(final YTDatabaseSession session, final String userName) {
-    try (OResultSet result =
+    try (YTResultSet result =
         session.query("select @rid as rid from OUser where name = ? limit 1", userName)) {
 
       if (result.hasNext()) {
@@ -210,7 +210,8 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public OUser getUser(final YTDatabaseSession session, final String iUserName) {
-    try (OResultSet result = session.query("select from OUser where name = ? limit 1", iUserName)) {
+    try (YTResultSet result = session.query("select from OUser where name = ? limit 1",
+        iUserName)) {
       if (result.hasNext()) {
         return new OUser(session, (YTDocument) result.next().getElement().get());
       }
@@ -246,7 +247,7 @@ public class OSecurityRemote implements OSecurityInternal {
       return null;
     }
 
-    try (final OResultSet result =
+    try (final YTResultSet result =
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new ORole(session, (YTDocument) result.next().getElement().get());
@@ -257,13 +258,13 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   public List<YTDocument> getAllUsers(final YTDatabaseSession session) {
-    try (OResultSet rs = session.query("select from OUser")) {
+    try (YTResultSet rs = session.query("select from OUser")) {
       return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
     }
   }
 
   public List<YTDocument> getAllRoles(final YTDatabaseSession session) {
-    try (OResultSet rs = session.query("select from ORole")) {
+    try (YTResultSet rs = session.query("select from ORole")) {
       return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
     }
   }

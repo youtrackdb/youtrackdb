@@ -28,7 +28,7 @@ public class OFuncitonAggregationContext implements AggregationContext {
   }
 
   @Override
-  public void apply(OResult next, OCommandContext ctx) {
+  public void apply(YTResult next, OCommandContext ctx) {
     List<Object> paramValues = new ArrayList<>();
     for (OExpression expr : params) {
       paramValues.add(expr.execute(next, ctx));

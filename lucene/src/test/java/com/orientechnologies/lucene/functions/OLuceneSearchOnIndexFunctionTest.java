@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class OLuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnSingleIndex() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query("SELECT from Song where SEARCH_INDEX('Song.title', 'BELIEVE') = true");
 
     //    resultSet.getExecutionPlan().ifPresent(x -> System.out.println(x.prettyPrint(0, 2)));
@@ -58,7 +58,8 @@ public class OLuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldFindNothingOnEmptyQuery() throws Exception {
 
-    OResultSet resultSet = db.query("SELECT from Song where SEARCH_INDEX('Song.title', '') = true");
+    YTResultSet resultSet = db.query(
+        "SELECT from Song where SEARCH_INDEX('Song.title', '') = true");
 
     //    resultSet.getExecutionPlan().ifPresent(x -> System.out.println(x.prettyPrint(0, 2)));
     assertThat(resultSet).hasSize(0);
@@ -71,7 +72,7 @@ public class OLuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   public void shouldSearchOnSingleIndexWithLeadingWildcard() throws Exception {
 
     // TODO: metadata still not used
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', '*EVE*', {'allowLeadingWildcard':"
                 + " true}) = true");
@@ -85,7 +86,7 @@ public class OLuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnTwoIndexesInOR() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'BELIEVE') = true OR"
                 + " SEARCH_INDEX('Song.author', 'Bob') = true ");
@@ -97,7 +98,7 @@ public class OLuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnTwoIndexesInAND() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'tambourine') = true AND"
                 + " SEARCH_INDEX('Song.author', 'Bob') = true ");
@@ -109,7 +110,7 @@ public class OLuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchOnTwoIndexesWithLeadingWildcardInAND() throws Exception {
 
-    OResultSet resultSet =
+    YTResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_INDEX('Song.title', 'tambourine') = true AND"
                 + " SEARCH_INDEX('Song.author', 'Bob', {'allowLeadingWildcard': true}) = true ");

@@ -20,7 +20,7 @@ package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Assert;
@@ -66,7 +66,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
 
     db.close();
 
-    db = (YTDatabaseSessionInternal) openDatabase();
+    db = openDatabase();
 
     assertQuery();
 
@@ -81,7 +81,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
   }
 
   protected void assertQuery() {
-    OResultSet docs = db.query("select * from Song where title LUCENE \"mountain\"");
+    YTResultSet docs = db.query("select * from Song where title LUCENE \"mountain\"");
 
     Assert.assertEquals(4, docs.stream().count());
 
@@ -105,7 +105,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
 
   protected void assertNewQuery() {
 
-    OResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:Local)\"");
+    YTResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:Local)\"");
 
     Assert.assertEquals(1, docs.stream().count());
   }

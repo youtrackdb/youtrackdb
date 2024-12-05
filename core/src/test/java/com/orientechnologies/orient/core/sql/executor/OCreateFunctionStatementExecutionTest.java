@@ -13,11 +13,11 @@ public class OCreateFunctionStatementExecutionTest extends DBTestBase {
   public void testPlain() {
     String name = "testPlain";
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "CREATE FUNCTION " + name + " \"return a + b;\" PARAMETERS [a,b] language javascript");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     Assert.assertEquals(name, next.getProperty("functionName"));

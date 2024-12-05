@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
@@ -68,7 +68,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
       db.execute("sql", getScriptFromStream(stream)).close();
     }
 
-    OResultSet documents;
+    YTResultSet documents;
 
     documents = db.query("select from Test where [a] lucene 'lion'");
 
@@ -90,7 +90,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
       db.execute("sql", getScriptFromStream(stream)).close();
     }
 
-    OResultSet documents;
+    YTResultSet documents;
 
     documents = db.query("select from Test where a lucene 'lion'");
 

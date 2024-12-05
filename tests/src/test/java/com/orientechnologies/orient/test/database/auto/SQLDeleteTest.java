@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -37,12 +37,12 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
     final Long total = database.countClass("Profile");
 
-    OResultSet resultset =
+    YTResultSet resultset =
         database.query("select from Profile where sex = 'female' and salary = 2100");
     long queryCount = resultset.stream().count();
 
     database.begin();
-    OResultSet result =
+    YTResultSet result =
         database.command("delete from Profile where sex = 'female' and salary = 2100");
     database.commit();
     long count = result.next().getProperty("count");
@@ -58,13 +58,13 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
     final Long total = db.countClass("Profile");
 
-    OResultSet resultset =
+    YTResultSet resultset =
         db.query("select from Profile where sex = 'male' and salary > 120 and salary <= 133");
 
     long queryCount = resultset.stream().count();
 
     db.begin();
-    OResultSet records =
+    YTResultSet records =
         db.command("delete from Profile where sex = 'male' and salary > 120 and salary <= 133");
     db.commit();
 

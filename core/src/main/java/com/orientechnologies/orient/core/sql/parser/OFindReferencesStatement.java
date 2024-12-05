@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OFindReferencesExecutionPlanner;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +40,7 @@ public class OFindReferencesStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
       boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -62,11 +62,11 @@ public class OFindReferencesStatement extends OStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new OLocalResultSet(executionPlan);
+    return new YTLocalResultSet(executionPlan);
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
@@ -81,7 +81,7 @@ public class OFindReferencesStatement extends OStatement {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new OLocalResultSet(executionPlan);
+    return new YTLocalResultSet(executionPlan);
   }
 
   @Override

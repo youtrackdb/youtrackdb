@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -70,7 +70,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
 
     try {
 
-      final OResultSet resultSet;
+      final YTResultSet resultSet;
       if (language.equals("sql")) {
         resultSet = executeStatement(language, text, new HashMap<>(), db);
       } else if (language.equals("gremlin")) {
@@ -105,7 +105,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
   protected void sendRecordsContent(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      OResultSet resultSet,
+      YTResultSet resultSet,
       String iFetchPlan,
       int limit)
       throws IOException {
@@ -125,7 +125,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
   }
 
   protected void generateGraphDbOutput(
-      final OResultSet resultSet, int limit, final OJSONWriter json) throws IOException {
+      final YTResultSet resultSet, int limit, final OJSONWriter json) throws IOException {
     if (resultSet == null) {
       return;
     }
@@ -139,7 +139,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
       if (limit >= 0 && i >= limit) {
         break;
       }
-      OResult next = resultSet.next();
+      YTResult next = resultSet.next();
       if (next.isVertex()) {
         vertexes.add(next.getVertex().get());
       } else if (next.isEdge()) {
@@ -202,9 +202,9 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
     return NAMES;
   }
 
-  protected OResultSet executeStatement(
+  protected YTResultSet executeStatement(
       String language, String text, Object params, YTDatabaseSession db) {
-    OResultSet result;
+    YTResultSet result;
     if (params instanceof Map) {
       result = db.command(text, (Map) params);
     } else if (params instanceof Object[]) {

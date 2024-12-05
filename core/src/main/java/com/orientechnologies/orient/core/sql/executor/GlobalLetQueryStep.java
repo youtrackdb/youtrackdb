@@ -5,8 +5,8 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
-import com.orientechnologies.orient.core.sql.parser.OLocalResultSet;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
+import com.orientechnologies.orient.core.sql.parser.YTLocalResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,11 +54,11 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
   }
 
   private void calculate(OCommandContext ctx) {
-    ctx.setVariable(varName.getStringValue(), toList(new OLocalResultSet(subExecutionPlan)));
+    ctx.setVariable(varName.getStringValue(), toList(new YTLocalResultSet(subExecutionPlan)));
   }
 
-  private List<OResult> toList(OLocalResultSet oLocalResultSet) {
-    List<OResult> result = new ArrayList<>();
+  private List<YTResult> toList(YTLocalResultSet oLocalResultSet) {
+    List<YTResult> result = new ArrayList<>();
     while (oLocalResultSet.hasNext()) {
       result.add(oLocalResultSet.next());
     }

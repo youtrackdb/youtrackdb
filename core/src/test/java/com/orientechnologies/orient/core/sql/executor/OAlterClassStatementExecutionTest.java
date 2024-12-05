@@ -17,7 +17,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testName1";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result = db.command("alter class " + className + " name " + className + "_new");
+    YTResultSet result = db.command("alter class " + className + " name " + className + "_new");
     Assert.assertNull(schema.getClass(className));
     Assert.assertNotNull(schema.getClass(className + "_new"));
     result.close();
@@ -49,7 +49,8 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testShortName";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result = db.command("alter class " + className + " shortname " + className + "_new");
+    YTResultSet result = db.command(
+        "alter class " + className + " shortname " + className + "_new");
     YTClass clazz = schema.getClass(className);
     Assert.assertEquals(className + "_new", clazz.getShortName());
     result.close();
@@ -60,7 +61,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testAddCluster";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result =
+    YTResultSet result =
         db.command("alter class " + className + " addcluster " + className + "_new");
     YTClass clazz = schema.getClass(className);
     boolean found = false;
@@ -79,7 +80,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testRemoveCluster";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result =
+    YTResultSet result =
         db.command("alter class " + className + " addcluster " + className + "_new");
     YTClass clazz = schema.getClass(className);
     boolean found = false;
@@ -112,7 +113,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     YTClass superclass = schema.createClass(superclassName);
-    OResultSet result = db.command("alter class " + className + " superclass " + superclassName);
+    YTResultSet result = db.command("alter class " + className + " superclass " + superclassName);
     Assert.assertTrue(schema.getClass(className).getSuperClasses().contains(superclass));
     result.close();
   }
@@ -126,7 +127,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     schema.createClass(className);
     YTClass superclass = schema.createClass(superclassName);
     YTClass superclass2 = schema.createClass(superclassName2);
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "alter class "
                 + className
@@ -144,7 +145,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testOversize";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result = db.command("alter class " + className + " oversize 10");
+    YTResultSet result = db.command("alter class " + className + " oversize 10");
     YTClass clazz = schema.getClass(className);
     Assert.assertEquals((Object) 10.0f, clazz.getOverSize());
     result.close();
@@ -155,7 +156,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testStrictmode";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result = db.command("alter class " + className + " strictmode true");
+    YTResultSet result = db.command("alter class " + className + " strictmode true");
     YTClass clazz = schema.getClass(className);
     Assert.assertTrue(clazz.isStrictMode());
     result.close();
@@ -166,7 +167,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testCustom";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result = db.command("alter class " + className + " custom foo = 'bar'");
+    YTResultSet result = db.command("alter class " + className + " custom foo = 'bar'");
     YTClass clazz = schema.getClass(className);
     Assert.assertEquals("bar", clazz.getCustom("foo"));
     result.close();
@@ -177,7 +178,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testCustom2";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result = db.command("alter class " + className + " custom foo = ?", "bar");
+    YTResultSet result = db.command("alter class " + className + " custom foo = ?", "bar");
     YTClass clazz = schema.getClass(className);
     Assert.assertEquals("bar", clazz.getCustom("foo"));
     result.close();
@@ -188,7 +189,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     String className = "testAbstract";
     YTSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
-    OResultSet result = db.command("alter class " + className + " abstract true");
+    YTResultSet result = db.command("alter class " + className + " abstract true");
     YTClass clazz = schema.getClass(className);
     Assert.assertTrue(clazz.isAbstract());
     result.close();
@@ -209,7 +210,7 @@ public class OAlterClassStatementExecutionTest extends DBTestBase {
     } catch (YTCommandExecutionException ex) {
 
     }
-    OResultSet result =
+    YTResultSet result =
         db.command("alter class " + className + " name " + className + "_new unsafe");
     Assert.assertNull(schema.getClass(className));
     Assert.assertNotNull(schema.getClass(className + "_new"));

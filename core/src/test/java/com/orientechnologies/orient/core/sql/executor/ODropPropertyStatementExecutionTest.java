@@ -21,9 +21,9 @@ public class ODropPropertyStatementExecutionTest extends DBTestBase {
     schema.createClass(className).createProperty(db, propertyName, YTType.STRING);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
-    OResultSet result = db.command("drop property " + className + "." + propertyName);
+    YTResultSet result = db.command("drop property " + className + "." + propertyName);
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertEquals("drop property", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -42,7 +42,7 @@ public class ODropPropertyStatementExecutionTest extends DBTestBase {
         .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
-    OResultSet result = db.command("drop property " + className + "." + propertyName + " force");
+    YTResultSet result = db.command("drop property " + className + "." + propertyName + " force");
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       result.next();

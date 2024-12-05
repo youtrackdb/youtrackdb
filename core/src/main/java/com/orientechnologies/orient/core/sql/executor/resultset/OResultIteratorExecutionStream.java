@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Iterator;
 
 public class OResultIteratorExecutionStream implements OExecutionStream {
 
-  private final Iterator<OResult> iterator;
+  private final Iterator<YTResult> iterator;
 
-  public OResultIteratorExecutionStream(Iterator<OResult> iterator) {
+  public OResultIteratorExecutionStream(Iterator<YTResult> iterator) {
     this.iterator = iterator;
   }
 
@@ -18,7 +18,7 @@ public class OResultIteratorExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     return iterator.next();
   }
 

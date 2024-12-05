@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class SQLAlterClassTest extends DBTestBase {
       db.command("insert into `Client-Type` set foo = 'bar'").close();
       db.commit();
 
-      OResultSet result = db.query("Select from `Client-Type`");
+      YTResultSet result = db.query("Select from `Client-Type`");
       Assert.assertEquals(result.stream().count(), 1);
     } catch (YTCommandSQLParsingException ex) {
       Assert.fail();

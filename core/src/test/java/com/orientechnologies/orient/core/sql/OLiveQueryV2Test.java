@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,22 +61,22 @@ public class OLiveQueryV2Test {
       this.latch = latch;
     }
 
-    public List<OResult> ops = new ArrayList<OResult>();
+    public List<YTResult> ops = new ArrayList<YTResult>();
 
     @Override
-    public void onCreate(YTDatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, YTResult data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, YTResult data) {
       ops.add(data);
       latch.countDown();
     }
@@ -120,7 +120,7 @@ public class OLiveQueryV2Test {
       db.commit();
 
       Assert.assertEquals(2, listener.ops.size());
-      for (OResult doc : listener.ops) {
+      for (YTResult doc : listener.ops) {
         Assert.assertEquals("test", doc.getProperty("@class"));
         Assert.assertEquals("foo", doc.getProperty("name"));
         YTRID rid = doc.getProperty("@rid");
@@ -162,7 +162,7 @@ public class OLiveQueryV2Test {
         e.printStackTrace();
       }
       Assert.assertEquals(1, listener.ops.size());
-      for (OResult doc : listener.ops) {
+      for (YTResult doc : listener.ops) {
         Assert.assertEquals("foo", doc.getProperty("name"));
         YTRID rid = doc.getProperty("@rid");
         Assert.assertTrue(rid.isPersistent());
@@ -199,7 +199,7 @@ public class OLiveQueryV2Test {
         e.printStackTrace();
       }
       Assert.assertEquals(1, listener.ops.size());
-      for (OResult doc : listener.ops) {
+      for (YTResult doc : listener.ops) {
         Assert.assertEquals(doc.getProperty("id"), Integer.valueOf(1));
         YTRID rid = doc.getProperty("@rid");
         Assert.assertTrue(rid.isPersistent());
@@ -243,20 +243,20 @@ public class OLiveQueryV2Test {
                       new OLiveQueryResultListener() {
 
                         @Override
-                        public void onCreate(YTDatabaseSession database, OResult data) {
+                        public void onCreate(YTDatabaseSession database, YTResult data) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
 
                         @Override
                         public void onUpdate(
-                            YTDatabaseSession database, OResult before, OResult after) {
+                            YTDatabaseSession database, YTResult before, YTResult after) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
 
                         @Override
-                        public void onDelete(YTDatabaseSession database, OResult data) {
+                        public void onDelete(YTDatabaseSession database, YTResult data) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
@@ -329,7 +329,7 @@ public class OLiveQueryV2Test {
       db.commit();
 
       Assert.assertEquals(2, listener.ops.size());
-      for (OResult doc : listener.ops) {
+      for (YTResult doc : listener.ops) {
         Assert.assertEquals("test", doc.getProperty("@class"));
         Assert.assertEquals("foo", doc.getProperty("name"));
         Assert.assertNull(doc.getProperty("surname"));

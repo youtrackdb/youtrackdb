@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class OCommandExecutorSQLTruncateTest extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    OResultSet ret = db.command("truncate class A ");
+    YTResultSet ret = db.command("truncate class A ");
     assertEquals((long) ret.next().getProperty("count"), 1L);
   }
 
@@ -64,7 +64,7 @@ public class OCommandExecutorSQLTruncateTest extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    try (OResultSet res = db.command("truncate class A POLYMORPHIC")) {
+    try (YTResultSet res = db.command("truncate class A POLYMORPHIC")) {
       assertEquals((long) res.next().getProperty("count"), 1L);
       assertEquals((long) res.next().getProperty("count"), 1L);
     }

@@ -26,7 +26,7 @@ import com.orientechnologies.orient.client.remote.OLiveQueryClientListener;
 import com.orientechnologies.orient.client.remote.ORemoteQueryResult;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
+import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
@@ -35,12 +35,12 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
@@ -65,14 +65,14 @@ import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTEdgeDocument;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -352,7 +352,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public OResultSet query(String query, Object... args) {
+  public YTResultSet query(String query, Object... args) {
     checkOpenness();
     checkAndSendTransaction();
 
@@ -365,7 +365,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public OResultSet query(String query, Map args) {
+  public YTResultSet query(String query, Map args) {
     checkOpenness();
     checkAndSendTransaction();
 
@@ -378,7 +378,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public OResultSet indexQuery(String indexName, String query, Object... args) {
+  public YTResultSet indexQuery(String indexName, String query, Object... args) {
     checkOpenness();
 
     if (getTransaction().isActive()) {
@@ -399,7 +399,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public OResultSet command(String query, Object... args) {
+  public YTResultSet command(String query, Object... args) {
     checkOpenness();
     checkAndSendTransaction();
 
@@ -412,7 +412,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public OResultSet command(String query, Map args) {
+  public YTResultSet command(String query, Map args) {
     checkOpenness();
     checkAndSendTransaction();
 
@@ -431,7 +431,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public OResultSet execute(String language, String script, Object... args)
+  public YTResultSet execute(String language, String script, Object... args)
       throws YTCommandExecutionException, YTCommandScriptException {
     checkOpenness();
     checkAndSendTransaction();
@@ -445,7 +445,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public OResultSet execute(String language, String script, Map<String, ?> args)
+  public YTResultSet execute(String language, String script, Map<String, ?> args)
       throws YTCommandExecutionException, YTCommandScriptException {
     checkOpenness();
     checkAndSendTransaction();
@@ -464,7 +464,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     queryClosed(queryId);
   }
 
-  public void fetchNextPage(ORemoteResultSet rs) {
+  public void fetchNextPage(YTRemoteResultSet rs) {
     checkOpenness();
     checkAndSendTransaction();
     storage.fetchNextPage(this, rs);
@@ -521,9 +521,9 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   @Override
   public int addBlobCluster(final String iClusterName, final Object... iParameters) {
     int id;
-    try (OResultSet resultSet = command("create blob cluster :1", iClusterName)) {
+    try (YTResultSet resultSet = command("create blob cluster :1", iClusterName)) {
       assert resultSet.hasNext();
-      OResult result = resultSet.next();
+      YTResult result = resultSet.next();
       assert result.getProperty("value") != null;
       id = result.getProperty("value");
       return id;
@@ -1053,13 +1053,13 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   public long truncateClass(String name, boolean polimorfic) {
     long count = 0;
     if (polimorfic) {
-      try (OResultSet result = command("truncate class " + name + " polymorphic ")) {
+      try (YTResultSet result = command("truncate class " + name + " polymorphic ")) {
         while (result.hasNext()) {
           count += result.next().<Long>getProperty("count");
         }
       }
     } else {
-      try (OResultSet result = command("truncate class " + name)) {
+      try (YTResultSet result = command("truncate class " + name)) {
         while (result.hasNext()) {
           count += result.next().<Long>getProperty("count");
         }

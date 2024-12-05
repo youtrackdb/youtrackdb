@@ -44,8 +44,8 @@ public class MatchFirstStep extends AbstractExecutionStep {
     String alias = getAlias();
 
     @SuppressWarnings("unchecked")
-    List<OResult> matchedNodes =
-        (List<OResult>) ctx.getVariable(MatchPrefetchStep.PREFETCHED_MATCH_ALIAS_PREFIX + alias);
+    List<YTResult> matchedNodes =
+        (List<YTResult>) ctx.getVariable(MatchPrefetchStep.PREFETCHED_MATCH_ALIAS_PREFIX + alias);
     if (matchedNodes != null) {
       data = OExecutionStream.resultIterator(matchedNodes.iterator());
     } else {
@@ -54,7 +54,7 @@ public class MatchFirstStep extends AbstractExecutionStep {
 
     return data.map(
         (result, context) -> {
-          OResultInternal newResult = new OResultInternal(context.getDatabase());
+          YTResultInternal newResult = new YTResultInternal(context.getDatabase());
           newResult.setProperty(getAlias(), result);
           context.setVariable("$matched", newResult);
           return newResult;

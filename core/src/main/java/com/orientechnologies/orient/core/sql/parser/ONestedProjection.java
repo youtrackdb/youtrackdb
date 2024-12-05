@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,10 +39,10 @@ public class ONestedProjection extends SimpleNode {
    * @param ctx
    */
   public Object apply(OExpression expression, Object input, OCommandContext ctx) {
-    if (input instanceof OResult) {
+    if (input instanceof YTResult) {
       return apply(
           expression,
-          (OResult) input,
+          (YTResult) input,
           ctx,
           recursion == null ? 0 : recursion.getValue().intValue());
     }
@@ -78,8 +78,8 @@ public class ONestedProjection extends SimpleNode {
     return input;
   }
 
-  private Object apply(OExpression expression, OResult elem, OCommandContext ctx, int recursion) {
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+  private Object apply(OExpression expression, YTResult elem, OCommandContext ctx, int recursion) {
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
         if (isExclude(property)) {
@@ -142,7 +142,7 @@ public class ONestedProjection extends SimpleNode {
         return input;
       }
     }
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
         if (isExclude(property)) {
@@ -173,7 +173,7 @@ public class ONestedProjection extends SimpleNode {
 
   private Object apply(
       OExpression expression, Map<String, Object> input, OCommandContext ctx, int recursion) {
-    OResultInternal result = new OResultInternal(ctx.getDatabase());
+    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
 
     if (starItem != null || includeItems.size() == 0) {
       for (String property : input.keySet()) {
@@ -192,7 +192,7 @@ public class ONestedProjection extends SimpleNode {
             item.alias != null
                 ? item.alias.getStringValue()
                 : item.expression.getDefaultAlias().getStringValue();
-        OResultInternal elem = new OResultInternal(ctx.getDatabase());
+        YTResultInternal elem = new YTResultInternal(ctx.getDatabase());
         input.forEach(elem::setProperty);
         Object value = item.expression.execute(elem, ctx);
         if (item.expansion != null) {
@@ -316,8 +316,8 @@ public class ONestedProjection extends SimpleNode {
     return value;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal database) {
-    OResultInternal result = new OResultInternal(database);
+  public YTResult serialize(YTDatabaseSessionInternal database) {
+    YTResultInternal result = new YTResultInternal(database);
     if (includeItems != null) {
       result.setProperty(
           "includeItems",
@@ -339,11 +339,11 @@ public class ONestedProjection extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("includeItems") != null) {
       includeItems = new ArrayList<>();
-      List<OResult> ser = fromResult.getProperty("includeItems");
-      for (OResult x : ser) {
+      List<YTResult> ser = fromResult.getProperty("includeItems");
+      for (YTResult x : ser) {
         ONestedProjectionItem item = new ONestedProjectionItem(-1);
         item.deserialize(x);
         includeItems.add(item);
@@ -351,8 +351,8 @@ public class ONestedProjection extends SimpleNode {
     }
     if (fromResult.getProperty("excludeItems") != null) {
       excludeItems = new ArrayList<>();
-      List<OResult> ser = fromResult.getProperty("excludeItems");
-      for (OResult x : ser) {
+      List<YTResult> ser = fromResult.getProperty("excludeItems");
+      for (YTResult x : ser) {
         ONestedProjectionItem item = new ONestedProjectionItem(-1);
         item.deserialize(x);
         excludeItems.add(item);

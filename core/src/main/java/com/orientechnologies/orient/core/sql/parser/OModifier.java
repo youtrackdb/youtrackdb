@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -127,7 +127,7 @@ public class OModifier extends SimpleNode {
     return result;
   }
 
-  public Object execute(OResult iCurrentRecord, Object result, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, Object result, OCommandContext ctx) {
     if (ctx.getVariable("$current") == null) {
       ctx.setVariable("$current", iCurrentRecord);
     }
@@ -311,7 +311,8 @@ public class OModifier extends SimpleNode {
     return suffix != null && suffix.refersToParent();
   }
 
-  protected void setValue(OResult currentRecord, Object target, Object value, OCommandContext ctx) {
+  protected void setValue(YTResult currentRecord, Object target, Object value,
+      OCommandContext ctx) {
     if (next == null) {
       doSetValue(currentRecord, target, value, ctx);
     } else {
@@ -322,7 +323,8 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  private void doSetValue(OResult currentRecord, Object target, Object value, OCommandContext ctx) {
+  private void doSetValue(YTResult currentRecord, Object target, Object value,
+      OCommandContext ctx) {
     value = OUpdateItem.convertResultToDocument(value);
     value = OUpdateItem.cleanValue(value);
     if (methodCall != null) {
@@ -343,7 +345,7 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  private Object calculateLocal(OResult currentRecord, Object target, OCommandContext ctx) {
+  private Object calculateLocal(YTResult currentRecord, Object target, OCommandContext ctx) {
     if (methodCall != null) {
       return methodCall.execute(target, ctx);
     } else if (suffix != null) {
@@ -351,7 +353,7 @@ public class OModifier extends SimpleNode {
     } else if (arrayRange != null) {
       return arrayRange.execute(currentRecord, target, ctx);
     } else if (condition != null) {
-      if (target instanceof OResult || target instanceof YTIdentifiable || target instanceof Map) {
+      if (target instanceof YTResult || target instanceof YTIdentifiable || target instanceof Map) {
         if (condition.evaluate(target, ctx)) {
           return target;
         } else {
@@ -377,7 +379,7 @@ public class OModifier extends SimpleNode {
   }
 
   public void applyRemove(
-      Object currentValue, OResultInternal originalRecord, OCommandContext ctx) {
+      Object currentValue, YTResultInternal originalRecord, OCommandContext ctx) {
     if (next != null) {
       Object val = calculateLocal(originalRecord, currentValue, ctx);
       next.applyRemove(val, originalRecord, ctx);
@@ -401,8 +403,8 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("squareBrackets", squareBrackets);
     if (arrayRange != null) {
       result.setProperty("arrayRange", arrayRange.serialize(db));
@@ -428,7 +430,7 @@ public class OModifier extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     squareBrackets = fromResult.getProperty("squareBrackets");
 
     if (fromResult.getProperty("arrayRange") != null) {

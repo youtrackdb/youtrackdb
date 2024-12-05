@@ -13,7 +13,7 @@ public class OCreateSecurityPolicyStatementExecutionTest extends DBTestBase {
   @Test
   public void testPlain() {
     db.begin();
-    OResultSet result = db.command("CREATE SECURITY POLICY foo");
+    YTResultSet result = db.command("CREATE SECURITY POLICY foo");
     result.close();
     db.commit();
 

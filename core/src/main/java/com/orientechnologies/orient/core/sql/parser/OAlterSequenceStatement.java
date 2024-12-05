@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -98,7 +98,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
       throw new YTCommandExecutionException(message);
     }
 
-    OResultInternal item = new OResultInternal(ctx.getDatabase());
+    YTResultInternal item = new YTResultInternal(ctx.getDatabase());
     item.setProperty("operation", "alter sequence");
     item.setProperty("sequenceName", sequenceName);
     if (params.getStart() != null) {

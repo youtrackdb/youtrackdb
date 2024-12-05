@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public interface OResult {
+public interface YTResult {
 
   /**
    * returns a property from the result
@@ -171,8 +171,8 @@ public interface OResult {
       jsonVal = "\"" + encode(val.toString()) + "\"";
     } else if (val instanceof Number || val instanceof Boolean) {
       jsonVal = val.toString();
-    } else if (val instanceof OResult) {
-      jsonVal = ((OResult) val).toJSON();
+    } else if (val instanceof YTResult) {
+      jsonVal = ((YTResult) val).toJSON();
     } else if (val instanceof YTEntity) {
       YTRID id = ((YTEntity) val).getIdentity();
       if (id.isPersistent()) {

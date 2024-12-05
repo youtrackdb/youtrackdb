@@ -84,7 +84,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
 
     // EDGES
     db.begin();
-    OResultSet edges =
+    YTResultSet edges =
         db.command("create edge from " + v1.getIdentity() + " to " + v2.getIdentity());
     db.commit();
     assertEquals(edges.stream().count(), 1);
@@ -150,7 +150,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
       cmd += "commit retry 100\n";
       cmd += "return $e";
 
-      OResultSet result = db.query("select from V");
+      YTResultSet result = db.query("select from V");
 
       long before = result.stream().count();
 
@@ -228,7 +228,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
 
       db.execute("sql", cmd);
 
-      OResultSet edges = db.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
+      YTResultSet edges = db.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
 
       Assert.assertEquals(edges.stream().count(), 0);
     } catch (Exception ex) {

@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -24,8 +24,8 @@ public class OExpressionStatement extends OSimpleExecStatement {
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    Object expResult = expression.execute(new OResultInternal(db), ctx);
-    OResultInternal item = new OResultInternal(db);
+    Object expResult = expression.execute(new YTResultInternal(db), ctx);
+    YTResultInternal item = new YTResultInternal(db);
     item.setProperty("result", expResult);
     return OExecutionStream.singleton(item);
   }

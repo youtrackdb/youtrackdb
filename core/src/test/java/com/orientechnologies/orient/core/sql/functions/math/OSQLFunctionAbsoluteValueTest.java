@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.junit.Before;
@@ -163,7 +163,7 @@ public class OSQLFunctionAbsoluteValueTest {
         YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
-        try (OResultSet result = db.query("select abs(-45.4) as abs")) {
+        try (YTResultSet result = db.query("select abs(-45.4) as abs")) {
           assertThat(result.next().<Float>getProperty("abs")).isEqualTo(45.4f);
         }
       }

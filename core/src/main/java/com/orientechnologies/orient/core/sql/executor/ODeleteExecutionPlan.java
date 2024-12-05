@@ -13,8 +13,8 @@ public class ODeleteExecutionPlan extends OUpdateExecutionPlan {
   }
 
   @Override
-  public OResult toResult(YTDatabaseSessionInternal db) {
-    OResultInternal res = (OResultInternal) super.toResult(db);
+  public YTResult toResult(YTDatabaseSessionInternal db) {
+    YTResultInternal res = (YTResultInternal) super.toResult(db);
     res.setProperty("type", "DeleteExecutionPlan");
     return res;
   }

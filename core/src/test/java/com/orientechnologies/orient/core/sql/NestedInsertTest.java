@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class NestedInsertTest extends DBTestBase {
     schm.createClass("myClass");
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "insert into myClass (name,meta) values"
                 + " (\"claudio\",{\"@type\":\"d\",\"country\":\"italy\","
@@ -42,7 +42,7 @@ public class NestedInsertTest extends DBTestBase {
     cl.createProperty(db, "some", YTType.LINK, linked);
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "insert into myClass set some ={\"@type\":\"d\",\"@class\":\"Linked\",\"name\":\"a"
                 + " name\"} return @this");

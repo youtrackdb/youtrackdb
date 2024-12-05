@@ -22,13 +22,13 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     schema.createClass(className, schema.getClass("V"));
 
     db.begin();
-    OResultSet result = db.command("create vertex " + className + " set name = 'name1'");
+    YTResultSet result = db.command("create vertex " + className + " set name = 'name1'");
     db.commit();
 
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -37,7 +37,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -52,7 +52,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     schema.createClass(className);
 
     try {
-      OResultSet result = db.command("create vertex " + className + " set name = 'name1'");
+      YTResultSet result = db.command("create vertex " + className + " set name = 'name1'");
       Assert.fail();
     } catch (YTCommandExecutionException e1) {
     } catch (Exception e2) {
@@ -67,13 +67,13 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     schema.createClass(className, schema.getClass("V"));
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("create vertex " + className + "  (name, surname) values ('name1', 'surname1')");
     db.commit();
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
       Assert.assertEquals("surname1", item.getProperty("surname"));
@@ -83,7 +83,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -98,7 +98,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     schema.createClass(className, schema.getClass("V"));
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "create vertex "
                 + className
@@ -109,7 +109,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name" + (i + 1), item.getProperty("name"));
       Assert.assertEquals("surname" + (i + 1), item.getProperty("surname"));
@@ -122,7 +122,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("name"));
       names.remove(item.getProperty("name"));
@@ -140,7 +140,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     schema.createClass(className, schema.getClass("V"));
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "create vertex " + className + " content {'name':'name1', 'surname':'surname1'}");
     db.commit();
@@ -148,7 +148,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
     }
@@ -157,7 +157,7 @@ public class OCreateVertexStatementExecutionTest extends DBTestBase {
     result = db.query("select from " + className);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals("name1", item.getProperty("name"));
       Assert.assertEquals("surname1", item.getProperty("surname"));

@@ -84,12 +84,12 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testSetString() {
     db.begin();
-    OResultSet result = db.command("update " + className + " set surname = 'foo'");
+    YTResultSet result = db.command("update " + className + " set surname = 'foo'");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
 
@@ -110,11 +110,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testCopyField() {
     db.begin();
-    OResultSet result = db.command("update " + className + " set surname = name");
+    YTResultSet result = db.command("update " + className + " set surname = name");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -134,11 +134,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testSetExpression() {
     db.begin();
-    OResultSet result = db.command("update " + className + " set surname = 'foo'+name ");
+    YTResultSet result = db.command("update " + className + " set surname = 'foo'+name ");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -158,12 +158,12 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testConditionalSet() {
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " set surname = 'foo' where name = 'name3'");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -188,13 +188,13 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testSetOnList() {
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " set tagsList[0] = 'abc' where name = 'name3'");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -223,13 +223,13 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testSetOnList2() {
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " set tagsList[6] = 'abc' where name = 'name3'");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -262,12 +262,12 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testSetOnMap() {
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " set tagsMap['foo'] = 'abc' where name = 'name3'");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -302,12 +302,12 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testPlusAssign() {
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " set name += 'foo', newField += 'bar', number += 5");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -331,12 +331,12 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testMinusAssign() {
     db.begin();
-    OResultSet result = db.command("update " + className + " set number -= 5");
+    YTResultSet result = db.command("update " + className + " set number -= 5");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -356,11 +356,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testStarAssign() {
     db.begin();
-    OResultSet result = db.command("update " + className + " set number *= 5");
+    YTResultSet result = db.command("update " + className + " set number *= 5");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -380,11 +380,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testSlashAssign() {
     db.begin();
-    OResultSet result = db.command("update " + className + " set number /= 2");
+    YTResultSet result = db.command("update " + className + " set number /= 2");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -403,10 +403,10 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testRemove() {
-    OResultSet result = db.query("select from " + className);
+    YTResultSet result = db.query("select from " + className);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNotNull(item.getProperty("surname"));
     }
@@ -418,7 +418,7 @@ public class OUpdateStatementExecutionTest {
 
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals((Object) 10L, item.getProperty("count"));
     }
@@ -428,7 +428,7 @@ public class OUpdateStatementExecutionTest {
     result = db.query("select from " + className);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertNull(item.getProperty("surname"));
     }
@@ -440,12 +440,12 @@ public class OUpdateStatementExecutionTest {
   public void testContent() {
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " content {'name': 'foo', 'secondName': 'bar'}");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -468,12 +468,12 @@ public class OUpdateStatementExecutionTest {
   public void testMerge() {
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " merge {'name': 'foo', 'secondName': 'bar'}");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 10L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -496,12 +496,12 @@ public class OUpdateStatementExecutionTest {
   public void testUpsert1() {
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " set foo = 'bar' upsert where name = 'name1'");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -528,13 +528,13 @@ public class OUpdateStatementExecutionTest {
   public void testUpsertAndReturn() {
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "update " + className + " set foo = 'bar' upsert  return after  where name = 'name1' ");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals("bar", item.getProperty("foo"));
     Assert.assertFalse(result.hasNext());
@@ -545,12 +545,12 @@ public class OUpdateStatementExecutionTest {
   public void testUpsert2() {
 
     db.begin();
-    OResultSet result =
+    YTResultSet result =
         db.command("update " + className + " set foo = 'bar' upsert where name = 'name11'");
     db.commit();
 
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertEquals((Object) 1L, item.getProperty("count"));
     Assert.assertFalse(result.hasNext());
@@ -592,12 +592,12 @@ public class OUpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    OResultSet result = db.command("update " + className + " remove theProperty[0]");
+    YTResultSet result = db.command("update " + className + " remove theProperty[0]");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -632,12 +632,12 @@ public class OUpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    OResultSet result = db.command("update " + className + " remove theProperty[0, 1, 3]");
+    YTResultSet result = db.command("update " + className + " remove theProperty[0, 1, 3]");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -686,12 +686,12 @@ public class OUpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    OResultSet result = db.command("update " + className + " remove theProperty.sub");
+    YTResultSet result = db.command("update " + className + " remove theProperty.sub");
     db.commit();
 
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
+    YTResult item = result.next();
     Assert.assertNotNull(item);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -700,7 +700,7 @@ public class OUpdateStatementExecutionTest {
     Assert.assertTrue(result.hasNext());
     item = result.next();
     Assert.assertNotNull(item);
-    OResult ls = item.getProperty("theProperty");
+    YTResult ls = item.getProperty("theProperty");
     Assert.assertNotNull(ls);
     Assert.assertFalse(ls.getPropertyNames().contains("sub"));
     Assert.assertEquals("bar", ls.getProperty("aaa"));
@@ -715,11 +715,11 @@ public class OUpdateStatementExecutionTest {
     db.command("UPDATE " + className + " REMOVE tagsMap[\"bar\"]").close();
     db.commit();
 
-    OResultSet result = db.query("SELECT tagsMap FROM " + className);
+    YTResultSet result = db.query("SELECT tagsMap FROM " + className);
     printExecutionPlan(result);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(2, ((Map) item.getProperty("tagsMap")).size());
       Assert.assertFalse(((Map) item.getProperty("tagsMap")).containsKey("bar"));
@@ -735,11 +735,11 @@ public class OUpdateStatementExecutionTest {
     db.command("UPDATE " + className + " REMOVE tagsMap = \"bar\"").close();
     db.commit();
 
-    OResultSet result = db.query("SELECT tagsMap FROM " + className);
+    YTResultSet result = db.query("SELECT tagsMap FROM " + className);
     printExecutionPlan(result);
     for (int i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertNotNull(item);
       Assert.assertEquals(2, ((Map) item.getProperty("tagsMap")).size());
       Assert.assertFalse(((Map) item.getProperty("tagsMap")).containsKey("bar"));
@@ -758,7 +758,7 @@ public class OUpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    try (OResultSet result =
+    try (YTResultSet result =
         db.command(
             "update v set first='value' where @rid in (select @rid from [" + identity + "]) ")) {
 
@@ -767,7 +767,7 @@ public class OUpdateStatementExecutionTest {
     db.commit();
 
     db.begin();
-    try (OResultSet result =
+    try (YTResultSet result =
         db.command(
             "update v set other='value' where @rid in (select * from [" + identity + "]) ")) {
       assertEquals((long) result.next().getProperty("count"), 1L);

@@ -22,9 +22,9 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -57,8 +57,8 @@ public class OSQLMethodField extends OAbstractSQLMethod {
     final String paramAsString = iParams[0].toString();
 
     if (ioResult != null) {
-      if (ioResult instanceof OResult) {
-        ioResult = ((OResult) ioResult).toElement();
+      if (ioResult instanceof YTResult) {
+        ioResult = ((YTResult) ioResult).toElement();
       }
       if (ioResult instanceof Iterable && !(ioResult instanceof YTDocument)) {
         ioResult = ((Iterable) ioResult).iterator();

@@ -6,8 +6,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
-import com.orientechnologies.orient.core.sql.parser.OLocalResultSet;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
+import com.orientechnologies.orient.core.sql.parser.YTLocalResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class LetQueryStep extends AbstractExecutionStep {
     this.query = query;
   }
 
-  private OResultInternal calculate(OResultInternal result, OCommandContext ctx) {
+  private YTResultInternal calculate(YTResultInternal result, OCommandContext ctx) {
     OBasicCommandContext subCtx = new OBasicCommandContext();
     subCtx.setDatabase(ctx.getDatabase());
     subCtx.setParentWithoutOverridingChild(ctx);
@@ -38,12 +38,12 @@ public class LetQueryStep extends AbstractExecutionStep {
     } else {
       subExecutionPlan = query.createExecutionPlan(subCtx, profilingEnabled);
     }
-    result.setMetadata(varName.getStringValue(), toList(new OLocalResultSet(subExecutionPlan)));
+    result.setMetadata(varName.getStringValue(), toList(new YTLocalResultSet(subExecutionPlan)));
     return result;
   }
 
-  private List<OResult> toList(OLocalResultSet oLocalResultSet) {
-    List<OResult> result = new ArrayList<>();
+  private List<YTResult> toList(YTLocalResultSet oLocalResultSet) {
+    List<YTResult> result = new ArrayList<>();
     while (oLocalResultSet.hasNext()) {
       result.add(oLocalResultSet.next());
     }
@@ -60,8 +60,8 @@ public class LetQueryStep extends AbstractExecutionStep {
     return prev.start(ctx).map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
-    return calculate((OResultInternal) result, ctx);
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+    return calculate((YTResultInternal) result, ctx);
   }
 
   @Override

@@ -37,7 +37,7 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private OResult filterMap(OResult result, OCommandContext ctx) {
+  private YTResult filterMap(YTResult result, OCommandContext ctx) {
     Object finalVal = result.getProperty("rid");
     if (filterClusterIds != null) {
       if (!(finalVal instanceof YTIdentifiable)) {
@@ -56,10 +56,10 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
       }
     }
     if (finalVal instanceof YTIdentifiable) {
-      return new OResultInternal(ctx.getDatabase(), (YTIdentifiable) finalVal);
+      return new YTResultInternal(ctx.getDatabase(), (YTIdentifiable) finalVal);
 
-    } else if (finalVal instanceof OResult) {
-      return (OResult) finalVal;
+    } else if (finalVal instanceof YTResult) {
+      return (YTResult) finalVal;
     }
     return null;
   }

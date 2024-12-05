@@ -22,9 +22,9 @@ public class UnwrapPreviousValueStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
-    if (result instanceof OUpdatableResult) {
-      result = ((OUpdatableResult) result).previousValue;
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+    if (result instanceof YTUpdatableResult) {
+      result = ((YTUpdatableResult) result).previousValue;
       if (result == null) {
         throw new YTCommandExecutionException(
             "Invalid status of record: no previous value available");

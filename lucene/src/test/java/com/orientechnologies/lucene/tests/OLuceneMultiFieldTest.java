@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.stream.Stream;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -64,7 +64,7 @@ public class OLuceneMultiFieldTest extends OLuceneBaseTest {
 
   @Test
   public void testSelectSingleDocumentWithAndOperator() {
-    try (OResultSet docs =
+    try (YTResultSet docs =
         db.query(
             "select * from Song where  search_fields(['title','author'] ,'title:mountain AND"
                 + " author:Fabbio')=true")) {
@@ -75,7 +75,7 @@ public class OLuceneMultiFieldTest extends OLuceneBaseTest {
 
   @Test
   public void testSelectMultipleDocumentsWithOrOperator() {
-    try (OResultSet docs =
+    try (YTResultSet docs =
         db.query(
             "select * from Song where  search_fields(['title','author'] ,'title:mountain OR"
                 + " author:Fabbio')=true")) {
@@ -86,7 +86,7 @@ public class OLuceneMultiFieldTest extends OLuceneBaseTest {
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnTitle() {
-    try (OResultSet docs =
+    try (YTResultSet docs =
         db.query(
             "select * from  Song where search_fields(['title','author'] ,'title:mountain')=true")) {
       assertThat(docs).hasSize(5);
@@ -95,11 +95,11 @@ public class OLuceneMultiFieldTest extends OLuceneBaseTest {
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnAuthor() {
-    try (OResultSet docs =
+    try (YTResultSet docs =
         db.query("select * from Song where search_class('author:fabbio')=true")) {
       assertThat(docs).hasSize(87);
     }
-    try (OResultSet docs = db.query("select * from Song where search_class('fabbio')=true")) {
+    try (YTResultSet docs = db.query("select * from Song where search_class('fabbio')=true")) {
       assertThat(docs).hasSize(87);
     }
   }
@@ -123,15 +123,15 @@ public class OLuceneMultiFieldTest extends OLuceneBaseTest {
 
     db.execute("sql", script).close();
 
-    try (OResultSet resultSet = db.query("select * from Item where search_class('te*')=true")) {
+    try (YTResultSet resultSet = db.query("select * from Item where search_class('te*')=true")) {
       assertThat(resultSet).hasSize(1);
     }
 
-    try (OResultSet docs = db.query("select * from Item where search_class('test')=true")) {
+    try (YTResultSet docs = db.query("select * from Item where search_class('test')=true")) {
       assertThat(docs).hasSize(1);
     }
 
-    try (OResultSet docs = db.query("select * from Item where search_class('title:test')=true")) {
+    try (YTResultSet docs = db.query("select * from Item where search_class('title:test')=true")) {
       assertThat(docs).hasSize(1);
     }
 

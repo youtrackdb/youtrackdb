@@ -6,8 +6,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  *
  */
-public class OLocalResultSet implements OResultSet {
+public class YTLocalResultSet implements YTResultSet {
 
   private OExecutionStream stream = null;
   private final OInternalExecutionPlan executionPlan;
@@ -24,7 +24,7 @@ public class OLocalResultSet implements OResultSet {
   long totalExecutionTime = 0;
   long startTime = 0;
 
-  public OLocalResultSet(OInternalExecutionPlan executionPlan) {
+  public YTLocalResultSet(OInternalExecutionPlan executionPlan) {
     this.executionPlan = executionPlan;
     start();
   }
@@ -56,7 +56,7 @@ public class OLocalResultSet implements OResultSet {
   }
 
   @Override
-  public OResult next() {
+  public YTResult next() {
     if (!hasNext()) {
       throw new IllegalStateException();
     }

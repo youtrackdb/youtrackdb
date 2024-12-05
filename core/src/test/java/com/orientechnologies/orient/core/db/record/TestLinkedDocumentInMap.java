@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ public class TestLinkedDocumentInMap extends DBTestBase {
     Assert.assertTrue(doc.get("contact").getIdentity().isValid());
 
     reOpen("admin", "adminpwd");
-    try (OResultSet result = db.query("select from " + tyrionDoc.getIdentity())) {
+    try (YTResultSet result = db.query("select from " + tyrionDoc.getIdentity())) {
       res = result.next().getProperty("emergency_contact");
       doc = res.get(0);
       Assert.assertTrue(doc.get("contact").getIdentity().isValid());

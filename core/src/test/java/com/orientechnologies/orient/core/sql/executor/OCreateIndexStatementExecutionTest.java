@@ -19,10 +19,10 @@ public class OCreateIndexStatementExecutionTest extends BaseMemoryInternalDataba
     clazz.createProperty(db, "name", YTType.STRING);
 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
-    OResultSet result =
+    YTResultSet result =
         db.command("create index " + className + ".name on " + className + " (name) notunique");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     result.close();
@@ -38,7 +38,7 @@ public class OCreateIndexStatementExecutionTest extends BaseMemoryInternalDataba
     clazz.createProperty(db, "name", YTType.STRING);
 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
-    OResultSet result =
+    YTResultSet result =
         db.command(
             "create index "
                 + className
@@ -46,7 +46,7 @@ public class OCreateIndexStatementExecutionTest extends BaseMemoryInternalDataba
                 + className
                 + " (name) notunique");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertFalse(result.hasNext());
     Assert.assertNotNull(next);
     result.close();

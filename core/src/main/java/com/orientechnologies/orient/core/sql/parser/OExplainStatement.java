@@ -4,11 +4,11 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -38,7 +38,7 @@ public class OExplainStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
       boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -61,12 +61,12 @@ public class OExplainStatement extends OStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, false);
     }
 
-    OExplainResultSet result = new OExplainResultSet(db, executionPlan, new ODatabaseStats());
+    YTExplainResultSet result = new YTExplainResultSet(db, executionPlan, new ODatabaseStats());
     return result;
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map args, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
@@ -82,7 +82,7 @@ public class OExplainStatement extends OStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, false);
     }
 
-    OExplainResultSet result = new OExplainResultSet(db, executionPlan, new ODatabaseStats());
+    YTExplainResultSet result = new YTExplainResultSet(db, executionPlan, new ODatabaseStats());
     return result;
   }
 

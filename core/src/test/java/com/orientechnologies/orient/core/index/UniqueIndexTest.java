@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -192,7 +192,7 @@ public class UniqueIndexTest extends DBTestBase {
       // ignore
     }
 
-    final OResultSet result = db.query("select from User where MailAddress = 'john@doe.com'");
+    final YTResultSet result = db.query("select from User where MailAddress = 'john@doe.com'");
     Assert.assertEquals(result.stream().count(), 1);
   }
 }

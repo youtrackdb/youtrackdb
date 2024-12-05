@@ -21,7 +21,7 @@ package com.orientechnologies.lucene.test;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    OResultSet results = db.command("select from City where name lucene 'London'");
+    YTResultSet results = db.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 1);
 
     v = db.bindToSession(v);

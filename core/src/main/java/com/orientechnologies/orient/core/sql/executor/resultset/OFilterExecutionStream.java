@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 
 public class OFilterExecutionStream implements OExecutionStream {
 
   private final OExecutionStream prevResult;
   private final OFilterResult filter;
-  private OResult nextItem = null;
+  private YTResult nextItem = null;
 
   public OFilterExecutionStream(OExecutionStream resultSet, OFilterResult filter) {
     super();
@@ -25,14 +25,14 @@ public class OFilterExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     if (nextItem == null) {
       fetchNextItem(ctx);
     }
     if (nextItem == null) {
       throw new IllegalStateException();
     }
-    OResult result = nextItem;
+    YTResult result = nextItem;
     nextItem = null;
     return result;
   }

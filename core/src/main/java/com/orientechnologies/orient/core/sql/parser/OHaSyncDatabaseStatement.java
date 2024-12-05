@@ -6,7 +6,7 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
 
@@ -29,7 +29,7 @@ public class OHaSyncDatabaseStatement extends OSimpleExecStatement {
 
     try {
       boolean result = database.sync(force, !full);
-      OResultInternal r = new OResultInternal(database);
+      YTResultInternal r = new YTResultInternal(database);
       r.setProperty("result", result);
       return OExecutionStream.singleton(r);
     } catch (Exception e) {

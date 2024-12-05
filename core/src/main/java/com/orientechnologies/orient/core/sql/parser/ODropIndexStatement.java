@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +31,13 @@ public class ODropIndexStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    List<OResult> rs = new ArrayList<>();
+    List<YTResult> rs = new ArrayList<>();
     YTDatabaseSessionInternal db = ctx.getDatabase();
     OIndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
     if (all) {
       for (OIndex idx : idxMgr.getIndexes(db)) {
         db.getMetadata().getIndexManagerInternal().dropIndex(db, idx.getName());
-        OResultInternal result = new OResultInternal(db);
+        YTResultInternal result = new YTResultInternal(db);
         result.setProperty("operation", "drop index");
         result.setProperty("clusterName", idx.getName());
         rs.add(result);
@@ -48,7 +48,7 @@ public class ODropIndexStatement extends ODDLStatement {
         throw new YTCommandExecutionException("Index not found: " + name.getValue());
       }
       idxMgr.dropIndex(db, name.getValue());
-      OResultInternal result = new OResultInternal(db);
+      YTResultInternal result = new YTResultInternal(db);
       result.setProperty("operation", "drop index");
       result.setProperty("indexName", name.getValue());
       rs.add(result);

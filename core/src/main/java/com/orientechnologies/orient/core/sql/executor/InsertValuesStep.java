@@ -39,13 +39,13 @@ public class InsertValuesStep extends AbstractExecutionStep {
           private int nextValueSet = 0;
 
           @Override
-          public OResult map(OResult result, OCommandContext ctx) {
-            if (!(result instanceof OResultInternal)) {
+          public YTResult map(YTResult result, OCommandContext ctx) {
+            if (!(result instanceof YTResultInternal)) {
               if (!result.isElement()) {
                 throw new YTCommandExecutionException(
                     "Error executing INSERT, cannot modify element: " + result);
               }
-              result = new OUpdatableResult(ctx.getDatabase(), result.toElement());
+              result = new YTUpdatableResult(ctx.getDatabase(), result.toElement());
             }
             List<OExpression> currentValues = values.get(nextValueSet++);
             if (currentValues.size() != identifiers.size()) {
@@ -62,8 +62,8 @@ public class InsertValuesStep extends AbstractExecutionStep {
               Object value = currentValues.get(i).execute(result, ctx);
               value =
                   OUpdateItem.convertToPropertyType(
-                      (OResultInternal) result, identifier, value, ctx);
-              ((OResultInternal) result).setProperty(identifier.getStringValue(), value);
+                      (YTResultInternal) result, identifier, value, ctx);
+              ((YTResultInternal) result).setProperty(identifier.getStringValue(), value);
             }
             return result;
           }

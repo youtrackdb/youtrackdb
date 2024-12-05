@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.stream.Stream;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -71,7 +71,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   public void testSelectSingleDocumentWithAndOperator() {
 
-    OResultSet docs =
+    YTResultSet docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain AND"
                 + " author:Fabbio)\"");
@@ -80,7 +80,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectSingleDocumentWithAndOperatorNEwExec() {
-    try (OResultSet docs =
+    try (YTResultSet docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain AND"
                 + " author:Fabbio)\"")) {
@@ -93,7 +93,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectMultipleDocumentsWithOrOperator() {
-    OResultSet docs =
+    YTResultSet docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain OR author:Fabbio)\"");
 
@@ -102,14 +102,14 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnTitle() {
-    OResultSet docs = db.query("select * from Song where [title,author] LUCENE \"mountain\"");
+    YTResultSet docs = db.query("select * from Song where [title,author] LUCENE \"mountain\"");
 
     assertThat(docs).hasSize(5);
   }
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnAuthor() {
-    OResultSet docs = db.query("select * from Song where [title,author] LUCENE \"author:fabbio\"");
+    YTResultSet docs = db.query("select * from Song where [title,author] LUCENE \"author:fabbio\"");
 
     assertThat(docs).hasSize(87);
   }
@@ -117,7 +117,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   @Ignore
   public void testSelectOnAuthorWithMatchOnAuthor() {
-    OResultSet docs = db.query("select * from Song where [author,title] LUCENE \"(fabbio)\"");
+    YTResultSet docs = db.query("select * from Song where [author,title] LUCENE \"(fabbio)\"");
 
     assertThat(docs).hasSize(87);
   }
@@ -140,7 +140,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
             """;
     db.execute("sql", script).close();
 
-    OResultSet docs = db.query("select * from Item where Title lucene 'te*'");
+    YTResultSet docs = db.query("select * from Item where Title lucene 'te*'");
     assertThat(docs).hasSize(1);
 
     //noinspection deprecation

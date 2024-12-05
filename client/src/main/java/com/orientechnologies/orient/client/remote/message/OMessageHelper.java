@@ -22,8 +22,8 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.serialization.serializer.result.binary.OResultSerializerNetwork;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
@@ -431,14 +431,15 @@ public class OMessageHelper {
     return record;
   }
 
-  private static void writeProjection(OResult item, OChannelDataOutput channel) throws IOException {
+  private static void writeProjection(YTResult item, OChannelDataOutput channel)
+      throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_PROJECTION);
     OResultSerializerNetwork ser = new OResultSerializerNetwork();
     ser.toStream(item, channel);
   }
 
   private static void writeBlob(
-      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, YTResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_BLOB);
@@ -446,7 +447,7 @@ public class OMessageHelper {
   }
 
   private static void writeVertex(
-      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, YTResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_VERTEX);
@@ -454,7 +455,7 @@ public class OMessageHelper {
   }
 
   private static void writeElement(
-      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, YTResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_ELEMENT);
@@ -462,7 +463,7 @@ public class OMessageHelper {
   }
 
   private static void writeEdge(
-      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, YTResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_EDGE);
@@ -476,7 +477,7 @@ public class OMessageHelper {
   }
 
   public static void writeResult(
-      YTDatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      YTDatabaseSessionInternal session, YTResult row, OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     if (row.isBlob()) {
@@ -492,13 +493,13 @@ public class OMessageHelper {
     }
   }
 
-  private static OResultInternal readBlob(YTDatabaseSessionInternal db, OChannelDataInput channel)
+  private static YTResultInternal readBlob(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37.INSTANCE;
-    return new OResultInternal(db, readIdentifiable(db, channel, serializer));
+    return new YTResultInternal(db, readIdentifiable(db, channel, serializer));
   }
 
-  public static OResultInternal readResult(YTDatabaseSessionInternal db, OChannelDataInput channel)
+  public static YTResultInternal readResult(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     byte type = channel.readByte();
     return switch (type) {
@@ -507,24 +508,25 @@ public class OMessageHelper {
       case OQueryResponse.RECORD_TYPE_EDGE -> readEdge(db, channel);
       case OQueryResponse.RECORD_TYPE_ELEMENT -> readElement(db, channel);
       case OQueryResponse.RECORD_TYPE_PROJECTION -> readProjection(db, channel);
-      default -> new OResultInternal(db);
+      default -> new YTResultInternal(db);
     };
   }
 
-  private static OResultInternal readElement(YTDatabaseSessionInternal db,
+  private static YTResultInternal readElement(YTDatabaseSessionInternal db,
       OChannelDataInput channel)
       throws IOException {
-    return new OResultInternal(db, readDocument(db, channel));
+    return new YTResultInternal(db, readDocument(db, channel));
   }
 
-  private static OResultInternal readVertex(YTDatabaseSessionInternal db, OChannelDataInput channel)
+  private static YTResultInternal readVertex(YTDatabaseSessionInternal db,
+      OChannelDataInput channel)
       throws IOException {
-    return new OResultInternal(db, readDocument(db, channel));
+    return new YTResultInternal(db, readDocument(db, channel));
   }
 
-  private static OResultInternal readEdge(YTDatabaseSessionInternal db, OChannelDataInput channel)
+  private static YTResultInternal readEdge(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
-    return new OResultInternal(db, readDocument(db, channel));
+    return new YTResultInternal(db, readDocument(db, channel));
   }
 
   private static YTRecord readDocument(YTDatabaseSessionInternal db, OChannelDataInput channel)
@@ -533,7 +535,7 @@ public class OMessageHelper {
     return (YTRecord) readIdentifiable(db, channel, serializer);
   }
 
-  private static OResultInternal readProjection(YTDatabaseSessionInternal db,
+  private static YTResultInternal readProjection(YTDatabaseSessionInternal db,
       OChannelDataInput channel) throws IOException {
     OResultSerializerNetwork ser = new OResultSerializerNetwork();
     return ser.fromStream(db, channel);

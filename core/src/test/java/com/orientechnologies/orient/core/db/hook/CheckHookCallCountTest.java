@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.UUID;
 import org.junit.Test;
 
@@ -85,7 +85,7 @@ public class CheckHookCallCountTest extends DBTestBase {
           @Override
           public void onRecordAfterRead(YTDocument iDocument) {
             String script = "select sum(a, b) as value from " + iDocument.getIdentity();
-            try (OResultSet calculated = database.query(script)) {
+            try (YTResultSet calculated = database.query(script)) {
               if (calculated.hasNext()) {
                 iDocument.field("c", calculated.next().<Object>getProperty("value"));
               }

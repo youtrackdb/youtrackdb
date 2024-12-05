@@ -32,14 +32,14 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
 
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            List<OResult> result = new ArrayList<>();
+            List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 YTDocument document = new YTDocument();
                 document.setProperty(STRING_PROPERTY, RandomStringUtils.randomAlphanumeric(10));
                 document.setProperty(INTEGER_PROPERTY, new Random().nextInt());
                 documents.add(document);
-                OUpdatableResult item = new OUpdatableResult(db, document);
+                YTUpdatableResult item = new YTUpdatableResult(db, document);
                 result.add(item);
               }
               done = true;
@@ -53,23 +53,23 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
 
     int counter = 0;
     while (result.hasNext(context)) {
-      OResult currentItem = result.next(context);
-      if (!(currentItem.getClass().equals(OResultInternal.class))) {
-        Assert.fail("There is an item in result set that is not an instance of OResultInternal");
+      YTResult currentItem = result.next(context);
+      if (!(currentItem.getClass().equals(YTResultInternal.class))) {
+        Assert.fail("There is an item in result set that is not an instance of YTResultInternal");
       }
       if (!currentItem
           .getElement()
           .get()
           .getProperty(STRING_PROPERTY)
           .equals(documents.get(counter).getProperty(STRING_PROPERTY))) {
-        Assert.fail("String YTDocument property inside OResult instance is not preserved");
+        Assert.fail("String YTDocument property inside YTResult instance is not preserved");
       }
       if (!currentItem
           .getElement()
           .get()
           .getProperty(INTEGER_PROPERTY)
           .equals(documents.get(counter).getProperty(INTEGER_PROPERTY))) {
-        Assert.fail("Integer YTDocument property inside OResult instance is not preserved");
+        Assert.fail("Integer YTDocument property inside YTResult instance is not preserved");
       }
       counter++;
     }

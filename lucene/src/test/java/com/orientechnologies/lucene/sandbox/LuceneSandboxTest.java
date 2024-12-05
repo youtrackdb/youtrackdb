@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.sandbox;
 
 import com.orientechnologies.lucene.tests.OLuceneBaseTest;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.apache.lucene.codecs.simpletext.SimpleTextCodec;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -35,7 +35,7 @@ public class LuceneSandboxTest extends OLuceneBaseTest {
   public void shouldFetchOneDocumentWithExactMatchOnLuceneIndexStandardAnalyzer() throws Exception {
     db.command("CREATE INDEX cdr.filename ON cdr(filename) FULLTEXT ENGINE LUCENE ");
     // partial match
-    OResultSet res =
+    YTResultSet res =
         db.query("select from cdr WHERE filename LUCENE ' RRC.20161229193002.PROD_R4.eno.data '");
 
     Assertions.assertThat(res).hasSize(2);
@@ -63,7 +63,7 @@ public class LuceneSandboxTest extends OLuceneBaseTest {
             + " 'allowLeadingWildcard': true}");
 
     // partial match
-    OResultSet res =
+    YTResultSet res =
         db.query(
             "select from cdr WHERE SEARCH_CLASS( ' RRC.20161229193002.PROD_R4.eno.data ') = true");
 

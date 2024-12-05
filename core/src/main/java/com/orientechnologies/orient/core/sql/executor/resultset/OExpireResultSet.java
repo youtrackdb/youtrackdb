@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor.resultset;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 
 public final class OExpireResultSet implements OExecutionStream {
 
@@ -34,11 +34,11 @@ public final class OExpireResultSet implements OExecutionStream {
   }
 
   @Override
-  public OResult next(OCommandContext ctx) {
+  public YTResult next(OCommandContext ctx) {
     if (System.currentTimeMillis() > expiryTime) {
       fail();
       if (timedOut) {
-        return new OResultInternal(ctx.getDatabase());
+        return new YTResultInternal(ctx.getDatabase());
       }
     }
     return internal.next(ctx);

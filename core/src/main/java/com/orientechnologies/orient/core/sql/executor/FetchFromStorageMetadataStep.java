@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Returns an OResult containing metadata regarding the storage
+ * Returns an YTResult containing metadata regarding the storage
  */
 public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
 
@@ -32,9 +32,9 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(this::produce).limit(1);
   }
 
-  private OResult produce(OCommandContext ctx) {
+  private YTResult produce(OCommandContext ctx) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
 
     OStorage storage = db.getStorage();
     result.setProperty("clusters", toResult(db, storage.getClusterInstances()));
@@ -56,7 +56,7 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
 
   private static Object toResult(YTDatabaseSessionInternal db,
       OStorageConfiguration configuration) {
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("charset", configuration.getCharset());
     result.setProperty("clusterSelection", configuration.getClusterSelection());
     result.setProperty("conflictStrategy", configuration.getConflictStrategy());
@@ -70,12 +70,12 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static List<OResult> toResult(YTDatabaseSessionInternal db,
+  private static List<YTResult> toResult(YTDatabaseSessionInternal db,
       List<OStorageEntryConfiguration> properties) {
-    List<OResult> result = new ArrayList<>();
+    List<YTResult> result = new ArrayList<>();
     if (properties != null) {
       for (OStorageEntryConfiguration entry : properties) {
-        OResultInternal item = new OResultInternal(db);
+        YTResultInternal item = new YTResultInternal(db);
         item.setProperty("name", entry.name);
         item.setProperty("value", entry.value);
         result.add(item);
@@ -84,12 +84,12 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     return result;
   }
 
-  private List<OResult> toResult(YTDatabaseSessionInternal db,
+  private List<YTResult> toResult(YTDatabaseSessionInternal db,
       Collection<? extends OCluster> clusterInstances) {
-    List<OResult> result = new ArrayList<>();
+    List<YTResult> result = new ArrayList<>();
     if (clusterInstances != null) {
       for (OCluster cluster : clusterInstances) {
-        OResultInternal item = new OResultInternal(db);
+        YTResultInternal item = new YTResultInternal(db);
         item.setProperty("name", cluster.getName());
         item.setProperty("fileName", cluster.getFileName());
         item.setProperty("id", cluster.getId());

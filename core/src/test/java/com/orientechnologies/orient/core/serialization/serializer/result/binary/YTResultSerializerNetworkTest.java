@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.core.serialization.serializer.result.binary;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +17,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OResultSerializerNetworkTest {
+public class YTResultSerializerNetworkTest {
 
   @Test
   public void test() {
@@ -26,7 +26,7 @@ public class OResultSerializerNetworkTest {
       try (var db = (YTDatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
         OResultSerializerNetwork serializer = new OResultSerializerNetwork();
 
-        OResultInternal original = new OResultInternal(db);
+        YTResultInternal original = new YTResultInternal(db);
         original.setProperty("string", "foo");
         original.setProperty("integer", 12);
         original.setProperty("float", 12.4f);
@@ -34,7 +34,7 @@ public class OResultSerializerNetworkTest {
         original.setProperty("boolean", true);
         original.setProperty("rid", new YTRecordId("#12:0"));
 
-        OResultInternal embeddedProj = new OResultInternal(db);
+        YTResultInternal embeddedProj = new YTResultInternal(db);
         embeddedProj.setProperty("name", "bar");
         original.setProperty("embeddedProj", embeddedProj);
 
@@ -52,7 +52,7 @@ public class OResultSerializerNetworkTest {
         serializer.serialize(original, bytes);
 
         bytes.offset = 0;
-        OResultInternal deserialized = serializer.deserialize(db, bytes);
+        YTResultInternal deserialized = serializer.deserialize(db, bytes);
         Assert.assertEquals(original, deserialized);
       }
     }

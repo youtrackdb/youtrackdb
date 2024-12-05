@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -223,7 +223,7 @@ public class OSQLFunctionAstarTest {
     ctx.setDatabase(graph);
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v4, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -248,7 +248,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
     assertEquals(3, result.size());
@@ -272,7 +272,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -297,7 +297,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -322,7 +322,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v3, v5, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -347,7 +347,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -376,7 +376,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -406,7 +406,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -434,7 +434,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -461,7 +461,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -494,7 +494,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -521,7 +521,7 @@ public class OSQLFunctionAstarTest {
 
     final List<YTVertex> result =
         functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 
@@ -534,7 +534,7 @@ public class OSQLFunctionAstarTest {
 
   @Test
   public void testSql() {
-    OResultSet r =
+    YTResultSet r =
         graph.query(
             "select expand(astar("
                 + v1.getIdentity()
@@ -546,7 +546,7 @@ public class OSQLFunctionAstarTest {
     while (r.hasNext()) {
       result.add(r.next().getIdentity().get());
     }
-    try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
+    try (YTResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
 

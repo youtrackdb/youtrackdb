@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Map;
 
 public class ONumber extends SimpleNode {
@@ -35,11 +35,11 @@ public class ONumber extends SimpleNode {
     return result;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
+  public YTResult serialize(YTDatabaseSessionInternal db) {
     throw new UnsupportedOperationException();
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     throw new UnsupportedOperationException();
   }
 }

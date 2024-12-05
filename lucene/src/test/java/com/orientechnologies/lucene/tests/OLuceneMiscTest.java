@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Ignore;
@@ -50,7 +50,7 @@ public class OLuceneMiscTest extends OLuceneBaseTest {
     db.command("insert into Test set attr1='bar', attr2='foo'");
     db.commit();
 
-    OResultSet results =
+    YTResultSet results =
         db.query(
             "select from Test where search_index('Test.attr1',\"foo*\") =true OR"
                 + " search_index('Test.attr2', \"foo*\")=true  ");
@@ -95,7 +95,7 @@ public class OLuceneMiscTest extends OLuceneBaseTest {
     String query =
         "select  from (select from Person where age = 18) where search_fields(['name'],'Enrico') ="
             + " true";
-    OResultSet results = db.query(query);
+    YTResultSet results = db.query(query);
 
     assertThat(results).hasSize(1);
     results.close();
@@ -126,7 +126,7 @@ public class OLuceneMiscTest extends OLuceneBaseTest {
     String query = "select from Test where  search_class( :name) =true";
     Map params = new HashMap();
     params.put("name", "FOO or");
-    OResultSet results = db.command(query, params);
+    YTResultSet results = db.command(query, params);
 
     assertThat(results).hasSize(1);
   }
@@ -170,7 +170,7 @@ public class OLuceneMiscTest extends OLuceneBaseTest {
     db.save(edge);
     db.commit();
 
-    OResultSet results = db.query("select from AuthorOf");
+    YTResultSet results = db.query("select from AuthorOf");
 
     assertThat(results).hasSize(1);
 

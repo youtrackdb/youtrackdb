@@ -16,8 +16,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.ArrayList;
@@ -84,22 +84,22 @@ public class OLiveQueryRemoteTest {
       this.latch = latch;
     }
 
-    public List<OResult> ops = new ArrayList<OResult>();
+    public List<YTResult> ops = new ArrayList<YTResult>();
 
     @Override
-    public void onCreate(YTDatabaseSession database, OResult data) {
+    public void onCreate(YTDatabaseSession database, YTResult data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, OResult before, OResult after) {
+    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, OResult data) {
+    public void onDelete(YTDatabaseSession database, YTResult data) {
       ops.add(data);
       latch.countDown();
     }
@@ -161,7 +161,7 @@ public class OLiveQueryRemoteTest {
     db.commit();
 
     Assert.assertEquals(2, listener.ops.size());
-    for (OResult doc : listener.ops) {
+    for (YTResult doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
       YTRID rid = doc.getProperty("@rid");
@@ -177,7 +177,7 @@ public class OLiveQueryRemoteTest {
     schema.createClass("test", oRestricted);
 
     int liveMatch = 1;
-    OResultSet query = db.query("select from OUSer where name = 'reader'");
+    YTResultSet query = db.query("select from OUSer where name = 'reader'");
 
     final YTIdentifiable reader = query.next().getIdentity().orElse(null);
     final YTIdentifiable current = db.getUser().getIdentity(db);
@@ -200,20 +200,20 @@ public class OLiveQueryRemoteTest {
                     new OLiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(YTDatabaseSession database, OResult data) {
+                      public void onCreate(YTDatabaseSession database, YTResult data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          YTDatabaseSession database, OResult before, OResult after) {
+                          YTDatabaseSession database, YTResult before, YTResult after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(YTDatabaseSession database, OResult data) {
+                      public void onDelete(YTDatabaseSession database, YTResult data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
@@ -276,7 +276,7 @@ public class OLiveQueryRemoteTest {
     Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
 
     Assert.assertEquals(txSize, listener.ops.size());
-    for (OResult doc : listener.ops) {
+    for (YTResult doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
       YTRID rid = doc.getProperty("@rid");

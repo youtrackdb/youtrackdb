@@ -25,7 +25,7 @@ public class OCreateDatabaseStatementExecutionTest {
             YouTrackDBConfig.builder()
                 .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    try (OResultSet result =
+    try (YTResultSet result =
         youTrackDb.execute(
             "create database "
                 + dbName
@@ -34,7 +34,7 @@ public class OCreateDatabaseStatementExecutionTest {
                 + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
                 + "' role admin)")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
     Assert.assertTrue(youTrackDb.exists(dbName));
@@ -54,13 +54,13 @@ public class OCreateDatabaseStatementExecutionTest {
     String dbName = "OCreateDatabaseStatementExecutionTest_testNoDefaultUsers";
     YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
-    try (OResultSet result =
+    try (YTResultSet result =
         youTrackDb.execute(
             "create database "
                 + dbName
                 + " plocal {'config':{'security.createDefaultUsers': false}}")) {
       Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
+      YTResult item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
     Assert.assertTrue(youTrackDb.exists(dbName));

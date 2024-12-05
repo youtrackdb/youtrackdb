@@ -12,9 +12,9 @@ public class OExplainStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testExplainSelectNoTarget() {
-    OResultSet result = db.query("explain select 1 as one, 2 as two, 2+3");
+    YTResultSet result = db.query("explain select 1 as one, 2 as two, 2+3");
     Assert.assertTrue(result.hasNext());
-    OResult next = result.next();
+    YTResult next = result.next();
     Assert.assertNotNull(next.getProperty("executionPlan"));
     Assert.assertNotNull(next.getProperty("executionPlanAsString"));
 

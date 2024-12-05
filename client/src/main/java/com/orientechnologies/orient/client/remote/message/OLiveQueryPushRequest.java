@@ -5,7 +5,7 @@ import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -83,8 +83,8 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
       events = new ArrayList<>(eventSize);
       while (eventSize-- > 0) {
         byte type = network.readByte();
-        OResult currentValue = OMessageHelper.readResult(db, network);
-        OResult oldValue = null;
+        YTResult currentValue = OMessageHelper.readResult(db, network);
+        YTResult oldValue = null;
         if (type == OLiveQueryResult.UPDATE_EVENT) {
           oldValue = OMessageHelper.readResult(db, network);
         }

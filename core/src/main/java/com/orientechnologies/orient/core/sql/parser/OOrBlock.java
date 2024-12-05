@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import com.orientechnologies.orient.core.sql.executor.metadata.ORequiredIndexCanditate;
@@ -46,7 +46,7 @@ public class OOrBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     if (subBlocks == null) {
       return true;
     }
@@ -60,8 +60,8 @@ public class OOrBlock extends OBooleanExpression {
   }
 
   public boolean evaluate(Object currentRecord, OCommandContext ctx) {
-    if (currentRecord instanceof OResult) {
-      return evaluate((OResult) currentRecord, ctx);
+    if (currentRecord instanceof YTResult) {
+      return evaluate((YTResult) currentRecord, ctx);
     } else if (currentRecord instanceof YTIdentifiable) {
       return evaluate((YTIdentifiable) currentRecord, ctx);
     } else if (currentRecord instanceof Map) {

@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
@@ -44,7 +44,7 @@ public class OContainsTextCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -64,7 +64,7 @@ public class OContainsTextCondition extends OBooleanExpression {
     return ((String) leftValue).indexOf((String) rightValue) > -1;
   }
 
-  private boolean evaluateAny(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, OCommandContext ctx) {
     Object rightValue = right.execute(currentRecord, ctx);
     if (rightValue == null || !(rightValue instanceof String)) {
       return false;
@@ -83,7 +83,7 @@ public class OContainsTextCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
     Object rightValue = right.execute(currentRecord, ctx);
     if (rightValue == null || !(rightValue instanceof String)) {
       return false;
@@ -238,7 +238,7 @@ public class OContainsTextCondition extends OBooleanExpression {
     Optional<OPath> path = left.getPath();
     if (path.isPresent()) {
       if (right != null && right.isEarlyCalculated(ctx)) {
-        Object value = right.execute((OResult) null, ctx);
+        Object value = right.execute((YTResult) null, ctx);
         return info.findFullTextIndex(path.get(), value, ctx);
       }
     }

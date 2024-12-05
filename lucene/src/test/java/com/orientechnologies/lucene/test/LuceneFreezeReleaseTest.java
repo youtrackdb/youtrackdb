@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.File;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class LuceneFreezeReleaseTest {
 
     try {
 
-      OResultSet results = db.query("select from Person where name lucene 'John'");
+      YTResultSet results = db.query("select from Person where name lucene 'John'");
       Assert.assertEquals(1, results.stream().count());
       db.freeze();
 
@@ -90,7 +90,7 @@ public class LuceneFreezeReleaseTest {
 
     try {
 
-      OResultSet results = db.query("select from Person where name lucene 'John'");
+      YTResultSet results = db.query("select from Person where name lucene 'John'");
       Assert.assertEquals(1, results.stream().count());
 
       db.freeze();

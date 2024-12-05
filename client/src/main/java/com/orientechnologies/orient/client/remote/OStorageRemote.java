@@ -29,9 +29,9 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.client.YTNotSendRequestException;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.client.remote.db.document.OLiveQueryMonitorRemote;
 import com.orientechnologies.orient.client.remote.db.document.OTransactionOptimisticClient;
+import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.client.remote.message.OAddClusterRequest;
 import com.orientechnologies.orient.client.remote.message.OAddClusterResponse;
 import com.orientechnologies.orient.client.remote.message.OBeginTransaction38Request;
@@ -88,7 +88,6 @@ import com.orientechnologies.orient.client.remote.message.OReadRecordResponse;
 import com.orientechnologies.orient.client.remote.message.ORecordExistsRequest;
 import com.orientechnologies.orient.client.remote.message.OReloadRequest37;
 import com.orientechnologies.orient.client.remote.message.OReloadResponse37;
-import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
 import com.orientechnologies.orient.client.remote.message.OReopenRequest;
 import com.orientechnologies.orient.client.remote.message.OReopenResponse;
 import com.orientechnologies.orient.client.remote.message.ORollbackTransactionRequest;
@@ -104,18 +103,19 @@ import com.orientechnologies.orient.client.remote.message.OSubscribeSequencesReq
 import com.orientechnologies.orient.client.remote.message.OSubscribeStorageConfigurationRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeLiveQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeRequest;
+import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestAsynch;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
+import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OSharedContext;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
@@ -1097,8 +1097,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         fetchTransaction(db);
       }
 
-      ORemoteResultSet rs =
-          new ORemoteResultSet(
+      YTRemoteResultSet rs =
+          new YTRemoteResultSet(
               db,
               response.getQueryId(),
               response.getResult(),
@@ -1133,8 +1133,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         fetchTransaction(db);
       }
 
-      ORemoteResultSet rs =
-          new ORemoteResultSet(
+      YTRemoteResultSet rs =
+          new YTRemoteResultSet(
               db,
               response.getQueryId(),
               response.getResult(),
@@ -1170,8 +1170,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         fetchTransaction(db);
       }
 
-      ORemoteResultSet rs =
-          new ORemoteResultSet(
+      YTRemoteResultSet rs =
+          new YTRemoteResultSet(
               db,
               response.getQueryId(),
               response.getResult(),
@@ -1205,8 +1205,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         fetchTransaction(db);
       }
 
-      ORemoteResultSet rs =
-          new ORemoteResultSet(
+      YTRemoteResultSet rs =
+          new YTRemoteResultSet(
               db,
               response.getQueryId(),
               response.getResult(),
@@ -1242,8 +1242,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         fetchTransaction(db);
       }
 
-      ORemoteResultSet rs =
-          new ORemoteResultSet(
+      YTRemoteResultSet rs =
+          new YTRemoteResultSet(
               db,
               response.getQueryId(),
               response.getResult(),
@@ -1281,8 +1281,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         fetchTransaction(db);
       }
 
-      ORemoteResultSet rs =
-          new ORemoteResultSet(
+      YTRemoteResultSet rs =
+          new YTRemoteResultSet(
               db,
               response.getQueryId(),
               response.getResult(),
@@ -1307,7 +1307,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     networkOperation(database, request, "Error closing query: " + queryId);
   }
 
-  public void fetchNextPage(YTDatabaseSessionRemote database, ORemoteResultSet rs) {
+  public void fetchNextPage(YTDatabaseSessionRemote database, YTRemoteResultSet rs) {
     int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;

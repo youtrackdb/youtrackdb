@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.ODocumentComparator;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -162,10 +162,10 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.getMetadata().reload();
     database.close();
     database = acquireSession();
-    List<OResult> result =
+    List<YTResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     Assert.assertEquals(result.size(), 1);
-    OResult doc = result.get(0);
+    YTResult doc = result.get(0);
     Assert.assertTrue(doc.hasProperty("keyField"));
     Assert.assertTrue(doc.hasProperty("dateTimeField"));
     Assert.assertTrue(doc.hasProperty("stringField"));
@@ -173,7 +173,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "createSchemaForMandatoryNullableTest")
   public void testUpdateDocDefined() {
-    List<OResult> result =
+    List<YTResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     database.begin();
     Assert.assertEquals(result.size(), 1);
@@ -197,7 +197,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
-    List<OResult> result =
+    List<YTResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
     database.begin();
     Assert.assertEquals(result.size(), 1);
@@ -220,7 +220,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<OResult> result =
+    List<YTResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
     Assert.assertEquals(result.size(), 1);
     YTEntity readDoc = result.get(0).toElement();

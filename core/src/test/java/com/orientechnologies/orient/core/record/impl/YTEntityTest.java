@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class YTEntityTest extends DBTestBase {
     db.save(elem);
     db.commit();
 
-    OResultSet result = db.query("select from TestLoadAndSave where name = 'foo'");
+    YTResultSet result = db.query("select from TestLoadAndSave where name = 'foo'");
     Assert.assertTrue(result.hasNext());
     Assert.assertEquals("foo", result.next().getProperty("name"));
     result.close();

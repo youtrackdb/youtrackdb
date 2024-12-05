@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,7 +35,7 @@ public class OMathExpression extends SimpleNode {
     throw new YTCommandExecutionException("Invalid expand expression");
   }
 
-  public boolean isDefinedFor(OResult currentRecord) {
+  public boolean isDefinedFor(YTResult currentRecord) {
     return true;
   }
 
@@ -668,7 +668,7 @@ public class OMathExpression extends SimpleNode {
     return calculateWithOpPriority(iCurrentRecord, ctx);
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     if (childExpressions == null || operators == null) {
       return null;
     }
@@ -688,7 +688,7 @@ public class OMathExpression extends SimpleNode {
     return calculateWithOpPriority(iCurrentRecord, ctx);
   }
 
-  private Object calculateWithOpPriority(OResult iCurrentRecord, OCommandContext ctx) {
+  private Object calculateWithOpPriority(YTResult iCurrentRecord, OCommandContext ctx) {
     Deque valuesStack = new ArrayDeque<>();
     Deque<Operator> operatorsStack = new ArrayDeque<Operator>();
     if (childExpressions != null && operators != null) {
@@ -1066,7 +1066,7 @@ public class OMathExpression extends SimpleNode {
     return Optional.empty();
   }
 
-  public OCollate getCollate(OResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
     if (this.childExpressions != null) {
       if (childExpressions.size() == 1) {
         return childExpressions.get(0).getCollate(currentRecord, ctx);
@@ -1256,14 +1256,14 @@ public class OMathExpression extends SimpleNode {
     return result;
   }
 
-  public void applyRemove(OResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
     if (childExpressions == null || childExpressions.size() != 1) {
       throw new YTCommandExecutionException("cannot apply REMOVE " + this);
     }
     childExpressions.get(0).applyRemove(result, ctx);
   }
 
-  public static OMathExpression deserializeFromResult(OResult fromResult) {
+  public static OMathExpression deserializeFromResult(YTResult fromResult) {
     String className = fromResult.getProperty("__class");
     try {
       OMathExpression result =
@@ -1275,8 +1275,8 @@ public class OMathExpression extends SimpleNode {
     }
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("__class", getClass().getName());
     if (childExpressions != null) {
       result.setProperty(
@@ -1291,9 +1291,9 @@ public class OMathExpression extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("childExpressions") != null) {
-      List<OResult> ser = fromResult.getProperty("childExpressions");
+      List<YTResult> ser = fromResult.getProperty("childExpressions");
       childExpressions =
           ser.stream().map(x -> deserializeFromResult(x)).collect(Collectors.toList());
     }

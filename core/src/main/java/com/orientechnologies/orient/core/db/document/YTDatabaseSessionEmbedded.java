@@ -32,18 +32,18 @@ import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
+import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
@@ -84,8 +84,8 @@ import com.orientechnologies.orient.core.query.live.OLiveQueryMonitorEmbedded;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTEdgeDocument;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
@@ -95,11 +95,11 @@ import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.LiveQueryListenerImpl;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.sql.parser.OLocalResultSet;
-import com.orientechnologies.orient.core.sql.parser.OLocalResultSetLifecycleDecorator;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
+import com.orientechnologies.orient.core.sql.parser.YTLocalResultSet;
+import com.orientechnologies.orient.core.sql.parser.YTLocalResultSetLifecycleDecorator;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -645,7 +645,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public OResultSet query(String query, Object[] args) {
+  public YTResultSet query(String query, Object[] args) {
     checkOpenness();
     checkIfActive();
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
@@ -656,8 +656,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         throw new YTCommandExecutionException(
             "Cannot execute query on non idempotent statement: " + query);
       }
-      OResultSet original = statement.execute(this, args, true);
-      OLocalResultSetLifecycleDecorator result = new OLocalResultSetLifecycleDecorator(original);
+      YTResultSet original = statement.execute(this, args, true);
+      YTLocalResultSetLifecycleDecorator result = new YTLocalResultSetLifecycleDecorator(original);
       queryStarted(result);
       return result;
     } finally {
@@ -667,7 +667,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public OResultSet query(String query, Map args) {
+  public YTResultSet query(String query, Map args) {
     checkOpenness();
     checkIfActive();
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
@@ -678,8 +678,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         throw new YTCommandExecutionException(
             "Cannot execute query on non idempotent statement: " + query);
       }
-      OResultSet original = statement.execute(this, args, true);
-      OLocalResultSetLifecycleDecorator result = new OLocalResultSetLifecycleDecorator(original);
+      YTResultSet original = statement.execute(this, args, true);
+      YTLocalResultSetLifecycleDecorator result = new YTLocalResultSetLifecycleDecorator(original);
       queryStarted(result);
       return result;
     } finally {
@@ -689,7 +689,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public OResultSet command(String query, Object[] args) {
+  public YTResultSet command(String query, Object[] args) {
     checkOpenness();
     checkIfActive();
 
@@ -697,18 +697,18 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     preQueryStart();
     try {
       OStatement statement = OSQLEngine.parse(query, this);
-      OResultSet original = statement.execute(this, args, true);
-      OLocalResultSetLifecycleDecorator result;
+      YTResultSet original = statement.execute(this, args, true);
+      YTLocalResultSetLifecycleDecorator result;
       if (!statement.isIdempotent()) {
         // fetch all, close and detach
-        OInternalResultSet prefetched = new OInternalResultSet();
+        YTInternalResultSet prefetched = new YTInternalResultSet();
         original.forEachRemaining(x -> prefetched.add(x));
         original.close();
         queryCompleted();
-        result = new OLocalResultSetLifecycleDecorator(prefetched);
+        result = new YTLocalResultSetLifecycleDecorator(prefetched);
       } else {
         // stream, keep open and attach to the current DB
-        result = new OLocalResultSetLifecycleDecorator(original);
+        result = new YTLocalResultSetLifecycleDecorator(original);
         queryStarted(result);
       }
       return result;
@@ -719,7 +719,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public OResultSet command(String query, Map args) {
+  public YTResultSet command(String query, Map args) {
     checkOpenness();
     checkIfActive();
 
@@ -728,18 +728,18 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       preQueryStart();
 
       OStatement statement = OSQLEngine.parse(query, this);
-      OResultSet original = statement.execute(this, args, true);
-      OLocalResultSetLifecycleDecorator result;
+      YTResultSet original = statement.execute(this, args, true);
+      YTLocalResultSetLifecycleDecorator result;
       if (!statement.isIdempotent()) {
         // fetch all, close and detach
-        OInternalResultSet prefetched = new OInternalResultSet();
+        YTInternalResultSet prefetched = new YTInternalResultSet();
         original.forEachRemaining(x -> prefetched.add(x));
         original.close();
         queryCompleted();
-        result = new OLocalResultSetLifecycleDecorator(prefetched);
+        result = new YTLocalResultSetLifecycleDecorator(prefetched);
       } else {
         // stream, keep open and attach to the current DB
-        result = new OLocalResultSetLifecycleDecorator(original);
+        result = new YTLocalResultSetLifecycleDecorator(original);
 
         queryStarted(result);
       }
@@ -752,7 +752,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public OResultSet execute(String language, String script, Object... args) {
+  public YTResultSet execute(String language, String script, Object... args) {
     checkOpenness();
     checkIfActive();
     if (!"sql".equalsIgnoreCase(language)) {
@@ -769,13 +769,13 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
               .getScriptExecutor(language);
 
       ((OAbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
-      OResultSet original;
+      YTResultSet original;
       try {
         original = executor.execute(this, script, args);
       } finally {
         ((OAbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
       }
-      OLocalResultSetLifecycleDecorator result = new OLocalResultSetLifecycleDecorator(original);
+      YTLocalResultSetLifecycleDecorator result = new YTLocalResultSetLifecycleDecorator(original);
       queryStarted(result);
       return result;
     } finally {
@@ -793,7 +793,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     state.closeInternal(this);
   }
 
-  private void queryStarted(OLocalResultSetLifecycleDecorator result) {
+  private void queryStarted(YTLocalResultSetLifecycleDecorator result) {
     OQueryDatabaseState state = this.queryState.peekLast();
     state.setResultSet(result);
     this.queryStarted(result.getQueryId(), state);
@@ -805,7 +805,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public OResultSet execute(String language, String script, Map<String, ?> args) {
+  public YTResultSet execute(String language, String script, Map<String, ?> args) {
     checkOpenness();
     checkIfActive();
     if (!"sql".equalsIgnoreCase(language)) {
@@ -820,7 +820,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
               .getScriptManager()
               .getCommandManager()
               .getScriptExecutor(language);
-      OResultSet original;
+      YTResultSet original;
 
       ((OAbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
       try {
@@ -829,7 +829,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         ((OAbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
       }
 
-      OLocalResultSetLifecycleDecorator result = new OLocalResultSetLifecycleDecorator(original);
+      YTLocalResultSetLifecycleDecorator result = new YTLocalResultSetLifecycleDecorator(original);
       queryStarted(result);
       return result;
     } finally {
@@ -838,7 +838,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     }
   }
 
-  public OLocalResultSetLifecycleDecorator query(OExecutionPlan plan, Map<Object, Object> params) {
+  public YTLocalResultSetLifecycleDecorator query(OExecutionPlan plan, Map<Object, Object> params) {
     checkOpenness();
     checkIfActive();
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
@@ -848,8 +848,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       ctx.setDatabase(this);
       ctx.setInputParameters(params);
 
-      OLocalResultSet result = new OLocalResultSet((OInternalExecutionPlan) plan);
-      OLocalResultSetLifecycleDecorator decorator = new OLocalResultSetLifecycleDecorator(result);
+      YTLocalResultSet result = new YTLocalResultSet((OInternalExecutionPlan) plan);
+      YTLocalResultSetLifecycleDecorator decorator = new YTLocalResultSetLifecycleDecorator(result);
       queryStarted(decorator);
 
       return decorator;
@@ -874,7 +874,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public void queryStarted(String id, OResultSet resultSet) {
+  public void queryStarted(String id, YTResultSet resultSet) {
     // to nothing just compatibility
   }
 

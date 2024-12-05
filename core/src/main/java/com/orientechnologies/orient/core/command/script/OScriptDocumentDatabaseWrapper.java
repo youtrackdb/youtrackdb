@@ -37,8 +37,8 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLQuery;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import java.util.Arrays;
@@ -66,8 +66,8 @@ public class OScriptDocumentDatabaseWrapper {
   }
 
   public YTIdentifiable[] query(final String iText, final Object... iParameters) {
-    try (OResultSet rs = database.query(iText, iParameters)) {
-      return rs.stream().map(OResult::toElement).toArray(YTIdentifiable[]::new);
+    try (YTResultSet rs = database.query(iText, iParameters)) {
+      return rs.stream().map(YTResult::toElement).toArray(YTIdentifiable[]::new);
     }
   }
 
@@ -98,7 +98,7 @@ public class OScriptDocumentDatabaseWrapper {
   }
 
   public Object command(final String iText, final Object... iParameters) {
-    try (OResultSet rs = database.command(iText, iParameters)) {
+    try (YTResultSet rs = database.command(iText, iParameters)) {
       return rs.stream().map(x -> x.toElement()).toArray(size -> new YTIdentifiable[size]);
     }
   }

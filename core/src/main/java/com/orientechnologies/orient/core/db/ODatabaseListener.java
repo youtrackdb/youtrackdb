@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 
 /**
  * Listener Interface for all the events of the Database instances.
@@ -70,10 +70,10 @@ public interface ODatabaseListener {
   default void onDropView(YTDatabaseSession database, YTView view) {
   }
 
-  default void onCommandStart(YTDatabaseSession database, OResultSet resultSet) {
+  default void onCommandStart(YTDatabaseSession database, YTResultSet resultSet) {
   }
 
-  default void onCommandEnd(YTDatabaseSession database, OResultSet resultSet) {
+  default void onCommandEnd(YTDatabaseSession database, YTResultSet resultSet) {
   }
 
   /**

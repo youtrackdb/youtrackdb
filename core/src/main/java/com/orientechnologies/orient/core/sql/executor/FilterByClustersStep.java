@@ -41,7 +41,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
     return resultSet.filter((value, context) -> this.filterMap(value, ids));
   }
 
-  private OResult filterMap(OResult result, IntOpenHashSet clusterIds) {
+  private YTResult filterMap(YTResult result, IntOpenHashSet clusterIds) {
     if (result.isElement()) {
       var rid = result.getRecordId();
       assert rid != null;
@@ -68,8 +68,8 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     if (clusters != null) {
       result.setProperty("clusters", clusters);
     }
@@ -78,7 +78,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       clusters = fromResult.getProperty("clusters");

@@ -14,8 +14,8 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class OWhereClause extends SimpleNode {
     return baseExpression.evaluate(currentRecord, ctx);
   }
 
-  public boolean matchesFilters(OResult currentRecord, OCommandContext ctx) {
+  public boolean matchesFilters(YTResult currentRecord, OCommandContext ctx) {
     if (baseExpression == null) {
       return true;
     }
@@ -188,7 +188,7 @@ public class OWhereClause extends SimpleNode {
       if (expression instanceof OBinaryCondition b) {
         if (b.operator instanceof OEqualsCompareOperator) {
           if (b.left.isBaseIdentifier() && b.right.isEarlyCalculated(ctx)) {
-            result.put(b.left.toString(), b.right.execute((OResult) null, ctx));
+            result.put(b.left.toString(), b.right.execute((YTResult) null, ctx));
           }
         }
       }
@@ -285,8 +285,8 @@ public class OWhereClause extends SimpleNode {
     this.flattened = flattened;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     if (baseExpression != null) {
       result.setProperty("baseExpression", baseExpression.serialize(db));
     }
@@ -300,15 +300,15 @@ public class OWhereClause extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     if (fromResult.getProperty("baseExpression") != null) {
       baseExpression =
           OBooleanExpression.deserializeFromOResult(fromResult.getProperty("baseExpression"));
     }
     if (fromResult.getProperty("flattened") != null) {
-      List<OResult> ser = fromResult.getProperty("flattened");
+      List<YTResult> ser = fromResult.getProperty("flattened");
       flattened = new ArrayList<>();
-      for (OResult r : ser) {
+      for (YTResult r : ser) {
         OAndBlock block = new OAndBlock(-1);
         block.deserialize(r);
         flattened.add(block);

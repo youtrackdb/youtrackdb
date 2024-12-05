@@ -9,9 +9,9 @@ import com.orientechnologies.orient.core.sql.executor.EmptyStep;
 import com.orientechnologies.orient.core.sql.executor.IfStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStepInternal;
 import com.orientechnologies.orient.core.sql.executor.OIfExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSelectExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlan;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +64,7 @@ public class OIfStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
       boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -94,17 +94,17 @@ public class OIfStatement extends OStatement {
     if (isIdempotent()) {
       OSelectExecutionPlan finalPlan = new OSelectExecutionPlan(ctx);
       finalPlan.chain(last);
-      return new OLocalResultSet(finalPlan);
+      return new YTLocalResultSet(finalPlan);
     } else {
       OUpdateExecutionPlan finalPlan = new OUpdateExecutionPlan(ctx);
       finalPlan.chain(last);
       finalPlan.executeInternal();
-      return new OLocalResultSet(finalPlan);
+      return new YTLocalResultSet(finalPlan);
     }
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
@@ -127,12 +127,12 @@ public class OIfStatement extends OStatement {
     if (isIdempotent()) {
       OSelectExecutionPlan finalPlan = new OSelectExecutionPlan(ctx);
       finalPlan.chain(last);
-      return new OLocalResultSet(finalPlan);
+      return new YTLocalResultSet(finalPlan);
     } else {
       OUpdateExecutionPlan finalPlan = new OUpdateExecutionPlan(ctx);
       finalPlan.chain(last);
       finalPlan.executeInternal();
-      return new OLocalResultSet(finalPlan);
+      return new YTLocalResultSet(finalPlan);
     }
   }
 

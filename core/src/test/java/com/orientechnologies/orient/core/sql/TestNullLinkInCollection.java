@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +35,7 @@ public class TestNullLinkInCollection extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    try (OResultSet res = db.query("select items from Test")) {
+    try (YTResultSet res = db.query("select items from Test")) {
       assertEquals(new YTRecordId(10, 20), ((List) res.next().getProperty("items")).get(0));
     }
   }
@@ -50,7 +50,7 @@ public class TestNullLinkInCollection extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    try (OResultSet res = db.query("select items from Test")) {
+    try (YTResultSet res = db.query("select items from Test")) {
       Assert.assertEquals(
           new YTRecordId(10, 20), ((Set) res.next().getProperty("items")).iterator().next());
     }

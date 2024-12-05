@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,7 +34,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
   @Test
   public void testLinkedValue() {
 
-    try (OResultSet result =
+    try (YTResultSet result =
         db.execute(
             "sql",
             "begin; let res = insert into client set name = 'James Bond', phones = ['1234',"
@@ -44,7 +44,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
                 + " [{'@type':'d','@class':'Address','city':'London', 'zip':'67373'}]; commit;"
                 + " return $res")) {
       Assert.assertTrue(result.hasNext());
-      OResult doc = result.next();
+      YTResult doc = result.next();
 
       Collection<YTDocument> addresses = doc.getProperty("addresses");
       Assert.assertEquals(addresses.size(), 3);
@@ -54,18 +54,18 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
     }
 
     db.begin();
-    try (OResultSet result =
+    try (YTResultSet result =
         db.command(
             "update client set addresses = addresses || [{'city':'London', 'zip':'67373'}] return"
                 + " after")) {
       Assert.assertTrue(result.hasNext());
 
-      OResult doc = result.next();
+      YTResult doc = result.next();
 
-      Collection<OResult> addresses = doc.getProperty("addresses");
+      Collection<YTResult> addresses = doc.getProperty("addresses");
       Assert.assertEquals(addresses.size(), 4);
 
-      for (OResult a : addresses) {
+      for (YTResult a : addresses) {
         Assert.assertEquals("Address", a.getProperty("@class"));
       }
     }

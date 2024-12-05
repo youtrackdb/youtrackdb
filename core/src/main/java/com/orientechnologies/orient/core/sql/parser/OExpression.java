@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +94,7 @@ public class OExpression extends SimpleNode {
     return value;
   }
 
-  public Object execute(OResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
     if (isNull) {
       return null;
     }
@@ -597,7 +597,7 @@ public class OExpression extends SimpleNode {
     return null;
   }
 
-  public void applyRemove(OResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
     if (mathExpression != null) {
       mathExpression.applyRemove(result, ctx);
     } else {
@@ -620,8 +620,8 @@ public class OExpression extends SimpleNode {
     this.arrayConcatExpression = arrayConcatExpression;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("singleQuotes", singleQuotes);
     result.setProperty("doubleQuotes", doubleQuotes);
     result.setProperty("isNull", isNull);
@@ -642,7 +642,7 @@ public class OExpression extends SimpleNode {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     singleQuotes = fromResult.getProperty("singleQuotes");
     doubleQuotes = fromResult.getProperty("doubleQuotes");
     isNull = fromResult.getProperty("isNull");
@@ -666,7 +666,7 @@ public class OExpression extends SimpleNode {
     booleanValue = fromResult.getProperty("booleanValue");
   }
 
-  public boolean isDefinedFor(OResult currentRecord) {
+  public boolean isDefinedFor(YTResult currentRecord) {
     if (mathExpression != null) {
       return mathExpression.isDefinedFor(currentRecord);
     } else {
@@ -682,7 +682,7 @@ public class OExpression extends SimpleNode {
     }
   }
 
-  public OCollate getCollate(OResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
     if (mathExpression != null) {
       return mathExpression.getCollate(currentRecord, ctx);
     }

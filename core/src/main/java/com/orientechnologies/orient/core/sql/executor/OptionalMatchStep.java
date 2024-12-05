@@ -12,7 +12,7 @@ public class OptionalMatchStep extends MatchStep {
   }
 
   @Override
-  protected MatchEdgeTraverser createTraverser(OResult lastUpstreamRecord) {
+  protected MatchEdgeTraverser createTraverser(YTResult lastUpstreamRecord) {
     return new OptionalMatchEdgeTraverser(lastUpstreamRecord, edge);
   }
 

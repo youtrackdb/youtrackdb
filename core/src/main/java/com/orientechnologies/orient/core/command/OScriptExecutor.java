@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Map;
 
 /**
@@ -9,9 +9,9 @@ import java.util.Map;
  */
 public interface OScriptExecutor {
 
-  OResultSet execute(YTDatabaseSessionInternal database, String script, Object... params);
+  YTResultSet execute(YTDatabaseSessionInternal database, String script, Object... params);
 
-  OResultSet execute(YTDatabaseSessionInternal database, String script, Map params);
+  YTResultSet execute(YTDatabaseSessionInternal database, String script, Map params);
 
   Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs);

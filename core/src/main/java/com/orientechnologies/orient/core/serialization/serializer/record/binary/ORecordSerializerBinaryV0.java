@@ -575,8 +575,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     List<RecordInfo> fieldsInfo = getPositionsFromEmbeddedCollection(db, bytes, schema);
     for (RecordInfo fieldInfo : fieldsInfo) {
       if (fieldInfo.fieldType.isEmbedded()) {
-        OResultBinary result =
-            new OResultBinary(db,
+        YTResultBinary result =
+            new YTResultBinary(db,
                 schema, bytes.bytes, fieldInfo.fieldStartOffset, fieldInfo.fieldLength, this);
         retVal.add(result);
       } else {
@@ -600,7 +600,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       Object value;
       if (recordInfo.fieldType != null && recordInfo.fieldType.isEmbedded()) {
         value =
-            new OResultBinary(db,
+            new YTResultBinary(db,
                 schema, bytes.bytes, recordInfo.fieldStartOffset, recordInfo.fieldLength, this);
       } else if (recordInfo.fieldStartOffset != 0) {
         int currentOffset = bytes.offset;
@@ -615,11 +615,11 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     return retVal;
   }
 
-  protected OResultBinary deserializeEmbeddedAsBytes(
+  protected YTResultBinary deserializeEmbeddedAsBytes(
       YTDatabaseSessionInternal db, final BytesContainer bytes, int valueLength,
       YTImmutableSchema schema) {
     int startOffset = bytes.offset;
-    return new OResultBinary(db, schema, bytes.bytes, startOffset, valueLength, this);
+    return new YTResultBinary(db, schema, bytes.bytes, startOffset, valueLength, this);
   }
 
   protected Object deserializeValue(
@@ -779,8 +779,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
               value = stream;
             }
           } else {
-            OResultBinary retVal =
-                new OResultBinary(db, schema, bytesRepresentation, 0, bytesRepresentation.length,
+            YTResultBinary retVal =
+                new YTResultBinary(db, schema, bytesRepresentation, 0, bytesRepresentation.length,
                     this);
             return retVal;
           }

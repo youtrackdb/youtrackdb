@@ -12,8 +12,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
@@ -60,11 +60,11 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
       Object[] params,
       OCommandContext ctx) {
 
-    OResult result;
-    if (iThis instanceof OResult) {
-      result = (OResult) iThis;
+    YTResult result;
+    if (iThis instanceof YTResult) {
+      result = (YTResult) iThis;
     } else {
-      result = new OResultInternal(ctx.getDatabase(), (YTIdentifiable) iThis);
+      result = new YTResultInternal(ctx.getDatabase(), (YTIdentifiable) iThis);
     }
 
     YTEntity element = result.toElement();

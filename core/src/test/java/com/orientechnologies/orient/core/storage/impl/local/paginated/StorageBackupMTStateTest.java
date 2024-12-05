@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
-import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
 import com.orientechnologies.common.concur.lock.OReadersWriterSpinLock;
+import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
@@ -17,8 +17,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.File;
 import java.util.ArrayList;
@@ -336,7 +336,7 @@ public class StorageBackupMTStateTest {
       long tCount = 0;
 
       while (linkedDocuments.size() < 5 && linkedDocuments.size() < linkedClassCount) {
-        OResultSet docs =
+        YTResultSet docs =
             db.query(
                 "select * from "
                     + linkedClassName
@@ -440,7 +440,7 @@ public class StorageBackupMTStateTest {
 
               boolean deleted = false;
               do {
-                OResultSet docs =
+                YTResultSet docs =
                     databaseDocumentTx.query(
                         "select * from "
                             + className
@@ -448,7 +448,7 @@ public class StorageBackupMTStateTest {
                             + random.nextInt(classCounter.get()));
 
                 if (docs.hasNext()) {
-                  OResult document = docs.next();
+                  YTResult document = docs.next();
                   databaseDocumentTx.delete(document.getIdentity().get());
                   deleted = true;
                 }

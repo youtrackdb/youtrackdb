@@ -14,8 +14,8 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     YTDocument doc2 = db.load(id.getIdentity());
     doc2.setProperty("name", "Jane");
     db.save(doc2);
-    OResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
+    YTResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertEquals(1L, (long) result.next().getProperty("count"));
     YTDocument doc3 = db.load(id.getIdentity());
     assertEquals("July", doc3.getProperty("name"));
@@ -72,7 +72,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     YTDocument doc2 = new YTDocument("SomeTx");
     doc2.setProperty("name", "Jane");
     db.save(doc2);
-    OResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
+    YTResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertEquals(1L, (long) result.next().getProperty("count"));
     assertEquals("July", doc2.getProperty("name"));
     result.close();
@@ -89,7 +89,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     docx.setProperty("name", "Jane");
     db.save(docx);
 
-    OResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
+    YTResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertTrue(result.hasNext());
     assertEquals(1L, (long) result.next().getProperty("count"));
     YTDocument doc2 = db.load(id.getIdentity());
@@ -111,13 +111,13 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     doc1.setProperty("name", "Jane");
     db.save(doc1);
 
-    OResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
+    YTResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertTrue(result.hasNext());
     assertEquals(2L, (long) result.next().getProperty("count"));
     result.close();
     db.rollback();
 
-    OResultSet result1 = db.command("select count(*) from SomeTx where name='Jane'");
+    YTResultSet result1 = db.command("select count(*) from SomeTx where name='Jane'");
     assertTrue(result1.hasNext());
     assertEquals(1L, (long) result1.next().getProperty("count(*)"));
     result1.close();
@@ -136,7 +136,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     doc1.setProperty("name", "Jane");
     db.save(doc1);
 
-    OResultSet result = db.command("select count(*) from SomeTx where name='Jane' ");
+    YTResultSet result = db.command("select count(*) from SomeTx where name='Jane' ");
     assertTrue(result.hasNext());
     assertEquals(2L, (long) result.next().getProperty("count(*)"));
 
@@ -144,7 +144,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     result.close();
     db.rollback();
 
-    OResultSet result1 = db.command("select count(*) from SomeTx where name='Jane'");
+    YTResultSet result1 = db.command("select count(*) from SomeTx where name='Jane'");
     assertTrue(result1.hasNext());
     assertEquals(1L, (long) result1.next().getProperty("count(*)"));
 
@@ -166,11 +166,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
     db.command("insert into SomeTx set name ='Jane' ").close();
 
-    OResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
+    YTResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertTrue(result.hasNext());
     assertEquals(1L, (long) result.next().getProperty("count"));
     result.close();
-    OResultSet result1 = db.query("select from SomeTx where name='July'");
+    YTResultSet result1 = db.query("select from SomeTx where name='July'");
     assertTrue(result1.hasNext());
     assertEquals("July", result1.next().getProperty("name"));
     assertFalse(result.hasNext());
@@ -189,7 +189,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     db.command("delete from SomeTx");
     db.commit();
 
-    OResultSet result = db.command("select from SomeTx");
+    YTResultSet result = db.command("select from SomeTx");
     assertFalse(result.hasNext());
     result.close();
   }
@@ -214,7 +214,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     someTx.setProperty("name", "foo");
     db.save(someTx);
     db.save(someTx);
-    OResultSet result = db.query("select from SomeTx");
+    YTResultSet result = db.query("select from SomeTx");
     assertEquals(1, result.stream().count());
     result.close();
     db.save(someTx);
@@ -238,12 +238,12 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     YTEntity oneMore = db.newElement("SomeTx");
     oneMore.setProperty("name", "bar");
     oneMore.setProperty("ref", someTx);
-    OResultSet result = db.query("select from SomeTx");
+    YTResultSet result = db.query("select from SomeTx");
     assertEquals(1, result.stream().count());
     result.close();
     db.save(oneMore);
     db.commit();
-    OResultSet result1 = db.query("select ref from SomeTx where name='bar'");
+    YTResultSet result1 = db.query("select ref from SomeTx where name='bar'");
     assertTrue(result1.hasNext());
     assertEquals(someTx.getIdentity(), result1.next().getProperty("ref"));
     result1.close();
@@ -260,7 +260,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     oneMore.setProperty("name", "bar");
     oneMore.setProperty("ref", someTx.getIdentity());
 
-    OResultSet result = db.query("select from SomeTx");
+    YTResultSet result = db.query("select from SomeTx");
     assertEquals(1, result.stream().count());
     result.close();
 
@@ -274,9 +274,9 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     result.close();
 
     db.save(oneMore);
-    OResultSet result1 = db.query("select ref,ref2 from SomeTx where name='bar'");
+    YTResultSet result1 = db.query("select ref,ref2 from SomeTx where name='bar'");
     assertTrue(result1.hasNext());
-    OResult next = result1.next();
+    YTResult next = result1.next();
     assertEquals(someTx.getIdentity(), next.getProperty("ref"));
     assertEquals(ref2.getIdentity(), next.getProperty("ref2"));
     result1.close();
@@ -310,7 +310,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     db.save(doc1);
     db.command("insert into SomeTx set name ='Jane2' ").close();
 
-    OResultSet result = db.command("select count(*) from SomeTx");
+    YTResultSet result = db.command("select count(*) from SomeTx");
     System.out.println(result.getExecutionPlan().toString());
     assertTrue(result.hasNext());
     assertEquals(6L, (long) result.next().getProperty("count(*)"));
@@ -319,7 +319,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
     db.commit();
 
-    OResultSet result1 = db.command("select count(*) from SomeTx ");
+    YTResultSet result1 = db.command("select count(*) from SomeTx ");
     assertTrue(result1.hasNext());
     assertEquals(6L, (long) result1.next().getProperty("count(*)"));
     result1.close();
@@ -337,7 +337,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     YTEdge edge = v1.addEdge(v2, "MyE");
     edge.setProperty("some", "value");
     db.save(v1);
-    OResultSet result1 = db.query("select out_MyE from MyV  where out_MyE is not null");
+    YTResultSet result1 = db.query("select out_MyE from MyV  where out_MyE is not null");
     assertTrue(result1.hasNext());
     ArrayList<Object> val = new ArrayList<>();
     val.add(edge.getIdentity());
@@ -356,7 +356,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     ridbag.add(v2.getIdentity());
     v1.setProperty("rids", ridbag);
     db.save(v1);
-    OResultSet result1 = db.query("select rids from SomeTx where rids is not null");
+    YTResultSet result1 = db.query("select rids from SomeTx where rids is not null");
     assertTrue(result1.hasNext());
     YTEntity v3 = db.newElement("SomeTx");
     db.save(v3);
@@ -380,13 +380,13 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     YTEntity someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
     YTRecord id = db.save(someTx);
-    try (OResultSet rs = db.query("select from ?", id)) {
+    try (YTResultSet rs = db.query("select from ?", id)) {
     }
 
     db.commit();
 
     // nothing is found (unexpected behaviour)
-    try (OResultSet rs = db.query("select * from IndexedTx where name = ?", FIELD_VALUE)) {
+    try (YTResultSet rs = db.query("select * from IndexedTx where name = ?", FIELD_VALUE)) {
       assertEquals(1, rs.stream().count());
     }
   }

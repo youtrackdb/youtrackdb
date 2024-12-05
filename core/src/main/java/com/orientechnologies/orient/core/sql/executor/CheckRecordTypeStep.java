@@ -28,7 +28,7 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (!result.isElement()) {
       throw new YTCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }

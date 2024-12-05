@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class OInsertExecutionPlan extends OSelectExecutionPlan {
 
-  private final List<OResult> result = new ArrayList<>();
+  private final List<YTResult> result = new ArrayList<>();
 
   public OInsertExecutionPlan(OCommandContext ctx) {
     super(ctx);
@@ -40,8 +40,8 @@ public class OInsertExecutionPlan extends OSelectExecutionPlan {
   }
 
   @Override
-  public OResult toResult(YTDatabaseSessionInternal db) {
-    OResultInternal res = (OResultInternal) super.toResult(db);
+  public YTResult toResult(YTDatabaseSessionInternal db) {
+    YTResultInternal res = (YTResultInternal) super.toResult(db);
     res.setProperty("type", "InsertExecutionPlan");
     return res;
   }

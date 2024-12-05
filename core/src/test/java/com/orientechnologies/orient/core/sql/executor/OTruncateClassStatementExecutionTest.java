@@ -46,7 +46,7 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     db.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
     db.commit();
 
-    OResultSet result = db.query("select from test_class");
+    YTResultSet result = db.query("select from test_class");
     //    Assert.assertEquals(result.size(), 2);
 
     Set<Integer> set = new HashSet<Integer>();
@@ -81,7 +81,7 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
       Assert.fail();
     } catch (Exception e) {
     }
-    OResultSet result = db.query("select from TestTruncateVertexClass");
+    YTResultSet result = db.query("select from TestTruncateVertexClass");
     Assert.assertTrue(result.hasNext());
     result.close();
 
@@ -103,7 +103,7 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     db.command("insert into TestTruncateVertexClassSubclass set name = 'bar'");
     db.commit();
 
-    OResultSet result = db.query("select from TestTruncateVertexClassSuperclass");
+    YTResultSet result = db.query("select from TestTruncateVertexClassSuperclass");
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       result.next();
@@ -156,8 +156,8 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     }
   }
 
-  private List<OResult> toList(OResultSet input) {
-    List<OResult> result = new ArrayList<>();
+  private List<YTResult> toList(YTResultSet input) {
+    List<YTResult> result = new ArrayList<>();
     while (input.hasNext()) {
       result.add(input.next());
     }
@@ -197,7 +197,7 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     db.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     db.commit();
 
-    OResultSet result = db.query("select from test_class");
+    YTResultSet result = db.query("select from test_class");
     Assert.assertEquals(toList(result).size(), 2);
 
     result.close();

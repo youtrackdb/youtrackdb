@@ -25,8 +25,8 @@ import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public class OMultiValue {
         || OMultiCollectionIterator.class.isAssignableFrom(iType)
         || (Iterable.class.isAssignableFrom(iType)
         && !(YTIdentifiable.class.isAssignableFrom(iType)))
-        || OResultSet.class.isAssignableFrom(iType);
+        || YTResultSet.class.isAssignableFrom(iType);
   }
 
   /**
@@ -113,8 +113,8 @@ public class OMultiValue {
       }
       return i;
     }
-    if (iObject instanceof OInternalResultSet) {
-      return ((OInternalResultSet) iObject).size();
+    if (iObject instanceof YTInternalResultSet) {
+      return ((YTInternalResultSet) iObject).size();
     }
     return 0;
   }

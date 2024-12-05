@@ -44,7 +44,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(this::produce).limit(1);
   }
 
-  private OResultInternal produce(OCommandContext ctx) {
+  private YTResultInternal produce(OCommandContext ctx) {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index =
         database
@@ -66,7 +66,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       count = handleKeyValues(body.getIdentifierList(), body.getValueExpressions(), index, ctx);
     }
 
-    OResultInternal result = new OResultInternal(database);
+    YTResultInternal result = new YTResultInternal(database);
     result.setProperty("count", count);
     return result;
   }
@@ -126,16 +126,16 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   private long doExecute(
       OIndex index, OCommandContext ctx, OExpression keyExp, OExpression valueExp) {
     long count = 0;
-    Object key = keyExp.execute((OResult) null, ctx);
-    Object value = valueExp.execute((OResult) null, ctx);
+    Object key = keyExp.execute((YTResult) null, ctx);
+    Object value = valueExp.execute((YTResult) null, ctx);
     if (value instanceof YTIdentifiable) {
       insertIntoIndex(ctx.getDatabase(), index, key, (YTIdentifiable) value);
       count++;
-    } else if (value instanceof OResult && ((OResult) value).isElement()) {
-      insertIntoIndex(ctx.getDatabase(), index, key, ((OResult) value).toElement());
+    } else if (value instanceof YTResult && ((YTResult) value).isElement()) {
+      insertIntoIndex(ctx.getDatabase(), index, key, ((YTResult) value).toElement());
       count++;
-    } else if (value instanceof OResultSet) {
-      ((OResultSet) value).elementStream().forEach(x -> index.put(ctx.getDatabase(), key, x));
+    } else if (value instanceof YTResultSet) {
+      ((YTResultSet) value).elementStream().forEach(x -> index.put(ctx.getDatabase(), key, x));
     } else if (OMultiValue.isMultiValue(value)) {
       Iterator<?> iterator = OMultiValue.getMultiValueIterator(value);
       while (iterator.hasNext()) {
@@ -143,8 +143,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
         if (item instanceof YTIdentifiable) {
           insertIntoIndex(ctx.getDatabase(), index, key, (YTIdentifiable) item);
           count++;
-        } else if (item instanceof OResult && ((OResult) item).isElement()) {
-          insertIntoIndex(ctx.getDatabase(), index, key, ((OResult) item).toElement());
+        } else if (item instanceof YTResult && ((YTResult) item).isElement()) {
+          insertIntoIndex(ctx.getDatabase(), index, key, ((YTResult) item).toElement());
           count++;
         } else {
           throw new YTCommandExecutionException("Cannot insert into index " + item);

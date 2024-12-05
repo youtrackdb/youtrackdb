@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor.resultset;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -14,7 +14,7 @@ public interface OExecutionStream {
 
   boolean hasNext(OCommandContext ctx);
 
-  OResult next(OCommandContext ctx);
+  YTResult next(OCommandContext ctx);
 
   void close(OCommandContext ctx);
 
@@ -42,7 +42,7 @@ public interface OExecutionStream {
     return new OIteratorExecutionStream(iterator);
   }
 
-  static OExecutionStream resultIterator(Iterator<OResult> iterator) {
+  static OExecutionStream resultIterator(Iterator<YTResult> iterator) {
     return new OResultIteratorExecutionStream(iterator);
   }
 
@@ -58,7 +58,7 @@ public interface OExecutionStream {
     return OEmptyExecutionStream.EMPTY;
   }
 
-  static OExecutionStream singleton(OResult result) {
+  static OExecutionStream singleton(YTResult result) {
     return new OSingletonExecutionStream(result);
   }
 
@@ -71,12 +71,12 @@ public interface OExecutionStream {
     return new OnCloseExecutionStream(this, onClose);
   }
 
-  default Stream<OResult> stream(OCommandContext ctx) {
+  default Stream<YTResult> stream(OCommandContext ctx) {
     return StreamSupport.stream(
-            new Spliterator<OResult>() {
+            new Spliterator<YTResult>() {
 
               @Override
-              public boolean tryAdvance(Consumer<? super OResult> action) {
+              public boolean tryAdvance(Consumer<? super YTResult> action) {
                 if (hasNext(ctx)) {
                   action.accept(next(ctx));
                   return true;
@@ -85,7 +85,7 @@ public interface OExecutionStream {
               }
 
               @Override
-              public Spliterator<OResult> trySplit() {
+              public Spliterator<YTResult> trySplit() {
                 return null;
               }
 

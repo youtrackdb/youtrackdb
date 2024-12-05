@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class OCommandExecutorSQLCreateFunctionTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet result = db.command("select testCreateFunction('world') as name");
+    YTResultSet result = db.command("select testCreateFunction('world') as name");
     Assert.assertEquals(result.next().getProperty("name"), "hello world");
     Assert.assertFalse(result.hasNext());
   }

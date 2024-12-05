@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -519,11 +519,11 @@ public class YouTrackDB implements AutoCloseable {
     }
   }
 
-  public OResultSet execute(String script, Map<String, Object> params) {
+  public YTResultSet execute(String script, Map<String, Object> params) {
     return internal.executeServerStatementNamedParams(script, serverUser, serverPassword, params);
   }
 
-  public OResultSet execute(String script, Object... params) {
+  public YTResultSet execute(String script, Object... params) {
     return internal.executeServerStatementPositionalParams(script, serverUser, serverPassword,
         params);
   }

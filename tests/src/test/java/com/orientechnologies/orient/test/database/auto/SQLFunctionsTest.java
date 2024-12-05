@@ -28,10 +28,10 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
-import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -70,7 +70,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryMax() {
-    OResultSet result = database.command("select max(id) as max from Account");
+    YTResultSet result = database.command("select max(id) as max from Account");
 
     assertNotNull(result.next().getProperty("max"));
     assertFalse(result.hasNext());
@@ -94,9 +94,9 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryMin() {
-    OResultSet result = database.command("select min(id) as min from Account");
+    YTResultSet result = database.command("select min(id) as min from Account");
 
-    OResult d = result.next();
+    YTResult d = result.next();
     Assert.assertNotNull(d.getProperty("min"));
 
     Assert.assertEquals(((Number) d.getProperty("min")).longValue(), 0L);
@@ -121,8 +121,8 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void querySum() {
-    OResultSet result = database.command("select sum(id) as sum from Account");
-    OResult d = result.next();
+    YTResultSet result = database.command("select sum(id) as sum from Account");
+    YTResult d = result.next();
     Assert.assertNotNull(d.getProperty("sum"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -130,8 +130,8 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryCount() {
-    OResultSet result = database.command("select count(*) as total from Account");
-    OResult d = result.next();
+    YTResultSet result = database.command("select count(*) as total from Account");
+    YTResult d = result.next();
     Assert.assertNotNull(d.getProperty("total"));
     Assert.assertTrue(((Number) d.getProperty("total")).longValue() > 0);
     Assert.assertFalse(result.hasNext());
@@ -433,11 +433,11 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void querySysdateNoFormat() {
-    OResultSet result = database.command("select sysdate() as date from Account");
+    YTResultSet result = database.command("select sysdate() as date from Account");
 
     Assert.assertTrue(result.hasNext());
     while (result.hasNext()) {
-      OResult d = result.next();
+      YTResult d = result.next();
       Assert.assertNotNull(d.getProperty("date"));
     }
   }
@@ -457,7 +457,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryDate() {
-    OResultSet result = database.command("select count(*) as tot from Account");
+    YTResultSet result = database.command("select count(*) as tot from Account");
 
     int tot = ((Number) result.next().getProperty("tot")).intValue();
     assertFalse(result.hasNext());
@@ -489,7 +489,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
                 + pattern
                 + "\")");
     while (result.hasNext()) {
-      OResult d = result.next();
+      YTResult d = result.next();
       Assert.assertNotNull(d.getProperty("created"));
     }
   }

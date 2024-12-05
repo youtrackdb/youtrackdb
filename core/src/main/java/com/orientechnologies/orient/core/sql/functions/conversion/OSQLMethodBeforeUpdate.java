@@ -19,11 +19,11 @@ package com.orientechnologies.orient.core.sql.functions.conversion;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.LiveQueryListenerImpl;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 
 /**
- * ONLY FOR LIVE QUERY. Returns the value of current record (as an OResult) before it was updated.
+ * ONLY FOR LIVE QUERY. Returns the value of current record (as an YTResult) before it was updated.
  * Null if the record is new <br> eg. on update, get only records whose "name" attribute was update
  * <code> db.live("select from Person where @this.beforeUpdate().name != name
  * </code>
@@ -48,8 +48,8 @@ public class OSQLMethodBeforeUpdate extends OAbstractSQLMethod {
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
-    if (iThis instanceof OResult) {
-      return ((OResult) iThis).getMetadata(LiveQueryListenerImpl.BEFORE_METADATA_KEY);
+    if (iThis instanceof YTResult) {
+      return ((YTResult) iThis).getMetadata(LiveQueryListenerImpl.BEFORE_METADATA_KEY);
     }
     return null;
   }

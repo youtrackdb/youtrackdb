@@ -4,9 +4,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Map;
 
 public class OHaRemoveServerStatement extends OStatement {
@@ -34,28 +34,28 @@ public class OHaRemoveServerStatement extends OStatement {
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db,
       Object[] args,
       OCommandContext parentContext,
       boolean usePlanCache) {
     YTDatabaseSessionInternal internalDb = db;
     boolean res = internalDb.removeHaServer(serverName.getStringValue());
-    OResultInternal r = new OResultInternal(internalDb);
+    YTResultInternal r = new YTResultInternal(internalDb);
     r.setProperty("result", res);
-    OInternalResultSet rs = new OInternalResultSet();
+    YTInternalResultSet rs = new YTInternalResultSet();
     rs.add(r);
     return rs;
   }
 
   @Override
-  public OResultSet execute(
+  public YTResultSet execute(
       YTDatabaseSessionInternal db, Map args, OCommandContext parentContext, boolean usePlanCache) {
     YTDatabaseSessionInternal internalDb = db;
     boolean res = internalDb.removeHaServer(serverName.getStringValue());
-    OResultInternal r = new OResultInternal(internalDb);
+    YTResultInternal r = new YTResultInternal(internalDb);
     r.setProperty("result", res);
-    OInternalResultSet rs = new OInternalResultSet();
+    YTInternalResultSet rs = new YTInternalResultSet();
     rs.add(r);
     return rs;
   }

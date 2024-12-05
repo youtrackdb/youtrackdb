@@ -49,9 +49,9 @@ public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet list = db.query("SELECT FROM link");
+    YTResultSet list = db.query("SELECT FROM link");
 
-    OResult res = list.next();
+    YTResult res = list.next();
     Assert.assertEquals(res.getProperty("foo"), "123");
     Assert.assertFalse(list.hasNext());
   }
@@ -71,9 +71,9 @@ public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
         .close();
     db.commit();
 
-    OResultSet list = db.query("SELECT FROM link");
+    YTResultSet list = db.query("SELECT FROM link");
 
-    OResult edge = list.next();
+    YTResult edge = list.next();
     Assert.assertEquals(edge.getProperty("foo"), "bar");
     Assert.assertEquals(edge.getProperty("out"), owner1.getIdentity());
     Assert.assertEquals(edge.getProperty("in"), owner2.getIdentity());
@@ -89,7 +89,7 @@ public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
     }
 
     db.begin();
-    OResultSet edges =
+    YTResultSet edges =
         db.command(
             "CREATE EDGE link from (select from owner where testbatch = true and id > 0) TO (select"
                 + " from owner where testbatch = true and id = 0) batch 10",
@@ -98,9 +98,9 @@ public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
 
     Assert.assertEquals(edges.stream().count(), 19);
 
-    OResultSet list = db.query("select from owner where testbatch = true and id = 0");
+    YTResultSet list = db.query("select from owner where testbatch = true and id = 0");
 
-    OResult res = list.next();
+    YTResult res = list.next();
     Assert.assertEquals(((ORidBag) res.getProperty("in_link")).size(), 19);
     Assert.assertFalse(list.hasNext());
   }

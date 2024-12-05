@@ -21,7 +21,7 @@ package com.orientechnologies.lucene.tests;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    OResultSet results =
+    YTResultSet results =
         db.command("select from City where SEARCH_FIELDS(['name'] ,'London') = true ");
 
     Assertions.assertThat(results).hasSize(1);
@@ -74,7 +74,7 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
 
     db.commit();
 
-    OResultSet results =
+    YTResultSet results =
         db.command("select from City where SEARCH_FIELDS(['name'] ,'Berlin')=true ");
 
     Assertions.assertThat(results).hasSize(1);

@@ -21,7 +21,7 @@ package com.orientechnologies.lucene.test;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
 
     db.begin();
 
-    OResultSet resultSet = db.query("SELECT from City where name = 'London / a' ");
+    YTResultSet resultSet = db.query("SELECT from City where name = 'London / a' ");
 
     Assertions.assertThat(resultSet).hasSize(1);
 
@@ -93,7 +93,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     db.save(two);
     db.commit();
 
-    OResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
+    YTResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
 
     Assertions.assertThat(resultSet).hasSize(1);
   }

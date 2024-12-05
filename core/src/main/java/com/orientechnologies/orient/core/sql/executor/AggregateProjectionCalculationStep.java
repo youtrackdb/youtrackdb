@@ -37,11 +37,11 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-    List<OResult> finalResults = executeAggregation(ctx);
+    List<YTResult> finalResults = executeAggregation(ctx);
     return OExecutionStream.resultIterator(finalResults.iterator());
   }
 
-  private List<OResult> executeAggregation(OCommandContext ctx) {
+  private List<YTResult> executeAggregation(OCommandContext ctx) {
     long timeoutBegin = System.currentTimeMillis();
     if (prev == null) {
       throw new YTCommandExecutionException(
@@ -50,7 +50,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
 
     OExecutionStepInternal prevStep = prev;
     OExecutionStream lastRs = prevStep.start(ctx);
-    Map<List<?>, OResultInternal> aggregateResults = new LinkedHashMap<>();
+    Map<List<?>, YTResultInternal> aggregateResults = new LinkedHashMap<>();
     while (lastRs.hasNext(ctx)) {
       if (timeoutMillis > 0 && timeoutBegin + timeoutMillis < System.currentTimeMillis()) {
         sendTimeout();
@@ -58,10 +58,10 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       aggregate(lastRs.next(ctx), ctx, aggregateResults);
     }
     lastRs.close(ctx);
-    List<OResult> finalResults = new ArrayList<>(aggregateResults.values());
+    List<YTResult> finalResults = new ArrayList<>(aggregateResults.values());
     aggregateResults.clear();
-    for (OResult ele : finalResults) {
-      OResultInternal item = (OResultInternal) ele;
+    for (YTResult ele : finalResults) {
+      YTResultInternal item = (YTResultInternal) ele;
       if (timeoutMillis > 0 && timeoutBegin + timeoutMillis < System.currentTimeMillis()) {
         sendTimeout();
       }
@@ -76,7 +76,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   }
 
   private void aggregate(
-      OResult next, OCommandContext ctx, Map<List<?>, OResultInternal> aggregateResults) {
+      YTResult next, OCommandContext ctx, Map<List<?>, YTResultInternal> aggregateResults) {
     var db = ctx.getDatabase();
     List<Object> key = new ArrayList<>();
     if (groupBy != null) {
@@ -85,12 +85,12 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
         key.add(val);
       }
     }
-    OResultInternal preAggr = aggregateResults.get(key);
+    YTResultInternal preAggr = aggregateResults.get(key);
     if (preAggr == null) {
       if (limit > 0 && aggregateResults.size() > limit) {
         return;
       }
-      preAggr = new OResultInternal(ctx.getDatabase());
+      preAggr = new YTResultInternal(ctx.getDatabase());
 
       for (OProjectionItem proj : this.projection.getItems()) {
         String alias = proj.getProjectionAlias().getStringValue();

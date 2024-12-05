@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.text.Collator;
 import java.util.Iterator;
 import java.util.Locale;
@@ -89,7 +89,7 @@ public class OOrderByItem {
     }
   }
 
-  public int compare(OResult a, OResult b, OCommandContext ctx) {
+  public int compare(YTResult a, YTResult b, OCommandContext ctx) {
     Object aVal = null;
     Object bVal = null;
     if (rid != null) {
@@ -125,7 +125,7 @@ public class OOrderByItem {
       bVal = modifier.execute(b, bVal, ctx);
     }
     if (collate != null && collateStrategy == null) {
-      Object collateVal = collate.execute(new OResultInternal(ctx.getDatabase()), ctx);
+      Object collateVal = collate.execute(new YTResultInternal(ctx.getDatabase()), ctx);
       if (collateVal == null) {
         collateVal = collate.toString();
         if (collateVal.equals("null")) {
@@ -230,8 +230,8 @@ public class OOrderByItem {
     this.modifier = modifier;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = new OResultInternal(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("alias", alias);
     if (modifier != null) {
       result.setProperty("modifier", modifier.serialize(db));
@@ -247,7 +247,7 @@ public class OOrderByItem {
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     alias = fromResult.getProperty("alias");
     if (fromResult.getProperty("modifier") != null) {
       modifier = new OModifier(-1);

@@ -946,8 +946,8 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
               value = stream;
             }
           } else {
-            OResultBinary retVal =
-                new OResultBinary(session, schema, bytesRepresentation, 0,
+            YTResultBinary retVal =
+                new YTResultBinary(session, schema, bytesRepresentation, 0,
                     bytesRepresentation.length, this);
             return retVal;
           }
@@ -1141,8 +1141,8 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
     List<RecordInfo> fieldsInfo = getPositionsFromEmbeddedCollection(db, bytes, schema);
     for (RecordInfo fieldInfo : fieldsInfo) {
       if (fieldInfo.fieldType.isEmbedded()) {
-        OResultBinary result =
-            new OResultBinary(db,
+        YTResultBinary result =
+            new YTResultBinary(db,
                 schema, bytes.bytes, fieldInfo.fieldStartOffset, fieldInfo.fieldLength, this);
         retVal.add(result);
       } else {
@@ -1166,7 +1166,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
       Object value;
       if (recordInfo.fieldType != null && recordInfo.fieldType.isEmbedded()) {
         value =
-            new OResultBinary(db,
+            new YTResultBinary(db,
                 schema, bytes.bytes, recordInfo.fieldStartOffset, recordInfo.fieldLength, this);
       } else if (recordInfo.fieldStartOffset != 0) {
         int currentOffset = bytes.offset;
@@ -1234,11 +1234,11 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
     return retList;
   }
 
-  protected OResultBinary deserializeEmbeddedAsBytes(
+  protected YTResultBinary deserializeEmbeddedAsBytes(
       YTDatabaseSessionInternal db, final BytesContainer bytes, int valueLength,
       YTImmutableSchema schema) {
     int startOffset = bytes.offset;
-    return new OResultBinary(db, schema, bytes.bytes, startOffset, valueLength, this);
+    return new YTResultBinary(db, schema, bytes.bytes, startOffset, valueLength, this);
   }
 
   protected Collection<?> readEmbeddedSet(YTDatabaseSessionInternal db, final BytesContainer bytes,

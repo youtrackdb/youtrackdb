@@ -32,17 +32,17 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
     OExecutionStream source;
     if (src instanceof OExecutionStream) {
       source = (OExecutionStream) src;
-    } else if (src instanceof OResultSet) {
+    } else if (src instanceof YTResultSet) {
       source =
-          OExecutionStream.resultIterator(((OResultSet) src).stream().iterator())
-              .onClose((context) -> ((OResultSet) src).close());
+          OExecutionStream.resultIterator(((YTResultSet) src).stream().iterator())
+              .onClose((context) -> ((YTResultSet) src).close());
     } else if (src instanceof YTEntity) {
       source =
           OExecutionStream.resultIterator(
               Collections.singleton(
-                  (OResult) new OResultInternal(ctx.getDatabase(), (YTEntity) src)).iterator());
-    } else if (src instanceof OResult) {
-      source = OExecutionStream.resultIterator(Collections.singleton((OResult) src).iterator());
+                  (YTResult) new YTResultInternal(ctx.getDatabase(), (YTEntity) src)).iterator());
+    } else if (src instanceof YTResult) {
+      source = OExecutionStream.resultIterator(Collections.singleton((YTResult) src).iterator());
     } else if (src instanceof Iterable) {
       source = OExecutionStream.iterator(((Iterable<?>) src).iterator());
     } else {
@@ -61,14 +61,14 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("variableName", variableName);
     return result;
   }
 
   @Override
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     try {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       if (fromResult.getProperty("variableName") != null) {

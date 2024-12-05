@@ -50,7 +50,7 @@ public class OCommandExecutorSQLDeleteVertexTest extends DBTestBase {
     db.command("delete vertex User limit 4").close();
     db.commit();
 
-    OResultSet result = db.query("select from User");
+    YTResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 6);
   }
 
@@ -68,7 +68,7 @@ public class OCommandExecutorSQLDeleteVertexTest extends DBTestBase {
     db.command("delete vertex User batch 5").close();
     db.commit();
 
-    OResultSet result = db.query("select from User");
+    YTResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
@@ -84,7 +84,7 @@ public class OCommandExecutorSQLDeleteVertexTest extends DBTestBase {
         .close();
     db.commit();
 
-    try (OResultSet edges = db.query("select from e limit 1")) {
+    try (YTResultSet edges = db.query("select from e limit 1")) {
       db.begin();
       db.command("delete vertex [" + edges.next().getIdentity().get() + "]").close();
       db.commit();
@@ -106,7 +106,7 @@ public class OCommandExecutorSQLDeleteVertexTest extends DBTestBase {
     db.command("delete vertex from (select from User)").close();
     db.commit();
 
-    OResultSet result = db.query("select from User");
+    YTResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
@@ -124,7 +124,7 @@ public class OCommandExecutorSQLDeleteVertexTest extends DBTestBase {
     db.command("delete vertex from (select from User where name = 'foo10')").close();
     db.commit();
 
-    OResultSet result = db.query("select from User");
+    YTResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 99);
   }
 }

@@ -15,8 +15,8 @@ package com.orientechnologies.spatial.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,13 +29,13 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
   @Test
   public void testWithinNoIndex() {
 
-    OResultSet execute =
+    YTResultSet execute =
         db.query(
             "select ST_Within(smallc,smallc) as smallinsmall,ST_Within(smallc, bigc) As smallinbig,"
                 + " ST_Within(bigc,smallc) As biginsmall from (SELECT"
                 + " ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20) As"
                 + " smallc,ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40) As bigc)");
-    OResult next = execute.next();
+    YTResult next = execute.next();
 
     Assert.assertEquals(next.getProperty("smallinsmall"), true);
     Assert.assertEquals(next.getProperty("smallinbig"), true);
@@ -56,7 +56,7 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
-    OResultSet execute =
+    YTResultSet execute =
         db.query(
             "SELECT from Polygon where ST_Within(geometry, ST_Buffer(ST_GeomFromText('POINT(50"
                 + " 50)'), 50)) = true");
@@ -82,7 +82,7 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index Polygon.g on Polygon(geometry) SPATIAL ENGINE LUCENE");
-    OResultSet execute =
+    YTResultSet execute =
         db.query(
             "SELECT from Polygon where ST_Within(geometry, ST_Buffer(ST_GeomFromText('POINT(50"
                 + " 50)'), 50)) = true");

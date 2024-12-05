@@ -4,10 +4,10 @@ import com.orientechnologies.orient.core.command.OBasicServerCommandContext;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSingleOpServerExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
+import com.orientechnologies.orient.core.sql.executor.resultset.YTExecutionResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +27,7 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
 
   public abstract OExecutionStream executeSimple(OServerCommandContext ctx);
 
-  public OResultSet execute(
+  public YTResultSet execute(
       YouTrackDBInternal db,
       Object[] args,
       OServerCommandContext parentContext,
@@ -46,10 +46,10 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
     ctx.setInputParameters(params);
     OSingleOpServerExecutionPlan executionPlan =
         (OSingleOpServerExecutionPlan) createExecutionPlan(ctx, false);
-    return new OExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
+    return new YTExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
   }
 
-  public OResultSet execute(
+  public YTResultSet execute(
       YouTrackDBInternal db, Map params, OServerCommandContext parentContext,
       boolean usePlanCache) {
     OBasicServerCommandContext ctx = new OBasicServerCommandContext();
@@ -60,7 +60,7 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
     ctx.setInputParameters(params);
     OSingleOpServerExecutionPlan executionPlan =
         (OSingleOpServerExecutionPlan) createExecutionPlan(ctx, false);
-    return new OExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
+    return new YTExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
   }
 
   public OInternalExecutionPlan createExecutionPlan(

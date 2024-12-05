@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Arrays;
 import java.util.Locale;
@@ -50,7 +50,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
           "Property " + propertyName.getStringValue() + " not found on class " + clazz);
     }
 
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("class", className.getStringValue());
     result.setProperty("property", propertyName.getStringValue());
 

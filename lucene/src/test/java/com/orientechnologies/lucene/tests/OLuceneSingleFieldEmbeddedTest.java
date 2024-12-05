@@ -20,7 +20,7 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class OLuceneSingleFieldEmbeddedTest extends OLuceneBaseTest {
   @Test
   public void loadAndTest() {
 
-    OResultSet docs =
+    YTResultSet docs =
         db.query("select * from Song where search_fields(['title'],\"(title:mountain)\")=true");
 
     assertThat(docs).hasSize(4);

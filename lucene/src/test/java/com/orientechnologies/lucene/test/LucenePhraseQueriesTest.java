@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,7 +63,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   @Test
   public void testPhraseQueries() throws Exception {
 
-    OResultSet vertexes = db.query("select from Role where name lucene ' \"Business Owner\" '  ");
+    YTResultSet vertexes = db.query("select from Role where name lucene ' \"Business Owner\" '  ");
 
     assertThat(vertexes).hasSize(1);
 
@@ -91,7 +91,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   @Test
   public void testComplexPhraseQueries() throws Exception {
 
-    OResultSet vertexes = db.query("select from Role where name lucene ?", "\"System SME\"~1");
+    YTResultSet vertexes = db.query("select from Role where name lucene ?", "\"System SME\"~1");
 
     assertThat(vertexes).allMatch(v -> v.<String>getProperty("name").contains("SME"));
 

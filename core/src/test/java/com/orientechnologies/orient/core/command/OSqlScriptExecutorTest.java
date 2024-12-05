@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class OSqlScriptExecutorTest extends DBTestBase {
     script += "commit;\n";
     script += "select from v;";
 
-    OResultSet result = db.execute("sql", script);
+    YTResultSet result = db.execute("sql", script);
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -46,7 +46,7 @@ public class OSqlScriptExecutorTest extends DBTestBase {
     script += "commit;\n";
     script += "select from v where name = ?;";
 
-    OResultSet result = db.execute("sql", script, "a");
+    YTResultSet result = db.execute("sql", script, "a");
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -69,7 +69,7 @@ public class OSqlScriptExecutorTest extends DBTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "a");
 
-    OResultSet result = db.execute("sql", script, params);
+    YTResultSet result = db.execute("sql", script, params);
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -89,7 +89,7 @@ public class OSqlScriptExecutorTest extends DBTestBase {
     script += "create edge from $v1 to $v3;";
     script += "commit;";
 
-    OResultSet result = db.execute("sql", script);
+    YTResultSet result = db.execute("sql", script);
     result.close();
 
     result = db.query("SELECT expand(out()) FROM V WHERE name ='Foo'");

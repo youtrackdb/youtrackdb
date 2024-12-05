@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
 
 /**
- * Returns an OResult containing metadata regarding the database
+ * Returns an YTResult containing metadata regarding the database
  */
 public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
 
@@ -24,9 +24,9 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
     return new OProduceExecutionStream(FetchFromDatabaseMetadataStep::produce).limit(1);
   }
 
-  private static OResult produce(OCommandContext ctx) {
+  private static YTResult produce(OCommandContext ctx) {
     var db = ctx.getDatabase();
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
 
 
     result.setProperty("name", db.getName());

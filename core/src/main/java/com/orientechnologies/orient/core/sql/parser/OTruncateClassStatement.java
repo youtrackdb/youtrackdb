@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +52,7 @@ public class OTruncateClassStatement extends ODDLStatement {
       }
     }
 
-    List<OResult> rs = new ArrayList<>();
+    List<YTResult> rs = new ArrayList<>();
     Collection<YTClass> subclasses = clazz.getAllSubclasses();
     if (polymorphic && !unsafe) { // for multiple inheritance
       for (YTClass subclass : subclasses) {
@@ -74,7 +74,7 @@ public class OTruncateClassStatement extends ODDLStatement {
     }
 
     long count = db.truncateClass(clazz.getName(), false);
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "truncate class");
     result.setProperty("className", className.getStringValue());
     result.setProperty("count", count);
@@ -82,7 +82,7 @@ public class OTruncateClassStatement extends ODDLStatement {
     if (polymorphic) {
       for (YTClass subclass : subclasses) {
         count = db.truncateClass(subclass.getName(), false);
-        result = new OResultInternal(db);
+        result = new YTResultInternal(db);
         result.setProperty("operation", "truncate class");
         result.setProperty("className", className.getStringValue());
         result.setProperty("count", count);

@@ -22,7 +22,7 @@ public class DeleteStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
     Optional<YTRID> id = result.getIdentity();
     if (id.isPresent()) {
       ctx.getDatabase().delete(id.get());

@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
     db.save(new YTDocument("Person").field("name", "John"));
     db.commit();
 
-    OResultSet results = db.query("select from Person where search_class('John')=true");
+    YTResultSet results = db.query("select from Person where search_class('John')=true");
 
     assertThat(results).hasSize(1);
     results.close();
@@ -75,7 +75,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
     db.save(new YTDocument("Person").field("name", "John"));
     db.commit();
 
-    OResultSet results = db.command("select from Person where search_class('John')=true");
+    YTResultSet results = db.command("select from Person where search_class('John')=true");
 
     assertThat(results).hasSize(1);
     results.close();

@@ -24,7 +24,7 @@ public class ODeleteVertexStatementExecutionTest extends DBTestBase {
 
     db.begin();
     db.command("DELETE VERTEX " + className + " WHERE name = 'a3'").close();
-    OResultSet rs = db.query("SELECT FROM " + className);
+    YTResultSet rs = db.query("SELECT FROM " + className);
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
     db.commit();
@@ -44,7 +44,7 @@ public class ODeleteVertexStatementExecutionTest extends DBTestBase {
 
     db.begin();
     db.command("DELETE VERTEX " + className).close();
-    OResultSet rs = db.query("SELECT FROM " + className);
+    YTResultSet rs = db.query("SELECT FROM " + className);
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
     db.commit();
@@ -74,7 +74,7 @@ public class ODeleteVertexStatementExecutionTest extends DBTestBase {
 
     db.begin();
     db.command("DELETE VERTEX " + className1).close();
-    OResultSet rs = db.query("SELECT FROM " + className1);
+    YTResultSet rs = db.query("SELECT FROM " + className1);
     Assert.assertEquals(0, rs.stream().count());
     rs.close();
     db.commit();

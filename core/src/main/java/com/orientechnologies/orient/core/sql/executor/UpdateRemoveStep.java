@@ -26,10 +26,10 @@ public class UpdateRemoveStep extends AbstractExecutionStep {
     return upstream.map(this::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
-    if (result instanceof OResultInternal) {
+  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+    if (result instanceof YTResultInternal) {
       for (OUpdateRemoveItem item : items) {
-        item.applyUpdate((OResultInternal) result, ctx);
+        item.applyUpdate((YTResultInternal) result, ctx);
       }
     }
     return result;

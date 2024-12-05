@@ -8,11 +8,11 @@ import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 
 public class MatchFieldTraverser extends MatchEdgeTraverser {
 
-  public MatchFieldTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
+  public MatchFieldTraverser(YTResult lastUpstreamRecord, EdgeTraversal edge) {
     super(lastUpstreamRecord, edge);
   }
 
-  public MatchFieldTraverser(OResult lastUpstreamRecord, OMatchPathItem item) {
+  public MatchFieldTraverser(YTResult lastUpstreamRecord, OMatchPathItem item) {
     super(lastUpstreamRecord, item);
   }
 
@@ -33,7 +33,7 @@ public class MatchFieldTraverser extends MatchEdgeTraverser {
       return OExecutionStream.empty();
     }
     if (qR instanceof YTIdentifiable) {
-      return OExecutionStream.singleton(new OResultInternal(
+      return OExecutionStream.singleton(new YTResultInternal(
           iCommandContext.getDatabase(), (YTIdentifiable) qR));
     }
     if (qR instanceof Iterable) {

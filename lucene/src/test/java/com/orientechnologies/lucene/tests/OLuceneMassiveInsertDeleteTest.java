@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,7 +57,7 @@ public class OLuceneMassiveInsertDeleteTest extends OLuceneBaseTest {
       db.commit();
     }
     String query = "select * from City where search_class('name:Rome')=true";
-    OResultSet docs = db.query(query);
+    YTResultSet docs = db.query(query);
     Assertions.assertThat(docs).hasSize(size);
     docs.close();
     db.close();

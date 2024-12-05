@@ -33,8 +33,8 @@ import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.LiveQueryListenerImpl;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.parser.OProjection;
 import com.orientechnologies.orient.core.sql.parser.OProjectionItem;
 import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
@@ -54,12 +54,12 @@ public class OLiveQueryHookV2 {
 
   public static class OLiveQueryOp {
 
-    public OResult before;
-    public OResult after;
+    public YTResult before;
+    public YTResult after;
     public byte type;
     protected YTDocument originalDoc;
 
-    OLiveQueryOp(YTDocument originalDoc, OResult before, OResult after, byte type) {
+    OLiveQueryOp(YTDocument originalDoc, YTResult before, YTResult after, byte type) {
       this.originalDoc = originalDoc;
       this.type = type;
       this.before = before;
@@ -214,10 +214,10 @@ public class OLiveQueryHookV2 {
 
     Set<String> projectionsToLoad = calculateProjections(ops);
 
-    OResult before =
+    YTResult before =
         iType == ORecordOperation.CREATED ? null
             : calculateBefore(database, iDocument, projectionsToLoad);
-    OResult after =
+    YTResult after =
         iType == ORecordOperation.DELETED ? null
             : calculateAfter(database, iDocument, projectionsToLoad);
 
@@ -279,9 +279,9 @@ public class OLiveQueryHookV2 {
     return null;
   }
 
-  public static OResultInternal calculateBefore(
+  public static YTResultInternal calculateBefore(
       @Nonnull YTDatabaseSessionInternal db, YTDocument iDocument, Set<String> projectionsToLoad) {
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
         result.setProperty(prop, unboxRidbags(iDocument.getPropertyInternal(prop)));
@@ -314,9 +314,9 @@ public class OLiveQueryHookV2 {
     return originalValue;
   }
 
-  private static OResultInternal calculateAfter(
+  private static YTResultInternal calculateAfter(
       YTDatabaseSessionInternal db, YTDocument iDocument, Set<String> projectionsToLoad) {
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
         result.setProperty(prop, unboxRidbags(iDocument.getPropertyInternal(prop)));

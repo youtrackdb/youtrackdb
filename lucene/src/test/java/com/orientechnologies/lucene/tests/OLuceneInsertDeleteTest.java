@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +49,7 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
 
     oClass.createProperty(db, "name", YTType.STRING);
     //noinspection EmptyTryBlock
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
     }
   }
@@ -95,18 +95,18 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
 
     try (InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       //noinspection EmptyTryBlock
-      try (OResultSet resultSet = db.execute("sql", getScriptFromStream(stream))) {
+      try (YTResultSet resultSet = db.execute("sql", getScriptFromStream(stream))) {
       }
     }
 
     //noinspection EmptyTryBlock
-    try (OResultSet resultSet =
+    try (YTResultSet resultSet =
         db.command(
             "create index Song.title on Song (title) FULLTEXT ENGINE LUCENE metadata"
                 + " {'closeAfterInterval':1000 , 'firstFlushAfter':1000 }")) {
     }
 
-    try (OResultSet docs = db.query("select from Song where title lucene 'mountain'")) {
+    try (YTResultSet docs = db.query("select from Song where title lucene 'mountain'")) {
 
       assertThat(docs).hasSize(4);
       TimeUnit.SECONDS.sleep(5);
@@ -114,12 +114,12 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
 
       db.begin();
       //noinspection EmptyTryBlock
-      try (OResultSet command =
+      try (YTResultSet command =
           db.command("delete vertex from Song where title lucene 'mountain'")) {
       }
       db.commit();
 
-      try (OResultSet resultSet = db.query("select from Song where  title lucene 'mountain'")) {
+      try (YTResultSet resultSet = db.query("select from Song where  title lucene 'mountain'")) {
         assertThat(resultSet).hasSize(0);
       }
     }

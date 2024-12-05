@@ -8,13 +8,13 @@ import org.junit.Test;
 /**
  *
  */
-public class OResultSetTest extends DBTestBase {
+public class YTResultSetTest extends DBTestBase {
 
   @Test
   public void testResultStream() {
-    OInternalResultSet rs = new OInternalResultSet();
+    YTInternalResultSet rs = new YTInternalResultSet();
     for (int i = 0; i < 10; i++) {
-      OResultInternal item = new OResultInternal(db);
+      YTResultInternal item = new YTResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }
@@ -26,9 +26,9 @@ public class OResultSetTest extends DBTestBase {
 
   @Test
   public void testResultEmptyVertexStream() {
-    OInternalResultSet rs = new OInternalResultSet();
+    YTInternalResultSet rs = new YTInternalResultSet();
     for (int i = 0; i < 10; i++) {
-      OResultInternal item = new OResultInternal(db);
+      YTResultInternal item = new YTResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }
@@ -39,9 +39,9 @@ public class OResultSetTest extends DBTestBase {
 
   @Test
   public void testResultEdgeVertexStream() {
-    OInternalResultSet rs = new OInternalResultSet();
+    YTInternalResultSet rs = new YTInternalResultSet();
     for (int i = 0; i < 10; i++) {
-      OResultInternal item = new OResultInternal(db);
+      YTResultInternal item = new YTResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }

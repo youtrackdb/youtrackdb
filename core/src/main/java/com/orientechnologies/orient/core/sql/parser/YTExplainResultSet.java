@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,14 +13,14 @@ import java.util.Optional;
 /**
  *
  */
-public class OExplainResultSet implements OResultSet {
+public class YTExplainResultSet implements YTResultSet {
 
   private final OExecutionPlan executionPlan;
   private final ODatabaseStats dbStats;
   boolean hasNext = true;
   private final YTDatabaseSessionInternal db;
 
-  public OExplainResultSet(YTDatabaseSessionInternal db, OExecutionPlan executionPlan,
+  public YTExplainResultSet(YTDatabaseSessionInternal db, OExecutionPlan executionPlan,
       ODatabaseStats dbStats) {
     this.executionPlan = executionPlan;
     this.dbStats = dbStats;
@@ -35,12 +35,12 @@ public class OExplainResultSet implements OResultSet {
   }
 
   @Override
-  public OResult next() {
+  public YTResult next() {
     if (!hasNext) {
       throw new IllegalStateException();
     }
 
-    OResultInternal result = new OResultInternal(db);
+    YTResultInternal result = new YTResultInternal(db);
     getExecutionPlan().ifPresent(x -> result.setProperty("executionPlan", x.toResult(db)));
     getExecutionPlan()
         .ifPresent(x -> result.setProperty("executionPlanAsString", x.prettyPrint(0, 3)));

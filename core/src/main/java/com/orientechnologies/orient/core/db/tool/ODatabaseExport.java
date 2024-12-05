@@ -33,17 +33,17 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.ORuntimeKeyIndexDefinition;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
+import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -467,13 +467,13 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         writer.beginObject(2, true, null);
         writer.writeAttribute(3, true, "name", index.getName());
 
-        OResultSet indexContent = database.query("select from index:" + index.getName());
+        YTResultSet indexContent = database.query("select from index:" + index.getName());
 
         writer.beginCollection(3, true, "content");
 
         int i = 0;
         while (indexContent.hasNext()) {
-          OResult indexEntry = indexContent.next();
+          YTResult indexEntry = indexContent.next();
           if (i > 0) {
             writer.append(",");
           }

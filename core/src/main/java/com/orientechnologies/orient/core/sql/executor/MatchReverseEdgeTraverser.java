@@ -15,7 +15,7 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
   private final String startingPointAlias;
   private final String endPointAlias;
 
-  public MatchReverseEdgeTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
+  public MatchReverseEdgeTraverser(YTResult lastUpstreamRecord, EdgeTraversal edge) {
     super(lastUpstreamRecord, edge);
     this.startingPointAlias = edge.edge.in.alias;
     this.endPointAlias = edge.edge.out.alias;
@@ -45,12 +45,12 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
     if (qR == null) {
       return OExecutionStream.empty();
     }
-    if (qR instanceof OResultInternal) {
-      return OExecutionStream.singleton((OResultInternal) qR);
+    if (qR instanceof YTResultInternal) {
+      return OExecutionStream.singleton((YTResultInternal) qR);
     }
     if (qR instanceof YTIdentifiable) {
       return OExecutionStream.singleton(
-          new OResultInternal(iCommandContext.getDatabase(), (YTIdentifiable) qR));
+          new YTResultInternal(iCommandContext.getDatabase(), (YTIdentifiable) qR));
     }
     if (qR instanceof Iterable iterable) {
       return OExecutionStream.iterator(iterable.iterator());

@@ -28,7 +28,7 @@ public class ExpandStep extends AbstractExecutionStep {
     return resultSet.flatMap(ExpandStep::nextResults);
   }
 
-  private static OExecutionStream nextResults(OResult nextAggregateItem, OCommandContext ctx) {
+  private static OExecutionStream nextResults(YTResult nextAggregateItem, OCommandContext ctx) {
     if (nextAggregateItem.getPropertyNames().isEmpty()) {
       return OExecutionStream.empty();
     }
@@ -49,10 +49,10 @@ public class ExpandStep extends AbstractExecutionStep {
         return OExecutionStream.empty();
       }
 
-      OResultInternal res = new OResultInternal(ctx.getDatabase(), rec);
+      YTResultInternal res = new YTResultInternal(ctx.getDatabase(), rec);
       return OExecutionStream.singleton(res);
-    } else if (projValue instanceof OResult) {
-      return OExecutionStream.singleton((OResult) projValue);
+    } else if (projValue instanceof YTResult) {
+      return OExecutionStream.singleton((YTResult) projValue);
     } else if (projValue instanceof Iterator) {
       //noinspection unchecked
       return OExecutionStream.iterator((Iterator<Object>) projValue);

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Test;
 
 public class OCommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDatabase {
@@ -34,7 +34,7 @@ public class OCommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDataba
     db.command("create property Foo.bar EMBEDDEDLIST STRING").close();
     db.command("create index Foo.bar on Foo (bar) NOTUNIQUE").close();
     db.command("insert into Foo set bar = ['yep']").close();
-    OResultSet results = db.query("select from Foo where bar = 'yep'");
+    YTResultSet results = db.query("select from Foo where bar = 'yep'");
     assertEquals(results.stream().count(), 1);
 
     final OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
@@ -53,7 +53,7 @@ public class OCommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDataba
     db.command("INSERT INTO Derived SET uuid='abcdef'").close();
     db.command("ALTER CLASS Derived SUPERCLASSES Base").close();
 
-    OResultSet results = db.query("SELECT * FROM Derived WHERE uuid='abcdef'");
+    YTResultSet results = db.query("SELECT * FROM Derived WHERE uuid='abcdef'");
     assertEquals(results.stream().count(), 1);
   }
 
@@ -63,7 +63,7 @@ public class OCommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDataba
     db.command("CREATE PROPERTY Foo.name String").close();
     db.command("INSERT INTO Foo SET name = 'foo'").close();
 
-    OResultSet result = db.query("SELECT * FROM Foo WHERE ['foo', 'bar'] CONTAINS name");
+    YTResultSet result = db.query("SELECT * FROM Foo WHERE ['foo', 'bar'] CONTAINS name");
     assertEquals(result.stream().count(), 1);
 
     result = db.query("SELECT * FROM Foo WHERE name IN ['foo', 'bar']");

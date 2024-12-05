@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
@@ -50,7 +50,8 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
       Object iCurrentResult,
       Object[] params,
       OCommandContext ctx) {
-    YTEntity element = iThis instanceof YTEntity ? (YTEntity) iThis : ((OResult) iThis).toElement();
+    YTEntity element =
+        iThis instanceof YTEntity ? (YTEntity) iThis : ((YTResult) iThis).toElement();
 
     String indexName = (String) params[0];
 

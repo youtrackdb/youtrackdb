@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -214,7 +214,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     }
     assertThat(coll).hasSize(2);
 
-    OResultSet query = db.query("select from Person where [name,tags] lucene 'Enrico'");
+    YTResultSet query = db.query("select from Person where [name,tags] lucene 'Enrico'");
 
     assertThat(query).hasSize(1);
 
@@ -256,7 +256,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     db.save(vertex);
     db.commit();
 
-    OResultSet search = db.query("SELECT from C1 WHERE p1 LUCENE \"tested\"");
+    YTResultSet search = db.query("SELECT from C1 WHERE p1 LUCENE \"tested\"");
 
     assertThat(search).hasSize(1);
   }

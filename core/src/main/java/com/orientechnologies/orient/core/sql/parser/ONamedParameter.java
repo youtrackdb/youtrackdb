@@ -3,8 +3,8 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.core.sql.executor.OResultInternal;
+import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.util.Map;
 import java.util.Objects;
 
@@ -101,14 +101,14 @@ public class ONamedParameter extends OInputParameter {
     return result;
   }
 
-  public OResult serialize(YTDatabaseSessionInternal db) {
-    OResultInternal result = (OResultInternal) super.serialize(db);
+  public YTResult serialize(YTDatabaseSessionInternal db) {
+    YTResultInternal result = (YTResultInternal) super.serialize(db);
     result.setProperty("paramNumber", paramNumber);
     result.setProperty("paramName", paramName);
     return result;
   }
 
-  public void deserialize(OResult fromResult) {
+  public void deserialize(YTResult fromResult) {
     paramNumber = fromResult.getProperty("paramNumber");
     paramName = fromResult.getProperty("paramName");
   }

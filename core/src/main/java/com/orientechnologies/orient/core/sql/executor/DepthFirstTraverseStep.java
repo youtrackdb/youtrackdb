@@ -32,19 +32,19 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
   @Override
   protected void fetchNextEntryPoints(
-      OExecutionStream nextN, OCommandContext ctx, List<OResult> entryPoints,
+      OExecutionStream nextN, OCommandContext ctx, List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     // Doing max batch of 100 entry points for now
     while (nextN.hasNext(ctx) && entryPoints.size() < 100) {
-      OResult item = toTraverseResult(ctx.getDatabase(), nextN.next(ctx));
+      YTResult item = toTraverseResult(ctx.getDatabase(), nextN.next(ctx));
       if (item == null) {
         continue;
       }
-      ((OResultInternal) item).setMetadata("$depth", 0);
+      ((YTResultInternal) item).setMetadata("$depth", 0);
 
       List stack = new ArrayList();
       item.getIdentity().ifPresent(x -> stack.add(x));
-      ((OResultInternal) item).setMetadata("$stack", stack);
+      ((YTResultInternal) item).setMetadata("$stack", stack);
 
       List<YTIdentifiable> path = new ArrayList<>();
       if (item.getIdentity().isPresent()) {
@@ -52,7 +52,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       } else if (item.getProperty("@rid") != null) {
         path.add(item.getProperty("@rid"));
       }
-      ((OResultInternal) item).setMetadata("$path", path);
+      ((YTResultInternal) item).setMetadata("$path", path);
 
       if (item.isElement() && !traversed.contains(item.getElement().get().getIdentity())) {
         tryAddEntryPointAtTheEnd(item, ctx, entryPoints, traversed);
@@ -65,22 +65,22 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     }
   }
 
-  private OResult toTraverseResult(YTDatabaseSessionInternal db, OResult item) {
-    OTraverseResult res = null;
-    if (item instanceof OTraverseResult) {
-      res = (OTraverseResult) item;
+  private YTResult toTraverseResult(YTDatabaseSessionInternal db, YTResult item) {
+    YTTraverseResult res = null;
+    if (item instanceof YTTraverseResult) {
+      res = (YTTraverseResult) item;
     } else if (item.isElement() && item.getElement().get().getIdentity().isValid()) {
-      res = new OTraverseResult(db, item.getElement().get());
+      res = new YTTraverseResult(db, item.getElement().get());
       res.depth = 0;
     } else if (item.getPropertyNames().size() == 1) {
       Object val = item.getProperty(item.getPropertyNames().iterator().next());
       if (val instanceof YTIdentifiable) {
-        res = new OTraverseResult(db, (YTIdentifiable) val);
+        res = new YTTraverseResult(db, (YTIdentifiable) val);
         res.depth = 0;
         res.setMetadata("$depth", 0);
       }
     } else {
-      res = new OTraverseResult(db);
+      res = new YTTraverseResult(db);
       for (String key : item.getPropertyNames()) {
         res.setProperty(key, convert(item.getProperty(key)));
       }
@@ -103,9 +103,10 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
   @Override
   protected void fetchNextResults(
-      OCommandContext ctx, List<OResult> results, List<OResult> entryPoints, Set<YTRID> traversed) {
+      OCommandContext ctx, List<YTResult> results, List<YTResult> entryPoints,
+      Set<YTRID> traversed) {
     if (!entryPoints.isEmpty()) {
-      OTraverseResult item = (OTraverseResult) entryPoints.remove(0);
+      YTTraverseResult item = (YTTraverseResult) entryPoints.remove(0);
       results.add(item);
       for (OTraverseProjectionItem proj : projections) {
         Object nextStep = proj.execute(item, ctx);
@@ -130,7 +131,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       List<YTIdentifiable> path,
       List<YTIdentifiable> stack,
       OCommandContext ctx,
-      List<OResult> entryPoints,
+      List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     if (nextStep instanceof YTIdentifiable) {
       addNextEntryPoint(
@@ -141,8 +142,8 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     } else if (nextStep instanceof Map) {
       addNextEntryPoints(
           ((Map) nextStep).values().iterator(), depth, path, stack, ctx, entryPoints, traversed);
-    } else if (nextStep instanceof OResult) {
-      addNextEntryPoint(((OResult) nextStep), depth, path, stack, ctx, entryPoints, traversed);
+    } else if (nextStep instanceof YTResult) {
+      addNextEntryPoint(((YTResult) nextStep), depth, path, stack, ctx, entryPoints, traversed);
     }
   }
 
@@ -152,7 +153,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       List<YTIdentifiable> path,
       List<YTIdentifiable> stack,
       OCommandContext ctx,
-      List<OResult> entryPoints,
+      List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     while (nextStep.hasNext()) {
       addNextEntryPoints(nextStep.next(), depth, path, stack, ctx, entryPoints, traversed);
@@ -165,12 +166,12 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       List<YTIdentifiable> path,
       List<YTIdentifiable> stack,
       OCommandContext ctx,
-      List<OResult> entryPoints,
+      List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     if (traversed.contains(nextStep.getIdentity())) {
       return;
     }
-    OTraverseResult res = new OTraverseResult(ctx.getDatabase(), nextStep);
+    YTTraverseResult res = new YTTraverseResult(ctx.getDatabase(), nextStep);
     res.depth = depth;
     res.setMetadata("$depth", depth);
 
@@ -190,12 +191,12 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
   }
 
   private void addNextEntryPoint(
-      OResult nextStep,
+      YTResult nextStep,
       int depth,
       List<YTIdentifiable> path,
       List<YTIdentifiable> stack,
       OCommandContext ctx,
-      List<OResult> entryPoints,
+      List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     if (!nextStep.isElement()) {
       return;
@@ -203,44 +204,44 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     if (traversed.contains(nextStep.getElement().get().getIdentity())) {
       return;
     }
-    if (nextStep instanceof OTraverseResult) {
-      ((OTraverseResult) nextStep).depth = depth;
-      ((OTraverseResult) nextStep).setMetadata("$depth", depth);
+    if (nextStep instanceof YTTraverseResult) {
+      ((YTTraverseResult) nextStep).depth = depth;
+      ((YTTraverseResult) nextStep).setMetadata("$depth", depth);
       List<YTIdentifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
       nextStep.getIdentity().ifPresent(x -> newPath.add(x.getIdentity()));
-      ((OTraverseResult) nextStep).setMetadata("$path", newPath);
+      ((YTTraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
       reverseStack.addAll(newPath);
       Collections.reverse(reverseStack);
       List newStack = new ArrayList();
       newStack.addAll(reverseStack);
-      ((OTraverseResult) nextStep).setMetadata("$stack", newStack);
+      ((YTTraverseResult) nextStep).setMetadata("$stack", newStack);
 
       tryAddEntryPoint(nextStep, ctx, entryPoints, traversed);
     } else {
-      OTraverseResult res = new OTraverseResult(ctx.getDatabase(), nextStep.getElement().get());
+      YTTraverseResult res = new YTTraverseResult(ctx.getDatabase(), nextStep.getElement().get());
       res.depth = depth;
       res.setMetadata("$depth", depth);
       List<YTIdentifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
       nextStep.getIdentity().ifPresent(x -> newPath.add(x.getIdentity()));
-      ((OTraverseResult) nextStep).setMetadata("$path", newPath);
+      ((YTTraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
       reverseStack.addAll(newPath);
       Collections.reverse(reverseStack);
       List newStack = new ArrayList();
       newStack.addAll(reverseStack);
-      ((OTraverseResult) nextStep).setMetadata("$stack", newStack);
+      ((YTTraverseResult) nextStep).setMetadata("$stack", newStack);
 
       tryAddEntryPoint(res, ctx, entryPoints, traversed);
     }
   }
 
   private void tryAddEntryPoint(
-      OResult res, OCommandContext ctx, List<OResult> entryPoints, Set<YTRID> traversed) {
+      YTResult res, OCommandContext ctx, List<YTResult> entryPoints, Set<YTRID> traversed) {
     if (whileClause == null || whileClause.matchesFilters(res, ctx)) {
       entryPoints.add(0, res);
     }
@@ -254,7 +255,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
   }
 
   private void tryAddEntryPointAtTheEnd(
-      OResult res, OCommandContext ctx, List<OResult> entryPoints, Set<YTRID> traversed) {
+      YTResult res, OCommandContext ctx, List<YTResult> entryPoints, Set<YTRID> traversed) {
     if (whileClause == null || whileClause.matchesFilters(res, ctx)) {
       entryPoints.add(res);
     }
