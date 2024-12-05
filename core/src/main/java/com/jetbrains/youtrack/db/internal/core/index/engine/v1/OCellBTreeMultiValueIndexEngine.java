@@ -18,7 +18,7 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.OMultiValueIndexEngi
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.OCellBTreeMultiValue;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.v2.CellBTreeMultiValueV2;
@@ -46,10 +46,10 @@ public final class OCellBTreeMultiValueIndexEngine
   private final String name;
   private final int id;
   private final String nullTreeName;
-  private final OAbstractPaginatedStorage storage;
+  private final AbstractPaginatedStorage storage;
 
   public OCellBTreeMultiValueIndexEngine(
-      int id, @Nonnull String name, OAbstractPaginatedStorage storage, final int version) {
+      int id, @Nonnull String name, AbstractPaginatedStorage storage, final int version) {
     this.id = id;
     this.name = name;
     this.storage = storage;
@@ -105,7 +105,7 @@ public final class OCellBTreeMultiValueIndexEngine
     OBinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
     final OEncryption encryption =
-        OAbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
+        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
     try {
       if (mvTree != null) {
         mvTree.create(
@@ -228,7 +228,7 @@ public final class OCellBTreeMultiValueIndexEngine
   @Override
   public void load(IndexEngineData data) {
     final OEncryption encryption =
-        OAbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
+        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
 
     String name = data.getName();
     int keySize = data.getKeySize();

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
@@ -84,7 +84,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
         } catch (YTSecurityAccessException e) {
           // WRONG USER/PASSWD
         } catch (YTLockException e) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(this, "Cannot access to the database '" + iRequest.getDatabaseName() + "'", e);
         }
 
@@ -118,7 +118,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
     } catch (YTSecurityAccessException e) {
       // WRONG USER/PASSWD
     } catch (YTLockException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Cannot access to the database '" + iDatabaseName + "'", e);
     } finally {
       if (db != null) {

@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItem;
@@ -43,7 +43,7 @@ public class OSQLFunctionLast extends OSQLFunctionConfigurableAbstract {
       final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     Object value = iParams[0];
 
     if (value instanceof OSQLFilterItem) {

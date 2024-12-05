@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.util.ArrayList;
@@ -49,8 +49,8 @@ public class OMixedIndexRIDContainer implements Set<YTIdentifiable> {
   }
 
   private static long resolveFileIdByName(String fileName) {
-    final OAbstractPaginatedStorage storage =
-        (OAbstractPaginatedStorage) ODatabaseRecordThreadLocal.instance().get().getStorage();
+    final AbstractPaginatedStorage storage =
+        (AbstractPaginatedStorage) ODatabaseRecordThreadLocal.instance().get().getStorage();
     final OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
     final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
     Objects.requireNonNull(atomicOperation);
@@ -191,7 +191,7 @@ public class OMixedIndexRIDContainer implements Set<YTIdentifiable> {
 
     if (tree == null) {
       final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
-      tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
+      tree = new OIndexRIDContainerSBTree(fileId, (AbstractPaginatedStorage) db.getStorage());
     }
 
     return tree.add(oIdentifiable);
@@ -209,7 +209,7 @@ public class OMixedIndexRIDContainer implements Set<YTIdentifiable> {
     boolean treeWasCreated = false;
     if (tree == null) {
       final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
-      tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
+      tree = new OIndexRIDContainerSBTree(fileId, (AbstractPaginatedStorage) db.getStorage());
       treeWasCreated = true;
     }
 
@@ -267,7 +267,7 @@ public class OMixedIndexRIDContainer implements Set<YTIdentifiable> {
     if (c.size() > sizeDiff) {
       if (tree == null) {
         final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
-        tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
+        tree = new OIndexRIDContainerSBTree(fileId, (AbstractPaginatedStorage) db.getStorage());
       }
 
       while (iterator.hasNext()) {
@@ -315,7 +315,7 @@ public class OMixedIndexRIDContainer implements Set<YTIdentifiable> {
       tree = null;
     } else if (fileId > 0) {
       final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
-      tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
+      tree = new OIndexRIDContainerSBTree(fileId, (AbstractPaginatedStorage) db.getStorage());
       tree.delete();
     }
   }

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.query.live;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,7 +71,7 @@ public class OLiveQueryQueueThread extends Thread {
         try {
           listener.onLiveResult(next);
         } catch (Exception e) {
-          OLogManager.instance().warn(this, "Error executing live query subscriber.", e);
+          LogManager.instance().warn(this, "Error executing live query subscriber.", e);
         }
       }
     }

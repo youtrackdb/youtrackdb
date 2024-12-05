@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.exception.YTInvalidDatabaseNameException;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -70,17 +70,17 @@ public class StorageNamingTests {
 
   @Test
   public void commaInPathShouldBeAllowed() {
-    OAbstractPaginatedStorage.checkName("/path/with/,/but/not/in/the/name");
-    OAbstractPaginatedStorage.checkName("/,,,/,/,/name");
+    AbstractPaginatedStorage.checkName("/path/with/,/but/not/in/the/name");
+    AbstractPaginatedStorage.checkName("/,,,/,/,/name");
   }
 
   @Test(expected = YTInvalidDatabaseNameException.class)
   public void commaInNameShouldThrow() {
-    OAbstractPaginatedStorage.checkName("/path/with/,/name/with,");
+    AbstractPaginatedStorage.checkName("/path/with/,/name/with,");
   }
 
   @Test(expected = YTInvalidDatabaseNameException.class)
   public void name() throws Exception {
-    OAbstractPaginatedStorage.checkName("/name/with,");
+    AbstractPaginatedStorage.checkName("/name/with,");
   }
 }

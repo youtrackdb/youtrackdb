@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
-import com.jetbrains.youtrack.db.internal.common.parser.OBaseParser;
+import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -34,7 +34,7 @@ public class OSQLFilterItemFieldAny extends OSQLFilterItemFieldMultiAbstract {
   public static final String FULL_NAME = "ANY()";
 
   public OSQLFilterItemFieldAny(
-      YTDatabaseSessionInternal session, final OSQLPredicate iQueryCompiled, final String iName,
+      YTDatabaseSessionInternal session, final SQLPredicate iQueryCompiled, final String iName,
       final YTClass iClass) {
     super(session, iQueryCompiled, iName, iClass, OStringSerializerHelper.getParameters(iName));
   }
@@ -45,7 +45,7 @@ public class OSQLFilterItemFieldAny extends OSQLFilterItemFieldMultiAbstract {
   }
 
   @Override
-  protected void setRoot(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  protected void setRoot(YTDatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iRoot) {
   }
 }

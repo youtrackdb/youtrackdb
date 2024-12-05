@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSet;
@@ -20,14 +20,14 @@ public class LetQueryStep extends AbstractExecutionStep {
   private final OStatement query;
 
   public LetQueryStep(
-      OIdentifier varName, OStatement query, OCommandContext ctx, boolean profilingEnabled) {
+      OIdentifier varName, OStatement query, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.varName = varName;
     this.query = query;
   }
 
-  private YTResultInternal calculate(YTResultInternal result, OCommandContext ctx) {
-    OBasicCommandContext subCtx = new OBasicCommandContext();
+  private YTResultInternal calculate(YTResultInternal result, CommandContext ctx) {
+    BasicCommandContext subCtx = new BasicCommandContext();
     subCtx.setDatabase(ctx.getDatabase());
     subCtx.setParentWithoutOverridingChild(ctx);
     OInternalExecutionPlan subExecutionPlan;
@@ -52,7 +52,7 @@ public class LetQueryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev == null) {
       throw new YTCommandExecutionException(
           "Cannot execute a local LET on a query without a target");
@@ -60,13 +60,13 @@ public class LetQueryStep extends AbstractExecutionStep {
     return prev.start(ctx).map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, CommandContext ctx) {
     return calculate((YTResultInternal) result, ctx);
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ LET (for each record)\n" + spaces + "  " + varName + " = (" + query + ")";
   }
 }

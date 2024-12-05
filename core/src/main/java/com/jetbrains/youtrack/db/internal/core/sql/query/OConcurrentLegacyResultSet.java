@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -363,7 +363,7 @@ public class OConcurrentLegacyResultSet<T> implements OLegacyResultSet<T> {
         try {
           waitForCompletion.wait();
         } catch (InterruptedException e) {
-          OLogManager.instance().error(this, "Thread was interrupted", e);
+          LogManager.instance().error(this, "Thread was interrupted", e);
         }
       }
     }
@@ -375,7 +375,7 @@ public class OConcurrentLegacyResultSet<T> implements OLegacyResultSet<T> {
         try {
           waitForNextItem.wait();
         } catch (InterruptedException e) {
-          OLogManager.instance().error(this, "Thread was interrupted", e);
+          LogManager.instance().error(this, "Thread was interrupted", e);
         }
       }
     }

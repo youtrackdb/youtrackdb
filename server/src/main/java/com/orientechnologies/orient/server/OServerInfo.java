@@ -21,8 +21,8 @@ package com.orientechnologies.orient.server;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;
@@ -162,8 +162,8 @@ public class OServerInfo {
 
   public static void getStorages(final OServer server, final OJSONWriter json) throws IOException {
     json.beginCollection(1, true, "storages");
-    Collection<OStorage> storages = server.getDatabases().getStorages();
-    for (OStorage s : storages) {
+    Collection<Storage> storages = server.getDatabases().getStorages();
+    for (Storage s : storages) {
       json.beginObject(2);
       writeField(json, 2, "name", s.getName());
       writeField(json, 2, "type", s.getClass().getSimpleName());
@@ -171,8 +171,8 @@ public class OServerInfo {
           json,
           2,
           "path",
-          s instanceof OLocalPaginatedStorage
-              ? ((OLocalPaginatedStorage) s).getStoragePath().toString().replace('\\', '/')
+          s instanceof LocalPaginatedStorage
+              ? ((LocalPaginatedStorage) s).getStoragePath().toString().replace('\\', '/')
               : "");
       writeField(json, 2, "activeUsers", "n.a.");
       json.endObject(2);
@@ -184,9 +184,9 @@ public class OServerInfo {
     json.beginCollection(1, true, "dbs");
     // TODO:get this info from somewhere else
     //    if (!server.getDatabasePoolFactory().isClosed()) {
-    //      Collection<OPartitionedDatabasePool> dbPools =
+    //      Collection<PartitionedDatabasePool> dbPools =
     // server.getDatabasePoolFactory().getPools();
-    //      for (OPartitionedDatabasePool pool : dbPools) {
+    //      for (PartitionedDatabasePool pool : dbPools) {
     //        writeField(json, 2, "db", pool.getUrl());
     //        writeField(json, 2, "user", pool.getUserName());
     //        json.endObject(2);

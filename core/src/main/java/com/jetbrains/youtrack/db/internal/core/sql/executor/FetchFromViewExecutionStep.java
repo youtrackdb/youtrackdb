@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
@@ -15,7 +15,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
       String className,
       Set<String> clusters,
       QueryPlanningInfo planningInfo,
-      OCommandContext ctx,
+      CommandContext ctx,
       Boolean ridOrder,
       boolean profilingEnabled) {
     super(className, clusters, planningInfo, ctx, ridOrder, profilingEnabled);
@@ -36,7 +36,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
     super.close();
   }
 
-  protected YTView loadClassFromSchema(String className, OCommandContext ctx) {
+  protected YTView loadClassFromSchema(String className, CommandContext ctx) {
     YTView clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot().getView(className);
     if (clazz == null) {
       throw new YTCommandExecutionException("View " + className + " not found");
@@ -47,7 +47,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     StringBuilder builder = new StringBuilder();
-    String ind = OExecutionStepInternal.getIndent(depth, indent);
+    String ind = ExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
     builder.append("+ FETCH FROM VIEW ").append(className);
     if (profilingEnabled) {
@@ -55,7 +55,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
     }
     builder.append("\n");
     for (int i = 0; i < getSubSteps().size(); i++) {
-      OExecutionStepInternal step = (OExecutionStepInternal) getSubSteps().get(i);
+      ExecutionStepInternal step = (ExecutionStepInternal) getSubSteps().get(i);
       builder.append(step.prettyPrint(depth + 1, indent));
       if (i < getSubSteps().size() - 1) {
         builder.append("\n");

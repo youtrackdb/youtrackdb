@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -38,7 +38,7 @@ public class ONestedProjection extends SimpleNode {
    * @param input
    * @param ctx
    */
-  public Object apply(OExpression expression, Object input, OCommandContext ctx) {
+  public Object apply(OExpression expression, Object input, CommandContext ctx) {
     if (input instanceof YTResult) {
       return apply(
           expression,
@@ -78,7 +78,7 @@ public class ONestedProjection extends SimpleNode {
     return input;
   }
 
-  private Object apply(OExpression expression, YTResult elem, OCommandContext ctx, int recursion) {
+  private Object apply(OExpression expression, YTResult elem, CommandContext ctx, int recursion) {
     YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
@@ -117,7 +117,7 @@ public class ONestedProjection extends SimpleNode {
   }
 
   private Object tryExpand(
-      OExpression rootExpr, String propName, Object propValue, OCommandContext ctx, int recursion) {
+      OExpression rootExpr, String propName, Object propValue, CommandContext ctx, int recursion) {
     if (this.starItem != null && starItem.expansion != null) {
       return starItem.expand(rootExpr, propName, propValue, ctx, recursion);
     }
@@ -130,7 +130,7 @@ public class ONestedProjection extends SimpleNode {
   }
 
   private Object apply(
-      OExpression expression, YTIdentifiable input, OCommandContext ctx, int recursion) {
+      OExpression expression, YTIdentifiable input, CommandContext ctx, int recursion) {
     Entity elem;
     if (input instanceof Entity) {
       elem = (Entity) input;
@@ -172,7 +172,7 @@ public class ONestedProjection extends SimpleNode {
   }
 
   private Object apply(
-      OExpression expression, Map<String, Object> input, OCommandContext ctx, int recursion) {
+      OExpression expression, Map<String, Object> input, CommandContext ctx, int recursion) {
     YTResultInternal result = new YTResultInternal(ctx.getDatabase());
 
     if (starItem != null || includeItems.size() == 0) {

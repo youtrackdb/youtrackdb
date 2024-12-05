@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.core.exception.OInvalidIndexEngineIdException;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
 
 /**
@@ -28,7 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey
  */
 public class OIndexNotUnique extends OIndexMultiValues {
 
-  public OIndexNotUnique(OIndexMetadata im, final OStorage storage) {
+  public OIndexNotUnique(OIndexMetadata im, final Storage storage) {
     super(im, storage);
   }
 

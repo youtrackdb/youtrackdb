@@ -20,12 +20,12 @@
 package com.jetbrains.youtrack.db.internal.core.db.document;
 
 import com.jetbrains.youtrack.db.internal.core.db.ODatabasePoolBase;
-import com.jetbrains.youtrack.db.internal.core.db.OPartitionedDatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.OPartitionedDatabasePoolFactory;
+import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePoolFactory;
 
 /**
- * @deprecated use {@link OPartitionedDatabasePool} or
- * {@link OPartitionedDatabasePoolFactory} instead.
+ * @deprecated use {@link PartitionedDatabasePool} or
+ * {@link PartitionedDatabasePoolFactory} instead.
  */
 @Deprecated
 public class ODatabaseDocumentPool extends ODatabasePoolBase {

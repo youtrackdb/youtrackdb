@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
@@ -186,14 +186,14 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
       }
 
     } catch (IOException e) {
-      OLogManager.instance().error(this, "Error on loading resource %s", e, iRequest.getUrl());
+      LogManager.instance().error(this, "Error on loading resource %s", e, iRequest.getUrl());
 
     } finally {
       if (staticContent != null && staticContent.is != null) {
         try {
           staticContent.is.close();
         } catch (IOException e) {
-          OLogManager.instance().warn(this, "Error on closing file", e);
+          LogManager.instance().warn(this, "Error on closing file", e);
         }
       }
     }
@@ -262,7 +262,7 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
       // GET GLOBAL CONFIG
       rootPath = iRequest.getConfiguration().getValueAsString("orientdb.www.path", "src/site");
       if (rootPath == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "No path configured. Specify the 'root.path', 'file.path' or the global"
@@ -276,11 +276,11 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
       // CHECK DIRECTORY
       final File wwwPathDirectory = new File(rootPath);
       if (!wwwPathDirectory.exists()) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(this, "path variable points to '%s' but it doesn't exists", rootPath);
       }
       if (!wwwPathDirectory.isDirectory()) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(this, "path variable points to '%s' but it isn't a directory", rootPath);
       }
     }
@@ -321,7 +321,7 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
     if (staticContent.is == null) {
       File inputFile = new File(path);
       if (!inputFile.exists()) {
-        OLogManager.instance().debug(this, "Static resource not found: %s", path);
+        LogManager.instance().debug(this, "Static resource not found: %s", path);
 
         iResponse.sendStream(404, "File not found", null, null, 0);
         return;

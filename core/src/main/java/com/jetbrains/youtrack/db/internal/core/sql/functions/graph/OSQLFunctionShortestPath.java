@@ -2,8 +2,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutorAbstract;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -78,7 +78,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
       final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
 
     final Record record = iCurrentRecord != null ? iCurrentRecord.getRecord() : null;
 
@@ -170,7 +170,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
         throw new YTCommandExecutionException("The shortestPath() function has been interrupted");
       }
 
-      if (!OCommandExecutorAbstract.checkInterruption(iContext)) {
+      if (!CommandExecutorAbstract.checkInterruption(iContext)) {
         break;
       }
 

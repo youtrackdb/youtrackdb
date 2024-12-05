@@ -15,8 +15,8 @@ package com.orientechnologies.security.auditing;
 
 import com.jetbrains.youtrack.db.internal.common.parser.OVariableParser;
 import com.jetbrains.youtrack.db.internal.common.parser.OVariableParserListener;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
@@ -306,12 +306,12 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   }
 
   @Override
-  public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {
+  public void onBeforeCommand(CommandRequestText iCommand, CommandExecutor executor) {
   }
 
   @Override
   public void onAfterCommand(
-      OCommandRequestText iCommand, OCommandExecutor executor, Object result) {
+      CommandRequestText iCommand, CommandExecutor executor, Object result) {
     logCommand(iCommand.getText());
   }
 

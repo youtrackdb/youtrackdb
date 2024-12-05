@@ -16,7 +16,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.text;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.security.OSecurityManager;
@@ -44,7 +44,7 @@ public class OSQLMethodHash extends OAbstractSQLMethod {
   public Object execute(
       final Object iThis,
       final YTIdentifiable iCurrentRecord,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final Object ioResult,
       final Object[] iParams) {
     if (iThis == null) {

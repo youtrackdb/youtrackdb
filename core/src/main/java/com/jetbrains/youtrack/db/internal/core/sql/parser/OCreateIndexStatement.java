@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
@@ -20,7 +20,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,19 +57,19 @@ public class OCreateIndexStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     Object execResult = execute(ctx);
     if (execResult != null) {
       YTResultInternal result = new YTResultInternal(ctx.getDatabase());
       result.setProperty("operation", "create index");
       result.setProperty("name", name.getValue());
-      return OExecutionStream.singleton(result);
+      return ExecutionStream.singleton(result);
     } else {
-      return OExecutionStream.empty();
+      return ExecutionStream.empty();
     }
   }
 
-  Object execute(OCommandContext ctx) {
+  Object execute(CommandContext ctx) {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
 
     if (database.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
@@ -233,7 +233,7 @@ public class OCreateIndexStatement extends ODDLStatement {
    * @param ctx
    * @return
    */
-  private String[] calculateProperties(OCommandContext ctx) {
+  private String[] calculateProperties(CommandContext ctx) {
     if (propertyList == null) {
       return null;
     }
@@ -246,7 +246,7 @@ public class OCreateIndexStatement extends ODDLStatement {
   /**
    * calculates the indexed class based on the class name
    */
-  private YTClass getIndexClass(OCommandContext ctx) {
+  private YTClass getIndexClass(CommandContext ctx) {
     if (className == null) {
       return null;
     }
@@ -261,14 +261,14 @@ public class OCreateIndexStatement extends ODDLStatement {
   /**
    * returns index metadata as an ODocuemnt (as expected by Index API)
    */
-  private EntityImpl calculateMetadata(OCommandContext ctx) {
+  private EntityImpl calculateMetadata(CommandContext ctx) {
     if (metadata == null) {
       return null;
     }
     return metadata.toDocument(null, ctx);
   }
 
-  private YTType[] calculateKeyTypes(OCommandContext ctx) {
+  private YTType[] calculateKeyTypes(CommandContext ctx) {
     if (keyTypes == null) {
       return new YTType[0];
     }
@@ -278,7 +278,7 @@ public class OCreateIndexStatement extends ODDLStatement {
         .toArray(new YTType[]{});
   }
 
-  private List<OCollate> calculateCollates(OCommandContext ctx) {
+  private List<OCollate> calculateCollates(CommandContext ctx) {
     List<OCollate> result = new ArrayList<>();
     boolean found = false;
     for (Property prop : this.propertyList) {

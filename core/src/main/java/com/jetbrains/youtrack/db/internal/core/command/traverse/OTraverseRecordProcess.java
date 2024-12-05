@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
@@ -169,7 +169,7 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<YTIdentifia
 
       final Object fieldValue;
       if (field instanceof OSQLFilterItem) {
-        var context = new OBasicCommandContext();
+        var context = new BasicCommandContext();
         context.setParent(command.getContext());
         fieldValue = ((OSQLFilterItem) field).getValue(doc, null, context);
       } else {

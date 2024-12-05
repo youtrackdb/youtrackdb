@@ -1,12 +1,7 @@
 package com.orientechnologies.lucene.functions;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
-import com.orientechnologies.lucene.exception.YTLuceneIndexException;
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
@@ -16,6 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OIndexableSQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
@@ -23,6 +19,10 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
+import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
+import com.orientechnologies.lucene.exception.YTLuceneIndexException;
+import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
+import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] params,
-      OCommandContext ctx) {
+      CommandContext ctx) {
 
     throw new YTLuceneIndexException("SEARCH_MORE can't be executed by document");
   }
@@ -82,7 +82,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
@@ -137,7 +137,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     return luceneResultSet;
   }
 
-  private List<String> parseRids(OCommandContext ctx, OExpression expression) {
+  private List<String> parseRids(CommandContext ctx, OExpression expression) {
 
     Object expResult = expression.execute((YTIdentifiable) null, ctx);
 
@@ -256,7 +256,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
                             }
                           } catch (IOException e) {
                             // FIXME handle me!
-                            OLogManager.instance()
+                            LogManager.instance()
                                 .error(this, "Error during Lucene query generation", e);
                           }
                         }));
@@ -270,7 +270,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
                     new TermQuery(new Term("RID", QueryParser.escape(rid))), Occur.MUST_NOT));
   }
 
-  private OLuceneFullTextIndex searchForIndex(OFromClause target, OCommandContext ctx) {
+  private OLuceneFullTextIndex searchForIndex(OFromClause target, CommandContext ctx) {
     OFromItem item = target.getItem();
 
     String className = item.getIdentifier().getStringValue();
@@ -278,7 +278,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     return searchForIndex(ctx, className);
   }
 
-  private OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String className) {
+  private OLuceneFullTextIndex searchForIndex(CommandContext ctx, String className) {
     var db = ctx.getDatabase();
     db.activateOnCurrentThread();
     OMetadataInternal dbMetadata = db.getMetadata();
@@ -301,7 +301,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
     if (index != null) {
@@ -315,7 +315,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     return false;
   }
@@ -325,7 +325,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
@@ -338,7 +338,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     return false;
   }

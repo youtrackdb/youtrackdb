@@ -33,13 +33,13 @@ import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.OSBTree;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1.OSBTreeV1;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2.OSBTreeV2;
-import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.OVersionPositionMap;
-import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.OVersionPositionMapV0;
+import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMap;
+import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMapV0;
 import java.io.IOException;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -56,15 +56,15 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   public static final String NULL_BUCKET_FILE_EXTENSION = ".nbt";
 
   private final OSBTree<Object, Object> sbTree;
-  private final OVersionPositionMap versionPositionMap;
+  private final VersionPositionMap versionPositionMap;
 
   private final String name;
   private final int id;
 
-  private final OAbstractPaginatedStorage storage;
+  private final AbstractPaginatedStorage storage;
 
   public OSBTreeIndexEngine(
-      final int id, String name, OAbstractPaginatedStorage storage, int version) {
+      final int id, String name, AbstractPaginatedStorage storage, int version) {
     this.id = id;
     this.name = name;
     this.storage = storage;
@@ -77,8 +77,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
       throw new IllegalStateException("Invalid version of index, version = " + version);
     }
     versionPositionMap =
-        new OVersionPositionMapV0(
-            storage, name, name + DATA_FILE_EXTENSION, OVersionPositionMap.DEF_EXTENSION);
+        new VersionPositionMapV0(
+            storage, name, name + DATA_FILE_EXTENSION, VersionPositionMap.DEF_EXTENSION);
   }
 
   @Override
@@ -106,7 +106,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
     OBinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
     final OEncryption encryption =
-        OAbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
+        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
 
     try {
       sbTree.create(
@@ -158,7 +158,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   @Override
   public void load(IndexEngineData data) {
     final OEncryption encryption =
-        OAbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
+        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
 
     sbTree.load(
         data.getName(),

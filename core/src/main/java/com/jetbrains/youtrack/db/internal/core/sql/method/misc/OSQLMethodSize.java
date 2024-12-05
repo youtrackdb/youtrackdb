@@ -17,7 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 
 /**
@@ -35,7 +35,7 @@ public class OSQLMethodSize extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       final YTIdentifiable iCurrentRecord,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final Object ioResult,
       final Object[] iParams) {
 

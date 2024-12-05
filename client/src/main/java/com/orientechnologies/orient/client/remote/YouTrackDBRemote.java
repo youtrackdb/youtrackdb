@@ -16,16 +16,16 @@
 
 package com.orientechnologies.orient.client.remote;
 
-import static com.orientechnologies.orient.client.remote.OStorageRemote.ADDRESS_SEPARATOR;
+import static com.orientechnologies.orient.client.remote.StorageRemote.ADDRESS_SEPARATOR;
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.NETWORK_SOCKET_RETRY;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.thread.OThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
+import com.orientechnologies.orient.client.remote.StorageRemote.CONNECTION_STRATEGY;
 import com.orientechnologies.orient.client.remote.db.document.OSharedContextRemote;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.client.remote.message.OConnect37Request;
@@ -75,7 +75,7 @@ import com.jetbrains.youtrack.db.internal.core.security.OSecurityManager;
 import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,7 +99,7 @@ import java.util.concurrent.TimeUnit;
 public class YouTrackDBRemote implements YouTrackDBInternal {
 
   protected final Map<String, OSharedContext> sharedContexts = new HashMap<>();
-  private final Map<String, OStorageRemote> storages = new HashMap<>();
+  private final Map<String, StorageRemote> storages = new HashMap<>();
   private final Set<ODatabasePoolInternal> pools = new HashSet<>();
   private final String[] hosts;
   private final YouTrackDBConfig configurations;
@@ -169,11 +169,11 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     checkOpen();
     YouTrackDBConfig resolvedConfig = solveConfig(config);
     try {
-      OStorageRemote storage;
+      StorageRemote storage;
       synchronized (this) {
         storage = storages.get(name);
         if (storage == null) {
-          storage = new OStorageRemote(urls, name, this, "rw", connectionManager, resolvedConfig);
+          storage = new StorageRemote(urls, name, this, "rw", connectionManager, resolvedConfig);
           storages.put(name, storage);
         }
       }
@@ -210,7 +210,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
     if (name == null || name.length() <= 0 || name.contains("`")) {
       final String message = "Cannot create unnamed remote storage. Check your syntax";
-      OLogManager.instance().error(this, message, null);
+      LogManager.instance().error(this, message, null);
       throw new YTStorageException(message);
     }
     String create = String.format("CREATE DATABASE `%s` %s ", name, databaseType.name());
@@ -231,13 +231,13 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
   public YTDatabaseSessionRemotePooled poolOpen(
       String name, String user, String password, ODatabasePoolInternal pool) {
-    OStorageRemote storage;
+    StorageRemote storage;
     synchronized (this) {
       storage = storages.get(name);
       if (storage == null) {
         try {
           storage =
-              new OStorageRemote(
+              new StorageRemote(
                   urls, name, this, "rw", connectionManager, solveConfig(pool.getConfig()));
           storages.put(name, storage);
         } catch (Exception e) {
@@ -252,7 +252,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     return db;
   }
 
-  public synchronized void closeStorage(OStorageRemote remote) {
+  public synchronized void closeStorage(StorageRemote remote) {
     OSharedContext ctx = sharedContexts.get(remote.getName());
     if (ctx != null) {
       ctx.close();
@@ -275,7 +275,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     ODistributedStatusRequest request = new ODistributedStatusRequest();
     ODistributedStatusResponse response = connectAndSend(null, username, password, request);
 
-    OLogManager.instance()
+    LogManager.instance()
         .debug(this, "Cluster status %s", response.getClusterConfig().toJSON("prettyPrint"));
     return response.getClusterConfig();
   }
@@ -351,7 +351,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       YouTrackDBConfig config) {
     if (name == null || name.length() <= 0) {
       final String message = "Cannot create unnamed remote storage. Check your syntax";
-      OLogManager.instance().error(this, message, null);
+      LogManager.instance().error(this, message, null);
       throw new YTStorageException(message);
     }
 
@@ -423,7 +423,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       timer.cancel();
     }
 
-    final List<OStorageRemote> storagesCopy;
+    final List<StorageRemote> storagesCopy;
     synchronized (this) {
       // SHUTDOWN ENGINES AVOID OTHER OPENS
       open = false;
@@ -431,14 +431,14 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       storagesCopy = new ArrayList<>(storages.values());
     }
 
-    for (OStorageRemote stg : storagesCopy) {
+    for (StorageRemote stg : storagesCopy) {
       try {
-        OLogManager.instance().info(this, "- shutdown storage: %s ...", stg.getName());
+        LogManager.instance().info(this, "- shutdown storage: %s ...", stg.getName());
         stg.shutdown();
       } catch (Exception e) {
-        OLogManager.instance().warn(this, "-- error on shutdown storage", e);
+        LogManager.instance().warn(this, "-- error on shutdown storage", e);
       } catch (Error e) {
-        OLogManager.instance().warn(this, "-- error on shutdown storage", e);
+        LogManager.instance().warn(this, "-- error on shutdown storage", e);
         throw e;
       }
     }
@@ -499,13 +499,13 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   @Override
-  public Collection<OStorage> getStorages() {
+  public Collection<Storage> getStorages() {
     throw new UnsupportedOperationException("List storage is not supported in remote");
   }
 
   @Override
   public synchronized void forceDatabaseClose(String databaseName) {
-    OStorageRemote remote = storages.get(databaseName);
+    StorageRemote remote = storages.get(databaseName);
     if (remote != null) {
       closeStorage(remote);
     }
@@ -527,7 +527,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
         "impossible skip authentication and authorization in remote");
   }
 
-  protected synchronized OSharedContext getOrCreateSharedContext(OStorageRemote storage) {
+  protected synchronized OSharedContext getOrCreateSharedContext(StorageRemote storage) {
 
     OSharedContext result = sharedContexts.get(storage.getName());
     if (result == null) {
@@ -537,7 +537,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     return result;
   }
 
-  private OSharedContext createSharedContext(OStorageRemote storage) {
+  private OSharedContext createSharedContext(StorageRemote storage) {
     OSharedContextRemote context = new OSharedContextRemote(storage, this);
     storage.setSharedContext(context);
     return context;
@@ -658,7 +658,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
           }
           T response = request.createResponse();
           try {
-            OStorageRemote.beginResponse(null, network, session1);
+            StorageRemote.beginResponse(null, network, session1);
             response.read(null, network, session1);
           } finally {
             network.endResponse();
@@ -681,7 +681,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
           urls.getNextAvailableServerURL(false, session, config, CONNECTION_STRATEGY.STICKY);
       do {
         try {
-          network = OStorageRemote.getNetwork(serverUrl, connectionManager, config);
+          network = StorageRemote.getNetwork(serverUrl, connectionManager, config);
         } catch (YTException e) {
           serverUrl = urls.removeAndGet(serverUrl);
           if (serverUrl == null) {
@@ -792,6 +792,6 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
   @Override
   public String getConnectionUrl() {
-    return "remote:" + String.join(OStorageRemote.ADDRESS_SEPARATOR, this.urls.getUrls());
+    return "remote:" + String.join(StorageRemote.ADDRESS_SEPARATOR, this.urls.getUrls());
   }
 }

@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.db.tool;
 
 import static com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper.makeDbCall;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -152,7 +152,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
         return false;
       }
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Error on comparing database '%s' against '%s'",
@@ -980,7 +980,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
               }
             }
           } catch (RuntimeException e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(this, "Error during data comparison of records with rid " + rid1, e);
             throw e;
           }

@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
@@ -17,7 +17,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTStorageDoesNotExistEx
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
 import java.util.List;
 import java.util.TimerTask;
@@ -186,7 +186,7 @@ public class YouTrackDBEmbeddedTests {
       youtrackEmbedded.drop("database2", null, null);
       youtrackEmbedded.close();
     } finally {
-      OFileUtils.deleteRecursively(
+      FileUtils.deleteRecursively(
           new File(DBTestBase.getDirectoryPath(getClass()) + "testRegisterDatabase"));
     }
   }
@@ -680,7 +680,7 @@ public class YouTrackDBEmbeddedTests {
       final YTDatabaseSession session =
           youTrackDb.open("testUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       assertNotNull(
-          ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) session).getStorage())
+          ((AbstractPaginatedStorage) ((YTDatabaseSessionInternal) session).getStorage())
               .getUuid());
       session.close();
     }
@@ -695,7 +695,7 @@ public class YouTrackDBEmbeddedTests {
     final YTDatabaseSession session =
         youTrackDb.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     UUID uuid =
-        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) session).getStorage()).getUuid();
+        ((AbstractPaginatedStorage) ((YTDatabaseSessionInternal) session).getStorage()).getUuid();
     assertNotNull(uuid);
     session.close();
     youTrackDb.close();
@@ -710,7 +710,7 @@ public class YouTrackDBEmbeddedTests {
         youTrackDb1.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertEquals(
         uuid,
-        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) session1).getStorage()).getUuid());
+        ((AbstractPaginatedStorage) ((YTDatabaseSessionInternal) session1).getStorage()).getUuid());
     session1.close();
     youTrackDb1.drop("testPersistentUUID");
     youTrackDb1.close();

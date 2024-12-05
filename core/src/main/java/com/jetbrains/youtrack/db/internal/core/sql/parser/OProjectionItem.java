@@ -2,21 +2,21 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.OEdgeToVertexIterable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.OEdgeToVertexIterator;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -126,7 +126,7 @@ public class OProjectionItem extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     Object result;
     if (all) {
       result = iCurrentRecord;
@@ -139,7 +139,7 @@ public class OProjectionItem extends SimpleNode {
     return convert(result, ctx);
   }
 
-  public static Object convert(Object value, OCommandContext context) {
+  public static Object convert(Object value, CommandContext context) {
     if (value instanceof RidBag) {
       List result = new ArrayList();
       ((RidBag) value).iterator().forEachRemaining(result::add);
@@ -162,8 +162,8 @@ public class OProjectionItem extends SimpleNode {
       ((YTInternalResultSet) value).reset();
       value = ((YTInternalResultSet) value).stream().collect(Collectors.toList());
     }
-    if (value instanceof OExecutionStream) {
-      value = ((OExecutionStream) value).stream(context).collect(Collectors.toList());
+    if (value instanceof ExecutionStream) {
+      value = ((ExecutionStream) value).stream(context).collect(Collectors.toList());
     }
     if (!(value instanceof YTIdentifiable)) {
       Iterator<?> iter = null;
@@ -186,7 +186,7 @@ public class OProjectionItem extends SimpleNode {
     return value;
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     Object result;
     if (all) {
       result = iCurrentRecord;
@@ -257,7 +257,7 @@ public class OProjectionItem extends SimpleNode {
    * @param aggregateSplit
    */
   public OProjectionItem splitForAggregation(
-      AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
       OProjectionItem result = new OProjectionItem(-1);
       result.alias = getProjectionAlias();
@@ -269,7 +269,7 @@ public class OProjectionItem extends SimpleNode {
     }
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     if (expression == null) {
       throw new YTCommandExecutionException("Cannot aggregate on this projection: " + this);
     }

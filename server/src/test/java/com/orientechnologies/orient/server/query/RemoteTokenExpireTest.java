@@ -2,9 +2,9 @@ package com.orientechnologies.orient.server.query;
 
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.orientechnologies.orient.client.remote.OStorageRemote;
+import com.orientechnologies.orient.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -36,7 +36,7 @@ public class RemoteTokenExpireTest {
   @Before
   public void before() throws Exception {
 
-    OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
+    FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
     server = new OServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
@@ -209,7 +209,7 @@ public class RemoteTokenExpireTest {
             YouTrackDBConfig.builder()
                 .addConfig(
                     GlobalConfiguration.CLIENT_CONNECTION_STRATEGY,
-                    OStorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
+                    StorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
                 .build());
 
     YTDatabaseSession session = pool.acquire();
@@ -241,7 +241,7 @@ public class RemoteTokenExpireTest {
     server.shutdown();
 
     YouTrackDBManager.instance().shutdown();
-    OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
+    FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
     YouTrackDBManager.instance().startup();
   }
 }

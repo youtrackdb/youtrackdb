@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -32,7 +32,7 @@ public class OOrBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     if (subBlocks == null) {
       return true;
     }
@@ -46,7 +46,7 @@ public class OOrBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
     if (subBlocks == null) {
       return true;
     }
@@ -59,7 +59,7 @@ public class OOrBlock extends OBooleanExpression {
     return false;
   }
 
-  public boolean evaluate(Object currentRecord, OCommandContext ctx) {
+  public boolean evaluate(Object currentRecord, CommandContext ctx) {
     if (currentRecord instanceof YTResult) {
       return evaluate((YTResult) currentRecord, ctx);
     } else if (currentRecord instanceof YTIdentifiable) {
@@ -262,14 +262,14 @@ public class OOrBlock extends OBooleanExpression {
   }
 
   @Override
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
     for (OBooleanExpression exp : subBlocks) {
       exp.rewriteIndexChainsAsSubqueries(ctx, clazz);
     }
     return this;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
     Optional<OIndexCandidate> result = Optional.empty();
     boolean first = true;
     for (OBooleanExpression exp : subBlocks) {

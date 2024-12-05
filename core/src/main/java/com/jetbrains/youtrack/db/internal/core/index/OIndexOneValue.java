@@ -31,7 +31,7 @@ import com.jetbrains.youtrack.db.internal.core.index.comparator.DescComparator;
 import com.jetbrains.youtrack.db.internal.core.index.iterator.PureTxBetweenIndexBackwardSpliterator;
 import com.jetbrains.youtrack.db.internal.core.index.iterator.PureTxBetweenIndexForwardSpliterator;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges.OPERATION;
@@ -52,7 +52,7 @@ import java.util.stream.StreamSupport;
  */
 public abstract class OIndexOneValue extends OIndexAbstract {
 
-  public OIndexOneValue(OIndexMetadata im, final OStorage storage) {
+  public OIndexOneValue(OIndexMetadata im, final Storage storage) {
     super(im, storage);
   }
 

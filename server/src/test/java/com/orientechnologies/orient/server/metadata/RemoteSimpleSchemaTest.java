@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.metadata;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
@@ -69,7 +69,7 @@ public class RemoteSimpleSchemaTest {
     server.shutdown();
 
     YouTrackDBManager.instance().shutdown();
-    OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
+    FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
     YouTrackDBManager.instance().startup();
   }
 }

@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -47,7 +47,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     if (functionCall != null) {
       return functionCall.execute(iCurrentRecord, ctx);
     }
@@ -60,7 +60,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     if (functionCall != null) {
       return functionCall.execute(iCurrentRecord, ctx);
     }
@@ -97,7 +97,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
   }
 
   public long estimateIndexedFunction(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (functionCall != null) {
       return functionCall.estimateIndexedFunction(target, context, operator, right);
     }
@@ -106,7 +106,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
   }
 
   public Iterable<YTIdentifiable> executeIndexedFunction(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (functionCall != null) {
       return functionCall.executeIndexedFunction(target, context, operator, right);
     }
@@ -125,7 +125,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
    * executed without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.functionCall == null) {
       return false;
     }
@@ -144,7 +144,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
    * on this target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.functionCall == null) {
       return false;
     }
@@ -163,7 +163,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
    * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.functionCall == null) {
       return false;
     }
@@ -203,7 +203,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     return functionCall != null && functionCall.name.getStringValue().equalsIgnoreCase("count");
   }
 
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
     if (functionCall != null && functionCall.isEarlyCalculated(ctx)) {
       return true;
     }
@@ -214,7 +214,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
   }
 
   public SimpleNode splitForAggregation(
-      AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
       OLevelZeroIdentifier result = new OLevelZeroIdentifier(-1);
       if (functionCall != null) {
@@ -236,7 +236,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     }
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
       if (functionCall != null) {
         return functionCall.getAggregationContext(ctx);

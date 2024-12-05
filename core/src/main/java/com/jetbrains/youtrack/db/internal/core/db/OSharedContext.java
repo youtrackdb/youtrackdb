@@ -17,9 +17,9 @@ import com.jetbrains.youtrack.db.internal.core.schedule.OSchedulerImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OQueryStats;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatementCache;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.OStorageInfo;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -110,7 +110,7 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
     return youtrackDB;
   }
 
-  public void setStorage(OStorage storage) {
+  public void setStorage(Storage storage) {
     this.storage = storage;
   }
 
@@ -137,7 +137,7 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
   }
 
   public synchronized void reInit(
-      OAbstractPaginatedStorage storage2, YTDatabaseSessionInternal database) {
+      AbstractPaginatedStorage storage2, YTDatabaseSessionInternal database) {
     throw new UnsupportedOperationException();
   }
 

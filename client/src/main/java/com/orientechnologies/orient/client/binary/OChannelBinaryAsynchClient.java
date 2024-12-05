@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
@@ -110,7 +110,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       }
 
       if (srvProtocolVersion != iProtocolVersion) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "The Client driver version is different than Server version: client="
@@ -198,7 +198,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
         currentSessionId = readInt();
 
         if (debug) {
-          OLogManager.instance()
+          LogManager.instance()
               .debug(
                   this,
                   "%s - Read response: %d-%d",
@@ -214,7 +214,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       assert (currentSessionId == iRequesterId);
 
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(this, "%s - Session %d handle response", socket.getLocalAddress(), iRequesterId);
       }
       byte[] tokenBytes;
@@ -230,7 +230,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     } catch (YTLockException e) {
       Thread.currentThread().interrupt();
       // NEVER HAPPENS?
-      OLogManager.instance().error(this, "Unexpected error on reading response from channel", e);
+      LogManager.instance().error(this, "Unexpected error on reading response from channel", e);
     }
     return null;
   }
@@ -241,7 +241,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       releaseReadLock();
     } catch (IllegalMonitorStateException e) {
       // IGNORE IT
-      OLogManager.instance()
+      LogManager.instance()
           .debug(this, "Error on unlocking network channel after reading response");
     }
   }
@@ -366,7 +366,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     try {
       throwable = objectInputStream.readObject();
     } catch (ClassNotFoundException e) {
-      OLogManager.instance().error(this, "Error during exception deserialization", e);
+      LogManager.instance().error(this, "Error during exception deserialization", e);
       throw new IOException("Error during exception deserialization: " + e, e);
     }
 
@@ -388,7 +388,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
                | InvocationTargetException
                | InstantiationException
                | IllegalAccessException e) {
-        OLogManager.instance().error(this, "Error during exception deserialization", e);
+        LogManager.instance().error(this, "Error during exception deserialization", e);
       }
     }
 
@@ -400,7 +400,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     } else {
       // WRAP IT
       String exceptionType = throwable != null ? throwable.getClass().getName() : "null";
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Error during exception serialization, serialized exception is not Throwable,"

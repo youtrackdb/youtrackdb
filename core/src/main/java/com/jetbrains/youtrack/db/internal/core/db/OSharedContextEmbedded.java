@@ -21,8 +21,8 @@ import com.jetbrains.youtrack.db.internal.core.schedule.OSchedulerImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OQueryStats;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatementCache;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,13 +34,13 @@ public class OSharedContextEmbedded extends OSharedContext {
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
   protected ViewManager viewManager;
 
-  public OSharedContextEmbedded(OStorage storage, YouTrackDBEmbedded youtrackDB) {
+  public OSharedContextEmbedded(Storage storage, YouTrackDBEmbedded youtrackDB) {
     this.youtrackDB = youtrackDB;
     this.storage = storage;
     init(storage);
   }
 
-  protected void init(OStorage storage) {
+  protected void init(Storage storage) {
     stringCache =
         new OStringCache(
             storage
@@ -72,7 +72,7 @@ public class OSharedContextEmbedded extends OSharedContext {
 
     queryStats = new OQueryStats();
     activeDistributedQueries = new HashMap<>();
-    ((OAbstractPaginatedStorage) storage)
+    ((AbstractPaginatedStorage) storage)
         .setStorageConfigurationUpdateListener(
             update -> {
               for (OMetadataUpdateListener listener : browseListeners()) {
@@ -179,7 +179,7 @@ public class OSharedContextEmbedded extends OSharedContext {
   }
 
   public synchronized void reInit(
-      OAbstractPaginatedStorage storage2, YTDatabaseSessionInternal database) {
+      AbstractPaginatedStorage storage2, YTDatabaseSessionInternal database) {
     this.close();
     this.storage = storage2;
     this.init(storage2);

@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.EmptyStep;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.IfStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OIfExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OSelectExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlan;
@@ -65,9 +65,9 @@ public class OIfStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -87,7 +87,7 @@ public class OIfStatement extends OStatement {
       executionPlan = (OIfExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
 
-    OExecutionStepInternal last = executionPlan.executeUntilReturn();
+    ExecutionStepInternal last = executionPlan.executeUntilReturn();
     if (last == null) {
       last = new EmptyStep(ctx, false);
     }
@@ -105,8 +105,8 @@ public class OIfStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -120,7 +120,7 @@ public class OIfStatement extends OStatement {
       executionPlan = (OIfExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
 
-    OExecutionStepInternal last = executionPlan.executeUntilReturn();
+    ExecutionStepInternal last = executionPlan.executeUntilReturn();
     if (last == null) {
       last = new EmptyStep(ctx, false);
     }
@@ -137,7 +137,7 @@ public class OIfStatement extends OStatement {
   }
 
   @Override
-  public OIfExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OIfExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
 
     OIfExecutionPlan plan = new OIfExecutionPlan(ctx);
 

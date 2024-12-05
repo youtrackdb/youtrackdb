@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OIndexRIDContainerSBTree;
@@ -120,7 +120,7 @@ public class OMixedIndexRIDContainerSerializer
           new OIndexRIDContainerSBTree(
               fileId,
               new OBonsaiBucketPointer(pageIndex, offset),
-              (OAbstractPaginatedStorage) db.getStorage());
+              (AbstractPaginatedStorage) db.getStorage());
     }
 
     return new OMixedIndexRIDContainer(fileId, hashSet, tree);
@@ -219,7 +219,7 @@ public class OMixedIndexRIDContainerSerializer
           new OIndexRIDContainerSBTree(
               fileId,
               new OBonsaiBucketPointer(pageIndex, offset),
-              (OAbstractPaginatedStorage) db.getStorage());
+              (AbstractPaginatedStorage) db.getStorage());
     }
 
     return new OMixedIndexRIDContainer(fileId, hashSet, tree);
@@ -294,7 +294,7 @@ public class OMixedIndexRIDContainerSerializer
           new OIndexRIDContainerSBTree(
               fileId,
               new OBonsaiBucketPointer(pageIndex, offset),
-              (OAbstractPaginatedStorage) db.getStorage());
+              (AbstractPaginatedStorage) db.getStorage());
     }
 
     return new OMixedIndexRIDContainer(fileId, hashSet, tree);
@@ -336,7 +336,7 @@ public class OMixedIndexRIDContainerSerializer
           new OIndexRIDContainerSBTree(
               fileId,
               new OBonsaiBucketPointer(pageIndex, offset),
-              (OAbstractPaginatedStorage) db.getStorage());
+              (AbstractPaginatedStorage) db.getStorage());
     }
 
     return new OMixedIndexRIDContainer(fileId, hashSet, tree);
@@ -388,7 +388,7 @@ public class OMixedIndexRIDContainerSerializer
           new OIndexRIDContainerSBTree(
               fileId,
               new OBonsaiBucketPointer(pageIndex, pageOffset),
-              (OAbstractPaginatedStorage) db.getStorage());
+              (AbstractPaginatedStorage) db.getStorage());
     }
 
     return new OMixedIndexRIDContainer(fileId, hashSet, tree);

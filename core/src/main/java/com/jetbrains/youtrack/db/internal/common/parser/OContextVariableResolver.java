@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.common.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 
 /**
  * Resolve variables by using a context.
@@ -29,9 +29,9 @@ public class OContextVariableResolver implements OVariableParserListener {
   public static final String VAR_BEGIN = "${";
   public static final String VAR_END = "}";
 
-  private final OCommandContext context;
+  private final CommandContext context;
 
-  public OContextVariableResolver(final OCommandContext iContext) {
+  public OContextVariableResolver(final CommandContext iContext) {
     this.context = iContext;
   }
 

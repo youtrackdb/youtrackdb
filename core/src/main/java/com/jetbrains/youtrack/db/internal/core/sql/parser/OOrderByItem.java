@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -89,7 +89,7 @@ public class OOrderByItem {
     }
   }
 
-  public int compare(YTResult a, YTResult b, OCommandContext ctx) {
+  public int compare(YTResult a, YTResult b, CommandContext ctx) {
     Object aVal = null;
     Object bVal = null;
     if (rid != null) {
@@ -183,7 +183,7 @@ public class OOrderByItem {
         try {
           result = ((Comparable) aVal).compareTo(bVal);
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Error during comparision", e);
+          LogManager.instance().error(this, "Error during comparision", e);
           result = 0;
         }
       }

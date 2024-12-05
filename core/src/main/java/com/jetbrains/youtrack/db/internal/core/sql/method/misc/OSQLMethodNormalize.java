@@ -18,7 +18,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.common.util.OPatternConst;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import java.text.Normalizer;
 
@@ -37,7 +37,7 @@ public class OSQLMethodNormalize extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
 

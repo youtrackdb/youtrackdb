@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 
 public class OIndexSearchInfo {
 
@@ -8,7 +8,7 @@ public class OIndexSearchInfo {
   private final boolean map;
   private final boolean indexByKey;
   private final String field;
-  private final OCommandContext ctx;
+  private final CommandContext ctx;
   private final boolean indexByValue;
 
   public OIndexSearchInfo(
@@ -17,7 +17,7 @@ public class OIndexSearchInfo {
       boolean map,
       boolean indexByKey,
       boolean indexByValue,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     this.field = indexField;
     this.allowsRangeQueries = allowsRangeQueries;
     this.map = map;
@@ -30,7 +30,7 @@ public class OIndexSearchInfo {
     return field;
   }
 
-  public OCommandContext getCtx() {
+  public CommandContext getCtx() {
     return ctx;
   }
 

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.plugin;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.HashMap;
@@ -77,7 +77,7 @@ public class OServerPluginInfo {
         }
       } catch (NoSuchMethodException e) {
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error on closing plugin classloader", e);
+        LogManager.instance().error(this, "Error on closing plugin classloader", e);
       }
     }
   }

@@ -16,7 +16,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.HashSet;
 import java.util.List;
@@ -1337,7 +1337,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return one, two");
 
-    List<EntityImpl> result = db.command(new OCommandSQL(query.toString())).execute(db);
+    List<EntityImpl> result = db.command(new CommandSQL(query.toString())).execute(db);
     assertEquals(1, result.size());
 
     query = new StringBuilder();
@@ -1346,7 +1346,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
         "{class:DiamondV, as: one, where: (uid = 0)}.out('DiamondE').out('DiamondE'){as: two} ");
     query.append("return one.uid, two.uid");
 
-    result = db.command(new OCommandSQL(query.toString())).execute(db);
+    result = db.command(new CommandSQL(query.toString())).execute(db);
     assertEquals(1, result.size());
     //    EntityImpl doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
@@ -1384,7 +1384,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  }<-WorksAt-{as: managed}"
             + "  return $elements";
 
-    return db.command(new OCommandSQL(query)).execute(db);
+    return db.command(new CommandSQL(query)).execute(db);
   }
 
   @Test
@@ -1883,7 +1883,7 @@ public class OMatchStatementExecutionTest extends DBTestBase {
             + "  }<-WorksAt-{as: managed}"
             + "  return $pathElements";
 
-    return db.command(new OCommandSQL(query)).execute(db);
+    return db.command(new CommandSQL(query)).execute(db);
   }
 
   private List<EntityImpl> collect(YTResultSet set) {

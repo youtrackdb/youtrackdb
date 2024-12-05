@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.OInvalidIndexEngineIdException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
 
 /**
@@ -33,12 +33,12 @@ import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey
  */
 public class OIndexDictionary extends OIndexOneValue {
 
-  public OIndexDictionary(OIndexMetadata im, final OStorage storage) {
+  public OIndexDictionary(OIndexMetadata im, final Storage storage) {
     super(im, storage);
   }
 
   @Override
-  public void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public void doPut(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key,
       YTRID rid)
       throws OInvalidIndexEngineIdException {
@@ -57,13 +57,13 @@ public class OIndexDictionary extends OIndexOneValue {
   }
 
   private static void putV0(
-      final OAbstractPaginatedStorage storage, int indexId, Object key, YTIdentifiable value)
+      final AbstractPaginatedStorage storage, int indexId, Object key, YTIdentifiable value)
       throws OInvalidIndexEngineIdException {
     throw new UnsupportedOperationException();
   }
 
   private static void putV1(
-      final OAbstractPaginatedStorage storage, int indexId, Object key, YTIdentifiable value)
+      final AbstractPaginatedStorage storage, int indexId, Object key, YTIdentifiable value)
       throws OInvalidIndexEngineIdException {
     storage.putRidIndexEntry(indexId, key, value.getIdentity());
   }

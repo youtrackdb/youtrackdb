@@ -35,8 +35,8 @@ public class ODynamicSQLElementFactory
     implements OCommandExecutorSQLFactory, OQueryOperatorFactory, OSQLFunctionFactory {
   // Used by SQLEngine to register on the fly new elements
   static final Map<String, Object> FUNCTIONS = new ConcurrentHashMap<String, Object>();
-  static final Map<String, Class<? extends OCommandExecutorSQLAbstract>> COMMANDS =
-      new ConcurrentHashMap<String, Class<? extends OCommandExecutorSQLAbstract>>();
+  static final Map<String, Class<? extends CommandExecutorSQLAbstract>> COMMANDS =
+      new ConcurrentHashMap<String, Class<? extends CommandExecutorSQLAbstract>>();
   static final Set<OQueryOperator> OPERATORS =
       Collections.synchronizedSet(new HashSet<OQueryOperator>());
 
@@ -84,9 +84,9 @@ public class ODynamicSQLElementFactory
     return COMMANDS.keySet();
   }
 
-  public OCommandExecutorSQLAbstract createCommand(final String name)
+  public CommandExecutorSQLAbstract createCommand(final String name)
       throws YTCommandExecutionException {
-    final Class<? extends OCommandExecutorSQLAbstract> clazz = COMMANDS.get(name);
+    final Class<? extends CommandExecutorSQLAbstract> clazz = COMMANDS.get(name);
 
     if (clazz == null) {
       throw new YTCommandExecutionException("Unknown command name :" + name);

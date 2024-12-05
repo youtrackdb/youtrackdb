@@ -14,7 +14,7 @@ public interface OScriptExecutor {
   YTResultSet execute(YTDatabaseSessionInternal database, String script, Map params);
 
   Object executeFunction(
-      OCommandContext context, final String functionName, final Map<Object, Object> iArgs);
+      CommandContext context, final String functionName, final Map<Object, Object> iArgs);
 
   void registerInterceptor(OScriptInterceptor interceptor);
 

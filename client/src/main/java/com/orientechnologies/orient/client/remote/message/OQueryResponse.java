@@ -1,17 +1,17 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.client.remote.OBinaryResponse;
-import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InfoExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OInfoExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInfoExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.orientechnologies.orient.client.remote.OBinaryResponse;
+import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -173,8 +173,8 @@ public class OQueryResponse implements OBinaryResponse {
     return queryStats;
   }
 
-  private OExecutionStep toInfoStep(YTResult x) {
-    OInfoExecutionStep result = new OInfoExecutionStep();
+  private ExecutionStep toInfoStep(YTResult x) {
+    InfoExecutionStep result = new InfoExecutionStep();
     result.setName(x.getProperty("name"));
     result.setType(x.getProperty("type"));
     result.setTargetNode(x.getProperty("targetNode"));

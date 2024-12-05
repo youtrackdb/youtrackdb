@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
 
 /**
@@ -13,22 +13,22 @@ public class ProjectionCalculationStep extends AbstractExecutionStep {
   protected final OProjection projection;
 
   public ProjectionCalculationStep(
-      OProjection projection, OCommandContext ctx, boolean profilingEnabled) {
+      OProjection projection, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.projection = projection;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev == null) {
       throw new IllegalStateException("Cannot calculate projections without a previous source");
     }
 
-    OExecutionStream parentRs = prev.start(ctx);
+    ExecutionStream parentRs = prev.start(ctx);
     return parentRs.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, CommandContext ctx) {
     Object oldCurrent = ctx.getVariable("$current");
     ctx.setVariable("$current", result);
     YTResult newResult = calculateProjections(ctx, result);
@@ -36,13 +36,13 @@ public class ProjectionCalculationStep extends AbstractExecutionStep {
     return newResult;
   }
 
-  private YTResult calculateProjections(OCommandContext ctx, YTResult next) {
+  private YTResult calculateProjections(CommandContext ctx, YTResult next) {
     return this.projection.calculateSingle(ctx, next);
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
 
     String result = spaces + "+ CALCULATE PROJECTIONS";
     if (profilingEnabled) {
@@ -58,7 +58,7 @@ public class ProjectionCalculationStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new ProjectionCalculationStep(projection.copy(), ctx, profilingEnabled);
   }
 }

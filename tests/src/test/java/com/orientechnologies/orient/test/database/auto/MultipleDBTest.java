@@ -14,7 +14,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.orient.client.remote.OStorageRemote;
+import com.orientechnologies.orient.client.remote.StorageRemote;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import java.util.Collections;
 import java.util.HashSet;
@@ -196,8 +196,8 @@ public class MultipleDBTest extends DocumentDBBaseTest {
   }
 
   private static String getDbId(YTDatabaseSessionInternal db) {
-    if (db.getStorage() instanceof OStorageRemote) {
-      return db.getURL() + " - sessionId: " + ((OStorageRemote) db.getStorage()).getSessionId(
+    if (db.getStorage() instanceof StorageRemote) {
+      return db.getURL() + " - sessionId: " + ((StorageRemote) db.getStorage()).getSessionId(
           (YTDatabaseSessionRemote) db);
     } else {
       return db.getURL();

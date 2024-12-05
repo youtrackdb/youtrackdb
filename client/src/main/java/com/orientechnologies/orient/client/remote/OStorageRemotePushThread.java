@@ -2,7 +2,7 @@ package com.orientechnologies.orient.client.remote;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
@@ -82,7 +82,7 @@ public class OStorageRemotePushThread extends Thread {
               }
             }
           } catch (Exception e) {
-            OLogManager.instance().error(this, "Error executing push request", e);
+            LogManager.instance().error(this, "Error executing push request", e);
           }
         }
       } catch (IOException | YTException e) {
@@ -133,7 +133,7 @@ public class OStorageRemotePushThread extends Thread {
         throw (RuntimeException) poll;
       }
     } catch (IOException e) {
-      OLogManager.instance().warn(this, "Exception on subscribe", e);
+      LogManager.instance().warn(this, "Exception on subscribe", e);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }

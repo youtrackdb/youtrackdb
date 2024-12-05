@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -115,13 +115,13 @@ public class DbListenerTest extends DocumentDBBaseTest {
     }
 
     @Override
-    public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {
+    public void onBeforeCommand(CommandRequestText iCommand, CommandExecutor executor) {
       command = iCommand.getText();
     }
 
     @Override
     public void onAfterCommand(
-        OCommandRequestText iCommand, OCommandExecutor executor, Object result) {
+        CommandRequestText iCommand, CommandExecutor executor, Object result) {
       commandResult = result;
     }
 

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -46,7 +46,7 @@ public class OServerCommandGetSSO extends OServerCommandAbstract {
           buffer.toString(),
           null);
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "OServerCommandGetSSO.getJSON() Exception: %s", ex);
+      LogManager.instance().error(this, "OServerCommandGetSSO.getJSON() Exception: %s", ex);
     }
   }
 }

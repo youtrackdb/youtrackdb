@@ -1,6 +1,6 @@
 package com.orientechnologies.lucene.engine;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
@@ -30,7 +30,7 @@ public class OLuceneClassIndexContext {
     this.automatic = automatic;
     this.metadata = metadata;
 
-    OLogManager.instance().info(this, "index definition:: " + definition);
+    LogManager.instance().info(this, "index definition:: " + definition);
 
     indexClass = schema.getClass(definition.getClassName());
 

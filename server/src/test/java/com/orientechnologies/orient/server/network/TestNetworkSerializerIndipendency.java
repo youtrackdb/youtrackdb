@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -117,7 +117,7 @@ public class TestNetworkSerializerIndipendency {
 
     YouTrackDBManager.instance().shutdown();
     File directory = new File(server.getDatabaseDirectory());
-    OFileUtils.deleteRecursively(directory);
+    FileUtils.deleteRecursively(directory);
     YTDatabaseSessionAbstract.setDefaultSerializer(
         ORecordSerializerFactory.instance().getFormat(ORecordSerializerBinary.NAME));
     YouTrackDBManager.instance().startup();

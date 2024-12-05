@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import static org.junit.Assert.assertNotEquals;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class BatchUniqueProjectionRid extends DBTestBase {
   public void testBatchUniqueRid() {
     List<List<EntityImpl>> res =
         db.command(
-                new OCommandScript(
+                new CommandScript(
                     "begin;let $a = select \"a\" as a ; let $b = select \"a\" as b; return"
                         + " [$a,$b] "))
             .execute(db);

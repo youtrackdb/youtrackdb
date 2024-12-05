@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.index;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OBaseIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.Set;
 
 public interface OIndexFactory {
@@ -46,7 +46,7 @@ public interface OIndexFactory {
    * @return OIndexInternal
    * @throws YTConfigurationException if index creation failed
    */
-  OIndexInternal createIndex(OStorage storage, OIndexMetadata im) throws YTConfigurationException;
+  OIndexInternal createIndex(Storage storage, OIndexMetadata im) throws YTConfigurationException;
 
-  OBaseIndexEngine createIndexEngine(OStorage storage, IndexEngineData data);
+  OBaseIndexEngine createIndexEngine(Storage storage, IndexEngineData data);
 }

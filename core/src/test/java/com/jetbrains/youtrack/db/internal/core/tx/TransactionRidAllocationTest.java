@@ -16,7 +16,7 @@ import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
@@ -48,7 +48,7 @@ public class TransactionRidAllocationTest {
     Vertex v = db.newVertex("V");
     db.save(v);
 
-    ((OAbstractPaginatedStorage) db.getStorage())
+    ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionInternal) db.getTransaction());
     YTRID generated = v.getIdentity();
     assertTrue(generated.isValid());
@@ -71,10 +71,10 @@ public class TransactionRidAllocationTest {
     Vertex v = db.newVertex("V");
     db.save(v);
 
-    ((OAbstractPaginatedStorage) db.getStorage())
+    ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionOptimistic) db.getTransaction());
     YTRID generated = v.getIdentity();
-    ((OAbstractPaginatedStorage) db.getStorage())
+    ((AbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
     var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -103,7 +103,7 @@ public class TransactionRidAllocationTest {
     Vertex v = db.newVertex("V");
     db.save(v);
 
-    ((OAbstractPaginatedStorage) db.getStorage())
+    ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionInternal) db.getTransaction());
     YTRID generated = v.getIdentity();
     OTransaction transaction = db.getTransaction();
@@ -122,9 +122,9 @@ public class TransactionRidAllocationTest {
       transactionOptimistic.addRecord(record, recordOperation.second, null);
     }
 
-    ((OAbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
+    ((AbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
     db.activateOnCurrentThread();
-    ((OAbstractPaginatedStorage) db.getStorage())
+    ((AbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
     var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -132,7 +132,7 @@ public class TransactionRidAllocationTest {
 
     db1.close();
     second.activateOnCurrentThread();
-    ((OAbstractPaginatedStorage) second.getStorage())
+    ((AbstractPaginatedStorage) second.getStorage())
         .commitPreAllocated((OTransactionOptimistic) second.getTransaction());
     second.close();
     var db2 = youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -166,7 +166,7 @@ public class TransactionRidAllocationTest {
     Vertex v = db.newVertex("V");
     db.save(v);
 
-    ((OAbstractPaginatedStorage) db.getStorage())
+    ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionOptimistic) db.getTransaction());
     OTransaction transaction = db.getTransaction();
     List<ORawPair<RecordAbstract, Byte>> recordOperations = new ArrayList<>();
@@ -183,7 +183,7 @@ public class TransactionRidAllocationTest {
       record.setup(second);
       transactionOptimistic.addRecord(record, recordOperation.second, null);
     }
-    ((OAbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
+    ((AbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
   }
 
   @Test
@@ -200,13 +200,13 @@ public class TransactionRidAllocationTest {
       orecords.add(db.save(v));
     }
 
-    ((OAbstractPaginatedStorage) db.getStorage())
+    ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((OTransactionInternal) db.getTransaction());
     List<YTRID> allocated = new ArrayList<>();
     for (Record rec : orecords) {
       allocated.add(rec.getIdentity());
     }
-    ((OAbstractPaginatedStorage) db.getStorage())
+    ((AbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
     var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);

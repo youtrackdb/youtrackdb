@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
@@ -51,7 +51,7 @@ public class OSQLFunctionDijkstra extends OSQLFunctionPathFinder {
       final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     return new OSQLFunctionAstar()
         .execute(this, iCurrentRecord, iCurrentResult, toAStarParams(iParams), iContext);
   }
@@ -70,7 +70,7 @@ public class OSQLFunctionDijkstra extends OSQLFunctionPathFinder {
     return result;
   }
 
-  private LinkedList<Vertex> internalExecute(final OCommandContext iContext) {
+  private LinkedList<Vertex> internalExecute(final CommandContext iContext) {
     return super.execute(iContext);
   }
 

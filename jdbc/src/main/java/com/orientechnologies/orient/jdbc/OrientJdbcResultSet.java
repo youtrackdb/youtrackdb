@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -167,7 +167,7 @@ public class OrientJdbcResultSet implements ResultSet {
                     db.getStorageInfo().getConfiguration().getCharset());
           }
         } catch (UnsupportedEncodingException e) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "Invalid charset for database "

@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutorAbstract;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
@@ -44,7 +44,7 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
   protected Vertex paramSourceVertex;
   protected Vertex paramDestinationVertex;
   protected ODirection paramDirection = ODirection.OUT;
-  protected OCommandContext context;
+  protected CommandContext context;
 
   protected static final float MIN = 0f;
 
@@ -52,7 +52,7 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     super(iName, iMinParams, iMaxParams);
   }
 
-  protected LinkedList<Vertex> execute(final OCommandContext iContext) {
+  protected LinkedList<Vertex> execute(final CommandContext iContext) {
     context = iContext;
     unSettledNodes = new HashSet<Vertex>();
     distance = new HashMap<YTRID, Float>();
@@ -86,7 +86,7 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
         break;
       }
 
-      if (!OCommandExecutorAbstract.checkInterruption(context)) {
+      if (!CommandExecutorAbstract.checkInterruption(context)) {
         break;
       }
     }

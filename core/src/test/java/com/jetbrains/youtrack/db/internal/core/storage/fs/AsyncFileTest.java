@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.fs;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPairLongObject;
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -33,7 +33,7 @@ public class AsyncFileTest {
 
   @Before
   public void before() {
-    OFileUtils.deleteRecursively(buildDirectoryPath.toFile());
+    FileUtils.deleteRecursively(buildDirectoryPath.toFile());
   }
 
   @Test

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.common.exception;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.exception.YTBackupInProgressException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
@@ -86,7 +86,7 @@ public enum OErrorCode {
              | IllegalAccessException
              | NoSuchMethodException
              | InvocationTargetException e) {
-      OLogManager.instance().warn(this, "Cannot instantiate exception " + exceptionClass);
+      LogManager.instance().warn(this, "Cannot instantiate exception " + exceptionClass);
     }
     return null;
   }

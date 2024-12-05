@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
@@ -39,7 +39,7 @@ public class OSTIntersectsFunction extends OSpatialFunctionAbstractIndexable {
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
 
     if (containsNull(iParams)) {
       return null;
@@ -61,7 +61,7 @@ public class OSTIntersectsFunction extends OSpatialFunctionAbstractIndexable {
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     return results(target, args, ctx, rightValue);
   }

@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.common.console;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -119,9 +119,9 @@ public class TTYConsoleReader implements OConsoleReader {
         outStream = System.out;
       }
     } catch (FileNotFoundException fnfe) {
-      OLogManager.instance().error(this, "History file not found", fnfe);
+      LogManager.instance().error(this, "History file not found", fnfe);
     } catch (IOException ioe) {
-      OLogManager.instance().error(this, "Error reading history file", ioe);
+      LogManager.instance().error(this, "Error reading history file", ioe);
     }
 
     if (inStream == null) {
@@ -588,14 +588,14 @@ public class TTYConsoleReader implements OConsoleReader {
 
   private File getHistoryFile(boolean read) {
 
-    final Path orientDBDir = Paths.get(System.getProperty("user.home"), YOU_TRACK_DB_HOME_DIR);
+    final Path youTrackDBDir = Paths.get(System.getProperty("user.home"), YOU_TRACK_DB_HOME_DIR);
     try {
-      Files.createDirectories(orientDBDir);
+      Files.createDirectories(youTrackDBDir);
     } catch (IOException e) {
-      OLogManager.instance().error(this, "Error creating YouTrackDB directory", e);
+      LogManager.instance().error(this, "Error creating YouTrackDB directory", e);
     }
 
-    Path history = orientDBDir.resolve(HISTORY_FILE_NAME);
+    Path history = youTrackDBDir.resolve(HISTORY_FILE_NAME);
     try {
 
       if (!read) {
@@ -608,7 +608,7 @@ public class TTYConsoleReader implements OConsoleReader {
 
       return Files.createFile(history).toFile();
     } catch (IOException e) {
-      OLogManager.instance().error(this, "Error creating history file", e);
+      LogManager.instance().error(this, "Error creating history file", e);
     }
 
     return history.toFile();

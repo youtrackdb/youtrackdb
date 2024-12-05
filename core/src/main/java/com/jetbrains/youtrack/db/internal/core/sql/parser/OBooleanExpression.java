@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -25,12 +25,12 @@ public abstract class OBooleanExpression extends SimpleNode {
   public static final OBooleanExpression TRUE =
       new OBooleanExpression(0) {
         @Override
-        public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+        public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
           return true;
         }
 
         @Override
-        public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+        public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
           return true;
         }
 
@@ -110,12 +110,12 @@ public abstract class OBooleanExpression extends SimpleNode {
   public static final OBooleanExpression FALSE =
       new OBooleanExpression(0) {
         @Override
-        public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+        public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
           return false;
         }
 
         @Override
-        public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+        public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
           return false;
         }
 
@@ -195,9 +195,9 @@ public abstract class OBooleanExpression extends SimpleNode {
     super(p, id);
   }
 
-  public abstract boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx);
+  public abstract boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx);
 
-  public abstract boolean evaluate(YTResult currentRecord, OCommandContext ctx);
+  public abstract boolean evaluate(YTResult currentRecord, CommandContext ctx);
 
   /**
    * @return true if this expression can be calculated in plain Java, false otherwise (eg. LUCENE
@@ -292,7 +292,7 @@ public abstract class OBooleanExpression extends SimpleNode {
 
   public abstract boolean isCacheable(YTDatabaseSessionInternal session);
 
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
     return this;
   }
 
@@ -311,7 +311,7 @@ public abstract class OBooleanExpression extends SimpleNode {
     return false;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
     return Optional.empty();
   }
 

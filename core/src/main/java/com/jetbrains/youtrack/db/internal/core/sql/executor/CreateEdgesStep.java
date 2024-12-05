@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -10,7 +10,7 @@ import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBatch;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       Number wait,
       Number retry,
       OBatch batch,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.targetClass = targetClass;
@@ -58,7 +58,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -70,7 +70,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
             .map(CreateEdgesStep::asVertex)
             .flatMap((currentFrom) -> mapTo(ctx.getDatabase(), toList, currentFrom, uniqueIndex));
-    return OExecutionStream.resultIterator(stream.iterator());
+    return ExecutionStream.resultIterator(stream.iterator());
   }
 
   private OIndex findIndex(String uniqueIndexName) {
@@ -222,7 +222,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ FOR EACH x in " + fromAlias + "\n";
     result += spaces + "    FOR EACH y in " + toAlias + "\n";
     result += spaces + "       CREATE EDGE " + targetClass + " FROM x TO y";
@@ -241,7 +241,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new CreateEdgesStep(
         targetClass == null ? null : targetClass.copy(),
         targetCluster == null ? null : targetCluster.copy(),

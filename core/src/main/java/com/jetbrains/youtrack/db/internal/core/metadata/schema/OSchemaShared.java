@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import com.jetbrains.youtrack.db.internal.common.concur.resource.OCloseable;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.types.OModifiableInteger;
 import com.jetbrains.youtrack.db.internal.common.util.OArrays;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
@@ -38,7 +38,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -503,7 +503,7 @@ public abstract class OSchemaShared implements OCloseable {
         // by sql commands and we need to reload local replica
 
         if (iSave) {
-          if (database.getStorage() instanceof OAbstractPaginatedStorage) {
+          if (database.getStorage() instanceof AbstractPaginatedStorage) {
             saveInternal(database);
           } else {
             reload(database);
@@ -602,7 +602,7 @@ public abstract class OSchemaShared implements OCloseable {
       // READ CURRENT SCHEMA VERSION
       final Integer schemaVersion = document.field("schemaVersion");
       if (schemaVersion == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Database's schema is empty! Recreating the system classes and allow the opening of"
@@ -743,7 +743,7 @@ public abstract class OSchemaShared implements OCloseable {
 
       if (!hasGlobalProperties) {
         YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
-        if (database.getStorage() instanceof OAbstractPaginatedStorage) {
+        if (database.getStorage() instanceof AbstractPaginatedStorage) {
           saveInternal(database);
         }
       }

@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,17 +34,17 @@ public class OAlterDatabaseStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     if (customPropertyName == null) {
-      return OExecutionStream.singleton(executeSimpleAlter(settingName, settingValue, ctx));
+      return ExecutionStream.singleton(executeSimpleAlter(settingName, settingValue, ctx));
     } else {
-      return OExecutionStream.singleton(
+      return ExecutionStream.singleton(
           executeCustomAlter(customPropertyName, customPropertyValue, ctx));
     }
   }
 
   private YTResult executeCustomAlter(
-      OIdentifier customPropertyName, OExpression customPropertyValue, OCommandContext ctx) {
+      OIdentifier customPropertyName, OExpression customPropertyValue, CommandContext ctx) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
     db.checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_UPDATE);
     List<OStorageEntryConfiguration> oldValues =
@@ -70,7 +70,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
   }
 
   private YTResult executeSimpleAlter(
-      OIdentifier settingName, OExpression settingValue, OCommandContext ctx) {
+      OIdentifier settingName, OExpression settingValue, CommandContext ctx) {
     ATTRIBUTES attribute =
         ATTRIBUTES.valueOf(
             settingName.getStringValue().toUpperCase(Locale.ENGLISH));

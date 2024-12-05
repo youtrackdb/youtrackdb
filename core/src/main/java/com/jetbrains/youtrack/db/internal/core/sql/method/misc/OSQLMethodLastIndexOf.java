@@ -17,7 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 
 /**
@@ -35,7 +35,7 @@ public class OSQLMethodLastIndexOf extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
     final String toFind = OIOUtils.getStringContent(iParams[0].toString());

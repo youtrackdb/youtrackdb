@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
  * takes a result set made of OUpdatableRecord instances and transforms it in another result set
@@ -12,20 +12,20 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecution
  */
 public class ConvertToResultInternalStep extends AbstractExecutionStep {
 
-  public ConvertToResultInternalStep(OCommandContext ctx, boolean profilingEnabled) {
+  public ConvertToResultInternalStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    OExecutionStream resultSet = prev.start(ctx);
+    ExecutionStream resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
-  private YTResult filterMap(YTResult result, OCommandContext ctx) {
+  private YTResult filterMap(YTResult result, CommandContext ctx) {
     if (result instanceof YTUpdatableResult) {
       var element = result.toEntity();
       if (element != null) {
@@ -39,7 +39,7 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String result =
-        OExecutionStepInternal.getIndent(depth, indent) + "+ CONVERT TO REGULAR RESULT ITEM";
+        ExecutionStepInternal.getIndent(depth, indent) + "+ CONVERT TO REGULAR RESULT ITEM";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

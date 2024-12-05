@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OServerCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +43,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OServerCommandContext ctx) {
+  public ExecutionStream executeSimple(ServerCommandContext ctx) {
     YouTrackDBInternal server = ctx.getServer();
     YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create database");
@@ -102,11 +102,11 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
       }
     }
 
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   private YouTrackDBConfigBuilder mapOrientDBConfig(
-      OJson config, OServerCommandContext ctx, YouTrackDBConfigBuilder builder) {
+      OJson config, ServerCommandContext ctx, YouTrackDBConfigBuilder builder) {
     Map<String, Object> configMap = config.toMap(new YTResultInternal(ctx.getDatabase()), ctx);
 
     Object globalConfig = configMap.get("config");

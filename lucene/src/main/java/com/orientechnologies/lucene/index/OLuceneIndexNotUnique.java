@@ -19,9 +19,6 @@ package com.orientechnologies.lucene.index;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.orientechnologies.lucene.OLuceneIndex;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.OInvalidIndexEngineIdException;
@@ -32,13 +29,16 @@ import com.jetbrains.youtrack.db.internal.core.index.OIndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
+import com.orientechnologies.lucene.OLuceneIndex;
+import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
+import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +50,7 @@ import org.apache.lucene.search.IndexSearcher;
 
 public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneIndex {
 
-  public OLuceneIndexNotUnique(OIndexMetadata im, final OStorage storage) {
+  public OLuceneIndexNotUnique(OIndexMetadata im, final Storage storage) {
     super(im, storage);
   }
 
@@ -108,7 +108,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public void doPut(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key,
       YTRID rid) {
     while (true) {
@@ -137,7 +137,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public boolean doRemove(OAbstractPaginatedStorage storage, Object key)
+  public boolean doRemove(AbstractPaginatedStorage storage, Object key)
       throws OInvalidIndexEngineIdException {
     while (true) {
       try {
@@ -158,7 +158,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public boolean doRemove(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public boolean doRemove(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key, YTRID rid)
       throws OInvalidIndexEngineIdException {
     while (true) {

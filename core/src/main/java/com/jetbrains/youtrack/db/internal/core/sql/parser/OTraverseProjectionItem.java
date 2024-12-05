@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
@@ -25,7 +25,7 @@ public class OTraverseProjectionItem extends SimpleNode {
     super(p, id);
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     if (isStar()) {
       return handleStar(iCurrentRecord, ctx);
     }
@@ -47,7 +47,7 @@ public class OTraverseProjectionItem extends SimpleNode {
     return modifier != null && modifier.refersToParent();
   }
 
-  private Object handleStar(YTResult iCurrentRecord, OCommandContext ctx) {
+  private Object handleStar(YTResult iCurrentRecord, CommandContext ctx) {
     Set<Object> result = new HashSet<>();
     for (String prop : iCurrentRecord.getPropertyNames()) {
       Object val = iCurrentRecord.getProperty(prop);

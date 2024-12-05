@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
@@ -34,7 +34,7 @@ public class ODeleteExecutionPlanner {
     this.unsafe = stm.isUnsafe();
   }
 
-  public ODeleteExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public ODeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     ODeleteExecutionPlan result = new ODeleteExecutionPlan(ctx);
 
     if (handleIndexAsTarget(
@@ -65,7 +65,7 @@ public class ODeleteExecutionPlanner {
       ODeleteExecutionPlan result,
       OIndexIdentifier indexIdentifier,
       OWhereClause whereClause,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     if (indexIdentifier == null) {
       return false;
@@ -156,12 +156,12 @@ public class ODeleteExecutionPlanner {
   }
 
   private void handleDelete(
-      ODeleteExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      ODeleteExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     result.chain(new DeleteStep(ctx, profilingEnabled));
   }
 
   private void handleUnsafe(
-      ODeleteExecutionPlan result, OCommandContext ctx, boolean unsafe, boolean profilingEnabled) {
+      ODeleteExecutionPlan result, CommandContext ctx, boolean unsafe, boolean profilingEnabled) {
     if (!unsafe) {
       result.chain(new CheckSafeDeleteStep(ctx, profilingEnabled));
     }
@@ -169,7 +169,7 @@ public class ODeleteExecutionPlanner {
 
   private void handleReturn(
       ODeleteExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean returnBefore,
       boolean profilingEnabled) {
     if (!returnBefore) {
@@ -178,7 +178,7 @@ public class ODeleteExecutionPlanner {
   }
 
   private void handleLimit(
-      OUpdateExecutionPlan plan, OCommandContext ctx, OLimit limit, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, OLimit limit, boolean profilingEnabled) {
     if (limit != null) {
       plan.chain(new LimitExecutionStep(limit, ctx, profilingEnabled));
     }
@@ -186,7 +186,7 @@ public class ODeleteExecutionPlanner {
 
   private void handleTarget(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OFromClause target,
       OWhereClause whereClause,
       boolean profilingEnabled) {

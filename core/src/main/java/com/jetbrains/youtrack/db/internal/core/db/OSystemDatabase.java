@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -67,7 +67,7 @@ public class OSystemDatabase {
           if (cls != null) {
             cls.addCluster(sysdb, clusterName);
           } else {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(this, "createCluster() Class name %s does not exist", null, className);
           }
         }
@@ -152,7 +152,7 @@ public class OSystemDatabase {
     final YTDatabaseSessionInternal oldDbInThread = tl != null ? tl.getIfDefined() : null;
     try {
       if (!exists()) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(this, "Creating the system database '%s' for current server", SYSTEM_DB_NAME);
 
         YouTrackDBConfig config =

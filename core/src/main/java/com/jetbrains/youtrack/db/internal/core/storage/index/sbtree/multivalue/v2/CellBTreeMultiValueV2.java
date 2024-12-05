@@ -39,9 +39,9 @@ import com.jetbrains.youtrack.db.internal.core.iterator.OEmptyIterator;
 import com.jetbrains.youtrack.db.internal.core.iterator.OEmptyMapEntryIterator;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2.OSBTreeV2;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.OCellBTreeMultiValue;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -92,7 +92,7 @@ import java.util.stream.StreamSupport;
  *
  * @since 8/7/13
  */
-public final class CellBTreeMultiValueV2<K> extends ODurableComponent
+public final class CellBTreeMultiValueV2<K> extends DurableComponent
     implements OCellBTreeMultiValue<K> {
 
   private static final int M_ID_BATCH_SIZE = 131_072;
@@ -127,7 +127,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
       final String dataFileExtension,
       final String nullFileExtension,
       final String containerExtension,
-      final OAbstractPaginatedStorage storage) {
+      final AbstractPaginatedStorage storage) {
     super(storage, name, dataFileExtension, name + dataFileExtension);
     acquireExclusiveLock();
     try {

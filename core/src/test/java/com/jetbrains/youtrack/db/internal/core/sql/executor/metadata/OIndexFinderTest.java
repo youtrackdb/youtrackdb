@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
@@ -45,7 +45,7 @@ public class OIndexFinderTest {
     prop1.createIndex(session, INDEX_TYPE.UNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = finder.findExactIndex(new OPath("name"), null, ctx);
 
     assertEquals("cl.name", result.get().getName());
@@ -64,7 +64,7 @@ public class OIndexFinderTest {
     prop1.createIndex(session, INDEX_TYPE.UNIQUE_HASH_INDEX);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = finder.findExactIndex(new OPath("name"), null, ctx);
 
     assertEquals("cl.name", result.get().getName());
@@ -83,7 +83,7 @@ public class OIndexFinderTest {
     prop1.createIndex(session, INDEX_TYPE.UNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result =
         finder.findAllowRangeIndex(new OPath("name"), Operation.Ge, null, ctx);
 
@@ -106,7 +106,7 @@ public class OIndexFinderTest {
     prop2.createIndex(session, INDEX_TYPE.FULLTEXT);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result =
         finder.findAllowRangeIndex(new OPath("name"), Operation.Ge, null, ctx);
 
@@ -130,7 +130,7 @@ public class OIndexFinderTest {
     this.session.command("create index cl.map on cl(map by key) NOTUNIQUE").close();
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = finder.findByKeyIndex(new OPath("map"), null, ctx);
 
     assertEquals("cl.map", result.get().getName());
@@ -143,7 +143,7 @@ public class OIndexFinderTest {
     this.session.command("create index cl.map on cl(map by value) NOTUNIQUE").close();
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = finder.findByValueIndex(new OPath("map"), null, ctx);
 
     assertEquals("cl.map", result.get().getName());
@@ -156,7 +156,7 @@ public class OIndexFinderTest {
     prop.createIndex(session, INDEX_TYPE.FULLTEXT);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = finder.findFullTextIndex(new OPath("name"), null, ctx);
 
     assertEquals("cl.name", result.get().getName());
@@ -171,7 +171,7 @@ public class OIndexFinderTest {
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     OPath path = new OPath("name");
     path.addPre("friend");
     path.addPre("friend");
@@ -188,7 +188,7 @@ public class OIndexFinderTest {
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     OPath path = new OPath("name");
     path.addPre("friend");
     path.addPre("friend");
@@ -205,7 +205,7 @@ public class OIndexFinderTest {
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     OPath path = new OPath("map");
     path.addPre("friend");
     path.addPre("friend");
@@ -222,7 +222,7 @@ public class OIndexFinderTest {
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     OPath path = new OPath("map");
     path.addPre("friend");
     path.addPre("friend");
@@ -239,7 +239,7 @@ public class OIndexFinderTest {
     prop1.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     OPath path = new OPath("name");
     path.addPre("friend");
     path.addPre("friend");
@@ -256,7 +256,7 @@ public class OIndexFinderTest {
     cl.createIndex(session, "cl.name_surname", INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     OIndexFinder finder = new OClassIndexFinder("cl");
-    OBasicCommandContext ctx = new OBasicCommandContext(session);
+    BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = finder.findExactIndex(new OPath("name"), null, ctx);
 
     assertEquals("cl.name_surname", result.get().getName());

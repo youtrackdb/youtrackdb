@@ -20,7 +20,7 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.lucene.analyzer.OLucenePerFieldAnalyzerWrapper;
@@ -66,7 +66,7 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
 
     try (InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       db.execute("sql", getScriptFromStream(stream)).close();
-      OFileUtils.deleteRecursively(getPath().getAbsoluteFile());
+      FileUtils.deleteRecursively(getPath().getAbsoluteFile());
 
       analyzer = new OLucenePerFieldAnalyzerWrapper(new StandardAnalyzer());
       analyzer.add("title", new StandardAnalyzer()).add("Song.title", new StandardAnalyzer());

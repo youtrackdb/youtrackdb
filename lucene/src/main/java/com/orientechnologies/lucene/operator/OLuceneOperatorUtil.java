@@ -16,7 +16,7 @@
 
 package com.orientechnologies.lucene.operator;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.sql.OIndexSearchResult;
@@ -35,7 +35,7 @@ public class OLuceneOperatorUtil {
       YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext context) {
+      CommandContext context) {
 
     if (iCondition.getLeft() instanceof Collection left) {
       OIndexSearchResult lastResult = null;

@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.server;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ONullSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
@@ -51,7 +51,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.YTOfflineClusterException;
 import com.jetbrains.youtrack.db.internal.core.storage.config.OClusterBasedStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.OTreeInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
@@ -309,7 +309,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           ODatabaseType.valueOf(request.getStorageMode().toUpperCase(Locale.ENGLISH)),
           null);
     }
-    OLogManager.instance()
+    LogManager.instance()
         .info(
             this,
             "Created database '%s' of type '%s'",
@@ -342,7 +342,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeDropDatabase(ODropDatabaseRequest request) {
 
     server.dropDatabase(request.getDatabaseName());
-    OLogManager.instance().info(this, "Dropped database '%s'", request.getDatabaseName());
+    LogManager.instance().info(this, "Dropped database '%s'", request.getDatabaseName());
     connection.close();
     return new ODropDatabaseResponse();
   }
@@ -633,7 +633,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     final boolean live = request.isLive();
     final boolean asynch = request.isAsynch();
 
-    OCommandRequestText command = request.getQuery();
+    CommandRequestText command = request.getQuery();
 
     final Map<Object, Object> params = command.getParameters();
 
@@ -685,7 +685,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     // ASSIGNED THE PARSED FETCHPLAN
     var db = connection.getDatabase();
-    final OCommandRequestText commandRequest = db.command(command);
+    final CommandRequestText commandRequest = db.command(command);
     listener.setFetchPlan(commandRequest.getFetchPlan());
     OCommandResponse response;
     if (asynch) {
@@ -835,7 +835,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
             .openNoAuthenticate(request.getName(), connection.getServerUser().getName(null));
     connection.setDatabase(database);
 
-    OLogManager.instance().info(this, "Freezing database '%s'", connection.getDatabase().getURL());
+    LogManager.instance().info(this, "Freezing database '%s'", connection.getDatabase().getURL());
 
     connection.getDatabase().freeze(true);
     return new OFreezeDatabaseResponse();
@@ -850,7 +850,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     connection.setDatabase(database);
 
-    OLogManager.instance().info(this, "Realising database '%s'", connection.getDatabase().getURL());
+    LogManager.instance().info(this, "Realising database '%s'", connection.getDatabase().getURL());
 
     connection.getDatabase().release();
     return new OReleaseDatabaseResponse();
@@ -871,7 +871,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     OBonsaiCollectionPointer collectionPointer = null;
     try {
       final YTDatabaseSessionInternal database = connection.getDatabase();
-      final OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) database.getStorage();
+      final AbstractPaginatedStorage storage = (AbstractPaginatedStorage) database.getStorage();
       final OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
       collectionPointer =
           atomicOperationsManager.calculateInsideAtomicOperation(
@@ -988,7 +988,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeImport(OImportRequest request) {
     List<String> result = new ArrayList<>();
-    OLogManager.instance().info(this, "Starting database import");
+    LogManager.instance().info(this, "Starting database import");
     ODatabaseImport imp;
     try {
       imp =
@@ -996,7 +996,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               connection.getDatabase(),
               request.getImporPath(),
               iText -> {
-                OLogManager.instance().debug(OConnectionBinaryExecutor.this, iText);
+                LogManager.instance().debug(OConnectionBinaryExecutor.this, iText);
                 if (iText != null) {
                   result.add(iText);
                 }
@@ -1032,7 +1032,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     if (!request.isTokenBased()
         && !GlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Session open with token flag false is not supported anymore please use token based"
@@ -1113,7 +1113,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     connection.getData().setSerializationImpl(request.getRecordFormat());
     if (!request.isUseToken()
         && !GlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Session open with token flag false is not supported anymore please use token based"
@@ -1241,13 +1241,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeShutdown(OShutdownRequest request) {
 
-    OLogManager.instance().info(this, "Received shutdown command from the remote client ");
+    LogManager.instance().info(this, "Received shutdown command from the remote client ");
 
     final String user = request.getRootUser();
     final String passwd = request.getRootPassword();
 
     if (server.authenticate(user, passwd, "server.shutdown")) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "Remote client authenticated. Starting shutdown of server...");
 
       runShutdownInNonDaemonThread();
@@ -1255,7 +1255,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       return new OShutdownResponse();
     }
 
-    OLogManager.instance()
+    LogManager.instance()
         .error(this, "Authentication error of remote client: shutdown is aborted.", null);
 
     throw new YTSecurityAccessException("Invalid user/password to shutdown the server");
@@ -1905,7 +1905,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
             request.getDistributedProtocolVersion(),
             ORemoteServerController.CURRENT_PROTOCOL_VERSION);
     if (chosenProtocolVersion < ORemoteServerController.MIN_SUPPORTED_PROTOCOL_VERSION) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Rejected distributed connection from '%s' too old not supported",

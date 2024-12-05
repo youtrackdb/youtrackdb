@@ -2,12 +2,12 @@ package com.orientechnologies.orient.client.remote;
 
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.orientechnologies.orient.client.remote.StorageRemote.CONNECTION_STRATEGY;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -46,7 +46,7 @@ public class ORemoteURLs {
 
   public synchronized String removeAndGet(String url) {
     remove(url);
-    OLogManager.instance().debug(this, "Updated server list: %s...", serverURLs);
+    LogManager.instance().debug(this, "Updated server list: %s...", serverURLs);
 
     if (!serverURLs.isEmpty()) {
       return serverURLs.get(0);
@@ -91,7 +91,7 @@ public class ORemoteURLs {
 
     if (!serverURLs.contains(host)) {
       serverURLs.add(host);
-      OLogManager.instance().debug(this, "Registered the new available server '%s'", host);
+      LogManager.instance().debug(this, "Registered the new available server '%s'", host);
     }
 
     return host;
@@ -113,7 +113,7 @@ public class ORemoteURLs {
       addresses.add(url);
     } else {
       Collections.addAll(
-          addresses, url.substring(0, dbPos).split(OStorageRemote.ADDRESS_SEPARATOR));
+          addresses, url.substring(0, dbPos).split(StorageRemote.ADDRESS_SEPARATOR));
     }
     return addresses;
   }
@@ -152,7 +152,7 @@ public class ORemoteURLs {
 
   private List<String> fetchHostsFromDns(
       final String primaryServer, YTContextConfiguration contextConfiguration) {
-    OLogManager.instance()
+    LogManager.instance()
         .debug(
             this,
             "Retrieving URLs from DNS '%s' (timeout=%d)...",
@@ -289,7 +289,7 @@ public class ORemoteURLs {
         } else {
           url = session.getServerUrl();
         }
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "ROUND_ROBIN_CONNECT: Next remote operation will be executed on server: %s"
@@ -300,7 +300,7 @@ public class ORemoteURLs {
 
       case ROUND_ROBIN_REQUEST:
         url = getServerURFromList(true, session, contextConfiguration);
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "ROUND_ROBIN_REQUEST: Next remote operation will be executed on server: %s"

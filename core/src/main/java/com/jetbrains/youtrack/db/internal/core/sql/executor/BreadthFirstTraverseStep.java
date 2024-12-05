@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OInteger;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseProjectionItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
@@ -25,14 +25,14 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       List<OTraverseProjectionItem> projections,
       OWhereClause whileClause,
       OInteger maxDepth,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(projections, whileClause, maxDepth, ctx, profilingEnabled);
   }
 
   @Override
   protected void fetchNextEntryPoints(
-      OExecutionStream nextN, OCommandContext ctx, List<YTResult> entryPoints,
+      ExecutionStream nextN, CommandContext ctx, List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     // Doing max batch of 100 entry points for now
     while (nextN.hasNext(ctx) && entryPoints.size() < 100) {
@@ -81,7 +81,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
   @Override
   protected void fetchNextResults(
-      OCommandContext ctx, List<YTResult> results, List<YTResult> entryPoints,
+      CommandContext ctx, List<YTResult> results, List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     if (!entryPoints.isEmpty()) {
       YTTraverseResult item = (YTTraverseResult) entryPoints.remove(0);
@@ -105,7 +105,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       Object nextStep,
       int depth,
       List<YTIdentifiable> path,
-      OCommandContext ctx,
+      CommandContext ctx,
       List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     if (nextStep instanceof YTIdentifiable) {
@@ -125,7 +125,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       Iterator nextStep,
       int depth,
       List<YTIdentifiable> path,
-      OCommandContext ctx,
+      CommandContext ctx,
       List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     while (nextStep.hasNext()) {
@@ -137,7 +137,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       YTIdentifiable nextStep,
       int depth,
       List<YTIdentifiable> path,
-      OCommandContext ctx,
+      CommandContext ctx,
       List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     if (traversed.contains(nextStep.getIdentity())) {
@@ -166,7 +166,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       YTResult nextStep,
       int depth,
       List<YTIdentifiable> path,
-      OCommandContext ctx,
+      CommandContext ctx,
       List<YTResult> entryPoints,
       Set<YTRID> traversed) {
     if (!nextStep.isEntity()) {
@@ -214,7 +214,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
   }
 
   private void tryAddEntryPoint(
-      YTResult res, OCommandContext ctx, List<YTResult> entryPoints, Set<YTRID> traversed) {
+      YTResult res, CommandContext ctx, List<YTResult> entryPoints, Set<YTRID> traversed) {
     if (whileClause == null || whileClause.matchesFilters(res, ctx)) {
       entryPoints.add(res);
     }
@@ -223,7 +223,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ BREADTH-FIRST TRAVERSE \n");

@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local;
 
 final class OWALVacuum implements Runnable {
 
-  private final OAbstractPaginatedStorage storage;
+  private final AbstractPaginatedStorage storage;
 
-  public OWALVacuum(OAbstractPaginatedStorage storage) {
+  public OWALVacuum(AbstractPaginatedStorage storage) {
     this.storage = storage;
   }
 

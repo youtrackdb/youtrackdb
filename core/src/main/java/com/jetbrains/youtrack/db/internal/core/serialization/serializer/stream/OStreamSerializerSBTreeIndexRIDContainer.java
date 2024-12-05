@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OIndexRIDContainer;
@@ -160,7 +160,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
-              fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
+              fileId, rootPointer, (AbstractPaginatedStorage) db.getStorage());
       return new OIndexRIDContainer(fileId, underlying, durable);
     }
   }
@@ -237,7 +237,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
-              fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
+              fileId, rootPointer, (AbstractPaginatedStorage) db.getStorage());
       return new OIndexRIDContainer(fileId, underlying, durable);
     }
   }
@@ -276,7 +276,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
-              fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
+              fileId, rootPointer, (AbstractPaginatedStorage) db.getStorage());
       return new OIndexRIDContainer(fileId, underlying, durable);
     }
   }
@@ -331,7 +331,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
-              fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
+              fileId, rootPointer, (AbstractPaginatedStorage) db.getStorage());
       return new OIndexRIDContainer(fileId, underlying, durable);
     }
   }

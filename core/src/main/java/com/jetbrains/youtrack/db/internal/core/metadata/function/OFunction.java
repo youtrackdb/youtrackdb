@@ -22,8 +22,8 @@ package com.jetbrains.youtrack.db.internal.core.metadata.function;
 import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.OScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -132,9 +132,9 @@ public class OFunction extends ODocumentWrapper {
   }
 
   @Deprecated
-  public Object executeInContext(OCommandContext iContext, final Object... iArgs) {
+  public Object executeInContext(CommandContext iContext, final Object... iArgs) {
     if (iContext == null) {
-      iContext = new OBasicCommandContext();
+      iContext = new BasicCommandContext();
     }
     var database = iContext.getDatabase();
     final List<String> params = getParameters(database);
@@ -173,7 +173,7 @@ public class OFunction extends ODocumentWrapper {
     return executor.executeFunction(iContext, getName(database), args);
   }
 
-  public Object executeInContext(@Nonnull OCommandContext iContext,
+  public Object executeInContext(@Nonnull CommandContext iContext,
       @Nonnull final Map<String, Object> iArgs) {
     YTDatabaseSessionInternal database = iContext.getDatabase();
     // CONVERT PARAMETERS IN A MAP

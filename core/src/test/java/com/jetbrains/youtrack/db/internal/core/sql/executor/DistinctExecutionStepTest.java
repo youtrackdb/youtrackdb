@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -17,7 +17,7 @@ public class DistinctExecutionStepTest extends DBTestBase {
 
   @Test
   public void test() {
-    var ctx = new OBasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(db);
 
     DistinctExecutionStep step = new DistinctExecutionStep(ctx, false);
@@ -27,7 +27,7 @@ public class DistinctExecutionStepTest extends DBTestBase {
           boolean done = false;
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
             List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
@@ -37,12 +37,12 @@ public class DistinctExecutionStepTest extends DBTestBase {
               }
               done = true;
             }
-            return OExecutionStream.resultIterator(result.iterator());
+            return ExecutionStream.resultIterator(result.iterator());
           }
         };
 
     step.setPrevious(prev);
-    OExecutionStream res = step.start(ctx);
+    ExecutionStream res = step.start(ctx);
     Assert.assertTrue(res.hasNext(ctx));
     res.next(ctx);
     Assert.assertTrue(res.hasNext(ctx));

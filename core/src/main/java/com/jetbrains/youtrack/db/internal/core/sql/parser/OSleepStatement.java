@@ -2,9 +2,9 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -21,7 +21,7 @@ public class OSleepStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     YTResultInternal item = new YTResultInternal(ctx.getDatabase());
     item.setProperty("operation", "sleep");
     try {
@@ -33,7 +33,7 @@ public class OSleepStatement extends OSimpleExecStatement {
       item.setProperty("errorType", e.getClass().getSimpleName());
       item.setProperty("errorMessage", e.getMessage());
     }
-    return OExecutionStream.singleton(item);
+    return ExecutionStream.singleton(item);
   }
 
   @Override

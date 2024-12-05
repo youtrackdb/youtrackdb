@@ -45,7 +45,7 @@ public class OrientJdbcStatement implements Statement {
   protected final int resultSetConcurrency;
   protected final int resultSetHoldability;
   protected final Properties info;
-  //   protected OCommandSQL               sql;
+  //   protected CommandSQL               sql;
   protected String sql;
   //  protected       List<EntityImpl>      documents;
   protected boolean closed;
@@ -339,7 +339,7 @@ public class OrientJdbcStatement implements Statement {
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
     try {
       // the following if-then structure makes sense if the query can be a
-      // subclass of OCommandSQL.
+      // subclass of CommandSQL.
 
       if (this.sql != null) {
         return this.sql.getClass().isAssignableFrom(iface);

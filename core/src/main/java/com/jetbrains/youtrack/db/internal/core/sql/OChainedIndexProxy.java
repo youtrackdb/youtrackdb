@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
-import com.jetbrains.youtrack.db.internal.common.profiler.OProfilerStub;
+import com.jetbrains.youtrack.db.internal.common.profiler.ProfilerStub;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -38,7 +38,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField.FieldChain;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -448,7 +448,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   /**
-   * Register statistic information about usage of index in {@link OProfilerStub}.
+   * Register statistic information about usage of index in {@link ProfilerStub}.
    *
    * @param index which usage is registering.
    */
@@ -770,20 +770,20 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public void doPut(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key,
       YTRID rid) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
   @Override
-  public boolean doRemove(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public boolean doRemove(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key, YTRID rid) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
   @Override
-  public boolean doRemove(OAbstractPaginatedStorage storage, Object key) {
+  public boolean doRemove(AbstractPaginatedStorage storage, Object key) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 
 /**
@@ -38,7 +38,7 @@ public class OSQLFunctionTraversedVertex extends OSQLFunctionTraversedElement {
       final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     return evaluate(iThis, iParams, iContext, "V");
   }
 }

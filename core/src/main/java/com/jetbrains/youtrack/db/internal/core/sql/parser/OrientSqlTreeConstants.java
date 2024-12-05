@@ -224,7 +224,7 @@ public interface OrientSqlTreeConstants {
       "SelectWithoutTargetStatement",
       "SelectStatement",
       "TraverseStatement",
-      "MatchStatement",
+      "OMatchStatement",
       "DeleteStatement",
       "DeleteVertexStatement",
       "DeleteEdgeStatement",

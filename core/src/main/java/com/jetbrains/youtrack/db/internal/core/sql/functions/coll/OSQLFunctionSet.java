@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -49,7 +49,7 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
       final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     if (iParams.length > 1)
     // IN LINE MODE
     {

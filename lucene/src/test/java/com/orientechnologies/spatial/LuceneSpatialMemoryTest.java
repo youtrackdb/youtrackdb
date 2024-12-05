@@ -14,7 +14,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -131,7 +131,7 @@ public class LuceneSpatialMemoryTest {
               .setOperation(SpatialOperation.IsWithin);
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
-      var baseContext = new OBasicCommandContext();
+      var baseContext = new BasicCommandContext();
       baseContext.setDatabase(db);
       oSpatialCompositeKey.setContext(baseContext);
 
@@ -211,7 +211,7 @@ public class LuceneSpatialMemoryTest {
                 }
               })
               .setOperation(SpatialOperation.IsWithin);
-      var context = new OBasicCommandContext();
+      var context = new BasicCommandContext();
       context.setDatabase(db);
       oSpatialCompositeKey.setContext(context);
 

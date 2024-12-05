@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
 import java.io.IOException;
@@ -148,7 +148,7 @@ public class StorageStartupMetadata {
     try {
       fileLock = channel.tryLock();
     } catch (OverlappingFileLockException e) {
-      OLogManager.instance().warn(this, "File is already locked by other thread", e);
+      LogManager.instance().warn(this, "File is already locked by other thread", e);
     }
 
     if (fileLock == null) {
@@ -178,7 +178,7 @@ public class StorageStartupMetadata {
               Files.move(backupPath, filePath);
             }
           } else {
-            OLogManager.instance()
+            LogManager.instance()
                 .info(this, "File with startup metadata does not exist, creating new one");
             create(createdAtVersion);
             return;
@@ -217,7 +217,7 @@ public class StorageStartupMetadata {
           final long xxHash = XX_HASH_64.hash(buffer, 8, buffer.capacity() - 8, XX_HASH_SEED);
           if (xxHash != buffer.getLong(0)) {
             if (!Files.exists(backupPath)) {
-              OLogManager.instance()
+              LogManager.instance()
                   .error(
                       this,
                       "File with startup metadata is broken and can not be used, "
@@ -227,7 +227,7 @@ public class StorageStartupMetadata {
               create(createdAtVersion);
               return;
             } else {
-              OLogManager.instance()
+              LogManager.instance()
                   .error(
                       this,
                       "File with startup metadata is broken and can not be used, "

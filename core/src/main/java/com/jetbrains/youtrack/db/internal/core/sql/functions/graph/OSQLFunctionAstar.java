@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
@@ -82,7 +82,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
       final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     context = iContext;
     final OSQLFunctionAstar context = this;
 
@@ -143,7 +143,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
   }
 
   private LinkedList<Vertex> internalExecute(
-      final OCommandContext iContext, YTDatabaseSession graph) {
+      final CommandContext iContext, YTDatabaseSession graph) {
 
     Vertex start = paramSourceVertex;
     Vertex goal = paramDestinationVertex;
@@ -352,7 +352,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
 
   @Override
   protected double getHeuristicCost(
-      final Vertex node, Vertex parent, final Vertex target, OCommandContext iContext) {
+      final Vertex node, Vertex parent, final Vertex target, CommandContext iContext) {
     double hresult = 0.0;
 
     if (paramVertexAxisNames.length == 0) {

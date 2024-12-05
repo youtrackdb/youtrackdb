@@ -23,9 +23,9 @@ import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
 
 /**
- * Listener for OLiveQuery.
+ * Listener for LiveQuery.
  *
- * @see: OLiveQuery
+ * @see: LiveQuery
  */
 public interface OLiveResultListener {
 

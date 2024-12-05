@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OReturnStatement;
 
 /**
@@ -14,13 +14,13 @@ public class ScriptLineStep extends AbstractExecutionStep {
   protected final OInternalExecutionPlan plan;
 
   public ScriptLineStep(
-      OInternalExecutionPlan nextPlan, OCommandContext ctx, boolean profilingEnabled) {
+      OInternalExecutionPlan nextPlan, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.plan = nextPlan;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (plan instanceof OInsertExecutionPlan) {
       ((OInsertExecutionPlan) plan).executeInternal();
     } else if (plan instanceof ODeleteExecutionPlan) {
@@ -28,9 +28,9 @@ public class ScriptLineStep extends AbstractExecutionStep {
     } else if (plan instanceof OUpdateExecutionPlan) {
       ((OUpdateExecutionPlan) plan).executeInternal();
     } else if (plan instanceof ODDLExecutionPlan) {
-      ((ODDLExecutionPlan) plan).executeInternal((OBasicCommandContext) ctx);
+      ((ODDLExecutionPlan) plan).executeInternal((BasicCommandContext) ctx);
     } else if (plan instanceof OSingleOpExecutionPlan) {
-      ((OSingleOpExecutionPlan) plan).executeInternal((OBasicCommandContext) ctx);
+      ((OSingleOpExecutionPlan) plan).executeInternal((BasicCommandContext) ctx);
     }
     return plan.start();
   }
@@ -56,7 +56,7 @@ public class ScriptLineStep extends AbstractExecutionStep {
     return false;
   }
 
-  public OExecutionStepInternal executeUntilReturn(OCommandContext ctx) {
+  public ExecutionStepInternal executeUntilReturn(CommandContext ctx) {
     if (plan instanceof OScriptExecutionPlan) {
       return ((OScriptExecutionPlan) plan).executeUntilReturn();
     }

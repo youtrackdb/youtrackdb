@@ -26,8 +26,8 @@ import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OBaseIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.index.engine.ORemoteIndexEngine;
 import java.util.Collections;
 import java.util.HashSet;
@@ -80,7 +80,7 @@ public class OAutoShardingIndexFactory implements OIndexFactory {
     return ALGORITHMS;
   }
 
-  public OIndexInternal createIndex(OStorage storage, OIndexMetadata im)
+  public OIndexInternal createIndex(Storage storage, OIndexMetadata im)
       throws YTConfigurationException {
     int version = im.getVersion();
     final String indexType = im.getType();
@@ -110,11 +110,11 @@ public class OAutoShardingIndexFactory implements OIndexFactory {
   }
 
   @Override
-  public OBaseIndexEngine createIndexEngine(OStorage storage, IndexEngineData data) {
+  public OBaseIndexEngine createIndexEngine(Storage storage, IndexEngineData data) {
     final OIndexEngine indexEngine;
 
     final String storageType = storage.getType();
-    OAbstractPaginatedStorage realStorage = (OAbstractPaginatedStorage) storage;
+    AbstractPaginatedStorage realStorage = (AbstractPaginatedStorage) storage;
     switch (storageType) {
       case "memory":
       case "plocal":

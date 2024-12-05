@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.plugin.mail;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.script.OScriptInjection;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
@@ -68,7 +68,7 @@ public class OMailPlugin extends OServerPluginAbstract
    * @throws ParseException
    */
   public void send(final Map<String, Object> iMessage) {
-    OLogManager.instance().warn(this, "Mail send is non available in this YouTrackDB version");
+    LogManager.instance().warn(this, "Mail send is non available in this YouTrackDB version");
   }
 
   @Override

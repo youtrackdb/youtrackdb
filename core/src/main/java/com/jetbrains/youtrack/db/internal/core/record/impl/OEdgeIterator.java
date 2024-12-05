@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -28,10 +28,10 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundExcepti
 import com.jetbrains.youtrack.db.internal.core.iterator.OLazyWrapperIterator;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import java.util.Iterator;
 
@@ -87,13 +87,13 @@ public class OEdgeIterator extends OLazyWrapperIterator<Edge> {
       record = rec.getRecord();
     } catch (YTRecordNotFoundException rnf) {
       // SKIP IT
-      OLogManager.instance().warn(this, "Record (%s) is null", rec);
+      LogManager.instance().warn(this, "Record (%s) is null", rec);
       return null;
     }
 
     if (!(record instanceof Entity value)) {
       // SKIP IT
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Found a record (%s) that is not an edge. Source vertex : %s, Target vertex : %s,"

@@ -3,9 +3,9 @@ package com.orientechnologies.orient.server;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -43,7 +43,7 @@ public class OServerDatabaseOperationsTest {
       InvocationTargetException,
       IllegalAccessException,
       InstantiationException {
-    OLogManager.instance().setConsoleLevel(Level.OFF.getName());
+    LogManager.instance().setConsoleLevel(Level.OFF.getName());
     OServerConfiguration conf = new OServerConfiguration();
 
     conf.handlers = new ArrayList<>();
@@ -81,7 +81,7 @@ public class OServerDatabaseOperationsTest {
     server.shutdown();
 
     YouTrackDBManager.instance().shutdown();
-    OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
+    FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
     YouTrackDBManager.instance().startup();
   }
 

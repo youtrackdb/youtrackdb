@@ -20,7 +20,7 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -84,7 +84,7 @@ public class LuceneAutomaticBackupRestoreTest {
     final File buildDirectoryFile = new File(buildDirectory);
 
     tempFolder = new File(buildDirectoryFile, name.getMethodName());
-    OFileUtils.deleteRecursively(tempFolder);
+    FileUtils.deleteRecursively(tempFolder);
     Assert.assertTrue(tempFolder.mkdirs());
 
     System.setProperty("YOU_TRACK_DB_HOME", tempFolder.getCanonicalPath());
@@ -144,7 +144,7 @@ public class LuceneAutomaticBackupRestoreTest {
     if (!os.contains("win")) {
       dropIfExists();
 
-      OFileUtils.deleteRecursively(tempFolder);
+      FileUtils.deleteRecursively(tempFolder);
     }
   }
 

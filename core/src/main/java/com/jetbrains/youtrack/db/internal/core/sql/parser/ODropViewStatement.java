@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,13 +25,13 @@ public class ODropViewStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
     YTSchema schema = db.getMetadata().getSchema();
     YTView view = schema.getView(name.getStringValue());
     if (view == null) {
       if (ifExists) {
-        return OExecutionStream.empty();
+        return ExecutionStream.empty();
       }
       throw new YTCommandExecutionException("View " + name.getStringValue() + " does not exist");
     }
@@ -58,7 +58,7 @@ public class ODropViewStatement extends ODDLStatement {
     YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "drop view");
     result.setProperty("viewName", name.getStringValue());
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   @Override

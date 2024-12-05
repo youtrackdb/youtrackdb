@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.common.collection.OLazyIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -221,7 +221,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           try {
             return new YTRecordId(linkAsString);
           } catch (IllegalArgumentException e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(
                     this,
                     "Error on unmarshalling field '%s' of record '%s': value '%s' is not a link",

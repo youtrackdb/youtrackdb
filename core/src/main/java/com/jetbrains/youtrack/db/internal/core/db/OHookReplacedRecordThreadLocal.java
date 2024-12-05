@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.OOrientListenerAbstract;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 
@@ -34,7 +34,7 @@ public class OHookReplacedRecordThreadLocal extends ThreadLocal<Record> {
   static {
     YouTrackDBManager.instance()
         .registerListener(
-            new OOrientListenerAbstract() {
+            new YouTrackDBListenerAbstract() {
               @Override
               public void onStartup() {
                 if (INSTANCE == null) {

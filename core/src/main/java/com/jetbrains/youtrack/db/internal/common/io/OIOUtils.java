@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.common.io;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OPatternConst;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -473,7 +473,7 @@ public class OIOUtils {
       var fileStore = Files.getFileStore(path);
       return (int) fileStore.getBlockSize();
     } catch (IOException | UnsupportedOperationException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               OIOUtils.class,
               "Error during calculation file system "

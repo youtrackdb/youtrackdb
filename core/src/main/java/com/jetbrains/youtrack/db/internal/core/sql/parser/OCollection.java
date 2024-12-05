@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -58,7 +58,7 @@ public class OCollection extends SimpleNode {
     this.expressions.add(exp);
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (OExpression exp : expressions) {
       result.add(exp.execute(iCurrentRecord, ctx));
@@ -66,7 +66,7 @@ public class OCollection extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (OExpression exp : expressions) {
       result.add(convert(exp.execute(iCurrentRecord, ctx)));
@@ -100,7 +100,7 @@ public class OCollection extends SimpleNode {
   }
 
   public OCollection splitForAggregation(
-      AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     var db = ctx.getDatabase();
     if (isAggregate(db)) {
       OCollection result = new OCollection(-1);
@@ -118,7 +118,7 @@ public class OCollection extends SimpleNode {
     }
   }
 
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
     for (OExpression exp : expressions) {
       if (!exp.isEarlyCalculated(ctx)) {
         return false;

@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
@@ -72,7 +72,7 @@ public class OCreatePropertyAttributeStatement extends SimpleNode {
     return result;
   }
 
-  public Object setOnProperty(YTPropertyImpl internalProp, OCommandContext ctx) {
+  public Object setOnProperty(YTPropertyImpl internalProp, CommandContext ctx) {
     String attrName = settingName.getStringValue();
     var db = ctx.getDatabase();
     Object attrValue =

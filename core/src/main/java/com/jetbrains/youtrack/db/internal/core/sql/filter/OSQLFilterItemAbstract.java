@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
-import com.jetbrains.youtrack.db.internal.common.parser.OBaseParser;
+import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -54,7 +54,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
   protected OSQLFilterItemAbstract() {
   }
 
-  public OSQLFilterItemAbstract(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public OSQLFilterItemAbstract(YTDatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iText) {
     final List<String> parts =
         OStringSerializerHelper.smartSplit(
@@ -177,7 +177,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
   public abstract String getRoot(YTDatabaseSession session);
 
   public Object transformValue(
-      final YTIdentifiable iRecord, @Nonnull final OCommandContext iContext, Object ioResult) {
+      final YTIdentifiable iRecord, @Nonnull final CommandContext iContext, Object ioResult) {
     if (ioResult != null && operationsChain != null) {
       // APPLY OPERATIONS FOLLOWING THE STACK ORDER
       OSQLMethodRuntime method = null;
@@ -240,7 +240,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
     return super.toString();
   }
 
-  protected abstract void setRoot(YTDatabaseSessionInternal session, OBaseParser iQueryToParse,
+  protected abstract void setRoot(YTDatabaseSessionInternal session, BaseParser iQueryToParse,
       final String iRoot);
 
   protected OCollate getCollateForField(final YTClass iClass, final String iFieldName) {

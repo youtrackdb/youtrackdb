@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security.authenticator;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
@@ -34,7 +34,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   // OSecurityComponent
   // Called once the Server is running.
   public void active() {
-    OLogManager.instance().debug(this, "OSystemUserAuthenticator is active");
+    LogManager.instance().debug(this, "OSystemUserAuthenticator is active");
   }
 
   // OSecurityComponent
@@ -60,7 +60,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "authenticate()", ex);
+      LogManager.instance().error(this, "authenticate()", ex);
     }
 
     return null;
@@ -98,7 +98,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "isAuthorized()", ex);
+      LogManager.instance().error(this, "isAuthorized()", ex);
     }
 
     return false;
@@ -113,7 +113,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
         userCfg = getSecurity().getSystemUser(username, null);
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "getUser()", ex);
+      LogManager.instance().error(this, "getUser()", ex);
     }
 
     return userCfg;

@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -40,7 +40,7 @@ public abstract class OSQLFilterItemFieldMultiAbstract extends OSQLFilterItemAbs
   private final List<OCollate> collates = new ArrayList<OCollate>();
 
   public OSQLFilterItemFieldMultiAbstract(
-      YTDatabaseSessionInternal session, final OSQLPredicate iQueryCompiled,
+      YTDatabaseSessionInternal session, final SQLPredicate iQueryCompiled,
       final String iName,
       final YTClass iClass,
       final List<String> iNames) {
@@ -54,7 +54,7 @@ public abstract class OSQLFilterItemFieldMultiAbstract extends OSQLFilterItemAbs
   }
 
   public Object getValue(
-      final YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
+      final YTIdentifiable iRecord, Object iCurrentResult, CommandContext iContext) {
     final EntityImpl doc = ((EntityImpl) iRecord);
 
     if (names.size() == 1) {

@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 
 /**
@@ -12,24 +12,24 @@ public class SaveElementStep extends AbstractExecutionStep {
 
   private final OIdentifier cluster;
 
-  public SaveElementStep(OCommandContext ctx, OIdentifier cluster, boolean profilingEnabled) {
+  public SaveElementStep(CommandContext ctx, OIdentifier cluster, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.cluster = cluster;
   }
 
-  public SaveElementStep(OCommandContext ctx, boolean profilingEnabled) {
+  public SaveElementStep(CommandContext ctx, boolean profilingEnabled) {
     this(ctx, null, profilingEnabled);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
 
-    OExecutionStream upstream = prev.start(ctx);
+    ExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, CommandContext ctx) {
     if (result.isEntity()) {
       var db = ctx.getDatabase();
 
@@ -44,7 +44,7 @@ public class SaveElementStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ SAVE RECORD");
@@ -62,7 +62,7 @@ public class SaveElementStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new SaveElementStep(ctx, cluster == null ? null : cluster.copy(), profilingEnabled);
   }
 }

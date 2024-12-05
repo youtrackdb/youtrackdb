@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
  * Checks if a record can be safely deleted (throws YTCommandExecutionException in case). A record
@@ -20,18 +20,18 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecution
  */
 public class CheckSafeDeleteStep extends AbstractExecutionStep {
 
-  public CheckSafeDeleteStep(OCommandContext ctx, boolean profilingEnabled) {
+  public CheckSafeDeleteStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
-    OExecutionStream upstream = prev.start(ctx);
+    ExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, CommandContext ctx) {
     if (result.isEntity()) {
       var elem = result.toEntity();
       YTClass clazz = ODocumentInternal.getImmutableSchemaClass((EntityImpl) elem);
@@ -51,7 +51,7 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ CHECK SAFE DELETE");

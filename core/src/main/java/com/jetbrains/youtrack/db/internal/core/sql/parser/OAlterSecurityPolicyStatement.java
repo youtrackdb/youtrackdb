@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityPolicyImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 
 public class OAlterSecurityPolicyStatement extends OSimpleExecStatement {
@@ -37,7 +37,7 @@ public class OAlterSecurityPolicyStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
     OSecurityInternal security = db.getSharedContext().getSecurity();
     OSecurityPolicyImpl policy = security.getSecurityPolicy(db, name.getStringValue());
@@ -87,7 +87,7 @@ public class OAlterSecurityPolicyStatement extends OSimpleExecStatement {
     YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "alter security policy");
     result.setProperty("name", name.getStringValue());
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   @Override

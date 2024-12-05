@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.server.OClientConnection;
@@ -225,7 +225,7 @@ public class OHttpResponseImpl extends OHttpResponseAbstract {
       socket = getConnection().getProtocol().getChannel().socket;
     }
     if (socket == null || socket.isClosed() || socket.isInputShutdown()) {
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               this,
               "[OHttpResponse] found and removed pending closed channel %d (%s)",

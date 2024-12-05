@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
@@ -44,7 +44,7 @@ public class OSQLFunctionDistinct extends OSQLFunctionAbstract {
       final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     final Object value = iParams[0];
 
     if (value != null && !context.contains(value)) {

@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OGroupBy;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
@@ -26,7 +26,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       OProjection projection,
       OGroupBy groupBy,
       long limit,
-      OCommandContext ctx,
+      CommandContext ctx,
       long timeoutMillis,
       boolean profilingEnabled) {
     super(projection, ctx, profilingEnabled);
@@ -36,20 +36,20 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     List<YTResult> finalResults = executeAggregation(ctx);
-    return OExecutionStream.resultIterator(finalResults.iterator());
+    return ExecutionStream.resultIterator(finalResults.iterator());
   }
 
-  private List<YTResult> executeAggregation(OCommandContext ctx) {
+  private List<YTResult> executeAggregation(CommandContext ctx) {
     long timeoutBegin = System.currentTimeMillis();
     if (prev == null) {
       throw new YTCommandExecutionException(
           "Cannot execute an aggregation or a GROUP BY without a previous result");
     }
 
-    OExecutionStepInternal prevStep = prev;
-    OExecutionStream lastRs = prevStep.start(ctx);
+    ExecutionStepInternal prevStep = prev;
+    ExecutionStream lastRs = prevStep.start(ctx);
     Map<List<?>, YTResultInternal> aggregateResults = new LinkedHashMap<>();
     while (lastRs.hasNext(ctx)) {
       if (timeoutMillis > 0 && timeoutBegin + timeoutMillis < System.currentTimeMillis()) {
@@ -76,7 +76,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   }
 
   private void aggregate(
-      YTResult next, OCommandContext ctx, Map<List<?>, YTResultInternal> aggregateResults) {
+      YTResult next, CommandContext ctx, Map<List<?>, YTResultInternal> aggregateResults) {
     var db = ctx.getDatabase();
     List<Object> key = new ArrayList<>();
     if (groupBy != null) {
@@ -116,7 +116,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ CALCULATE AGGREGATE PROJECTIONS";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
@@ -131,7 +131,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new AggregateProjectionCalculationStep(
         projection.copy(),
         groupBy == null ? null : groupBy.copy(),

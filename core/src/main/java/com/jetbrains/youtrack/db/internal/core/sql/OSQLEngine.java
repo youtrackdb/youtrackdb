@@ -19,18 +19,18 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import static com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper.lookupProviderWithOrientClassLoader;
+import static com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.jetbrains.youtrack.db.internal.common.util.OCollections;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollateFactory;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutorAbstract;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
@@ -39,7 +39,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilter;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLTarget;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionFactory;
@@ -173,7 +173,7 @@ public class OSQLEngine {
       synchronized (INSTANCE) {
         if (FUNCTION_FACTORIES == null) {
           final Iterator<OSQLFunctionFactory> ite =
-              lookupProviderWithOrientClassLoader(OSQLFunctionFactory.class, orientClassLoader);
+              lookupProviderWithYouTrackDBClassLoader(OSQLFunctionFactory.class, orientClassLoader);
 
           final List<OSQLFunctionFactory> factories = new ArrayList<OSQLFunctionFactory>();
           while (ite.hasNext()) {
@@ -182,7 +182,7 @@ public class OSQLEngine {
               factory.registerDefaultFunctions(session);
               factories.add(factory);
             } catch (Exception e) {
-              OLogManager.instance().warn(OSQLEngine.class,
+              LogManager.instance().warn(OSQLEngine.class,
                   "Cannot register default functions for function factory " + factory, e);
             }
           }
@@ -199,7 +199,7 @@ public class OSQLEngine {
         if (METHOD_FACTORIES == null) {
 
           final Iterator<OSQLMethodFactory> ite =
-              lookupProviderWithOrientClassLoader(OSQLMethodFactory.class, orientClassLoader);
+              lookupProviderWithYouTrackDBClassLoader(OSQLMethodFactory.class, orientClassLoader);
 
           final List<OSQLMethodFactory> factories = new ArrayList<OSQLMethodFactory>();
           while (ite.hasNext()) {
@@ -221,7 +221,7 @@ public class OSQLEngine {
         if (COLLATE_FACTORIES == null) {
 
           final Iterator<OCollateFactory> ite =
-              lookupProviderWithOrientClassLoader(OCollateFactory.class, orientClassLoader);
+              lookupProviderWithYouTrackDBClassLoader(OCollateFactory.class, orientClassLoader);
 
           final List<OCollateFactory> factories = new ArrayList<OCollateFactory>();
           while (ite.hasNext()) {
@@ -243,7 +243,8 @@ public class OSQLEngine {
         if (OPERATOR_FACTORIES == null) {
 
           final Iterator<OQueryOperatorFactory> ite =
-              lookupProviderWithOrientClassLoader(OQueryOperatorFactory.class, orientClassLoader);
+              lookupProviderWithYouTrackDBClassLoader(OQueryOperatorFactory.class,
+                  orientClassLoader);
 
           final List<OQueryOperatorFactory> factories = new ArrayList<OQueryOperatorFactory>();
           while (ite.hasNext()) {
@@ -265,7 +266,7 @@ public class OSQLEngine {
         if (EXECUTOR_FACTORIES == null) {
 
           final Iterator<OCommandExecutorSQLFactory> ite =
-              lookupProviderWithOrientClassLoader(
+              lookupProviderWithYouTrackDBClassLoader(
                   OCommandExecutorSQLFactory.class, orientClassLoader);
           final List<OCommandExecutorSQLFactory> factories =
               new ArrayList<OCommandExecutorSQLFactory>();
@@ -273,7 +274,7 @@ public class OSQLEngine {
             try {
               factories.add(ite.next());
             } catch (Exception e) {
-              OLogManager.instance()
+              LogManager.instance()
                   .warn(
                       OSQLEngine.class,
                       "Cannot load OCommandExecutorSQLFactory instance from service registry",
@@ -355,12 +356,12 @@ public class OSQLEngine {
   public static Object foreachRecord(
       final OCallable<Object, YTIdentifiable> iCallable,
       Object iCurrent,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     if (iCurrent == null) {
       return null;
     }
 
-    if (!OCommandExecutorAbstract.checkInterruption(iContext)) {
+    if (!CommandExecutorAbstract.checkInterruption(iContext)) {
       return null;
     }
 
@@ -527,7 +528,7 @@ public class OSQLEngine {
     ODynamicSQLElementFactory.FUNCTIONS.remove(iName);
   }
 
-  public OCommandExecutor getCommand(String candidate) {
+  public CommandExecutor getCommand(String candidate) {
     candidate = candidate.trim();
     final Set<String> names = getCommandNames();
     String commandName = candidate;
@@ -560,20 +561,20 @@ public class OSQLEngine {
     return null;
   }
 
-  public static OSQLFilter parseCondition(
-      final String iText, @Nonnull final OCommandContext iContext, final String iFilterKeyword) {
+  public static SQLFilter parseCondition(
+      final String iText, @Nonnull final CommandContext iContext, final String iFilterKeyword) {
     assert iContext != null;
-    return new OSQLFilter(iText, iContext, iFilterKeyword);
+    return new SQLFilter(iText, iContext, iFilterKeyword);
   }
 
-  public static OSQLTarget parseTarget(final String iText, final OCommandContext iContext) {
+  public static OSQLTarget parseTarget(final String iText, final CommandContext iContext) {
     return new OSQLTarget(iText, iContext);
   }
 
   public Set<YTIdentifiable> parseRIDTarget(
       final YTDatabaseSession database,
       String iTarget,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       Map<Object, Object> iArgs) {
     final Set<YTIdentifiable> ids;
     if (iTarget.startsWith("(")) {

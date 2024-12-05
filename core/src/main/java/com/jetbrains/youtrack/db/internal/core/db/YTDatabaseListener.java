@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
@@ -52,11 +52,11 @@ public interface YTDatabaseListener {
   void onClose(final YTDatabaseSession iDatabase);
 
   @Deprecated
-  void onBeforeCommand(final OCommandRequestText iCommand, final OCommandExecutor executor);
+  void onBeforeCommand(final CommandRequestText iCommand, final CommandExecutor executor);
 
   @Deprecated
   void onAfterCommand(
-      final OCommandRequestText iCommand, final OCommandExecutor executor, Object result);
+      final CommandRequestText iCommand, final CommandExecutor executor, Object result);
 
   default void onCreateClass(YTDatabaseSession iDatabase, YTClass iClass) {
   }

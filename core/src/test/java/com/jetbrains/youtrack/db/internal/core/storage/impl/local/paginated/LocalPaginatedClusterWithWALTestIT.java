@@ -2,7 +2,7 @@
 //
 // import com.orientechnologies.core.config.GlobalConfiguration;
 // import com.orientechnologies.core.document.db.YTDatabaseDocumentTx;
-// import com.orientechnologies.core.storage.OStorage;
+// import com.orientechnologies.core.storage.Storage;
 // import com.orientechnologies.core.cache.storage.OCacheEntry;
 // import com.orientechnologies.core.cache.storage.OReadCache;
 // import com.orientechnologies.core.cache.storage.OWriteCache;
@@ -44,7 +44,7 @@
 //
 //  private String                 storageDir;
 //  private String                 expectedStorageDir;
-//  private OLocalPaginatedStorage storage;
+//  private LocalPaginatedStorage storage;
 //
 //  @BeforeClass
 //  public static void beforeClass() throws IOException {
@@ -79,7 +79,7 @@
 //    }
 //
 //    expectedDatabase.create();
-//    OLocalPaginatedStorage expectedStorage = (OLocalPaginatedStorage)
+//    LocalPaginatedStorage expectedStorage = (LocalPaginatedStorage)
 // expectedDatabase.getStorage();
 //    expectedWriteCache = expectedStorage.getWriteCache();
 //    expectedReadCache = expectedStorage.getReadCache();
@@ -96,7 +96,7 @@
 //    }
 //
 //    databaseDocumentTx.create();
-//    storage = (OLocalPaginatedStorage) databaseDocumentTx.getStorage();
+//    storage = (LocalPaginatedStorage) databaseDocumentTx.getStorage();
 //
 //    storage.synch();
 //    ODiskWriteAheadLog writeAheadLog = (ODiskWriteAheadLog) storage.getWALInstance();
@@ -108,7 +108,7 @@
 //  }
 //
 //  private void createPaginatedCluster() throws IOException {
-//    paginatedCluster = new OPaginatedCluster("actualPaginatedClusterWithWALTest", storage);
+//    paginatedCluster = new PaginatedCluster("actualPaginatedClusterWithWALTest", storage);
 //    paginatedCluster.configure(storage, 42, "actualPaginatedClusterWithWALTest", buildDirectory,
 // -1);
 //    paginatedCluster.create(-1);
@@ -335,7 +335,7 @@
 // writeCache).nativeFileNameById(actualClusterPositionMapId);
 //
 //    databaseDocumentTx.activateOnCurrentThread();
-//    OStorage storage = databaseDocumentTx.getStorage();
+//    Storage storage = databaseDocumentTx.getStorage();
 //    databaseDocumentTx.close();
 //    storage.close(true, false);
 //

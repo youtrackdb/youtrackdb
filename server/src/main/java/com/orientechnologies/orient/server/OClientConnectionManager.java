@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.server;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler.OProfilerHookValue;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -68,7 +68,7 @@ public class OClientConnectionManager {
                   try {
                     cleanExpiredConnections();
                   } catch (Exception e) {
-                    OLogManager.instance().debug(this, "Error on client connection purge task", e);
+                    LogManager.instance().debug(this, "Error on client connection purge task", e);
                   }
                 },
                 delay,
@@ -80,7 +80,7 @@ public class OClientConnectionManager {
             "server.connections.actives",
             "Number of active network connections",
             METRIC_TYPE.COUNTER,
-            new OProfilerHookValue() {
+            new ProfilerHookValue() {
               public Object getValue() {
                 return (long) connections.size();
               }
@@ -105,14 +105,14 @@ public class OClientConnectionManager {
           }
 
           if (socket == null || socket.isClosed() || socket.isInputShutdown()) {
-            OLogManager.instance()
+            LogManager.instance()
                 .debug(
                     this,
                     "[OClientConnectionManager] found and removed pending closed channel %d (%s)",
                     entry.getKey(),
                     socket);
             try {
-              OCommandRequestText command = entry.getValue().getData().command;
+              CommandRequestText command = entry.getValue().getData().command;
               if (command != null && command.isIdempotent()) {
                 entry.getValue().getProtocol().sendShutdown();
                 entry.getValue().getProtocol().interrupt();
@@ -121,7 +121,7 @@ public class OClientConnectionManager {
               entry.getValue().close();
 
             } catch (Exception e) {
-              OLogManager.instance()
+              LogManager.instance()
                   .error(this, "Error during close of connection for close channel", e);
             }
             iterator.remove();
@@ -156,7 +156,7 @@ public class OClientConnectionManager {
     connection = new OClientConnection(connectionSerial.incrementAndGet(), iProtocol);
 
     connections.put(connection.getId(), connection);
-    OLogManager.instance().debug(this, "Remote client connected from: " + connection);
+    LogManager.instance().debug(this, "Remote client connected from: " + connection);
     OServerPluginHelper.invokeHandlerCallbackOnClientConnection(iProtocol.getServer(), connection);
     return connection;
   }
@@ -188,7 +188,7 @@ public class OClientConnectionManager {
     }
     connection.setToken(parsedToken, tokenBytes);
     session.addConnection(connection);
-    OLogManager.instance().debug(this, "Remote client connected from: " + connection);
+    LogManager.instance().debug(this, "Remote client connected from: " + connection);
     OServerPluginHelper.invokeHandlerCallbackOnClientConnection(iProtocol.getServer(), connection);
     return connection;
   }
@@ -276,7 +276,7 @@ public class OClientConnectionManager {
         // INTERRUPT THE NEWTORK MANAGER TOO
         protocol.interrupt();
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error during interruption of binary protocol", e);
+        LogManager.instance().error(this, "Error during interruption of binary protocol", e);
       }
 
       disconnect(connection);
@@ -313,7 +313,7 @@ public class OClientConnectionManager {
    * @param iChannelId id of connection
    */
   public void disconnect(final int iChannelId) {
-    OLogManager.instance().debug(this, "Disconnecting connection with id=%d", iChannelId);
+    LogManager.instance().debug(this, "Disconnecting connection with id=%d", iChannelId);
 
     final OClientConnection connection = connections.remove(iChannelId);
 
@@ -325,7 +325,7 @@ public class OClientConnectionManager {
       // CHECK IF THERE ARE OTHER CONNECTIONS
       for (Entry<Integer, OClientConnection> entry : connections.entrySet()) {
         if (entry.getValue().getProtocol().equals(connection.getProtocol())) {
-          OLogManager.instance()
+          LogManager.instance()
               .debug(
                   this,
                   "Disconnected connection with id=%d but are present other active channels",
@@ -334,7 +334,7 @@ public class OClientConnectionManager {
         }
       }
 
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               this,
               "Disconnected connection with id=%d, no other active channels found",
@@ -342,7 +342,7 @@ public class OClientConnectionManager {
       return;
     }
 
-    OLogManager.instance().debug(this, "Cannot find connection with id=%d", iChannelId);
+    LogManager.instance().debug(this, "Cannot find connection with id=%d", iChannelId);
   }
 
   private void removeConnectionFromSession(OClientConnection connection) {
@@ -362,7 +362,7 @@ public class OClientConnectionManager {
   }
 
   public void disconnect(final OClientConnection iConnection) {
-    OLogManager.instance().debug(this, "Disconnecting connection %s...", iConnection);
+    LogManager.instance().debug(this, "Disconnecting connection %s...", iConnection);
     OServerPluginHelper.invokeHandlerCallbackOnClientDisconnection(server, iConnection);
     removeConnectionFromSession(iConnection);
     iConnection.close();
@@ -377,7 +377,7 @@ public class OClientConnectionManager {
       }
     }
 
-    OLogManager.instance()
+    LogManager.instance()
         .debug(this, "Disconnected connection %s found %d channels", iConnection, totalRemoved);
   }
 
@@ -401,9 +401,9 @@ public class OClientConnectionManager {
         protocol.sendShutdown();
       }
 
-      OLogManager.instance().debug(this, "Sending shutdown to thread %s", protocol);
+      LogManager.instance().debug(this, "Sending shutdown to thread %s", protocol);
 
-      OCommandRequestText command = entry.getValue().getData().command;
+      CommandRequestText command = entry.getValue().getData().command;
       if (command != null && command.isIdempotent()) {
         protocol.interrupt();
       } else {
@@ -422,14 +422,14 @@ public class OClientConnectionManager {
 
         if (socket != null && !socket.isClosed() && !socket.isInputShutdown()) {
           try {
-            OLogManager.instance().debug(this, "Closing input socket of thread %s", protocol);
+            LogManager.instance().debug(this, "Closing input socket of thread %s", protocol);
             if (!(socket
                 instanceof SSLSocket)) // An SSLSocket will throw an UnsupportedOperationException.
             {
               socket.shutdownInput();
             }
           } catch (IOException e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .debug(
                     this,
                     "Error on closing connection of %s client during shutdown",
@@ -441,12 +441,12 @@ public class OClientConnectionManager {
           if (protocol instanceof ONetworkProtocolBinary
               && ((ONetworkProtocolBinary) protocol).getRequestType() == -1) {
             try {
-              OLogManager.instance().debug(this, "Closing socket of thread %s", protocol);
+              LogManager.instance().debug(this, "Closing socket of thread %s", protocol);
               protocol.getChannel().close();
             } catch (Exception e) {
-              OLogManager.instance().debug(this, "Error during chanel close at shutdown", e);
+              LogManager.instance().debug(this, "Error during chanel close at shutdown", e);
             }
-            OLogManager.instance().debug(this, "Sending interrupt signal to thread %s", protocol);
+            LogManager.instance().debug(this, "Sending interrupt signal to thread %s", protocol);
             protocol.interrupt();
           }
           toWait.add(protocol);
@@ -493,7 +493,7 @@ public class OClientConnectionManager {
         }
 
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "Error on killing connection to %s client",

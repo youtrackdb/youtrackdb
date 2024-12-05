@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.List;
@@ -154,7 +154,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     Assert.assertEquals(results.stream().count(), 1);
 
     List<?> results1 =
-        db.command(new OCommandSQL("select from AuthorOf where in.title lucene 'hurricane'"))
+        db.command(new CommandSQL("select from AuthorOf where in.title lucene 'hurricane'"))
             .execute(db);
 
     Assert.assertEquals(results1.size(), 1);

@@ -18,10 +18,7 @@ package com.orientechnologies.lucene;
 
 import static com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
@@ -31,7 +28,10 @@ import com.jetbrains.youtrack.db.internal.core.index.OIndexFactory;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OBaseIndexEngine;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
+import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -83,7 +83,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   @Override
-  public OIndexInternal createIndex(OStorage storage, OIndexMetadata im)
+  public OIndexInternal createIndex(Storage storage, OIndexMetadata im)
       throws YTConfigurationException {
     Map<String, ?> metadata = im.getMetadata();
     final String indexType = im.getType();
@@ -102,7 +102,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   @Override
-  public OBaseIndexEngine createIndexEngine(OStorage storage, IndexEngineData data) {
+  public OBaseIndexEngine createIndexEngine(Storage storage, IndexEngineData data) {
     return new OLuceneFullTextIndexEngine(storage, data.getName(), data.getIndexId());
   }
 
@@ -113,17 +113,17 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
 
   @Override
   public void onCreate(YTDatabaseSessionInternal db) {
-    OLogManager.instance().debug(this, "onCreate");
+    LogManager.instance().debug(this, "onCreate");
   }
 
   @Override
   public void onOpen(YTDatabaseSessionInternal db) {
-    OLogManager.instance().debug(this, "onOpen");
+    LogManager.instance().debug(this, "onOpen");
   }
 
   @Override
   public void onClose(YTDatabaseSessionInternal db) {
-    OLogManager.instance().debug(this, "onClose");
+    LogManager.instance().debug(this, "onClose");
   }
 
   @Override
@@ -133,16 +133,16 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
         return;
       }
 
-      OLogManager.instance().debug(this, "Dropping Lucene indexes...");
+      LogManager.instance().debug(this, "Dropping Lucene indexes...");
 
       final YTDatabaseSessionInternal internal = db;
       internal.getMetadata().getIndexManagerInternal().getIndexes(internal).stream()
           .filter(idx -> idx.getInternal() instanceof OLuceneFullTextIndex)
-          .peek(idx -> OLogManager.instance().debug(this, "deleting index " + idx.getName()))
+          .peek(idx -> LogManager.instance().debug(this, "deleting index " + idx.getName()))
           .forEach(idx -> idx.delete(db));
 
     } catch (Exception e) {
-      OLogManager.instance().warn(this, "Error on dropping Lucene indexes", e);
+      LogManager.instance().warn(this, "Error on dropping Lucene indexes", e);
     }
   }
 

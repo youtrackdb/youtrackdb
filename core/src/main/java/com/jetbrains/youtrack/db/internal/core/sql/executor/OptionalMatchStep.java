@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 
 /**
  *
  */
 public class OptionalMatchStep extends MatchStep {
 
-  public OptionalMatchStep(OCommandContext context, EdgeTraversal edge, boolean profilingEnabled) {
+  public OptionalMatchStep(CommandContext context, EdgeTraversal edge, boolean profilingEnabled) {
     super(context, edge, profilingEnabled);
   }
 
@@ -18,7 +18,7 @@ public class OptionalMatchStep extends MatchStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ OPTIONAL MATCH ");

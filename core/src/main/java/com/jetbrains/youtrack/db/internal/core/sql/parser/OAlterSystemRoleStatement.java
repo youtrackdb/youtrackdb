@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OServerCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
@@ -10,7 +10,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityIntern
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityPolicyImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class OAlterSystemRoleStatement extends OSimpleExecServerStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OServerCommandContext ctx) {
+  public ExecutionStream executeSimple(ServerCommandContext ctx) {
 
     OSystemDatabase systemDb = ctx.getServer().getSystemDatabase();
 
@@ -90,7 +90,7 @@ public class OAlterSystemRoleStatement extends OSimpleExecServerStatement {
             }
             rs.add(result);
           }
-          return OExecutionStream.resultIterator(rs.iterator());
+          return ExecutionStream.resultIterator(rs.iterator());
         });
   }
 

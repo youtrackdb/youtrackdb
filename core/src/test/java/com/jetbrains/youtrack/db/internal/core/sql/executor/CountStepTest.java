@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ public class CountStepTest extends DBTestBase {
 
   @Test
   public void shouldCountRecords() {
-    OCommandContext context = new OBasicCommandContext();
+    CommandContext context = new BasicCommandContext();
     context.setDatabase(db);
 
     CountStep step = new CountStep(context, false);
@@ -31,7 +31,7 @@ public class CountStepTest extends DBTestBase {
           boolean done = false;
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
             List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 100; i++) {
@@ -41,12 +41,12 @@ public class CountStepTest extends DBTestBase {
               }
               done = true;
             }
-            return OExecutionStream.resultIterator(result.iterator());
+            return ExecutionStream.resultIterator(result.iterator());
           }
         };
 
     step.setPrevious(previous);
-    OExecutionStream result = step.start(context);
+    ExecutionStream result = step.start(context);
     Assert.assertEquals(100, (long) result.next(context).getProperty(COUNT_PROPERTY_NAME));
     Assert.assertFalse(result.hasNext(context));
   }

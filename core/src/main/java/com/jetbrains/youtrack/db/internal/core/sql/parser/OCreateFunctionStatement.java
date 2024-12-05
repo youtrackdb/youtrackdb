@@ -2,11 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     var database = ctx.getDatabase();
     final OFunction f =
         database.getMetadata().getFunctionLibrary().createFunction(name.getStringValue());
@@ -59,7 +59,7 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
     result.setProperty("functionName", name.getStringValue());
     result.setProperty("finalId", functionId);
 
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   @Override

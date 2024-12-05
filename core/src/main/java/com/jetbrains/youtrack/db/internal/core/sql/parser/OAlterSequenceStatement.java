@@ -2,15 +2,15 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceOrderType;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
 
     String sequenceName = name.getStringValue();
 
@@ -94,7 +94,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
       sequence.updateParams(params);
     } catch (YTDatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
-      OLogManager.instance().error(this, message, exc, (Object) null);
+      LogManager.instance().error(this, message, exc, (Object) null);
       throw new YTCommandExecutionException(message);
     }
 
@@ -122,7 +122,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
     if (params.getTurnLimitOff() != null && params.getTurnLimitOff()) {
       item.setProperty("turnLimitOff", params.getTurnLimitOff());
     }
-    return OExecutionStream.singleton(item);
+    return ExecutionStream.singleton(item);
   }
 
   @Override

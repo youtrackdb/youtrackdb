@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -87,7 +87,7 @@ public class OArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     Object result = childExpressions.get(0).execute(iCurrentRecord, ctx);
     for (int i = 1; i < childExpressions.size(); i++) {
       result = apply(result, childExpressions.get(i).execute(iCurrentRecord, ctx));
@@ -95,7 +95,7 @@ public class OArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     Object result = childExpressions.get(0).execute(iCurrentRecord, ctx);
     for (int i = 1; i < childExpressions.size(); i++) {
       result = apply(result, childExpressions.get(i).execute(iCurrentRecord, ctx));
@@ -103,7 +103,7 @@ public class OArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
     for (OArrayConcatExpressionElement element : childExpressions) {
       if (!element.isEarlyCalculated(ctx)) {
         return false;
@@ -149,7 +149,7 @@ public class OArrayConcatExpression extends SimpleNode {
     }
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     throw new UnsupportedOperationException(
         "array concatenation expressions do not allow plain aggregation");
   }

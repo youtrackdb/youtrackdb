@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3
 
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.IOException;
@@ -15,13 +15,13 @@ import org.junit.Test;
  */
 public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
-  private static OHashTableDirectory directory;
+  private static HashTableDirectory directory;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
     directory =
-        new OHashTableDirectory(
+        new HashTableDirectory(
             ".tsc", "hashTableDirectoryTest", "hashTableDirectoryTest", storage);
 
     try {
@@ -45,21 +45,21 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
   }
 
   private OAtomicOperation startTx() throws IOException {
-    OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
     OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
     Assert.assertNull(manager.getCurrentOperation());
     return manager.startAtomicOperation(null);
   }
 
   private void rollbackTx() throws IOException {
-    OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
     OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
     manager.endAtomicOperation(new YTCommandInterruptedException(""));
     Assert.assertNull(manager.getCurrentOperation());
   }
 
   private void completeTx() throws IOException {
-    OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
     OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
     manager.endAtomicOperation(null);
     Assert.assertNull(manager.getCurrentOperation());
@@ -69,7 +69,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
   public void addFirstLevel() throws IOException {
     OAtomicOperation atomicOperation = startTx();
 
-    long[] level = new long[OLocalHashTableV3.MAX_LEVEL_SIZE];
+    long[] level = new long[LocalHashTableV3.MAX_LEVEL_SIZE];
     for (int i = 0; i < level.length; i++) {
       level[i] = i;
     }
@@ -92,7 +92,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
   @Test
   public void changeFirstLevel() throws IOException {
     OAtomicOperation atomicOperation = startTx();
-    long[] level = new long[OLocalHashTableV3.MAX_LEVEL_SIZE];
+    long[] level = new long[LocalHashTableV3.MAX_LEVEL_SIZE];
     for (int i = 0; i < level.length; i++) {
       level[i] = i;
     }
@@ -122,7 +122,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
   public void addThreeRemoveSecondAddNewAndChange() throws IOException {
     OAtomicOperation atomicOperation = startTx();
 
-    long[] level = new long[OLocalHashTableV3.MAX_LEVEL_SIZE];
+    long[] level = new long[LocalHashTableV3.MAX_LEVEL_SIZE];
     for (int i = 0; i < level.length; i++) {
       level[i] = i;
     }
@@ -168,7 +168,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
   public void addRemoveChangeMix() throws IOException {
     OAtomicOperation atomicOperation = startTx();
 
-    long[] level = new long[OLocalHashTableV3.MAX_LEVEL_SIZE];
+    long[] level = new long[LocalHashTableV3.MAX_LEVEL_SIZE];
     for (int i = 0; i < level.length; i++) {
       level[i] = i;
     }
@@ -263,7 +263,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
     int secondIndex = -1;
     int thirdIndex = -1;
 
-    long[] level = new long[OLocalHashTableV3.MAX_LEVEL_SIZE];
+    long[] level = new long[LocalHashTableV3.MAX_LEVEL_SIZE];
 
     for (int n = 0; n < ODirectoryFirstPage.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
@@ -376,7 +376,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
   public void changeLastNodeSecondPage() throws IOException {
     OAtomicOperation atomicOperation = startTx();
 
-    long[] level = new long[OLocalHashTableV3.MAX_LEVEL_SIZE];
+    long[] level = new long[LocalHashTableV3.MAX_LEVEL_SIZE];
 
     for (int n = 0; n < ODirectoryFirstPage.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {

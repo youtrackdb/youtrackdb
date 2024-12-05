@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
@@ -86,7 +86,7 @@ public abstract class BaseHttpTest {
 
       YouTrackDBManager.instance().shutdown();
       if (serverDirectory != null) {
-        OFileUtils.deleteRecursively(new File(serverDirectory));
+        FileUtils.deleteRecursively(new File(serverDirectory));
       }
       YouTrackDBManager.instance().startup();
     }

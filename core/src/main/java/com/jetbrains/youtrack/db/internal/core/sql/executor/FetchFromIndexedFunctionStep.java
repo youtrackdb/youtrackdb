@@ -2,11 +2,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import java.util.Iterator;
@@ -22,7 +22,7 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
   public FetchFromIndexedFunctionStep(
       OBinaryCondition functionCondition,
       OFromClause queryTarget,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.functionCondition = functionCondition;
@@ -30,24 +30,24 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     var prev = this.prev;
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
     Iterator<YTIdentifiable> fullResult = init(ctx);
-    return OExecutionStream.loadIterator(fullResult).interruptable();
+    return ExecutionStream.loadIterator(fullResult).interruptable();
   }
 
-  private Iterator<YTIdentifiable> init(OCommandContext ctx) {
+  private Iterator<YTIdentifiable> init(CommandContext ctx) {
     return functionCondition.executeIndexedFunction(queryTarget, ctx).iterator();
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
     String result =
-        OExecutionStepInternal.getIndent(depth, indent)
+        ExecutionStepInternal.getIndent(depth, indent)
             + "+ FETCH FROM INDEXED FUNCTION "
             + functionCondition.toString();
     if (profilingEnabled) {
@@ -58,7 +58,7 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
 
   @Override
   public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("functionCondition", this.functionCondition.serialize(db));
     result.setProperty("queryTarget", this.queryTarget.serialize(db));
 
@@ -68,7 +68,7 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
   @Override
   public void deserialize(YTResult fromResult) {
     try {
-      OExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this);
       functionCondition = new OBinaryCondition(-1);
       functionCondition.deserialize(fromResult.getProperty("functionCondition "));
 

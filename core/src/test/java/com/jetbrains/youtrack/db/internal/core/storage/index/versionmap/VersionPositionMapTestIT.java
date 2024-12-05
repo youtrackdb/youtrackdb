@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.versionmap;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.File;
@@ -24,10 +24,10 @@ public class VersionPositionMapTestIT {
   public static final String DB_NAME = "versionPositionMapTest";
   private static YouTrackDB youTrackDB;
   private static OAtomicOperationsManager atomicOperationsManager;
-  private static OAbstractPaginatedStorage storage;
+  private static AbstractPaginatedStorage storage;
   private static String buildDirectory;
 
-  private OVersionPositionMapV0 versionPositionMap;
+  private VersionPositionMapV0 versionPositionMap;
 
   @BeforeClass
   public static void beforeClass() {
@@ -37,7 +37,7 @@ public class VersionPositionMapTestIT {
     } else {
       buildDirectory += DIR_NAME;
     }
-    OFileUtils.deleteRecursively(new File(buildDirectory));
+    FileUtils.deleteRecursively(new File(buildDirectory));
 
     youTrackDB =
         OCreateDatabaseUtil.createDatabase(
@@ -50,7 +50,7 @@ public class VersionPositionMapTestIT {
 
     YTDatabaseSession databaseSession =
         youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    storage = (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseSession).getStorage();
+    storage = (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
   }
@@ -59,14 +59,14 @@ public class VersionPositionMapTestIT {
   public static void afterClass() {
     youTrackDB.drop(DB_NAME);
     youTrackDB.close();
-    OFileUtils.deleteRecursively(new File(buildDirectory));
+    FileUtils.deleteRecursively(new File(buildDirectory));
   }
 
   @Before
   public void setUp() throws Exception {
     final String name = "Person.name";
     versionPositionMap =
-        new OVersionPositionMapV0(storage, name, name + ".cbt", OVersionPositionMap.DEF_EXTENSION);
+        new VersionPositionMapV0(storage, name, name + ".cbt", VersionPositionMap.DEF_EXTENSION);
     final OAtomicOperation atomicOperation = atomicOperationsManager.startAtomicOperation(null);
     versionPositionMap.create(atomicOperation);
     Assert.assertEquals("Number of pages do not match", 1, versionPositionMap.getNumberOfPages());
@@ -82,7 +82,7 @@ public class VersionPositionMapTestIT {
 
   @Test
   public void testIncrementVersion() throws Exception {
-    final int maxVPMSize = OVersionPositionMap.DEFAULT_VERSION_ARRAY_SIZE;
+    final int maxVPMSize = VersionPositionMap.DEFAULT_VERSION_ARRAY_SIZE;
     for (int hash = 0; hash <= maxVPMSize; hash++) {
       final int version = versionPositionMap.getVersion(hash);
       versionPositionMap.updateVersion(hash);
@@ -92,7 +92,7 @@ public class VersionPositionMapTestIT {
 
   @Test
   public void testMultiIncrementVersion() throws Exception {
-    final int maxVPMSize = OVersionPositionMap.DEFAULT_VERSION_ARRAY_SIZE;
+    final int maxVPMSize = VersionPositionMap.DEFAULT_VERSION_ARRAY_SIZE;
     final int maxVersionNumber = Integer.SIZE;
     for (int hash = 0; hash <= maxVPMSize; hash++) {
       for (int j = 0; j < maxVersionNumber; j++) {
@@ -104,7 +104,7 @@ public class VersionPositionMapTestIT {
 
   @Test
   public void testRandomIncrementVersion() throws Exception {
-    final int maxVPMSize = OVersionPositionMap.DEFAULT_VERSION_ARRAY_SIZE;
+    final int maxVPMSize = VersionPositionMap.DEFAULT_VERSION_ARRAY_SIZE;
     final long seed = System.nanoTime();
     System.out.printf("incrementVersion seed :%d%n", seed);
     final Random random = new Random(seed);
@@ -124,7 +124,7 @@ public class VersionPositionMapTestIT {
         3988,
         versionPositionMap.getKeyHash("07d_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"));
     Assert.assertEquals(
-        0, versionPositionMap.getKeyHash(OVersionPositionMap.DEFAULT_VERSION_ARRAY_SIZE));
+        0, versionPositionMap.getKeyHash(VersionPositionMap.DEFAULT_VERSION_ARRAY_SIZE));
     Assert.assertEquals(0, versionPositionMap.getKeyHash(0));
   }
 

@@ -60,7 +60,7 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
     createSchemaDB(db);
 
     //    if (!new File("./src/test/resources/file.pdf").exists())
-    //      OLogManager.instance().warn(, "attachment will be not loaded!");
+    //      LogManager.instance().warn(, "attachment will be not loaded!");
 
     loadDB(db, 20);
 

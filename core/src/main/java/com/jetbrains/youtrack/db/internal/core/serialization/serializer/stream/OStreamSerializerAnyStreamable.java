@@ -20,16 +20,16 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OArrays;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
 import com.jetbrains.youtrack.db.internal.core.serialization.OBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +52,7 @@ public class OStreamSerializerAnyStreamable {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public OCommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
+  public CommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
       ORecordSerializer serializer)
       throws IOException {
     if (iStream == null || iStream.length == 0)
@@ -66,7 +66,7 @@ public class OStreamSerializerAnyStreamable {
     if (classNameSize <= 0) {
       final String message =
           "Class signature not found in ANY element: " + Arrays.toString(iStream);
-      OLogManager.instance().error(this, message, null);
+      LogManager.instance().error(this, message, null);
 
       throw new YTSerializationException(message);
     }
@@ -74,7 +74,7 @@ public class OStreamSerializerAnyStreamable {
     final String className = new String(iStream, 4, classNameSize, StandardCharsets.UTF_8);
 
     try {
-      final OCommandRequestText stream;
+      final CommandRequestText stream;
       // CHECK FOR ALIASES
       if (className.equalsIgnoreCase("q"))
       // QUERY
@@ -83,15 +83,15 @@ public class OStreamSerializerAnyStreamable {
       } else if (className.equalsIgnoreCase("c"))
       // SQL COMMAND
       {
-        stream = new OCommandSQL();
+        stream = new CommandSQL();
       } else if (className.equalsIgnoreCase("s"))
       // SCRIPT COMMAND
       {
-        stream = new OCommandScript();
+        stream = new CommandScript();
       } else
       // CREATE THE OBJECT BY INVOKING THE EMPTY CONSTRUCTOR
       {
-        stream = (OCommandRequestText) Class.forName(className).newInstance();
+        stream = (CommandRequestText) Class.forName(className).newInstance();
       }
 
       return stream.fromStream(db,
@@ -99,7 +99,7 @@ public class OStreamSerializerAnyStreamable {
 
     } catch (Exception e) {
       final String message = "Error on unmarshalling content. Class: " + className;
-      OLogManager.instance().error(this, message, e);
+      LogManager.instance().error(this, message, e);
       throw YTException.wrapException(new YTSerializationException(message), e);
     }
   }
@@ -107,20 +107,20 @@ public class OStreamSerializerAnyStreamable {
   /**
    * Serialize the class name size + class name + object content
    */
-  public byte[] toStream(final OCommandRequestText iObject) throws IOException {
+  public byte[] toStream(final CommandRequestText iObject) throws IOException {
     if (iObject == null) {
       return null;
     }
 
     // SERIALIZE THE CLASS NAME
     final byte[] className;
-    if (iObject instanceof OLiveQuery<?>) {
+    if (iObject instanceof LiveQuery<?>) {
       className = iObject.getClass().getName().getBytes(StandardCharsets.UTF_8);
     } else if (iObject instanceof OSQLSynchQuery<?>) {
       className = QUERY_COMMAND_CLASS_ASBYTES;
-    } else if (iObject instanceof OCommandSQL) {
+    } else if (iObject instanceof CommandSQL) {
       className = SQL_COMMAND_CLASS_ASBYTES;
-    } else if (iObject instanceof OCommandScript) {
+    } else if (iObject instanceof CommandScript) {
       className = SCRIPT_COMMAND_CLASS_ASBYTES;
     } else {
       if (iObject == null) {

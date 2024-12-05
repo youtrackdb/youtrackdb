@@ -20,7 +20,7 @@ package com.orientechnologies.spatial;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -78,7 +78,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     final File buildDirectoryFile = new File(buildDirectory);
 
     tempFolder = new File(buildDirectoryFile, name.getMethodName());
-    OFileUtils.deleteRecursively(tempFolder);
+    FileUtils.deleteRecursively(tempFolder);
     Assert.assertTrue(tempFolder.mkdirs());
 
     server =

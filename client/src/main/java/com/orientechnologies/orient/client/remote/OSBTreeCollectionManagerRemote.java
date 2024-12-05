@@ -21,10 +21,10 @@
 package com.orientechnologies.orient.client.remote;
 
 import com.jetbrains.youtrack.db.internal.common.concur.resource.OCloseable;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.OOrientShutdownListener;
-import com.jetbrains.youtrack.db.internal.core.OOrientStartupListener;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -43,16 +43,16 @@ import java.util.UUID;
 public class OSBTreeCollectionManagerRemote
     implements OCloseable,
     OSBTreeCollectionManager,
-    OOrientStartupListener,
-    OOrientShutdownListener {
+    YouTrackDBStartupListener,
+    YouTrackDBShutdownListener {
 
   private volatile ThreadLocal<Map<UUID, WeakReference<RidBag>>> pendingCollections =
       new PendingCollectionsThreadLocal();
 
   public OSBTreeCollectionManagerRemote() {
 
-    YouTrackDBManager.instance().registerWeakOrientStartupListener(this);
-    YouTrackDBManager.instance().registerWeakOrientShutdownListener(this);
+    YouTrackDBManager.instance().registerWeakYouTrackDBStartupListener(this);
+    YouTrackDBManager.instance().registerWeakYouTrackDBShutdownListener(this);
   }
 
   @Override
@@ -94,7 +94,7 @@ public class OSBTreeCollectionManagerRemote
   public void updateCollectionPointer(UUID uuid, OBonsaiCollectionPointer pointer) {
     final WeakReference<RidBag> reference = pendingCollections.get().get(uuid);
     if (reference == null) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(this, "Update of collection pointer is received but collection is not registered");
       return;
     }

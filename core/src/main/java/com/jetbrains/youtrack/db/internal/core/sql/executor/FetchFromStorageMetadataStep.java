@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OProduceExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,24 +19,24 @@ import java.util.List;
  */
 public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
 
-  public FetchFromStorageMetadataStep(OCommandContext ctx, boolean profilingEnabled) {
+  public FetchFromStorageMetadataStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(this::produce).limit(1);
+    return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(OCommandContext ctx) {
+  private YTResult produce(CommandContext ctx) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
     YTResultInternal result = new YTResultInternal(db);
 
-    OStorage storage = db.getStorage();
+    Storage storage = db.getStorage();
     result.setProperty("clusters", toResult(db, storage.getClusterInstances()));
     result.setProperty("defaultClusterId", storage.getDefaultClusterId());
     result.setProperty("totalClusters", storage.getClusters());
@@ -103,7 +103,7 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
         try {
           item.setProperty("encryption", cluster.encryption());
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Can not set value of encryption parameter", e);
+          LogManager.instance().error(this, "Can not set value of encryption parameter", e);
         }
         result.add(item);
       }
@@ -113,7 +113,7 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ FETCH STORAGE METADATA";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";

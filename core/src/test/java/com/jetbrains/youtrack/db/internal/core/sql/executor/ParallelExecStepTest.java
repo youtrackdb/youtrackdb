@@ -1,12 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromRidsStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OSelectExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ParallelExecStep;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +15,7 @@ public class ParallelExecStepTest {
 
   @Test
   public void test() {
-    OCommandContext ctx = new OBasicCommandContext();
+    CommandContext ctx = new BasicCommandContext();
     List<OInternalExecutionPlan> subPlans = new ArrayList<>();
     for (int i = 0; i < 4; i++) {
       FetchFromRidsStep step0 =

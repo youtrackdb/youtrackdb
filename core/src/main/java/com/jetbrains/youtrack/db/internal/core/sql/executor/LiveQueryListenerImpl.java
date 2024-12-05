@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryBatchResultListener;
@@ -75,7 +75,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
             "Class " + className + " not found in the schema: " + query);
       }
     } else if (statement.getTarget().getItem().getRids() != null) {
-      var context = new OBasicCommandContext();
+      var context = new BasicCommandContext();
       context.setDatabase(db);
       this.rids =
           statement.getTarget().getItem().getRids().stream()
@@ -95,7 +95,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
     OLiveQueryHookV2.subscribe(token, this, db);
 
-    OCommandContext ctx = new OBasicCommandContext();
+    CommandContext ctx = new BasicCommandContext();
     if (iArgs != null)
     // BIND ARGUMENTS INTO CONTEXT TO ACCESS FROM ANY POINT (EVEN FUNCTIONS)
     {
@@ -173,7 +173,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   }
 
   private YTResultInternal applyProjections(YTResultInternal record) {
-    var ctx = new OBasicCommandContext();
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(execDb);
 
     if (statement.getProjection() != null) {
@@ -225,7 +225,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     if (where == null) {
       return true;
     }
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setInputParameters(params);
     return where.matchesFilters(record, ctx);
   }

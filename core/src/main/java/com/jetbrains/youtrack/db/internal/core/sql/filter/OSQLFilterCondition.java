@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -84,7 +84,7 @@ public class OSQLFilterCondition {
   public Object evaluate(
       final YTIdentifiable iCurrentRecord,
       final EntityImpl iCurrentResult,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     var db = iContext.getDatabase();
     boolean binaryEvaluation =
         operator != null
@@ -204,8 +204,8 @@ public class OSQLFilterCondition {
     } catch (YTCommandExecutionException e) {
       throw e;
     } catch (Exception e) {
-      if (OLogManager.instance().isDebugEnabled()) {
-        OLogManager.instance().debug(this, "Error on evaluating expression (%s)", e, toString());
+      if (LogManager.instance().isDebugEnabled()) {
+        LogManager.instance().debug(this, "Error on evaluating expression (%s)", e, toString());
       }
       result = Boolean.FALSE;
     }
@@ -414,7 +414,7 @@ public class OSQLFilterCondition {
       YTIdentifiable iCurrentRecord,
       final EntityImpl iCurrentResult,
       final Object iValue,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final boolean binaryEvaluation) {
     if (iValue == null) {
       return null;

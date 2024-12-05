@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.document;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabasePoolBase;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabasePooled;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
@@ -61,7 +61,7 @@ public class YTDatabaseDocumentTxPooled extends YTDatabaseDocumentTx implements 
     try {
       callOnOpenListeners();
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Error on reusing database '%s' in pool", e, getName());
+      LogManager.instance().error(this, "Error on reusing database '%s' in pool", e, getName());
     }
   }
 
@@ -136,13 +136,13 @@ public class YTDatabaseDocumentTxPooled extends YTDatabaseDocumentTx implements 
         commit();
       }
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Error on releasing database '%s' in pool", e, getName());
+      LogManager.instance().error(this, "Error on releasing database '%s' in pool", e, getName());
     }
 
     try {
       callOnCloseListeners();
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Error on releasing database '%s' in pool", e, getName());
+      LogManager.instance().error(this, "Error on releasing database '%s' in pool", e, getName());
     }
 
     getLocalCache().clear();

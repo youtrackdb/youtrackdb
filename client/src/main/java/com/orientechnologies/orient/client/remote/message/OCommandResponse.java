@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -59,7 +59,7 @@ public final class OCommandResponse implements OBinaryResponse {
   private boolean live;
   private Object result;
   private boolean isRecordResultSet;
-  private OCommandRequestText command;
+  private CommandRequestText command;
   private Map<Object, Object> params;
 
   public OCommandResponse(
@@ -68,7 +68,7 @@ public final class OCommandResponse implements OBinaryResponse {
       boolean isRecordResultSet,
       boolean async,
       YTDatabaseSessionInternal database,
-      OCommandRequestText command,
+      CommandRequestText command,
       Map<Object, Object> params) {
     this.result = result;
     this.listener = listener;
@@ -186,7 +186,7 @@ public final class OCommandResponse implements OBinaryResponse {
                   OMessageHelper.writeIdentifiable(session, channel, (YTIdentifiable) o,
                       recordSerializer);
                 } catch (Exception e) {
-                  OLogManager.instance().warn(this, "Cannot serialize record: " + o);
+                  LogManager.instance().warn(this, "Cannot serialize record: " + o);
                   OMessageHelper.writeIdentifiable(session, channel, null, recordSerializer);
                   // WRITE NULL RECORD TO AVOID BREAKING PROTOCOL
                 }
@@ -208,7 +208,7 @@ public final class OCommandResponse implements OBinaryResponse {
                       OMessageHelper.writeIdentifiable(session,
                           channel, (YTIdentifiable) o, recordSerializer);
                     } catch (Exception e) {
-                      OLogManager.instance().warn(this, "Cannot serialize record: " + o);
+                      LogManager.instance().warn(this, "Cannot serialize record: " + o);
                     }
                   }
                   channel.writeByte((byte) 0); // NO MORE RECORD
@@ -229,7 +229,7 @@ public final class OCommandResponse implements OBinaryResponse {
                       OMessageHelper.writeIdentifiable(session,
                           channel, (YTIdentifiable) o, recordSerializer);
                     } catch (Exception e) {
-                      OLogManager.instance().warn(this, "Cannot serialize record: " + o);
+                      LogManager.instance().warn(this, "Cannot serialize record: " + o);
                     }
                   }
                 }
@@ -335,7 +335,7 @@ public final class OCommandResponse implements OBinaryResponse {
           final Boolean unsubscribe = doc.field("unsubscribe");
           if (token != null) {
             //
-            //            OStorageRemote storage = (OStorageRemote) database.getStorage();
+            //            StorageRemote storage = (StorageRemote) database.getStorage();
             //            if (Boolean.TRUE.equals(unsubscribe)) {
             //              if (storage.asynchEventListener != null)
             //                storage.asynchEventListener.unregisterLiveListener(token);
@@ -481,7 +481,7 @@ public final class OCommandResponse implements OBinaryResponse {
         break;
 
       default:
-        OLogManager.instance().warn(this, "Received unexpected result from query: %d", type);
+        LogManager.instance().warn(this, "Received unexpected result from query: %d", type);
         result = null;
     }
 

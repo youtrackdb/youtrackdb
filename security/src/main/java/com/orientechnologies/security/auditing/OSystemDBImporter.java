@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
@@ -60,7 +60,7 @@ public class OSystemDBImporter extends Thread {
         sleepPeriod = jsonConfig.field("sleepPeriod");
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "OSystemDBImporter()", ex);
+      LogManager.instance().error(this, "OSystemDBImporter()", ex);
     }
 
     setDaemon(true);
@@ -84,7 +84,7 @@ public class OSystemDBImporter extends Thread {
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "run()", ex);
+      LogManager.instance().error(this, "run()", ex);
     }
   }
 
@@ -97,14 +97,14 @@ public class OSystemDBImporter extends Thread {
       db.setProperty(ODefaultAuditing.IMPORTER_FLAG, true);
 
       if (db == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "importDB() Unable to import auditing log for database: %s", null, dbName);
         return;
       }
 
       sysdb = context.getSystemDatabase().openSystemDatabase();
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "Starting import of the auditing log from database: %s", dbName);
 
       int totalImported = 0;
@@ -174,13 +174,13 @@ public class OSystemDBImporter extends Thread {
             db.activateOnCurrentThread();
             db.delete(doc.getIdentity().get());
           } catch (Exception ex) {
-            OLogManager.instance().error(this, "importDB()", ex);
+            LogManager.instance().error(this, "importDB()", ex);
           }
         }
 
         totalImported += count;
 
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Imported %d auditing log %s from database: %s",
@@ -197,7 +197,7 @@ public class OSystemDBImporter extends Thread {
         }
       }
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Completed importing of %d auditing log %s from database: %s",
@@ -206,7 +206,7 @@ public class OSystemDBImporter extends Thread {
               dbName);
 
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "importDB()", ex);
+      LogManager.instance().error(this, "importDB()", ex);
     } finally {
       if (sysdb != null) {
         sysdb.activateOnCurrentThread();

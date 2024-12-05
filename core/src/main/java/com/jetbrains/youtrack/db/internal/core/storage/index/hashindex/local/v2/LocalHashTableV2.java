@@ -13,9 +13,9 @@ import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashTable;
 import java.io.IOException;
@@ -80,7 +80,7 @@ import java.util.Optional;
  *
  * @since 12.03.13
  */
-public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTable<K, V> {
+public class LocalHashTableV2<K, V> extends DurableComponent implements OHashTable<K, V> {
 
   private static final int MAX_KEY_SIZE =
       GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
@@ -125,7 +125,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
       final String treeStateFileExtension,
       final String bucketFileExtension,
       final String nullBucketFileExtension,
-      final OAbstractPaginatedStorage abstractPaginatedStorage) {
+      final AbstractPaginatedStorage abstractPaginatedStorage) {
     super(abstractPaginatedStorage, name, bucketFileExtension, name + bucketFileExtension);
 
     this.metadataConfigurationFileExtension = metadataConfigurationFileExtension;

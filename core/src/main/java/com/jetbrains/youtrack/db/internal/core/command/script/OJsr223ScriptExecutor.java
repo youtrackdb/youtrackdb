@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.command.script;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.OScriptTransformer;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.OAbstractScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -99,7 +99,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
 
   @Override
   public Object executeFunction(
-      OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
+      CommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     YTDatabaseSessionInternal db = context.getDatabase();
     final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(functionName);

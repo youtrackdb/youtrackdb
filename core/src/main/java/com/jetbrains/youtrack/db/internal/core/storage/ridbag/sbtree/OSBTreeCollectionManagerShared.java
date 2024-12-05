@@ -21,11 +21,11 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPairObjectInteger;
-import com.jetbrains.youtrack.db.internal.core.OOrientShutdownListener;
-import com.jetbrains.youtrack.db.internal.core.OOrientStartupListener;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -37,7 +37,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.cache.OAbstractWriteCache
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.local.OWOWCache;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.BTreeBonsaiGlobal;
@@ -59,18 +59,18 @@ import java.util.stream.Stream;
  *
  */
 public final class OSBTreeCollectionManagerShared
-    implements OSBTreeCollectionManager, OOrientStartupListener, OOrientShutdownListener {
+    implements OSBTreeCollectionManager, YouTrackDBStartupListener, YouTrackDBShutdownListener {
 
   public static final String FILE_EXTENSION = ".grb";
   public static final String FILE_NAME_PREFIX = "global_collection_";
 
-  private final OAbstractPaginatedStorage storage;
+  private final AbstractPaginatedStorage storage;
 
   private final ConcurrentHashMap<Integer, BTree> fileIdBTreeMap = new ConcurrentHashMap<>();
 
   private final AtomicLong ridBagIdCounter = new AtomicLong();
 
-  public OSBTreeCollectionManagerShared(OAbstractPaginatedStorage storage) {
+  public OSBTreeCollectionManagerShared(AbstractPaginatedStorage storage) {
     this.storage = storage;
   }
 
@@ -111,7 +111,7 @@ public final class OSBTreeCollectionManagerShared
     }
 
     if (!filesToMigrate.isEmpty()) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "There are found %d RidBags (containers for edges which are going to be migrated)."
@@ -128,7 +128,7 @@ public final class OSBTreeCollectionManagerShared
           fileName.substring("collections_".length(), fileName.length() - ".sbc".length());
       final int clusterId = Integer.parseInt(clusterIdStr);
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Migration of RidBag for cluster #%s is started ... "
@@ -169,7 +169,7 @@ public final class OSBTreeCollectionManagerShared
       }
 
       migrationCounter++;
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "%d RidBags out of %d are migrated ... PLEASE WAIT FOR COMPLETION !",
@@ -177,7 +177,7 @@ public final class OSBTreeCollectionManagerShared
               filesToMigrate.size());
     }
 
-    OLogManager.instance()
+    LogManager.instance()
         .info(this, "All RidBags are going to be flushed out ... PLEASE WAIT FOR COMPLETION !");
     final OReadCache readCache = storage.getReadCache();
 
@@ -200,7 +200,7 @@ public final class OSBTreeCollectionManagerShared
       writeCache.replaceFileId(fileId, newFileId);
       flushCounter++;
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "%d RidBags are flushed out of %d ... PLEASE WAIT FOR COMPLETION !",
@@ -219,7 +219,7 @@ public final class OSBTreeCollectionManagerShared
       fileIdBTreeMap.put(OWOWCache.extractFileId(bTree.getFileId()), bTree);
     }
 
-    OLogManager.instance().info(this, "All RidBags are migrated.");
+    LogManager.instance().info(this, "All RidBags are migrated.");
   }
 
   @Override

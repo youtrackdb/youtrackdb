@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.Map;
@@ -27,18 +27,18 @@ public class OProfileStorageStatement extends OSimpleExecStatement {
 
   // new execution logic
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("operation", "optimize database");
 
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   // old execution logic
   @Override
   public Object execute(
       OSQLAsynchQuery<EntityImpl> request,
-      OCommandContext context,
+      CommandContext context,
       OProgressListener progressListener) {
     try {
       return getResult(request);

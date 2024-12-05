@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
@@ -69,7 +69,7 @@ public class OServerShutdownMain {
                 OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION);
         break;
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error on connecting to %s:%d", e, networkAddress, port);
+        LogManager.instance().error(this, "Error on connecting to %s:%d", e, networkAddress, port);
       }
     }
 

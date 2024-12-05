@@ -20,9 +20,9 @@
 
 package com.jetbrains.youtrack.db.internal.core.compression.impl;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -245,7 +245,7 @@ public class OZIPCompressionUtil {
         iOutput.onMessage("error: " + e);
       }
 
-      OLogManager.instance()
+      LogManager.instance()
           .error(OZIPCompressionUtil.class, "Cannot compress file: %s", e, folderName);
       throw e;
     } finally {
@@ -257,7 +257,7 @@ public class OZIPCompressionUtil {
 
       iOutput.onMessage(
           "ok size="
-              + OFileUtils.getSizeAsString(ze.getSize())
+              + FileUtils.getSizeAsString(ze.getSize())
               + " compressedSize="
               + ze.getCompressedSize()
               + " ratio="

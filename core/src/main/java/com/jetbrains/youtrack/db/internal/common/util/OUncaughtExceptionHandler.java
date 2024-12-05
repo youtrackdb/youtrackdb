@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.common.util;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 
 /**
  * Handler which is used to log all exceptions which are left uncaught by any exception handler.
@@ -9,10 +9,10 @@ public class OUncaughtExceptionHandler implements Thread.UncaughtExceptionHandle
 
   @Override
   public void uncaughtException(Thread t, Throwable e) {
-    final OLogManager logManager = OLogManager.instance();
+    final LogManager logManager = LogManager.instance();
 
     if (logManager != null) {
-      OLogManager.instance().error(this, "Uncaught exception in thread %s", e, t.getName());
+      LogManager.instance().error(this, "Uncaught exception in thread %s", e, t.getName());
     }
   }
 }

@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.handler;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OScriptInterceptor;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandExecutorScript;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
 import com.orientechnologies.orient.server.OServer;
@@ -82,11 +82,11 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
         .getScriptManager()
         .getCommandManager()
         .registerExecutor(
-            OCommandScript.class,
-            OCommandExecutorScript.class,
+            CommandScript.class,
+            CommandExecutorScript.class,
             iArgument -> {
               final String language =
-                  ((OCommandScript) iArgument).getLanguage().toLowerCase(Locale.ENGLISH);
+                  ((CommandScript) iArgument).getLanguage().toLowerCase(Locale.ENGLISH);
 
               checkLanguage(language);
               return null;
@@ -103,7 +103,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
         .getScriptExecutors()
         .entrySet()
         .forEach(e -> e.getValue().registerInterceptor(interceptor));
-    OLogManager.instance()
+    LogManager.instance()
         .warn(
             this,
             "Authenticated clients can execute any kind of code into the server by using the"
@@ -129,7 +129,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
     YouTrackDBInternal.extract(server.getContext())
         .getScriptManager()
         .getCommandManager()
-        .unregisterExecutor(OCommandScript.class);
+        .unregisterExecutor(CommandScript.class);
   }
 
   private void checkLanguage(final String language) {

@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -97,11 +97,11 @@ public class OFunctionCall extends SimpleNode {
     builder.append(")");
   }
 
-  public Object execute(Object targetObjects, OCommandContext ctx) {
+  public Object execute(Object targetObjects, CommandContext ctx) {
     return execute(targetObjects, ctx, name.getStringValue());
   }
 
-  private Object execute(Object targetObjects, OCommandContext ctx, String name) {
+  private Object execute(Object targetObjects, CommandContext ctx, String name) {
     List<Object> paramValues = new ArrayList<Object>();
 
     Object record = null;
@@ -204,7 +204,7 @@ public class OFunctionCall extends SimpleNode {
    * @return
    */
   public Iterable<YTIdentifiable> executeIndexedFunction(
-      OFromClause target, OCommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
+      OFromClause target, CommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
     OSQLFunction function = OSQLEngine.getInstance()
         .getFunction(ctx.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
@@ -224,7 +224,7 @@ public class OFunctionCall extends SimpleNode {
    * extimation cannot be executed
    */
   public long estimateIndexedFunction(
-      OFromClause target, OCommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
+      OFromClause target, CommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
     OSQLFunction function = OSQLEngine.getInstance()
         .getFunction(ctx.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
@@ -246,7 +246,7 @@ public class OFunctionCall extends SimpleNode {
    * without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     OSQLFunction function = OSQLEngine.getInstance()
         .getFunction(context.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
@@ -268,7 +268,7 @@ public class OFunctionCall extends SimpleNode {
    * target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     OSQLFunction function = OSQLEngine.getInstance()
         .getFunction(context.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
@@ -291,7 +291,7 @@ public class OFunctionCall extends SimpleNode {
    * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     OSQLFunction function = OSQLEngine.getInstance()
         .getFunction(context.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
@@ -330,7 +330,7 @@ public class OFunctionCall extends SimpleNode {
   }
 
   public SimpleNode splitForAggregation(
-      AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     var db = ctx.getDatabase();
     if (isAggregate(db)) {
       OFunctionCall newFunct = new OFunctionCall(-1);
@@ -397,7 +397,7 @@ public class OFunctionCall extends SimpleNode {
     return item;
   }
 
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
 
     if (isTraverseFunction(ctx.getDatabase())) {
       return false;
@@ -420,7 +420,7 @@ public class OFunctionCall extends SimpleNode {
     return function instanceof OSQLFunctionMove;
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     OSQLFunction function = OSQLEngine.getInstance()
         .getFunction(ctx.getDatabase(), name.getStringValue());
     function.config(this.params.toArray());

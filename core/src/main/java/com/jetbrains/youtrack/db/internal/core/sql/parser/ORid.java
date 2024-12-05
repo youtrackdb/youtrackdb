@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
@@ -53,7 +53,7 @@ public class ORid extends SimpleNode {
     }
   }
 
-  public YTRecordId toRecordId(YTResult target, OCommandContext ctx) {
+  public YTRecordId toRecordId(YTResult target, CommandContext ctx) {
     if (legacy || (expression == null && cluster != null && position != null)) {
       return new YTRecordId(cluster.value.intValue(), position.value.longValue());
     } else {
@@ -71,7 +71,7 @@ public class ORid extends SimpleNode {
     }
   }
 
-  public YTRecordId toRecordId(YTIdentifiable target, OCommandContext ctx) {
+  public YTRecordId toRecordId(YTIdentifiable target, CommandContext ctx) {
     if (legacy || (expression == null && cluster != null && position != null)) {
       return new YTRecordId(cluster.value.intValue(), position.value.longValue());
     } else {
@@ -143,7 +143,7 @@ public class ORid extends SimpleNode {
 
   public OInteger getCluster() {
     if (expression != null) {
-      YTRecordId rid = toRecordId((YTResult) null, new OBasicCommandContext());
+      YTRecordId rid = toRecordId((YTResult) null, new BasicCommandContext());
       if (rid != null) {
         OInteger result = new OInteger(-1);
         result.setValue(rid.getClusterId());
@@ -155,7 +155,7 @@ public class ORid extends SimpleNode {
 
   public OInteger getPosition() {
     if (expression != null) {
-      YTRecordId rid = toRecordId((YTResult) null, new OBasicCommandContext());
+      YTRecordId rid = toRecordId((YTResult) null, new BasicCommandContext());
       if (rid != null) {
         OInteger result = new OInteger(-1);
         result.setValue(rid.getClusterPosition());

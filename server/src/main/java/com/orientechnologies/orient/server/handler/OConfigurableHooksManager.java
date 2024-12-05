@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -100,7 +100,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
                   h.getClass().getDeclaredMethod("config", OServerParameterConfiguration[].class);
               m.invoke(h, new Object[]{hook.parameters});
             } catch (Exception e) {
-              OLogManager.instance()
+              LogManager.instance()
                   .warn(
                       this,
                       "[configure] Failed to configure hook '%s'. Parameters specified but hook don"
@@ -111,7 +111,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
           }
           db.registerHook(h, pos);
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "[configure] Failed to configure hook '%s' due to the an error : ",

@@ -4,7 +4,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -43,7 +43,7 @@ public class OMathExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
     return false;
   }
 
@@ -647,7 +647,7 @@ public class OMathExpression extends SimpleNode {
     return true;
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     if (childExpressions == null || operators == null) {
       return null;
     }
@@ -668,7 +668,7 @@ public class OMathExpression extends SimpleNode {
     return calculateWithOpPriority(iCurrentRecord, ctx);
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     if (childExpressions == null || operators == null) {
       return null;
     }
@@ -688,7 +688,7 @@ public class OMathExpression extends SimpleNode {
     return calculateWithOpPriority(iCurrentRecord, ctx);
   }
 
-  private Object calculateWithOpPriority(YTResult iCurrentRecord, OCommandContext ctx) {
+  private Object calculateWithOpPriority(YTResult iCurrentRecord, CommandContext ctx) {
     Deque valuesStack = new ArrayDeque<>();
     Deque<Operator> operatorsStack = new ArrayDeque<Operator>();
     if (childExpressions != null && operators != null) {
@@ -718,7 +718,7 @@ public class OMathExpression extends SimpleNode {
     return iterateOnPriorities(valuesStack, operatorsStack);
   }
 
-  private Object calculateWithOpPriority(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  private Object calculateWithOpPriority(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     Deque valuesStack = new ArrayDeque<>();
     Deque<Operator> operatorsStack = new ArrayDeque<Operator>();
     if (childExpressions != null && operators != null) {
@@ -941,7 +941,7 @@ public class OMathExpression extends SimpleNode {
   }
 
   public long estimateIndexedFunction(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
         return this.childExpressions
@@ -953,7 +953,7 @@ public class OMathExpression extends SimpleNode {
   }
 
   public Iterable<YTIdentifiable> executeIndexedFunction(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
         return this.childExpressions
@@ -974,7 +974,7 @@ public class OMathExpression extends SimpleNode {
    * executed without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
         return this.childExpressions
@@ -995,7 +995,7 @@ public class OMathExpression extends SimpleNode {
    * target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
         return this.childExpressions
@@ -1019,7 +1019,7 @@ public class OMathExpression extends SimpleNode {
    * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
         return this.childExpressions
@@ -1066,7 +1066,7 @@ public class OMathExpression extends SimpleNode {
     return Optional.empty();
   }
 
-  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
     if (this.childExpressions != null) {
       if (childExpressions.size() == 1) {
         return childExpressions.get(0).getCollate(currentRecord, ctx);
@@ -1075,7 +1075,7 @@ public class OMathExpression extends SimpleNode {
     return null;
   }
 
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
     if (this.childExpressions != null) {
       for (OMathExpression exp : childExpressions) {
         if (!exp.isEarlyCalculated(ctx)) {
@@ -1135,7 +1135,7 @@ public class OMathExpression extends SimpleNode {
   }
 
   public SimpleNode splitForAggregation(
-      AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     var db = ctx.getDatabase();
     if (isAggregate(db)) {
       OMathExpression result = new OMathExpression(-1);
@@ -1167,7 +1167,7 @@ public class OMathExpression extends SimpleNode {
     }
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     throw new UnsupportedOperationException(
         "multiple math expressions do not allow plain aggregation");
   }
@@ -1256,7 +1256,7 @@ public class OMathExpression extends SimpleNode {
     return result;
   }
 
-  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, CommandContext ctx) {
     if (childExpressions == null || childExpressions.size() != 1) {
       throw new YTCommandExecutionException("cannot apply REMOVE " + this);
     }

@@ -33,5 +33,5 @@ public interface OCommand {
    */
   Object execute(YTDatabaseSessionInternal session);
 
-  OCommandContext getContext();
+  CommandContext getContext();
 }

@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.common.collection.OMultiCollectionIter
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -252,7 +252,7 @@ public enum YTType {
     if (iId >= 0 && iId < TYPES_BY_ID.length) {
       return TYPES_BY_ID[iId];
     }
-    OLogManager.instance().warn(YTType.class, "Invalid type index: " + iId, (Object[]) null);
+    LogManager.instance().warn(YTType.class, "Invalid type index: " + iId, (Object[]) null);
     return null;
   }
 

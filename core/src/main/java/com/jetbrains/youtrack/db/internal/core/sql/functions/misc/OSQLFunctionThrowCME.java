@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
@@ -45,7 +45,7 @@ public class OSQLFunctionThrowCME extends OSQLFunctionAbstract {
       final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     throw new YTConcurrentModificationException(
         (YTRecordId) iParams[0], (int) iParams[1], (int) iParams[2], (int) iParams[3]);
   }

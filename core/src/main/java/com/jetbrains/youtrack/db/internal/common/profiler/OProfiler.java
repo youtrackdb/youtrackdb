@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.common.profiler;
 
-import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler.OProfilerHookValue;
+import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.jetbrains.youtrack.db.internal.common.util.OService;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -101,13 +101,13 @@ public interface OProfiler extends OService {
   Object getHookValue(String iName);
 
   void registerHookValue(
-      String iName, String iDescription, METRIC_TYPE iType, OProfilerHookValue iHookValue);
+      String iName, String iDescription, METRIC_TYPE iType, ProfilerHookValue iHookValue);
 
   void registerHookValue(
       String iName,
       String iDescription,
       METRIC_TYPE iType,
-      OProfilerHookValue iHookValue,
+      ProfilerHookValue iHookValue,
       String iMetadataName);
 
   String getSystemMetric(String iMetricName);

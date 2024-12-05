@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
@@ -12,7 +12,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -69,12 +69,12 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
   @AfterClass
   public static void afterClass() throws IOException {
     //    Files.delete(buildDir.toPath());
-    OFileUtils.deleteRecursively(buildDir);
+    FileUtils.deleteRecursively(buildDir);
   }
 
   @Before
   public void beforeMethod() throws IOException {
-    OFileUtils.deleteRecursively(buildDir);
+    FileUtils.deleteRecursively(buildDir);
 
     baseDocumentTx =
         new YTDatabaseDocumentTx(
@@ -125,7 +125,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
 
     Thread.sleep(1500);
     copyDataFromTestWithoutClose();
-    OStorage storage = baseDocumentTx.getStorage();
+    Storage storage = baseDocumentTx.getStorage();
     baseDocumentTx.close();
     storage.close(baseDocumentTx);
 

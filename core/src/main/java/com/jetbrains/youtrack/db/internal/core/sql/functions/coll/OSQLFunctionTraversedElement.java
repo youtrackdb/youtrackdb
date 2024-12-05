@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.OTraverseRecordProcess;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -71,14 +71,14 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
       final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     return evaluate(iThis, iParams, iContext, null);
   }
 
   protected Object evaluate(
       final Object iThis,
       final Object[] iParams,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final String iClassName) {
     final int beginIndex = (Integer) iParams[0];
     final int items = iParams.length > 1 ? (Integer) iParams[1] : 1;

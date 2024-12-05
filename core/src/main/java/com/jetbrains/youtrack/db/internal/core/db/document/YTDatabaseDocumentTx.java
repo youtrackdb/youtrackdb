@@ -4,7 +4,7 @@ import static com.jetbrains.youtrack.db.internal.core.db.document.ODatabaseDocum
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCache;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.script.YTCommandScriptException;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
@@ -40,7 +40,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceAction;
-import com.jetbrains.youtrack.db.internal.core.query.OQuery;
+import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
@@ -57,7 +57,7 @@ import com.jetbrains.youtrack.db.internal.core.shutdown.OShutdownHandler;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.OStorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
@@ -111,7 +111,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   // TODO review for the case of browseListener before open.
   private final Set<YTDatabaseListener> preopenListener = new HashSet<>();
   private YTDatabaseSessionInternal databaseOwner;
-  private OStorage delegateStorage;
+  private Storage delegateStorage;
   private ORecordConflictStrategy conflictStrategy;
   private ORecordSerializer serializer;
   protected final AtomicReference<Thread> owner = new AtomicReference<Thread>();
@@ -132,7 +132,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
 
   static {
     YouTrackDBManager.instance()
-        .registerOrientStartupListener(
+        .registerYouTrackDBStartupListener(
             () -> YouTrackDBManager.instance().addShutdownHandler(shutdownHandler));
     YouTrackDBManager.instance().addShutdownHandler(shutdownHandler);
   }
@@ -429,7 +429,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
 
   @Override
   @Deprecated
-  public OStorage getStorage() {
+  public Storage getStorage() {
     if (internal == null) {
       return delegateStorage;
     }
@@ -442,7 +442,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public void replaceStorage(OStorage iNewStorage) {
+  public void replaceStorage(Storage iNewStorage) {
     internal.replaceStorage(iNewStorage);
   }
 
@@ -681,13 +681,13 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public <RET extends List<?>> RET query(OQuery<?> iCommand, Object... iArgs) {
+  public <RET extends List<?>> RET query(Query<?> iCommand, Object... iArgs) {
     checkOpenness();
     return internal.query(iCommand, iArgs);
   }
 
   @Override
-  public <RET extends OCommandRequest> RET command(OCommandRequest iCommand) {
+  public <RET extends CommandRequest> RET command(CommandRequest iCommand) {
     checkOpenness();
     return internal.command(iCommand);
   }

@@ -17,8 +17,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
@@ -46,7 +46,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       final YTIdentifiable iCurrentRecord,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       Object ioResult,
       final Object[] iParams) {
     if (iParams[0] == null) {
@@ -67,14 +67,14 @@ public class OSQLMethodField extends OAbstractSQLMethod {
         try {
           ioResult = new YTRecordId((String) ioResult).getRecord();
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Error on reading rid with value '%s'", e, ioResult);
+          LogManager.instance().error(this, "Error on reading rid with value '%s'", e, ioResult);
           ioResult = null;
         }
       } else if (ioResult instanceof YTIdentifiable) {
         try {
           ioResult = ((YTIdentifiable) ioResult).getRecord();
         } catch (YTRecordNotFoundException rnf) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(this, "Error on reading rid with value '%s'", null, ioResult);
           ioResult = null;
         }
@@ -101,8 +101,8 @@ public class OSQLMethodField extends OAbstractSQLMethod {
     }
 
     if (!"*".equals(paramAsString) && ioResult != null) {
-      if (ioResult instanceof OCommandContext) {
-        ioResult = ((OCommandContext) ioResult).getVariable(paramAsString);
+      if (ioResult instanceof CommandContext) {
+        ioResult = ((CommandContext) ioResult).getVariable(paramAsString);
       } else {
         ioResult = ODocumentHelper.getFieldValue(db, ioResult, paramAsString, iContext);
       }

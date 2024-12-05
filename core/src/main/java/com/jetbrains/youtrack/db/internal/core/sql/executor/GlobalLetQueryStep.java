@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSet;
@@ -22,13 +22,13 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
   public GlobalLetQueryStep(
       OIdentifier varName,
       OStatement query,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled,
       List<String> scriptVars) {
     super(ctx, profilingEnabled);
     this.varName = varName;
 
-    OBasicCommandContext subCtx = new OBasicCommandContext();
+    BasicCommandContext subCtx = new BasicCommandContext();
     if (scriptVars != null) {
       scriptVars.forEach(subCtx::declareScriptVariable);
     }
@@ -44,16 +44,16 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
     calculate(ctx);
-    return OExecutionStream.empty();
+    return ExecutionStream.empty();
   }
 
-  private void calculate(OCommandContext ctx) {
+  private void calculate(CommandContext ctx) {
     ctx.setVariable(varName.getStringValue(), toList(new YTLocalResultSet(subExecutionPlan)));
   }
 
@@ -68,7 +68,7 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces
         + "+ LET (once)\n"
         + spaces

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.OIndexSearchResult;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
 import org.junit.Assert;
@@ -13,10 +13,10 @@ public class OFilterOptimizerTest extends DBTestBase {
 
   @Test
   public void testOptimizeFullOptimization() {
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final OSQLFilter filter = OSQLEngine.parseCondition("a = 3", context,
+    final SQLFilter filter = OSQLEngine.parseCondition("a = 3", context,
         "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
@@ -34,10 +34,10 @@ public class OFilterOptimizerTest extends DBTestBase {
 
   @Test
   public void testOptimizeFullOptimizationComplex() {
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final OSQLFilter filter =
+    final SQLFilter filter =
         OSQLEngine.parseCondition("a = 3 and b = 4", context, "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
@@ -68,10 +68,10 @@ public class OFilterOptimizerTest extends DBTestBase {
 
   @Test
   public void testOptimizePartialOptimization() {
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final OSQLFilter filter =
+    final SQLFilter filter =
         OSQLEngine.parseCondition("a = 3 and b > 5", context, "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
@@ -90,10 +90,10 @@ public class OFilterOptimizerTest extends DBTestBase {
 
   @Test
   public void testOptimizePartialOptimizationMethod() {
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(db);
 
-    final OSQLFilter filter =
+    final SQLFilter filter =
         OSQLEngine.parseCondition("a = 3 and b.asFloat() > 3.14", context,
             "WHERE");
 

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Script utility class
  *
- * @see OCommandScript
+ * @see CommandScript
  */
 public class OCommandExecutorUtility {
 
@@ -79,7 +79,7 @@ public class OCommandExecutorUtility {
         return mapResult;
       }
     } catch (Exception e) {
-      OLogManager.instance().error(OCommandExecutorUtility.class, "", e);
+      LogManager.instance().error(OCommandExecutorUtility.class, "", e);
     }
 
     return result;

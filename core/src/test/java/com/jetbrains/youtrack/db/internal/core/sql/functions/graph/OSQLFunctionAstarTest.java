@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
 import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -215,7 +215,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
 
     v1 = graph.bindToSession(v1);
     v4 = graph.bindToSession(v4);
@@ -240,7 +240,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v1 = graph.bindToSession(v1);
@@ -264,7 +264,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v1 = graph.bindToSession(v1);
@@ -289,7 +289,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon", "alt"});
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v1 = graph.bindToSession(v1);
@@ -314,7 +314,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v3 = graph.bindToSession(v3);
@@ -339,7 +339,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -368,7 +368,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, "EucliDEAN");
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -398,7 +398,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.EUCLIDEANNOSQR);
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -427,7 +427,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.MAXAXIS);
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -454,7 +454,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(OSQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -486,7 +486,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(OSQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);
@@ -513,7 +513,7 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(OSQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setDatabase(graph);
 
     v6 = graph.bindToSession(v6);

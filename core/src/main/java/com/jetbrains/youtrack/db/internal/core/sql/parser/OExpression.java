@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -53,7 +53,7 @@ public class OExpression extends SimpleNode {
     mathExpression = new OBaseExpression(attr, modifier);
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     if (isNull) {
       return null;
     }
@@ -94,7 +94,7 @@ public class OExpression extends SimpleNode {
     return value;
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     if (isNull) {
       return null;
     }
@@ -157,7 +157,7 @@ public class OExpression extends SimpleNode {
     return Optional.empty();
   }
 
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
     if (this.mathExpression != null) {
       return this.mathExpression.isEarlyCalculated(ctx);
     }
@@ -311,7 +311,7 @@ public class OExpression extends SimpleNode {
   }
 
   public long estimateIndexedFunction(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (mathExpression != null) {
       return mathExpression.estimateIndexedFunction(target, context, operator, right);
     }
@@ -319,7 +319,7 @@ public class OExpression extends SimpleNode {
   }
 
   public Iterable<YTIdentifiable> executeIndexedFunction(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (mathExpression != null) {
       return mathExpression.executeIndexedFunction(target, context, operator, right);
     }
@@ -338,7 +338,7 @@ public class OExpression extends SimpleNode {
    * executed without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (mathExpression != null) {
       return mathExpression.canExecuteIndexedFunctionWithoutIndex(target, context, operator, right);
     }
@@ -357,7 +357,7 @@ public class OExpression extends SimpleNode {
    * on this target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (mathExpression != null) {
       return mathExpression.allowsIndexedFunctionExecutionOnTarget(
           target, context, operator, right);
@@ -377,7 +377,7 @@ public class OExpression extends SimpleNode {
    * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (mathExpression != null) {
       return mathExpression.executeIndexedFunctionAfterIndexSearch(
           target, context, operator, right);
@@ -420,7 +420,7 @@ public class OExpression extends SimpleNode {
   }
 
   public OExpression splitForAggregation(
-      AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
     YTDatabaseSessionInternal database = ctx.getDatabase();
     if (isAggregate(database)) {
       OExpression result = new OExpression(-1);
@@ -456,7 +456,7 @@ public class OExpression extends SimpleNode {
     }
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     if (mathExpression != null) {
       return mathExpression.getAggregationContext(ctx);
     } else if (arrayConcatExpression != null) {
@@ -597,7 +597,7 @@ public class OExpression extends SimpleNode {
     return null;
   }
 
-  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, CommandContext ctx) {
     if (mathExpression != null) {
       mathExpression.applyRemove(result, ctx);
     } else {
@@ -682,7 +682,7 @@ public class OExpression extends SimpleNode {
     }
   }
 
-  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
     if (mathExpression != null) {
       return mathExpression.getCollate(currentRecord, ctx);
     }
@@ -703,7 +703,7 @@ public class OExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
     if (mathExpression != null) {
       return mathExpression.isIndexChain(ctx, clazz);
     }

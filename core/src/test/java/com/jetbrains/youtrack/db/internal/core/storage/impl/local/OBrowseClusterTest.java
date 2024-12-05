@@ -54,7 +54,7 @@ public class OBrowseClusterTest {
     }
     int cluster = db.getClass("One").getDefaultClusterId();
     Iterator<OClusterBrowsePage> browser =
-        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) db).getStorage())
+        ((AbstractPaginatedStorage) ((YTDatabaseSessionInternal) db).getStorage())
             .browseCluster(cluster);
     int count = 0;
 

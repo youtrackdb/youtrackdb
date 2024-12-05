@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.operator.math;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -47,7 +47,7 @@ public class OQueryOperatorDivide extends OQueryOperator {
       final OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
     if (iRight == null || iLeft == null) {
       return null;

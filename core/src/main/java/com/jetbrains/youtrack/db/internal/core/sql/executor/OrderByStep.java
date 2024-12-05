@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderBy;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,14 +20,14 @@ public class OrderByStep extends AbstractExecutionStep {
   private Integer maxResults;
 
   public OrderByStep(
-      OOrderBy orderBy, OCommandContext ctx, long timeoutMillis, boolean profilingEnabled) {
+      OOrderBy orderBy, CommandContext ctx, long timeoutMillis, boolean profilingEnabled) {
     this(orderBy, null, ctx, timeoutMillis, profilingEnabled);
   }
 
   public OrderByStep(
       OOrderBy orderBy,
       Integer maxResults,
-      OCommandContext ctx,
+      CommandContext ctx,
       long timeoutMillis,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -40,7 +40,7 @@ public class OrderByStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     List<YTResult> results;
 
     if (prev != null) {
@@ -49,16 +49,16 @@ public class OrderByStep extends AbstractExecutionStep {
       results = Collections.emptyList();
     }
 
-    return OExecutionStream.resultIterator(results.iterator());
+    return ExecutionStream.resultIterator(results.iterator());
   }
 
-  private List<YTResult> init(OExecutionStepInternal p, OCommandContext ctx) {
+  private List<YTResult> init(ExecutionStepInternal p, CommandContext ctx) {
     long timeoutBegin = System.currentTimeMillis();
     List<YTResult> cachedResult = new ArrayList<>();
     final long maxElementsAllowed =
         GlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong();
     boolean sorted = true;
-    OExecutionStream lastBatch = p.start(ctx);
+    ExecutionStream lastBatch = p.start(ctx);
     while (lastBatch.hasNext(ctx)) {
       if (timeoutMillis > 0 && timeoutBegin + timeoutMillis < System.currentTimeMillis()) {
         sendTimeout();
@@ -100,7 +100,7 @@ public class OrderByStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = OExecutionStepInternal.getIndent(depth, indent) + "+ " + orderBy;
+    String result = ExecutionStepInternal.getIndent(depth, indent) + "+ " + orderBy;
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

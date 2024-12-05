@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OUncaughtExceptionHandler;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestAsynch;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
@@ -285,7 +285,7 @@ public class OSQLNonBlockingQuery<T extends Object> extends OSQLQuery<T>
                   try {
                     db.close();
                   } catch (Exception e) {
-                    OLogManager.instance().error(this, "Error during database close", e);
+                    LogManager.instance().error(this, "Error during database close", e);
                   }
                 }
                 try {
@@ -294,7 +294,7 @@ public class OSQLNonBlockingQuery<T extends Object> extends OSQLQuery<T>
                     future.notifyAll();
                   }
                 } catch (Exception e) {
-                  OLogManager.instance().error(this, "", e);
+                  LogManager.instance().error(this, "", e);
                 }
               }
             });

@@ -5,7 +5,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.util.OResettable;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -67,7 +67,7 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     if (star) {
       return iCurrentRecord;
     }
@@ -119,7 +119,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     if (star) {
       return iCurrentRecord;
     }
@@ -157,7 +157,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(Map iCurrentRecord, OCommandContext ctx) {
+  public Object execute(Map iCurrentRecord, CommandContext ctx) {
     if (star) {
       YTResultInternal result = new YTResultInternal(ctx.getDatabase());
       if (iCurrentRecord != null) {
@@ -187,7 +187,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(Iterable iterable, OCommandContext ctx) {
+  public Object execute(Iterable iterable, CommandContext ctx) {
     if (star) {
       return null;
     }
@@ -198,7 +198,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return result;
   }
 
-  public Object execute(Iterator iterator, OCommandContext ctx) {
+  public Object execute(Iterator iterator, CommandContext ctx) {
     if (star) {
       return null;
     }
@@ -215,7 +215,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return result;
   }
 
-  public Object execute(OCommandContext iCurrentRecord) {
+  public Object execute(CommandContext iCurrentRecord) {
     if (star) {
       return null;
     }
@@ -232,7 +232,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(Object currentValue, OCommandContext ctx) {
+  public Object execute(Object currentValue, CommandContext ctx) {
     if (currentValue instanceof YTResult) {
       return execute((YTResult) currentValue, ctx);
     }
@@ -242,8 +242,8 @@ public class OSuffixIdentifier extends SimpleNode {
     if (currentValue instanceof Map) {
       return execute((Map) currentValue, ctx);
     }
-    if (currentValue instanceof OCommandContext) {
-      return execute((OCommandContext) currentValue);
+    if (currentValue instanceof CommandContext) {
+      return execute((CommandContext) currentValue);
     }
     if (currentValue instanceof Iterable) {
       return execute((Iterable) currentValue, ctx);
@@ -289,16 +289,16 @@ public class OSuffixIdentifier extends SimpleNode {
     return this;
   }
 
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
     return identifier != null && identifier.isEarlyCalculated(ctx);
   }
 
-  public void aggregate(Object value, OCommandContext ctx) {
+  public void aggregate(Object value, CommandContext ctx) {
     throw new UnsupportedOperationException(
         "this operation does not support plain aggregation: " + this);
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     throw new UnsupportedOperationException(
         "this operation does not support plain aggregation: " + this);
   }
@@ -346,7 +346,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return identifier != null && identifier.getStringValue().equalsIgnoreCase("$parent");
   }
 
-  public void setValue(Object target, Object value, OCommandContext ctx) {
+  public void setValue(Object target, Object value, CommandContext ctx) {
     if (target instanceof YTResult) {
       setValue((YTResult) target, value, ctx);
     } else if (target instanceof YTIdentifiable) {
@@ -356,7 +356,7 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public void setValue(YTIdentifiable target, Object value, OCommandContext ctx) {
+  public void setValue(YTIdentifiable target, Object value, CommandContext ctx) {
     if (target == null) {
       return;
     }
@@ -384,7 +384,7 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public void setValue(Map target, Object value, OCommandContext ctx) {
+  public void setValue(Map target, Object value, CommandContext ctx) {
     if (target == null) {
       return;
     }
@@ -395,7 +395,7 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public void setValue(YTResult target, Object value, OCommandContext ctx) {
+  public void setValue(YTResult target, Object value, CommandContext ctx) {
     if (target == null) {
       return;
     }
@@ -411,7 +411,7 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public void applyRemove(Object currentValue, OCommandContext ctx) {
+  public void applyRemove(Object currentValue, CommandContext ctx) {
     if (currentValue == null) {
       return;
     }
@@ -463,7 +463,7 @@ public class OSuffixIdentifier extends SimpleNode {
     return true;
   }
 
-  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
     if (identifier != null && currentRecord != null) {
       return currentRecord
           .getRecord()

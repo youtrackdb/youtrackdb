@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBatch;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
@@ -30,7 +30,7 @@ public class OMoveVertexExecutionPlanner {
     this.batch = oStatement.getBatch();
   }
 
-  public OUpdateExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OUpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     OUpdateExecutionPlan result = new OUpdateExecutionPlan(ctx);
 
     handleSource(result, ctx, this.source, enableProfiling);
@@ -46,13 +46,13 @@ public class OMoveVertexExecutionPlanner {
       OUpdateExecutionPlan result,
       OIdentifier targetClass,
       OCluster targetCluster,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     result.chain(new MoveVertexStep(targetClass, targetCluster, ctx, profilingEnabled));
   }
 
   private void handleBatch(
-      OUpdateExecutionPlan result, OCommandContext ctx, OBatch batch, boolean profilingEnabled) {
+      OUpdateExecutionPlan result, CommandContext ctx, OBatch batch, boolean profilingEnabled) {
     if (batch != null) {
       result.chain(new BatchStep(batch, ctx, profilingEnabled));
     }
@@ -66,18 +66,18 @@ public class OMoveVertexExecutionPlanner {
    * @param ctx  the executino context
    */
   private void convertToModifiableResult(
-      OUpdateExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
     plan.chain(new ConvertToUpdatableResultStep(ctx, profilingEnabled));
   }
 
   private void handleSave(
-      OUpdateExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      OUpdateExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     result.chain(new SaveElementStep(ctx, profilingEnabled));
   }
 
   private void handleOperations(
       OUpdateExecutionPlan plan,
-      OCommandContext ctx,
+      CommandContext ctx,
       OUpdateOperations op,
       boolean profilingEnabled) {
     if (op != null) {
@@ -105,7 +105,7 @@ public class OMoveVertexExecutionPlanner {
 
   private void handleSource(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OFromItem source,
       boolean profilingEnabled) {
     OSelectStatement sourceStatement = new OSelectStatement(-1);

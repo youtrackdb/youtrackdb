@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.query.OQueryRuntimeValueMulti;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -61,12 +61,12 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      OCommandContext iContext);
+      CommandContext iContext);
 
   public boolean evaluate(
       final OBinaryField iFirstField,
       final OBinaryField iSecondField,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final ODocumentSerializer serializer) {
     final Object left = serializer.deserializeValue(iContext.getDatabase(), iFirstField.bytes,
         iFirstField.type, null);
@@ -83,7 +83,7 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
 
     if (iLeft instanceof OBinaryField && iRight instanceof OBinaryField)

@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -93,7 +93,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
@@ -122,7 +122,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
@@ -275,7 +275,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
     if (right.isEarlyCalculated(ctx) && left.isIndexChain(ctx, clazz)) {
       OContainsAnyCondition result = new OContainsAnyCondition(-1);
 
@@ -376,7 +376,7 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
     Optional<OPath> path = left.getPath();
     if (path.isPresent()) {
       if (right.isEarlyCalculated(ctx)) {

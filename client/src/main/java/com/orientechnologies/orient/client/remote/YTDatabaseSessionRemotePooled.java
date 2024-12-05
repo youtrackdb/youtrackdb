@@ -15,7 +15,7 @@ public class YTDatabaseSessionRemotePooled extends YTDatabaseSessionRemote {
   private final ODatabasePoolInternal pool;
 
   public YTDatabaseSessionRemotePooled(
-      ODatabasePoolInternal pool, OStorageRemote storage, OSharedContext sharedContext) {
+      ODatabasePoolInternal pool, StorageRemote storage, OSharedContext sharedContext) {
     super(storage, sharedContext);
     this.pool = pool;
   }

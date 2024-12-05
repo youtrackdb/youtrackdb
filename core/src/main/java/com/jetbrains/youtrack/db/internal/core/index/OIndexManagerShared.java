@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OMultiKey;
 import com.jetbrains.youtrack.db.internal.common.util.OUncaughtExceptionHandler;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
@@ -44,8 +44,8 @@ import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sharding.auto.OAutoShardingIndexFactory;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,7 +71,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
   private transient volatile Thread recreateIndexesThread = null;
   volatile boolean rebuildCompleted = false;
-  final OStorage storage;
+  final Storage storage;
   // values of this Map should be IMMUTABLE !! for thread safety reasons.
   protected final Map<String, Map<OMultiKey, Set<OIndex>>> classPropertyIndex =
       new ConcurrentHashMap<>();
@@ -82,7 +82,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   protected final ReadWriteLock lock = new ReentrantReadWriteLock();
   protected YTRID identity;
 
-  public OIndexManagerShared(OStorage storage) {
+  public OIndexManagerShared(Storage storage) {
     super();
     this.storage = storage;
   }
@@ -700,7 +700,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   }
 
   private OIndexInternal createIndexFromMetadata(
-      YTDatabaseSessionInternal session, OStorage storage, OIndexMetadata indexMetadata,
+      YTDatabaseSessionInternal session, Storage storage, OIndexMetadata indexMetadata,
       OProgressListener progressListener) {
 
     OIndexInternal index = OIndexes.createIndex(storage, indexMetadata);
@@ -900,13 +900,13 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
         return;
       }
 
-      OLogManager.instance().info(this, "Wait till indexes restore after crash was finished.");
+      LogManager.instance().info(this, "Wait till indexes restore after crash was finished.");
       while (recreateIndexesThread.isAlive()) {
         try {
           recreateIndexesThread.join();
-          OLogManager.instance().info(this, "Indexes restore after crash was finished.");
+          LogManager.instance().info(this, "Indexes restore after crash was finished.");
         } catch (InterruptedException e) {
-          OLogManager.instance().info(this, "Index rebuild task was interrupted.", e);
+          LogManager.instance().info(this, "Index rebuild task was interrupted.", e);
         }
       }
     }
@@ -917,8 +917,8 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       return false;
     }
 
-    final OStorage storage = database.getStorage();
-    if (storage instanceof OAbstractPaginatedStorage paginatedStorage) {
+    final Storage storage = database.getStorage();
+    if (storage instanceof AbstractPaginatedStorage paginatedStorage) {
       return paginatedStorage.wereDataRestoredAfterOpen()
           && paginatedStorage.wereNonTxOperationsPerformedInPreviousOpen();
     }
@@ -975,13 +975,13 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
           } catch (RuntimeException e) {
             indexConfigurationIterator.remove();
             configUpdated = true;
-            OLogManager.instance().error(this, "Error on loading index by configuration: %s", e, d);
+            LogManager.instance().error(this, "Error on loading index by configuration: %s", e, d);
           }
         }
 
         for (OIndex oldIndex : oldIndexes.values()) {
           try {
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(
                     this,
                     "Index '%s' was not found after reload and will be removed",
@@ -989,7 +989,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
             oldIndex.delete(session);
           } catch (Exception e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(this, "Error on deletion of index '%s'", e, oldIndex.getName());
           }
         }
@@ -1076,7 +1076,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     return index;
   }
 
-  protected OStorage getStorage() {
+  protected Storage getStorage() {
     return storage;
   }
 

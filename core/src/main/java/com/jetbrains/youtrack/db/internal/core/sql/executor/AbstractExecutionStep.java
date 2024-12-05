@@ -1,36 +1,36 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OStepStats;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.StepStats;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.text.DecimalFormat;
 import javax.annotation.Nullable;
 
 /**
  *
  */
-public abstract class AbstractExecutionStep implements OExecutionStepInternal {
+public abstract class AbstractExecutionStep implements ExecutionStepInternal {
 
-  final OCommandContext ctx;
+  final CommandContext ctx;
   @Nullable
-  protected OExecutionStepInternal prev = null;
+  protected ExecutionStepInternal prev = null;
   @Nullable
-  OExecutionStepInternal next = null;
+  ExecutionStepInternal next = null;
   protected boolean profilingEnabled;
 
-  public AbstractExecutionStep(OCommandContext ctx, boolean profilingEnabled) {
+  public AbstractExecutionStep(CommandContext ctx, boolean profilingEnabled) {
     this.ctx = ctx;
     this.profilingEnabled = profilingEnabled;
   }
 
   @Override
-  public void setPrevious(OExecutionStepInternal step) {
+  public void setPrevious(ExecutionStepInternal step) {
     this.prev = step;
   }
 
   @Override
-  public void setNext(@Nullable OExecutionStepInternal step) {
+  public void setNext(@Nullable ExecutionStepInternal step) {
     this.next = step;
   }
 
@@ -63,7 +63,7 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
     this.profilingEnabled = profilingEnabled;
   }
 
-  public OExecutionStream start(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream start(CommandContext ctx) throws YTTimeoutException {
     if (profilingEnabled) {
       ctx.startProfiling(this);
       try {
@@ -76,15 +76,15 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
     }
   }
 
-  protected abstract OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException;
+  protected abstract ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException;
 
   @Override
   public long getCost() {
-    OStepStats stats = this.ctx.getStats(this);
+    StepStats stats = this.ctx.getStats(this);
     if (stats != null) {
       return stats.getCost();
     } else {
-      return OExecutionStepInternal.super.getCost();
+      return ExecutionStepInternal.super.getCost();
     }
   }
 

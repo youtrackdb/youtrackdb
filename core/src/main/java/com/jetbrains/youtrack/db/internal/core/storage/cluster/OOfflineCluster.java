@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OClusterBrowsePage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
@@ -41,11 +41,11 @@ public class OOfflineCluster implements OCluster {
 
   private final String name;
   private final int id;
-  private final OAbstractPaginatedStorage storageLocal;
+  private final AbstractPaginatedStorage storageLocal;
   private volatile int binaryVersion;
 
   public OOfflineCluster(
-      final OAbstractPaginatedStorage iStorage, final int iId, final String iName) {
+      final AbstractPaginatedStorage iStorage, final int iId, final String iName) {
     storageLocal = iStorage;
     id = iId;
     name = iName;
@@ -56,7 +56,7 @@ public class OOfflineCluster implements OCluster {
   }
 
   @Override
-  public void configure(OStorage iStorage, OStorageClusterConfiguration iConfig)
+  public void configure(Storage iStorage, OStorageClusterConfiguration iConfig)
       throws IOException {
     binaryVersion = iConfig.getBinaryVersion();
   }

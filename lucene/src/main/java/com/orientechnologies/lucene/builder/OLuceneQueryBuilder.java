@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.builder;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.orientechnologies.lucene.analyzer.OLuceneAnalyzerFactory;
-import com.orientechnologies.lucene.parser.OLuceneMultiFieldQueryParser;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
+import com.orientechnologies.lucene.analyzer.OLuceneAnalyzerFactory;
+import com.orientechnologies.lucene.parser.OLuceneMultiFieldQueryParser;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -147,7 +147,7 @@ public class OLuceneQueryBuilder {
       return queryParser.parse(query);
     } catch (final org.apache.lucene.queryparser.classic.ParseException e) {
       final Throwable cause = prepareParseError(e, metadata);
-      OLogManager.instance().error(this, "Exception is suppressed, original exception is ", cause);
+      LogManager.instance().error(this, "Exception is suppressed, original exception is ", cause);
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw new ParseException(cause.getMessage());
     }

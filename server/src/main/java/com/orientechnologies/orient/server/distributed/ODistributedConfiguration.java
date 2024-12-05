@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -159,7 +159,7 @@ public class ODistributedConfiguration {
     if (value == null) {
       value = configuration.field(READ_YOUR_WRITES);
       if (value == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "%s setting not found for cluster=%s in distributed-config.json",
@@ -892,7 +892,7 @@ public class ODistributedConfiguration {
     if (value == null) {
       value = configuration.field(quorumSetting);
       if (value == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "%s setting not found for cluster=%s in distributed-config.json",

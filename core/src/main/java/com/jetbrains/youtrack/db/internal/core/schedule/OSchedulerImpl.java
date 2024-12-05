@@ -16,7 +16,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.schedule;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
@@ -70,7 +70,7 @@ public class OSchedulerImpl {
   }
 
   public void removeEvent(YTDatabaseSessionInternal session, final String eventName) {
-    OLogManager.instance().debug(this, "Removing scheduled event '%s'...", eventName);
+    LogManager.instance().debug(this, "Removing scheduled event '%s'...", eventName);
 
     final OScheduledEvent event = removeEventInternal(eventName);
 
@@ -95,7 +95,7 @@ public class OSchedulerImpl {
       oldEvent.interrupt();
     }
     scheduleEvent(session, event);
-    OLogManager.instance()
+    LogManager.instance()
         .debug(
             this,
             "Updated scheduled event '%s' rid=%s...",
@@ -194,7 +194,7 @@ public class OSchedulerImpl {
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "Error on updating scheduled event", ex);
+      LogManager.instance().error(this, "Error on updating scheduled event", ex);
     }
   }
 
@@ -215,7 +215,7 @@ public class OSchedulerImpl {
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "Error on updating scheduled event", ex);
+      LogManager.instance().error(this, "Error on updating scheduled event", ex);
     }
   }
 }

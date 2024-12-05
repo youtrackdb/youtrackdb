@@ -30,14 +30,14 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -842,7 +842,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(
         ((List<EntityImpl>)
-            db.command(new OCommandSQL("select from TransactionUniqueIndexWithDotTest"))
+            db.command(new CommandSQL("select from TransactionUniqueIndexWithDotTest"))
                 .execute(db))
             .size(),
         countClassBefore);
@@ -1202,7 +1202,7 @@ public class IndexTest extends DocumentDBBaseTest {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullIndexKeysSupportIndex"));
@@ -1254,7 +1254,7 @@ public class IndexTest extends DocumentDBBaseTest {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullHashIndexKeysSupportIndex"));
@@ -1309,7 +1309,7 @@ public class IndexTest extends DocumentDBBaseTest {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullIndexKeysSupportInTxIndex"));
@@ -1366,7 +1366,7 @@ public class IndexTest extends DocumentDBBaseTest {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(
         explain
@@ -1417,7 +1417,7 @@ public class IndexTest extends DocumentDBBaseTest {
       Assert.assertEquals(resultTwo.size(), 1);
       Assert.assertEquals(resultTwo.get(0).getIdentity(), docTwo.getIdentity());
 
-      explain = database.command(new OCommandSQL("explain " + queryTwo)).execute(database);
+      explain = database.command(new CommandSQL("explain " + queryTwo)).execute(database);
       Assert.assertTrue(
           explain
               .<Collection<String>>getProperty("involvedIndexes")
@@ -1452,8 +1452,8 @@ public class IndexTest extends DocumentDBBaseTest {
       }
     }
 
-    final OAbstractPaginatedStorage storageLocalAbstract =
-        (OAbstractPaginatedStorage)
+    final AbstractPaginatedStorage storageLocalAbstract =
+        (AbstractPaginatedStorage)
             ((YTDatabaseSessionInternal) database.getUnderlying()).getStorage();
 
     final OWriteCache writeCache = storageLocalAbstract.getWriteCache();
@@ -2269,7 +2269,7 @@ public class IndexTest extends DocumentDBBaseTest {
     Assert.fail("Index " + "Profile.nick" + " was not used in the query");
   }
 
-  private boolean assertIndexUsage(OExecutionStep executionStep, String indexName) {
+  private boolean assertIndexUsage(ExecutionStep executionStep, String indexName) {
     if (executionStep instanceof FetchFromIndexStep fetchFromIndexStep
         && fetchFromIndexStep.getIndexName().equals(indexName)) {
       return true;

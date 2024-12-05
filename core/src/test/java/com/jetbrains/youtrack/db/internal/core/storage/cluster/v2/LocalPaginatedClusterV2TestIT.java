@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.LocalPaginatedClusterAbstract;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
 import java.io.IOException;
 import org.junit.BeforeClass;
@@ -20,7 +20,7 @@ public class LocalPaginatedClusterV2TestIT extends LocalPaginatedClusterAbstract
     }
 
     buildDirectory += File.separator + LocalPaginatedClusterV2TestIT.class.getSimpleName();
-    OFileUtils.deleteRecursively(new File(buildDirectory));
+    FileUtils.deleteRecursively(new File(buildDirectory));
 
     dbName = "clusterTest";
 
@@ -31,9 +31,9 @@ public class LocalPaginatedClusterV2TestIT extends LocalPaginatedClusterAbstract
 
     databaseDocumentTx = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-    storage = (OAbstractPaginatedStorage) databaseDocumentTx.getStorage();
+    storage = (AbstractPaginatedStorage) databaseDocumentTx.getStorage();
 
-    paginatedCluster = new OPaginatedClusterV2("paginatedClusterTest", storage);
+    paginatedCluster = new PaginatedClusterV2("paginatedClusterTest", storage);
     paginatedCluster.configure(42, "paginatedClusterTest");
     storage
         .getAtomicOperationsManager()

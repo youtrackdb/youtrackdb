@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.util.List;
 
 /**
@@ -19,7 +19,7 @@ public class OSQLFunctionInterval extends OSQLFunctionMathAbstract {
 
   public static final String NAME = "interval";
 
-  private OSQLPredicate predicate;
+  private SQLPredicate predicate;
 
   public OSQLFunctionInterval() {
     super(NAME, 2, 0);
@@ -31,7 +31,7 @@ public class OSQLFunctionInterval extends OSQLFunctionMathAbstract {
       final YTIdentifiable iRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
 
     if (iParams == null || iParams.length < 2) {
       return -1;

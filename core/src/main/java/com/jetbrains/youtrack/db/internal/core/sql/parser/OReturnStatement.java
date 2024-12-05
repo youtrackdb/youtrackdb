@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class OReturnStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     List<YTResult> rs = new ArrayList<>();
 
     var database = ctx.getDatabase();
@@ -49,15 +49,15 @@ public class OReturnStatement extends OSimpleExecStatement {
           // this operation does not hurt
         }
       }
-      return OExecutionStream.resultIterator(((YTResultSet) result).stream().iterator());
-    } else if (result instanceof OExecutionStream) {
-      return (OExecutionStream) result;
+      return ExecutionStream.resultIterator(((YTResultSet) result).stream().iterator());
+    } else if (result instanceof ExecutionStream) {
+      return (ExecutionStream) result;
     } else {
       YTResultInternal res = new YTResultInternal(database);
       res.setProperty("value", result);
       rs.add(res);
     }
-    return OExecutionStream.resultIterator(rs.iterator());
+    return ExecutionStream.resultIterator(rs.iterator());
   }
 
   @Override

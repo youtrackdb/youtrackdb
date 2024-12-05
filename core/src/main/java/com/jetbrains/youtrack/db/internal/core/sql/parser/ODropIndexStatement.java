@@ -2,14 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class ODropIndexStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     List<YTResult> rs = new ArrayList<>();
     YTDatabaseSessionInternal db = ctx.getDatabase();
     OIndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
@@ -54,7 +54,7 @@ public class ODropIndexStatement extends ODDLStatement {
       rs.add(result);
     }
 
-    return OExecutionStream.resultIterator(rs.iterator());
+    return ExecutionStream.resultIterator(rs.iterator());
   }
 
   @Override

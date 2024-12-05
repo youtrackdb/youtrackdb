@@ -3,11 +3,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 
 public class OHaSyncDatabaseStatement extends OSimpleExecStatement {
@@ -24,14 +24,14 @@ public class OHaSyncDatabaseStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
 
     try {
       boolean result = database.sync(force, !full);
       YTResultInternal r = new YTResultInternal(database);
       r.setProperty("result", result);
-      return OExecutionStream.singleton(r);
+      return ExecutionStream.singleton(r);
     } catch (Exception e) {
       throw YTException.wrapException(
           new YTCommandExecutionException("Cannot execute HA SYNC DATABASE"), e);

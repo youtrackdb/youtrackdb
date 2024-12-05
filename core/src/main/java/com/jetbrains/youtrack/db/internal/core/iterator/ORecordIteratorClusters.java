@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -178,7 +178,7 @@ public class ORecordIteratorClusters<REC extends Record> extends OIdentifiableIt
             throw (RuntimeException) e;
           }
 
-          OLogManager.instance().error(this, "Error during read of record", e);
+          LogManager.instance().error(this, "Error during read of record", e);
 
           currentRecord = null;
         }

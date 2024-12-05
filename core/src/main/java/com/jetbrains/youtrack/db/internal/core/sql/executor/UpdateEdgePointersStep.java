@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
@@ -9,7 +9,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Collection;
 
 /**
@@ -18,19 +18,19 @@ import java.util.Collection;
  */
 public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
-  public UpdateEdgePointersStep(OCommandContext ctx, boolean profilingEnabled) {
+  public UpdateEdgePointersStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     var prev = this.prev;
     assert prev != null;
-    OExecutionStream upstream = prev.start(ctx);
+    ExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, CommandContext ctx) {
     if (result instanceof YTResultInternal) {
       handleUpdateEdge(result.toEntity().getRecord());
     }
@@ -39,7 +39,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ UPDATE EDGE POINTERS";
   }
 

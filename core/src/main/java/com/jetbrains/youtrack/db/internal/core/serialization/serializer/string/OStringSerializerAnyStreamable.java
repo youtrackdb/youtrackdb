@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.string;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -58,7 +58,7 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
         instance = (OSerializableStream) clazz.newInstance();
       } catch (Exception e) {
         final String message = "Error on unmarshalling content. Class: " + className;
-        OLogManager.instance().error(this, message, e);
+        LogManager.instance().error(this, message, e);
         throw YTException.wrapException(new YTSerializationException(message), e);
       }
     }

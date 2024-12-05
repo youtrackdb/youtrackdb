@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -27,7 +27,7 @@ public class OClassIndexFinder implements OIndexFinder {
     String last;
   }
 
-  private PrePath findPrePath(OPath path, OCommandContext ctx) {
+  private PrePath findPrePath(OPath path, CommandContext ctx) {
     List<String> rawPath = path.getPath();
     var db = ctx.getDatabase();
     String lastP = rawPath.remove(rawPath.size() - 1);
@@ -78,7 +78,7 @@ public class OClassIndexFinder implements OIndexFinder {
   }
 
   @Override
-  public Optional<OIndexCandidate> findExactIndex(OPath path, Object value, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findExactIndex(OPath path, Object value, CommandContext ctx) {
     PrePath pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();
@@ -106,7 +106,7 @@ public class OClassIndexFinder implements OIndexFinder {
   }
 
   @Override
-  public Optional<OIndexCandidate> findByKeyIndex(OPath path, Object value, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findByKeyIndex(OPath path, Object value, CommandContext ctx) {
     PrePath pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();
@@ -142,7 +142,7 @@ public class OClassIndexFinder implements OIndexFinder {
 
   @Override
   public Optional<OIndexCandidate> findAllowRangeIndex(
-      OPath path, Operation op, Object value, OCommandContext ctx) {
+      OPath path, Operation op, Object value, CommandContext ctx) {
     PrePath pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();
@@ -171,7 +171,7 @@ public class OClassIndexFinder implements OIndexFinder {
   }
 
   @Override
-  public Optional<OIndexCandidate> findByValueIndex(OPath path, Object value, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findByValueIndex(OPath path, Object value, CommandContext ctx) {
     PrePath pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();
@@ -207,7 +207,7 @@ public class OClassIndexFinder implements OIndexFinder {
 
   @Override
   public Optional<OIndexCandidate> findFullTextIndex(
-      OPath path, Object value, OCommandContext ctx) {
+      OPath path, Object value, CommandContext ctx) {
     PrePath pre = findPrePath(path, ctx);
     if (!pre.valid) {
       return Optional.empty();

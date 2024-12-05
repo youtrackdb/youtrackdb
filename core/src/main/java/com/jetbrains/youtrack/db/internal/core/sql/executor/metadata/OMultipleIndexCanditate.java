@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder.Operation;
@@ -51,7 +51,7 @@ public class OMultipleIndexCanditate implements OIndexCandidate {
   }
 
   @Override
-  public Optional<OIndexCandidate> normalize(OCommandContext ctx) {
+  public Optional<OIndexCandidate> normalize(CommandContext ctx) {
     Collection<OIndexCandidate> newCanditates = normalizeBetween(this.canditates, ctx);
     newCanditates = normalizeComposite(newCanditates, ctx);
     if (newCanditates.isEmpty()) {
@@ -64,7 +64,7 @@ public class OMultipleIndexCanditate implements OIndexCandidate {
   }
 
   private Collection<OIndexCandidate> normalizeBetween(
-      List<OIndexCandidate> canditates, OCommandContext ctx) {
+      List<OIndexCandidate> canditates, CommandContext ctx) {
     List<OIndexCandidate> newCanditates = new ArrayList<>();
     for (int i = 0; i < canditates.size(); i++) {
       boolean matched = false;
@@ -94,7 +94,7 @@ public class OMultipleIndexCanditate implements OIndexCandidate {
   }
 
   private Collection<OIndexCandidate> normalizeComposite(
-      Collection<OIndexCandidate> canditates, OCommandContext ctx) {
+      Collection<OIndexCandidate> canditates, CommandContext ctx) {
     List<YTProperty> propeties = properties();
     Map<String, OIndexCandidate> newCanditates = new HashMap<>();
     for (OIndexCandidate cand : canditates) {

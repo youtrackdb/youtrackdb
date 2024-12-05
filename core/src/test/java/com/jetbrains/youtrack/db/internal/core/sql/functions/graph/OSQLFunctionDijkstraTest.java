@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
 import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
@@ -84,7 +84,7 @@ public class OSQLFunctionDijkstraTest {
     v1 = graph.bindToSession(v1);
     v4 = graph.bindToSession(v4);
 
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase((YTDatabaseSessionInternal) graph);
 
     final List<Vertex> result =

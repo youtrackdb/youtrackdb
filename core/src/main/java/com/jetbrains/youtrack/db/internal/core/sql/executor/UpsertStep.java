@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
@@ -22,27 +22,27 @@ public class UpsertStep extends AbstractExecutionStep {
   private final OWhereClause initialFilter;
 
   public UpsertStep(
-      OFromClause target, OWhereClause where, OCommandContext ctx, boolean profilingEnabled) {
+      OFromClause target, OWhereClause where, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.commandTarget = target;
     this.initialFilter = where;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     var prev = this.prev;
     assert prev != null;
 
-    OExecutionStream upstream = prev.start(ctx);
+    ExecutionStream upstream = prev.start(ctx);
     if (upstream.hasNext(ctx)) {
       return upstream;
     }
 
-    return OExecutionStream.singleton(createNewRecord(ctx, commandTarget, initialFilter));
+    return ExecutionStream.singleton(createNewRecord(ctx, commandTarget, initialFilter));
   }
 
   private YTResult createNewRecord(
-      OCommandContext ctx, OFromClause commandTarget, OWhereClause initialFilter) {
+      CommandContext ctx, OFromClause commandTarget, OWhereClause initialFilter) {
     EntityImpl doc;
     if (commandTarget.getItem().getIdentifier() != null) {
       doc = new EntityImpl(commandTarget.getItem().getIdentifier().getStringValue());
@@ -86,7 +86,7 @@ public class UpsertStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces
         + "+ INSERT (upsert, if needed)\n"
         + spaces

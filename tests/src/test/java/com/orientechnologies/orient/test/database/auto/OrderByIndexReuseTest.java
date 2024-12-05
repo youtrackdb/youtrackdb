@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.Set;
@@ -69,7 +69,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 6);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -92,7 +92,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + (i + 12));
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -115,7 +115,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + (101 - i));
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -145,7 +145,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -163,7 +163,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -184,7 +184,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -214,7 +214,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -244,7 +244,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -274,7 +274,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -292,7 +292,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -313,7 +313,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -344,7 +344,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -375,7 +375,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -406,7 +406,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -424,7 +424,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 4 - i / 2);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -445,7 +445,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -476,7 +476,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -507,7 +507,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -538,7 +538,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -556,7 +556,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 5 - i / 2);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -577,7 +577,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -608,7 +608,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -639,7 +639,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -670,7 +670,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -689,7 +689,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 15 - i / 2);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -716,7 +716,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     document = result.get(2);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 10);
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -743,7 +743,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     document = result.get(2);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 45);
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -766,7 +766,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + (i + 12));
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -796,7 +796,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -827,7 +827,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -858,7 +858,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -889,7 +889,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -920,7 +920,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -951,7 +951,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -982,7 +982,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1013,7 +1013,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1044,7 +1044,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1074,7 +1074,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 10);
     Assert.assertEquals(document.field("prop4"), "prop20");
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1104,7 +1104,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 45);
     Assert.assertEquals(document.field("prop4"), "prop90");
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1127,7 +1127,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>field("firstProp"), 6 + i / 2);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1149,7 +1149,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>field("firstProp"), 45 - i / 2);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1181,7 +1181,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1213,7 +1213,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1245,7 +1245,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1274,7 +1274,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new CommandSQL("explain " + query))
         .execute(database);
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import java.util.List;
@@ -53,7 +53,7 @@ public interface OSQLFunction {
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
-      OCommandContext iContext);
+      CommandContext iContext);
 
   /**
    * Configure the function.
@@ -78,7 +78,7 @@ public interface OSQLFunction {
    * number final records than it must return true.
    *
    * <p>Function should return null for the {@linkplain #execute(Object, YTIdentifiable, Object,
-   * Object[], OCommandContext) execute} method if the record must be excluded.
+   * Object[], CommandContext) execute} method if the record must be excluded.
    *
    * @return true if the function acts as a record filter.
    */
@@ -129,7 +129,7 @@ public interface OSQLFunction {
   Object getResult();
 
   /**
-   * Called by OCommandExecutor, given parameter is the number of results. ??? strange ???
+   * Called by CommandExecutor, given parameter is the number of results. ??? strange ???
    *
    * @param iResult
    */

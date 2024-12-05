@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
 import com.jetbrains.youtrack.db.internal.core.collate.ODefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -178,7 +178,7 @@ public class YTPropertyEmbedded extends YTPropertyImpl {
         }
 
         if (!indexesToRecreate.isEmpty()) {
-          OLogManager.instance()
+          LogManager.instance()
               .info(
                   this,
                   "Collate value was changed, following indexes will be rebuilt %s",
@@ -386,7 +386,7 @@ public class YTPropertyEmbedded extends YTPropertyImpl {
     try {
       setDefaultValueInternal(sessionInternal, defaultValue);
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Error on setting default value", e);
+      LogManager.instance().error(this, "Error on setting default value", e);
       throw e;
     } finally {
       releaseSchemaWriteLock(sessionInternal);

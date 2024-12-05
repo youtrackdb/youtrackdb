@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.List;
 
 public class FilterNotMatchPatternStep extends AbstractExecutionStep {
@@ -10,30 +10,30 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
   private final List<AbstractExecutionStep> subSteps;
 
   public FilterNotMatchPatternStep(
-      List<AbstractExecutionStep> steps, OCommandContext ctx, boolean enableProfiling) {
+      List<AbstractExecutionStep> steps, CommandContext ctx, boolean enableProfiling) {
     super(ctx, enableProfiling);
     this.subSteps = steps;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    OExecutionStream resultSet = prev.start(ctx);
+    ExecutionStream resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
-  private YTResult filterMap(YTResult result, OCommandContext ctx) {
+  private YTResult filterMap(YTResult result, CommandContext ctx) {
     if (!matchesPattern(result, ctx)) {
       return result;
     }
     return null;
   }
 
-  private boolean matchesPattern(YTResult nextItem, OCommandContext ctx) {
+  private boolean matchesPattern(YTResult nextItem, CommandContext ctx) {
     OSelectExecutionPlan plan = createExecutionPlan(nextItem, ctx);
-    OExecutionStream rs = plan.start();
+    ExecutionStream rs = plan.start();
     try {
       return rs.hasNext(ctx);
     } finally {
@@ -41,15 +41,15 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
     }
   }
 
-  private OSelectExecutionPlan createExecutionPlan(YTResult nextItem, OCommandContext ctx) {
+  private OSelectExecutionPlan createExecutionPlan(YTResult nextItem, CommandContext ctx) {
     OSelectExecutionPlan plan = new OSelectExecutionPlan(ctx);
     var db = ctx.getDatabase();
     plan.chain(
         new AbstractExecutionStep(ctx, profilingEnabled) {
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-            return OExecutionStream.singleton(copy(nextItem));
+          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+            return ExecutionStream.singleton(copy(nextItem));
           }
 
           private YTResult copy(YTResult nextItem) {
@@ -68,14 +68,14 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
   }
 
   @Override
-  public List<OExecutionStep> getSubSteps() {
+  public List<ExecutionStep> getSubSteps() {
     //noinspection unchecked,rawtypes
     return (List) subSteps;
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ NOT (\n");

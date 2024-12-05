@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.btree;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPairObjectInteger;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.File;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ public class BTreeTestIT {
   private static YouTrackDB youTrackDB;
   private static BTree bTree;
   private static OAtomicOperationsManager atomicOperationsManager;
-  private static OAbstractPaginatedStorage storage;
+  private static AbstractPaginatedStorage storage;
   private static String buildDirectory;
 
   @Parameterized.Parameters
@@ -60,7 +60,7 @@ public class BTreeTestIT {
       buildDirectory += DIR_NAME;
     }
 
-    OFileUtils.deleteRecursively(new File(buildDirectory));
+    FileUtils.deleteRecursively(new File(buildDirectory));
 
     youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
 
@@ -72,7 +72,7 @@ public class BTreeTestIT {
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
     YTDatabaseSession databaseSession = youTrackDB.open(DB_NAME, "admin", "admin");
-    storage = (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseSession).getStorage();
+    storage = (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
   }
@@ -82,7 +82,7 @@ public class BTreeTestIT {
     youTrackDB.drop(DB_NAME);
     youTrackDB.close();
 
-    OFileUtils.deleteRecursively(new File(buildDirectory));
+    FileUtils.deleteRecursively(new File(buildDirectory));
   }
 
   @Before

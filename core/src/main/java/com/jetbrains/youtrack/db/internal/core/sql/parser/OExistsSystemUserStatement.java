@@ -2,11 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OServerCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class OExistsSystemUserStatement extends OSimpleExecServerStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OServerCommandContext ctx) {
+  public ExecutionStream executeSimple(ServerCommandContext ctx) {
 
     OSystemDatabase systemDb = ctx.getServer().getSystemDatabase();
     var res = systemDb.executeWithDB(
@@ -56,7 +56,7 @@ public class OExistsSystemUserStatement extends OSimpleExecServerStatement {
           return result;
         });
 
-    return OExecutionStream.singleton(res);
+    return ExecutionStream.singleton(res);
   }
 
   @Override

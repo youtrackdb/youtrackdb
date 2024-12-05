@@ -36,16 +36,16 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.iterator.OEmptyIterator;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashTable;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OMurmurHash3HashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OSHA256HashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2.LocalHashTableV2;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3.OLocalHashTableV3;
-import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.OVersionPositionMap;
-import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.OVersionPositionMapV0;
+import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3.LocalHashTableV3;
+import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMap;
+import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMapV0;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -74,12 +74,12 @@ public final class OHashTableIndexEngine implements OIndexEngine {
 
   private final int id;
 
-  private final OVersionPositionMap versionPositionMap;
+  private final VersionPositionMap versionPositionMap;
 
-  private final OAbstractPaginatedStorage storage;
+  private final AbstractPaginatedStorage storage;
 
   public OHashTableIndexEngine(
-      String name, int id, OAbstractPaginatedStorage storage, int version) {
+      String name, int id, AbstractPaginatedStorage storage, int version) {
     this.storage = storage;
     this.id = id;
     if (version < 2) {
@@ -95,7 +95,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
               storage);
     } else if (version == 3) {
       hashTable =
-          new OLocalHashTableV3<>(
+          new LocalHashTableV3<>(
               name,
               METADATA_FILE_EXTENSION,
               TREE_FILE_EXTENSION,
@@ -106,8 +106,8 @@ public final class OHashTableIndexEngine implements OIndexEngine {
       throw new IllegalStateException("Invalid value of the index version , version = " + version);
     }
     versionPositionMap =
-        new OVersionPositionMapV0(
-            storage, name, name + TREE_FILE_EXTENSION, OVersionPositionMap.DEF_EXTENSION);
+        new VersionPositionMapV0(
+            storage, name, name + TREE_FILE_EXTENSION, VersionPositionMap.DEF_EXTENSION);
     this.name = name;
   }
 
@@ -132,7 +132,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
     OBinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
     final OEncryption encryption =
-        OAbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
+        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
     final OHashFunction<Object> hashFunction;
 
     if (encryption != null) {
@@ -207,7 +207,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
         storage.resolveObjectSerializer(data.getValueSerializerId());
 
     final OEncryption encryption =
-        OAbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
+        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
 
     final OHashFunction<Object> hashFunction;
 

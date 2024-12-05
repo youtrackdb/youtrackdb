@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
@@ -55,7 +55,7 @@ public class OArraySelector extends SimpleNode {
     }
   }
 
-  public Object getValue(YTIdentifiable iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Object getValue(YTIdentifiable iCurrentRecord, Object iResult, CommandContext ctx) {
     Object result = null;
     if (inputParam != null) {
       result = inputParam.getValue(ctx.getInputParameters());
@@ -74,7 +74,7 @@ public class OArraySelector extends SimpleNode {
     return result;
   }
 
-  public Object getValue(YTResult iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Object getValue(YTResult iCurrentRecord, Object iResult, CommandContext ctx) {
     Object result = null;
     if (inputParam != null) {
       result = inputParam.getValue(ctx.getInputParameters());
@@ -153,7 +153,7 @@ public class OArraySelector extends SimpleNode {
     return expression != null && expression.refersToParent();
   }
 
-  public void setValue(YTResult currentRecord, Object target, Object value, OCommandContext ctx) {
+  public void setValue(YTResult currentRecord, Object target, Object value, CommandContext ctx) {
     Object idx = null;
     if (this.rid != null) {
       idx = this.rid.toRecordId(currentRecord, ctx);
@@ -176,7 +176,7 @@ public class OArraySelector extends SimpleNode {
     }
   }
 
-  public void setValue(List target, int idx, Object value, OCommandContext ctx) {
+  public void setValue(List target, int idx, Object value, CommandContext ctx) {
     int originalSize = target.size();
     for (int i = originalSize; i <= idx; i++) {
       if (i >= originalSize) {
@@ -186,7 +186,7 @@ public class OArraySelector extends SimpleNode {
     target.set(idx, value);
   }
 
-  public void setValue(Set target, int idx, Object value, OCommandContext ctx) {
+  public void setValue(Set target, int idx, Object value, CommandContext ctx) {
     Set result = new LinkedHashSet<>();
     int originalSize = target.size();
     int max = Math.max(idx, originalSize - 1);
@@ -208,11 +208,11 @@ public class OArraySelector extends SimpleNode {
     }
   }
 
-  public void setValue(Map target, Object idx, Object value, OCommandContext ctx) {
+  public void setValue(Map target, Object idx, Object value, CommandContext ctx) {
     target.put(idx, value);
   }
 
-  private void setArrayValue(Object target, int idx, Object value, OCommandContext ctx) {
+  private void setArrayValue(Object target, int idx, Object value, CommandContext ctx) {
     if (idx >= 0 && idx < Array.getLength(target)) {
       Array.set(target, idx, value);
     }

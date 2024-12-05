@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
@@ -33,7 +33,7 @@ public class StorageBackupTest {
     final String dbName = StorageBackupTest.class.getSimpleName();
     final String dbDirectory = testDirectory + File.separator + dbName;
 
-    OFileUtils.deleteRecursively(new File(dbDirectory));
+    FileUtils.deleteRecursively(new File(dbDirectory));
 
     YouTrackDB youTrackDB = new YouTrackDB("embedded:" + testDirectory,
         YouTrackDBConfig.defaultConfig());
@@ -66,7 +66,7 @@ public class StorageBackupTest {
     }
 
     final File backupDir = new File(testDirectory, "backupDir");
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
 
     if (!backupDir.exists()) {
       Assert.assertTrue(backupDir.mkdirs());
@@ -78,7 +78,7 @@ public class StorageBackupTest {
     final String backupDbName = StorageBackupTest.class.getSimpleName() + "BackUp";
     final String backedUpDbDirectory = testDirectory + File.separator + backupDbName;
 
-    OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
+    FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
     YouTrackDBEmbedded embedded =
         (YouTrackDBEmbedded)
@@ -111,14 +111,14 @@ public class StorageBackupTest {
 
     youTrackDB.close();
 
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
   }
 
   @Test
   public void testSingeThreadIncrementalBackup() {
     final String dbDirectory =
         testDirectory + File.separator + StorageBackupTest.class.getSimpleName();
-    OFileUtils.deleteRecursively(new File(dbDirectory));
+    FileUtils.deleteRecursively(new File(dbDirectory));
 
     YouTrackDB youTrackDB = new YouTrackDB("embedded:" + testDirectory,
         YouTrackDBConfig.defaultConfig());
@@ -153,7 +153,7 @@ public class StorageBackupTest {
     }
 
     final File backupDir = new File(testDirectory, "backupDir");
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
 
     if (!backupDir.exists()) {
       Assert.assertTrue(backupDir.mkdirs());
@@ -188,7 +188,7 @@ public class StorageBackupTest {
     final String backupDbName = StorageBackupTest.class.getSimpleName() + "BackUp";
 
     final String backedUpDbDirectory = testDirectory + File.separator + backupDbName;
-    OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
+    FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
     YouTrackDBEmbedded embedded =
         (YouTrackDBEmbedded)
@@ -221,14 +221,14 @@ public class StorageBackupTest {
 
     youTrackDB.close();
 
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
   }
 
   @Test
   public void testSingeThreadIncrementalBackupEncryption() {
     final String dbDirectory =
         testDirectory + File.separator + StorageBackupTest.class.getSimpleName();
-    OFileUtils.deleteRecursively(new File(dbDirectory));
+    FileUtils.deleteRecursively(new File(dbDirectory));
 
     final YouTrackDBConfig config =
         YouTrackDBConfig.builder()
@@ -266,7 +266,7 @@ public class StorageBackupTest {
     }
 
     final File backupDir = new File(testDirectory, "backupDir");
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
 
     if (!backupDir.exists()) {
       Assert.assertTrue(backupDir.mkdirs());
@@ -301,7 +301,7 @@ public class StorageBackupTest {
     final String backupDbName = StorageBackupTest.class.getSimpleName() + "BackUp";
 
     final String backedUpDbDirectory = testDirectory + File.separator + backupDbName;
-    OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
+    FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
     YouTrackDBEmbedded embedded =
         (YouTrackDBEmbedded) YouTrackDBInternal.embedded(testDirectory, config);
@@ -331,7 +331,7 @@ public class StorageBackupTest {
 
     youTrackDB.close();
 
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
 
     GlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(null);
   }

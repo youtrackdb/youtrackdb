@@ -2,14 +2,14 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
@@ -33,14 +33,14 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   private Object order;
 
   public FetchFromClusterExecutionStep(
-      int clusterId, OCommandContext ctx, boolean profilingEnabled) {
+      int clusterId, CommandContext ctx, boolean profilingEnabled) {
     this(clusterId, null, ctx, profilingEnabled);
   }
 
   public FetchFromClusterExecutionStep(
       int clusterId,
       QueryPlanningInfo queryPlanning,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.clusterId = clusterId;
@@ -48,7 +48,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -64,7 +64,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
       iter = iterator;
     }
 
-    OExecutionStream set = OExecutionStream.loadIterator(iter);
+    ExecutionStream set = ExecutionStream.loadIterator(iter);
 
     set = set.interruptable();
     return set;
@@ -150,7 +150,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   public String prettyPrint(int depth, int indent) {
     String orderString = ORDER_DESC.equals(order) ? "DESC" : "ASC";
     String result =
-        OExecutionStepInternal.getIndent(depth, indent)
+        ExecutionStepInternal.getIndent(depth, indent)
             + "+ FETCH FROM CLUSTER "
             + clusterId
             + " "
@@ -167,7 +167,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
   @Override
   public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("clusterId", clusterId);
     result.setProperty("order", order);
     return result;
@@ -176,7 +176,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   @Override
   public void deserialize(YTResult fromResult) {
     try {
-      OExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this);
       this.clusterId = fromResult.getProperty("clusterId");
       Object orderProp = fromResult.getProperty("order");
       if (orderProp != null) {
@@ -193,7 +193,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new FetchFromClusterExecutionStep(
         this.clusterId,
         this.queryPlanning == null ? null : this.queryPlanning.copy(),

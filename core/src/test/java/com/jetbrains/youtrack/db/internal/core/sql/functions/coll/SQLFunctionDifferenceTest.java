@@ -18,8 +18,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.coll.OSQLFunctionDifference;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +44,7 @@ public class SQLFunctionDifferenceTest {
 
     Set<Object> actualResult =
         (Set<Object>)
-            function.execute(null, null, null, incomes.toArray(), new OBasicCommandContext());
+            function.execute(null, null, null, incomes.toArray(), new BasicCommandContext());
 
     assertSetEquals(actualResult, expectedResult);
 
@@ -56,7 +55,7 @@ public class SQLFunctionDifferenceTest {
 
     actualResult =
         (Set<Object>)
-            function.execute(null, null, null, incomes.toArray(), new OBasicCommandContext());
+            function.execute(null, null, null, incomes.toArray(), new BasicCommandContext());
     assertSetEquals(actualResult, expectedResult);
   }
 

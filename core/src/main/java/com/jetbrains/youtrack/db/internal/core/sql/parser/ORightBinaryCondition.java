@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -77,7 +77,7 @@ public class ORightBinaryCondition extends SimpleNode {
     }
   }
 
-  public Object execute(YTResult iCurrentRecord, Object elementToFilter, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, Object elementToFilter, CommandContext ctx) {
     if (elementToFilter == null) {
       return null;
     }
@@ -103,7 +103,7 @@ public class ORightBinaryCondition extends SimpleNode {
   }
 
   public Object execute(YTIdentifiable iCurrentRecord, Object elementToFilter,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     if (elementToFilter == null) {
       return null;
     }
@@ -129,7 +129,7 @@ public class ORightBinaryCondition extends SimpleNode {
   }
 
   private boolean matchesFilters(
-      YTIdentifiable iCurrentRecord, Object element, OCommandContext ctx) {
+      YTIdentifiable iCurrentRecord, Object element, CommandContext ctx) {
     if (operator != null) {
       operator.execute(element, right.execute(iCurrentRecord, ctx));
     } else if (inOperator != null) {
@@ -147,7 +147,7 @@ public class ORightBinaryCondition extends SimpleNode {
     return false;
   }
 
-  private boolean matchesFilters(YTResult iCurrentRecord, Object element, OCommandContext ctx) {
+  private boolean matchesFilters(YTResult iCurrentRecord, Object element, CommandContext ctx) {
     if (operator != null) {
       return operator.execute(element, right.execute(iCurrentRecord, ctx));
     } else if (inOperator != null) {
@@ -165,11 +165,11 @@ public class ORightBinaryCondition extends SimpleNode {
     return false;
   }
 
-  public Object evaluateRight(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public Object evaluateRight(YTIdentifiable currentRecord, CommandContext ctx) {
     return right.execute(currentRecord, ctx);
   }
 
-  public Object evaluateRight(YTResult currentRecord, OCommandContext ctx) {
+  public Object evaluateRight(YTResult currentRecord, CommandContext ctx) {
     return right.execute(currentRecord, ctx);
   }
 

@@ -2,14 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassEmbedded;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -44,16 +44,16 @@ public class OCreatePropertyStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyName", propertyName.getStringValue());
     executeInternal(ctx, result);
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
-  private void executeInternal(OCommandContext ctx, YTResultInternal result) {
+  private void executeInternal(CommandContext ctx, YTResultInternal result) {
     var db = ctx.getDatabase();
     YTClassEmbedded clazz =
         (YTClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());

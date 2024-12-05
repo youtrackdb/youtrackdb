@@ -21,17 +21,17 @@ package com.jetbrains.youtrack.db.internal.core.command;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandExecutorFunction;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandExecutorScript;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandFunction;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorFunction;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandFunction;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLDelegate;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLLiveSelect;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLResultsetDelegate;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQLResultset;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLDelegate;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLLiveSelect;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLResultset;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLNonBlockingQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
@@ -41,34 +41,34 @@ import java.util.Map;
 
 public class OCommandManager {
 
-  private final Map<String, Class<? extends OCommandRequest>> commandRequesters =
-      new HashMap<String, Class<? extends OCommandRequest>>();
-  private final Map<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>>
+  private final Map<String, Class<? extends CommandRequest>> commandRequesters =
+      new HashMap<String, Class<? extends CommandRequest>>();
+  private final Map<Class<? extends CommandRequest>, OCallable<Void, CommandRequest>>
       configCallbacks =
-      new HashMap<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>>();
-  private final Map<Class<? extends OCommandRequest>, Class<? extends OCommandExecutor>>
+      new HashMap<Class<? extends CommandRequest>, OCallable<Void, CommandRequest>>();
+  private final Map<Class<? extends CommandRequest>, Class<? extends CommandExecutor>>
       commandReqExecMap =
-      new HashMap<Class<? extends OCommandRequest>, Class<? extends OCommandExecutor>>();
+      new HashMap<Class<? extends CommandRequest>, Class<? extends CommandExecutor>>();
   private final Map<String, OScriptExecutor> scriptExecutors = new HashMap<>();
 
   public OCommandManager() {
     registerScriptExecutor("sql", new OSqlScriptExecutor());
     registerScriptExecutor("script", new OSqlScriptExecutor());
-    registerRequester("sql", OCommandSQL.class);
-    registerRequester("script", OCommandScript.class);
+    registerRequester("sql", CommandSQL.class);
+    registerRequester("script", CommandScript.class);
 
-    registerExecutor(OSQLAsynchQuery.class, OCommandExecutorSQLDelegate.class);
-    registerExecutor(OSQLSynchQuery.class, OCommandExecutorSQLDelegate.class);
-    registerExecutor(OSQLNonBlockingQuery.class, OCommandExecutorSQLDelegate.class);
-    registerExecutor(OLiveQuery.class, OCommandExecutorSQLLiveSelect.class);
-    registerExecutor(OCommandSQL.class, OCommandExecutorSQLDelegate.class);
-    registerExecutor(OCommandSQLResultset.class, OCommandExecutorSQLResultsetDelegate.class);
-    registerExecutor(OCommandScript.class, OCommandExecutorScript.class);
-    registerExecutor(OCommandFunction.class, OCommandExecutorFunction.class);
+    registerExecutor(OSQLAsynchQuery.class, CommandExecutorSQLDelegate.class);
+    registerExecutor(OSQLSynchQuery.class, CommandExecutorSQLDelegate.class);
+    registerExecutor(OSQLNonBlockingQuery.class, CommandExecutorSQLDelegate.class);
+    registerExecutor(LiveQuery.class, CommandExecutorSQLLiveSelect.class);
+    registerExecutor(CommandSQL.class, CommandExecutorSQLDelegate.class);
+    registerExecutor(CommandSQLResultset.class, CommandExecutorSQLResultsetDelegate.class);
+    registerExecutor(CommandScript.class, CommandExecutorScript.class);
+    registerExecutor(CommandFunction.class, CommandExecutorFunction.class);
   }
 
   public OCommandManager registerRequester(
-      final String iType, final Class<? extends OCommandRequest> iRequest) {
+      final String iType, final Class<? extends CommandRequest> iRequest) {
     commandRequesters.put(iType, iRequest);
     return this;
   }
@@ -89,8 +89,8 @@ public class OCommandManager {
     return scriptExecutor;
   }
 
-  public OCommandRequest getRequester(final String iType) {
-    final Class<? extends OCommandRequest> reqClass = commandRequesters.get(iType);
+  public CommandRequest getRequester(final String iType) {
+    final Class<? extends CommandRequest> reqClass = commandRequesters.get(iType);
 
     if (reqClass == null) {
       throw new IllegalArgumentException("Cannot find a command requester for type: " + iType);
@@ -105,9 +105,9 @@ public class OCommandManager {
   }
 
   public OCommandManager registerExecutor(
-      final Class<? extends OCommandRequest> iRequest,
-      final Class<? extends OCommandExecutor> iExecutor,
-      final OCallable<Void, OCommandRequest> iConfigCallback) {
+      final Class<? extends CommandRequest> iRequest,
+      final Class<? extends CommandExecutor> iExecutor,
+      final OCallable<Void, CommandRequest> iConfigCallback) {
     registerExecutor(iRequest, iExecutor);
     configCallbacks.put(iRequest, iConfigCallback);
     return this;
@@ -122,20 +122,20 @@ public class OCommandManager {
   }
 
   public OCommandManager registerExecutor(
-      final Class<? extends OCommandRequest> iRequest,
-      final Class<? extends OCommandExecutor> iExecutor) {
+      final Class<? extends CommandRequest> iRequest,
+      final Class<? extends CommandExecutor> iExecutor) {
     commandReqExecMap.put(iRequest, iExecutor);
     return this;
   }
 
-  public OCommandManager unregisterExecutor(final Class<? extends OCommandRequest> iRequest) {
+  public OCommandManager unregisterExecutor(final Class<? extends CommandRequest> iRequest) {
     commandReqExecMap.remove(iRequest);
     configCallbacks.remove(iRequest);
     return this;
   }
 
-  public OCommandExecutor getExecutor(OCommandRequestInternal iCommand) {
-    final Class<? extends OCommandExecutor> executorClass =
+  public CommandExecutor getExecutor(CommandRequestInternal iCommand) {
+    final Class<? extends CommandExecutor> executorClass =
         commandReqExecMap.get(iCommand.getClass());
 
     if (executorClass == null) {
@@ -144,9 +144,9 @@ public class OCommandManager {
     }
 
     try {
-      final OCommandExecutor exec = executorClass.newInstance();
+      final CommandExecutor exec = executorClass.newInstance();
 
-      final OCallable<Void, OCommandRequest> callback = configCallbacks.get(iCommand.getClass());
+      final OCallable<Void, CommandRequest> callback = configCallbacks.get(iCommand.getClass());
       if (callback != null) {
         callback.call(iCommand);
       }

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security.authenticator;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTImmutableUser;
@@ -43,7 +43,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   // OSecurityComponent
   // Called once the Server is running.
   public void active() {
-    OLogManager.instance().debug(this, "ODefaultPasswordAuthenticator is active");
+    LogManager.instance().debug(this, "ODefaultPasswordAuthenticator is active");
   }
 
   // OSecurityComponent
@@ -71,7 +71,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "config()", ex);
+      LogManager.instance().error(this, "config()", ex);
     }
   }
 
@@ -118,7 +118,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "ODefaultPasswordAuthenticator.authenticate()", ex);
+      LogManager.instance().error(this, "ODefaultPasswordAuthenticator.authenticate()", ex);
     }
     return null;
   }

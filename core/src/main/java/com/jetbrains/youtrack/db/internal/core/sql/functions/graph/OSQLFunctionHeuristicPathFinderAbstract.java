@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
 import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
@@ -61,7 +61,7 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
   protected double paramDFactor = 1.0;
   protected String paramCustomHeuristicFormula = "";
 
-  protected OCommandContext context;
+  protected CommandContext context;
   protected List<Vertex> route = new LinkedList<Vertex>();
   protected static final float MIN = 0f;
 
@@ -78,7 +78,7 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
       final Vertex node, final Vertex parent, final Vertex target);
 
   protected abstract double getHeuristicCost(
-      final Vertex node, final Vertex parent, final Vertex target, OCommandContext iContext);
+      final Vertex node, final Vertex parent, final Vertex target, CommandContext iContext);
 
   protected LinkedList<Vertex> getPath() {
     final LinkedList<Vertex> path = new LinkedList<Vertex>(route);
@@ -157,7 +157,7 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
       final Vertex parent,
       final long depth,
       double dFactor,
-      OCommandContext ctx) {
+      CommandContext ctx) {
 
     double heuristic = 0.0;
 

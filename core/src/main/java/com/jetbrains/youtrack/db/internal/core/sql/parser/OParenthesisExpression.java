@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -35,7 +35,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     if (expression != null) {
       return expression.execute(iCurrentRecord, ctx);
     }
@@ -47,7 +47,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     if (expression != null) {
       return expression.execute(iCurrentRecord, ctx);
     }
@@ -104,7 +104,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
     // TODO implement query execution and early calculation;
     return expression != null && expression.isEarlyCalculated(ctx);
   }
@@ -135,7 +135,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   public SimpleNode splitForAggregation(
-      AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
       OParenthesisExpression result = new OParenthesisExpression(-1);
       result.expression = expression.splitForAggregation(aggregateProj, ctx);
@@ -217,7 +217,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, CommandContext ctx) {
     if (expression != null) {
       expression.applyRemove(result, ctx);
     } else {

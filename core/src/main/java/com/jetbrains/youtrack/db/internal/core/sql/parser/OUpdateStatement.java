@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlan;
@@ -156,9 +156,9 @@ public class OUpdateStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -182,8 +182,8 @@ public class OUpdateStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -199,7 +199,7 @@ public class OUpdateStatement extends OStatement {
     return new YTLocalResultSet(executionPlan);
   }
 
-  public OUpdateExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OUpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     OUpdateExecutionPlanner planner = new OUpdateExecutionPlanner(this);
     OUpdateExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(this.originalStatement);

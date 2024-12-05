@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OArrays;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -43,7 +43,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sharding.auto.OAutoShardingClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import java.util.ArrayList;
@@ -1771,7 +1771,7 @@ public abstract class YTClassImpl implements YTClass {
   }
 
   private void removeClusterFromIndexes(YTDatabaseSessionInternal session, final int iId) {
-    if (session.getStorage() instanceof OAbstractPaginatedStorage) {
+    if (session.getStorage() instanceof AbstractPaginatedStorage) {
       final String clusterName = session.getClusterNameById(iId);
       final List<String> indexesToRemove = new ArrayList<String>();
 
@@ -1799,7 +1799,7 @@ public abstract class YTClassImpl implements YTClass {
         try {
           addClusterIdToIndexes(session, clusterId);
         } catch (RuntimeException e) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "Error adding clusterId '%d' to index of class '%s'",

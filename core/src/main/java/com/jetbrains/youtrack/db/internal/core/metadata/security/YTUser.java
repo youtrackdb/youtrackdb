@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -128,7 +128,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
             roles.add(role);
           }
         } else {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "User '%s' is declared to have a role that does not exist in the database. "
@@ -208,7 +208,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
       final int iOperation) {
     for (ORole r : roles) {
       if (r == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "User '%s' has a null role, ignoring it. Consider fixing this user's roles before"
@@ -275,7 +275,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
       String resourceSpecific) {
     for (ORole r : roles) {
       if (r == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "User '%s' has a null role, bypass it. Consider to fix this user roles before to"

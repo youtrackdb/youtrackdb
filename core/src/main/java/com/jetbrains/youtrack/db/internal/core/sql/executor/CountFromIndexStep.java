@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OProduceExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
 
 /**
@@ -23,22 +23,22 @@ public class CountFromIndexStep extends AbstractExecutionStep {
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountFromIndexStep(
-      OIndexIdentifier targetIndex, String alias, OCommandContext ctx, boolean profilingEnabled) {
+      OIndexIdentifier targetIndex, String alias, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.target = targetIndex;
     this.alias = alias;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(this::produce).limit(1);
+    return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(OCommandContext ctx) {
+  private YTResult produce(CommandContext ctx) {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndexInternal idx =
         database
@@ -54,7 +54,7 @@ public class CountFromIndexStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ CALCULATE INDEX SIZE: " + target;
   }
 }

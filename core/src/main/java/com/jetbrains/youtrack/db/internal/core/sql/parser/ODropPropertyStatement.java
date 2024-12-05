@@ -4,14 +4,14 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.comparator.OCaseInsentiveComparator;
 import com.jetbrains.youtrack.db.internal.common.util.OCollections;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class ODropPropertyStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
 
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     final YTClassImpl sourceClass =
@@ -44,7 +44,7 @@ public class ODropPropertyStatement extends ODDLStatement {
 
     if (sourceClass.getProperty(propertyName.getStringValue()) == null) {
       if (ifExists) {
-        return OExecutionStream.empty();
+        return ExecutionStream.empty();
       }
       throw new YTCommandExecutionException(
           "Property '" + propertyName + "' not found on class " + className);
@@ -89,7 +89,7 @@ public class ODropPropertyStatement extends ODDLStatement {
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyname", propertyName.getStringValue());
     rs.add(result);
-    return OExecutionStream.resultIterator(rs.iterator());
+    return ExecutionStream.resultIterator(rs.iterator());
   }
 
   private List<OIndex> relatedIndexes(final String fieldName, YTDatabaseSessionInternal database) {

@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExpireResultSet;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExpireResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OTimeout;
 
 /**
@@ -13,15 +13,15 @@ public class TimeoutStep extends AbstractExecutionStep {
 
   private final OTimeout timeout;
 
-  public TimeoutStep(OTimeout timeout, OCommandContext ctx, boolean profilingEnabled) {
+  public TimeoutStep(OTimeout timeout, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.timeout = timeout;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
-    return new OExpireResultSet(prev.start(ctx), timeout.getVal().longValue(), this::fail);
+    return new ExpireResultSet(prev.start(ctx), timeout.getVal().longValue(), this::fail);
   }
 
   private void fail() {
@@ -34,7 +34,7 @@ public class TimeoutStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    return OExecutionStepInternal.getIndent(depth, indent)
+    return ExecutionStepInternal.getIndent(depth, indent)
         + "+ TIMEOUT ("
         + timeout.getVal().toString()
         + " millis)";
@@ -46,7 +46,7 @@ public class TimeoutStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new TimeoutStep(this.timeout.copy(), ctx, profilingEnabled);
   }
 }

@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -45,7 +45,7 @@ public class OSQLFunctionIndexKeySize extends OSQLFunctionAbstract {
       final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
-      OCommandContext context) {
+      CommandContext context) {
     final Object value = iParams[0];
 
     String indexName = String.valueOf(value);

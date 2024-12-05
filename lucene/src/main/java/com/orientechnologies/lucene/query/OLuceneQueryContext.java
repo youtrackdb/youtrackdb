@@ -19,10 +19,10 @@
 package com.orientechnologies.lucene.query;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ import org.apache.lucene.search.highlight.TextFragment;
  */
 public class OLuceneQueryContext {
 
-  private final OCommandContext context;
+  private final CommandContext context;
   private final IndexSearcher searcher;
   private final Query query;
   private final Sort sort;
@@ -50,12 +50,12 @@ public class OLuceneQueryContext {
   private final HashMap<String, TextFragment[]> fragments;
 
   public OLuceneQueryContext(
-      final OCommandContext context, final IndexSearcher searcher, final Query query) {
+      final CommandContext context, final IndexSearcher searcher, final Query query) {
     this(context, searcher, query, Collections.emptyList());
   }
 
   public OLuceneQueryContext(
-      final OCommandContext context,
+      final CommandContext context,
       final IndexSearcher searcher,
       final Query query,
       final List<SortField> sortFields) {
@@ -86,7 +86,7 @@ public class OLuceneQueryContext {
     return this;
   }
 
-  public OCommandContext getContext() {
+  public CommandContext getContext() {
     return context;
   }
 

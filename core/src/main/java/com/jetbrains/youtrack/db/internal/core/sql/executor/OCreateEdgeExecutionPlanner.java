@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
@@ -54,7 +54,7 @@ public class OCreateEdgeExecutionPlanner {
   }
 
   public OInsertExecutionPlan createExecutionPlan(
-      OCommandContext ctx, boolean enableProfiling, boolean useCache) {
+      CommandContext ctx, boolean enableProfiling, boolean useCache) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
@@ -161,13 +161,13 @@ public class OCreateEdgeExecutionPlanner {
       OInsertExecutionPlan result,
       OIdentifier name,
       OExpression expression,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     result.chain(new GlobalLetExpressionStep(name, expression, ctx, profilingEnabled));
   }
 
   private void handleCheckType(
-      OInsertExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      OInsertExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     if (targetClass != null) {
       result.chain(
           new CheckClassTypeStep(targetClass.getStringValue(), "E", ctx, profilingEnabled));
@@ -177,7 +177,7 @@ public class OCreateEdgeExecutionPlanner {
   private void handleSave(
       OInsertExecutionPlan result,
       OIdentifier targetClusterName,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     result.chain(new SaveElementStep(ctx, targetClusterName, profilingEnabled));
   }
@@ -185,7 +185,7 @@ public class OCreateEdgeExecutionPlanner {
   private void handleSetFields(
       OInsertExecutionPlan result,
       OInsertBody insertBody,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     if (insertBody == null) {
       return;

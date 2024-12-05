@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -12,7 +12,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.OClusterPage;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.fs.OFile;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAtomicUnitEndRecord;
@@ -49,11 +49,11 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
     GlobalConfiguration.FILE_LOCK.setValue(false);
   }
 
-  private OLocalPaginatedStorage actualStorage;
+  private LocalPaginatedStorage actualStorage;
   private OWriteCache actualWriteCache;
 
   private YTDatabaseSession expectedDatabaseDocumentTx;
-  private OLocalPaginatedStorage expectedStorage;
+  private LocalPaginatedStorage expectedStorage;
   private OReadCache expectedReadCache;
   private OWriteCache expectedWriteCache;
 
@@ -70,7 +70,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
     buildDirectory += "/" + DIR_NAME;
 
     final java.io.File buildDir = new java.io.File(buildDirectory);
-    OFileUtils.deleteRecursively(buildDir);
+    FileUtils.deleteRecursively(buildDir);
 
     youTrackDB = new YouTrackDB("plocal:" + buildDir, YouTrackDBConfig.defaultConfig());
 
@@ -94,7 +94,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
 
     databaseDocumentTx = youTrackDB.open(ACTUAL_DB_NAME, "admin", "admin");
     actualStorage =
-        (OLocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (LocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
     actualStorageDir = actualStorage.getStoragePath().toString();
     CASDiskWriteAheadLog writeAheadLog = (CASDiskWriteAheadLog) actualStorage.getWALInstance();
 
@@ -126,7 +126,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
 
     expectedDatabaseDocumentTx = youTrackDB.open(EXPECTED_DB_NAME, "admin", "admin");
     expectedStorage =
-        (OLocalPaginatedStorage)
+        (LocalPaginatedStorage)
             ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage();
     expectedReadCache = expectedStorage.getReadCache();
     expectedWriteCache = expectedStorage.getWriteCache();

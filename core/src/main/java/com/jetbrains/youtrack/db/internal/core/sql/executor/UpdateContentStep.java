@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OInputParameter;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OJson;
 import java.util.HashMap;
@@ -25,25 +25,25 @@ public class UpdateContentStep extends AbstractExecutionStep {
   private OJson json;
   private OInputParameter inputParameter;
 
-  public UpdateContentStep(OJson json, OCommandContext ctx, boolean profilingEnabled) {
+  public UpdateContentStep(OJson json, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.json = json;
   }
 
   public UpdateContentStep(
-      OInputParameter inputParameter, OCommandContext ctx, boolean profilingEnabled) {
+      OInputParameter inputParameter, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.inputParameter = inputParameter;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
-    OExecutionStream upstream = prev.start(ctx);
+    ExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, CommandContext ctx) {
     if (result instanceof YTResultInternal) {
       var elem = result.toEntity();
       assert elem != null;
@@ -52,7 +52,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
     return result;
   }
 
-  private void handleContent(EntityInternal record, OCommandContext ctx) {
+  private void handleContent(EntityInternal record, CommandContext ctx) {
     // REPLACE ALL THE CONTENT
     EntityImpl fieldsToPreserve = null;
 
@@ -132,7 +132,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ UPDATE CONTENT\n");

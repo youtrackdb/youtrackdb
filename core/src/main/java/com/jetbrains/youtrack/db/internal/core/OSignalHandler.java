@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -60,7 +60,7 @@ public class OSignalHandler implements SignalHandler {
   }
 
   public void handle(final Signal signal) {
-    OLogManager.instance().warn(this, "Received signal: %s", signal);
+    LogManager.instance().warn(this, "Received signal: %s", signal);
 
     final String s = signal.toString().trim();
 
@@ -122,7 +122,7 @@ public class OSignalHandler implements SignalHandler {
         // re-install the original handler we replaced
         Signal.handle(entry.getKey(), entry.getValue());
       } catch (IllegalStateException e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "Error during reverting signal handlers to default ones", e);
         // not expected as we were able to redefine it earlier, but just in case
       }

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
  *
@@ -14,16 +14,16 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
     super(lastUpstreamRecord, edge);
   }
 
-  protected void init(OCommandContext ctx) {
+  protected void init(CommandContext ctx) {
     if (downstream == null) {
       super.init(ctx);
       if (!downstream.hasNext(ctx)) {
-        downstream = OExecutionStream.singleton(EMPTY_OPTIONAL);
+        downstream = ExecutionStream.singleton(EMPTY_OPTIONAL);
       }
     }
   }
 
-  public YTResult next(OCommandContext ctx) {
+  public YTResult next(CommandContext ctx) {
     init(ctx);
     if (!downstream.hasNext(ctx)) {
       throw new IllegalStateException();

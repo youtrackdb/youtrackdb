@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.text;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionConfigurableAbstract;
@@ -20,7 +20,7 @@ public class OSQLFunctionConcat extends OSQLFunctionConfigurableAbstract {
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     if (sb == null) {
       sb = new StringBuilder();
     } else {

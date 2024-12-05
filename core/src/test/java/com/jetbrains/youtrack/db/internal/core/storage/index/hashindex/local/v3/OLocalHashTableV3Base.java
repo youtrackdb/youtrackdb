@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3;
 
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3.OLocalHashTableV3;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
@@ -15,7 +14,7 @@ import org.junit.Test;
 public abstract class OLocalHashTableV3Base {
 
   protected static final int KEYS_COUNT = 500000;
-  protected OLocalHashTableV3<Integer, String> localHashTable;
+  protected LocalHashTableV3<Integer, String> localHashTable;
   protected OAtomicOperationsManager atomicOperationsManager;
 
   @Test

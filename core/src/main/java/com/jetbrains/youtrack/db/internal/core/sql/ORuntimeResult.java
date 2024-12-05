@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
@@ -36,13 +36,13 @@ public class ORuntimeResult {
   private final Object fieldValue;
   private final Map<String, Object> projections;
   private final YTResultInternal value;
-  private final OCommandContext context;
+  private final CommandContext context;
 
   public ORuntimeResult(
       final Object iFieldValue,
       final Map<String, Object> iProjections,
       final int iProgressive,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     fieldValue = iFieldValue;
     projections = iProjections;
     context = iContext;

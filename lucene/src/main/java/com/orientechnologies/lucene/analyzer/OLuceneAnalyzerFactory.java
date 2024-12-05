@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.analyzer;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
 import java.lang.reflect.Constructor;
@@ -98,14 +98,14 @@ public class OLuceneAnalyzerFactory {
         classAnalyzer = Class.forName(analyzerFQN);
         return (Analyzer) classAnalyzer.newInstance();
       } catch (Exception e1) {
-        OLogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
+        LogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
         throw YTException.wrapException(
             new YTIndexException("Couldn't instantiate analyzer:  public constructor  not found"),
             e1);
       }
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Error on getting analyzer for Lucene index (continuing with StandardAnalyzer)",
@@ -126,7 +126,7 @@ public class OLuceneAnalyzerFactory {
       throw YTException.wrapException(
           new YTIndexException("Couldn't instantiate analyzer: public constructor not found"), e);
     } catch (final Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Error on getting analyzer for Lucene index (continuing with StandardAnalyzer)",

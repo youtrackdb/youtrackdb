@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
@@ -45,6 +45,6 @@ public class BaseServerMemoryDatabase {
     context.close();
     String directory = server.getDatabaseDirectory();
     server.shutdown();
-    OFileUtils.deleteRecursively(new File(directory));
+    FileUtils.deleteRecursively(new File(directory));
   }
 }

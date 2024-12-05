@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.function;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunction;
@@ -42,7 +42,7 @@ public class ODatabaseFunction implements OSQLFunction {
       final YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iFuncParams,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     return f.executeInContext(iContext, iFuncParams);
   }
 

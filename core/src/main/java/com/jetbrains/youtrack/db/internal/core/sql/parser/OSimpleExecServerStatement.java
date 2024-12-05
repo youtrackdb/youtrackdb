@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicServerCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OServerCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicServerCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OSingleOpServerExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.YTExecutionResultSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,14 +25,14 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
     super(p, id);
   }
 
-  public abstract OExecutionStream executeSimple(OServerCommandContext ctx);
+  public abstract ExecutionStream executeSimple(ServerCommandContext ctx);
 
   public YTResultSet execute(
       YouTrackDBInternal db,
       Object[] args,
-      OServerCommandContext parentContext,
+      ServerCommandContext parentContext,
       boolean usePlanCache) {
-    OBasicServerCommandContext ctx = new OBasicServerCommandContext();
+    BasicServerCommandContext ctx = new BasicServerCommandContext();
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);
     }
@@ -50,9 +50,9 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
   }
 
   public YTResultSet execute(
-      YouTrackDBInternal db, Map params, OServerCommandContext parentContext,
+      YouTrackDBInternal db, Map params, ServerCommandContext parentContext,
       boolean usePlanCache) {
-    OBasicServerCommandContext ctx = new OBasicServerCommandContext();
+    BasicServerCommandContext ctx = new BasicServerCommandContext();
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);
     }
@@ -64,7 +64,7 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
   }
 
   public OInternalExecutionPlan createExecutionPlan(
-      OServerCommandContext ctx, boolean enableProfiling) {
+      ServerCommandContext ctx, boolean enableProfiling) {
     return new OSingleOpServerExecutionPlan(ctx, this);
   }
 }

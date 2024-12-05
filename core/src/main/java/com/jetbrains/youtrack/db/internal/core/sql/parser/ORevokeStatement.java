@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class ORevokeStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
     ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null) {
@@ -51,7 +51,7 @@ public class ORevokeStatement extends OSimpleExecStatement {
       result.setProperty("permission", permission.toString());
     }
     result.setProperty("resource", resourcePath);
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   protected int toPrivilege(String privilegeName) {

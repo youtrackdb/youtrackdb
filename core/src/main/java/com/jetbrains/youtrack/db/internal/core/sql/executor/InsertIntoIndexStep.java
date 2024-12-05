@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OProduceExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
@@ -28,7 +28,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   public InsertIntoIndexStep(
       OIndexIdentifier targetIndex,
       OInsertBody insertBody,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.targetIndex = targetIndex;
@@ -36,15 +36,15 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(this::produce).limit(1);
+    return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResultInternal produce(OCommandContext ctx) {
+  private YTResultInternal produce(CommandContext ctx) {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index =
         database
@@ -75,7 +75,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       List<OIdentifier> identifierList,
       List<List<OExpression>> setExpressions,
       OIndex index,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     OExpression keyExp = null;
     OExpression valueExp = null;
     if (identifierList == null || setExpressions == null) {
@@ -105,7 +105,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     return count;
   }
 
-  private long handleSet(List<OInsertSetExpression> setExps, OIndex index, OCommandContext ctx) {
+  private long handleSet(List<OInsertSetExpression> setExps, OIndex index, CommandContext ctx) {
     OExpression keyExp = null;
     OExpression valueExp = null;
     for (OInsertSetExpression exp : setExps) {
@@ -124,7 +124,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private long doExecute(
-      OIndex index, OCommandContext ctx, OExpression keyExp, OExpression valueExp) {
+      OIndex index, CommandContext ctx, OExpression keyExp, OExpression valueExp) {
     long count = 0;
     Object key = keyExp.execute((YTResult) null, ctx);
     Object value = valueExp.execute((YTResult) null, ctx);

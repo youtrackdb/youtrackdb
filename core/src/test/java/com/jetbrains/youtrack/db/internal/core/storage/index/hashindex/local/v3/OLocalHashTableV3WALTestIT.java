@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
@@ -15,9 +15,9 @@ import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.OClusterPage;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.fs.OFile;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAtomicUnitEndRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAtomicUnitStartRecord;
@@ -52,8 +52,8 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
   private static final String EXPECTED_DB_NAME =
       OLocalHashTableV3WALTestIT.class.getSimpleName() + "Expected";
 
-  private OLocalPaginatedStorage actualStorage;
-  private OLocalPaginatedStorage expectedStorage;
+  private LocalPaginatedStorage actualStorage;
+  private LocalPaginatedStorage expectedStorage;
 
   private String actualStorageDir;
   private String expectedStorageDir;
@@ -74,7 +74,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
     buildDirectory += "/" + this.getClass().getSimpleName();
 
     final java.io.File buildDir = new java.io.File(buildDirectory);
-    OFileUtils.deleteRecursively(buildDir);
+    FileUtils.deleteRecursively(buildDir);
 
     youTrackDB =
         new YouTrackDB(
@@ -99,10 +99,10 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
         .getViewManager()
         .close();
     expectedStorage =
-        ((OLocalPaginatedStorage)
+        ((LocalPaginatedStorage)
             ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage());
     actualStorage =
-        (OLocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (LocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
 
     atomicOperationsManager = actualStorage.getAtomicOperationsManager();
 
@@ -110,10 +110,10 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
     expectedStorageDir = expectedStorage.getStoragePath().toString();
 
     actualWriteCache =
-        ((OLocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage())
+        ((LocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage())
             .getWriteCache();
     expectedWriteCache =
-        ((OLocalPaginatedStorage)
+        ((LocalPaginatedStorage)
             ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
             .getWriteCache();
 
@@ -137,13 +137,13 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
         new OMurmurHash3HashFunction<>(OIntegerSerializer.INSTANCE);
 
     localHashTable =
-        new OLocalHashTableV3<>(
+        new LocalHashTableV3<>(
             "actualLocalHashTable",
             ".imc",
             ".tsc",
             ".obf",
             ".nbh",
-            (OAbstractPaginatedStorage)
+            (AbstractPaginatedStorage)
                 ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
@@ -280,7 +280,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
 
   private void restoreDataFromWAL() throws IOException {
     final OReadCache expectedReadCache =
-        ((OAbstractPaginatedStorage)
+        ((AbstractPaginatedStorage)
             ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
             .getReadCache();
 

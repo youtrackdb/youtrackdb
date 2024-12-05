@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -126,7 +126,7 @@ public class OStatementCache {
               new ByteArrayInputStream(
                   statement.getBytes(db.getStorageInfo().getConfiguration().getCharset()));
         } catch (UnsupportedEncodingException e2) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   OStatementCache.class,
                   "Unsupported charset for database "
@@ -144,7 +144,7 @@ public class OStatementCache {
         try {
           osql = new OrientSql(is, db.getStorageInfo().getConfiguration().getCharset());
         } catch (UnsupportedEncodingException e2) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   OStatementCache.class,
                   "Unsupported charset for database "

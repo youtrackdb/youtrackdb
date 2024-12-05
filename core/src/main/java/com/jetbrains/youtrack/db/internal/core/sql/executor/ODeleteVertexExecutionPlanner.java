@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ODeleteVertexStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
@@ -26,7 +26,7 @@ public class ODeleteVertexExecutionPlanner {
     this.limit = stm.getLimit() == null ? null : stm.getLimit();
   }
 
-  public ODeleteExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public ODeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     ODeleteExecutionPlan result = new ODeleteExecutionPlan(ctx);
 
     if (handleIndexAsTarget(result, fromClause.getItem().getIndex(), whereClause, ctx)) {
@@ -52,7 +52,7 @@ public class ODeleteVertexExecutionPlanner {
       ODeleteExecutionPlan result,
       OIndexIdentifier indexIdentifier,
       OWhereClause whereClause,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     if (indexIdentifier == null) {
       return false;
     }
@@ -60,12 +60,12 @@ public class ODeleteVertexExecutionPlanner {
   }
 
   private void handleDelete(
-      ODeleteExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      ODeleteExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     result.chain(new DeleteStep(ctx, profilingEnabled));
   }
 
   private void handleUnsafe(
-      ODeleteExecutionPlan result, OCommandContext ctx, boolean unsafe, boolean profilingEnabled) {
+      ODeleteExecutionPlan result, CommandContext ctx, boolean unsafe, boolean profilingEnabled) {
     if (!unsafe) {
       result.chain(new CheckSafeDeleteStep(ctx, profilingEnabled));
     }
@@ -73,7 +73,7 @@ public class ODeleteVertexExecutionPlanner {
 
   private void handleReturn(
       ODeleteExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean returnBefore,
       boolean profilingEnabled) {
     if (!returnBefore) {
@@ -82,20 +82,20 @@ public class ODeleteVertexExecutionPlanner {
   }
 
   private void handleLimit(
-      OUpdateExecutionPlan plan, OCommandContext ctx, OLimit limit, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, OLimit limit, boolean profilingEnabled) {
     if (limit != null) {
       plan.chain(new LimitExecutionStep(limit, ctx, profilingEnabled));
     }
   }
 
   private void handleCastToVertex(
-      ODeleteExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {
+      ODeleteExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
     plan.chain(new CastToVertexStep(ctx, profilingEnabled));
   }
 
   private void handleTarget(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OFromClause target,
       OWhereClause whereClause,
       boolean profilingEnabled) {

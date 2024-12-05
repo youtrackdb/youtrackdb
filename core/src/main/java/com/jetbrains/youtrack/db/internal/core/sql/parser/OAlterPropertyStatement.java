@@ -3,14 +3,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
     YTClass clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
 
@@ -103,7 +103,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
       result.setProperty("oldValue", oldValue != null ? oldValue.toString() : null);
       result.setProperty("newValue", finalValue != null ? finalValue.toString() : null);
     }
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   @Override

@@ -21,10 +21,10 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.parser.OBaseParser;
+import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -44,7 +44,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemAbstract
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemParameter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemVariable;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionRuntime;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class OSQLHelper {
     // TRY TO PARSE AS FUNCTION
     final OSQLFunctionRuntime func = OSQLHelper.getFunction(session, null, iWord);
     if (func != null) {
-      var context = new OBasicCommandContext();
+      var context = new BasicCommandContext();
       context.setDatabase(session);
 
       return func.execute(iRecord, iRecord, null, context);
@@ -96,12 +96,12 @@ public class OSQLHelper {
    * @param iValue Value to convert.
    * @return The value converted if recognized, otherwise VALUE_NOT_PARSED
    */
-  public static Object parseValue(String iValue, final OCommandContext iContext) {
+  public static Object parseValue(String iValue, final CommandContext iContext) {
     return parseValue(iValue, iContext, false);
   }
 
   public static Object parseValue(
-      String iValue, final OCommandContext iContext, boolean resolveContextVariables) {
+      String iValue, final CommandContext iContext, boolean resolveContextVariables) {
 
     if (iValue == null) {
       return null;
@@ -152,7 +152,7 @@ public class OSQLHelper {
         Object key = OStringSerializerHelper.decode(parseValue(parts.get(0), iContext).toString());
         Object value = parseValue(parts.get(1), iContext);
         if (VALUE_NOT_PARSED == value) {
-          value = new OSQLPredicate(iContext, parts.get(1)).evaluate(iContext);
+          value = new SQLPredicate(iContext, parts.get(1)).evaluate(iContext);
         }
         if (value instanceof String) {
           value = OStringSerializerHelper.decode(value.toString());
@@ -174,8 +174,8 @@ public class OSQLHelper {
     } else if (iValue.charAt(0) == OStringSerializerHelper.EMBEDDED_BEGIN
         && iValue.charAt(iValue.length() - 1) == OStringSerializerHelper.EMBEDDED_END) {
       // SUB-COMMAND
-      fieldValue = new OCommandSQL(iValue.substring(1, iValue.length() - 1));
-      ((OCommandSQL) fieldValue).getContext().setParent(iContext);
+      fieldValue = new CommandSQL(iValue.substring(1, iValue.length() - 1));
+      ((CommandSQL) fieldValue).getContext().setParent(iContext);
 
     } else if (YTRecordId.isA(iValue))
     // RID
@@ -247,10 +247,10 @@ public class OSQLHelper {
   }
 
   public static Object parseValue(
-      final OSQLPredicate iSQLFilter,
-      final OBaseParser iCommand,
+      final SQLPredicate iSQLFilter,
+      final BaseParser iCommand,
       final String iWord,
-      @Nonnull final OCommandContext iContext) {
+      @Nonnull final CommandContext iContext) {
     if (iWord.charAt(0) == OStringSerializerHelper.PARAMETER_POSITIONAL
         || iWord.charAt(0) == OStringSerializerHelper.PARAMETER_NAMED) {
       if (iSQLFilter != null) {
@@ -264,14 +264,14 @@ public class OSQLHelper {
   }
 
   public static Object parseValue(
-      final OBaseParser iCommand, final String iWord, final OCommandContext iContext) {
+      final BaseParser iCommand, final String iWord, final CommandContext iContext) {
     return parseValue(iCommand, iWord, iContext, false);
   }
 
   public static Object parseValue(
-      final OBaseParser iCommand,
+      final BaseParser iCommand,
       final String iWord,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       boolean resolveContextVariables) {
     if (iWord.equals("*")) {
       return "*";
@@ -302,7 +302,7 @@ public class OSQLHelper {
   }
 
   public static OSQLFunctionRuntime getFunction(YTDatabaseSessionInternal session,
-      final OBaseParser iCommand, final String iWord) {
+      final BaseParser iCommand, final String iWord) {
     final int separator = iWord.indexOf('.');
     final int beginParenthesis = iWord.indexOf(OStringSerializerHelper.EMBEDDED_BEGIN);
     if (beginParenthesis > -1 && (separator == -1 || separator > beginParenthesis)) {
@@ -333,7 +333,7 @@ public class OSQLHelper {
   }
 
   public static Object getValue(
-      final Object iObject, final Record iRecord, final OCommandContext iContext) {
+      final Object iObject, final Record iRecord, final CommandContext iContext) {
     if (iObject == null) {
       return null;
     }
@@ -359,7 +359,7 @@ public class OSQLHelper {
       final String iFieldName,
       final Object iFieldValue,
       final OCommandParameters iArguments,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     if (iFieldValue instanceof OSQLFilterItemField f) {
       if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER
@@ -394,7 +394,7 @@ public class OSQLHelper {
       final EntityImpl iDocument,
       final Map<String, Object> iFields,
       final OCommandParameters iArguments,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     if (iFields == null) {
       return null;
     }
@@ -412,7 +412,7 @@ public class OSQLHelper {
       final EntityImpl iDocument,
       final List<OPair<String, Object>> iFields,
       final OCommandParameters iArguments,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     if (iFields == null) {
       return null;
     }
@@ -423,7 +423,7 @@ public class OSQLHelper {
       Object fieldValue = field.getValue();
 
       if (fieldValue != null) {
-        if (fieldValue instanceof OCommandSQL cmd) {
+        if (fieldValue instanceof CommandSQL cmd) {
           cmd.getContext().setParent(iContext);
           fieldValue = ODatabaseRecordThreadLocal.instance().get().command(cmd)
               .execute(iContext.getDatabase());

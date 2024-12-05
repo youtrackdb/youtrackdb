@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
@@ -132,7 +132,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
     }
 
     final File localTesPath = new File(testPath + "/target", "embeddedListMigration");
-    OFileUtils.deleteRecursively(localTesPath);
+    FileUtils.deleteRecursively(localTesPath);
     Assert.assertTrue(localTesPath.mkdirs());
 
     final File exportPath = new File(localTesPath, "export.json.gz");
@@ -228,7 +228,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       dumpMode = true;
     }
     if (dumpMode) {
-      OLogManager.instance().error(this, iText, null);
+      LogManager.instance().error(this, iText, null);
     }
   }
 }

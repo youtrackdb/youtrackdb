@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.security;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
@@ -16,7 +16,7 @@ public class SystemUsersTest {
         "YOU_TRACK_DB_HOME",
         buildDirectory + File.separator + SystemUsersTest.class.getSimpleName());
 
-    OLogManager.instance()
+    LogManager.instance()
         .info(this, "YOU_TRACK_DB_HOME: " + System.getProperty("YOU_TRACK_DB_HOME"));
 
     YouTrackDB orient =

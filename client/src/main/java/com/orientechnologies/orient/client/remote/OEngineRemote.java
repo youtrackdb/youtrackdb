@@ -19,7 +19,7 @@ package com.orientechnologies.orient.client.remote;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.engine.OEngineAbstract;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 
 /**
  * Remote engine implementation.
@@ -32,7 +32,7 @@ public class OEngineRemote extends OEngineAbstract {
   public OEngineRemote() {
   }
 
-  public OStorage createStorage(
+  public Storage createStorage(
       final String iURL,
       long maxWalSegSize,
       long doubleWriteLogMaxSegSize,

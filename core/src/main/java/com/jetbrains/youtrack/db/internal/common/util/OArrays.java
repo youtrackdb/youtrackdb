@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.util;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.lang.reflect.Array;
 
 @SuppressWarnings("unchecked")
@@ -75,7 +75,7 @@ public class OArrays {
       System.arraycopy(iSource, iBegin, copy, 0, Math.min(iSource.length - iBegin, newLength));
       return copy;
     } catch (OutOfMemoryError e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OArrays.class, "Error on copying buffer of size %d bytes", e, newLength);
       throw e;
     }

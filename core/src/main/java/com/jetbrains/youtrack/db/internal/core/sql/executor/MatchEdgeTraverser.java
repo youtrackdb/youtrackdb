@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
@@ -22,7 +22,7 @@ public class MatchEdgeTraverser {
   protected YTResult sourceRecord;
   protected EdgeTraversal edge;
   protected OMatchPathItem item;
-  protected OExecutionStream downstream;
+  protected ExecutionStream downstream;
 
   public MatchEdgeTraverser(YTResult lastUpstreamRecord, EdgeTraversal edge) {
     this.sourceRecord = lastUpstreamRecord;
@@ -35,12 +35,12 @@ public class MatchEdgeTraverser {
     this.item = item;
   }
 
-  public boolean hasNext(OCommandContext ctx) {
+  public boolean hasNext(CommandContext ctx) {
     init(ctx);
     return downstream.hasNext(ctx);
   }
 
-  public YTResult next(OCommandContext ctx) {
+  public YTResult next(CommandContext ctx) {
     init(ctx);
     if (!downstream.hasNext(ctx)) {
       throw new IllegalStateException();
@@ -94,7 +94,7 @@ public class MatchEdgeTraverser {
     return this.edge.edge.in.alias;
   }
 
-  protected void init(OCommandContext ctx) {
+  protected void init(CommandContext ctx) {
     if (downstream == null) {
       Object startingElem = sourceRecord.getProperty(getStartingPointAlias());
       if (startingElem instanceof YTResult) {
@@ -104,8 +104,8 @@ public class MatchEdgeTraverser {
     }
   }
 
-  protected OExecutionStream executeTraversal(
-      OCommandContext iCommandContext,
+  protected ExecutionStream executeTraversal(
+      CommandContext iCommandContext,
       OMatchPathItem item,
       YTIdentifiable startingPoint,
       int depth,
@@ -134,7 +134,7 @@ public class MatchEdgeTraverser {
         == null) { // in this case starting point is not returned and only one level depth is
       // evaluated
 
-      OExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
+      ExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
       final OWhereClause theFilter = filter;
       final String theClassName = className;
       final Integer theClusterId = clusterId;
@@ -167,7 +167,7 @@ public class MatchEdgeTraverser {
           && (whileCondition == null
           || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
 
-        OExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
+        ExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
 
         while (queryResult.hasNext(iCommandContext)) {
           YTResult origin = queryResult.next(iCommandContext);
@@ -184,7 +184,7 @@ public class MatchEdgeTraverser {
           Entity elem = origin.toEntity();
           newPath.add(elem.getIdentity());
 
-          OExecutionStream subResult =
+          ExecutionStream subResult =
               executeTraversal(iCommandContext, item, elem, depth + 1, newPath);
           while (subResult.hasNext(iCommandContext)) {
             YTResult sub = subResult.next(iCommandContext);
@@ -193,18 +193,18 @@ public class MatchEdgeTraverser {
         }
       }
       iCommandContext.setVariable("$currentMatch", previousMatch);
-      return OExecutionStream.resultIterator(result.iterator());
+      return ExecutionStream.resultIterator(result.iterator());
     }
   }
 
   private YTResult filter(
-      OCommandContext iCommandContext,
+      CommandContext iCommandContext,
       final OWhereClause theFilter,
       final String theClassName,
       final Integer theClusterId,
       final ORid theTargetRid,
       YTResult next,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     Object previousMatch = ctx.getVariable("$currentMatch");
     YTResultInternal matched = (YTResultInternal) ctx.getVariable("matched");
     if (matched != null) {
@@ -229,20 +229,20 @@ public class MatchEdgeTraverser {
     return item.getFilter().getFilter();
   }
 
-  protected String targetClassName(OMatchPathItem item, OCommandContext iCommandContext) {
+  protected String targetClassName(OMatchPathItem item, CommandContext iCommandContext) {
     return item.getFilter().getClassName(iCommandContext);
   }
 
-  protected String targetClusterName(OMatchPathItem item, OCommandContext iCommandContext) {
+  protected String targetClusterName(OMatchPathItem item, CommandContext iCommandContext) {
     return item.getFilter().getClusterName(iCommandContext);
   }
 
-  protected ORid targetRid(OMatchPathItem item, OCommandContext iCommandContext) {
+  protected ORid targetRid(OMatchPathItem item, CommandContext iCommandContext) {
     return item.getFilter().getRid(iCommandContext);
   }
 
   private boolean matchesClass(
-      OCommandContext iCommandContext, String className, YTIdentifiable origin) {
+      CommandContext iCommandContext, String className, YTIdentifiable origin) {
     if (className == null) {
       return true;
     }
@@ -266,7 +266,7 @@ public class MatchEdgeTraverser {
   }
 
   private boolean matchesCluster(
-      OCommandContext iCommandContext, Integer clusterId, YTIdentifiable origin) {
+      CommandContext iCommandContext, Integer clusterId, YTIdentifiable origin) {
     if (clusterId == null) {
       return true;
     }
@@ -280,7 +280,7 @@ public class MatchEdgeTraverser {
     return clusterId.equals(origin.getIdentity().getClusterId());
   }
 
-  private boolean matchesRid(OCommandContext iCommandContext, ORid rid, YTIdentifiable origin) {
+  private boolean matchesRid(CommandContext iCommandContext, ORid rid, YTIdentifiable origin) {
     if (rid == null) {
       return true;
     }
@@ -295,14 +295,14 @@ public class MatchEdgeTraverser {
   }
 
   protected boolean matchesFilters(
-      OCommandContext iCommandContext, OWhereClause filter, YTIdentifiable origin) {
+      CommandContext iCommandContext, OWhereClause filter, YTIdentifiable origin) {
     return filter == null || filter.matchesFilters(origin, iCommandContext);
   }
 
   // TODO refactor this method to receive the item.
 
-  protected OExecutionStream traversePatternEdge(
-      YTIdentifiable startingPoint, OCommandContext iCommandContext) {
+  protected ExecutionStream traversePatternEdge(
+      YTIdentifiable startingPoint, CommandContext iCommandContext) {
 
     Object prevCurrent = iCommandContext.getVariable("$current");
     iCommandContext.setVariable("$current", startingPoint);
@@ -314,15 +314,15 @@ public class MatchEdgeTraverser {
     }
 
     if (qR == null) {
-      return OExecutionStream.empty();
+      return ExecutionStream.empty();
     }
     if (qR instanceof YTIdentifiable) {
-      return OExecutionStream.singleton(new YTResultInternal(
+      return ExecutionStream.singleton(new YTResultInternal(
           iCommandContext.getDatabase(), (YTIdentifiable) qR));
     }
     if (qR instanceof Iterable) {
-      return OExecutionStream.iterator(((Iterable) qR).iterator());
+      return ExecutionStream.iterator(((Iterable) qR).iterator());
     }
-    return OExecutionStream.empty();
+    return ExecutionStream.empty();
   }
 }

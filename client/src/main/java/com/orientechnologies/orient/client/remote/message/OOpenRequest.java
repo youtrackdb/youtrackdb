@@ -1,10 +1,5 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.client.remote.OBinaryRequest;
-import com.orientechnologies.orient.client.remote.OBinaryResponse;
-import com.orientechnologies.orient.client.remote.OStorageRemote;
-import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
@@ -12,11 +7,16 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.b
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
+import com.orientechnologies.orient.client.remote.OBinaryRequest;
+import com.orientechnologies.orient.client.remote.OBinaryResponse;
+import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.client.remote.StorageRemote;
 import java.io.IOException;
 
 public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
 
-  private String driverName = OStorageRemote.DRIVER_NAME;
+  private String driverName = StorageRemote.DRIVER_NAME;
   private String driverVersion = OConstants.getRawVersion();
   private short protocolVersion = OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
   private String clientId = null;

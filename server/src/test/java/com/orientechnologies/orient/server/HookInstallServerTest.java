@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
@@ -90,7 +90,7 @@ public class HookInstallServerTest {
     server.shutdown();
 
     YouTrackDBManager.instance().shutdown();
-    OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
+    FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
     YouTrackDBManager.instance().startup();
   }
 

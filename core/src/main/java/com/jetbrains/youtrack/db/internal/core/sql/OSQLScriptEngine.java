@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -133,7 +133,7 @@ public class OSQLScriptEngine implements ScriptEngine {
       throw new ScriptException(e);
     }
 
-    return new OCommandScript(buffer.toString()).execute(db, n);
+    return new CommandScript(buffer.toString()).execute(db, n);
   }
 
   @Override

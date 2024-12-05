@@ -41,7 +41,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.ORecordSerializationContext;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
@@ -431,8 +431,8 @@ public class HelperClasses {
       final int clusterId = getHighLevelDocClusterId(ridbag);
       assert clusterId > -1;
       try {
-        final OAbstractPaginatedStorage storage =
-            (OAbstractPaginatedStorage) ODatabaseRecordThreadLocal.instance().get().getStorage();
+        final AbstractPaginatedStorage storage =
+            (AbstractPaginatedStorage) ODatabaseRecordThreadLocal.instance().get().getStorage();
         final OAtomicOperation atomicOperation =
             storage.getAtomicOperationsManager().getCurrentOperation();
 

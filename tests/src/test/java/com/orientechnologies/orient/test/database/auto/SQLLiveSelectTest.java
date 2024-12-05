@@ -19,7 +19,7 @@ import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +58,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     final List<ORecordOperation> ops = Collections.synchronizedList(new ArrayList());
     OLegacyResultSet<EntityImpl> tokens =
         database.query(
-            new OLiveQuery<Object>(
+            new LiveQuery<Object>(
                 "live select from LiveClassTx",
                 new OLiveResultListener() {
                   @Override
@@ -113,7 +113,7 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     final List<ORecordOperation> ops = Collections.synchronizedList(new ArrayList());
     OLegacyResultSet<EntityImpl> tokens =
         database.query(
-            new OLiveQuery<Object>(
+            new LiveQuery<Object>(
                 "live select from LiveClass",
                 new OLiveResultListener() {
                   @Override

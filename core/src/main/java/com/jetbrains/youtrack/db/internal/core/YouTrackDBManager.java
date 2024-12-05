@@ -21,13 +21,13 @@ package com.jetbrains.youtrack.db.internal.core;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.listener.OListenerManger;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler;
+import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
-import com.jetbrains.youtrack.db.internal.common.profiler.OProfilerStub;
+import com.jetbrains.youtrack.db.internal.common.profiler.ProfilerStub;
 import com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper;
 import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCacheFactory;
 import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCacheFactoryImpl;
@@ -40,7 +40,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.engine.OEngine;
 import com.jetbrains.youtrack.db.internal.core.record.ORecordFactoryManager;
 import com.jetbrains.youtrack.db.internal.core.shutdown.OShutdownHandler;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class YouTrackDBManager extends OListenerManger<OOrientListener> {
+public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
 
   public static final String YOU_TRACK_DB_HOME = "YOU_TRACK_DB_HOME";
   public static final String URL_SYNTAX =
@@ -86,18 +86,18 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
   private final ReadWriteLock engineLock = new ReentrantReadWriteLock();
   private final ORecordConflictStrategyFactory recordConflictStrategy =
       new ORecordConflictStrategyFactory();
-  private final ReferenceQueue<OOrientStartupListener> removedStartupListenersQueue =
-      new ReferenceQueue<OOrientStartupListener>();
-  private final ReferenceQueue<OOrientShutdownListener> removedShutdownListenersQueue =
-      new ReferenceQueue<OOrientShutdownListener>();
-  private final Set<OOrientStartupListener> startupListeners =
-      Collections.newSetFromMap(new ConcurrentHashMap<OOrientStartupListener, Boolean>());
-  private final Set<WeakHashSetValueHolder<OOrientStartupListener>> weakStartupListeners =
+  private final ReferenceQueue<YouTrackDBStartupListener> removedStartupListenersQueue =
+      new ReferenceQueue<YouTrackDBStartupListener>();
+  private final ReferenceQueue<YouTrackDBShutdownListener> removedShutdownListenersQueue =
+      new ReferenceQueue<YouTrackDBShutdownListener>();
+  private final Set<YouTrackDBStartupListener> startupListeners =
+      Collections.newSetFromMap(new ConcurrentHashMap<YouTrackDBStartupListener, Boolean>());
+  private final Set<WeakHashSetValueHolder<YouTrackDBStartupListener>> weakStartupListeners =
       Collections.newSetFromMap(
-          new ConcurrentHashMap<WeakHashSetValueHolder<OOrientStartupListener>, Boolean>());
-  private final Set<WeakHashSetValueHolder<OOrientShutdownListener>> weakShutdownListeners =
+          new ConcurrentHashMap<WeakHashSetValueHolder<YouTrackDBStartupListener>, Boolean>());
+  private final Set<WeakHashSetValueHolder<YouTrackDBShutdownListener>> weakShutdownListeners =
       Collections.newSetFromMap(
-          new ConcurrentHashMap<WeakHashSetValueHolder<OOrientShutdownListener>, Boolean>());
+          new ConcurrentHashMap<WeakHashSetValueHolder<YouTrackDBShutdownListener>, Boolean>());
 
   private final PriorityQueue<OShutdownHandler> shutdownHandlers =
       new PriorityQueue<OShutdownHandler>(
@@ -128,8 +128,8 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
 
   private volatile Timer timer;
   private volatile ORecordFactoryManager recordFactoryManager = new ORecordFactoryManager();
-  private OrientShutdownHook shutdownHook;
-  private volatile OAbstractProfiler profiler;
+  private YouTrackDBShutdownHook shutdownHook;
+  private volatile AbstractProfiler profiler;
   private ODatabaseThreadLocalFactory databaseThreadFactory;
   private volatile boolean active = false;
   private OSignalHandler signalHandler;
@@ -238,11 +238,11 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
       v = OSystemVariableResolver.resolveVariable(YOU_TRACK_DB_HOME);
     }
 
-    return OFileUtils.getPath(v);
+    return FileUtils.getPath(v);
   }
 
   public static String getTempPath() {
-    return OFileUtils.getPath(System.getProperty("java.io.tmpdir") + "/orientdb/");
+    return FileUtils.getPath(System.getProperty("java.io.tmpdir") + "/orientdb/");
   }
 
   /**
@@ -280,9 +280,9 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
         timer = new Timer(true);
       }
 
-      profiler = new OProfilerStub(false);
+      profiler = new ProfilerStub(false);
 
-      shutdownHook = new OrientShutdownHook();
+      shutdownHook = new YouTrackDBShutdownHook();
       if (signalHandler == null) {
         signalHandler = new OSignalHandler();
         signalHandler.installDefaultSignals();
@@ -296,33 +296,33 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
 
       active = true;
 
-      for (OOrientStartupListener l : startupListeners) {
+      for (YouTrackDBStartupListener l : startupListeners) {
         try {
           if (l != null) {
             l.onStartup();
           }
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Error on startup", e);
+          LogManager.instance().error(this, "Error on startup", e);
         }
       }
 
       purgeWeakStartupListeners();
-      for (final WeakHashSetValueHolder<OOrientStartupListener> wl : weakStartupListeners) {
+      for (final WeakHashSetValueHolder<YouTrackDBStartupListener> wl : weakStartupListeners) {
         try {
           if (wl != null) {
-            final OOrientStartupListener l = wl.get();
+            final YouTrackDBStartupListener l = wl.get();
             if (l != null) {
               l.onStartup();
             }
           }
 
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Error on startup", e);
+          LogManager.instance().error(this, "Error on startup", e);
         }
       }
 
       initShutdownQueue();
-      registerWeakOrientStartupListener(profiler);
+      registerWeakYouTrackDBStartupListener(profiler);
     } finally {
       engineLock.writeLock().unlock();
     }
@@ -348,10 +348,10 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
    * Adds shutdown handlers in order which will be used during execution of shutdown.
    */
   private void initShutdownQueue() {
-    addShutdownHandler(new OShutdownOrientDBInstancesHandler());
-    addShutdownHandler(new OShutdownPendingThreadsHandler());
-    addShutdownHandler(new OShutdownProfilerHandler());
-    addShutdownHandler(new OShutdownCallListenersHandler());
+    addShutdownHandler(new ShutdownYouTrackDBInstancesHandler());
+    addShutdownHandler(new ShutdownPendingThreadsHandler());
+    addShutdownHandler(new ShutdownProfilerHandler());
+    addShutdownHandler(new ShutdownCallListenersHandler());
   }
 
   /**
@@ -367,7 +367,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
     ClassLoader classLoader = YouTrackDBManager.class.getClassLoader();
 
     Iterator<OEngine> engines =
-        OClassLoaderHelper.lookupProviderWithOrientClassLoader(OEngine.class, classLoader);
+        OClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader(OEngine.class, classLoader);
 
     OEngine engine = null;
     while (engines.hasNext()) {
@@ -376,7 +376,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
         registerEngine(engine);
       } catch (IllegalArgumentException e) {
         if (engine != null) {
-          OLogManager.instance().debug(this, "Failed to replace engine " + engine.getName(), e);
+          LogManager.instance().debug(this, "Failed to replace engine " + engine.getName(), e);
         }
       }
     }
@@ -391,28 +391,28 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
 
       active = false;
 
-      OLogManager.instance().info(this, "Orient Engine is shutting down...");
+      LogManager.instance().info(this, "Orient Engine is shutting down...");
       for (OShutdownHandler handler : shutdownHandlers) {
         try {
-          OLogManager.instance().debug(this, "Shutdown handler %s is going to be called", handler);
+          LogManager.instance().debug(this, "Shutdown handler %s is going to be called", handler);
           handler.shutdown();
-          OLogManager.instance().debug(this, "Shutdown handler %s completed", handler);
+          LogManager.instance().debug(this, "Shutdown handler %s completed", handler);
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(this, "Exception during calling of shutdown handler %s", e, handler);
         }
       }
 
       shutdownHandlers.clear();
 
-      OLogManager.instance().info(this, "Clearing byte buffer pool");
+      LogManager.instance().info(this, "Clearing byte buffer pool");
       OByteBufferPool.instance(null).clear();
 
       OByteBufferPool.instance(null).checkMemoryLeaks();
       ODirectMemoryAllocator.instance().checkMemoryLeaks();
 
-      OLogManager.instance().info(this, "YouTrackDB Engine shutdown complete");
-      OLogManager.instance().flush();
+      LogManager.instance().info(this, "YouTrackDB Engine shutdown complete");
+      LogManager.instance().flush();
     } finally {
       try {
         removeShutdownHook();
@@ -438,13 +438,13 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
               try {
                 task.run();
               } catch (Exception e) {
-                OLogManager.instance()
+                LogManager.instance()
                     .error(
                         this,
                         "Error during execution of task " + task.getClass().getSimpleName(),
                         e);
               } catch (Error e) {
-                OLogManager.instance()
+                LogManager.instance()
                     .error(
                         this,
                         "Error during execution of task " + task.getClass().getSimpleName(),
@@ -461,7 +461,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
           timer.schedule(timerTask, delay);
         }
       } else {
-        OLogManager.instance().warn(this, "YouTrackDB engine is down. Task will not be scheduled.");
+        LogManager.instance().warn(this, "YouTrackDB engine is down. Task will not be scheduled.");
       }
 
       return timerTask;
@@ -480,13 +480,13 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
               try {
                 task.run();
               } catch (Exception e) {
-                OLogManager.instance()
+                LogManager.instance()
                     .error(
                         this,
                         "Error during execution of task " + task.getClass().getSimpleName(),
                         e);
               } catch (Error e) {
-                OLogManager.instance()
+                LogManager.instance()
                     .error(
                         this,
                         "Error during execution of task " + task.getClass().getSimpleName(),
@@ -503,7 +503,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
           timer.schedule(timerTask, firstTime);
         }
       } else {
-        OLogManager.instance().warn(this, "YouTrackDB engine is down. Task will not be scheduled.");
+        LogManager.instance().warn(this, "YouTrackDB engine is down. Task will not be scheduled.");
       }
 
       return timerTask;
@@ -599,8 +599,8 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
     }
   }
 
-  public Collection<OStorage> getStorages() {
-    List<OStorage> storages = new ArrayList<>();
+  public Collection<Storage> getStorages() {
+    List<Storage> storages = new ArrayList<>();
     for (YouTrackDBEmbedded factory : factories) {
       storages.addAll(factory.getStorages());
     }
@@ -678,7 +678,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
     return profiler;
   }
 
-  public void setProfiler(final OAbstractProfiler iProfiler) {
+  public void setProfiler(final AbstractProfiler iProfiler) {
     profiler = iProfiler;
   }
 
@@ -687,53 +687,55 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
   }
 
   @Override
-  public void registerListener(OOrientListener listener) {
-    if (listener instanceof OOrientStartupListener) {
-      registerOrientStartupListener((OOrientStartupListener) listener);
+  public void registerListener(YouTrackDBListener listener) {
+    if (listener instanceof YouTrackDBStartupListener) {
+      registerYouTrackDBStartupListener((YouTrackDBStartupListener) listener);
     }
 
     super.registerListener(listener);
   }
 
   @Override
-  public void unregisterListener(OOrientListener listener) {
-    if (listener instanceof OOrientStartupListener) {
-      unregisterOrientStartupListener((OOrientStartupListener) listener);
+  public void unregisterListener(YouTrackDBListener listener) {
+    if (listener instanceof YouTrackDBStartupListener) {
+      unregisterYouTrackDBStartupListener((YouTrackDBStartupListener) listener);
     }
 
     super.unregisterListener(listener);
   }
 
-  public void registerOrientStartupListener(OOrientStartupListener listener) {
+  public void registerYouTrackDBStartupListener(YouTrackDBStartupListener listener) {
     startupListeners.add(listener);
   }
 
-  public void registerWeakOrientStartupListener(OOrientStartupListener listener) {
+  public void registerWeakYouTrackDBStartupListener(YouTrackDBStartupListener listener) {
     purgeWeakStartupListeners();
     weakStartupListeners.add(
-        new WeakHashSetValueHolder<OOrientStartupListener>(listener, removedStartupListenersQueue));
+        new WeakHashSetValueHolder<YouTrackDBStartupListener>(listener,
+            removedStartupListenersQueue));
   }
 
-  public void unregisterOrientStartupListener(OOrientStartupListener listener) {
+  public void unregisterYouTrackDBStartupListener(YouTrackDBStartupListener listener) {
     startupListeners.remove(listener);
   }
 
-  public void unregisterWeakOrientStartupListener(OOrientStartupListener listener) {
+  public void unregisterWeakYouTrackDBStartupListener(YouTrackDBStartupListener listener) {
     purgeWeakStartupListeners();
-    weakStartupListeners.remove(new WeakHashSetValueHolder<OOrientStartupListener>(listener, null));
+    weakStartupListeners.remove(
+        new WeakHashSetValueHolder<YouTrackDBStartupListener>(listener, null));
   }
 
-  public void registerWeakOrientShutdownListener(OOrientShutdownListener listener) {
+  public void registerWeakYouTrackDBShutdownListener(YouTrackDBShutdownListener listener) {
     purgeWeakShutdownListeners();
     weakShutdownListeners.add(
-        new WeakHashSetValueHolder<OOrientShutdownListener>(
+        new WeakHashSetValueHolder<YouTrackDBShutdownListener>(
             listener, removedShutdownListenersQueue));
   }
 
-  public void unregisterWeakOrientShutdownListener(OOrientShutdownListener listener) {
+  public void unregisterWeakYouTrackDBShutdownListener(YouTrackDBShutdownListener listener) {
     purgeWeakShutdownListeners();
     weakShutdownListeners.remove(
-        new WeakHashSetValueHolder<OOrientShutdownListener>(listener, null));
+        new WeakHashSetValueHolder<YouTrackDBShutdownListener>(listener, null));
   }
 
   @Override
@@ -752,23 +754,23 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
 
   private void purgeWeakStartupListeners() {
     synchronized (removedStartupListenersQueue) {
-      WeakHashSetValueHolder<OOrientStartupListener> ref =
-          (WeakHashSetValueHolder<OOrientStartupListener>) removedStartupListenersQueue.poll();
+      WeakHashSetValueHolder<YouTrackDBStartupListener> ref =
+          (WeakHashSetValueHolder<YouTrackDBStartupListener>) removedStartupListenersQueue.poll();
       while (ref != null) {
         weakStartupListeners.remove(ref);
-        ref = (WeakHashSetValueHolder<OOrientStartupListener>) removedStartupListenersQueue.poll();
+        ref = (WeakHashSetValueHolder<YouTrackDBStartupListener>) removedStartupListenersQueue.poll();
       }
     }
   }
 
   private void purgeWeakShutdownListeners() {
     synchronized (removedShutdownListenersQueue) {
-      WeakHashSetValueHolder<OOrientShutdownListener> ref =
-          (WeakHashSetValueHolder<OOrientShutdownListener>) removedShutdownListenersQueue.poll();
+      WeakHashSetValueHolder<YouTrackDBShutdownListener> ref =
+          (WeakHashSetValueHolder<YouTrackDBShutdownListener>) removedShutdownListenersQueue.poll();
       while (ref != null) {
         weakShutdownListeners.remove(ref);
         ref =
-            (WeakHashSetValueHolder<OOrientShutdownListener>) removedShutdownListenersQueue.poll();
+            (WeakHashSetValueHolder<YouTrackDBShutdownListener>) removedShutdownListenersQueue.poll();
       }
     }
   }
@@ -780,14 +782,14 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
       engine.startup();
       return true;
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this, "Error during initialization of engine '%s', engine will be removed", e, name);
 
       try {
         engine.shutdown();
       } catch (Exception se) {
-        OLogManager.instance().error(this, "Error during engine shutdown", se);
+        LogManager.instance().error(this, "Error during engine shutdown", se);
       }
 
       engines.remove(name);
@@ -799,7 +801,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
   /**
    * Closes all storages and shutdown all engines.
    */
-  public class OShutdownOrientDBInstancesHandler implements OShutdownHandler {
+  public class ShutdownYouTrackDBInstancesHandler implements OShutdownHandler {
 
     @Override
     public int getPriority() {
@@ -824,7 +826,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
    * Interrupts all threads in YouTrackDB thread group and stops timer is used in methods
    * {@link #scheduleTask(Runnable, Date, long)} and {@link #scheduleTask(Runnable, long, long)}.
    */
-  private class OShutdownPendingThreadsHandler implements OShutdownHandler {
+  private class ShutdownPendingThreadsHandler implements OShutdownHandler {
 
     @Override
     public int getPriority() {
@@ -849,14 +851,14 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
     public String toString() {
       // it is strange but windows defender block compilation if we get class name programmatically
       // using Class instance
-      return "OShutdownPendingThreadsHandler";
+      return "ShutdownPendingThreadsHandler";
     }
   }
 
   /**
    * Shutdown YouTrackDB profiler.
    */
-  private class OShutdownProfilerHandler implements OShutdownHandler {
+  private class ShutdownProfilerHandler implements OShutdownHandler {
 
     @Override
     public int getPriority() {
@@ -878,7 +880,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
   /**
    * Calls all shutdown listeners.
    */
-  private class OShutdownCallListenersHandler implements OShutdownHandler {
+  private class ShutdownCallListenersHandler implements OShutdownHandler {
 
     @Override
     public int getPriority() {
@@ -888,27 +890,27 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
     @Override
     public void shutdown() throws Exception {
       purgeWeakShutdownListeners();
-      for (final WeakHashSetValueHolder<OOrientShutdownListener> wl : weakShutdownListeners) {
+      for (final WeakHashSetValueHolder<YouTrackDBShutdownListener> wl : weakShutdownListeners) {
         try {
           if (wl != null) {
-            final OOrientShutdownListener l = wl.get();
+            final YouTrackDBShutdownListener l = wl.get();
             if (l != null) {
               l.onShutdown();
             }
           }
 
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Error during orient shutdown", e);
+          LogManager.instance().error(this, "Error during orient shutdown", e);
         }
       }
 
       // CALL THE SHUTDOWN ON ALL THE LISTENERS
-      for (OOrientListener l : browseListeners()) {
+      for (YouTrackDBListener l : browseListeners()) {
         if (l != null) {
           try {
             l.onShutdown();
           } catch (Exception e) {
-            OLogManager.instance().error(this, "Error during orient shutdown", e);
+            LogManager.instance().error(this, "Error during orient shutdown", e);
           }
         }
       }

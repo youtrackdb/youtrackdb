@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import java.util.Collection;
@@ -72,7 +72,7 @@ public class OUpdateRemoveItem extends SimpleNode {
     return result;
   }
 
-  public void applyUpdate(YTResultInternal result, OCommandContext ctx) {
+  public void applyUpdate(YTResultInternal result, CommandContext ctx) {
     if (right != null) {
       Object leftVal = left.execute(result, ctx);
       Object rightVal = right.execute(result, ctx);

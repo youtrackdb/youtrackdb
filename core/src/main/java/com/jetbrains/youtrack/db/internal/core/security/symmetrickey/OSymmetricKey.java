@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.security.symmetrickey;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -385,7 +385,7 @@ public class OSymmetricKey {
     try {
       result = Base64.getEncoder().encodeToString(bytes);
     } catch (Exception ex) {
-      OLogManager.instance().error(OSymmetricKey.class, "convertToBase64()", ex);
+      LogManager.instance().error(OSymmetricKey.class, "convertToBase64()", ex);
     }
 
     return result;
@@ -399,7 +399,7 @@ public class OSymmetricKey {
         result = Base64.getDecoder().decode(base64.getBytes(StandardCharsets.UTF_8));
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(OSymmetricKey.class, "convertFromBase64()", ex);
+      LogManager.instance().error(OSymmetricKey.class, "convertFromBase64()", ex);
     }
 
     return result;
@@ -526,7 +526,7 @@ public class OSymmetricKey {
       encodedJSON = convertToBase64(sb.toString().getBytes(StandardCharsets.UTF_8));
 
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "Convert to Base64 exception", ex);
+      LogManager.instance().error(this, "Convert to Base64 exception", ex);
     }
 
     return encodedJSON;

@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.stream.Collectors;
 
@@ -22,22 +22,22 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
    * @param profilingEnabled enable profiling
    */
   public GetValueFromIndexEntryStep(
-      OCommandContext ctx, IntArrayList filterClusterIds, boolean profilingEnabled) {
+      CommandContext ctx, IntArrayList filterClusterIds, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.filterClusterIds = filterClusterIds;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
 
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    OExecutionStream resultSet = prev.start(ctx);
+    ExecutionStream resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
-  private YTResult filterMap(YTResult result, OCommandContext ctx) {
+  private YTResult filterMap(YTResult result, CommandContext ctx) {
     Object finalVal = result.getProperty("rid");
     if (filterClusterIds != null) {
       if (!(finalVal instanceof YTIdentifiable)) {
@@ -66,7 +66,7 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ EXTRACT VALUE FROM INDEX ENTRY";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
@@ -92,7 +92,7 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new GetValueFromIndexEntryStep(ctx, this.filterClusterIds, this.profilingEnabled);
   }
 }

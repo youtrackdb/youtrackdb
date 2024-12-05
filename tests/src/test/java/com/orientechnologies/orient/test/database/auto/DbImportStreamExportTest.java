@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
@@ -121,7 +121,7 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
       dumpMode = true;
     }
     if (dumpMode) {
-      OLogManager.instance().error(this, iText, null);
+      LogManager.instance().error(this, iText, null);
     }
   }
 }

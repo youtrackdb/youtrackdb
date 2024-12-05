@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFindReferencesStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
@@ -32,7 +32,7 @@ public class OFindReferencesExecutionPlanner {
             : statement.getTargets().stream().map(x -> x.copy()).collect(Collectors.toList());
   }
 
-  public OInternalExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     OSelectExecutionPlan plan = new OSelectExecutionPlan(ctx);
     handleRidSource(plan, ctx, enableProfiling);
     handleSubQuerySource(plan, ctx, enableProfiling);
@@ -41,7 +41,7 @@ public class OFindReferencesExecutionPlanner {
   }
 
   private void handleFindReferences(
-      OSelectExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
     List<OIdentifier> classes = null;
     List<OCluster> clusters = null;
     if (targets != null) {
@@ -61,7 +61,7 @@ public class OFindReferencesExecutionPlanner {
   }
 
   private void handleSubQuerySource(
-      OSelectExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
     if (subQuery != null) {
       plan.chain(
           new SubQueryStep(
@@ -70,7 +70,7 @@ public class OFindReferencesExecutionPlanner {
   }
 
   private void handleRidSource(
-      OSelectExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
     if (rid != null) {
       plan.chain(
           new FetchFromRidsStep(

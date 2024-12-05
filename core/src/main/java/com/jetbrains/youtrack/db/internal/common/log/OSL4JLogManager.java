@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.common.log;
 
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
@@ -104,8 +104,8 @@ public abstract class OSL4JLogManager {
   private static String fetchDbName(Object requester) {
     String dbName = null;
     try {
-      if (requester instanceof OStorage) {
-        dbName = ((OStorage) requester).getName();
+      if (requester instanceof Storage) {
+        dbName = ((Storage) requester).getName();
       } else {
         var dbInstance = ODatabaseRecordThreadLocal.getInstanceIfDefined();
         if (dbInstance != null) {

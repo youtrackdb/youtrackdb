@@ -15,7 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.method;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 
@@ -69,7 +69,7 @@ public interface OSQLMethod extends Comparable<OSQLMethod> {
   Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams);
 

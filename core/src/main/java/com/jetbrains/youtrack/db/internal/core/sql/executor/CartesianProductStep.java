@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -15,12 +15,12 @@ public class CartesianProductStep extends AbstractExecutionStep {
 
   private final List<OInternalExecutionPlan> subPlans = new ArrayList<>();
 
-  public CartesianProductStep(OCommandContext ctx, boolean profilingEnabled) {
+  public CartesianProductStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -32,7 +32,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
       OInternalExecutionPlan ep = this.subPlans.get(i);
       final int pos = i;
       if (stream == null) {
-        OExecutionStream es = ep.start();
+        ExecutionStream es = ep.start();
         stream =
             es.stream(ctx)
                 .map(
@@ -45,7 +45,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
         stream =
             stream.flatMap(
                 (val) -> {
-                  OExecutionStream es = ep.start();
+                  ExecutionStream es = ep.start();
                   return es.stream(ctx)
                       .map(
                           (value) -> {
@@ -59,7 +59,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
     assert stream != null;
     var db = ctx.getDatabase();
     Stream<YTResult> finalStream = stream.map(path -> produceResult(db, path));
-    return OExecutionStream.resultIterator(finalStream.iterator())
+    return ExecutionStream.resultIterator(finalStream.iterator())
         .onClose((context) -> finalStream.close());
   }
 
@@ -82,7 +82,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     StringBuilder result = new StringBuilder();
-    String ind = OExecutionStepInternal.getIndent(depth, indent);
+    String ind = ExecutionStepInternal.getIndent(depth, indent);
 
     int[] blockSizes = new int[subPlans.size()];
 
@@ -161,7 +161,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
   }
 
   private String head(int depth, int indent) {
-    String ind = OExecutionStepInternal.getIndent(depth, indent);
+    String ind = ExecutionStepInternal.getIndent(depth, indent);
     String result = ind + "+ CARTESIAN PRODUCT";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";

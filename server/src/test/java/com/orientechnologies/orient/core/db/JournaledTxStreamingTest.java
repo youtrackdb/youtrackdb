@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
@@ -63,7 +63,7 @@ public class JournaledTxStreamingTest {
     buildDir = new File(buildDirectory);
 
     if (buildDir.exists()) {
-      OFileUtils.deleteRecursively(buildDir);
+      FileUtils.deleteRecursively(buildDir);
     }
 
     assertThat(buildDir.mkdir()).isTrue();
@@ -94,7 +94,7 @@ public class JournaledTxStreamingTest {
     serverProcess.waitFor();
     System.out.println("Process was destroyed");
 
-    OFileUtils.deleteRecursively(buildDir);
+    FileUtils.deleteRecursively(buildDir);
     Assert.assertFalse(buildDir.exists());
   }
 

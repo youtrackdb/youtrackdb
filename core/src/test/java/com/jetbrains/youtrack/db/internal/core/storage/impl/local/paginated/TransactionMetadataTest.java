@@ -4,7 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
@@ -12,7 +12,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionId;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionInternal;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionSequenceStatus;
@@ -61,7 +61,7 @@ public class TransactionMetadataTest {
             YouTrackDBConfig.defaultConfig());
     YTDatabaseSession db1 = youTrackDB.open(DB_NAME + "_re", "admin", "admin");
     Optional<byte[]> fromStorage =
-        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) db1).getStorage())
+        ((AbstractPaginatedStorage) ((YTDatabaseSessionInternal) db1).getStorage())
             .getLastMetadata();
     assertTrue(fromStorage.isPresent());
     assertArrayEquals(fromStorage.get(), metadata);
@@ -69,7 +69,7 @@ public class TransactionMetadataTest {
 
   @After
   public void after() {
-    OFileUtils.deleteRecursively(new File("target/backup_metadata"));
+    FileUtils.deleteRecursively(new File("target/backup_metadata"));
     db.close();
     youTrackDB.drop(DB_NAME);
     if (youTrackDB.exists(DB_NAME + "_re")) {

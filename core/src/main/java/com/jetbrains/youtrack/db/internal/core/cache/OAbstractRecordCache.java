@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.cache;
 
-import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler.OProfilerHookValue;
+import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -136,7 +136,7 @@ public abstract class OAbstractRecordCache {
             profilerPrefix + "current",
             "Number of entries in cache",
             METRIC_TYPE.SIZE,
-            new OProfilerHookValue() {
+            new ProfilerHookValue() {
               public Object getValue() {
                 return getSize();
               }

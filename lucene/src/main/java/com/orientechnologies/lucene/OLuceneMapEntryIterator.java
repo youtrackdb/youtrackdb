@@ -16,10 +16,10 @@
 
 package com.orientechnologies.lucene;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -77,7 +77,7 @@ public class OLuceneMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> 
         }
       };
     } catch (IOException e) {
-      OLogManager.instance().error(this, "Error on iterating Lucene result", e);
+      LogManager.instance().error(this, "Error on iterating Lucene result", e);
     }
     return null;
   }

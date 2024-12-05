@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntryImpl;
@@ -464,7 +464,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
       if (fileChanges.isNew) {
         writeAheadLog.log(new OFileCreatedWALRecord(operationUnitId, fileChanges.fileName, fileId));
       } else if (fileChanges.truncate) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "You performing truncate operation which is considered unsafe because can not be"
@@ -514,7 +514,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
         readCache.addFile(
             fileChanges.fileName, newFileNamesId.getLong(fileChanges.fileName), writeCache);
       } else if (fileChanges.truncate) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "You performing truncate operation which is considered unsafe because can not be"

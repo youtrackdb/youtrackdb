@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -32,10 +32,10 @@ import java.util.List;
 public abstract class ORecordsReturnHandler implements OReturnHandler {
 
   private final Object returnExpression;
-  private final OCommandContext context;
+  private final CommandContext context;
   private List<Object> results;
 
-  protected ORecordsReturnHandler(final Object returnExpression, final OCommandContext context) {
+  protected ORecordsReturnHandler(final Object returnExpression, final CommandContext context) {
     this.returnExpression = returnExpression;
     this.context = context;
   }

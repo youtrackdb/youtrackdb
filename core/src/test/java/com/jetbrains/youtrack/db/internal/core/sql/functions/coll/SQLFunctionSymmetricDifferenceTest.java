@@ -18,8 +18,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.coll.OSQLFunctionSymmetricDifference;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -115,7 +114,7 @@ public class SQLFunctionSymmetricDifferenceTest {
 
     final Set<Object> actualResult =
         (Set<Object>)
-            function.execute(null, null, null, incomes.toArray(), new OBasicCommandContext());
+            function.execute(null, null, null, incomes.toArray(), new BasicCommandContext());
 
     assertSetEquals(actualResult, expectedResult);
   }

@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.security;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -58,7 +58,7 @@ public class OSecurityPlugin extends OServerPluginAbstract {
         server.getSecurity().registerSecurityClass(OLDAPImporter.class);
       }
     } catch (Throwable th) {
-      OLogManager.instance().error(this, "registerSecurityComponents() ", th);
+      LogManager.instance().error(this, "registerSecurityComponents() ", th);
     }
   }
 
@@ -71,7 +71,7 @@ public class OSecurityPlugin extends OServerPluginAbstract {
         server.getSecurity().unregisterSecurityClass(OLDAPImporter.class);
       }
     } catch (Throwable th) {
-      OLogManager.instance().error(this, "unregisterSecurityComponents()", th);
+      LogManager.instance().error(this, "unregisterSecurityComponents()", th);
     }
   }
 }

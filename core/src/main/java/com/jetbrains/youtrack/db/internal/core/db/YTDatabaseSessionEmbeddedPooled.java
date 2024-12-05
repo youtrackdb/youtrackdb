@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionEmbedded;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 
 /**
  *
@@ -29,7 +29,7 @@ public class YTDatabaseSessionEmbeddedPooled extends YTDatabaseSessionEmbedded {
 
   private final ODatabasePoolInternal pool;
 
-  public YTDatabaseSessionEmbeddedPooled(ODatabasePoolInternal pool, OStorage storage) {
+  public YTDatabaseSessionEmbeddedPooled(ODatabasePoolInternal pool, Storage storage) {
     super(storage);
     this.pool = pool;
   }

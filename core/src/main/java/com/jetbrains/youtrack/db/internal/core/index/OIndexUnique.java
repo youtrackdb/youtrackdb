@@ -24,8 +24,8 @@ import com.jetbrains.youtrack.db.internal.core.exception.OInvalidIndexEngineIdEx
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.index.engine.UniqueIndexEngineValidator;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
 
 /**
@@ -36,7 +36,7 @@ public class OIndexUnique extends OIndexOneValue {
   private final IndexEngineValidator<Object, YTRID> uniqueValidator =
       new UniqueIndexEngineValidator(this);
 
-  public OIndexUnique(OIndexMetadata im, final OStorage storage) {
+  public OIndexUnique(OIndexMetadata im, final Storage storage) {
     super(im, storage);
   }
 
@@ -46,7 +46,7 @@ public class OIndexUnique extends OIndexOneValue {
   }
 
   @Override
-  public void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public void doPut(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key,
       YTRID rid)
       throws OInvalidIndexEngineIdException {

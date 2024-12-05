@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
@@ -77,7 +77,7 @@ public class OSQLFunctionIf extends OSQLFunctionAbstract {
       final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
 
     boolean result;
 
@@ -96,7 +96,7 @@ public class OSQLFunctionIf extends OSQLFunctionAbstract {
       return result ? iParams[1] : iParams[2];
 
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Error during if execution", e);
+      LogManager.instance().error(this, "Error during if execution", e);
 
       return null;
     }

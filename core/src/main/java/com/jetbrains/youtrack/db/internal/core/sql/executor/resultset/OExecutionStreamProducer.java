@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 
 public interface OExecutionStreamProducer {
 
-  boolean hasNext(OCommandContext ctx);
+  boolean hasNext(CommandContext ctx);
 
-  OExecutionStream next(OCommandContext ctx);
+  ExecutionStream next(CommandContext ctx);
 
-  void close(OCommandContext ctx);
+  void close(CommandContext ctx);
 }

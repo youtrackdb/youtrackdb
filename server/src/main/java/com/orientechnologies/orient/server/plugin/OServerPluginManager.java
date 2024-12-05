@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.plugin;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.jetbrains.youtrack.db.internal.common.util.OService;
@@ -140,7 +140,7 @@ public class OServerPluginManager implements OService {
   public void uninstallPluginByFile(final String iFileName) {
     final String pluginName = loadedPlugins.remove(iFileName);
     if (pluginName != null) {
-      OLogManager.instance().info(this, "Uninstalling dynamic plugin '%s'...", iFileName);
+      LogManager.instance().info(this, "Uninstalling dynamic plugin '%s'...", iFileName);
 
       final OServerPluginInfo removedPlugin = activePlugins.remove(pluginName);
       if (removedPlugin != null) {
@@ -153,16 +153,16 @@ public class OServerPluginManager implements OService {
 
   @Override
   public void shutdown() {
-    OLogManager.instance().info(this, "Shutting down plugins:");
+    LogManager.instance().info(this, "Shutting down plugins:");
     for (Entry<String, OServerPluginInfo> pluginInfoEntry : activePlugins.entrySet()) {
-      OLogManager.instance().info(this, "- %s", pluginInfoEntry.getKey());
+      LogManager.instance().info(this, "- %s", pluginInfoEntry.getKey());
       final OServerPluginInfo plugin = pluginInfoEntry.getValue();
       try {
         callListenerBeforeShutdown(plugin.getInstance());
         plugin.shutdown(false);
         callListenerAfterShutdown(plugin.getInstance());
       } catch (Exception t) {
-        OLogManager.instance().error(this, "Error during server plugin %s shutdown", t, plugin);
+        LogManager.instance().error(this, "Error during server plugin %s shutdown", t, plugin);
       }
     }
 
@@ -212,7 +212,7 @@ public class OServerPluginManager implements OService {
 
       } catch (Exception e) {
         // IGNORE EXCEPTIONS
-        OLogManager.instance()
+        LogManager.instance()
             .debug(this, "Error on shutdowning plugin '%s'...", e, pluginFileName);
       }
     }
@@ -350,7 +350,7 @@ public class OServerPluginManager implements OService {
     String pluginName = pluginFile.getName();
 
     final OServerPluginInfo currentPluginData;
-    OLogManager.instance().info(this, "Installing dynamic plugin '%s'...", pluginName);
+    LogManager.instance().info(this, "Installing dynamic plugin '%s'...", pluginName);
 
     URLClassLoader pluginClassLoader = null;
     try {
@@ -361,7 +361,7 @@ public class OServerPluginManager implements OService {
       // LOAD PLUGIN.JSON FILE
       final URL r = pluginClassLoader.findResource("plugin.json");
       if (r == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Plugin definition file ('plugin.json') is not found for dynamic plugin '%s'",
@@ -377,7 +377,7 @@ public class OServerPluginManager implements OService {
 
       try {
         if (pluginConfigFile == null || pluginConfigFile.available() == 0) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "Error on loading 'plugin.json' file for dynamic plugin '%s'",
@@ -440,7 +440,7 @@ public class OServerPluginManager implements OService {
       }
 
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Error on installing dynamic plugin '%s'", e, pluginName);
+      LogManager.instance().error(this, "Error on installing dynamic plugin '%s'", e, pluginName);
     }
   }
 
@@ -461,7 +461,7 @@ public class OServerPluginManager implements OService {
       try {
         l.onBeforeConfig(plugin, cfg);
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "callListenerBeforeConfig() ", ex);
+        LogManager.instance().error(this, "callListenerBeforeConfig() ", ex);
       }
     }
   }
@@ -472,7 +472,7 @@ public class OServerPluginManager implements OService {
       try {
         l.onAfterConfig(plugin, cfg);
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "callListenerAfterConfig() ", ex);
+        LogManager.instance().error(this, "callListenerAfterConfig() ", ex);
       }
     }
   }
@@ -482,7 +482,7 @@ public class OServerPluginManager implements OService {
       try {
         l.onBeforeStartup(plugin);
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "callListenerBeforeStartup() ", ex);
+        LogManager.instance().error(this, "callListenerBeforeStartup() ", ex);
       }
     }
   }
@@ -492,7 +492,7 @@ public class OServerPluginManager implements OService {
       try {
         l.onAfterStartup(plugin);
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "callListenerAfterStartup()", ex);
+        LogManager.instance().error(this, "callListenerAfterStartup()", ex);
       }
     }
   }
@@ -502,7 +502,7 @@ public class OServerPluginManager implements OService {
       try {
         l.onBeforeShutdown(plugin);
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "callListenerBeforeShutdown()", ex);
+        LogManager.instance().error(this, "callListenerBeforeShutdown()", ex);
       }
     }
   }
@@ -512,7 +512,7 @@ public class OServerPluginManager implements OService {
       try {
         l.onAfterShutdown(plugin);
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "callListenerAfterShutdown()", ex);
+        LogManager.instance().error(this, "callListenerAfterShutdown()", ex);
       }
     }
   }

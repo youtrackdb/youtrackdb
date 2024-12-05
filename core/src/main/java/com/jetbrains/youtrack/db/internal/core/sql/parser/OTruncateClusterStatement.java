@@ -2,11 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,7 +25,7 @@ public class OTruncateClusterStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     YTDatabaseSessionAbstract database = (YTDatabaseSessionAbstract) ctx.getDatabase();
 
     Integer clusterId = null;
@@ -48,7 +48,7 @@ public class OTruncateClusterStatement extends ODDLStatement {
     result.setProperty("clusterId", clusterId);
     result.setProperty("count", count);
 
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   @Override

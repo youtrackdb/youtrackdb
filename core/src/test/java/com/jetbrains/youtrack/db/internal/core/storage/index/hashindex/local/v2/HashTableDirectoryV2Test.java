@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class HashTableDirectoryV2Test {
 
     db.create();
 
-    OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
     directory =
         new HashTableDirectory(".tsc", "hashTableDirectoryTest", "hashTableDirectoryTest", storage);
 
@@ -61,21 +61,21 @@ public class HashTableDirectoryV2Test {
   }
 
   private static OAtomicOperation startTx() throws IOException {
-    OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
     OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
     Assert.assertNull(manager.getCurrentOperation());
     return manager.startAtomicOperation(null);
   }
 
   private static void rollbackTx() throws IOException {
-    OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
     OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
     manager.endAtomicOperation(new YTCommandInterruptedException(""));
     Assert.assertNull(manager.getCurrentOperation());
   }
 
   private static void completeTx() throws IOException {
-    OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
+    AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
     OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
     manager.endAtomicOperation(null);
     Assert.assertNull(manager.getCurrentOperation());

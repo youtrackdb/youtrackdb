@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -13,7 +13,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1.OSBTreeV1;
@@ -45,7 +45,7 @@ public class SBTreeV2TestIT {
   protected YTDatabaseSession databaseDocumentTx;
   protected String buildDirectory;
   protected YouTrackDB youTrackDB;
-  protected OAbstractPaginatedStorage storage;
+  protected AbstractPaginatedStorage storage;
   protected OAtomicOperationsManager atomicOperationsManager;
 
   private String dbName;
@@ -70,7 +70,7 @@ public class SBTreeV2TestIT {
 
     dbName = "localSBTreeTest";
     final File dbDirectory = new File(buildDirectory, dbName);
-    OFileUtils.deleteRecursively(dbDirectory);
+    FileUtils.deleteRecursively(dbDirectory);
 
     YouTrackDBConfig youTrackDBConfig = YouTrackDBConfig.builder().build();
     youTrackDB = new YouTrackDB("plocal:" + buildDirectory, youTrackDBConfig);
@@ -80,7 +80,7 @@ public class SBTreeV2TestIT {
     databaseDocumentTx = youTrackDB.open(dbName, "admin", "admin");
 
     storage =
-        (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     sbTree = new OSBTreeV2<>("sbTree", ".sbt", ".nbt", storage);
     atomicOperationsManager.executeInsideAtomicOperation(
@@ -855,7 +855,7 @@ public class SBTreeV2TestIT {
             "nullSBTree",
             ".sbt",
             ".nbt",
-            (OAbstractPaginatedStorage)
+            (AbstractPaginatedStorage)
                 ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,

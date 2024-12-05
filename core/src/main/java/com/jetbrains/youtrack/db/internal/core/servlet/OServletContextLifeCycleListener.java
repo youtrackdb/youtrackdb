@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.servlet;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import javax.servlet.ServletContextEvent;
@@ -37,10 +37,10 @@ public class OServletContextLifeCycleListener implements ServletContextListener 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
     if (GlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "Start web application is detected, YouTrackDB engine is staring up...");
       YouTrackDBManager.startUp(true);
-      OLogManager.instance().info(this, "YouTrackDB engine is started");
+      LogManager.instance().info(this, "YouTrackDB engine is started");
     }
   }
 
@@ -49,12 +49,12 @@ public class OServletContextLifeCycleListener implements ServletContextListener 
     if (GlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
       final YouTrackDBManager youTrack = YouTrackDBManager.instance();
       if (youTrack != null) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Shutting down of YouTrackDB engine because web application is going to be stopped");
         youTrack.shutdown();
-        OLogManager.instance().shutdown();
+        LogManager.instance().shutdown();
       }
     }
   }

@@ -15,7 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import java.util.Set;
 
@@ -34,8 +34,8 @@ public interface OCommandExecutorSQLFactory {
    * constant.
    *
    * @param name
-   * @return OCommandExecutorSQLAbstract : created command
+   * @return CommandExecutorSQLAbstract : created command
    * @throws YTCommandExecutionException : when command creation fail
    */
-  OCommandExecutor createCommand(String name) throws YTCommandExecutionException;
+  CommandExecutor createCommand(String name) throws YTCommandExecutionException;
 }

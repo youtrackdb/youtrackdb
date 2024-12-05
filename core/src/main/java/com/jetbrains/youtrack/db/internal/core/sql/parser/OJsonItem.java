@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
@@ -69,7 +69,7 @@ public class OJsonItem {
   }
 
   public OJsonItem splitForAggregation(
-      AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
       OJsonItem item = new OJsonItem();
       item.leftIdentifier = leftIdentifier;

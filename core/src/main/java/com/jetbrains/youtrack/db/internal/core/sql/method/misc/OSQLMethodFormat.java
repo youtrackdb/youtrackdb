@@ -17,7 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
 import java.text.SimpleDateFormat;
@@ -42,7 +42,7 @@ public class OSQLMethodFormat extends OAbstractSQLMethod {
   public Object execute(
       final Object iThis,
       final YTIdentifiable iRecord,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       Object ioResult,
       final Object[] iParams) {
 

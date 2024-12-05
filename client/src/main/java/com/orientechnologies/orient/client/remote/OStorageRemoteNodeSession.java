@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryTokenSerializer;
 import java.io.ByteArrayInputStream;
@@ -41,7 +41,7 @@ public class OStorageRemoteNodeSession {
       try {
         this.tokenInstance = binarySerializer.deserialize(new ByteArrayInputStream(token));
       } catch (IOException e) {
-        OLogManager.instance().debug(this, "Error deserializing binary token", e);
+        LogManager.instance().debug(this, "Error deserializing binary token", e);
       }
     }
   }

@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OTimeoutResultSet;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.TimeoutResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OTimeout;
 
 /**
@@ -13,17 +13,17 @@ public class AccumulatingTimeoutStep extends AbstractExecutionStep {
 
   private final OTimeout timeout;
 
-  public AccumulatingTimeoutStep(OTimeout timeout, OCommandContext ctx, boolean profilingEnabled) {
+  public AccumulatingTimeoutStep(OTimeout timeout, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.timeout = timeout;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
 
-    final OExecutionStream internal = prev.start(ctx);
-    return new OTimeoutResultSet(internal, this.timeout.getVal().longValue(), this::fail);
+    final ExecutionStream internal = prev.start(ctx);
+    return new TimeoutResultSet(internal, this.timeout.getVal().longValue(), this::fail);
   }
 
   private void fail() {
@@ -41,7 +41,7 @@ public class AccumulatingTimeoutStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new AccumulatingTimeoutStep(timeout.copy(), ctx, profilingEnabled);
   }
 
@@ -51,7 +51,7 @@ public class AccumulatingTimeoutStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    return OExecutionStepInternal.getIndent(depth, indent)
+    return ExecutionStepInternal.getIndent(depth, indent)
         + "+ TIMEOUT ("
         + timeout.getVal().toString()
         + "ms)";

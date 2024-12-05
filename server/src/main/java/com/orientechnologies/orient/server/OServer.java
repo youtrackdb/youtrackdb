@@ -18,11 +18,11 @@ package com.orientechnologies.orient.server;
 import com.jetbrains.youtrack.db.internal.common.console.OConsoleReader;
 import com.jetbrains.youtrack.db.internal.common.console.ODefaultConsoleReader;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.log.OAnsiCode;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler.OProfilerHookValue;
+import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -61,7 +61,7 @@ import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import com.orientechnologies.orient.server.network.OServerSocketFactory;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
-import com.orientechnologies.orient.server.network.protocol.http.OHttpSessionManager;
+import com.orientechnologies.orient.server.network.protocol.http.HttpSessionManager;
 import com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb;
 import com.orientechnologies.orient.server.plugin.OServerPlugin;
 import com.orientechnologies.orient.server.plugin.OServerPluginInfo;
@@ -112,7 +112,7 @@ public class OServer {
   private String serverRootDirectory;
   private String databaseDirectory;
   private OClientConnectionManager clientConnectionManager;
-  private OHttpSessionManager httpSessionManager;
+  private HttpSessionManager httpSessionManager;
   private OPushManager pushManager;
   private ClassLoader extensionClassLoader;
   private OTokenHandler tokenHandler;
@@ -128,7 +128,7 @@ public class OServer {
     final boolean insideWebContainer = YouTrackDBManager.instance().isInsideWebContainer();
 
     if (insideWebContainer && shutdownEngineOnExit) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "YouTrackDB instance is running inside of web application, it is highly unrecommended"
@@ -141,7 +141,7 @@ public class OServer {
         OSystemVariableResolver.resolveSystemVariables(
             "${" + YouTrackDBManager.YOU_TRACK_DB_HOME + "}", ".");
 
-    OLogManager.instance().installCustomFormatter();
+    LogManager.instance().installCustomFormatter();
 
     defaultSettings();
 
@@ -237,7 +237,7 @@ public class OServer {
     return clientConnectionManager;
   }
 
-  public OHttpSessionManager getHttpSessionManager() {
+  public HttpSessionManager getHttpSessionManager() {
     return httpSessionManager;
   }
 
@@ -327,7 +327,7 @@ public class OServer {
     } catch (IOException e) {
       final String message =
           "Error on reading server configuration from file: " + iConfigurationFile;
-      OLogManager.instance().error(this, message, e);
+      LogManager.instance().error(this, message, e);
       throw YTException.wrapException(new YTConfigurationException(message), e);
     }
   }
@@ -354,7 +354,7 @@ public class OServer {
   }
 
   public OServer startupFromConfiguration() throws IOException {
-    OLogManager.instance()
+    LogManager.instance()
         .info(this, "YouTrackDB Server v" + OConstants.getVersion() + " is starting up...");
 
     YouTrackDBManager.instance();
@@ -369,7 +369,7 @@ public class OServer {
     initFromConfiguration();
 
     clientConnectionManager = new OClientConnectionManager(this);
-    httpSessionManager = new OHttpSessionManager(this);
+    httpSessionManager = new HttpSessionManager(this);
     pushManager = new OPushManager();
     rejectRequests = false;
 
@@ -382,12 +382,12 @@ public class OServer {
     databaseDirectory =
         contextConfiguration.getValue("server.database.path", serverRootDirectory + "/databases/");
     databaseDirectory =
-        OFileUtils.getPath(OSystemVariableResolver.resolveSystemVariables(databaseDirectory));
+        FileUtils.getPath(OSystemVariableResolver.resolveSystemVariables(databaseDirectory));
     databaseDirectory = databaseDirectory.replace("//", "/");
 
     // CONVERT IT TO ABSOLUTE PATH
     databaseDirectory = (new File(databaseDirectory)).getCanonicalPath();
-    databaseDirectory = OFileUtils.getPath(databaseDirectory);
+    databaseDirectory = FileUtils.getPath(databaseDirectory);
 
     if (!databaseDirectory.endsWith("/")) {
       databaseDirectory += "/";
@@ -435,7 +435,7 @@ public class OServer {
 
     context = databases.newOrientDB();
 
-    OLogManager.instance()
+    LogManager.instance()
         .info(this, "Databases directory: " + new File(databaseDirectory).getAbsolutePath());
 
     YouTrackDBManager.instance()
@@ -444,7 +444,7 @@ public class OServer {
             "system.databases",
             "List of databases configured in Server",
             METRIC_TYPE.TEXT,
-            new OProfilerHookValue() {
+            new ProfilerHookValue() {
               @Override
               public Object getValue() {
                 final StringBuilder dbs = new StringBuilder(64);
@@ -491,7 +491,7 @@ public class OServer {
               factory.config(f.name, f.parameters);
               networkSocketFactories.put(f.name, factory);
             } catch (YTConfigurationException e) {
-              OLogManager.instance().error(this, "Error creating socket factory", e);
+              LogManager.instance().error(this, "Error creating socket factory", e);
             }
           }
         }
@@ -517,7 +517,7 @@ public class OServer {
         }
 
       } else {
-        OLogManager.instance().warn(this, "Network configuration was not found");
+        LogManager.instance().warn(this, "Network configuration was not found");
       }
 
       try {
@@ -526,7 +526,7 @@ public class OServer {
         loadDatabases();
       } catch (IOException e) {
         final String message = "Error on reading server configuration";
-        OLogManager.instance().error(this, message, e);
+        LogManager.instance().error(this, message, e);
 
         throw YTException.wrapException(new YTConfigurationException(message), e);
       }
@@ -554,13 +554,13 @@ public class OServer {
         proto = "http";
       }
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "YouTrackDB Studio available at $ANSI{blue %s://%s/studio/index.html}",
               proto,
               httpAddress);
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "$ANSI{green:italic YouTrackDB Server is active} v" + OConstants.getVersion() + ".");
@@ -604,7 +604,7 @@ public class OServer {
       }
 
       if (shutdownEngineOnExit) {
-        OLogManager.instance().shutdown();
+        LogManager.instance().shutdown();
       }
     }
   }
@@ -613,7 +613,7 @@ public class OServer {
     try {
       running = false;
 
-      OLogManager.instance().info(this, "YouTrackDB Server is shutting down...");
+      LogManager.instance().info(this, "YouTrackDB Server is shutting down...");
 
       if (shutdownHook != null) {
         shutdownHook.cancel();
@@ -629,21 +629,21 @@ public class OServer {
       try {
         if (networkListeners.size() > 0) {
           // SHUTDOWN LISTENERS
-          OLogManager.instance().info(this, "Shutting down listeners:");
+          LogManager.instance().info(this, "Shutting down listeners:");
           // SHUTDOWN LISTENERS
           for (OServerNetworkListener l : networkListeners) {
-            OLogManager.instance().info(this, "- %s", l);
+            LogManager.instance().info(this, "- %s", l);
             try {
               l.shutdown();
             } catch (Exception e) {
-              OLogManager.instance().error(this, "Error during shutdown of listener %s.", e, l);
+              LogManager.instance().error(this, "Error during shutdown of listener %s.", e, l);
             }
           }
         }
 
         if (networkProtocols.size() > 0) {
           // PROTOCOL SHUTDOWN
-          OLogManager.instance().info(this, "Shutting down protocols");
+          LogManager.instance().info(this, "Shutting down protocols");
           networkProtocols.clear();
         }
 
@@ -651,7 +651,7 @@ public class OServer {
           try {
             l.onAfterDeactivate();
           } catch (Exception e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(this, "Error during deactivation of server lifecycle listener %s", e, l);
           }
         }
@@ -672,10 +672,10 @@ public class OServer {
 
       if (shutdownEngineOnExit && !YouTrackDBManager.isRegisterDatabaseByPath()) {
         try {
-          OLogManager.instance().info(this, "Shutting down databases:");
+          LogManager.instance().info(this, "Shutting down databases:");
           YouTrackDBManager.instance().shutdown();
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Error during YouTrackDB shutdown", e);
+          LogManager.instance().error(this, "Error during YouTrackDB shutdown", e);
         }
       }
       if (!contextConfiguration.getValueAsBoolean(
@@ -685,8 +685,8 @@ public class OServer {
         databases = null;
       }
     } finally {
-      OLogManager.instance().info(this, "YouTrackDB Server shutdown complete\n");
-      OLogManager.instance().flush();
+      LogManager.instance().info(this, "YouTrackDB Server shutdown complete\n");
+      LogManager.instance().flush();
     }
 
     return true;
@@ -702,7 +702,7 @@ public class OServer {
         shutdownLatch.await();
       }
     } catch (InterruptedException e) {
-      OLogManager.instance().error(this, "Error during waiting for YouTrackDB shutdown", e);
+      LogManager.instance().error(this, "Error during waiting for YouTrackDB shutdown", e);
     }
   }
 
@@ -1142,7 +1142,7 @@ public class OServer {
       } while (rootPassword != null);
 
     } else {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Found YOU_TRACK_DB_ROOT_PASSWORD variable, using this value as root's password",

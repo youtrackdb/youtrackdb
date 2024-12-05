@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
-import com.jetbrains.youtrack.db.internal.common.parser.OBaseParser;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -32,13 +32,13 @@ public class OSQLFilterItemVariable extends OSQLFilterItemAbstract {
 
   protected String name;
 
-  public OSQLFilterItemVariable(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public OSQLFilterItemVariable(YTDatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iName) {
     super(session, iQueryToParse, iName.substring(1));
   }
 
   public Object getValue(
-      final YTIdentifiable iRecord, Object iCurrentResult, final OCommandContext iContext) {
+      final YTIdentifiable iRecord, Object iCurrentResult, final CommandContext iContext) {
     if (iContext == null) {
       return null;
     }
@@ -50,7 +50,7 @@ public class OSQLFilterItemVariable extends OSQLFilterItemAbstract {
     return name;
   }
 
-  public void setRoot(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public void setRoot(YTDatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iRoot) {
     this.name = iRoot;
   }

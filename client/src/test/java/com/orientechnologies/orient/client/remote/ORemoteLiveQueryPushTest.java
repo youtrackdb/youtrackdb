@@ -4,14 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
-import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
+import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ public class ORemoteLiveQueryPushTest {
     }
   }
 
-  private OStorageRemote storage;
+  private StorageRemote storage;
 
   @Mock
   private ORemoteConnectionManager connectionManager;
@@ -70,7 +70,7 @@ public class ORemoteLiveQueryPushTest {
   public void before() throws IOException {
     MockitoAnnotations.initMocks(this);
     storage =
-        new OStorageRemote(
+        new StorageRemote(
             new ORemoteURLs(new String[]{}, new YTContextConfiguration()),
             "none",
             null,

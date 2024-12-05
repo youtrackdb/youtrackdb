@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.cache.local.doublewritel
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class DoubleWriteLogGLTestIT {
     }
 
     buildDirectory += File.separator + DoubleWriteLogGLTestIT.class.getSimpleName();
-    OFileUtils.deleteRecursively(new File(buildDirectory));
+    FileUtils.deleteRecursively(new File(buildDirectory));
     Files.createDirectories(Paths.get(buildDirectory));
   }
 

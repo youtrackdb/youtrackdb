@@ -14,7 +14,7 @@
 package com.orientechnologies.spatial.query;
 
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.List;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -28,12 +28,12 @@ public class OSpatialQueryContext extends OLuceneQueryContext {
 
   public SpatialArgs spatialArgs;
 
-  public OSpatialQueryContext(OCommandContext context, IndexSearcher searcher, Query query) {
+  public OSpatialQueryContext(CommandContext context, IndexSearcher searcher, Query query) {
     super(context, searcher, query);
   }
 
   public OSpatialQueryContext(
-      OCommandContext context, IndexSearcher searcher, Query query, List<SortField> sortFields) {
+      CommandContext context, IndexSearcher searcher, Query query, List<SortField> sortFields) {
     super(context, searcher, query, sortFields);
   }
 

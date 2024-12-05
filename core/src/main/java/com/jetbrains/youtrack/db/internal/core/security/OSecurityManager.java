@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.security;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OLRUCache;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
@@ -174,7 +174,7 @@ public class OSecurityManager {
     } catch (NoSuchAlgorithmException e) {
       final String message =
           "The requested encoding is not supported: cannot execute security checks";
-      OLogManager.instance().error(OSecuritySystem.class, message, e);
+      LogManager.instance().error(OSecuritySystem.class, message, e);
 
       throw YTException.wrapException(new YTConfigurationException(message), e);
     }
@@ -211,7 +211,7 @@ public class OSecurityManager {
       final String iPassword, final String iHash, final String algorithm) {
 
     if (!isAlgorithmSupported(algorithm)) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               OSecuritySystem.class,
               "The password hash algorithm is not supported: %s",
@@ -295,7 +295,7 @@ public class OSecurityManager {
       // Downgrade it to PBKDF2_ALGORITHM.
       validAlgo = PBKDF2_ALGORITHM;
 
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               OSecuritySystem.class,
               "The %s algorithm is not supported, downgrading to %s",
@@ -345,7 +345,7 @@ public class OSecurityManager {
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance()
+      LogManager.instance()
           .debug(this, "newCredentialInterceptor() Exception creating CredentialInterceptor", ex);
     }
 

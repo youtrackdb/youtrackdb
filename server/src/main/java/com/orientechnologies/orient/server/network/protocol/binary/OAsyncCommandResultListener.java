@@ -16,7 +16,7 @@
 
 package com.orientechnologies.orient.server.network.protocol.binary;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -70,7 +70,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
                   protocol.channel.writeByte((byte) 2); // CACHE IT ON THE CLIENT
                   ONetworkProtocolBinary.writeIdentifiable(protocol.channel, connection, iLinked);
                 } catch (IOException e) {
-                  OLogManager.instance().error(this, "Cannot write against channel", e);
+                  LogManager.instance().error(this, "Cannot write against channel", e);
                 }
               }
             }
@@ -110,7 +110,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
                 protocol.channel.writeByte((byte) 2); // CACHE IT ON THE CLIENT
                 ONetworkProtocolBinary.writeIdentifiable(protocol.channel, connection, iLinked);
               } catch (IOException e) {
-                OLogManager.instance().error(this, "Cannot write against channel", e);
+                LogManager.instance().error(this, "Cannot write against channel", e);
               }
             }
           }

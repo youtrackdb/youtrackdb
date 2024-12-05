@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.functions;
 
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -87,7 +87,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
   }
 
   protected Iterable<YTIdentifiable> results(
-      OFromClause target, OExpression[] args, OCommandContext ctx, Object rightValue) {
+      OFromClause target, OExpression[] args, CommandContext ctx, Object rightValue) {
     OIndex oIndex = searchForIndex(ctx.getDatabase(), target, args);
 
     if (oIndex == null) {
@@ -148,7 +148,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
   }
 
   protected void onAfterParsing(
-      Map<String, Object> params, OExpression[] args, OCommandContext ctx, Object rightValue) {
+      Map<String, Object> params, OExpression[] args, CommandContext ctx, Object rightValue) {
   }
 
   protected abstract String operator();
@@ -158,7 +158,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     return true;
@@ -169,7 +169,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     if (!isValidBinaryOperator(operator)) {
@@ -185,7 +185,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     return true;
   }
@@ -195,7 +195,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     OLuceneSpatialIndex index = searchForIndex(ctx.getDatabase(), target, args);

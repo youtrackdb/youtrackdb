@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -54,7 +54,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, Object iResult, CommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (OArraySelector item : items) {
       Object index = item.getValue(iCurrentRecord, iResult, ctx);
@@ -86,7 +86,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTResult iCurrentRecord, Object iResult, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, Object iResult, CommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (OArraySelector item : items) {
       Object index = item.getValue(iCurrentRecord, iResult, ctx);
@@ -190,7 +190,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
     return false;
   }
 
-  public void setValue(YTResult currentRecord, Object target, Object value, OCommandContext ctx) {
+  public void setValue(YTResult currentRecord, Object target, Object value, CommandContext ctx) {
     if (items != null) {
       for (OArraySelector item : items) {
         item.setValue(currentRecord, target, value, ctx);
@@ -199,7 +199,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
   }
 
   public void applyRemove(
-      Object currentValue, YTResultInternal originalRecord, OCommandContext ctx) {
+      Object currentValue, YTResultInternal originalRecord, CommandContext ctx) {
     if (currentValue == null) {
       return;
     }

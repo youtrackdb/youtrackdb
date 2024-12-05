@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.string;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -61,7 +61,7 @@ public class OStringSerializerEmbedded implements OStringSerializer {
     try {
       clazz = Class.forName(className);
     } catch (ClassNotFoundException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               this,
               "Class name provided in embedded document " + className + " does not exist.",

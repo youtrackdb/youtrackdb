@@ -15,16 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.local.OWOWCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OClusterPositionMap;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.ClusterPositionMap;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import java.io.File;
 import java.util.Collection;
 import java.util.Locale;
@@ -104,7 +104,7 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
     cmd += "commit;";
     cmd += "return $a;";
 
-    Object result = database.command(new OCommandScript("sql", cmd)).execute(database);
+    Object result = database.command(new CommandScript("sql", cmd)).execute(database);
 
     Assert.assertTrue(result instanceof YTIdentifiable);
     Assert.assertTrue(((YTIdentifiable) result).getRecord() instanceof EntityImpl);
@@ -136,19 +136,19 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
       String storagePath = database.getStorage().getConfiguration().getDirectory();
 
       final OWOWCache wowCache =
-          (OWOWCache) ((OLocalPaginatedStorage) database.getStorage()).getWriteCache();
+          (OWOWCache) ((LocalPaginatedStorage) database.getStorage()).getWriteCache();
 
       File dataFile =
           new File(
               storagePath,
               wowCache.nativeFileNameById(
-                  wowCache.fileIdByName("testClusterRename42" + OPaginatedCluster.DEF_EXTENSION)));
+                  wowCache.fileIdByName("testClusterRename42" + PaginatedCluster.DEF_EXTENSION)));
       File mapFile =
           new File(
               storagePath,
               wowCache.nativeFileNameById(
                   wowCache.fileIdByName(
-                      "testClusterRename42" + OClusterPositionMap.DEF_EXTENSION)));
+                      "testClusterRename42" + ClusterPositionMap.DEF_EXTENSION)));
 
       Assert.assertTrue(dataFile.exists());
       Assert.assertTrue(mapFile.exists());

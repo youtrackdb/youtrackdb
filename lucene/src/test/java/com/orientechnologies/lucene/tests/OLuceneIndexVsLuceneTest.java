@@ -20,11 +20,11 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
-import com.orientechnologies.lucene.analyzer.OLucenePerFieldAnalyzerWrapper;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.orientechnologies.lucene.analyzer.OLucenePerFieldAnalyzerWrapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,7 +64,7 @@ public class OLuceneIndexVsLuceneTest extends OLuceneBaseTest {
 
     YTSchema schema = db.getMetadata().getSchema();
 
-    OFileUtils.deleteRecursively(getPath().getAbsoluteFile());
+    FileUtils.deleteRecursively(getPath().getAbsoluteFile());
     try {
       Directory dir = getDirectory();
       analyzer = new OLucenePerFieldAnalyzerWrapper(new StandardAnalyzer());

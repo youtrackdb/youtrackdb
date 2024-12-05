@@ -17,7 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
 import com.jetbrains.youtrack.db.internal.common.util.OSizeable;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class OSQLMethodAsList extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
     if (ioResult instanceof List)

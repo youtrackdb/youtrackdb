@@ -2,11 +2,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OUnwind;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class UnwindStep extends AbstractExecutionStep {
   private final OUnwind unwind;
   private final List<String> unwindFields;
 
-  public UnwindStep(OUnwind unwind, OCommandContext ctx, boolean profilingEnabled) {
+  public UnwindStep(OUnwind unwind, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.unwind = unwind;
     unwindFields =
@@ -31,18 +31,18 @@ public class UnwindStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev == null) {
       throw new YTCommandExecutionException("Cannot expand without a target");
     }
 
-    OExecutionStream resultSet = prev.start(ctx);
+    ExecutionStream resultSet = prev.start(ctx);
     var db = ctx.getDatabase();
     return resultSet.flatMap((res, res2) -> fetchNextResults(db, res));
   }
 
-  private OExecutionStream fetchNextResults(YTDatabaseSessionInternal db, YTResult res) {
-    return OExecutionStream.resultIterator(unwind(db, res, unwindFields).iterator());
+  private ExecutionStream fetchNextResults(YTDatabaseSessionInternal db, YTResult res) {
+    return ExecutionStream.resultIterator(unwind(db, res, unwindFields).iterator());
   }
 
   private static Collection<YTResult> unwind(YTDatabaseSessionInternal db, final YTResult doc,
@@ -100,7 +100,7 @@ public class UnwindStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ " + unwind;
   }
 }

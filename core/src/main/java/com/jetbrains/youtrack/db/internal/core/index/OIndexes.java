@@ -15,14 +15,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import static com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper.lookupProviderWithOrientClassLoader;
+import static com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader;
 
 import com.jetbrains.youtrack.db.internal.common.util.OCollections;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OBaseIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashIndexFactory;
 import java.util.Collections;
 import java.util.HashSet;
@@ -71,7 +71,7 @@ public final class OIndexes {
     if (FACTORIES == null) {
 
       final Iterator<OIndexFactory> ite =
-          lookupProviderWithOrientClassLoader(OIndexFactory.class, orientClassLoader);
+          lookupProviderWithYouTrackDBClassLoader(OIndexFactory.class, orientClassLoader);
 
       final Set<OIndexFactory> factories = new HashSet<>();
       while (ite.hasNext()) {
@@ -146,7 +146,7 @@ public final class OIndexes {
    * @throws YTConfigurationException if index creation failed
    * @throws YTIndexException         if index type does not exist
    */
-  public static OIndexInternal createIndex(OStorage storage, OIndexMetadata metadata)
+  public static OIndexInternal createIndex(Storage storage, OIndexMetadata metadata)
       throws YTConfigurationException, YTIndexException {
     String indexType = metadata.getType();
     String algorithm = metadata.getAlgorithm();
@@ -174,7 +174,7 @@ public final class OIndexes {
   }
 
   public static OBaseIndexEngine createIndexEngine(
-      final OStorage storage, final IndexEngineData metadata) {
+      final Storage storage, final IndexEngineData metadata) {
 
     final OIndexFactory factory =
         findFactoryByAlgorithmAndType(metadata.getAlgorithm(), metadata.getIndexType());

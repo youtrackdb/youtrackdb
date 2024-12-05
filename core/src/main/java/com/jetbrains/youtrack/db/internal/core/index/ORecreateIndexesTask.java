@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.OSharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +32,7 @@ public class ORecreateIndexesTask implements Runnable {
   public void run() {
     try {
       final YTDatabaseSessionEmbedded newDb =
-          new YTDatabaseSessionEmbedded((OStorage) ctx.getStorage());
+          new YTDatabaseSessionEmbedded((Storage) ctx.getStorage());
       newDb.activateOnCurrentThread();
       newDb.init(null, ctx);
       newDb.internalOpen("admin", "nopass", false);
@@ -43,7 +43,7 @@ public class ORecreateIndexesTask implements Runnable {
         final Collection<EntityImpl> knownIndexes =
             indexManager.getDocument(newDb).field(OIndexManagerShared.CONFIG_INDEXES);
         if (knownIndexes == null) {
-          OLogManager.instance().warn(this, "List of indexes is empty");
+          LogManager.instance().warn(this, "List of indexes is empty");
           indexesToRebuild = Collections.emptyList();
         } else {
           indexesToRebuild = new ArrayList<>();
@@ -58,14 +58,14 @@ public class ORecreateIndexesTask implements Runnable {
       try {
         recreateIndexes(indexesToRebuild, newDb);
       } finally {
-        if (indexManager.storage instanceof OAbstractPaginatedStorage abstractPaginatedStorage) {
+        if (indexManager.storage instanceof AbstractPaginatedStorage abstractPaginatedStorage) {
           abstractPaginatedStorage.synch();
         }
         newDb.close();
       }
 
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Error when attempt to restore indexes after crash was performed", e);
     }
   }
@@ -78,7 +78,7 @@ public class ORecreateIndexesTask implements Runnable {
       try {
         recreateIndex(index, db);
       } catch (RuntimeException e) {
-        OLogManager.instance().error(this, "Error during addition of index '%s'", e, index);
+        LogManager.instance().error(this, "Error during addition of index '%s'", e, index);
         errors++;
       }
     }
@@ -87,7 +87,7 @@ public class ORecreateIndexesTask implements Runnable {
 
     indexManager.rebuildCompleted = true;
 
-    OLogManager.instance()
+    LogManager.instance()
         .info(this, "%d indexes were restored successfully, %d errors", ok, errors);
   }
 
@@ -107,7 +107,7 @@ public class ORecreateIndexesTask implements Runnable {
 
     if (automatic) {
       if (durable) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Index '%s' is a durable automatic index and will be added as is without"
@@ -115,7 +115,7 @@ public class ORecreateIndexesTask implements Runnable {
                 indexMetadata.getName());
         addIndexAsIs(indexDocument, index, db);
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Index '%s' is a non-durable automatic index and must be rebuilt",
@@ -124,7 +124,7 @@ public class ORecreateIndexesTask implements Runnable {
       }
     } else {
       if (durable) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Index '%s' is a durable non-automatic index and will be added as is without"
@@ -132,7 +132,7 @@ public class ORecreateIndexesTask implements Runnable {
                 indexMetadata.getName());
         addIndexAsIs(indexDocument, index, db);
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Index '%s' is a non-durable non-automatic index and will be added as is without"
@@ -156,12 +156,12 @@ public class ORecreateIndexesTask implements Runnable {
     final String type = indexMetadata.getType();
 
     if (clusters != null && !clusters.isEmpty() && type != null) {
-      OLogManager.instance().info(this, "Start creation of index '%s'", indexName);
+      LogManager.instance().info(this, "Start creation of index '%s'", indexName);
       index.create(session, indexMetadata, false, new OIndexRebuildOutputListener(index));
 
       indexManager.addIndexInternal(session, index);
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Index '%s' was successfully created and rebuild is going to be started",
@@ -171,11 +171,11 @@ public class ORecreateIndexesTask implements Runnable {
 
       ok++;
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "Rebuild of '%s index was successfully finished", indexName);
     } else {
       errors++;
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Information about index was restored incorrectly, following data were loaded : "
@@ -194,14 +194,14 @@ public class ORecreateIndexesTask implements Runnable {
       indexManager.addIndexInternal(database, index);
 
       ok++;
-      OLogManager.instance().info(this, "Index '%s' was added in DB index list", index.getName());
+      LogManager.instance().info(this, "Index '%s' was added in DB index list", index.getName());
     } else {
       try {
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "Index '%s' can't be restored and will be deleted", null, index.getName());
         index.delete(database);
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error while deleting index '%s'", e, index.getName());
+        LogManager.instance().error(this, "Error while deleting index '%s'", e, index.getName());
       }
       errors++;
     }
@@ -211,7 +211,7 @@ public class ORecreateIndexesTask implements Runnable {
     final String indexType = idx.field(OIndexInternal.CONFIG_TYPE);
 
     if (indexType == null) {
-      OLogManager.instance().error(this, "Index type is null, will process other record", null);
+      LogManager.instance().error(this, "Index type is null, will process other record", null);
       throw new YTIndexException(
           "Index type is null, will process other record. Index configuration: " + idx);
     }

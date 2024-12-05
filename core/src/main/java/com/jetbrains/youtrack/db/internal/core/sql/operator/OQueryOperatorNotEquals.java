@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -50,7 +50,7 @@ public class OQueryOperatorNotEquals extends OQueryOperatorEqualityNotNulls {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     return !OQueryOperatorEquals.equals(iContext.getDatabase(), iLeft, iRight);
   }
 
@@ -63,7 +63,7 @@ public class OQueryOperatorNotEquals extends OQueryOperatorEqualityNotNulls {
   public boolean evaluate(
       final OBinaryField iFirstField,
       final OBinaryField iSecondField,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
     return !serializer.getComparator().isEqual(iFirstField, iSecondField);
   }

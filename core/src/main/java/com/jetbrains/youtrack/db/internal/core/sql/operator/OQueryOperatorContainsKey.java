@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -51,7 +51,7 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      OCommandContext iContext) {
+      CommandContext iContext) {
 
     if (iLeft instanceof Map<?, ?>) {
 
@@ -72,7 +72,7 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
 
   @Override
   public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
-      OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
+      CommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     Stream<ORawPair<Object, YTRID>> stream;

@@ -24,10 +24,10 @@ import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -81,7 +81,7 @@ import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -754,7 +754,7 @@ public class EntityImpl extends RecordAbstract
             }
           }
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "Error on checking the value of property %s against the record %s",
@@ -1626,7 +1626,7 @@ public class EntityImpl extends RecordAbstract
   public Object eval(final String iExpression) {
     checkForBinding();
 
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(getSession());
 
     return eval(iExpression, context);
@@ -1634,15 +1634,15 @@ public class EntityImpl extends RecordAbstract
 
   /**
    * Evaluates a SQL expression against current document by passing a context. The expression can
-   * refer to the variables contained in the context. Example: <code> OCommandContext context = new
-   * OBasicCommandContext().setVariable("vat", 20); long amountPlusVat = doc.eval("amount *
+   * refer to the variables contained in the context. Example: <code> CommandContext context = new
+   * BasicCommandContext().setVariable("vat", 20); long amountPlusVat = doc.eval("amount *
    * (100+$vat) / 100", context); </code>
    *
    * @param iExpression SQL expression to evaluate.
    * @return The result of expression
    * @throws YTQueryParsingException in case the expression is not valid
    */
-  public Object eval(final String iExpression, @Nonnull final OCommandContext iContext) {
+  public Object eval(final String iExpression, @Nonnull final CommandContext iContext) {
     checkForBinding();
 
     if (iContext.getDatabase() != getSession()) {
@@ -1650,7 +1650,7 @@ public class EntityImpl extends RecordAbstract
           "The context is bound to a different database instance, use the context from the same database instance");
     }
 
-    return new OSQLPredicate(iContext, iExpression).evaluate(this, null, iContext);
+    return new SQLPredicate(iContext, iExpression).evaluate(this, null, iContext);
   }
 
   /**
@@ -2061,7 +2061,7 @@ public class EntityImpl extends RecordAbstract
             }
           }
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "Error on checking the value of property %s against the record %s",

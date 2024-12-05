@@ -21,7 +21,7 @@ package com.orientechnologies.orient.client.binary;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
@@ -119,7 +119,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
       }
 
       if (srvProtocolVersion != protocolVersion) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "The Client driver version is different than Server version: client="
@@ -284,7 +284,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
     try {
       throwable = objectInputStream.readObject();
     } catch (ClassNotFoundException e) {
-      OLogManager.instance().error(this, "Error during exception deserialization", e);
+      LogManager.instance().error(this, "Error during exception deserialization", e);
       throw new IOException("Error during exception deserialization: " + e, e);
     }
 
@@ -300,13 +300,13 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
         throw proxyInstance;
 
       } catch (NoSuchMethodException e) {
-        OLogManager.instance().error(this, "Error during exception deserialization", e);
+        LogManager.instance().error(this, "Error during exception deserialization", e);
       } catch (InvocationTargetException e) {
-        OLogManager.instance().error(this, "Error during exception deserialization", e);
+        LogManager.instance().error(this, "Error during exception deserialization", e);
       } catch (InstantiationException e) {
-        OLogManager.instance().error(this, "Error during exception deserialization", e);
+        LogManager.instance().error(this, "Error during exception deserialization", e);
       } catch (IllegalAccessException e) {
-        OLogManager.instance().error(this, "Error during exception deserialization", e);
+        LogManager.instance().error(this, "Error during exception deserialization", e);
       }
     }
 
@@ -316,7 +316,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
     } else {
       // WRAP IT
       String exceptionType = throwable != null ? throwable.getClass().getName() : "null";
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Error during exception serialization, serialized exception is not Throwable,"

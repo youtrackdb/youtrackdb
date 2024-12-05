@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -122,7 +122,7 @@ public class LocalPaginatedStorageRestoreFromWALIT {
 
     Thread.sleep(1500);
     copyDataFromTestWithoutClose();
-    OStorage baseStorage = baseDocumentTx.getStorage();
+    Storage baseStorage = baseDocumentTx.getStorage();
     baseDocumentTx.close();
     baseStorage.close(baseDocumentTx);
 
@@ -153,7 +153,7 @@ public class LocalPaginatedStorageRestoreFromWALIT {
     final String testStoragePath = baseDocumentTx.getURL().substring("plocal:".length());
     final String copyTo =
         buildDir.getAbsolutePath() + File.separator + "testLocalPaginatedStorageRestoreFromWAL";
-    OFileUtils.deleteRecursively(new File(copyTo));
+    FileUtils.deleteRecursively(new File(copyTo));
 
     final File testStorageDir = new File(testStoragePath);
     final File copyToDir = new File(copyTo);

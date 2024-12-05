@@ -14,20 +14,20 @@
  */
 package com.orientechnologies.spatial.engine;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.lucene.builder.OLuceneIndexType;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
-import com.orientechnologies.lucene.engine.OLuceneIndexWriterFactory;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.orientechnologies.lucene.builder.OLuceneIndexType;
+import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
+import com.orientechnologies.lucene.engine.OLuceneIndexWriterFactory;
 import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilder;
@@ -62,7 +62,7 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   protected SpatialQueryBuilder queryStrategy;
 
   public OLuceneSpatialIndexEngineAbstract(
-      OStorage storage, String indexName, int id, OShapeBuilder factory) {
+      Storage storage, String indexName, int id, OShapeBuilder factory) {
     super(id, storage, indexName);
     this.ctx = factory.context();
     this.factory = factory;
@@ -83,7 +83,7 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   public IndexWriter createIndexWriter(Directory directory) throws IOException {
     OLuceneIndexWriterFactory fc = new OLuceneIndexWriterFactory();
 
-    OLogManager.instance().debug(this, "Creating Lucene index in '%s'...", directory);
+    LogManager.instance().debug(this, "Creating Lucene index in '%s'...", directory);
 
     return fc.createIndexWriter(directory, metadata, indexAnalyzer());
   }

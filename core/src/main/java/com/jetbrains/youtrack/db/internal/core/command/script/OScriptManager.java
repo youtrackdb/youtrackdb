@@ -19,11 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import static com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper.lookupProviderWithOrientClassLoader;
+import static com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.OStringParser;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandManager;
 import com.jetbrains.youtrack.db.internal.core.command.OScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.OScriptExecutorRegister;
@@ -63,7 +64,7 @@ import javax.script.ScriptException;
 /**
  * Executes Script Commands.
  *
- * @see OCommandScript
+ * @see CommandScript
  */
 public class OScriptManager {
 
@@ -116,7 +117,7 @@ public class OScriptManager {
         defEngine = scriptEngineManager.getEngineByName(DEF_LANGUAGE);
       }
       if (defEngine == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(this, "Cannot find default script language for %s", DEF_LANGUAGE);
       } else {
         // GET DIRECTLY THE LANGUAGE BY NAME (DON'T KNOW WHY SOMETIMES DOESN'T RETURN IT WITH
@@ -145,7 +146,7 @@ public class OScriptManager {
     registerEngine(OSQLScriptEngine.NAME, new OSQLScriptEngineFactory());
 
     Iterator<OScriptExecutorRegister> customExecutors =
-        lookupProviderWithOrientClassLoader(OScriptExecutorRegister.class);
+        OClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader(OScriptExecutorRegister.class);
 
     customExecutors.forEachRemaining(e -> e.registerExecutor(this, commandManager));
   }
@@ -290,7 +291,7 @@ public class OScriptManager {
       ScriptEngine engine,
       final Bindings binding,
       final YTDatabaseSessionInternal db,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final Map<Object, Object> iArgs) {
 
     bindDatabase(binding, db);
@@ -309,7 +310,7 @@ public class OScriptManager {
       ScriptEngine scriptEngine,
       final Bindings binding,
       final YTDatabaseSessionInternal db,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final Map<Object, Object> iArgs) {
 
     bindLegacyDatabaseAndUtil(binding, db);
@@ -331,7 +332,7 @@ public class OScriptManager {
     }
   }
 
-  private void bindContext(Bindings binding, OCommandContext iContext) {
+  private void bindContext(Bindings binding, CommandContext iContext) {
     // BIND CONTEXT VARIABLE INTO THE SCRIPT
     if (iContext != null) {
       binding.put("ctx", iContext);
@@ -443,7 +444,7 @@ public class OScriptManager {
   public void unbind(
       ScriptEngine scriptEngine,
       final Bindings binding,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final Map<Object, Object> iArgs) {
     for (OScriptInjection i : injections) {
       i.unbind(scriptEngine, binding);

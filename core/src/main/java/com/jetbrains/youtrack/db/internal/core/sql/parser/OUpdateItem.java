@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -138,7 +138,7 @@ public class OUpdateItem extends SimpleNode {
     return result;
   }
 
-  public void applyUpdate(YTResultInternal doc, OCommandContext ctx) {
+  public void applyUpdate(YTResultInternal doc, CommandContext ctx) {
     Object rightValue = right.execute(doc, ctx);
     YTClass linkedType = calculateLinkedTypeForThisItem(doc, ctx);
     if (leftModifier == null) {
@@ -182,7 +182,7 @@ public class OUpdateItem extends SimpleNode {
     return result;
   }
 
-  private YTClass calculateLinkedTypeForThisItem(YTResultInternal doc, OCommandContext ctx) {
+  private YTClass calculateLinkedTypeForThisItem(YTResultInternal doc, CommandContext ctx) {
     if (doc.isEntity()) {
       var elem = doc.toEntity();
 
@@ -191,7 +191,7 @@ public class OUpdateItem extends SimpleNode {
   }
 
   private YTType calculateTypeForThisItem(YTResultInternal doc, String propertyName,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     Entity elem = doc.toEntity();
     YTClass clazz = elem.getSchemaType().orElse(null);
     if (clazz == null) {
@@ -201,7 +201,7 @@ public class OUpdateItem extends SimpleNode {
   }
 
   private YTType calculateTypeForThisItem(
-      YTClass clazz, String propName, OModifier modifier, OCommandContext ctx) {
+      YTClass clazz, String propName, OModifier modifier, CommandContext ctx) {
     YTProperty prop = clazz.getProperty(propName);
     if (prop == null) {
       return null;
@@ -222,7 +222,7 @@ public class OUpdateItem extends SimpleNode {
   }
 
   public void applyOperation(
-      YTResultInternal doc, OIdentifier attrName, Object rightValue, OCommandContext ctx) {
+      YTResultInternal doc, OIdentifier attrName, Object rightValue, CommandContext ctx) {
 
     switch (operator) {
       case OPERATOR_EQ:
@@ -262,7 +262,7 @@ public class OUpdateItem extends SimpleNode {
   }
 
   public static Object convertToPropertyType(
-      YTResultInternal res, OIdentifier attrName, Object newValue, OCommandContext ctx) {
+      YTResultInternal res, OIdentifier attrName, Object newValue, CommandContext ctx) {
     Entity doc = res.toEntity();
     Optional<YTClass> optSchema = doc.getSchemaType();
     if (!optSchema.isPresent()) {
@@ -280,7 +280,7 @@ public class OUpdateItem extends SimpleNode {
 
   @SuppressWarnings("unchecked")
   private static Object convertToType(
-      Object value, YTType type, YTClass linkedClass, OCommandContext ctx) {
+      Object value, YTType type, YTClass linkedClass, CommandContext ctx) {
     if (type == null) {
       return value;
     }
@@ -333,7 +333,7 @@ public class OUpdateItem extends SimpleNode {
     return value;
   }
 
-  private static Object convertToType(Object item, YTClass linkedClass, OCommandContext ctx) {
+  private static Object convertToType(Object item, YTClass linkedClass, CommandContext ctx) {
     if (item instanceof Entity) {
       YTClass currentType = ((Entity) item).getSchemaType().orElse(null);
       if (currentType == null || !currentType.isSubClassOf(linkedClass)) {
@@ -377,7 +377,7 @@ public class OUpdateItem extends SimpleNode {
   }
 
   private Object calculateNewValue(
-      YTResultInternal doc, OCommandContext ctx, OMathExpression.Operator explicitOperator) {
+      YTResultInternal doc, CommandContext ctx, OMathExpression.Operator explicitOperator) {
     OExpression leftEx = new OExpression(left.copy());
     if (leftModifier != null) {
       ((OBaseExpression) leftEx.mathExpression).modifier = leftModifier.copy();

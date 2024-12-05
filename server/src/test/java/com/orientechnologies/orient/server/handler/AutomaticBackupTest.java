@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.handler;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -69,14 +69,14 @@ public class AutomaticBackupTest {
     URL = "plocal:" + buildDirectory + File.separator + DBNAME;
     URL2 = "plocal:" + buildDirectory + File.separator + DBNAME2;
 
-    OFileUtils.deleteRecursively(new File(BACKUPDIR));
+    FileUtils.deleteRecursively(new File(BACKUPDIR));
 
     Files.createDirectories(Paths.get(BACKUPDIR));
   }
 
   // @AfterClass
   public static void afterClass() {
-    OFileUtils.deleteRecursively(new File(BACKUPDIR));
+    FileUtils.deleteRecursively(new File(BACKUPDIR));
   }
 
   // @Before
@@ -295,7 +295,7 @@ public class AutomaticBackupTest {
   // MalformedObjectNameException,
   // InstanceAlreadyExistsException, NotCompliantMBeanException, MBeanRegistrationException {
   // if (new File(BACKUPDIR + "/" + DBNAME).exists())
-  // OFileUtils.deleteRecursively(new File(BACKUPDIR + "/" + DBNAME));
+  // FileUtils.deleteRecursively(new File(BACKUPDIR + "/" + DBNAME));
   //
   // final OAutomaticBackup aBackup = new OAutomaticBackup();
   //

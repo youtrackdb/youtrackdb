@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.common.concur.resource;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.YTInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.exception.YTAcquireTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -111,8 +111,8 @@ public class OResourcePool<K, V> {
       if (res == null) {
         res = listener.createNewResource(key, additionalArgs);
         created.incrementAndGet();
-        if (OLogManager.instance().isDebugEnabled()) {
-          OLogManager.instance()
+        if (LogManager.instance().isDebugEnabled()) {
+          LogManager.instance()
               .debug(
                   this,
                   "pool:'%s' created new resource '%s', new resource count '%d'",
@@ -122,8 +122,8 @@ public class OResourcePool<K, V> {
         }
       }
       resourcesOut.add(res);
-      if (OLogManager.instance().isDebugEnabled()) {
-        OLogManager.instance()
+      if (LogManager.instance().isDebugEnabled()) {
+        LogManager.instance()
             .debug(
                 this,
                 "pool:'%s' acquired resource '%s' available %d out %d ",
@@ -161,8 +161,8 @@ public class OResourcePool<K, V> {
     if (resourcesOut.remove(res)) {
       resources.add(res);
       sem.release();
-      if (OLogManager.instance().isDebugEnabled()) {
-        OLogManager.instance()
+      if (LogManager.instance().isDebugEnabled()) {
+        LogManager.instance()
             .debug(
                 this,
                 "pool:'%s' returned resource '%s' available %d out %d",
@@ -193,8 +193,8 @@ public class OResourcePool<K, V> {
     if (resourcesOut.remove(res)) {
       this.resources.remove(res);
       sem.release();
-      if (OLogManager.instance().isDebugEnabled()) {
-        OLogManager.instance()
+      if (LogManager.instance().isDebugEnabled()) {
+        LogManager.instance()
             .debug(
                 this,
                 "pool:'%s' removed resource '%s' available %d out %d",

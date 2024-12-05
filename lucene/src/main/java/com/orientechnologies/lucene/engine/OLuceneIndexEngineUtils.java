@@ -1,6 +1,6 @@
 package com.orientechnologies.lucene.engine;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import org.apache.lucene.search.TopDocs;
  */
 public class OLuceneIndexEngineUtils {
 
-  public static void sendTotalHits(String indexName, OCommandContext context, long totalHits) {
+  public static void sendTotalHits(String indexName, CommandContext context, long totalHits) {
     if (context != null) {
 
       if (context.getVariable("totalHits") == null) {
@@ -30,7 +30,7 @@ public class OLuceneIndexEngineUtils {
 
   public static void sendLookupTime(
       String indexName,
-      OCommandContext context,
+      CommandContext context,
       final TopDocs docs,
       final Integer limit,
       long startFetching) {

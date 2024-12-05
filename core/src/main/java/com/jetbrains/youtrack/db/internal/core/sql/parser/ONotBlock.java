@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -30,7 +30,7 @@ public class ONotBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     if (sub == null) {
       return true;
     }
@@ -42,7 +42,7 @@ public class ONotBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
     if (sub == null) {
       return true;
     }
@@ -180,14 +180,14 @@ public class ONotBlock extends OBooleanExpression {
   }
 
   @Override
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
     if (!negate) {
       sub = sub.rewriteIndexChainsAsSubqueries(ctx, clazz);
     }
     return this;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
     Optional<OIndexCandidate> found = sub.findIndex(info, ctx);
     if (negate && found.isPresent()) {
       found = found.get().invert();

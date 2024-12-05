@@ -9,10 +9,10 @@ import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -661,7 +661,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     }
   }
 
-  private static void indexesUsed(Set<String> indexes, OExecutionStep step) {
+  private static void indexesUsed(Set<String> indexes, ExecutionStep step) {
     if (step instanceof FetchFromIndexStep fetchFromIndexStep) {
       indexes.add(fetchFromIndexStep.getIndexName());
     }
@@ -671,7 +671,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
       indexesUsed(indexes, subStep);
     }
 
-    if (step instanceof OExecutionStepInternal internalStep) {
+    if (step instanceof ExecutionStepInternal internalStep) {
       var subPlans = internalStep.getSubExecutionPlans();
       for (var subPlan : subPlans) {
         indexesUsed(indexes, subPlan);

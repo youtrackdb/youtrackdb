@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,7 +63,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -79,7 +79,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -129,7 +129,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -145,7 +145,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -198,7 +198,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -214,7 +214,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -265,7 +265,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertTrue(document.<Integer>getProperty("prop2") > 2);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -327,7 +327,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertTrue(document.<Integer>getProperty("prop2") > 2);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -386,7 +386,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -403,7 +403,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop2"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -416,7 +416,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -471,7 +471,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -488,7 +488,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop2"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -501,7 +501,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -551,7 +551,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -605,7 +605,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")

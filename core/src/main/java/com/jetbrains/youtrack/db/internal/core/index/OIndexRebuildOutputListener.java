@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 
 /**
@@ -47,7 +47,7 @@ public class OIndexRebuildOutputListener implements OProgressListener {
     rebuild = (Boolean) iRebuild;
     if (iTotal > 0) {
       if (rebuild) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "- Rebuilding index %s.%s (estimated %,d items)...",
@@ -55,7 +55,7 @@ public class OIndexRebuildOutputListener implements OProgressListener {
                 idx.getName(),
                 iTotal);
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "- Building index %s.%s (estimated %,d items)...",
@@ -72,7 +72,7 @@ public class OIndexRebuildOutputListener implements OProgressListener {
     if (now - lastDump > 10000) {
       // DUMP EVERY 5 SECONDS FOR LARGE INDEXES
       if (rebuild) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "--> %3.2f%% progress, %,d indexed so far (%,d items/sec)",
@@ -80,7 +80,7 @@ public class OIndexRebuildOutputListener implements OProgressListener {
                 iCounter,
                 ((iCounter - lastCounter) / 10));
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "--> %3.2f%% progress, %,d indexed so far (%,d items/sec)",
@@ -101,14 +101,14 @@ public class OIndexRebuildOutputListener implements OProgressListener {
 
     if (idxSize > 0) {
       if (rebuild) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "--> OK, indexed %,d items in %,d ms",
                 idxSize,
                 (System.currentTimeMillis() - startTime));
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "--> OK, indexed %,d items in %,d ms",

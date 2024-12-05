@@ -2,10 +2,10 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,12 +31,12 @@ public class OCreateClusterStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
     int existingId = db.getClusterIdByName(name.getStringValue());
     if (existingId >= 0) {
       if (ifNotExists) {
-        return OExecutionStream.empty();
+        return ExecutionStream.empty();
       } else {
         throw new YTCommandExecutionException(
             "Cluster " + name.getStringValue() + " already exists");
@@ -46,7 +46,7 @@ public class OCreateClusterStatement extends ODDLStatement {
       String existingName = db.getClusterNameById(id.getValue().intValue());
       if (existingName != null) {
         if (ifNotExists) {
-          return OExecutionStream.empty();
+          return ExecutionStream.empty();
         } else {
           throw new YTCommandExecutionException("Cluster " + id.getValue() + " already exists");
         }
@@ -76,7 +76,7 @@ public class OCreateClusterStatement extends ODDLStatement {
     }
     result.setProperty("finalId", finalId);
 
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   @Override

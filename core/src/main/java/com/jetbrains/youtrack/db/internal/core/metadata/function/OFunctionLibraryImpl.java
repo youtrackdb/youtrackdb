@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.function;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.OMetadataUpdateListener;
@@ -133,7 +133,7 @@ public class OFunctionLibraryImpl {
       functions.put(iName.toUpperCase(Locale.ENGLISH), f);
       database.commit();
     } catch (YTRecordDuplicatedException ex) {
-      OLogManager.instance().error(this, "Exception is suppressed, original exception is ", ex);
+      LogManager.instance().error(this, "Exception is suppressed, original exception is ", ex);
 
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw YTException.wrapException(

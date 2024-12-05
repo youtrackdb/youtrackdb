@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OArrays;
 import com.jetbrains.youtrack.db.internal.core.db.OScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -13,7 +13,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
 import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -88,7 +88,7 @@ public class YTClassEmbedded extends YTClassImpl {
 
   protected void setEncryptionInternal(YTDatabaseSessionInternal database, final String value) {
     for (int cl : getClusterIds()) {
-      final OStorage storage = database.getStorage();
+      final Storage storage = database.getStorage();
       storage.setClusterAttribute(cl, OCluster.ATTRIBUTES.ENCRYPTION, value);
     }
   }
@@ -813,7 +813,7 @@ public class YTClassEmbedded extends YTClassImpl {
           if (clazz instanceof YTClassImpl) {
             addPolymorphicClusterIds(database, (YTClassImpl) clazz);
           } else {
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(this, "Warning: cannot set polymorphic cluster IDs for class " + name);
           }
         }

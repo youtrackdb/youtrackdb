@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.server.handler;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
@@ -54,7 +54,7 @@ public class OJMXPlugin extends OServerPluginAbstract {
       }
     }
 
-    OLogManager.instance()
+    LogManager.instance()
         .info(this, "JMX plugin installed and active: profilerManaged=%s", profilerManaged);
 
     final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -91,7 +91,7 @@ public class OJMXPlugin extends OServerPluginAbstract {
       }
 
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "YouTrackDB Server v" + OConstants.getVersion() + " unregisterMBean error",
               e);
     }

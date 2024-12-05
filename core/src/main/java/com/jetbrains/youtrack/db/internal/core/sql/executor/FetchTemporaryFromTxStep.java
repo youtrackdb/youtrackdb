@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,28 +25,28 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   private Object order;
 
-  public FetchTemporaryFromTxStep(OCommandContext ctx, String className, boolean profilingEnabled) {
+  public FetchTemporaryFromTxStep(CommandContext ctx, String className, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.className = className;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
     Iterator<Record> data;
     data = init(ctx);
-    return OExecutionStream.iterator(data).map(this::setContext);
+    return ExecutionStream.iterator(data).map(this::setContext);
   }
 
-  private YTResult setContext(YTResult result, OCommandContext context) {
+  private YTResult setContext(YTResult result, CommandContext context) {
     context.setVariable("$current", result);
     return result;
   }
 
-  private Iterator<Record> init(OCommandContext ctx) {
+  private Iterator<Record> init(CommandContext ctx) {
     Iterable<? extends ORecordOperation> iterable =
         ctx.getDatabase().getTransaction().getRecordOperations();
 
@@ -107,7 +107,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ FETCH NEW RECORDS FROM CURRENT TRANSACTION SCOPE (if any)");
@@ -119,7 +119,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   @Override
   public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("className", className);
     return result;
   }
@@ -127,7 +127,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   @Override
   public void deserialize(YTResult fromResult) {
     try {
-      OExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this);
       className = fromResult.getProperty("className");
     } catch (Exception e) {
       throw YTException.wrapException(new YTCommandExecutionException(""), e);
@@ -140,7 +140,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new FetchTemporaryFromTxStep(ctx, this.className, profilingEnabled);
   }
 }

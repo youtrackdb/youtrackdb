@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.OMetadataUpdateListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.OSchemaShared;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
@@ -73,7 +73,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
    * @return a statement executor from the cache
    */
   public static OExecutionPlan get(
-      String statement, OCommandContext ctx, YTDatabaseSessionInternal db) {
+      String statement, CommandContext ctx, YTDatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }
@@ -109,7 +109,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
 
     synchronized (map) {
       OInternalExecutionPlan internal = (OInternalExecutionPlan) plan;
-      OBasicCommandContext ctx = new OBasicCommandContext();
+      BasicCommandContext ctx = new BasicCommandContext();
       ctx.setDatabase(db);
       internal = internal.copy(ctx);
       // this copy is never used, so it has to be closed to free resources
@@ -124,7 +124,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
    * @return the corresponding executor, taking it from the internal cache, if it exists
    */
   public OExecutionPlan getInternal(
-      String statement, OCommandContext ctx, YTDatabaseSessionInternal db) {
+      String statement, CommandContext ctx, YTDatabaseSessionInternal db) {
     OInternalExecutionPlan result;
 
     long currentGlobalTimeout =

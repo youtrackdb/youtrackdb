@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.compression;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.compression.impl.OGZIPCompression;
 import com.jetbrains.youtrack.db.internal.core.compression.impl.OHighZIPCompression;
 import com.jetbrains.youtrack.db.internal.core.compression.impl.OLowZIPCompression;
@@ -107,7 +107,7 @@ public class OCompressionFactory {
 
       compressions.put(name, compression);
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Cannot register storage compression algorithm '%s'", e, compression);
     }
   }
@@ -135,7 +135,7 @@ public class OCompressionFactory {
 
       compressionClasses.put(name, compression);
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Cannot register storage compression algorithm '%s'", e, compression);
     }
   }

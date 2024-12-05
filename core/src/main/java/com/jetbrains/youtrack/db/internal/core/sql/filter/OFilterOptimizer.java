@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class OFilterOptimizer {
 
-  public void optimize(OSQLFilter filter, OIndexSearchResult indexMatch) {
+  public void optimize(SQLFilter filter, OIndexSearchResult indexMatch) {
     filter.setRootCondition(optimize(filter.getRootCondition(), indexMatch));
   }
 

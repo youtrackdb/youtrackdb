@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OResultMapper;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ResultMapper;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateItem;
@@ -21,7 +21,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
   public InsertValuesStep(
       List<OIdentifier> identifierList,
       List<List<OExpression>> valueExpressions,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.identifiers = identifierList;
@@ -29,17 +29,17 @@ public class InsertValuesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
-    OExecutionStream upstream = prev.start(ctx);
+    ExecutionStream upstream = prev.start(ctx);
 
     return upstream.map(
-        new OResultMapper() {
+        new ResultMapper() {
 
           private int nextValueSet = 0;
 
           @Override
-          public YTResult map(YTResult result, OCommandContext ctx) {
+          public YTResult map(YTResult result, CommandContext ctx) {
             if (!(result instanceof YTResultInternal)) {
               if (!result.isEntity()) {
                 throw new YTCommandExecutionException(
@@ -72,7 +72,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ SET VALUES \n");

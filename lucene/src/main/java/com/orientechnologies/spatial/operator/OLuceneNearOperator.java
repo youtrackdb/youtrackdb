@@ -14,8 +14,7 @@
 package com.orientechnologies.spatial.operator;
 
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.orientechnologies.lucene.operator.OLuceneOperatorUtil;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -28,6 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.OIndexSearchResult;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OIndexReuseType;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryTargetOperator;
+import com.orientechnologies.lucene.operator.OLuceneOperatorUtil;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import java.util.List;
@@ -54,7 +54,7 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
 
     List<Number> left = (List<Number>) iLeft;
@@ -93,7 +93,7 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
 
   @Override
   public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
-      OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
+      CommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
 
     double distance = 0;
     Object spatial = iContext.getVariable("spatial");
@@ -147,7 +147,7 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
       YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext context) {
+      CommandContext context) {
     return OLuceneOperatorUtil.buildOIndexSearchResult(
         iSchemaClass, iCondition, iIndexSearchResults, context);
   }

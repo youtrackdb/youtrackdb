@@ -16,8 +16,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.conversion;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.OAbstractSQLMethod;
@@ -45,7 +45,7 @@ public class OSQLMethodAsDateTime extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
     if (iThis != null) {
@@ -58,7 +58,7 @@ public class OSQLMethodAsDateTime extends OAbstractSQLMethod {
           return ODateHelper.getDateTimeFormatInstance(ODatabaseRecordThreadLocal.instance().get())
               .parse(iThis.toString());
         } catch (ParseException e) {
-          OLogManager.instance().error(this, "Error during %s execution", e, NAME);
+          LogManager.instance().error(this, "Error during %s execution", e, NAME);
           // IGNORE IT: RETURN NULL
         }
       }

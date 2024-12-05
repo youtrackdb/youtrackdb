@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,17 +15,17 @@ public class OUpdateExecutionPlan extends OSelectExecutionPlan {
   private final List<YTResult> result = new ArrayList<>();
   private int next = 0;
 
-  public OUpdateExecutionPlan(OCommandContext ctx) {
+  public OUpdateExecutionPlan(CommandContext ctx) {
     super(ctx);
   }
 
   @Override
-  public OExecutionStream start() {
-    return OExecutionStream.resultIterator(result.iterator());
+  public ExecutionStream start() {
+    return ExecutionStream.resultIterator(result.iterator());
   }
 
   @Override
-  public void reset(OCommandContext ctx) {
+  public void reset(CommandContext ctx) {
     result.clear();
     next = 0;
     super.reset(ctx);
@@ -33,7 +33,7 @@ public class OUpdateExecutionPlan extends OSelectExecutionPlan {
   }
 
   public void executeInternal() throws YTCommandExecutionException {
-    OExecutionStream nextBlock = super.start();
+    ExecutionStream nextBlock = super.start();
     while (nextBlock.hasNext(ctx)) {
       result.add(nextBlock.next(ctx));
     }
@@ -49,7 +49,7 @@ public class OUpdateExecutionPlan extends OSelectExecutionPlan {
 
   @Override
   public boolean canBeCached() {
-    for (OExecutionStepInternal step : steps) {
+    for (ExecutionStepInternal step : steps) {
       if (!step.canBeCached()) {
         return false;
       }
@@ -58,7 +58,7 @@ public class OUpdateExecutionPlan extends OSelectExecutionPlan {
   }
 
   @Override
-  public OInternalExecutionPlan copy(OCommandContext ctx) {
+  public OInternalExecutionPlan copy(CommandContext ctx) {
     OUpdateExecutionPlan copy = new OUpdateExecutionPlan(ctx);
     super.copyOn(copy, ctx);
     return copy;

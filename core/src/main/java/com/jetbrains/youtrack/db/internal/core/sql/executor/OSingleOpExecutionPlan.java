@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OSimpleExecStatement;
 import java.util.Collections;
 import java.util.List;
@@ -15,18 +15,18 @@ import java.util.List;
 public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
 
   protected final OSimpleExecStatement statement;
-  private final OCommandContext ctx;
+  private final CommandContext ctx;
 
   private boolean executed = false;
-  private OExecutionStream result;
+  private ExecutionStream result;
 
-  public OSingleOpExecutionPlan(OCommandContext ctx, OSimpleExecStatement stm) {
+  public OSingleOpExecutionPlan(CommandContext ctx, OSimpleExecStatement stm) {
     this.ctx = ctx;
     this.statement = stm;
   }
 
   @Override
-  public OCommandContext getContext() {
+  public CommandContext getContext() {
     return ctx;
   }
 
@@ -35,9 +35,9 @@ public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OExecutionStream start() {
+  public ExecutionStream start() {
     if (executed && result == null) {
-      return OExecutionStream.empty();
+      return ExecutionStream.empty();
     }
     if (!executed) {
       executed = true;
@@ -46,7 +46,7 @@ public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
     return result;
   }
 
-  public void reset(OCommandContext ctx) {
+  public void reset(CommandContext ctx) {
     executed = false;
   }
 
@@ -60,7 +60,7 @@ public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
     return false;
   }
 
-  public OExecutionStream executeInternal(OBasicCommandContext ctx)
+  public ExecutionStream executeInternal(BasicCommandContext ctx)
       throws YTCommandExecutionException {
     if (executed) {
       throw new YTCommandExecutionException(
@@ -72,13 +72,13 @@ public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public List<OExecutionStep> getSteps() {
+  public List<ExecutionStep> getSteps() {
     return Collections.emptyList();
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ " + statement.toString();
     return result;
   }

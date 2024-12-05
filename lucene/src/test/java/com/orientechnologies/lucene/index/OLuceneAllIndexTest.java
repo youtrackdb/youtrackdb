@@ -3,9 +3,9 @@ package com.orientechnologies.lucene.index;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.orientechnologies.lucene.test.BaseLuceneTest;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.orientechnologies.lucene.test.BaseLuceneTest;
 import java.io.IOException;
 import java.util.logging.Level;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -21,8 +21,8 @@ public class OLuceneAllIndexTest extends BaseLuceneTest {
 
   @Before
   public void init() throws IOException {
-    OLogManager.instance().installCustomFormatter();
-    OLogManager.instance().setConsoleLevel(Level.INFO.getName());
+    LogManager.instance().installCustomFormatter();
+    LogManager.instance().setConsoleLevel(Level.INFO.getName());
 
     System.setProperty("youtrackdb.test.env", "ci");
 

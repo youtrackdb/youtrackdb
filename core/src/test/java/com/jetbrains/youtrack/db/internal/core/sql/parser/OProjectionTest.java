@@ -20,9 +20,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OrientSql;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.Assert;

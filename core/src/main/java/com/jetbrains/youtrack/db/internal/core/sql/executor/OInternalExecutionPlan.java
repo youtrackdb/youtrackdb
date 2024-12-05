@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
  *
@@ -20,11 +20,11 @@ public interface OInternalExecutionPlan extends OExecutionPlan {
    *
    * @return
    */
-  OExecutionStream start();
+  ExecutionStream start();
 
-  void reset(OCommandContext ctx);
+  void reset(CommandContext ctx);
 
-  OCommandContext getContext();
+  CommandContext getContext();
 
   long getCost();
 
@@ -36,7 +36,7 @@ public interface OInternalExecutionPlan extends OExecutionPlan {
     throw new UnsupportedOperationException();
   }
 
-  default OInternalExecutionPlan copy(OCommandContext ctx) {
+  default OInternalExecutionPlan copy(CommandContext ctx) {
     throw new UnsupportedOperationException();
   }
 

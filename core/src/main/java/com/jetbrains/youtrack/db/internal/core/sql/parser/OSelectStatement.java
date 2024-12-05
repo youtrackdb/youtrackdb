@@ -6,8 +6,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
@@ -284,9 +284,9 @@ public class OSelectStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -311,8 +311,8 @@ public class OSelectStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -329,7 +329,7 @@ public class OSelectStatement extends OStatement {
     return result;
   }
 
-  public OInternalExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     OSelectExecutionPlanner planner = new OSelectExecutionPlanner(this);
     OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, true);
     result.setStatement(this.originalStatement);
@@ -338,7 +338,7 @@ public class OSelectStatement extends OStatement {
   }
 
   public OInternalExecutionPlan createExecutionPlanNoCache(
-      OCommandContext ctx, boolean enableProfiling) {
+      CommandContext ctx, boolean enableProfiling) {
     OSelectExecutionPlanner planner = new OSelectExecutionPlanner(this);
     OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, false);
     result.setStatement(this.originalStatement);

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -426,7 +426,7 @@ public class OSecurityEngine {
           .executeNoAuthorizationSync(
               sessionInternal,
               (db -> {
-                OBasicCommandContext ctx = new OBasicCommandContext();
+                BasicCommandContext ctx = new BasicCommandContext();
                 ctx.setDatabase(db);
                 ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecordSilently());
 
@@ -457,7 +457,7 @@ public class OSecurityEngine {
           .executeNoAuthorizationAsync(
               session.getName(),
               (db -> {
-                OBasicCommandContext ctx = new OBasicCommandContext();
+                BasicCommandContext ctx = new BasicCommandContext();
                 ctx.setDatabase(db);
                 ctx.setDynamicVariable(
                     "$currentUser",

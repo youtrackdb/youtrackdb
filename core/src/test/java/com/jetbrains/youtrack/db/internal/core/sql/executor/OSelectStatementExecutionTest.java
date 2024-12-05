@@ -4,7 +4,7 @@ import static com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -2954,7 +2954,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     }
     Assert.assertFalse(result.hasNext());
     boolean orderStepFound = false;
-    for (OExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3000,7 +3000,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     boolean orderStepFound = false;
-    for (OExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3044,7 +3044,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     boolean orderStepFound = false;
-    for (OExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3088,7 +3088,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     boolean orderStepFound = false;
-    for (OExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3132,7 +3132,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     boolean orderStepFound = false;
-    for (OExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3182,7 +3182,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     boolean orderStepFound = false;
-    for (OExecutionStep step : result.getExecutionPlan().get().getSteps()) {
+    for (ExecutionStep step : result.getExecutionPlan().get().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -4404,7 +4404,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
                   YTIdentifiable iCurrentRecord,
                   Object iCurrentResult,
                   Object[] iParams,
-                  OCommandContext iContext) {
+                  CommandContext iContext) {
                 try {
                   Thread.sleep(5);
                 } catch (InterruptedException e) {

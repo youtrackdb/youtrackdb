@@ -1,11 +1,11 @@
 package com.orientechnologies.lucene.functions;
 
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import org.apache.lucene.index.memory.MemoryIndex;
 
 /**
@@ -15,13 +15,13 @@ public class OLuceneFunctionsUtils {
 
   public static final String MEMORY_INDEX = "_memoryIndex";
 
-  protected static OLuceneFullTextIndex searchForIndex(OExpression[] args, OCommandContext ctx) {
+  protected static OLuceneFullTextIndex searchForIndex(OExpression[] args, CommandContext ctx) {
     final String indexName = (String) args[0].execute((YTIdentifiable) null, ctx);
     return getLuceneFullTextIndex(ctx, indexName);
   }
 
   protected static OLuceneFullTextIndex getLuceneFullTextIndex(
-      final OCommandContext ctx, final String indexName) {
+      final CommandContext ctx, final String indexName) {
     final YTDatabaseSessionInternal documentDatabase = ctx.getDatabase();
     documentDatabase.activateOnCurrentThread();
     final OMetadataInternal metadata = documentDatabase.getMetadata();
@@ -35,7 +35,7 @@ public class OLuceneFunctionsUtils {
     return index;
   }
 
-  public static MemoryIndex getOrCreateMemoryIndex(OCommandContext ctx) {
+  public static MemoryIndex getOrCreateMemoryIndex(CommandContext ctx) {
     MemoryIndex memoryIndex = (MemoryIndex) ctx.getVariable(MEMORY_INDEX);
     if (memoryIndex == null) {
       memoryIndex = new MemoryIndex();

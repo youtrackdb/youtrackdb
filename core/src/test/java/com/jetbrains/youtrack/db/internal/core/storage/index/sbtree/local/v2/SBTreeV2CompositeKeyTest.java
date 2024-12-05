@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,14 +33,14 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
   @Before
   public void beforeMethod() throws Exception {
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
+        ((AbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     //noinspection deprecation
     localSBTree =
         new OSBTreeV2<>(
             "localSBTreeCompositeKeyTest",
             ".sbt",
             ".nbt",
-            (OAbstractPaginatedStorage) db.getStorage());
+            (AbstractPaginatedStorage) db.getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->

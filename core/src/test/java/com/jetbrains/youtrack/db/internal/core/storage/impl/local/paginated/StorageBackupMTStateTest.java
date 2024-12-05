@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.OReadersWriterSpinLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.YTModificationOperationProhibitedException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.OPartitionedDatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
@@ -19,7 +19,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class StorageBackupMTStateTest {
   private File backupDir;
   private volatile boolean stop = false;
 
-  private volatile OPartitionedDatabasePool pool;
+  private volatile PartitionedDatabasePool pool;
 
   @Test
   @Ignore
@@ -70,15 +70,15 @@ public class StorageBackupMTStateTest {
 
     System.out.println("Clean up old data");
 
-    OFileUtils.deleteRecursively(new File(dbDirectory));
+    FileUtils.deleteRecursively(new File(dbDirectory));
 
     final String backedUpDbDirectory =
         buildDirectory + File.separator + StorageBackupMTStateTest.class.getSimpleName() + "BackUp";
-    OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
+    FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
     backupDir =
         new File(buildDirectory, StorageBackupMTStateTest.class.getSimpleName() + "BackupDir");
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
 
     if (!backupDir.exists()) {
       Assert.assertTrue(backupDir.mkdirs());
@@ -99,7 +99,7 @@ public class StorageBackupMTStateTest {
 
     databaseDocumentTx.close();
 
-    pool = new OPartitionedDatabasePool(dbURL, "admin", "admin");
+    pool = new PartitionedDatabasePool(dbURL, "admin", "admin");
 
     System.out.println("Start data modification");
     final ExecutorService executor = Executors.newFixedThreadPool(5);
@@ -157,7 +157,7 @@ public class StorageBackupMTStateTest {
     databaseDocumentTx.open("admin", "admin");
     databaseDocumentTx.incrementalBackup(backupDir.getAbsolutePath());
 
-    OStorage storage = databaseDocumentTx.getStorage();
+    Storage storage = databaseDocumentTx.getStorage();
     databaseDocumentTx.close();
 
     storage.shutdown();
@@ -167,7 +167,7 @@ public class StorageBackupMTStateTest {
         new YTDatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final OStorage backupStorage = backedUpDb.getStorage();
+    final Storage backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
     backupStorage.shutdown();
@@ -197,7 +197,7 @@ public class StorageBackupMTStateTest {
     backedUpDb.open("admin", "admin");
     backedUpDb.drop();
 
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
   }
 
   private YTClass createClass(YTSchema schema, YTDatabaseSession db) {

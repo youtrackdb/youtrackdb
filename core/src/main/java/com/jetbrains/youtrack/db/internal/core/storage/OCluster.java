@@ -38,7 +38,7 @@ public interface OCluster {
 
   void configure(int iId, String iClusterName) throws IOException;
 
-  void configure(OStorage iStorage, OStorageClusterConfiguration iConfig) throws IOException;
+  void configure(Storage iStorage, OStorageClusterConfiguration iConfig) throws IOException;
 
   void create(OAtomicOperation atomicOperation) throws IOException;
 

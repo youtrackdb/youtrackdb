@@ -19,7 +19,7 @@
 package com.orientechnologies.lucene.tx;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
     try {
       return new IndexSearcher(DirectoryReader.open(writer, true, true));
     } catch (IOException e) {
-      //      OLogManager.instance().error(this, "Error during searcher index instantiation on new
+      //      LogManager.instance().error(this, "Error during searcher index instantiation on new
       // documents", e);
       throw YTException.wrapException(
           new YTLuceneIndexException("Error during searcher index instantiation on new documents"),
@@ -68,7 +68,7 @@ public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
       final TopDocs search = indexSearcher.search(query, Integer.MAX_VALUE);
       return search.totalHits;
     } catch (IOException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Error during searcher index instantiation on deleted documents ", e);
     }
     return 0;

@@ -13,7 +13,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -117,7 +117,7 @@ public class LocalPaginatedStorageRestoreTx {
 
     Thread.sleep(1500);
     copyDataFromTestWithoutClose();
-    OStorage storage = baseDocumentTx.getStorage();
+    Storage storage = baseDocumentTx.getStorage();
     baseDocumentTx.close();
     storage.close(baseDocumentTx);
 

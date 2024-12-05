@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
  *
@@ -21,8 +21,8 @@ public class SubQueryStep extends AbstractExecutionStep {
    */
   public SubQueryStep(
       OInternalExecutionPlan subExecutionPlan,
-      OCommandContext ctx,
-      OCommandContext subCtx,
+      CommandContext ctx,
+      CommandContext subCtx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
 
@@ -31,16 +31,16 @@ public class SubQueryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    OExecutionStream parentRs = subExecuitonPlan.start();
+    ExecutionStream parentRs = subExecuitonPlan.start();
     return parentRs.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, CommandContext ctx) {
     ctx.setVariable("$current", result);
     return result;
   }
@@ -48,7 +48,7 @@ public class SubQueryStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     StringBuilder builder = new StringBuilder();
-    String ind = OExecutionStepInternal.getIndent(depth, indent);
+    String ind = ExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
     builder.append("+ FETCH FROM SUBQUERY \n");
     builder.append(subExecuitonPlan.prettyPrint(depth + 1, indent));
@@ -61,7 +61,7 @@ public class SubQueryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new SubQueryStep(subExecuitonPlan.copy(ctx), ctx, ctx, profilingEnabled);
   }
 }

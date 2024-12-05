@@ -11,10 +11,10 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.Locale;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,13 +30,13 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     Assert.assertNull(oClass.getShortName());
     Assert.assertNull(queryShortName());
 
-    final OStorage storage = db.getStorage();
+    final Storage storage = db.getStorage();
 
-    if (storage instanceof OAbstractPaginatedStorage paginatedStorage) {
+    if (storage instanceof AbstractPaginatedStorage paginatedStorage) {
       final OWriteCache writeCache = paginatedStorage.getWriteCache();
       Assert.assertTrue(
           writeCache.exists(
-              SHORTNAME_CLASS_NAME.toLowerCase(Locale.ENGLISH) + OPaginatedCluster.DEF_EXTENSION));
+              SHORTNAME_CLASS_NAME.toLowerCase(Locale.ENGLISH) + PaginatedCluster.DEF_EXTENSION));
     }
 
     String shortName = "shortname";
@@ -83,20 +83,20 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     YTSchema schema = db.getMetadata().getSchema();
     YTClass oClass = schema.createClass("ClassName");
 
-    final OStorage storage = db.getStorage();
-    final OAbstractPaginatedStorage paginatedStorage = (OAbstractPaginatedStorage) storage;
+    final Storage storage = db.getStorage();
+    final AbstractPaginatedStorage paginatedStorage = (AbstractPaginatedStorage) storage;
     final OWriteCache writeCache = paginatedStorage.getWriteCache();
-    Assert.assertTrue(writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
+    Assert.assertTrue(writeCache.exists("classname" + PaginatedCluster.DEF_EXTENSION));
 
     oClass.setName(db, "ClassNameNew");
 
-    assertFalse(writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
-    Assert.assertTrue(writeCache.exists("classnamenew" + OPaginatedCluster.DEF_EXTENSION));
+    assertFalse(writeCache.exists("classname" + PaginatedCluster.DEF_EXTENSION));
+    Assert.assertTrue(writeCache.exists("classnamenew" + PaginatedCluster.DEF_EXTENSION));
 
     oClass.setName(db, "ClassName");
 
-    assertFalse(writeCache.exists("classnamenew" + OPaginatedCluster.DEF_EXTENSION));
-    Assert.assertTrue(writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
+    assertFalse(writeCache.exists("classnamenew" + PaginatedCluster.DEF_EXTENSION));
+    Assert.assertTrue(writeCache.exists("classname" + PaginatedCluster.DEF_EXTENSION));
   }
 
   @Test
@@ -124,17 +124,17 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
     classOne.setName(db, "ClassThree");
 
-    final OStorage storage = db.getStorage();
-    final OAbstractPaginatedStorage paginatedStorage = (OAbstractPaginatedStorage) storage;
+    final Storage storage = db.getStorage();
+    final AbstractPaginatedStorage paginatedStorage = (AbstractPaginatedStorage) storage;
     final OWriteCache writeCache = paginatedStorage.getWriteCache();
 
-    Assert.assertTrue(writeCache.exists("classone" + OPaginatedCluster.DEF_EXTENSION));
+    Assert.assertTrue(writeCache.exists("classone" + PaginatedCluster.DEF_EXTENSION));
 
     assertEquals(db.countClass("ClassTwo"), 2);
     assertEquals(db.countClass("ClassThree"), 1);
 
     classOne.setName(db, "ClassOne");
-    Assert.assertTrue(writeCache.exists("classone" + OPaginatedCluster.DEF_EXTENSION));
+    Assert.assertTrue(writeCache.exists("classone" + PaginatedCluster.DEF_EXTENSION));
 
     assertEquals(db.countClass("ClassTwo"), 2);
     assertEquals(db.countClass("ClassOne"), 1);

@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLCreateIndex;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collections;
 import java.util.List;
@@ -218,7 +218,7 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     ddl.append(indexType);
 
     if (engine != null) {
-      ddl.append(' ').append(OCommandExecutorSQLCreateIndex.KEYWORD_ENGINE + " ").append(engine);
+      ddl.append(' ').append(CommandExecutorSQLCreateIndex.KEYWORD_ENGINE + " ").append(engine);
     }
     return ddl;
   }

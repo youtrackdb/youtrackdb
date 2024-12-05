@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ODecimalSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
@@ -47,11 +47,11 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordFlat;
 import com.jetbrains.youtrack.db.internal.core.serialization.ODocumentSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.OSerializableStream;
@@ -933,7 +933,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         deserialize(db, (EntityImpl) iRecord, container);
       }
     } catch (RuntimeException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Error deserializing record with id %s send this data for debugging: %s ",
@@ -994,7 +994,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     try {
       return getFieldNames(db, reference, container);
     } catch (RuntimeException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Error deserializing record to get field-names, send this data for debugging: %s ",

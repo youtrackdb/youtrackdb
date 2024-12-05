@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
@@ -48,7 +48,7 @@ public class IndexSearchDescriptor {
     this.remainingCondition = null;
   }
 
-  public int cost(OCommandContext ctx) {
+  public int cost(CommandContext ctx) {
     OQueryStats stats = OQueryStats.get(ctx.getDatabase());
 
     String indexName = index.getName();

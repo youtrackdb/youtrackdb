@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -104,7 +104,7 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, Object result, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, Object result, CommandContext ctx) {
     if (ctx.getVariable("$current") == null) {
       ctx.setVariable("$current", iCurrentRecord);
     }
@@ -127,7 +127,7 @@ public class OModifier extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTResult iCurrentRecord, Object result, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, Object result, CommandContext ctx) {
     if (ctx.getVariable("$current") == null) {
       ctx.setVariable("$current", iCurrentRecord);
     }
@@ -150,7 +150,7 @@ public class OModifier extends SimpleNode {
     return result;
   }
 
-  private Object filterByCondition(Object iResult, OCommandContext ctx) {
+  private Object filterByCondition(Object iResult, CommandContext ctx) {
     if (iResult == null) {
       return null;
     }
@@ -312,7 +312,7 @@ public class OModifier extends SimpleNode {
   }
 
   protected void setValue(YTResult currentRecord, Object target, Object value,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     if (next == null) {
       doSetValue(currentRecord, target, value, ctx);
     } else {
@@ -324,7 +324,7 @@ public class OModifier extends SimpleNode {
   }
 
   private void doSetValue(YTResult currentRecord, Object target, Object value,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     value = OUpdateItem.convertResultToDocument(value);
     value = OUpdateItem.cleanValue(value);
     if (methodCall != null) {
@@ -345,7 +345,7 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  private Object calculateLocal(YTResult currentRecord, Object target, OCommandContext ctx) {
+  private Object calculateLocal(YTResult currentRecord, Object target, CommandContext ctx) {
     if (methodCall != null) {
       return methodCall.execute(target, ctx);
     } else if (suffix != null) {
@@ -379,7 +379,7 @@ public class OModifier extends SimpleNode {
   }
 
   public void applyRemove(
-      Object currentValue, YTResultInternal originalRecord, OCommandContext ctx) {
+      Object currentValue, YTResultInternal originalRecord, CommandContext ctx) {
     if (next != null) {
       Object val = calculateLocal(originalRecord, currentValue, ctx);
       next.applyRemove(val, originalRecord, ctx);
@@ -480,7 +480,7 @@ public class OModifier extends SimpleNode {
     return next == null || next.isCacheable(session);
   }
 
-  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
       YTProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
       if (prop != null

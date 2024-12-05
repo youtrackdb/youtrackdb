@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +17,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   private final long maxElementsAllowed;
 
-  public DistinctExecutionStep(OCommandContext ctx, boolean profilingEnabled) {
+  public DistinctExecutionStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     YTDatabaseSession db = ctx == null ? null : ctx.getDatabase();
 
@@ -29,9 +29,9 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
-    OExecutionStream resultSet = prev.start(ctx);
+    ExecutionStream resultSet = prev.start(ctx);
     Set<YTResult> pastItems = new HashSet<>();
     ORidSet pastRids = new ORidSet();
 
@@ -94,7 +94,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = OExecutionStepInternal.getIndent(depth, indent) + "+ DISTINCT";
+    String result = ExecutionStepInternal.getIndent(depth, indent) + "+ DISTINCT";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }

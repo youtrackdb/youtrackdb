@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OProduceExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 
 /**
  *
@@ -12,28 +12,28 @@ public class CreateRecordStep extends AbstractExecutionStep {
 
   private int total = 0;
 
-  public CreateRecordStep(OCommandContext ctx, int total, boolean profilingEnabled) {
+  public CreateRecordStep(CommandContext ctx, int total, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.total = total;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(CreateRecordStep::produce).limit(total);
+    return new ProduceExecutionStream(CreateRecordStep::produce).limit(total);
   }
 
-  private static YTResult produce(OCommandContext ctx) {
+  private static YTResult produce(CommandContext ctx) {
     var db = ctx.getDatabase();
     return new YTUpdatableResult(db, db.newInstance());
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ CREATE EMPTY RECORDS");

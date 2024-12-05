@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -42,7 +42,7 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
       final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
       final Object[] iParameters,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
 
     YTDatabaseSession db =
         iContext != null

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.operationsfreezer;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.types.OModifiableInteger;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.lang.reflect.Constructor;
@@ -126,7 +126,7 @@ public final class OperationsFreezer {
                  | NoSuchMethodException
                  | SecurityException
                  | InvocationTargetException ie) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "Can not create instance of exception "
@@ -146,7 +146,7 @@ public final class OperationsFreezer {
       //noinspection deprecation
       throw freezeParameters.exceptionClass.newInstance();
     } catch (InstantiationException | IllegalAccessException ie) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Can not create instance of exception "

@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinaryTypeSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OBooleanSerializer;
@@ -155,7 +155,7 @@ public class OBinarySerializerFactory {
         try {
           impl = cls.newInstance();
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "Cannot create an instance of class %s invoking the empty constructor",

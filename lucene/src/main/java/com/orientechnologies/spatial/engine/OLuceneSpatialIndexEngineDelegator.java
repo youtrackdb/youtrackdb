@@ -16,9 +16,6 @@ package com.orientechnologies.spatial.engine;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.lucene.query.OLuceneQueryContext;
-import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -30,8 +27,11 @@ import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
+import com.orientechnologies.lucene.query.OLuceneQueryContext;
+import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import java.io.IOException;
 import java.util.Set;
@@ -49,12 +49,12 @@ import org.apache.lucene.spatial.SpatialStrategy;
 public class OLuceneSpatialIndexEngineDelegator
     implements OLuceneIndexEngine, OLuceneSpatialIndexContainer {
 
-  private final OStorage storage;
+  private final Storage storage;
   private final String indexName;
   private OLuceneSpatialIndexEngineAbstract delegate;
   private final int id;
 
-  public OLuceneSpatialIndexEngineDelegator(int id, String name, OStorage storage, int version) {
+  public OLuceneSpatialIndexEngineDelegator(int id, String name, Storage storage, int version) {
     this.id = id;
 
     this.indexName = name;

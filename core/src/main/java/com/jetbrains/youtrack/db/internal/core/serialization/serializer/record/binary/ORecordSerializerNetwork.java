@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
@@ -87,7 +87,7 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
         serializerByVersion[iSource[0]].deserialize(db, (EntityImpl) iRecord, container);
       }
     } catch (RuntimeException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Error deserializing record with id %s send this data for debugging: %s ",
@@ -155,7 +155,7 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
     try {
       return serializerByVersion[iSource[0]].getFieldNames(reference, container, false);
     } catch (RuntimeException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Error deserializing record to get field-names, send this data for debugging: %s ",

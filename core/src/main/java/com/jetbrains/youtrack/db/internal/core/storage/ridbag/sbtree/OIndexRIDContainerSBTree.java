@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.OSBTreeMapEntryIterator;
@@ -61,7 +61,7 @@ public class OIndexRIDContainerSBTree implements Set<YTIdentifiable> {
   private final OSBTreeBonsaiLocal<YTIdentifiable, Boolean> tree;
   private final OAtomicOperationsManager atomicOperationsManager;
 
-  OIndexRIDContainerSBTree(long fileId, OAbstractPaginatedStorage storage) {
+  OIndexRIDContainerSBTree(long fileId, AbstractPaginatedStorage storage) {
     String fileName;
 
     atomicOperationsManager = storage.getAtomicOperationsManager();
@@ -87,7 +87,7 @@ public class OIndexRIDContainerSBTree implements Set<YTIdentifiable> {
   }
 
   public OIndexRIDContainerSBTree(
-      long fileId, OBonsaiBucketPointer rootPointer, OAbstractPaginatedStorage storage) {
+      long fileId, OBonsaiBucketPointer rootPointer, AbstractPaginatedStorage storage) {
     String fileName;
 
     atomicOperationsManager = storage.getAtomicOperationsManager();

@@ -36,11 +36,11 @@ import com.jetbrains.youtrack.db.internal.core.index.comparator.OAlwaysLessKey;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.iterator.OEmptyIterator;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.OSBTree;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import java.io.IOException;
@@ -88,7 +88,7 @@ import java.util.stream.StreamSupport;
  *
  * @since 8/7/13
  */
-public final class OSBTreeV1<K, V> extends ODurableComponent
+public final class OSBTreeV1<K, V> extends DurableComponent
     implements OSBTree<K, V> {
 
   private static final int MAX_KEY_SIZE =
@@ -118,7 +118,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
       final String name,
       final String dataFileExtension,
       final String nullFileExtension,
-      final OAbstractPaginatedStorage storage) {
+      final AbstractPaginatedStorage storage) {
     super(storage, name, dataFileExtension, name + dataFileExtension);
     acquireExclusiveLock();
     try {

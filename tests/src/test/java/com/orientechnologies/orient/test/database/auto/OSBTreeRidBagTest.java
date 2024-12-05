@@ -18,6 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.orientechnologies.orient.client.remote.OEngineRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
@@ -25,7 +26,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.engine.memory.OEngineMemory;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.local.OWOWCache;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
 import java.io.File;
 import java.io.IOException;
@@ -121,7 +121,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     final String directory = database.getStorage().getConfiguration().getDirectory();
 
     final OWOWCache wowCache =
-        (OWOWCache) ((OLocalPaginatedStorage) (database.getStorage())).getWriteCache();
+        (OWOWCache) ((LocalPaginatedStorage) (database.getStorage())).getWriteCache();
 
     final long fileId =
         wowCache.fileIdByName(

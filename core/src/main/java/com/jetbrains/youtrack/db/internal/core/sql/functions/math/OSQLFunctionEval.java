@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -36,7 +36,7 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
 
   public static final String NAME = "eval";
 
-  private OSQLPredicate predicate;
+  private SQLPredicate predicate;
 
   public OSQLFunctionEval() {
     super(NAME, 1, 1);
@@ -47,12 +47,12 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
       final YTIdentifiable iRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      @Nonnull OCommandContext iContext) {
+      @Nonnull CommandContext iContext) {
     if (iParams.length < 1) {
       throw new YTCommandExecutionException("invalid ");
     }
     if (predicate == null) {
-      predicate = new OSQLPredicate(iContext, String.valueOf(iParams[0]));
+      predicate = new SQLPredicate(iContext, String.valueOf(iParams[0]));
     }
 
     final EntityImpl currentResult =
@@ -61,11 +61,11 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
       return predicate.evaluate(
           iRecord != null ? iRecord.getRecord() : null, currentResult, iContext);
     } catch (ArithmeticException e) {
-      OLogManager.instance().error(this, "Division by 0", e);
+      LogManager.instance().error(this, "Division by 0", e);
       // DIVISION BY 0
       return 0;
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Error during division", e);
+      LogManager.instance().error(this, "Error during division", e);
       return null;
     }
   }

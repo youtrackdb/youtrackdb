@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageConfigurationImpl;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -36,7 +36,7 @@ public class OStorageMemoryConfiguration extends OStorageConfigurationImpl {
 
   private byte[] serializedContent;
 
-  public OStorageMemoryConfiguration(OAbstractPaginatedStorage iStorage) {
+  public OStorageMemoryConfiguration(AbstractPaginatedStorage iStorage) {
     super(iStorage, StandardCharsets.UTF_8);
   }
 

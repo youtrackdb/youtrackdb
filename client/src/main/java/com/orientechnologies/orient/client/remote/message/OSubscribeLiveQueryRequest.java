@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
-import com.orientechnologies.orient.client.remote.OStorageRemote;
+import com.orientechnologies.orient.client.remote.StorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
@@ -32,7 +32,7 @@ public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLive
 
   public OSubscribeLiveQueryRequest(String query, Object[] params) {
     this.query = query;
-    this.params = OStorageRemote.paramsArrayToParamsMap(params);
+    this.params = StorageRemote.paramsArrayToParamsMap(params);
     this.namedParams = false;
   }
 

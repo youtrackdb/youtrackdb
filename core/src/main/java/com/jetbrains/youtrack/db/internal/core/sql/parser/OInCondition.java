@@ -3,8 +3,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OIndexSearchInfo;
@@ -43,7 +43,7 @@ public class OInCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     Object leftVal = evaluateLeft(currentRecord, ctx);
     Object rightVal = evaluateRight(currentRecord, ctx);
     if (rightVal == null) {
@@ -52,7 +52,7 @@ public class OInCondition extends OBooleanExpression {
     return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
-  public Object evaluateRight(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public Object evaluateRight(YTIdentifiable currentRecord, CommandContext ctx) {
     Object rightVal = null;
     if (rightStatement != null) {
       rightVal = executeQuery(rightStatement, ctx);
@@ -64,12 +64,12 @@ public class OInCondition extends OBooleanExpression {
     return rightVal;
   }
 
-  public Object evaluateLeft(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public Object evaluateLeft(YTIdentifiable currentRecord, CommandContext ctx) {
     return left.execute(currentRecord, ctx);
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
     Object rightVal = evaluateRight(currentRecord, ctx);
     if (rightVal == null) {
       return false;
@@ -87,7 +87,7 @@ public class OInCondition extends OBooleanExpression {
     return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
-  private boolean evaluateAny(YTResult currentRecord, Object rightVal, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, Object rightVal, CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       if (evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
@@ -98,7 +98,7 @@ public class OInCondition extends OBooleanExpression {
   }
 
   private boolean evaluateAllFunction(YTResult currentRecord, Object rightVal,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       if (!evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
@@ -108,7 +108,7 @@ public class OInCondition extends OBooleanExpression {
     return true;
   }
 
-  public Object evaluateRight(YTResult currentRecord, OCommandContext ctx) {
+  public Object evaluateRight(YTResult currentRecord, CommandContext ctx) {
     Object rightVal = null;
     if (rightStatement != null) {
       rightVal = executeQuery(rightStatement, ctx);
@@ -120,12 +120,12 @@ public class OInCondition extends OBooleanExpression {
     return rightVal;
   }
 
-  public Object evaluateLeft(YTResult currentRecord, OCommandContext ctx) {
+  public Object evaluateLeft(YTResult currentRecord, CommandContext ctx) {
     return left.execute(currentRecord, ctx);
   }
 
-  protected static Object executeQuery(OSelectStatement rightStatement, OCommandContext ctx) {
-    OBasicCommandContext subCtx = new OBasicCommandContext();
+  protected static Object executeQuery(OSelectStatement rightStatement, CommandContext ctx) {
+    BasicCommandContext subCtx = new BasicCommandContext();
     subCtx.setParentWithoutOverridingChild(ctx);
     YTResultSet result = rightStatement.execute(ctx.getDatabase(), ctx.getInputParameters(), false);
     return result.stream().collect(Collectors.toSet());
@@ -443,7 +443,7 @@ public class OInCondition extends OBooleanExpression {
     return false;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
     Optional<OPath> path = left.getPath();
     if (path.isPresent()) {
       if (rightMathExpression != null && rightMathExpression.isEarlyCalculated(ctx)) {

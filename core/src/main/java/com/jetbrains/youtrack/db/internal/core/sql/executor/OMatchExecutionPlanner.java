@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.util.OPairLongObject;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -103,7 +103,7 @@ public class OMatchExecutionPlanner {
   }
 
   public OInternalExecutionPlan createExecutionPlan(
-      OCommandContext context, boolean enableProfiling) {
+      CommandContext context, boolean enableProfiling) {
 
     buildPatterns(context);
     splitDisjointPatterns(context);
@@ -138,8 +138,8 @@ public class OMatchExecutionPlanner {
       OInternalExecutionPlan plan =
           createPlanForPattern(
               pattern, context, estimatedRootEntries, aliasesToPrefetch, enableProfiling);
-      for (OExecutionStep step : plan.getSteps()) {
-        result.chain((OExecutionStepInternal) step);
+      for (ExecutionStep step : plan.getSteps()) {
+        result.chain((ExecutionStepInternal) step);
       }
     }
 
@@ -225,7 +225,7 @@ public class OMatchExecutionPlanner {
       OSelectExecutionPlan result,
       Pattern pattern,
       List<OMatchExpression> notMatchExpressions,
-      OCommandContext context,
+      CommandContext context,
       boolean enableProfiling) {
     for (OMatchExpression exp : notMatchExpressions) {
       if (pattern.aliasToNode.get(exp.getOrigin().getAlias()) == null) {
@@ -264,7 +264,7 @@ public class OMatchExecutionPlanner {
   }
 
   private void addReturnStep(
-      OSelectExecutionPlan result, OCommandContext context, boolean profilingEnabled) {
+      OSelectExecutionPlan result, CommandContext context, boolean profilingEnabled) {
     if (returnElements) {
       result.chain(new ReturnMatchElementsStep(context, profilingEnabled));
     } else if (returnPaths) {
@@ -289,7 +289,7 @@ public class OMatchExecutionPlanner {
 
   private OInternalExecutionPlan createPlanForPattern(
       Pattern pattern,
-      OCommandContext context,
+      CommandContext context,
       Map<String, Long> estimatedRootEntries,
       Set<String> prefetchedAliases,
       boolean profilingEnabled) {
@@ -582,7 +582,7 @@ public class OMatchExecutionPlanner {
     return result;
   }
 
-  private void splitDisjointPatterns(OCommandContext context) {
+  private void splitDisjointPatterns(CommandContext context) {
     if (this.subPatterns != null) {
       return;
     }
@@ -593,7 +593,7 @@ public class OMatchExecutionPlanner {
   private void addStepsFor(
       OSelectExecutionPlan plan,
       EdgeTraversal edge,
-      OCommandContext context,
+      CommandContext context,
       boolean first,
       boolean profilingEnabled) {
     if (first) {
@@ -613,7 +613,7 @@ public class OMatchExecutionPlanner {
         select.getTarget().getItem().setRids(Collections.singletonList(rid));
       }
       select.setWhereClause(where == null ? null : where.copy());
-      OBasicCommandContext subContxt = new OBasicCommandContext();
+      BasicCommandContext subContxt = new BasicCommandContext();
       subContxt.setParentWithoutOverridingChild(context);
       plan.chain(
           new MatchFirstStep(
@@ -633,7 +633,7 @@ public class OMatchExecutionPlanner {
   private void addPrefetchSteps(
       OSelectExecutionPlan result,
       Set<String> aliasesToPrefetch,
-      OCommandContext context,
+      CommandContext context,
       boolean profilingEnabled) {
     for (String alias : aliasesToPrefetch) {
       String targetClass = aliasClasses.get(alias);
@@ -671,7 +671,7 @@ public class OMatchExecutionPlanner {
     return prefetchStm;
   }
 
-  private void buildPatterns(OCommandContext ctx) {
+  private void buildPatterns(CommandContext ctx) {
     if (this.pattern != null) {
       return;
     }
@@ -720,7 +720,7 @@ public class OMatchExecutionPlanner {
       Map<String, String> aliasClasses,
       Map<String, String> aliasClusters,
       Map<String, ORid> aliasRids,
-      OCommandContext context) {
+      CommandContext context) {
     addAliases(expr.getOrigin(), aliasFilters, aliasClasses, aliasClusters, aliasRids, context);
     for (OMatchPathItem item : expr.getItems()) {
       if (item.getFilter() != null) {
@@ -735,7 +735,7 @@ public class OMatchExecutionPlanner {
       Map<String, String> aliasClasses,
       Map<String, String> aliasClusters,
       Map<String, ORid> aliasRids,
-      OCommandContext context) {
+      CommandContext context) {
     String alias = matchFilter.getAlias();
     OWhereClause filter = matchFilter.getFilter();
     if (alias != null) {
@@ -849,7 +849,7 @@ public class OMatchExecutionPlanner {
       Map<String, String> aliasClusters,
       Map<String, ORid> aliasRids,
       Map<String, OWhereClause> aliasFilters,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     Set<String> allAliases = new LinkedHashSet<String>();
     allAliases.addAll(aliasClasses.keySet());
     allAliases.addAll(aliasFilters.keySet());

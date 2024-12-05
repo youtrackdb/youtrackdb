@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -174,6 +174,6 @@ public class OServerCommandPostImportDatabase
   @Override
   public void onMessage(String iText) {
     final String msg = iText.startsWith("\n") ? iText.substring(1) : iText;
-    OLogManager.instance().info(this, msg, OCommonConst.EMPTY_OBJECT_ARRAY);
+    LogManager.instance().info(this, msg, OCommonConst.EMPTY_OBJECT_ARRAY);
   }
 }

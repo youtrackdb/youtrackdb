@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
@@ -28,7 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
  */
 public class OUpdatedRecordsReturnHandler extends ORecordsReturnHandler {
 
-  public OUpdatedRecordsReturnHandler(Object returnExpression, OCommandContext context) {
+  public OUpdatedRecordsReturnHandler(Object returnExpression, CommandContext context) {
     super(returnExpression, context);
   }
 

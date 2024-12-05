@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
 
 /**
@@ -12,19 +12,19 @@ public class LimitExecutionStep extends AbstractExecutionStep {
 
   private final OLimit limit;
 
-  public LimitExecutionStep(OLimit limit, OCommandContext ctx, boolean profilingEnabled) {
+  public LimitExecutionStep(OLimit limit, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.limit = limit;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
     int limitVal = limit.getValue(ctx);
     if (limitVal == -1) {
       return prev.start(ctx);
     }
-    OExecutionStream result = prev.start(ctx);
+    ExecutionStream result = prev.start(ctx);
     return result.limit(limitVal);
   }
 
@@ -41,6 +41,6 @@ public class LimitExecutionStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    return OExecutionStepInternal.getIndent(depth, indent) + "+ LIMIT (" + limit.toString() + ")";
+    return ExecutionStepInternal.getIndent(depth, indent) + "+ LIMIT (" + limit.toString() + ")";
   }
 }

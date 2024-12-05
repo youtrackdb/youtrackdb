@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.method;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.parser.OBaseParser;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.YTCommandExecutorNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -33,14 +33,14 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundExcepti
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemVariable;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionRuntime;
 import java.util.List;
 
@@ -54,7 +54,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
   public Object[] configuredParameters;
   public Object[] runtimeParameters;
 
-  public OSQLMethodRuntime(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public OSQLMethodRuntime(YTDatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iText) {
     super(session, iQueryToParse, iText);
   }
@@ -75,7 +75,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
       final Object iThis,
       final YTIdentifiable iCurrentRecord,
       final Object iCurrentResult,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     if (iThis == null) {
       return null;
     }
@@ -116,15 +116,15 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
                   ((OSQLFilterItemVariable) configuredParameters[i])
                       .getValue((YTIdentifiable) iCurrentResult, iCurrentResult, iContext);
             }
-          } else if (configuredParameters[i] instanceof OCommandSQL) {
+          } else if (configuredParameters[i] instanceof CommandSQL) {
             try {
               runtimeParameters[i] =
-                  ((OCommandSQL) configuredParameters[i]).setContext(iContext)
+                  ((CommandSQL) configuredParameters[i]).setContext(iContext)
                       .execute(iContext.getDatabase());
             } catch (YTCommandExecutorNotFoundException ignore) {
               // TRY WITH SIMPLE CONDITION
-              final String text = ((OCommandSQL) configuredParameters[i]).getText();
-              final OSQLPredicate pred = new OSQLPredicate(iContext, text);
+              final String text = ((CommandSQL) configuredParameters[i]).getText();
+              final SQLPredicate pred = new SQLPredicate(iContext, text);
               runtimeParameters[i] =
                   pred.evaluate(
                       iCurrentRecord instanceof Record ? iCurrentRecord : null,
@@ -133,9 +133,9 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
               // REPLACE ORIGINAL PARAM
               configuredParameters[i] = pred;
             }
-          } else if (configuredParameters[i] instanceof OSQLPredicate) {
+          } else if (configuredParameters[i] instanceof SQLPredicate) {
             runtimeParameters[i] =
-                ((OSQLPredicate) configuredParameters[i])
+                ((SQLPredicate) configuredParameters[i])
                     .evaluate(
                         iCurrentRecord.getRecord(),
                         (iCurrentRecord instanceof EntityImpl ? (EntityImpl) iCurrentResult
@@ -180,7 +180,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
 
   @Override
   public Object getValue(
-      final YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
+      final YTIdentifiable iRecord, Object iCurrentResult, CommandContext iContext) {
     try {
       final EntityImpl current = iRecord != null ? (EntityImpl) iRecord.getRecord() : null;
       return execute(current, current, null, iContext);
@@ -195,7 +195,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
   }
 
   @Override
-  protected void setRoot(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  protected void setRoot(YTDatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iText) {
     final int beginParenthesis = iText.indexOf('(');
 
@@ -221,7 +221,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
   public OSQLMethodRuntime setParameters(YTDatabaseSessionInternal session,
       final Object[] iParameters, final boolean iEvaluate) {
     if (iParameters != null) {
-      var context = new OBasicCommandContext();
+      var context = new BasicCommandContext();
       context.setDatabase(session);
 
       this.configuredParameters = new Object[iParameters.length];

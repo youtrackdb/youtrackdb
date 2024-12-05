@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandExecutorFunction;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandFunction;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorFunction;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandFunction;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.OAbstractScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -41,7 +41,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
     }
     List<OStatement> statements = OSQLEngine.parseScript(script, database);
 
-    OCommandContext scriptContext = new OBasicCommandContext();
+    CommandContext scriptContext = new BasicCommandContext();
     scriptContext.setDatabase(database);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
@@ -61,7 +61,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
     }
     List<OStatement> statements = OSQLEngine.parseScript(script, database);
 
-    OCommandContext scriptContext = new OBasicCommandContext();
+    CommandContext scriptContext = new BasicCommandContext();
     scriptContext.setDatabase(database);
 
     scriptContext.setInputParameters(params);
@@ -69,7 +69,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
     return executeInternal(statements, scriptContext);
   }
 
-  private YTResultSet executeInternal(List<OStatement> statements, OCommandContext scriptContext) {
+  private YTResultSet executeInternal(List<OStatement> statements, CommandContext scriptContext) {
     OScriptExecutionPlan plan = new OScriptExecutionPlan(scriptContext);
 
     plan.setStatement(
@@ -132,10 +132,10 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
 
   @Override
   public Object executeFunction(
-      OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
+      CommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    final OCommandExecutorFunction command = new OCommandExecutorFunction();
-    command.parse(new OCommandFunction(functionName));
+    final CommandExecutorFunction command = new CommandExecutorFunction();
+    command.parse(new CommandFunction(functionName));
     return command.executeInContext(context, iArgs);
   }
 }

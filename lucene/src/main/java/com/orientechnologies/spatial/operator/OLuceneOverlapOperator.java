@@ -14,7 +14,7 @@
 package com.orientechnologies.spatial.operator;
 
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
@@ -40,7 +40,7 @@ public class OLuceneOverlapOperator extends OLuceneSpatialOperator {
 
   @Override
   public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
-      OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
+      CommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     Object key;
     key = keyParams.get(0);
 
@@ -62,7 +62,7 @@ public class OLuceneOverlapOperator extends OLuceneSpatialOperator {
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
     Shape shape = factory.fromDoc((EntityImpl) iLeft);
 

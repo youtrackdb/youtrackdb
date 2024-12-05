@@ -35,8 +35,8 @@ import com.jetbrains.youtrack.db.internal.core.index.multivalue.MultiValuesTrans
 import com.jetbrains.youtrack.db.internal.core.index.multivalue.OMultivalueEntityRemover;
 import com.jetbrains.youtrack.db.internal.core.index.multivalue.OMultivalueIndexKeyUpdaterImpl;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges.OPERATION;
@@ -60,7 +60,7 @@ import java.util.stream.StreamSupport;
  */
 public abstract class OIndexMultiValues extends OIndexAbstract {
 
-  OIndexMultiValues(OIndexMetadata im, final OStorage storage) {
+  OIndexMultiValues(OIndexMetadata im, final Storage storage) {
     super(im, storage);
   }
 
@@ -158,7 +158,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   @Override
-  public void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public void doPut(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key,
       YTRID rid)
       throws OInvalidIndexEngineIdException {
@@ -178,7 +178,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
   private static void doPutV0(
       YTDatabaseSessionInternal session, final int indexId,
-      final OAbstractPaginatedStorage storage,
+      final AbstractPaginatedStorage storage,
       String valueContainerAlgorithm,
       String indexName,
       Object key,
@@ -193,7 +193,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   private static void doPutV1(
-      OAbstractPaginatedStorage storage, int indexId, Object key, YTRID identity)
+      AbstractPaginatedStorage storage, int indexId, Object key, YTRID identity)
       throws OInvalidIndexEngineIdException {
     storage.putRidIndexEntry(indexId, key, identity);
   }
@@ -206,7 +206,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   @Override
-  public boolean doRemove(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public boolean doRemove(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key, YTRID rid)
       throws OInvalidIndexEngineIdException {
     if (apiVersion == 0) {
@@ -221,7 +221,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   private static boolean doRemoveV0(
-      YTDatabaseSessionInternal session, int indexId, OAbstractPaginatedStorage storage, Object key,
+      YTDatabaseSessionInternal session, int indexId, AbstractPaginatedStorage storage, Object key,
       YTIdentifiable value)
       throws OInvalidIndexEngineIdException {
     Set<YTIdentifiable> values;
@@ -240,7 +240,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   private static boolean doRemoveV1(
-      int indexId, OAbstractPaginatedStorage storage, Object key, YTIdentifiable value)
+      int indexId, AbstractPaginatedStorage storage, Object key, YTIdentifiable value)
       throws OInvalidIndexEngineIdException {
     return storage.removeRidIndexEntry(indexId, key, value.getIdentity());
   }

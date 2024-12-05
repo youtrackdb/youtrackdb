@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.IOException;
@@ -18,7 +18,7 @@ public abstract class LocalHashTableV2Base {
 
   private static final int KEYS_COUNT = 1_000_000;
   LocalHashTableV2<Integer, String> localHashTable;
-  protected OAbstractPaginatedStorage storage;
+  protected AbstractPaginatedStorage storage;
 
   @Test
   public void testKeyPut() throws IOException {

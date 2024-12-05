@@ -15,7 +15,7 @@ package com.orientechnologies.spatial;
 
 import static com.orientechnologies.lucene.OLuceneIndexFactory.LUCENE_ALGORITHM;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
@@ -30,7 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.OBaseIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexEngineDelegator;
 import com.orientechnologies.spatial.index.OLuceneSpatialIndex;
 import com.orientechnologies.spatial.shape.OShapeFactory;
@@ -86,7 +86,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public OIndexInternal createIndex(OStorage storage, OIndexMetadata im)
+  public OIndexInternal createIndex(Storage storage, OIndexMetadata im)
       throws YTConfigurationException {
     var metadata = im.getMetadata();
     final String indexType = im.getType();
@@ -118,7 +118,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public OBaseIndexEngine createIndexEngine(OStorage storage, IndexEngineData data) {
+  public OBaseIndexEngine createIndexEngine(Storage storage, IndexEngineData data) {
     return new OLuceneSpatialIndexEngineDelegator(
         data.getIndexId(), data.getName(), storage, data.getVersion());
   }
@@ -148,17 +148,17 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
         return;
       }
 
-      OLogManager.instance().debug(this, "Dropping spatial indexes...");
+      LogManager.instance().debug(this, "Dropping spatial indexes...");
       final YTDatabaseSessionInternal internalDb = db;
       for (OIndex idx : internalDb.getMetadata().getIndexManagerInternal().getIndexes(internalDb)) {
 
         if (idx.getInternal() instanceof OLuceneSpatialIndex) {
-          OLogManager.instance().debug(this, "- index '%s'", idx.getName());
+          LogManager.instance().debug(this, "- index '%s'", idx.getName());
           internalDb.getMetadata().getIndexManager().dropIndex(idx.getName());
         }
       }
     } catch (Exception e) {
-      OLogManager.instance().warn(this, "Error on dropping spatial indexes", e);
+      LogManager.instance().warn(this, "Error on dropping spatial indexes", e);
     }
   }
 

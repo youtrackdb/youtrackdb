@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -82,7 +82,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
               tokenHandler.parseOnlyWebToken(iRequest.getBearerTokenRaw().getBytes()));
         } catch (Exception e) {
           // TODO: Catch all expected exceptions correctly!
-          OLogManager.instance().warn(this, "Bearer token parsing failed", e);
+          LogManager.instance().warn(this, "Bearer token parsing failed", e);
         }
 
         if (iRequest.getBearerToken() == null
@@ -97,7 +97,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
         if (!iRequest.getBearerToken().getToken().getIsValid()) {
 
           // SECURITY PROBLEM: CROSS DATABASE REQUEST!
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "Token '%s' is not valid for database '%s'",
@@ -145,7 +145,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
           if (!currentSession.getDatabaseName().equals(iRequest.getDatabaseName())) {
 
             // SECURITY PROBLEM: CROSS DATABASE REQUEST!
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(
                     this,
                     "Session %s is trying to access to the database '%s', but has been"
@@ -161,7 +161,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
               && !currentSession.getUserName().equals(authenticationParts.get(0))) {
 
             // SECURITY PROBLEM: CROSS DATABASE REQUEST!
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(
                     this,
                     "Session %s is trying to access to the database '%s' with user '%s', but has"
@@ -235,7 +235,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     } catch (YTSecurityAccessException e) {
       // WRONG USER/PASSWD
     } catch (YTLockException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Cannot access to the database '" + iDatabaseName + "'", e);
     } finally {
       if (db == null) {

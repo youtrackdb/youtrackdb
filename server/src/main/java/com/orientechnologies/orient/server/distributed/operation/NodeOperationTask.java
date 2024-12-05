@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.distributed.operation;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -157,7 +157,7 @@ public class NodeOperationTask implements ORemoteTask {
       try {
         return factory.request.call();
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(NodeOperationTask.class, "Cannot create node operation from id %d", messageId);
         return null;
       }
@@ -191,7 +191,7 @@ public class NodeOperationTask implements ORemoteTask {
       try {
         return factory.response.call();
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 NodeOperationTask.class,
                 "Cannot create node operation response from id %d",

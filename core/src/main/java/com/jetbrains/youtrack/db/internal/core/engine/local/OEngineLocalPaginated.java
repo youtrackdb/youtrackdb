@@ -27,16 +27,16 @@ import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.common.jnr.ONative;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.engine.OEngineAbstract;
 import com.jetbrains.youtrack.db.internal.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.AsyncReadCache;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.fs.OFile;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class OEngineLocalPaginated extends OEngineAbstract {
     if (GlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger() > 0) {
       final Object[] additionalArgs =
           new Object[]{GlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger()};
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               OEngineLocalPaginated.class,
               "Limit of open files for disk cache will be set to %d.",
@@ -77,9 +77,9 @@ public class OEngineLocalPaginated extends OEngineAbstract {
   @Override
   public void startup() {
     final String userName = System.getProperty("user.name", "unknown");
-    OLogManager.instance().info(this, "System is started under an effective user : `%s`", userName);
+    LogManager.instance().info(this, "System is started under an effective user : `%s`", userName);
     if (ONative.instance().isOsRoot()) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "You are running under the \"root\" user privileges that introduces security risks."
@@ -97,7 +97,7 @@ public class OEngineLocalPaginated extends OEngineAbstract {
 
     if (GlobalConfiguration.DIRECT_MEMORY_PREALLOCATE.getValueAsBoolean()) {
       final int pageCount = (int) (diskCacheSize / pageSize);
-      OLogManager.instance().info(this, "Allocation of " + pageCount + " pages.");
+      LogManager.instance().info(this, "Allocation of " + pageCount + " pages.");
 
       final OByteBufferPool bufferPool = OByteBufferPool.instance(null);
       final List<OPointer> pages = new ArrayList<>(pageCount);
@@ -134,7 +134,7 @@ public class OEngineLocalPaginated extends OEngineAbstract {
     // otherwise memory size will be set during cache initialization.
   }
 
-  public OStorage createStorage(
+  public Storage createStorage(
       final String dbName,
       long maxWalSegSize,
       long doubleWriteLogMaxSegSize,
@@ -142,7 +142,7 @@ public class OEngineLocalPaginated extends OEngineAbstract {
       YouTrackDBInternal context) {
     try {
 
-      return new OLocalPaginatedStorage(
+      return new LocalPaginatedStorage(
           dbName,
           dbName,
           storageId,
@@ -157,7 +157,7 @@ public class OEngineLocalPaginated extends OEngineAbstract {
               + dbName
               + ". Current location is: "
               + new java.io.File(".").getAbsolutePath();
-      OLogManager.instance().error(this, message, e);
+      LogManager.instance().error(this, message, e);
 
       throw YTException.wrapException(new YTDatabaseException(message), e);
     }

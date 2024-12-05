@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +49,12 @@ public class OCreateClassStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
     YTSchema schema = db.getMetadata().getSchema();
     if (schema.existsClass(name.getStringValue())) {
       if (ifNotExists) {
-        return OExecutionStream.empty();
+        return ExecutionStream.empty();
       } else {
         throw new YTCommandExecutionException("Class " + name + " already exists");
       }
@@ -85,7 +85,7 @@ public class OCreateClassStatement extends ODDLStatement {
       clazz = schema.createClass(name.getStringValue(), superclasses);
     }
 
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   private YTClass[] getSuperClasses(YTSchema schema) {
@@ -99,7 +99,7 @@ public class OCreateClassStatement extends ODDLStatement {
         .toArray(new YTClass[]{});
   }
 
-  private void checkSuperclasses(YTSchema schema, OCommandContext ctx) {
+  private void checkSuperclasses(YTSchema schema, CommandContext ctx) {
     if (superclasses != null) {
       for (OIdentifier superclass : superclasses) {
         if (!schema.existsClass(superclass.getStringValue())) {

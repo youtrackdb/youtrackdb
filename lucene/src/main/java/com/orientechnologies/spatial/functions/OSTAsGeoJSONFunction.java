@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -39,7 +39,7 @@ public class OSTAsGeoJSONFunction extends OSQLFunctionAbstract {
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     return factory.asGeoJson((EntityImpl) iParams[0]);
   }
 

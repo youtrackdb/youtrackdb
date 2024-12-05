@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class OInfoExecutionPlan implements OExecutionPlan {
 
-  private List<OExecutionStep> steps = new ArrayList<>();
+  private List<ExecutionStep> steps = new ArrayList<>();
   private String prettyPrint;
   private String type;
   private String javaType;
@@ -17,7 +17,7 @@ public class OInfoExecutionPlan implements OExecutionPlan {
   private String stmText;
 
   @Override
-  public List<OExecutionStep> getSteps() {
+  public List<ExecutionStep> getSteps() {
     return steps;
   }
 
@@ -31,7 +31,7 @@ public class OInfoExecutionPlan implements OExecutionPlan {
     return null;
   }
 
-  public void setSteps(List<OExecutionStep> steps) {
+  public void setSteps(List<ExecutionStep> steps) {
     this.steps = steps;
   }
 

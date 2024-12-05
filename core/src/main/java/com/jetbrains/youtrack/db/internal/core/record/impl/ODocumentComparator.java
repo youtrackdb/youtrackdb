@@ -20,13 +20,13 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLSelect;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
 import java.text.Collator;
 import java.util.Comparator;
 import java.util.List;
@@ -39,11 +39,11 @@ import java.util.Locale;
 public class ODocumentComparator implements Comparator<YTIdentifiable> {
 
   private final List<OPair<String, String>> orderCriteria;
-  private final OCommandContext context;
+  private final CommandContext context;
   private final Collator collator;
 
   public ODocumentComparator(
-      final List<OPair<String, String>> iOrderCriteria, OCommandContext iContext) {
+      final List<OPair<String, String>> iOrderCriteria, CommandContext iContext) {
     this.orderCriteria = iOrderCriteria;
     this.context = iContext;
     YTDatabaseSessionInternal internal = ODatabaseRecordThreadLocal.instance().get();
@@ -86,7 +86,7 @@ public class ODocumentComparator implements Comparator<YTIdentifiable> {
       }
 
       if (!(fieldValue1 instanceof Comparable<?>)) {
-        context.incrementVariable(OBasicCommandContext.INVALID_COMPARE_COUNT);
+        context.incrementVariable(BasicCommandContext.INVALID_COMPARE_COUNT);
         partialResult = ("" + fieldValue1).compareTo("" + fieldValue2);
       } else {
         try {
@@ -96,7 +96,7 @@ public class ODocumentComparator implements Comparator<YTIdentifiable> {
             partialResult = ((Comparable<Object>) fieldValue1).compareTo(fieldValue2);
           }
         } catch (Exception ignore) {
-          context.incrementVariable(OBasicCommandContext.INVALID_COMPARE_COUNT);
+          context.incrementVariable(BasicCommandContext.INVALID_COMPARE_COUNT);
           partialResult = collator.compare("" + fieldValue1, "" + fieldValue2);
         }
       }
@@ -113,7 +113,7 @@ public class ODocumentComparator implements Comparator<YTIdentifiable> {
   }
 
   private int factor(final int partialResult, final String iOrdering) {
-    if (iOrdering.equals(OCommandExecutorSQLSelect.KEYWORD_DESC))
+    if (iOrdering.equals(CommandExecutorSQLSelect.KEYWORD_DESC))
     // INVERT THE ORDERING
     {
       return partialResult * -1;

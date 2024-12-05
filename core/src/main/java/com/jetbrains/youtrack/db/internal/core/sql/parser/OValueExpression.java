@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -26,11 +26,11 @@ public class OValueExpression extends OExpression {
     this.value = val;
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     return value;
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     return value;
   }
 
@@ -59,17 +59,17 @@ public class OValueExpression extends OExpression {
   }
 
   public boolean canExecuteIndexedFunctionWithoutIndex(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     return false;
   }
 
   public boolean allowsIndexedFunctionExecutionOnTarget(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     return false;
   }
 
   public boolean executeIndexedFunctionAfterIndexSearch(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     return false;
   }
 
@@ -93,7 +93,7 @@ public class OValueExpression extends OExpression {
     return this;
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     throw new YTCommandExecutionException("Cannot aggregate on " + this);
   }
 
@@ -137,7 +137,7 @@ public class OValueExpression extends OExpression {
     return null;
   }
 
-  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, CommandContext ctx) {
     throw new YTCommandExecutionException("Cannot apply REMOVE " + this);
   }
 
@@ -163,7 +163,7 @@ public class OValueExpression extends OExpression {
     return true;
   }
 
-  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
     return null;
   }
 

@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OProduceExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
 
@@ -27,7 +27,7 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
       OIndexIdentifier targetIndex,
       OExpression keyValue,
       String alias,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.target = targetIndex;
@@ -36,15 +36,15 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(this::produce).limit(1);
+    return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(OCommandContext ctx) {
+  private YTResult produce(CommandContext ctx) {
     OIndex idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
     var db = ctx.getDatabase();
     Object val =
@@ -58,7 +58,7 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ CALCULATE INDEX SIZE BY KEY: " + target;
   }
 }

@@ -31,9 +31,9 @@ import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.OSBTreeBonsaiLocalException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1.OSBTreeV1;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
@@ -62,7 +62,7 @@ import javax.annotation.Nonnull;
  * @see OSBTreeV1
  * @since 1.6.0
  */
-public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTreeBonsai<K, V> {
+public class OSBTreeBonsaiLocal<K, V> extends DurableComponent implements OSBTreeBonsai<K, V> {
 
   private static final OLockManager<Long> FILE_LOCK_MANAGER = new OPartitionedLockManager<>();
 
@@ -82,7 +82,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
   public OSBTreeBonsaiLocal(
       @Nonnull final String name,
       final String dataFileExtension,
-      @Nonnull final OAbstractPaginatedStorage storage) {
+      @Nonnull final AbstractPaginatedStorage storage) {
     super(storage, name, dataFileExtension, name + dataFileExtension);
   }
 

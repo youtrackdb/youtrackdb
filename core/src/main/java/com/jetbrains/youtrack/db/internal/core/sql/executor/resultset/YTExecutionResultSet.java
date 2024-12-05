@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
@@ -9,12 +9,12 @@ import java.util.Optional;
 
 public class YTExecutionResultSet implements YTResultSet {
 
-  private final OExecutionStream stream;
-  private final OCommandContext context;
+  private final ExecutionStream stream;
+  private final CommandContext context;
   private final Optional<OExecutionPlan> plan;
 
   public YTExecutionResultSet(
-      OExecutionStream stream, OCommandContext context, OExecutionPlan plan) {
+      ExecutionStream stream, CommandContext context, OExecutionPlan plan) {
     super();
     this.stream = stream;
     this.context = context;

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.sql;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
@@ -41,7 +41,7 @@ public class OFunctionSqlTest extends DBTestBase {
     function.save(db);
     db.commit();
 
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(db);
 
     Object result = function.executeInContext(context, "Enrico");
@@ -91,7 +91,7 @@ public class OFunctionSqlTest extends DBTestBase {
     function1.save(db);
     db.commit();
 
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(db);
 
     Object result = function.executeInContext(context, "Enrico");

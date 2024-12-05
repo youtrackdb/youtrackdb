@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
@@ -260,7 +260,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   public void testInsertOfEdgeWithInsertCommand() {
     try {
-      database.command(new OCommandSQL("insert into E set a = 33")).execute(database);
+      database.command(new CommandSQL("insert into E set a = 33")).execute(database);
       Assert.fail();
     } catch (YTCommandExecutionException e) {
       Assert.assertTrue(true);

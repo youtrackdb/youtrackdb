@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions.graph;
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
@@ -32,7 +32,7 @@ public abstract class OSQLFunctionMoveFiltered extends OSQLFunctionMove
       final Object iCurrentResult,
       final Object[] iParameters,
       final Iterable<YTIdentifiable> iPossibleResults,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     final String[] labels;
     if (iParameters != null && iParameters.length > 0 && iParameters[0] != null) {
       labels =

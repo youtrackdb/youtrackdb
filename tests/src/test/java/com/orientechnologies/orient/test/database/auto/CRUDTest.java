@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
@@ -2165,7 +2165,7 @@ public class CRUDTest extends DocumentDBBaseTest {
       }
     } catch (IOException ioe) {
       Assert.fail();
-      OLogManager.instance().error(this, "Error reading byte[]", ioe);
+      LogManager.instance().error(this, "Error reading byte[]", ioe);
     }
     Assert.assertTrue(loaded.getElementProperty("document") instanceof EntityImpl);
     Assert.assertEquals(
@@ -2212,7 +2212,7 @@ public class CRUDTest extends DocumentDBBaseTest {
       }
     } catch (IOException ioe) {
       Assert.fail();
-      OLogManager.instance().error(this, "Error reading byte[]", ioe);
+      LogManager.instance().error(this, "Error reading byte[]", ioe);
     }
     rid = p.getIdentity();
 
@@ -2238,7 +2238,7 @@ public class CRUDTest extends DocumentDBBaseTest {
       }
     } catch (IOException ioe) {
       Assert.fail();
-      OLogManager.instance().error(this, "Error reading byte[]", ioe);
+      LogManager.instance().error(this, "Error reading byte[]", ioe);
       throw new RuntimeException(ioe);
     }
     database.commit();
@@ -2300,7 +2300,7 @@ public class CRUDTest extends DocumentDBBaseTest {
       }
     } catch (IOException ioe) {
       Assert.fail();
-      OLogManager.instance().error(this, "Error reading byte[]", ioe);
+      LogManager.instance().error(this, "Error reading byte[]", ioe);
     }
     database.commit();
   }

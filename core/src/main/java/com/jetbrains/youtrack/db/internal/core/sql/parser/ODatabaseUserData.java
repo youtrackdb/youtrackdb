@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,8 +124,8 @@ public class ODatabaseUserData extends SimpleNode {
     return result;
   }
 
-  public void executeCreate(YTDatabaseSessionInternal db, OCommandContext parentCtx) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+  public void executeCreate(YTDatabaseSessionInternal db, CommandContext parentCtx) {
+    BasicCommandContext ctx = new BasicCommandContext();
     ctx.setInputParameters(parentCtx.getInputParameters());
     ctx.setDatabase(db);
     OCreateUserStatement stm = new OCreateUserStatement(-1);

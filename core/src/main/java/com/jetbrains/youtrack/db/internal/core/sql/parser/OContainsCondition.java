@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
@@ -129,7 +129,7 @@ public class OContainsCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
@@ -152,7 +152,7 @@ public class OContainsCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -190,7 +190,7 @@ public class OContainsCondition extends OBooleanExpression {
     }
   }
 
-  private boolean evaluateAny(YTResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, CommandContext ctx) {
     if (right != null) {
       for (String s : currentRecord.getPropertyNames()) {
         Object leftVal = currentRecord.getProperty(s);
@@ -229,7 +229,7 @@ public class OContainsCondition extends OBooleanExpression {
     }
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, CommandContext ctx) {
     if (right != null) {
       for (String s : currentRecord.getPropertyNames()) {
         Object leftVal = currentRecord.getProperty(s);

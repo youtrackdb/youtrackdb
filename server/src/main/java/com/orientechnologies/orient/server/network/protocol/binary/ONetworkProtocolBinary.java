@@ -26,17 +26,9 @@ import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
 import com.jetbrains.youtrack.db.internal.common.exception.OInvalidBinaryChunkException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.client.remote.OBinaryRequest;
-import com.orientechnologies.orient.client.remote.OBinaryResponse;
-import com.orientechnologies.orient.client.remote.message.OBinaryProtocolHelper;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
-import com.orientechnologies.orient.client.remote.message.OError37Response;
-import com.orientechnologies.orient.client.remote.message.OErrorResponse;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -61,6 +53,14 @@ import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBina
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryServer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTNetworkProtocolException;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
+import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
+import com.orientechnologies.orient.client.remote.OBinaryRequest;
+import com.orientechnologies.orient.client.remote.OBinaryResponse;
+import com.orientechnologies.orient.client.remote.message.OBinaryProtocolHelper;
+import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
+import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
+import com.orientechnologies.orient.client.remote.message.OError37Response;
+import com.orientechnologies.orient.client.remote.message.OErrorResponse;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OConnectionBinaryExecutor;
 import com.orientechnologies.orient.server.OServer;
@@ -297,7 +297,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     long timer;
 
     timer = YouTrackDBManager.instance().getProfiler().startChrono();
-    OLogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
+    LogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
 
     try {
       OBinaryRequest<? extends OBinaryResponse> request = factory.apply(requestType);
@@ -337,7 +337,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
 
         } catch (IOException e) {
           connection.endOperation();
-          OLogManager.instance()
+          LogManager.instance()
               .debug(
                   this, "I/O Error on client clientId=%d reqType=%d", clientTxId, requestType, e);
           sendShutdown();
@@ -346,7 +346,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
           if (connection != null) {
             connection.endOperation();
           }
-          OLogManager.instance().error(this, "Error reading request", e);
+          LogManager.instance().error(this, "Error reading request", e);
           sendShutdown();
           return;
         }
@@ -387,7 +387,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
             okSent = true;
             sendError(connection, clientTxId, exception);
           } catch (IOException e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .debug(
                     this, "I/O Error on client clientId=%d reqType=%d", clientTxId, requestType, e);
             sendShutdown();
@@ -408,17 +408,17 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
               }
             }
           } catch (OInvalidBinaryChunkException e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(
                     this, "I/O Error on client clientId=%d reqType=%d", clientTxId, requestType, e);
             sendShutdown();
           } catch (IOException e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .debug(
                     this, "I/O Error on client clientId=%d reqType=%d", clientTxId, requestType, e);
             sendShutdown();
           } catch (Exception | Error e) {
-            OLogManager.instance().error(this, "Error while binary response serialization", e);
+            LogManager.instance().error(this, "Error while binary response serialization", e);
             sendShutdown();
             throw e;
           } finally {
@@ -427,7 +427,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
         }
         tokenConnection = Boolean.TRUE.equals(connection.getTokenBased());
       } else {
-        OLogManager.instance().error(this, "Request not supported. Code: " + requestType, null);
+        LogManager.instance().error(this, "Request not supported. Code: " + requestType, null);
         handleConnectionError(
             connection,
             new YTNetworkProtocolException("Request not supported. Code: " + requestType));
@@ -504,7 +504,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       timer = YouTrackDBManager.instance().getProfiler().startChrono();
       byte[] tokenBytes = channel.readBytes();
       connection = onBeforeOperationalRequest(connection, tokenBytes);
-      OLogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
+      LogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
 
       try {
         switch (requestType) {
@@ -523,7 +523,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
 
     } catch (Exception t) {
       // IN CASE OF DISTRIBUTED ANY EXCEPTION AT THIS POINT CAUSE THIS CONNECTION TO CLOSE
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "I/O Error on distributed channel  clientId=%d reqType=%d",
@@ -832,23 +832,23 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
 
       channel.flush();
 
-      if (OLogManager.instance().isLevelEnabled(logClientExceptions)) {
+      if (LogManager.instance().isLevelEnabled(logClientExceptions)) {
         if (logClientFullStackTrace) {
           assert t != null;
-          OLogManager.instance()
+          LogManager.instance()
               .log(
                   this,
-                  OLogManager.fromJulToSLF4JLevel(logClientExceptions),
+                  LogManager.fromJulToSLF4JLevel(logClientExceptions),
                   "Sent run-time exception to the client %s: %s",
                   t,
                   channel.socket.getRemoteSocketAddress(),
                   t.toString());
         } else {
           assert t != null;
-          OLogManager.instance()
+          LogManager.instance()
               .log(
                   this,
-                  OLogManager.fromJulToSLF4JLevel(logClientExceptions),
+                  LogManager.fromJulToSLF4JLevel(logClientExceptions),
                   "Sent run-time exception to the client %s: %s",
                   null,
                   channel.socket.getRemoteSocketAddress(),
@@ -859,7 +859,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       if (e instanceof SocketException) {
         shutdown();
       } else {
-        OLogManager.instance().error(this, "Error during sending an error to client", e);
+        LogManager.instance().error(this, "Error during sending an error to client", e);
       }
     } finally {
       if (channel.getLockWrite().isHeldByCurrentThread())
@@ -917,9 +917,9 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     try {
       channel.flush();
     } catch (IOException e1) {
-      OLogManager.instance().debug(this, "Error during channel flush", e1);
+      LogManager.instance().debug(this, "Error during channel flush", e1);
     }
-    OLogManager.instance().error(this, "Error executing request", e);
+    LogManager.instance().error(this, "Error executing request", e);
     OServerPluginHelper.invokeHandlerCallbackOnClientError(server, connection, e);
   }
 

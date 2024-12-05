@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class OConstants {
 
-  public static final String ORIENT_URL = "https://www.orientdb.com";
+  public static final String YOU_TRACK_DB_URL = "https://github.com/youtrackdb/youtrackdb";
 
   private static final Properties properties = new Properties();
 
@@ -19,7 +19,7 @@ public class OConstants {
         properties.load(inputStream);
       }
     } catch (IOException e) {
-      OLogManager.instance().error(OConstants.class, "Failed to load YouTrackDB properties", e);
+      LogManager.instance().error(OConstants.class, "Failed to load YouTrackDB properties", e);
     }
   }
 
@@ -29,7 +29,7 @@ public class OConstants {
   public static int getVersionMajor() {
     final String[] versions = properties.getProperty("version").split("\\.");
     if (versions.length == 0) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OConstants.class, "Can not retrieve version information for this build", null);
       return -1;
     }
@@ -37,7 +37,7 @@ public class OConstants {
     try {
       return Integer.parseInt(versions[0]);
     } catch (NumberFormatException nfe) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               OConstants.class, "Can not retrieve major version information for this build", nfe);
       return -1;
@@ -50,7 +50,7 @@ public class OConstants {
   public static int getVersionMinor() {
     final String[] versions = properties.getProperty("version").split("\\.");
     if (versions.length < 2) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               OConstants.class, "Can not retrieve minor version information for this build", null);
       return -1;
@@ -59,7 +59,7 @@ public class OConstants {
     try {
       return Integer.parseInt(versions[1]);
     } catch (NumberFormatException nfe) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               OConstants.class, "Can not retrieve minor version information for this build", nfe);
       return -1;
@@ -86,7 +86,7 @@ public class OConstants {
 
       return Integer.parseInt(hotfix);
     } catch (NumberFormatException nfe) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               OConstants.class, "Can not retrieve hotfix version information for this build", nfe);
       return -1;

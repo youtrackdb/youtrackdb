@@ -19,18 +19,9 @@ package com.orientechnologies.lucene.engine;
 import static com.orientechnologies.lucene.builder.OLuceneQueryBuilder.EMPTY_METADATA;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.orientechnologies.lucene.builder.OLuceneDocumentBuilder;
-import com.orientechnologies.lucene.builder.OLuceneIndexType;
-import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
-import com.orientechnologies.lucene.collections.LuceneIndexTransformer;
-import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
-import com.orientechnologies.lucene.collections.OLuceneResultSet;
-import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.orientechnologies.lucene.query.OLuceneQueryContext;
-import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
@@ -42,8 +33,17 @@ import com.jetbrains.youtrack.db.internal.core.index.YTIndexEngineException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.orientechnologies.lucene.builder.OLuceneDocumentBuilder;
+import com.orientechnologies.lucene.builder.OLuceneIndexType;
+import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
+import com.orientechnologies.lucene.collections.LuceneIndexTransformer;
+import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
+import com.orientechnologies.lucene.collections.OLuceneResultSet;
+import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
+import com.orientechnologies.lucene.query.OLuceneQueryContext;
+import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -68,7 +68,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   private OLuceneQueryBuilder queryBuilder;
   private final AtomicLong bonsayFileId = new AtomicLong(0);
 
-  public OLuceneFullTextIndexEngine(OStorage storage, String idxName, int id) {
+  public OLuceneFullTextIndexEngine(Storage storage, String idxName, int id) {
     super(id, storage, idxName);
     builder = new OLuceneDocumentBuilder();
   }
@@ -84,7 +84,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
 
     OLuceneIndexWriterFactory fc = new OLuceneIndexWriterFactory();
 
-    OLogManager.instance().debug(this, "Creating Lucene index in '%s'...", directory);
+    LogManager.instance().debug(this, "Creating Lucene index in '%s'...", directory);
 
     return fc.createIndexWriter(directory, metadata, indexAnalyzer());
   }
@@ -164,7 +164,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
 
   private Set<YTIdentifiable> getResults(
       final Query query,
-      final OCommandContext context,
+      final CommandContext context,
       final OLuceneTxChanges changes,
       final Map<String, ?> metadata) {
     // sort
@@ -273,14 +273,14 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
       if (key instanceof OLuceneKeyAndMetadata q) {
         Query query = queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
 
-        OCommandContext commandContext = q.key.getContext();
+        CommandContext commandContext = q.key.getContext();
         return getResults(query, commandContext, changes, q.metadata);
 
       } else {
         Query query = queryBuilder.query(indexDefinition, key, EMPTY_METADATA,
             queryAnalyzer());
 
-        OCommandContext commandContext = null;
+        CommandContext commandContext = null;
         if (key instanceof OLuceneCompositeKey) {
           commandContext = ((OLuceneCompositeKey) key).getContext();
         }

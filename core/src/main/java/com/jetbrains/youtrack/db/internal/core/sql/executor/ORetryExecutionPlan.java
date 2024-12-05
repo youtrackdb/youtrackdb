@@ -4,7 +4,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
  *
  */
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.WhileStep;
 
 /**
@@ -12,12 +12,12 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.WhileStep;
  */
 public class ORetryExecutionPlan extends OUpdateExecutionPlan {
 
-  public ORetryExecutionPlan(OCommandContext ctx) {
+  public ORetryExecutionPlan(CommandContext ctx) {
     super(ctx);
   }
 
   public boolean containsReturn() {
-    for (OExecutionStep step : getSteps()) {
+    for (ExecutionStep step : getSteps()) {
       if (step instanceof ForEachStep) {
         return ((ForEachStep) step).containsReturn();
       }

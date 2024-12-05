@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security.authenticator;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
 
@@ -31,7 +31,7 @@ public class OServerConfigAuthenticator extends OSecurityAuthenticatorAbstract {
   // OSecurityComponent
   // Called once the Server is running.
   public void active() {
-    OLogManager.instance().debug(this, "OServerConfigAuthenticator is active");
+    LogManager.instance().debug(this, "OServerConfigAuthenticator is active");
   }
 
   // OSecurityAuthenticator

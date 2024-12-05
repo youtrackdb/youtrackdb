@@ -2,11 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,7 +25,7 @@ public class ODropClusterStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     var database = ctx.getDatabase();
     // CHECK IF ANY CLASS IS USING IT
     final int clusterId;
@@ -35,7 +35,7 @@ public class ODropClusterStatement extends ODDLStatement {
       clusterId = database.getStorage().getClusterIdByName(name.getStringValue());
       if (clusterId < 0) {
         if (ifExists) {
-          return OExecutionStream.empty();
+          return ExecutionStream.empty();
         } else {
           throw new YTCommandExecutionException("Cluster not found: " + name);
         }
@@ -58,7 +58,7 @@ public class ODropClusterStatement extends ODDLStatement {
     String clusterName = database.getClusterNameById(clusterId);
     if (clusterName == null) {
       if (ifExists) {
-        return OExecutionStream.empty();
+        return ExecutionStream.empty();
       } else {
         throw new YTCommandExecutionException("Cluster not found: " + clusterId);
       }
@@ -70,7 +70,7 @@ public class ODropClusterStatement extends ODDLStatement {
     result.setProperty("operation", "drop cluster");
     result.setProperty("clusterName", name == null ? null : name.getStringValue());
     result.setProperty("clusterId", id == null ? null : id.getValue());
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   @Override

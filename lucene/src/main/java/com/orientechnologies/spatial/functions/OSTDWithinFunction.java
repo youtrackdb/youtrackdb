@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
@@ -40,7 +40,7 @@ public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
 
     if (containsNull(iParams)) {
       return null;
@@ -64,14 +64,14 @@ public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     return results(target, args, ctx, rightValue);
   }
 
   @Override
   protected void onAfterParsing(
-      Map<String, Object> params, OExpression[] args, OCommandContext ctx, Object rightValue) {
+      Map<String, Object> params, OExpression[] args, CommandContext ctx, Object rightValue) {
 
     OExpression number = args[2];
 

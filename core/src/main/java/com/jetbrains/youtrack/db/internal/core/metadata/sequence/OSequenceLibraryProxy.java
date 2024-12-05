@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
@@ -78,7 +78,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
         String sequenceName = database.sendSequenceAction(action);
         return delegate.getSequence(database, sequenceName);
       } catch (InterruptedException | ExecutionException exc) {
-        OLogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
+        LogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
         throw new YTDatabaseException(exc.getMessage());
       }
     } else {
@@ -101,7 +101,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
       try {
         database.sendSequenceAction(action);
       } catch (InterruptedException | ExecutionException exc) {
-        OLogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
+        LogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
         throw new YTDatabaseException(exc.getMessage());
       }
     } else {

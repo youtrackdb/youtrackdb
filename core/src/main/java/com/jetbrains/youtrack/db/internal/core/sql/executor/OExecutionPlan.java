@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface OExecutionPlan extends Serializable {
 
-  List<OExecutionStep> getSteps();
+  List<ExecutionStep> getSteps();
 
   String prettyPrint(int depth, int indent);
 

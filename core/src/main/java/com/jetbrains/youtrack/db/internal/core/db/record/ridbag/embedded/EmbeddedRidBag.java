@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.OResettable;
@@ -436,7 +436,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
         try {
           identifiable = rid.getRecord();
         } catch (YTRecordNotFoundException rnf) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(this, "Found null reference during ridbag deserialization (rid=%s)", rid);
           identifiable = rid;
         }

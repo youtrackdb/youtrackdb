@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.common.concur.lock;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -146,7 +146,7 @@ public class OAdaptiveLock extends OAbstractLock {
         lock.unlock();
       }
     } catch (Exception e) {
-      OLogManager.instance().debug(this, "Cannot unlock a lock", e);
+      LogManager.instance().debug(this, "Cannot unlock a lock", e);
     }
   }
 

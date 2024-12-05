@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record;
 
-import com.jetbrains.youtrack.db.internal.core.OOrientListenerAbstract;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -31,7 +31,7 @@ public class OSerializationThreadLocal extends ThreadLocal<IntSet> {
   static {
     YouTrackDBManager.instance()
         .registerListener(
-            new OOrientListenerAbstract() {
+            new YouTrackDBListenerAbstract() {
               @Override
               public void onStartup() {
                 if (INSTANCE == null) {

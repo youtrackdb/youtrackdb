@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 
 public class OHaStatusStatement extends OSimpleExecStatement {
@@ -86,9 +86,9 @@ public class OHaStatusStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     if (outputText) {
-      OLogManager.instance().info(this, "HA STATUS with text output is deprecated");
+      LogManager.instance().info(this, "HA STATUS with text output is deprecated");
     }
     final YTDatabaseSessionInternal database = ctx.getDatabase();
 
@@ -97,9 +97,9 @@ public class OHaStatusStatement extends OSimpleExecStatement {
       if (res != null) {
         YTResultInternal row = new YTResultInternal(database);
         res.entrySet().forEach(x -> row.setProperty(x.getKey(), x.getValue()));
-        return OExecutionStream.singleton(row);
+        return ExecutionStream.singleton(row);
       } else {
-        return OExecutionStream.empty();
+        return ExecutionStream.empty();
       }
     } catch (Exception x) {
       throw YTException.wrapException(new YTCommandExecutionException("Cannot execute HA STATUS"),

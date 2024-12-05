@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
@@ -279,7 +279,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     ODocumentComparator comparator =
         new ODocumentComparator(
             Collections.singletonList(new OPair<String, String>("testField", "asc")),
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(comparator.compare(doc1, doc2), 0);
   }

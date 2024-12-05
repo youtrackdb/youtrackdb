@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -75,7 +75,7 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
       final OSQLFilterCondition condition,
       final Object left,
       final Object right,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     validate(right);
 
     final Iterator<?> valueIterator = OMultiValue.getMultiValueIterator(right);
@@ -137,7 +137,7 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
 
   @Override
   public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
-      OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
+      CommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     var database = iContext.getDatabase();

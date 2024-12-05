@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerBinary;
@@ -46,7 +46,7 @@ public class ONetworkProtocolData {
   private String serializationImpl = null;
   public boolean serverUser = false;
   public String serverUsername = null;
-  public OCommandRequestText command = null;
+  public CommandRequestText command = null;
   public boolean supportsLegacyPushMessages = true;
   public boolean collectStats = true;
   private ORecordSerializer serializer;

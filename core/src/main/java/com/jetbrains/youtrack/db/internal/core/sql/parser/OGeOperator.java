@@ -23,7 +23,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.Map;
@@ -58,7 +58,7 @@ public class OGeOperator extends SimpleNode implements OBinaryCompareOperator {
       } catch (RuntimeException e) {
         iRight = null;
         // Can't convert to the target value.
-        OLogManager.instance()
+        LogManager.instance()
             .warn(this, "Issue converting value to target type, ignoring value", e);
       }
     }

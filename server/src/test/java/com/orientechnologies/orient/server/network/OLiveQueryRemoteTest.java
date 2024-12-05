@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -71,7 +71,7 @@ public class OLiveQueryRemoteTest {
     server.shutdown();
 
     YouTrackDBManager.instance().shutdown();
-    OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
+    FileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
     YouTrackDBManager.instance().startup();
   }
 

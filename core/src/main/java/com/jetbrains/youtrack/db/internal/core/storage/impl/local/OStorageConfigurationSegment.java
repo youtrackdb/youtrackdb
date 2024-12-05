@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.config.OStorageConfigurationImpl;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.fs.OFile;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -79,7 +79,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
   private final String storageName;
   private final Path storagePath;
 
-  public OStorageConfigurationSegment(final OLocalPaginatedStorage storage) {
+  public OStorageConfigurationSegment(final LocalPaginatedStorage storage) {
     super(storage, StandardCharsets.UTF_8);
 
     this.storageName = storage.getName();
@@ -138,7 +138,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
           return this;
         }
 
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Main storage configuration file %s is broken in storage %s, try to read from"
@@ -152,17 +152,17 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
             return this;
           }
 
-          OLogManager.instance().error(this, "Backup configuration file %s is broken too", null);
+          LogManager.instance().error(this, "Backup configuration file %s is broken too", null);
           throw new YTStorageException(
               "Invalid format for configuration file " + file + " for storage" + storageName);
         } else {
-          OLogManager.instance()
+          LogManager.instance()
               .error(this, "Backup configuration file %s does not exist", null, backupFile);
           throw new YTStorageException(
               "Invalid format for configuration file " + file + " for storage" + storageName);
         }
       } else if (Files.exists(backupFile)) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Seems like previous update to the storage '%s' configuration was finished"
@@ -174,7 +174,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
           return this;
         }
 
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "Backup configuration file %s is broken", null, backupFile);
         throw new YTStorageException(
             "Invalid format for configuration file " + backupFile + " for storage" + storageName);
@@ -328,7 +328,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
             try {
               fromStream(buffer, 0, buffer.length, streamEncoding);
             } catch (Exception e) {
-              OLogManager.instance()
+              LogManager.instance()
                   .error(
                       this,
                       "Error during reading of configuration %s of storage %s",
@@ -345,7 +345,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
           try {
             fromStream(buffer, 0, buffer.length, Charset.defaultCharset());
           } catch (Exception e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(
                     this,
                     "Error during reading of configuration %s of storage %s",
@@ -359,7 +359,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
         try {
           fromStream(buffer, 0, buffer.length, Charset.defaultCharset());
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "Error during reading of configuration %s of storage %s",
@@ -380,7 +380,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
       try {
         fromStream(buffer, 0, buffer.length, StandardCharsets.UTF_8);
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Error during reading of configuration %s of storage %s",

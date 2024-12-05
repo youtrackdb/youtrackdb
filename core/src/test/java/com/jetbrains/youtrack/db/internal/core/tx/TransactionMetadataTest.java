@@ -10,7 +10,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public class TransactionMetadataTest {
         (YTDatabaseSessionInternal)
             youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    Optional<byte[]> fromStorage = ((OAbstractPaginatedStorage) db.getStorage()).getLastMetadata();
+    Optional<byte[]> fromStorage = ((AbstractPaginatedStorage) db.getStorage()).getLastMetadata();
     assertTrue(fromStorage.isPresent());
     assertArrayEquals(fromStorage.get(), metadata);
   }

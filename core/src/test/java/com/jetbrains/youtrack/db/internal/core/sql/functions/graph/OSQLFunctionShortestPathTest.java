@@ -4,7 +4,7 @@ import static java.util.Arrays.asList;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
 import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -96,7 +96,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(4)},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(3, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -114,7 +114,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(4), "out", null},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(4, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -133,7 +133,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(4), null, "Edge1"},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(4, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -152,7 +152,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(4), "BOTH", asList("Edge1", "Edge2")},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(3, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -170,7 +170,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20)},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(11, result.size());
     Assert.assertEquals(vertices.get(1).getIdentity(), result.get(0));
@@ -193,7 +193,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(11, result.size());
   }
@@ -210,7 +210,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(11, result.size());
   }
@@ -227,7 +227,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(0, result.size());
   }
@@ -244,7 +244,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
-            new OBasicCommandContext());
+            new BasicCommandContext());
 
     Assert.assertEquals(0, result.size());
   }

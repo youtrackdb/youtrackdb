@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.enterprise.channel;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.OAdaptiveLock;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler.OProfilerHookValue;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -64,7 +64,7 @@ public abstract class OChannel {
         profilerMetric + ".transmittedBytes",
         "Bytes transmitted to all the network channels",
         METRIC_TYPE.SIZE,
-        new OProfilerHookValue() {
+        new ProfilerHookValue() {
           public Object getValue() {
             return metricGlobalTransmittedBytes.get();
           }
@@ -73,7 +73,7 @@ public abstract class OChannel {
         profilerMetric + ".receivedBytes",
         "Bytes received from all the network channels",
         METRIC_TYPE.SIZE,
-        new OProfilerHookValue() {
+        new ProfilerHookValue() {
           public Object getValue() {
             return metricGlobalReceivedBytes.get();
           }
@@ -82,7 +82,7 @@ public abstract class OChannel {
         profilerMetric + ".flushes",
         "Number of times the network channels have been flushed",
         METRIC_TYPE.COUNTER,
-        new OProfilerHookValue() {
+        new ProfilerHookValue() {
           public Object getValue() {
             return metricGlobalFlushes.get();
           }
@@ -168,7 +168,7 @@ public abstract class OChannel {
         socket = null;
       }
     } catch (Exception e) {
-      OLogManager.instance().debug(this, "Error during socket close", e);
+      LogManager.instance().debug(this, "Error during socket close", e);
     }
 
     try {
@@ -177,7 +177,7 @@ public abstract class OChannel {
         inStream = null;
       }
     } catch (Exception e) {
-      OLogManager.instance().debug(this, "Error during closing of input stream", e);
+      LogManager.instance().debug(this, "Error during closing of input stream", e);
     }
 
     try {
@@ -186,7 +186,7 @@ public abstract class OChannel {
         outStream = null;
       }
     } catch (Exception e) {
-      OLogManager.instance().debug(this, "Error during closing of output stream", e);
+      LogManager.instance().debug(this, "Error during closing of output stream", e);
     }
 
     lockRead.close();
@@ -208,7 +208,7 @@ public abstract class OChannel {
         profilerMetric + ".transmittedBytes",
         "Bytes transmitted to a network channel",
         METRIC_TYPE.SIZE,
-        new OProfilerHookValue() {
+        new ProfilerHookValue() {
           public Object getValue() {
             return metricTransmittedBytes;
           }
@@ -218,7 +218,7 @@ public abstract class OChannel {
         profilerMetric + ".receivedBytes",
         "Bytes received from a network channel",
         METRIC_TYPE.SIZE,
-        new OProfilerHookValue() {
+        new ProfilerHookValue() {
           public Object getValue() {
             return metricReceivedBytes;
           }
@@ -228,7 +228,7 @@ public abstract class OChannel {
         profilerMetric + ".flushes",
         "Number of times the network channel has been flushed",
         METRIC_TYPE.COUNTER,
-        new OProfilerHookValue() {
+        new ProfilerHookValue() {
           public Object getValue() {
             return metricFlushes;
           }

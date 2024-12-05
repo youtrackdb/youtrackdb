@@ -33,26 +33,26 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   //  public void testEscaping() {
   //    database.getMetadata().getSchema().createClass("Thing");
   //
-  //    List result = database.command(new OCommandSQL("select from cluster:internal")).execute();
+  //    List result = database.command(new CommandSQL("select from cluster:internal")).execute();
   //
-  //    List result0 = database.command(new OCommandSQL("select from cluster:internal where
+  //    List result0 = database.command(new CommandSQL("select from cluster:internal where
   // \"\\u005C\\u005C\" = \"\\u005C\\u005C\"")).execute();
   //    Assert.assertEquals(result.size(), result0.size());
   //
-  //    EntityImpl document0 = database.command(new OCommandSQL("insert into Thing set value =
+  //    EntityImpl document0 = database.command(new CommandSQL("insert into Thing set value =
   // \"\\u005C\\u005C\"")).execute();
   //    Assert.assertEquals("\\", document0.field("value"));
   //
-  //    EntityImpl document1 = database.command(new OCommandSQL("insert into Thing set value =
+  //    EntityImpl document1 = database.command(new CommandSQL("insert into Thing set value =
   // \"\\\\\"")).execute();
   //    Assert.assertEquals("\\", document1.field("value"));
   //
-  //    List list1 = database.command(new OCommandSQL("select from cluster:internal where
+  //    List list1 = database.command(new CommandSQL("select from cluster:internal where
   // \"\\u005C\\u005C\" == \"\\\\\"")).execute();
   //    Assert.assertEquals(result.size(), list1.size());
   //
   //    try {
-  //      EntityImpl document2 = database.command(new OCommandSQL("insert into Thing set value =
+  //      EntityImpl document2 = database.command(new CommandSQL("insert into Thing set value =
   // \"\\\"")).execute();
   //      Assert.assertTrue(false);
   //    } catch (Exception e) {
@@ -60,7 +60,7 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   //    }
   //
   //    try {
-  //      List list2 = database.command(new OCommandSQL("select from cluster:internal where
+  //      List list2 = database.command(new CommandSQL("select from cluster:internal where
   // \"\\u005C\" == \"\\\"")).execute();
   //      Assert.assertTrue(false);
   //    } catch (Exception e) {
@@ -68,7 +68,7 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   //    }
   //
   //    try {
-  //      List list3 = database.command(new OCommandSQL("select from cluster:internal where \"\\\"
+  //      List list3 = database.command(new CommandSQL("select from cluster:internal where \"\\\"
   // == \"\\u005C\"")).execute();
   //      Assert.assertTrue(false);
   //    } catch (Exception e) {

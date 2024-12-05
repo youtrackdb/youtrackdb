@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OMultiKey;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.OMetadataUpdateListener;
@@ -35,7 +35,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sharding.auto.OAutoShardingIndexFactory;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLCreateIndex;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLCreateIndex;
 import com.jetbrains.youtrack.db.internal.core.storage.OStorageInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -451,7 +451,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
     if (metadata != null) {
       createIndexDDL +=
-          " " + OCommandExecutorSQLCreateIndex.KEYWORD_METADATA + " " + metadata.toJSON();
+          " " + CommandExecutorSQLCreateIndex.KEYWORD_METADATA + " " + metadata.toJSON();
     }
 
     acquireExclusiveLock();
@@ -597,7 +597,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
                     d.field(OIndexAbstract.CONFIG_MAP_RID),
                     d));
           } catch (Exception e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(this, "Error on loading of index by configuration: %s", e, d);
           }
         }

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.common.thread;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -45,7 +45,7 @@ public class OScheduledThreadPoolExecutorWithLogging extends ScheduledThreadPool
 
     if (t != null) {
       final Thread thread = Thread.currentThread();
-      OLogManager.instance().error(this, "Exception in thread '%s'", t, thread.getName());
+      LogManager.instance().error(this, "Exception in thread '%s'", t, thread.getName());
     }
   }
 }

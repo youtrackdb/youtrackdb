@@ -20,10 +20,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.parser.OBaseParser;
+import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -103,7 +103,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
   }
 
   public OSQLFilterItemField(
-      YTDatabaseSessionInternal session, final OBaseParser iQueryToParse, final String iName,
+      YTDatabaseSessionInternal session, final BaseParser iQueryToParse, final String iName,
       final YTClass iClass) {
     super(session, iQueryToParse, iName);
     collate = getCollateForField(iClass, iName);
@@ -113,7 +113,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
   }
 
   public Object getValue(
-      final YTIdentifiable iRecord, final Object iCurrentResult, final OCommandContext iContext) {
+      final YTIdentifiable iRecord, final Object iCurrentResult, final CommandContext iContext) {
     if (iRecord == null) {
       throw new YTCommandExecutionException(
           "expression item '" + name + "' cannot be resolved because current record is NULL");
@@ -187,7 +187,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     return name;
   }
 
-  public void setRoot(YTDatabaseSessionInternal session, final OBaseParser iQueryToParse,
+  public void setRoot(YTDatabaseSessionInternal session, final BaseParser iQueryToParse,
       final String iRoot) {
     if (isStringLiteral(iRoot)) {
       this.stringValue = OIOUtils.getStringContent(iRoot);

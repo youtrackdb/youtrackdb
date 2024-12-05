@@ -22,10 +22,10 @@ package com.jetbrains.youtrack.db.internal.core.db.document;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCache;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.OScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategy;
@@ -101,9 +101,9 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSetLifecycleDecorator;
 import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.OStorageInfo;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OFreezableStorageComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionAbstract;
@@ -129,11 +129,11 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     implements OQueryLifecycleListener {
 
   private YouTrackDBConfig config;
-  private OStorage storage;
+  private Storage storage;
 
   private OTransactionNoTx.NonTxReadMode nonTxReadMode;
 
-  public YTDatabaseSessionEmbedded(final OStorage storage) {
+  public YTDatabaseSessionEmbedded(final Storage storage) {
     activateOnCurrentThread();
 
     try {
@@ -154,7 +154,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
           nonTxReadMode = NonTxReadMode.WARN;
         }
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Invalid value for %s, using %s",
@@ -402,7 +402,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     }
 
     final String stringValue = OIOUtils.getStringContent(iValue != null ? iValue.toString() : null);
-    final OStorage storage = this.storage;
+    final Storage storage = this.storage;
     switch (iAttribute) {
       case STATUS:
         if (stringValue == null) {
@@ -535,7 +535,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   private void setCustomInternal(final String iName, final String iValue) {
-    final OStorage storage = this.storage;
+    final Storage storage = this.storage;
     if (iValue == null || "null".equalsIgnoreCase(iValue))
     // REMOVE
     {
@@ -591,7 +591,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
    * thread without affecting current instance. The database copy is not set in thread local.
    */
   public YTDatabaseSessionInternal copy() {
-    var storage = (OStorage) getSharedContext().getStorage();
+    var storage = (Storage) getSharedContext().getStorage();
     storage.open(this, null, null, config.getConfigurations());
     YTDatabaseSessionEmbedded database = new YTDatabaseSessionEmbedded(storage);
     database.init(config, this.sharedContext);
@@ -629,7 +629,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public OStorage getStorage() {
+  public Storage getStorage() {
     return storage;
   }
 
@@ -639,7 +639,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public void replaceStorage(OStorage iNewStorage) {
+  public void replaceStorage(Storage iNewStorage) {
     this.getSharedContext().setStorage(iNewStorage);
     storage = iNewStorage;
   }
@@ -768,12 +768,12 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
               .getCommandManager()
               .getScriptExecutor(language);
 
-      ((OAbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
+      ((AbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
       YTResultSet original;
       try {
         original = executor.execute(this, script, args);
       } finally {
-        ((OAbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
+        ((AbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
       }
       YTLocalResultSetLifecycleDecorator result = new YTLocalResultSetLifecycleDecorator(original);
       queryStarted(result);
@@ -822,11 +822,11 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
               .getScriptExecutor(language);
       YTResultSet original;
 
-      ((OAbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
+      ((AbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
       try {
         original = executor.execute(this, script, args);
       } finally {
-        ((OAbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
+        ((AbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
       }
 
       YTLocalResultSetLifecycleDecorator result = new YTLocalResultSetLifecycleDecorator(original);
@@ -844,7 +844,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
-      OBasicCommandContext ctx = new OBasicCommandContext();
+      BasicCommandContext ctx = new BasicCommandContext();
       ctx.setDatabase(this);
       ctx.setInputParameters(params);
 
@@ -1409,8 +1409,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         user.allow(this, resourceGeneric, resourceSpecific, iOperation);
       } catch (YTSecurityAccessException e) {
 
-        if (OLogManager.instance().isDebugEnabled()) {
-          OLogManager.instance()
+        if (LogManager.instance().isDebugEnabled()) {
+          LogManager.instance()
               .debug(
                   this,
                   "User '%s' tried to access the reserved resource '%s.%s', operation '%s'",
@@ -1715,7 +1715,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   public void freeze(final boolean throwException) {
     checkOpenness();
     if (!(storage instanceof OFreezableStorageComponent)) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Only local paginated storage supports freeze. If you are using remote client please"
@@ -1753,7 +1753,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   public void release() {
     checkOpenness();
     if (!(storage instanceof OFreezableStorageComponent)) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this,
               "Only local paginated storage supports release. If you are using remote client please"
@@ -1779,11 +1779,11 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   private OFreezableStorageComponent getFreezableStorage() {
-    OStorage s = storage;
+    Storage s = storage;
     if (s instanceof OFreezableStorageComponent) {
       return (OFreezableStorageComponent) s;
     } else {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               this, "Storage of type " + s.getType() + " does not support freeze operation", null);
       return null;
@@ -1832,7 +1832,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       try {
         rollback(true);
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Exception during rollback of active transaction", e);
+        LogManager.instance().error(this, "Exception during rollback of active transaction", e);
       }
 
       callOnCloseListeners();
@@ -1879,11 +1879,11 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   public void startExclusiveMetadataChange() {
-    ((OAbstractPaginatedStorage) storage).startDDL();
+    ((AbstractPaginatedStorage) storage).startDDL();
   }
 
   public void endExclusiveMetadataChange() {
-    ((OAbstractPaginatedStorage) storage).endDDL();
+    ((AbstractPaginatedStorage) storage).endDDL();
   }
 
   @Override

@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-public final class FreeSpaceMap extends ODurableComponent {
+public final class FreeSpaceMap extends DurableComponent {
 
   public static final String DEF_EXTENSION = ".fsm";
 
@@ -18,7 +18,7 @@ public final class FreeSpaceMap extends ODurableComponent {
   private long fileId;
 
   public FreeSpaceMap(
-      @Nonnull OAbstractPaginatedStorage storage,
+      @Nonnull AbstractPaginatedStorage storage,
       @Nonnull String name,
       String extension,
       String lockName) {

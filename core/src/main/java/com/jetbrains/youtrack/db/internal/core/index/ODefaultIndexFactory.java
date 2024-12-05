@@ -15,7 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OBaseIndexEngine;
@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.v1.OCellBTreeIndexEn
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.OCellBTreeMultiValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.OCellBTreeSingleValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.index.engine.ORemoteIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.storage.index.engine.OSBTreeIndexEngine;
 import java.util.Collections;
@@ -98,7 +98,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
     return ALGORITHMS;
   }
 
-  public OIndexInternal createIndex(OStorage storage, OIndexMetadata im)
+  public OIndexInternal createIndex(Storage storage, OIndexMetadata im)
       throws YTConfigurationException {
     int version = im.getVersion();
     final String indexType = im.getType();
@@ -114,7 +114,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
     } else if (YTClass.INDEX_TYPE.NOTUNIQUE.toString().equals(indexType)) {
       return new OIndexNotUnique(im, storage);
     } else if (YTClass.INDEX_TYPE.FULLTEXT.toString().equals(indexType)) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               ODefaultIndexFactory.class,
               "You are creating native full text index instance. That is unsafe because this type"
@@ -140,7 +140,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
   }
 
   @Override
-  public OBaseIndexEngine createIndexEngine(OStorage storage, IndexEngineData data) {
+  public OBaseIndexEngine createIndexEngine(Storage storage, IndexEngineData data) {
 
     if (data.getAlgorithm() == null) {
       throw new YTIndexException("Name of algorithm is not specified");
@@ -155,7 +155,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
     switch (storageType) {
       case "memory":
       case "plocal":
-        OAbstractPaginatedStorage realStorage = (OAbstractPaginatedStorage) storage;
+        AbstractPaginatedStorage realStorage = (AbstractPaginatedStorage) storage;
         switch (data.getAlgorithm()) {
           case SBTREE_ALGORITHM:
             indexEngine =

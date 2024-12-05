@@ -34,7 +34,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorEquality;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
 import java.util.Collection;
 import java.util.HashSet;
@@ -303,15 +303,15 @@ public interface OIndexInternal extends OIndex {
   Iterable<OTransactionIndexChangesPerKey.OTransactionIndexEntry> interpretTxKeyChanges(
       OTransactionIndexChangesPerKey changes);
 
-  void doPut(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+  void doPut(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage, Object key,
       YTRID rid)
       throws OInvalidIndexEngineIdException;
 
-  boolean doRemove(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+  boolean doRemove(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage, Object key,
       YTRID rid)
       throws OInvalidIndexEngineIdException;
 
-  boolean doRemove(OAbstractPaginatedStorage storage, Object key)
+  boolean doRemove(AbstractPaginatedStorage storage, Object key)
       throws OInvalidIndexEngineIdException;
 
   Stream<YTRID> getRidsIgnoreTx(YTDatabaseSessionInternal session, Object key);

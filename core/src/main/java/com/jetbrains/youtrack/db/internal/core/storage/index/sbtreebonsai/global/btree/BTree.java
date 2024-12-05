@@ -5,9 +5,9 @@ import com.jetbrains.youtrack.db.internal.common.util.ORawPairObjectInteger;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.EntryPoint;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.IntSerializer;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -21,7 +21,7 @@ import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public final class BTree extends ODurableComponent {
+public final class BTree extends DurableComponent {
 
   private static final int MAX_PATH_LENGTH =
       GlobalConfiguration.SBTREE_MAX_DEPTH.getValueAsInteger();
@@ -32,7 +32,7 @@ public final class BTree extends ODurableComponent {
   private volatile long fileId;
 
   public BTree(
-      final OAbstractPaginatedStorage storage, final String name, final String fileExtension) {
+      final AbstractPaginatedStorage storage, final String name, final String fileExtension) {
     super(storage, name, fileExtension, name + fileExtension);
   }
 

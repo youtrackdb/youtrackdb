@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
@@ -21,15 +21,15 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
     this.endPointAlias = edge.edge.out.alias;
   }
 
-  protected String targetClassName(OMatchPathItem item, OCommandContext iCommandContext) {
+  protected String targetClassName(OMatchPathItem item, CommandContext iCommandContext) {
     return edge.getLeftClass();
   }
 
-  protected String targetClusterName(OMatchPathItem item, OCommandContext iCommandContext) {
+  protected String targetClusterName(OMatchPathItem item, CommandContext iCommandContext) {
     return edge.getLeftCluster();
   }
 
-  protected ORid targetRid(OMatchPathItem item, OCommandContext iCommandContext) {
+  protected ORid targetRid(OMatchPathItem item, CommandContext iCommandContext) {
     return edge.getLeftRid();
   }
 
@@ -38,24 +38,24 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
   }
 
   @Override
-  protected OExecutionStream traversePatternEdge(
-      YTIdentifiable startingPoint, OCommandContext iCommandContext) {
+  protected ExecutionStream traversePatternEdge(
+      YTIdentifiable startingPoint, CommandContext iCommandContext) {
 
     Object qR = this.item.getMethod().executeReverse(startingPoint, iCommandContext);
     if (qR == null) {
-      return OExecutionStream.empty();
+      return ExecutionStream.empty();
     }
     if (qR instanceof YTResultInternal) {
-      return OExecutionStream.singleton((YTResultInternal) qR);
+      return ExecutionStream.singleton((YTResultInternal) qR);
     }
     if (qR instanceof YTIdentifiable) {
-      return OExecutionStream.singleton(
+      return ExecutionStream.singleton(
           new YTResultInternal(iCommandContext.getDatabase(), (YTIdentifiable) qR));
     }
     if (qR instanceof Iterable iterable) {
-      return OExecutionStream.iterator(iterable.iterator());
+      return ExecutionStream.iterator(iterable.iterator());
     }
-    return OExecutionStream.empty();
+    return ExecutionStream.empty();
   }
 
   @Override

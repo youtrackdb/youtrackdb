@@ -1,17 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.OExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AbstractExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.EmptyStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStepInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OScriptExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.List;
 
 public class WhileStep extends AbstractExecutionStep {
@@ -22,7 +22,7 @@ public class WhileStep extends AbstractExecutionStep {
   public WhileStep(
       OBooleanExpression condition,
       List<OStatement> statements,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean enableProfiling) {
     super(ctx, enableProfiling);
     this.condition = condition;
@@ -30,7 +30,7 @@ public class WhileStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -42,7 +42,7 @@ public class WhileStep extends AbstractExecutionStep {
       }
 
       OScriptExecutionPlan plan = initPlan(ctx);
-      OExecutionStepInternal result = plan.executeFull();
+      ExecutionStepInternal result = plan.executeFull();
       if (result != null) {
         return result.start(ctx);
       }
@@ -50,8 +50,8 @@ public class WhileStep extends AbstractExecutionStep {
     return new EmptyStep(ctx, false).start(ctx);
   }
 
-  public OScriptExecutionPlan initPlan(OCommandContext ctx) {
-    OBasicCommandContext subCtx1 = new OBasicCommandContext();
+  public OScriptExecutionPlan initPlan(CommandContext ctx) {
+    BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
     OScriptExecutionPlan plan = new OScriptExecutionPlan(subCtx1);
     for (OStatement stm : statements) {

@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
  *
@@ -16,7 +16,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
   public DistributedExecutionStep(
       OSelectExecutionPlan subExecutionPlan,
       String nodeName,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.subExecuitonPlan = subExecutionPlan;
@@ -24,8 +24,8 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
-    OExecutionStream remote = sendSerializedExecutionPlan(nodeName, subExecuitonPlan, ctx);
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+    ExecutionStream remote = sendSerializedExecutionPlan(nodeName, subExecuitonPlan, ctx);
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -33,10 +33,10 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
     return remote;
   }
 
-  private OExecutionStream sendSerializedExecutionPlan(
-      String nodeName, OExecutionPlan serializedExecutionPlan, OCommandContext ctx) {
+  private ExecutionStream sendSerializedExecutionPlan(
+      String nodeName, OExecutionPlan serializedExecutionPlan, CommandContext ctx) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
-    return OExecutionStream.resultIterator(
+    return ExecutionStream.resultIterator(
         db.queryOnNode(nodeName, serializedExecutionPlan, ctx.getInputParameters()).stream()
             .iterator());
   }
@@ -49,7 +49,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     StringBuilder builder = new StringBuilder();
-    String ind = OExecutionStepInternal.getIndent(depth, indent);
+    String ind = ExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
     builder.append("+ EXECUTE ON NODE ").append(nodeName).append("----------- \n");
     builder.append(subExecuitonPlan.prettyPrint(depth + 1, indent));

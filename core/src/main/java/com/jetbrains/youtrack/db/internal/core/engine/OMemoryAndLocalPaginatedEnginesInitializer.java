@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.engine;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.jnr.ONative;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OMemory;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
@@ -71,11 +71,11 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
 
   private void configureDefaultWalRestoreBatchSize() {
     final long jvmMaxMemory = Runtime.getRuntime().maxMemory();
-    if (jvmMaxMemory > 2L * OFileUtils.GIGABYTE)
+    if (jvmMaxMemory > 2L * FileUtils.GIGABYTE)
     // INCREASE WAL RESTORE BATCH SIZE TO 50K INSTEAD OF DEFAULT 1K
     {
       GlobalConfiguration.WAL_RESTORE_BATCH_SIZE.setValue(50000);
-    } else if (jvmMaxMemory > 512 * OFileUtils.MEGABYTE)
+    } else if (jvmMaxMemory > 512 * FileUtils.MEGABYTE)
     // INCREASE WAL RESTORE BATCH SIZE TO 10K INSTEAD OF DEFAULT 1K
     {
       GlobalConfiguration.WAL_RESTORE_BATCH_SIZE.setValue(10000);
@@ -85,7 +85,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
   private void configureDefaultDiskCacheSize() {
     final ONative.MemoryLimitResult osMemory = ONative.instance().getMemoryLimit(true);
     if (osMemory == null) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Can not determine amount of memory installed on machine, default size of disk cache"
@@ -94,7 +94,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
     }
 
     final long jvmMaxMemory = OMemory.getCappedRuntimeMaxMemory(2L * 1024 * 1024 * 1024 /* 2GB */);
-    OLogManager.instance()
+    LogManager.instance()
         .info(this, "JVM can use maximum %dMB of heap memory", jvmMaxMemory / (1024 * 1024));
 
     long diskCacheInMB;
@@ -104,7 +104,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
               GlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString(),
               GlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey()
           };
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Because YouTrackDB is running inside a container %s of memory will be left unallocated"
@@ -124,7 +124,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
               GlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString(),
               GlobalConfiguration.MEMORY_LEFT_TO_OS.getKey()
           };
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Because YouTrackDB is running outside a container %s of memory will be left "
@@ -141,7 +141,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
     }
 
     if (diskCacheInMB > 0) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "YouTrackDB auto-config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
@@ -153,7 +153,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
     } else {
       // LOW MEMORY: SET IT TO 256MB ONLY
       diskCacheInMB = OReadCache.MIN_CACHE_SIZE;
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Not enough physical memory available for DISKCACHE: %,dMB (heap=%,dMB). Set lower"
@@ -165,7 +165,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
               jvmMaxMemory / 1024 / 1024);
       GlobalConfiguration.DISK_CACHE_SIZE.setValue(diskCacheInMB);
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "YouTrackDB config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
@@ -279,7 +279,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
   }
 
   private void warningInvalidMemoryLeftValue(String parameter, String memoryLeft) {
-    OLogManager.instance()
+    LogManager.instance()
         .warn(
             this,
             "Invalid value of '%s' parameter ('%s') memory limit will not be decreased",

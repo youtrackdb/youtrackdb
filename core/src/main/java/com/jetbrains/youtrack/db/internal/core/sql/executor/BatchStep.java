@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBatch;
 
 /**
@@ -12,20 +12,20 @@ public class BatchStep extends AbstractExecutionStep {
 
   private final Integer batchSize;
 
-  public BatchStep(OBatch batch, OCommandContext ctx, boolean profilingEnabled) {
+  public BatchStep(OBatch batch, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     batchSize = batch.evaluate(ctx);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
 
-    OExecutionStream prevResult = prev.start(ctx);
+    ExecutionStream prevResult = prev.start(ctx);
     return prevResult.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, OCommandContext ctx) {
+  private YTResult mapResult(YTResult result, CommandContext ctx) {
     var db = ctx.getDatabase();
     if (db.getTransaction().isActive()) {
       if (db.getTransaction().getEntryCount() % batchSize == 0) {
@@ -38,7 +38,7 @@ public class BatchStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces + "+ BATCH COMMIT EVERY " + batchSize;
   }
 }

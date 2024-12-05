@@ -8,7 +8,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +18,7 @@ import java.util.Optional;
  */
 public class YTLocalResultSet implements YTResultSet {
 
-  private OExecutionStream stream = null;
+  private ExecutionStream stream = null;
   private final OInternalExecutionPlan executionPlan;
 
   long totalExecutionTime = 0;

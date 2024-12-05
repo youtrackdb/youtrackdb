@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
@@ -315,7 +315,7 @@ public final class OWALPageChangesPortion implements OWALChanges {
         try {
           System.arraycopy(chunk, chunkOffset, data, read, rl);
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "System.arraycopy error: chunk.length = "

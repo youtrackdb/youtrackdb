@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OClusterBrowsePage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.core.storage.OCluster#configure(com.orientechnologies.core.storage.OStorage, int,
+   * @see com.orientechnologies.core.storage.OCluster#configure(com.orientechnologies.core.storage.Storage, int,
    * java.lang.String, java.lang.String, int, java.lang.Object[])
    */
   public void configure(int iId, String iClusterName) {
@@ -52,10 +52,10 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.core.storage.OCluster#configure(com.orientechnologies.core.storage.OStorage,
+   * @see com.orientechnologies.core.storage.OCluster#configure(com.orientechnologies.core.storage.Storage,
    * com.orientechnologies.core.config.OStorageClusterConfiguration)
    */
-  public void configure(OStorage iStorage, OStorageClusterConfiguration iConfig) {
+  public void configure(Storage iStorage, OStorageClusterConfiguration iConfig) {
     id = iConfig.getId();
     name = iConfig.getName();
   }

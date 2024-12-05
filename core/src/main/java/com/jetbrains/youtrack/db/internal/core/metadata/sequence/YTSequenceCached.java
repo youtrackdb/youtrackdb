@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
@@ -188,7 +188,7 @@ public class YTSequenceCached extends YTSequence {
                       + limitValue
                       + " with step: "
                       + increment;
-              OLogManager.instance().warn(this, warningMessage);
+              LogManager.instance().warn(this, warningMessage);
             }
           }
 

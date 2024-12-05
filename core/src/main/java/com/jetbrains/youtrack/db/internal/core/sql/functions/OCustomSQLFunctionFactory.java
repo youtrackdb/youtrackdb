@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.misc.OSQLStaticReflectiveFunction;
@@ -35,7 +35,7 @@ public class OCustomSQLFunctionFactory implements OSQLFunctionFactory {
     for (Map.Entry<String, List<Method>> entry : methodsMap.entrySet()) {
       final String name = prefix + entry.getKey();
       if (FUNCTIONS.containsKey(name)) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 OCustomSQLFunctionFactory.class,
                 "Unable to register reflective function with name " + name);

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -9,7 +9,7 @@ import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
@@ -69,7 +69,7 @@ public class OTraverseExecutionPlanner {
     this.limit = statement.getLimit();
   }
 
-  public OInternalExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     OSelectExecutionPlan result = new OSelectExecutionPlan(ctx);
 
     handleFetchFromTarger(result, ctx, enableProfiling);
@@ -87,7 +87,7 @@ public class OTraverseExecutionPlanner {
   }
 
   private void handleTraversal(
-      OSelectExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     switch (strategy) {
       case BREADTH_FIRST:
         result.chain(
@@ -104,7 +104,7 @@ public class OTraverseExecutionPlanner {
   }
 
   private void handleFetchFromTarger(
-      OSelectExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
 
     OFromItem target = this.target == null ? null : this.target.getItem();
     if (target == null) {
@@ -138,7 +138,7 @@ public class OTraverseExecutionPlanner {
   private void handleInputParamAsTarget(
       OSelectExecutionPlan result,
       OInputParameter inputParam,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     Object paramValue = inputParam.getValue(ctx.getInputParameters());
     if (paramValue == null) {
@@ -195,14 +195,14 @@ public class OTraverseExecutionPlanner {
   }
 
   private void handleNoTarget(
-      OSelectExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     result.chain(new EmptyDataGeneratorStep(1, ctx, profilingEnabled));
   }
 
   private void handleIndexAsTarget(
       OSelectExecutionPlan result,
       OIndexIdentifier indexIdentifier,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     String indexName = indexIdentifier.getIndexName();
     final YTDatabaseSessionInternal database = ctx.getDatabase();
@@ -249,13 +249,13 @@ public class OTraverseExecutionPlanner {
   private void handleMetadataAsTarget(
       OSelectExecutionPlan plan,
       OMetadataIdentifier metadata,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     var db = ctx.getDatabase();
     String schemaRecordIdAsString;
-    if (metadata.getName().equalsIgnoreCase(OCommandExecutorSQLAbstract.METADATA_SCHEMA)) {
+    if (metadata.getName().equalsIgnoreCase(CommandExecutorSQLAbstract.METADATA_SCHEMA)) {
       schemaRecordIdAsString = db.getStorageInfo().getConfiguration().getSchemaRecordId();
-    } else if (metadata.getName().equalsIgnoreCase(OCommandExecutorSQLAbstract.METADATA_INDEXMGR)) {
+    } else if (metadata.getName().equalsIgnoreCase(CommandExecutorSQLAbstract.METADATA_INDEXMGR)) {
       schemaRecordIdAsString = db.getStorageInfo().getConfiguration().getIndexMgrRecordId();
     } else {
       throw new UnsupportedOperationException("Invalid metadata: " + metadata.getName());
@@ -265,7 +265,7 @@ public class OTraverseExecutionPlanner {
   }
 
   private void handleRidsAsTarget(
-      OSelectExecutionPlan plan, List<ORid> rids, OCommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan plan, List<ORid> rids, CommandContext ctx, boolean profilingEnabled) {
     List<YTRecordId> actualRids = new ArrayList<>();
     for (ORid rid : rids) {
       actualRids.add(rid.toRecordId((YTResult) null, ctx));
@@ -276,7 +276,7 @@ public class OTraverseExecutionPlanner {
   private void handleClassAsTarget(
       OSelectExecutionPlan plan,
       OFromClause queryTarget,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     OIdentifier identifier = queryTarget.getItem().getIdentifier();
 
@@ -290,7 +290,7 @@ public class OTraverseExecutionPlanner {
   private void handleClustersAsTarget(
       OSelectExecutionPlan plan,
       List<OCluster> clusters,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     var db = ctx.getDatabase();
     Boolean orderByRidAsc = null; // null: no order. true: asc, false:desc
@@ -333,9 +333,9 @@ public class OTraverseExecutionPlanner {
   private void handleSubqueryAsTarget(
       OSelectExecutionPlan plan,
       OStatement subQuery,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
-    OBasicCommandContext subCtx = new OBasicCommandContext();
+    BasicCommandContext subCtx = new BasicCommandContext();
     subCtx.setDatabase(ctx.getDatabase());
     subCtx.setParent(ctx);
     OInternalExecutionPlan subExecutionPlan =

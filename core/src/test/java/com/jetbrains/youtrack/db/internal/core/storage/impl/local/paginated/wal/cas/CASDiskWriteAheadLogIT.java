@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.cas;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAbstractWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
@@ -50,7 +50,7 @@ public class CASDiskWriteAheadLogIT {
 
   @Before
   public void before() {
-    OFileUtils.deleteRecursively(testDirectory.toFile());
+    FileUtils.deleteRecursively(testDirectory.toFile());
   }
 
   @Test
@@ -59,7 +59,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int i = 0; i < iterations; i++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -166,7 +166,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int i = 0; i < iterations; i++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -273,7 +273,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int i = 0; i < iterations; i++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -377,7 +377,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int i = 0; i < iterations; i++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -476,7 +476,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddSingleRecordSeveralPages() throws Exception {
     final int iterations = 10;
     for (int i = 0; i < iterations; i++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -583,7 +583,7 @@ public class CASDiskWriteAheadLogIT {
 
     final int iterations = 10;
     for (int i = 0; i < iterations; i++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -685,7 +685,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddFewSmallRecords() throws Exception {
     final int iterations = 10;
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -814,7 +814,7 @@ public class CASDiskWriteAheadLogIT {
 
     final int iterations = 10;
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -940,7 +940,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -1078,7 +1078,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -1212,7 +1212,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -1341,7 +1341,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -1466,7 +1466,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -1603,7 +1603,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 10;
 
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       try {
@@ -1738,7 +1738,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
       try {
         final Random random = new Random(seed);
 
@@ -1872,7 +1872,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
       try {
         final Random random = new Random(seed);
 
@@ -2002,7 +2002,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
       try {
         final Random random = new Random(seed);
 
@@ -2136,7 +2136,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
       try {
         final Random random = new Random(seed);
 
@@ -2268,7 +2268,7 @@ public class CASDiskWriteAheadLogIT {
       final long seed = System.nanoTime();
       final Random random = new Random(seed);
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
       try {
         final int numberOfSegmentsToAdd = random.nextInt(4) + 3;
 
@@ -2486,7 +2486,7 @@ public class CASDiskWriteAheadLogIT {
       final long seed = System.nanoTime();
       final Random random = new Random(seed);
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
       try {
         final int numberOfSegmentsToAdd = random.nextInt(4) + 3;
 
@@ -2691,7 +2691,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -2826,7 +2826,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -2957,7 +2957,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -3100,7 +3100,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -3239,7 +3239,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = 26866978951787L; // System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -3371,7 +3371,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -3499,7 +3499,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -3641,7 +3641,7 @@ public class CASDiskWriteAheadLogIT {
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
 
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -3780,7 +3780,7 @@ public class CASDiskWriteAheadLogIT {
 
     for (int n = 0; n < iterations; n++) {
       final long seed = System.nanoTime();
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       try {
         final Random random = new Random(seed);
@@ -3844,7 +3844,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 1;
 
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       CASDiskWriteAheadLog wal =
           new CASDiskWriteAheadLog(
@@ -3925,7 +3925,7 @@ public class CASDiskWriteAheadLogIT {
   public void cutTillTest() throws Exception {
     int iterations = 1;
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       final Random random = new Random(seed);
@@ -4074,7 +4074,7 @@ public class CASDiskWriteAheadLogIT {
 
   @Test
   public void testCutTillLimit() throws Exception {
-    OFileUtils.deleteRecursively(testDirectory.toFile());
+    FileUtils.deleteRecursively(testDirectory.toFile());
 
     final long seed = System.nanoTime();
     final Random random = new Random(seed);
@@ -4180,7 +4180,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAppendSegment() throws Exception {
     int iterations = 1;
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       System.out.println("testAppendSegment seed : " + seed);
@@ -4331,7 +4331,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAppendSegmentNext() throws Exception {
     final int iterations = 1;
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       System.out.println("testAppendSegmentNext seed : " + seed);
@@ -4544,7 +4544,7 @@ public class CASDiskWriteAheadLogIT {
     final int iterations = 1;
 
     for (int n = 0; n < iterations; n++) {
-      OFileUtils.deleteRecursively(testDirectory.toFile());
+      FileUtils.deleteRecursively(testDirectory.toFile());
 
       final long seed = System.nanoTime();
       final Random random = new Random(seed);

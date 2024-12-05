@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.thread;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OService;
 import com.jetbrains.youtrack.db.internal.common.util.OUncaughtExceptionHandler;
 
@@ -72,11 +72,11 @@ public abstract class OSoftThread extends Thread implements OService {
         afterExecution();
       } catch (Exception e) {
         if (dumpExceptions) {
-          OLogManager.instance().error(this, "Error during thread execution", e);
+          LogManager.instance().error(this, "Error during thread execution", e);
         }
       } catch (Error e) {
         if (dumpExceptions) {
-          OLogManager.instance().error(this, "Error during thread execution", e);
+          LogManager.instance().error(this, "Error during thread execution", e);
         }
         shutdown();
         throw e;

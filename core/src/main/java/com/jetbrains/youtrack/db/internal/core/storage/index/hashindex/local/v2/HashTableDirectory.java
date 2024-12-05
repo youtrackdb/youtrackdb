@@ -23,15 +23,15 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import java.io.IOException;
 
 /**
  * @since 5/14/14
  */
-public class HashTableDirectory extends ODurableComponent {
+public class HashTableDirectory extends DurableComponent {
 
   static final int ITEM_SIZE = OLongSerializer.LONG_SIZE;
 
@@ -47,7 +47,7 @@ public class HashTableDirectory extends ODurableComponent {
       final String defaultExtension,
       final String name,
       final String lockName,
-      final OAbstractPaginatedStorage storage) {
+      final AbstractPaginatedStorage storage) {
     super(storage, name, defaultExtension, lockName);
     this.firstEntryIndex = 0;
   }

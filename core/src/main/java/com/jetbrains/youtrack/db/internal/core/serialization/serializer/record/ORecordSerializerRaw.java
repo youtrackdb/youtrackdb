@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
@@ -74,7 +74,7 @@ public class ORecordSerializerRaw implements ORecordSerializer {
     } catch (Exception e) {
       final String message =
           "Error on unmarshalling object in binary format: " + iSource.getIdentity();
-      OLogManager.instance().error(this, message, e);
+      LogManager.instance().error(this, message, e);
       throw YTException.wrapException(new YTSerializationException(message), e);
     }
   }

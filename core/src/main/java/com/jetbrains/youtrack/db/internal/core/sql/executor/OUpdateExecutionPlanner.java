@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
@@ -64,7 +64,7 @@ public class OUpdateExecutionPlanner {
         oUpdateStatement.getTimeout() == null ? null : oUpdateStatement.getTimeout().copy();
   }
 
-  public OUpdateExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OUpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     OUpdateExecutionPlan result = new OUpdateExecutionPlan(ctx);
 
     handleTarget(result, ctx, this.target, this.whereClause, this.timeout, enableProfiling);
@@ -92,13 +92,13 @@ public class OUpdateExecutionPlanner {
    * @param ctx  the executino context
    */
   private void convertToModifiableResult(
-      OUpdateExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
     plan.chain(new ConvertToUpdatableResultStep(ctx, profilingEnabled));
   }
 
   private void handleResultForReturnCount(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean returnCount,
       boolean profilingEnabled) {
     if (returnCount) {
@@ -108,7 +108,7 @@ public class OUpdateExecutionPlanner {
 
   private void handleResultForReturnAfter(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean returnAfter,
       OProjection returnProjection,
       boolean profilingEnabled) {
@@ -123,7 +123,7 @@ public class OUpdateExecutionPlanner {
 
   private void handleResultForReturnBefore(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean returnBefore,
       OProjection returnProjection,
       boolean profilingEnabled) {
@@ -136,13 +136,13 @@ public class OUpdateExecutionPlanner {
   }
 
   private void handleSave(
-      OUpdateExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      OUpdateExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     result.chain(new SaveElementStep(ctx, profilingEnabled));
   }
 
   private void handleTimeout(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OTimeout timeout,
       boolean profilingEnabled) {
     if (timeout != null && timeout.getVal().longValue() > 0) {
@@ -152,7 +152,7 @@ public class OUpdateExecutionPlanner {
 
   private void handleReturnBefore(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean returnBefore,
       boolean profilingEnabled) {
     if (returnBefore) {
@@ -161,7 +161,7 @@ public class OUpdateExecutionPlanner {
   }
 
   private void handleLimit(
-      OUpdateExecutionPlan plan, OCommandContext ctx, OLimit limit, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, OLimit limit, boolean profilingEnabled) {
     if (limit != null) {
       plan.chain(new LimitExecutionStep(limit, ctx, profilingEnabled));
     }
@@ -169,7 +169,7 @@ public class OUpdateExecutionPlanner {
 
   private void handleUpsert(
       OUpdateExecutionPlan plan,
-      OCommandContext ctx,
+      CommandContext ctx,
       OFromClause target,
       OWhereClause where,
       boolean upsert,
@@ -181,7 +181,7 @@ public class OUpdateExecutionPlanner {
 
   private void handleOperations(
       OUpdateExecutionPlan plan,
-      OCommandContext ctx,
+      CommandContext ctx,
       List<OUpdateOperations> ops,
       boolean profilingEnabled) {
     if (ops != null) {
@@ -214,7 +214,7 @@ public class OUpdateExecutionPlanner {
 
   private void handleTarget(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OFromClause target,
       OWhereClause whereClause,
       OTimeout timeout,

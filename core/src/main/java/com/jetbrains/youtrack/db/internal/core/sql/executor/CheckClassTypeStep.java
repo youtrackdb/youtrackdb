@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
  * This step is used just as a gate check for classes (eg. for CREATE VERTEX to make sure that the
@@ -29,20 +29,20 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
    * @param profilingEnabled true to collect execution stats
    */
   public CheckClassTypeStep(
-      String targetClass, String parentClass, OCommandContext ctx, boolean profilingEnabled) {
+      String targetClass, String parentClass, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.targetClass = targetClass;
     this.parentClass = parentClass;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext context) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext context) throws YTTimeoutException {
     if (prev != null) {
       prev.start(context).close(ctx);
     }
 
     if (this.targetClass.equals(this.parentClass)) {
-      return OExecutionStream.empty();
+      return ExecutionStream.empty();
     }
     YTDatabaseSessionInternal db = context.getDatabase();
 
@@ -71,12 +71,12 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
       throw new YTCommandExecutionException(
           "Class  " + this.targetClass + " is not a subclass of " + this.parentClass);
     }
-    return OExecutionStream.empty();
+    return ExecutionStream.empty();
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ CHECK CLASS HIERARCHY");
@@ -89,7 +89,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new CheckClassTypeStep(targetClass, parentClass, ctx, profilingEnabled);
   }
 

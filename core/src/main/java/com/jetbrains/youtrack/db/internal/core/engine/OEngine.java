@@ -20,13 +20,13 @@
 package com.jetbrains.youtrack.db.internal.core.engine;
 
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 
 public interface OEngine {
 
   String getName();
 
-  OStorage createStorage(
+  Storage createStorage(
       String iURL,
       long maxWalSegSize,
       long doubleWriteLogMaxSegSize,

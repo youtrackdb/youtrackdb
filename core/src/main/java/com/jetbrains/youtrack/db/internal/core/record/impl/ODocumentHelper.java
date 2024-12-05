@@ -24,8 +24,8 @@ import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -50,7 +50,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.s
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionRuntime;
 import com.jetbrains.youtrack.db.internal.core.sql.method.OSQLMethod;
 import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
@@ -119,7 +119,7 @@ public class ODocumentHelper {
   public static void sort(
       List<? extends YTIdentifiable> ioResultSet,
       List<OPair<String, String>> iOrderCriteria,
-      OCommandContext context) {
+      CommandContext context) {
     if (ioResultSet != null) {
       ioResultSet.sort(new ODocumentComparator(iOrderCriteria, context));
     }
@@ -280,7 +280,7 @@ public class ODocumentHelper {
 
   public static <RET> RET getFieldValue(YTDatabaseSessionInternal session, Object value,
       final String iFieldName) {
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(session);
 
     return getFieldValue(session, value, iFieldName, context);
@@ -289,7 +289,7 @@ public class ODocumentHelper {
   @SuppressWarnings("unchecked")
   public static <RET> RET getFieldValue(
       YTDatabaseSessionInternal session, Object value, final String iFieldName,
-      @Nonnull final OCommandContext iContext) {
+      @Nonnull final CommandContext iContext) {
     if (value == null) {
       return null;
     }
@@ -364,8 +364,8 @@ public class ODocumentHelper {
 
         nextSeparatorPos = end;
 
-        if (value instanceof OCommandContext) {
-          value = ((OCommandContext) value).getVariables();
+        if (value instanceof CommandContext) {
+          value = ((CommandContext) value).getVariables();
         }
 
         if (value instanceof YTIdentifiable) {
@@ -569,7 +569,7 @@ public class ODocumentHelper {
 
           } else {
             // CONDITION
-            OSQLPredicate pred = new OSQLPredicate(iContext, indexAsString);
+            SQLPredicate pred = new SQLPredicate(iContext, indexAsString);
             final HashSet<Object> values = new LinkedHashSet<Object>();
 
             for (Object v : OMultiValue.getMultiValueIterable(value)) {
@@ -764,7 +764,7 @@ public class ODocumentHelper {
     return true;
   }
 
-  protected static Object getIndexPart(final OCommandContext iContext, final String indexPart) {
+  protected static Object getIndexPart(final CommandContext iContext, final String indexPart) {
     Object index = indexPart;
     if (indexPart.indexOf(',') == -1
         && (indexPart.charAt(0) == '"' || indexPart.charAt(0) == '\'')) {
@@ -911,7 +911,7 @@ public class ODocumentHelper {
   }
 
   public static Object evaluateFunction(
-      final Object currentValue, final String iFunction, final OCommandContext iContext) {
+      final Object currentValue, final String iFunction, final CommandContext iContext) {
     if (currentValue == null) {
       return null;
     }

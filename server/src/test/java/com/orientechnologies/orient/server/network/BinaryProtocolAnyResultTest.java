@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
@@ -60,7 +60,7 @@ public class BinaryProtocolAnyResultTest {
     server.shutdown();
 
     YouTrackDBManager.instance().shutdown();
-    OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
+    FileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
     YouTrackDBManager.instance().startup();
   }
 }

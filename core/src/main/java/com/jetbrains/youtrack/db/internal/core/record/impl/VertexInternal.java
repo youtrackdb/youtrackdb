@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -992,7 +992,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
           || edge.isLightweight()) {
         vertex.removePropertyInternal(edgeField);
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 vertex,
                 "Error detaching edge: the vertex collection field is of type "

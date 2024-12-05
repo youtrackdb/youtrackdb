@@ -2,14 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceOrderType;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -40,7 +40,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
     YTSequence seq =
         db
@@ -49,7 +49,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
             .getSequence(this.name.getStringValue());
     if (seq != null) {
       if (ifNotExists) {
-        return OExecutionStream.empty();
+        return ExecutionStream.empty();
       } else {
         throw new YTCommandExecutionException(
             "Sequence " + name.getStringValue() + " already exists");
@@ -63,14 +63,14 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
       executeInternal(ctx, result);
     } catch (ExecutionException | InterruptedException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
-      OLogManager.instance().error(this, message, exc, (Object) null);
+      LogManager.instance().error(this, message, exc, (Object) null);
       throw new YTCommandExecutionException(message);
     }
 
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
-  private void executeInternal(OCommandContext ctx, YTResultInternal result)
+  private void executeInternal(CommandContext ctx, YTResultInternal result)
       throws ExecutionException, InterruptedException {
     YTSequence.CreateParams params = createParams(ctx, result);
     YTSequence.SEQUENCE_TYPE seqType =
@@ -82,7 +82,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
         .createSequence(this.name.getStringValue(), seqType, params);
   }
 
-  private YTSequence.CreateParams createParams(OCommandContext ctx, YTResultInternal result) {
+  private YTSequence.CreateParams createParams(CommandContext ctx, YTResultInternal result) {
     YTSequence.CreateParams params = new YTSequence.CreateParams();
     if (start != null) {
       Object o = start.execute((YTIdentifiable) null, ctx);

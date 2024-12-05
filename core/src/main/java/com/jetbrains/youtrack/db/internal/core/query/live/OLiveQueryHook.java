@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.query.live;
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.QUERY_LIVE_SUPPORT;
 
 import com.jetbrains.youtrack.db.internal.common.concur.resource.OCloseable;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
@@ -68,7 +68,7 @@ public class OLiveQueryHook {
   public static Integer subscribe(
       Integer token, OLiveQueryListener iListener, YTDatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               db,
               "Live query support is disabled impossible to subscribe a listener, set '%s' to true"
@@ -89,7 +89,7 @@ public class OLiveQueryHook {
 
   public static void unsubscribe(Integer id, YTDatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               db,
               "Live query support is disabled impossible to unsubscribe a listener, set '%s' to"
@@ -103,7 +103,7 @@ public class OLiveQueryHook {
         ops.queueThread.unsubscribe(id);
       }
     } catch (Exception e) {
-      OLogManager.instance().warn(OLiveQueryHook.class, "Error on unsubscribing client", e);
+      LogManager.instance().warn(OLiveQueryHook.class, "Error on unsubscribing client", e);
     }
   }
 
@@ -143,7 +143,7 @@ public class OLiveQueryHook {
       }
     } catch (YTDatabaseException ex) {
       // This catch and log the exception because in some case is suppressing the real exception
-      OLogManager.instance().error(iDatabase, "Error cleaning the live query resources", ex);
+      LogManager.instance().error(iDatabase, "Error cleaning the live query resources", ex);
     }
   }
 

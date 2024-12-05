@@ -16,8 +16,8 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandPredicate;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.OTraverse;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
@@ -27,7 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.HashMap;
 import java.util.List;
@@ -310,7 +310,7 @@ public class TraverseTest extends DocumentDBBaseTest {
                   @Override
                   public Object evaluate(
                       YTIdentifiable iRecord, EntityImpl iCurrentResult,
-                      OCommandContext iContext) {
+                      CommandContext iContext) {
                     return ((Integer) iContext.getVariable("depth")) <= 2;
                   }
                 })) {
@@ -322,13 +322,13 @@ public class TraverseTest extends DocumentDBBaseTest {
   @Test
   public void traverseAPIandSQLIterating() {
     int cycles = 0;
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(database);
 
     for (YTIdentifiable id :
         new OTraverse(database)
             .target(database.browseClass("Movie").iterator())
-            .predicate(new OSQLPredicate(context, "$depth <= 2"))) {
+            .predicate(new SQLPredicate(context, "$depth <= 2"))) {
       cycles++;
     }
     Assert.assertTrue(cycles > 0);

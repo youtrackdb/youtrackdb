@@ -2,9 +2,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OForEachBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
@@ -27,7 +27,7 @@ public class ForEachStep extends AbstractExecutionStep {
       OIdentifier loopVariable,
       OExpression oExpression,
       List<OStatement> statements,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean enableProfiling) {
     super(ctx, enableProfiling);
     this.loopVariable = loopVariable;
@@ -36,16 +36,16 @@ public class ForEachStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
 
-    OExecutionStream prevStream = prev.start(ctx);
+    ExecutionStream prevStream = prev.start(ctx);
     prevStream.close(ctx);
     Iterator<?> iterator = init(ctx);
     while (iterator.hasNext()) {
       ctx.setVariable(loopVariable.getStringValue(), iterator.next());
       OScriptExecutionPlan plan = initPlan(ctx);
-      OExecutionStepInternal result = plan.executeFull();
+      ExecutionStepInternal result = plan.executeFull();
       if (result != null) {
         return result.start(ctx);
       }
@@ -54,14 +54,14 @@ public class ForEachStep extends AbstractExecutionStep {
     return new EmptyStep(ctx, false).start(ctx);
   }
 
-  protected Iterator<?> init(OCommandContext ctx) {
+  protected Iterator<?> init(CommandContext ctx) {
     var db = ctx.getDatabase();
     Object val = source.execute(new YTResultInternal(db), ctx);
     return OMultiValue.getMultiValueIterator(val);
   }
 
-  public OScriptExecutionPlan initPlan(OCommandContext ctx) {
-    OBasicCommandContext subCtx1 = new OBasicCommandContext();
+  public OScriptExecutionPlan initPlan(CommandContext ctx) {
+    BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
     OScriptExecutionPlan plan = new OScriptExecutionPlan(subCtx1);
     for (OStatement stm : body) {

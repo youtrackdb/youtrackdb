@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -185,7 +185,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
   @Override
   public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
-      OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
+      CommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     final OIndexInternal internalIndex = index.getInternal();
@@ -286,7 +286,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     return equals(iContext.getDatabase(), iLeft, iRight);
   }
 
@@ -294,7 +294,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   public boolean evaluate(
       final OBinaryField iFirstField,
       final OBinaryField iSecondField,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
     return serializer.getComparator().isEqual(iFirstField, iSecondField);
   }

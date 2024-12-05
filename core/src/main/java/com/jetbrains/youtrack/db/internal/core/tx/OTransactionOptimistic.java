@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.tx;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -53,9 +53,9 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODirtyManager;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.schedule.OScheduledEvent;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.OStorageProxy;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges.OPERATION;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
 import java.io.ByteArrayOutputStream;
@@ -317,7 +317,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       final Object key,
       final YTIdentifiable iValue) {
     // index changes are tracked on server in case of client-server deployment
-    assert database.getStorage() instanceof OAbstractPaginatedStorage;
+    assert database.getStorage() instanceof AbstractPaginatedStorage;
 
     changed = true;
 
@@ -413,7 +413,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
 
     if (database.isRemote()) {
-      final OStorage storage = database.getStorage();
+      final Storage storage = database.getStorage();
       ((OStorageProxy) storage).rollback(OTransactionOptimistic.this);
     }
 
@@ -781,7 +781,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         try {
           database.afterCommitOperations();
         } catch (Exception e) {
-          OLogManager.instance().error(this,
+          LogManager.instance().error(this,
               "Error during after commit callback invocation", e);
         }
       }

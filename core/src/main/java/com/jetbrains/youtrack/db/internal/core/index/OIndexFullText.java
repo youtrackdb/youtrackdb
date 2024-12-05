@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges.OPERATION;
@@ -61,7 +61,7 @@ public class OIndexFullText extends OIndexMultiValues {
 
   private Set<String> stopWords;
 
-  public OIndexFullText(OIndexMetadata im, final OStorage storage) {
+  public OIndexFullText(OIndexMetadata im, final Storage storage) {
     super(im, storage);
     acquireExclusiveLock();
     try {

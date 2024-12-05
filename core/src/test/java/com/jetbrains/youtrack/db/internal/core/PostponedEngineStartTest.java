@@ -18,9 +18,8 @@
 package com.jetbrains.youtrack.db.internal.core;
 
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -37,8 +36,8 @@ import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.ORecordCallback;
 import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.config.OClusterBasedStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionOptimistic;
@@ -153,7 +152,7 @@ public class PostponedEngineStartTest {
     OEngine engine = YOU_TRACK.getEngineIfRunning(ENGINE2.getName());
     Assert.assertNull(engine);
 
-    final OStorage storage =
+    final Storage storage =
         ENGINE2.createStorage(
             ENGINE2.getName() + ":storage",
             125 * 1024 * 1024,
@@ -220,13 +219,13 @@ public class PostponedEngineStartTest {
     }
 
     @Override
-    public OStorage createStorage(
+    public Storage createStorage(
         String iURL,
         long maxWalSegSize,
         long doubleWriteLogMaxSegSize,
         int storageId,
         YouTrackDBInternal context) {
-      return new OStorage() {
+      return new Storage() {
 
         @Override
         public List<String> backup(
@@ -412,7 +411,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public OPaginatedCluster.RECORD_STATUS getRecordStatus(YTRID rid) {
+        public PaginatedCluster.RECORD_STATUS getRecordStatus(YTRID rid) {
           return null;
         }
 
@@ -492,7 +491,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public Object command(YTDatabaseSessionInternal database, OCommandRequestText iCommand) {
+        public Object command(YTDatabaseSessionInternal database, CommandRequestText iCommand) {
           return null;
         }
 
@@ -536,7 +535,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public OStorage getUnderlying() {
+        public Storage getUnderlying() {
           return null;
         }
 
@@ -697,7 +696,7 @@ public class PostponedEngineStartTest {
     }
 
     @Override
-    public OStorage createStorage(
+    public Storage createStorage(
         String iURL,
         long maxWalSegSize,
         long doubleWriteLogMaxSegSize,

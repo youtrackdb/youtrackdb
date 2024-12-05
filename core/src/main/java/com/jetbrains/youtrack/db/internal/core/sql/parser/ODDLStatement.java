@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ODDLExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.YTExecutionResultSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,12 +24,12 @@ public abstract class ODDLStatement extends OStatement {
     super(p, id);
   }
 
-  public abstract OExecutionStream executeDDL(OCommandContext ctx);
+  public abstract ExecutionStream executeDDL(CommandContext ctx);
 
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -46,8 +46,8 @@ public abstract class ODDLStatement extends OStatement {
   }
 
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -57,7 +57,7 @@ public abstract class ODDLStatement extends OStatement {
     return new YTExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);
   }
 
-  public OInternalExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     return new ODDLExecutionPlan(ctx, this);
   }
 }

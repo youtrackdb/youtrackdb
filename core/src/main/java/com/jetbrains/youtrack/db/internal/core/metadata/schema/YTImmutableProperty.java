@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -215,7 +215,7 @@ public class YTImmutableProperty implements YTProperty {
     try {
       mc = YTType.convert(session, value, target);
     } catch (RuntimeException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Error initializing %s value check on property %s", e, type, fullName);
       mc = null;
     }

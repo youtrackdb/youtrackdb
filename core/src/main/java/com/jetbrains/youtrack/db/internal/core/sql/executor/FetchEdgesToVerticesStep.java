@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.ODirection;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OMultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,7 +31,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
       String toAlias,
       OIdentifier targetClass,
       OIdentifier targetCluster,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.toAlias = toAlias;
@@ -40,7 +40,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -52,21 +52,21 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
           private final Iterator iter = source.iterator();
 
           @Override
-          public OExecutionStream next(OCommandContext ctx) {
+          public ExecutionStream next(CommandContext ctx) {
             return edges(ctx.getDatabase(), iter.next());
           }
 
           @Override
-          public boolean hasNext(OCommandContext ctx) {
+          public boolean hasNext(CommandContext ctx) {
             return iter.hasNext();
           }
 
           @Override
-          public void close(OCommandContext ctx) {
+          public void close(CommandContext ctx) {
           }
         };
 
-    return new OMultipleExecutionStream(res);
+    return new MultipleExecutionStream(res);
   }
 
   private Stream<Object> init() {
@@ -83,7 +83,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
         Spliterators.spliteratorUnknownSize((Iterator<?>) toValues, 0), false);
   }
 
-  private OExecutionStream edges(YTDatabaseSessionInternal db, Object from) {
+  private ExecutionStream edges(YTDatabaseSessionInternal db, Object from) {
     if (from instanceof YTResult) {
       from = ((YTResult) from).toEntity();
     }
@@ -98,7 +98,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
           StreamSupport.stream(edges.spliterator(), false)
               .filter((edge) -> matchesClass(edge) && matchesCluster(edge))
               .map(e -> new YTResultInternal(db, e));
-      return OExecutionStream.resultIterator(stream.iterator());
+      return ExecutionStream.resultIterator(stream.iterator());
     } else {
       throw new YTCommandExecutionException("Invalid vertex: " + from);
     }
@@ -125,7 +125,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ FOR EACH x in " + toAlias + "\n";
     result += spaces + "       FETCH EDGES TO x";
     if (targetClass != null) {

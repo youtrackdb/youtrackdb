@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ODDLStatement;
 import java.util.Collections;
 import java.util.List;
@@ -15,11 +15,11 @@ import java.util.List;
 public class ODDLExecutionPlan implements OInternalExecutionPlan {
 
   private final ODDLStatement statement;
-  private final OCommandContext ctx;
+  private final CommandContext ctx;
 
   private boolean executed = false;
 
-  public ODDLExecutionPlan(OCommandContext ctx, ODDLStatement stm) {
+  public ODDLExecutionPlan(CommandContext ctx, ODDLStatement stm) {
     this.ctx = ctx;
     this.statement = stm;
   }
@@ -29,16 +29,16 @@ public class ODDLExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OCommandContext getContext() {
+  public CommandContext getContext() {
     return ctx;
   }
 
   @Override
-  public OExecutionStream start() {
-    return OExecutionStream.empty();
+  public ExecutionStream start() {
+    return ExecutionStream.empty();
   }
 
-  public void reset(OCommandContext ctx) {
+  public void reset(CommandContext ctx) {
     executed = false;
   }
 
@@ -52,25 +52,25 @@ public class ODDLExecutionPlan implements OInternalExecutionPlan {
     return false;
   }
 
-  public OExecutionStream executeInternal(OBasicCommandContext ctx)
+  public ExecutionStream executeInternal(BasicCommandContext ctx)
       throws YTCommandExecutionException {
     if (executed) {
       throw new YTCommandExecutionException(
           "Trying to execute a result-set twice. Please use reset()");
     }
     executed = true;
-    OExecutionStream result = statement.executeDDL(this.ctx);
+    ExecutionStream result = statement.executeDDL(this.ctx);
     return result;
   }
 
   @Override
-  public List<OExecutionStep> getSteps() {
+  public List<ExecutionStep> getSteps() {
     return Collections.emptyList();
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ DDL\n" + "  " + statement.toString();
     return result;
   }

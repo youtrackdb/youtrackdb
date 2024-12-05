@@ -7,15 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectWithoutTargetStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OrientSql;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SimpleNode;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -618,10 +610,10 @@ public class OSelectStatementTest {
     assertFalse(((OBinaryCondition) flattended.get(0).subBlocks.get(0)).right.isBaseIdentifier());
     assertFalse(
         ((OBinaryCondition) flattended.get(0).subBlocks.get(0))
-            .left.isEarlyCalculated(new OBasicCommandContext()));
+            .left.isEarlyCalculated(new BasicCommandContext()));
     assertTrue(
         ((OBinaryCondition) flattended.get(0).subBlocks.get(0))
-            .right.isEarlyCalculated(new OBasicCommandContext()));
+            .right.isEarlyCalculated(new BasicCommandContext()));
   }
 
   @Test

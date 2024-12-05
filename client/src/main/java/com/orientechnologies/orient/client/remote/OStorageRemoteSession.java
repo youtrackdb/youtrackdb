@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.client.remote;
 
 import com.jetbrains.youtrack.db.internal.common.io.OIOException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OCloseRequest;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
@@ -142,7 +142,7 @@ public class OStorageRemoteSession {
       OChannelBinaryAsynchClient network = null;
       try {
         network =
-            OStorageRemote.getNetwork(
+            StorageRemote.getNetwork(
                 nodeSession.getServerURL(), connectionManager, clientConfiguration);
         OCloseRequest request = new OCloseRequest();
         network.beginRequest(request.getCommand(), this);
@@ -151,12 +151,12 @@ public class OStorageRemoteSession {
         connectionManager.release(network);
       } catch (OIOException ex) {
         // IGNORING IF THE SERVER IS DOWN OR NOT REACHABLE THE SESSION IS AUTOMATICALLY CLOSED.
-        OLogManager.instance()
+        LogManager.instance()
             .debug(this, "Impossible to comunicate to the server for close: %s", ex);
         connectionManager.remove(network);
       } catch (IOException ex) {
         // IGNORING IF THE SERVER IS DOWN OR NOT REACHABLE THE SESSION IS AUTOMATICALLY CLOSED.
-        OLogManager.instance()
+        LogManager.instance()
             .debug(this, "Impossible to comunicate to the server for close: %s", ex);
         connectionManager.remove(network);
       }

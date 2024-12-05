@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationExceptio
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.query.OQueryAbstract;
+import com.jetbrains.youtrack.db.internal.core.query.QueryAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.OMemoryStream;
@@ -49,7 +49,7 @@ import java.util.Set;
  * @param <T> Record type to return.
  */
 @SuppressWarnings("serial")
-public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommandRequestText {
+public abstract class OSQLQuery<T> extends QueryAbstract<T> implements CommandRequestText {
 
   protected String text;
 
@@ -98,7 +98,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     return text;
   }
 
-  public OCommandRequestText setText(final String iText) {
+  public CommandRequestText setText(final String iText) {
     text = iText;
     return this;
   }
@@ -108,7 +108,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     return "sql." + text;
   }
 
-  public OCommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
+  public CommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
       ORecordSerializer serializer)
       throws YTSerializationException {
     final OMemoryStream buffer = new OMemoryStream(iStream);

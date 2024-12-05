@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -44,14 +44,14 @@ public class OWhereClause extends SimpleNode {
     super(p, id);
   }
 
-  public boolean matchesFilters(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean matchesFilters(YTIdentifiable currentRecord, CommandContext ctx) {
     if (baseExpression == null) {
       return true;
     }
     return baseExpression.evaluate(currentRecord, ctx);
   }
 
-  public boolean matchesFilters(YTResult currentRecord, OCommandContext ctx) {
+  public boolean matchesFilters(YTResult currentRecord, CommandContext ctx) {
     if (baseExpression == null) {
       return true;
     }
@@ -78,7 +78,7 @@ public class OWhereClause extends SimpleNode {
    * @return an estimation of the number of records of this class returned applying this filter, 0
    * if and only if sure that no records are returned
    */
-  public long estimate(YTClass oClass, long threshold, OCommandContext ctx) {
+  public long estimate(YTClass oClass, long threshold, CommandContext ctx) {
     var database = ctx.getDatabase();
     long count = oClass.count(database);
     if (count > 1) {
@@ -182,7 +182,7 @@ public class OWhereClause extends SimpleNode {
   }
 
   private static Map<String, Object> getEqualityOperations(
-      OAndBlock condition, OCommandContext ctx) {
+      OAndBlock condition, CommandContext ctx) {
     Map<String, Object> result = new HashMap<>();
     for (OBooleanExpression expression : condition.subBlocks) {
       if (expression instanceof OBinaryCondition b) {
@@ -320,7 +320,7 @@ public class OWhereClause extends SimpleNode {
     return baseExpression.isCacheable(session);
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
     return this.baseExpression.findIndex(info, ctx);
   }
 }

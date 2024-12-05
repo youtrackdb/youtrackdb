@@ -8,9 +8,9 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTR
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -41,8 +41,8 @@ public class InvalidRemovedFileIdsIT {
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
     var db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-    OStorage storage = db.getStorage();
-    OWriteCache writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
+    Storage storage = db.getStorage();
+    OWriteCache writeCache = ((AbstractPaginatedStorage) storage).getWriteCache();
     Map<String, Long> files = writeCache.files();
 
     Map<String, Integer> filesWithIntIds = new HashMap<>();
@@ -87,7 +87,7 @@ public class InvalidRemovedFileIdsIT {
     schema.createClass("c4");
 
     storage = db.getStorage();
-    writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
+    writeCache = ((AbstractPaginatedStorage) storage).getWriteCache();
 
     files = writeCache.files();
     final Set<Long> ids = new HashSet<>();

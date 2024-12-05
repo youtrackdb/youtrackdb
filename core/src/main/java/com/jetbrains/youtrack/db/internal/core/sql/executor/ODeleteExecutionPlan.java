@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 
 /**
@@ -8,7 +8,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
  */
 public class ODeleteExecutionPlan extends OUpdateExecutionPlan {
 
-  public ODeleteExecutionPlan(OCommandContext ctx) {
+  public ODeleteExecutionPlan(CommandContext ctx) {
     super(ctx);
   }
 
@@ -21,7 +21,7 @@ public class ODeleteExecutionPlan extends OUpdateExecutionPlan {
 
   @Override
   public boolean canBeCached() {
-    for (OExecutionStepInternal step : steps) {
+    for (ExecutionStepInternal step : steps) {
       if (!step.canBeCached()) {
         return false;
       }
@@ -30,7 +30,7 @@ public class ODeleteExecutionPlan extends OUpdateExecutionPlan {
   }
 
   @Override
-  public OInternalExecutionPlan copy(OCommandContext ctx) {
+  public OInternalExecutionPlan copy(CommandContext ctx) {
     ODeleteExecutionPlan copy = new ODeleteExecutionPlan(ctx);
     super.copyOn(copy, ctx);
     return copy;

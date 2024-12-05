@@ -2,8 +2,8 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.YTModificationOperationProhibitedException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
@@ -46,14 +46,14 @@ public class StorageBackupMTTest {
       backupIterationRecordCount.add(latch);
     }
     String testDirectory = DBTestBase.getDirectoryPath(getClass());
-    OFileUtils.createDirectoryTree(testDirectory);
+    FileUtils.createDirectoryTree(testDirectory);
     dbName = StorageBackupMTTest.class.getSimpleName();
     final String dbDirectory = testDirectory + "databases" + File.separator + dbName;
 
     final File backupDir = new File(testDirectory, "backupDir");
     final String backupDbName = StorageBackupMTTest.class.getSimpleName() + "BackUp";
 
-    OFileUtils.deleteRecursively(new File(dbDirectory));
+    FileUtils.deleteRecursively(new File(dbDirectory));
 
     try {
 
@@ -70,7 +70,7 @@ public class StorageBackupMTTest {
 
       backupClass.createIndex(db, "backupIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "num");
 
-      OFileUtils.deleteRecursively(backupDir);
+      FileUtils.deleteRecursively(backupDir);
 
       if (!backupDir.exists()) {
         Assert.assertTrue(backupDir.mkdirs());
@@ -101,7 +101,7 @@ public class StorageBackupMTTest {
       youTrackDB.close();
 
       final String backedUpDbDirectory = testDirectory + File.separator + backupDbName;
-      OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
+      FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
       System.out.println("create and restore");
 
@@ -133,7 +133,7 @@ public class StorageBackupMTTest {
         try {
           youTrackDB.close();
         } catch (Exception ex) {
-          OLogManager.instance().error(this, "", ex);
+          LogManager.instance().error(this, "", ex);
         }
       }
       try {
@@ -143,9 +143,9 @@ public class StorageBackupMTTest {
 
         youTrackDB.close();
 
-        OFileUtils.deleteRecursively(backupDir);
+        FileUtils.deleteRecursively(backupDir);
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "", ex);
+        LogManager.instance().error(this, "", ex);
       }
     }
   }
@@ -159,7 +159,7 @@ public class StorageBackupMTTest {
     }
 
     String testDirectory = DBTestBase.getDirectoryPath(getClass());
-    OFileUtils.createDirectoryTree(testDirectory);
+    FileUtils.createDirectoryTree(testDirectory);
 
     final String backupDbName = StorageBackupMTTest.class.getSimpleName() + "BackUp";
     final String backedUpDbDirectory = testDirectory + File.separator + backupDbName;
@@ -175,7 +175,7 @@ public class StorageBackupMTTest {
 
     try {
 
-      OFileUtils.deleteRecursively(new File(dbDirectory));
+      FileUtils.deleteRecursively(new File(dbDirectory));
 
       youTrackDB = new YouTrackDB("embedded:" + testDirectory, config);
 
@@ -191,7 +191,7 @@ public class StorageBackupMTTest {
 
       backupClass.createIndex(db, "backupIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "num");
 
-      OFileUtils.deleteRecursively(backupDir);
+      FileUtils.deleteRecursively(backupDir);
 
       if (!backupDir.exists()) {
         Assert.assertTrue(backupDir.mkdirs());
@@ -221,7 +221,7 @@ public class StorageBackupMTTest {
 
       youTrackDB.close();
 
-      OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
+      FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
       System.out.println("create and restore");
 
@@ -247,7 +247,7 @@ public class StorageBackupMTTest {
         try {
           youTrackDB.close();
         } catch (Exception ex) {
-          OLogManager.instance().error(this, "", ex);
+          LogManager.instance().error(this, "", ex);
         }
       }
       try {
@@ -257,9 +257,9 @@ public class StorageBackupMTTest {
 
         youTrackDB.close();
 
-        OFileUtils.deleteRecursively(backupDir);
+        FileUtils.deleteRecursively(backupDir);
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "", ex);
+        LogManager.instance().error(this, "", ex);
       }
     }
   }
@@ -356,7 +356,7 @@ public class StorageBackupMTTest {
           System.out.println(Thread.currentThread() + " done inc backup");
         }
       } catch (Exception | Error e) {
-        OLogManager.instance().error(this, "", e);
+        LogManager.instance().error(this, "", e);
         throw e;
       }
       finished.countDown();

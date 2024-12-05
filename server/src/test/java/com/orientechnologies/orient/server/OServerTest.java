@@ -3,8 +3,8 @@ package com.orientechnologies.orient.server;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerHandlerConfiguration;
@@ -29,7 +29,7 @@ public class OServerTest {
 
   @Before
   public void setUp() throws Exception {
-    OLogManager.instance().setConsoleLevel(Level.OFF.getName());
+    LogManager.instance().setConsoleLevel(Level.OFF.getName());
     prevPassword = System.setProperty("YOU_TRACK_DB_ROOT_PASSWORD", "rootPassword");
     prevOrientHome = System.setProperty("YOU_TRACK_DB_HOME", "./target/testhome");
 
@@ -50,7 +50,7 @@ public class OServerTest {
     }
 
     YouTrackDBManager.instance().shutdown();
-    OFileUtils.deleteRecursively(new File("./target/testhome"));
+    FileUtils.deleteRecursively(new File("./target/testhome"));
 
     if (prevOrientHome != null) {
       System.setProperty("YOU_TRACK_DB_HOME", prevOrientHome);

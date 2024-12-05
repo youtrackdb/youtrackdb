@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -8,7 +8,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.OBinarySerializerFactory;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OMurmurHash3HashFunction;
 import java.io.File;
 import org.junit.After;
@@ -28,7 +28,7 @@ public class OLocalHashTableV3TestIT extends OLocalHashTableV3Base {
     String buildDirectory = System.getProperty("buildDirectory", ".");
     final File dbDirectory = new File(buildDirectory, DB_NAME);
 
-    OFileUtils.deleteRecursively(dbDirectory);
+    FileUtils.deleteRecursively(dbDirectory);
     youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
 
     youTrackDB.execute(
@@ -39,17 +39,17 @@ public class OLocalHashTableV3TestIT extends OLocalHashTableV3Base {
         new OMurmurHash3HashFunction<Integer>(OIntegerSerializer.INSTANCE);
 
     localHashTable =
-        new OLocalHashTableV3<>(
+        new LocalHashTableV3<>(
             "localHashTableTest",
             ".imc",
             ".tsc",
             ".obf",
             ".nbh",
-            (OAbstractPaginatedStorage)
+            (AbstractPaginatedStorage)
                 ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage())
+        ((AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage())
             .getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null,

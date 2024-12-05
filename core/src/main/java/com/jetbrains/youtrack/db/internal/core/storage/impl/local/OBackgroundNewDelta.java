@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionData;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -39,7 +39,7 @@ public class OBackgroundNewDelta implements Runnable, OSyncSource {
       output.writeBoolean(false);
       outputStream.close();
     } catch (IOException e) {
-      OLogManager.instance().debug(this, "Error on network delta serialization", e);
+      LogManager.instance().debug(this, "Error on network delta serialization", e);
     } finally {
       finished.countDown();
     }

@@ -3,14 +3,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -326,7 +326,7 @@ public class OAlterClassStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     var database = ctx.getDatabase();
     YTClass oClass = database.getMetadata().getSchema().getClass(name.getStringValue());
     if (oClass == null) {
@@ -446,7 +446,7 @@ public class OAlterClassStatement extends ODDLStatement {
     result.setProperty("operation", "ALTER CLASS");
     result.setProperty("className", name.getStringValue());
     result.setProperty("result", "OK");
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   private void checkNotIndexed(YTDatabaseSessionInternal session, YTClass oClass) {
@@ -470,7 +470,7 @@ public class OAlterClassStatement extends ODDLStatement {
     }
   }
 
-  private void doSetSuperclass(OCommandContext ctx, YTClass oClass, OIdentifier superclassName) {
+  private void doSetSuperclass(CommandContext ctx, YTClass oClass, OIdentifier superclassName) {
     if (superclassName == null) {
       throw new YTCommandExecutionException("Invalid superclass name: " + this);
     }
@@ -490,7 +490,7 @@ public class OAlterClassStatement extends ODDLStatement {
   }
 
   private void doSetSuperclasses(
-      OCommandContext ctx, YTClass oClass, List<OIdentifier> superclassNames) {
+      CommandContext ctx, YTClass oClass, List<OIdentifier> superclassNames) {
     var database = ctx.getDatabase();
     if (superclassNames == null) {
       throw new YTCommandExecutionException("Invalid superclass name: " + this);

@@ -5,14 +5,14 @@
 // import com.orientechnologies.core.document.db.YTDatabaseDocumentTx;
 // import com.orientechnologies.core.record.db.YTIdentifiable;
 // import com.orientechnologies.core.impl.binary.serializer.serialization.OLinkSerializer;
-// import com.orientechnologies.core.storage.OStorage;
+// import com.orientechnologies.core.storage.Storage;
 // import com.orientechnologies.core.cache.storage.OCacheEntry;
 // import com.orientechnologies.core.cache.storage.OReadCache;
 // import com.orientechnologies.core.cache.storage.OWriteCache;
 // import com.orientechnologies.core.local.cache.storage.OWOWCache;
 // import com.orientechnologies.orient.core.storage.fs.OFileClassic;
 // import com.orientechnologies.core.cluster.storage.OClusterPage;
-// import com.orientechnologies.core.disk.storage.OLocalPaginatedStorage;
+// import com.orientechnologies.core.disk.storage.LocalPaginatedStorage;
 // import
 // com.orientechnologies.core.atomicoperations.paginated.local.impl.storage.OAtomicOperationsManager;
 // import com.orientechnologies.core.base.paginated.local.impl.storage.ODurablePage;
@@ -45,7 +45,7 @@
 //  private OReadCache  expectedReadCache;
 //  private OWriteCache expectedWriteCache;
 //
-//  private OLocalPaginatedStorage actualStorage;
+//  private LocalPaginatedStorage actualStorage;
 //
 //  private OAtomicOperationsManager actualAtomicOperationsManager;
 //
@@ -109,7 +109,7 @@
 //
 //    databaseDocumentTx.create();
 //
-//    actualStorage = (OLocalPaginatedStorage) databaseDocumentTx.getStorage();
+//    actualStorage = (LocalPaginatedStorage) databaseDocumentTx.getStorage();
 //    actualAtomicOperationsManager = actualStorage.getAtomicOperationsManager();
 //    ODiskWriteAheadLog writeAheadLog = (ODiskWriteAheadLog) actualStorage.getWALInstance();
 //
@@ -140,7 +140,7 @@
 //
 //    expectedDatabaseDocumentTx.create();
 //
-//    final OLocalPaginatedStorage expectedStorage = (OLocalPaginatedStorage)
+//    final LocalPaginatedStorage expectedStorage = (LocalPaginatedStorage)
 // expectedDatabaseDocumentTx.getStorage();
 //    expectedWriteCache = expectedStorage.getWriteCache();
 //    expectedReadCache = expectedStorage.getReadCache();
@@ -245,13 +245,13 @@
 //  }
 //
 //  private void assertFileRestoreFromWAL() throws IOException {
-//    OWOWCache actualWriteCache = (OWOWCache) ((OLocalPaginatedStorage)
+//    OWOWCache actualWriteCache = (OWOWCache) ((LocalPaginatedStorage)
 // (databaseDocumentTx.getStorage())).getWriteCache();
 //
 //    final long sbtreeFileId = actualWriteCache.fileIdByName(sbTree.getName() + ".sbt");
 //    final String nativeSBTreeFileName = actualWriteCache.nativeFileNameById(sbtreeFileId);
 //
-//    OStorage storage = databaseDocumentTx.getStorage();
+//    Storage storage = databaseDocumentTx.getStorage();
 //    databaseDocumentTx.activateOnCurrentThread();
 //    databaseDocumentTx.close();
 //    storage.close(true, false);

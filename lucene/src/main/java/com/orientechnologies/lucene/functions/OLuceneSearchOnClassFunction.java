@@ -2,11 +2,7 @@ package com.orientechnologies.lucene.functions;
 
 import static com.orientechnologies.lucene.functions.OLuceneFunctionsUtils.getOrCreateMemoryIndex;
 
-import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
-import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -18,6 +14,10 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
+import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
+import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
+import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
+import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     return true;
   }
@@ -58,7 +58,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] params,
-      OCommandContext ctx) {
+      CommandContext ctx) {
 
     YTResult result;
     if (iThis instanceof YTResult) {
@@ -122,7 +122,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     OLuceneFullTextIndex index = searchForIndex(target, ctx);
@@ -150,7 +150,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
     return Collections.emptySet();
   }
 
-  private Map<String, ?> getMetadata(OExpression[] args, OCommandContext ctx) {
+  private Map<String, ?> getMetadata(OExpression[] args, CommandContext ctx) {
     if (args.length == 2) {
       return getMetadata(args[1], ctx);
     }
@@ -159,7 +159,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
 
   @Override
   protected OLuceneFullTextIndex searchForIndex(
-      OFromClause target, OCommandContext ctx, OExpression... args) {
+      OFromClause target, CommandContext ctx, OExpression... args) {
     OFromItem item = target.getItem();
 
     String className = item.getIdentifier().getStringValue();
@@ -167,7 +167,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
     return searchForIndex(ctx, className);
   }
 
-  private static OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String className) {
+  private static OLuceneFullTextIndex searchForIndex(CommandContext ctx, String className) {
     var db = ctx.getDatabase();
     db.activateOnCurrentThread();
     OMetadataInternal dbMetadata = db.getMetadata();

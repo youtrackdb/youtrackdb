@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.common.directmemory;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTDirectMemoryAllocationFailedException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.types.OModifiableLong;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
@@ -330,7 +330,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     if (TRACK) {
       synchronized (this) {
         for (TrackedPointerReference reference : trackedReferences) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "DIRECT-TRACK: unreleased direct memory pointer `%X` detected.",
@@ -345,7 +345,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
       final long memCons = memoryConsumption.longValue();
 
       if (memCons > 0) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "DIRECT-TRACK: memory consumption is not zero (%d bytes), it may indicate presence"
@@ -383,7 +383,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     TrackedPointerReference reference;
     while ((reference = (TrackedPointerReference) trackedPointersQueue.poll()) != null) {
       if (trackedReferences.remove(reference)) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "DIRECT-TRACK: unreleased direct memory pointer `%X` detected.",
@@ -410,7 +410,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
         final TrackedPointerReference reference = trackedBuffers.remove(trackedBufferKey);
         if (reference == null) {
           final Object[] iAdditionalArgs = new Object[]{id(pointer)};
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "DIRECT-TRACK: untracked direct memory pointer `%X` detected.",
@@ -524,7 +524,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
       }
 
       final String memoryStat = printMemoryStatistics(accumulator);
-      OLogManager.instance().info(this, memoryStat);
+      LogManager.instance().info(this, memoryStat);
     }
   }
 

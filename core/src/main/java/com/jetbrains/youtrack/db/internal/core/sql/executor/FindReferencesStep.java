@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -12,7 +12,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   public FindReferencesStep(
       List<OIdentifier> classes,
       List<OCluster> clusters,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.classes = classes;
@@ -47,7 +47,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     var db = ctx.getDatabase();
     Set<YTRID> rids = fetchRidsToFind(ctx);
     List<ORecordIteratorCluster<Record>> clustersIterators = initClusterIterators(ctx);
@@ -59,7 +59,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
                           Spliterators.spliteratorUnknownSize(iterator, 0), false)
                       .flatMap((record) -> findMatching(db, rids, record));
                 });
-    return OExecutionStream.resultIterator(stream.iterator());
+    return ExecutionStream.resultIterator(stream.iterator());
   }
 
   private static Stream<? extends YTResult> findMatching(YTDatabaseSessionInternal db,
@@ -80,7 +80,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     return results.stream();
   }
 
-  private List<ORecordIteratorCluster<Record>> initClusterIterators(OCommandContext ctx) {
+  private List<ORecordIteratorCluster<Record>> initClusterIterators(CommandContext ctx) {
     var db = ctx.getDatabase();
     Collection<String> targetClusterNames = new HashSet<>();
 
@@ -119,12 +119,12 @@ public class FindReferencesStep extends AbstractExecutionStep {
         .collect(Collectors.toList());
   }
 
-  private Set<YTRID> fetchRidsToFind(OCommandContext ctx) {
+  private Set<YTRID> fetchRidsToFind(CommandContext ctx) {
     Set<YTRID> ridsToFind = new HashSet<>();
 
-    OExecutionStepInternal prevStep = prev;
+    ExecutionStepInternal prevStep = prev;
     assert prevStep != null;
-    OExecutionStream nextSlot = prevStep.start(ctx);
+    ExecutionStream nextSlot = prevStep.start(ctx);
     while (nextSlot.hasNext(ctx)) {
       YTResult nextRes = nextSlot.next(ctx);
       if (nextRes.isEntity()) {
@@ -221,7 +221,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ FIND REFERENCES\n");

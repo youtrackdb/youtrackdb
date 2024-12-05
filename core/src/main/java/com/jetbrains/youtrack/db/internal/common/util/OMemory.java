@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.common.util;
 
 import com.jetbrains.youtrack.db.internal.common.jnr.ONative;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 
 /**
@@ -59,7 +59,7 @@ public class OMemory {
     if (maxHeapSize != Long.MAX_VALUE
         && physicalMemory != null
         && maxHeapSize + maxCacheSize > physicalMemory.memoryLimit) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               OMemory.class,
               "The sum of the configured JVM maximum heap size ("
@@ -90,7 +90,7 @@ public class OMemory {
 
     final int max32BitCacheSize = 512;
     if (getJavaBitWidth() == 32 && diskCacheSize > max32BitCacheSize) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               GlobalConfiguration.class,
               "32 bit JVM is detected. Lowering disk cache size from %,dMB to %,dMB.",

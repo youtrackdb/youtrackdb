@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -30,7 +30,7 @@ public class OBetweenCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     Object firstValue = first.execute(currentRecord, ctx);
     if (firstValue == null) {
       return false;
@@ -57,7 +57,7 @@ public class OBetweenCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
 
     var db = ctx.getDatabase();
     if (first.isFunctionAny()) {
@@ -99,7 +99,7 @@ public class OBetweenCondition extends OBooleanExpression {
   }
 
   private boolean evaluateAny(YTDatabaseSession session, YTResult currentRecord,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
 
@@ -112,7 +112,7 @@ public class OBetweenCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, CommandContext ctx) {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
 

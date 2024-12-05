@@ -17,7 +17,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.schedule;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -487,7 +487,7 @@ public final class OCronExpression implements Serializable, Cloneable {
     } catch (ParseException pe) {
       throw pe;
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
+      LogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
 
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw new ParseException("Illegal cron expression format (" + e + ")", 0);
@@ -548,7 +548,7 @@ public final class OCronExpression implements Serializable, Cloneable {
                 throw new Exception();
               }
             } catch (Exception e) {
-              OLogManager.instance()
+              LogManager.instance()
                   .error(this, "Exception is suppressed, original exception is ", e);
               //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
               throw new ParseException(
@@ -735,7 +735,7 @@ public final class OCronExpression implements Serializable, Cloneable {
           throw new Exception();
         }
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
+        LogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
         throw new ParseException("A numeric value between 1 and 5 must follow the '#' option", i);
       }

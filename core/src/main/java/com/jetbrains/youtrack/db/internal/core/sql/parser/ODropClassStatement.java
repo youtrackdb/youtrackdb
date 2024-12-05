@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ public class ODropClassStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
     YTSchema schema = db.getMetadata().getSchema();
     String className;
@@ -39,7 +39,7 @@ public class ODropClassStatement extends ODDLStatement {
     YTClass clazz = schema.getClass(className);
     if (clazz == null) {
       if (ifExists) {
-        return OExecutionStream.empty();
+        return ExecutionStream.empty();
       }
       throw new YTCommandExecutionException("Class " + className + " does not exist");
     }
@@ -67,7 +67,7 @@ public class ODropClassStatement extends ODDLStatement {
     YTResultInternal result = new YTResultInternal(db);
     result.setProperty("operation", "drop class");
     result.setProperty("className", className);
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   @Override

@@ -7,9 +7,8 @@ import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OSBTreeBonsaiLocal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,10 +52,10 @@ public class OSBTreeBonsaiLocalTestIT {
 
     sbTree =
         new OSBTreeBonsaiLocal<>(
-            "actualSBTreeBonsaiLocalTest", ".irs", (OAbstractPaginatedStorage) db.getStorage());
+            "actualSBTreeBonsaiLocalTest", ".irs", (AbstractPaginatedStorage) db.getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
+        ((AbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null, atomicOperation -> sbTree.createComponent(atomicOperation));
 

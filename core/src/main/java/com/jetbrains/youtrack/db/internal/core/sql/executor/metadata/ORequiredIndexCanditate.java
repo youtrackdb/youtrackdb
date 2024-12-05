@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class ORequiredIndexCanditate implements OIndexCandidate {
   }
 
   @Override
-  public Optional<OIndexCandidate> normalize(OCommandContext ctx) {
+  public Optional<OIndexCandidate> normalize(CommandContext ctx) {
     ORequiredIndexCanditate newCanditates = new ORequiredIndexCanditate();
     for (OIndexCandidate candidate : canditates) {
       Optional<OIndexCandidate> result = candidate.normalize(ctx);

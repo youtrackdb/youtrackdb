@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -57,7 +57,7 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
     if (levelZero != null) {
       return levelZero.execute(iCurrentRecord, ctx);
     }
@@ -67,7 +67,7 @@ public class OBaseIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
     if (levelZero != null) {
       return levelZero.execute(iCurrentRecord, ctx);
     }
@@ -99,7 +99,7 @@ public class OBaseIdentifier extends SimpleNode {
   }
 
   public long estimateIndexedFunction(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (levelZero != null) {
       return levelZero.estimateIndexedFunction(target, context, operator, right);
     }
@@ -108,7 +108,7 @@ public class OBaseIdentifier extends SimpleNode {
   }
 
   public Iterable<YTIdentifiable> executeIndexedFunction(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (levelZero != null) {
       return levelZero.executeIndexedFunction(target, context, operator, right);
     }
@@ -128,7 +128,7 @@ public class OBaseIdentifier extends SimpleNode {
    * executed without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.levelZero == null) {
       return false;
     }
@@ -147,7 +147,7 @@ public class OBaseIdentifier extends SimpleNode {
    * on this target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.levelZero == null) {
       return false;
     }
@@ -166,7 +166,7 @@ public class OBaseIdentifier extends SimpleNode {
    * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
-      OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
+      OFromClause target, CommandContext context, OBinaryCompareOperator operator, Object right) {
     if (this.levelZero == null) {
       return false;
     }
@@ -209,7 +209,7 @@ public class OBaseIdentifier extends SimpleNode {
     return suffix != null && suffix.isCount();
   }
 
-  public boolean isEarlyCalculated(OCommandContext ctx) {
+  public boolean isEarlyCalculated(CommandContext ctx) {
     if (levelZero != null && levelZero.isEarlyCalculated(ctx)) {
       return true;
     }
@@ -217,7 +217,7 @@ public class OBaseIdentifier extends SimpleNode {
   }
 
   public SimpleNode splitForAggregation(
-      AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
+      AggregateProjectionSplit aggregateProj, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
       OBaseIdentifier result = new OBaseIdentifier(-1);
       if (levelZero != null) {
@@ -238,7 +238,7 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public AggregationContext getAggregationContext(OCommandContext ctx) {
+  public AggregationContext getAggregationContext(CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
       if (levelZero != null) {
         return levelZero.getAggregationContext(ctx);
@@ -303,7 +303,7 @@ public class OBaseIdentifier extends SimpleNode {
     return levelZero;
   }
 
-  public void applyRemove(YTResultInternal result, OCommandContext ctx) {
+  public void applyRemove(YTResultInternal result, CommandContext ctx) {
     if (suffix != null) {
       suffix.applyRemove(result, ctx);
     } else {
@@ -359,7 +359,7 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public OCollate getCollate(YTResult currentRecord, OCommandContext ctx) {
+  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
     return suffix == null ? null : suffix.getCollate(currentRecord, ctx);
   }
 
@@ -375,7 +375,7 @@ public class OBaseIdentifier extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexChain(OCommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
       YTProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
       if (prop == null) {

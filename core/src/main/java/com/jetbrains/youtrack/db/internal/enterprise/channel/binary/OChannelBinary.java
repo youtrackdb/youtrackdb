@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.enterprise.channel.binary;
 
 import com.jetbrains.youtrack.db.internal.common.exception.OInvalidBinaryChunkException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -61,7 +61,7 @@ public abstract class OChannelBinary extends OChannel
     networkTimeout = iConfig.getValueAsInteger(GlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
 
     if (debug) {
-      OLogManager.instance().info(this, "%s - Connected", socket.getRemoteSocketAddress());
+      LogManager.instance().info(this, "%s - Connected", socket.getRemoteSocketAddress());
     }
   }
 
@@ -69,10 +69,10 @@ public abstract class OChannelBinary extends OChannel
     updateMetricReceivedBytes(OBinaryProtocol.SIZE_BYTE);
 
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Reading byte (1 byte)...", socket.getRemoteSocketAddress());
       final byte value = in.readByte();
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Read byte: %d", socket.getRemoteSocketAddress(), (int) value);
       return value;
     }
@@ -84,10 +84,10 @@ public abstract class OChannelBinary extends OChannel
     updateMetricReceivedBytes(OBinaryProtocol.SIZE_BYTE);
 
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Reading boolean (1 byte)...", socket.getRemoteSocketAddress());
       final boolean value = in.readBoolean();
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Read boolean: %b", socket.getRemoteSocketAddress(), value);
       return value;
     }
@@ -99,10 +99,10 @@ public abstract class OChannelBinary extends OChannel
     updateMetricReceivedBytes(OBinaryProtocol.SIZE_INT);
 
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Reading int (4 bytes)...", socket.getRemoteSocketAddress());
       final int value = in.readInt();
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Read int: %d", socket.getRemoteSocketAddress(), value);
       return value;
     }
@@ -114,10 +114,10 @@ public abstract class OChannelBinary extends OChannel
     updateMetricReceivedBytes(OBinaryProtocol.SIZE_LONG);
 
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Reading long (8 bytes)...", socket.getRemoteSocketAddress());
       final long value = in.readLong();
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Read long: %d", socket.getRemoteSocketAddress(), value);
       return value;
     }
@@ -129,10 +129,10 @@ public abstract class OChannelBinary extends OChannel
     updateMetricReceivedBytes(OBinaryProtocol.SIZE_SHORT);
 
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Reading short (2 bytes)...", socket.getRemoteSocketAddress());
       final short value = in.readShort();
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Read short: %d", socket.getRemoteSocketAddress(), value);
       return value;
     }
@@ -142,7 +142,7 @@ public abstract class OChannelBinary extends OChannel
 
   public String readString() throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Reading string (4+N bytes)...", socket.getRemoteSocketAddress());
       final int len = in.readInt();
       if (len > maxChunkSize) {
@@ -154,7 +154,7 @@ public abstract class OChannelBinary extends OChannel
                 + " see NETWORK_BINARY_MAX_CONTENT_LENGTH settings ");
       }
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(this, "%s - Read string chunk length: %d", socket.getRemoteSocketAddress(), len);
       }
       if (len < 0) {
@@ -168,7 +168,7 @@ public abstract class OChannelBinary extends OChannel
       updateMetricReceivedBytes(OBinaryProtocol.SIZE_INT + len);
 
       final String value = new String(tmp, StandardCharsets.UTF_8);
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Read string: %s", socket.getRemoteSocketAddress(), value);
       return value;
     }
@@ -188,7 +188,7 @@ public abstract class OChannelBinary extends OChannel
 
   public byte[] readBytes() throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "%s - Reading chunk of bytes. Reading chunk length as int (4 bytes)...",
@@ -207,7 +207,7 @@ public abstract class OChannelBinary extends OChannel
     updateMetricReceivedBytes(OBinaryProtocol.SIZE_INT + len);
 
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Read chunk length: %d", socket.getRemoteSocketAddress(), len);
     }
 
@@ -216,7 +216,7 @@ public abstract class OChannelBinary extends OChannel
     }
 
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Reading %d bytes...", socket.getRemoteSocketAddress(), len);
     }
 
@@ -225,7 +225,7 @@ public abstract class OChannelBinary extends OChannel
     in.readFully(tmp);
 
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "%s - Read %d bytes: %s",
@@ -249,7 +249,7 @@ public abstract class OChannelBinary extends OChannel
 
   public OChannelBinary writeByte(final byte iContent) throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Writing byte (1 byte): %d", socket.getRemoteSocketAddress(), iContent);
     }
 
@@ -260,7 +260,7 @@ public abstract class OChannelBinary extends OChannel
 
   public OChannelBinary writeBoolean(final boolean iContent) throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this, "%s - Writing boolean (1 byte): %b", socket.getRemoteSocketAddress(), iContent);
     }
@@ -272,7 +272,7 @@ public abstract class OChannelBinary extends OChannel
 
   public OChannelBinary writeInt(final int iContent) throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Writing int (4 bytes): %d", socket.getRemoteSocketAddress(), iContent);
     }
 
@@ -283,7 +283,7 @@ public abstract class OChannelBinary extends OChannel
 
   public OChannelBinary writeLong(final long iContent) throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(this, "%s - Writing long (8 bytes): %d", socket.getRemoteSocketAddress(), iContent);
     }
 
@@ -294,7 +294,7 @@ public abstract class OChannelBinary extends OChannel
 
   public OChannelBinary writeShort(final short iContent) throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this, "%s - Writing short (2 bytes): %d", socket.getRemoteSocketAddress(), iContent);
     }
@@ -306,7 +306,7 @@ public abstract class OChannelBinary extends OChannel
 
   public OChannelBinary writeString(final String iContent) throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "%s - Writing string (4+%d=%d bytes): %s",
@@ -344,7 +344,7 @@ public abstract class OChannelBinary extends OChannel
 
   public OChannelBinary writeBytes(final byte[] iContent, final int iLength) throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "%s - Writing bytes (4+%d=%d bytes): %s",
@@ -410,14 +410,14 @@ public abstract class OChannelBinary extends OChannel
             + dirtyBuffer
             + (i > dirtyBuffer.length() ? "..." : "")
             + "]";
-    OLogManager.instance().error(this, message, null);
+    LogManager.instance().error(this, message, null);
     throw new OIOException(message);
   }
 
   @Override
   public void flush() throws IOException {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "%s - Flush",
@@ -438,7 +438,7 @@ public abstract class OChannelBinary extends OChannel
   @Override
   public void close() {
     if (debug) {
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "%s - Closing socket...",
@@ -450,7 +450,7 @@ public abstract class OChannelBinary extends OChannel
         in.close();
       }
     } catch (IOException e) {
-      OLogManager.instance().debug(this, "Error during closing of input stream", e);
+      LogManager.instance().debug(this, "Error during closing of input stream", e);
     }
 
     try {
@@ -458,7 +458,7 @@ public abstract class OChannelBinary extends OChannel
         out.close();
       }
     } catch (IOException e) {
-      OLogManager.instance().debug(this, "Error during closing of output stream", e);
+      LogManager.instance().debug(this, "Error during closing of output stream", e);
     }
 
     super.close();

@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -30,7 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.orientechnologies.orient.client.remote.OLiveQueryClientListener;
 import com.orientechnologies.orient.client.remote.ORemoteQueryResult;
-import com.orientechnologies.orient.client.remote.OStorageRemote;
+import com.orientechnologies.orient.client.remote.StorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
@@ -74,7 +74,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.b
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.OStorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionAbstract;
@@ -96,10 +96,10 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   protected OStorageRemoteSession sessionMetadata;
   private YouTrackDBConfig config;
-  private OStorageRemote storage;
+  private StorageRemote storage;
   private OTransactionNoTx.NonTxReadMode nonTxReadMode;
 
-  public YTDatabaseSessionRemote(final OStorageRemote storage, OSharedContext sharedContext) {
+  public YTDatabaseSessionRemote(final StorageRemote storage, OSharedContext sharedContext) {
     activateOnCurrentThread();
 
     try {
@@ -130,7 +130,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
           nonTxReadMode = NonTxReadMode.WARN;
         }
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Invalid value for %s, using %s",
@@ -317,11 +317,11 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public OStorage getStorage() {
+  public Storage getStorage() {
     return storage;
   }
 
-  public OStorageRemote getStorageRemote() {
+  public StorageRemote getStorageRemote() {
     return storage;
   }
 
@@ -331,7 +331,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public void replaceStorage(OStorage iNewStorage) {
+  public void replaceStorage(Storage iNewStorage) {
     throw new UnsupportedOperationException("unsupported replace of storage for remote database");
   }
 
@@ -488,7 +488,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     throw new UnsupportedOperationException();
   }
 
-  public static void updateSchema(OStorageRemote storage,
+  public static void updateSchema(StorageRemote storage,
       EntityImpl schema) {
     //    storage.get
     OSharedContext shared = storage.getSharedContext();
@@ -497,21 +497,21 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     }
   }
 
-  public static void updateIndexManager(OStorageRemote storage, EntityImpl indexManager) {
+  public static void updateIndexManager(StorageRemote storage, EntityImpl indexManager) {
     OSharedContext shared = storage.getSharedContext();
     if (shared != null) {
       ((OIndexManagerRemote) shared.getIndexManager()).update(indexManager);
     }
   }
 
-  public static void updateFunction(OStorageRemote storage) {
+  public static void updateFunction(StorageRemote storage) {
     OSharedContext shared = storage.getSharedContext();
     if (shared != null) {
       (shared.getFunctionLibrary()).update();
     }
   }
 
-  public static void updateSequences(OStorageRemote storage) {
+  public static void updateSequences(StorageRemote storage) {
     OSharedContext shared = storage.getSharedContext();
     if (shared != null) {
       (shared.getSequenceLibrary()).update();
@@ -900,7 +900,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   @Override
   public void freeze(final boolean throwException) {
     checkOpenness();
-    OLogManager.instance()
+    LogManager.instance()
         .error(
             this,
             "Only local paginated storage supports freeze. If you are using remote client please"
@@ -922,7 +922,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   @Override
   public void release() {
     checkOpenness();
-    OLogManager.instance()
+    LogManager.instance()
         .error(
             this,
             "Only local paginated storage supports release. If you are using remote client please"
@@ -977,7 +977,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
       try {
         rollback(true);
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Exception during rollback of active transaction", e);
+        LogManager.instance().error(this, "Exception during rollback of active transaction", e);
       }
 
       callOnCloseListeners();

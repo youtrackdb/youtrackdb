@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
 import java.io.IOException;
 import org.testng.Assert;
@@ -141,12 +141,12 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
           }
 
           @Override
-          public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {
+          public void onBeforeCommand(CommandRequestText iCommand, CommandExecutor executor) {
           }
 
           @Override
           public void onAfterCommand(
-              OCommandRequestText iCommand, OCommandExecutor executor, Object result) {
+              CommandRequestText iCommand, CommandExecutor executor, Object result) {
           }
 
           @Override
@@ -240,7 +240,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
     database.begin();
     database
-        .command(new OCommandSQL("transactional insert into Account set name = 'txTest1'"))
+        .command(new CommandSQL("transactional insert into Account set name = 'txTest1'"))
         .execute(database);
     database.commit();
 
@@ -253,7 +253,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
     database.begin();
     database
-        .command(new OCommandSQL("transactional insert into Account set name = 'txTest2'"))
+        .command(new CommandSQL("transactional insert into Account set name = 'txTest2'"))
         .execute(database);
 
     Assert.assertTrue(database.getTransaction().isActive());

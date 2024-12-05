@@ -17,7 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.fetch.json;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -285,7 +285,7 @@ public class OJSONFetchContext implements OFetchContext {
     // TODO: avoid `EmptyStackException`, but check root cause
     if (typesStack.empty()) {
       typesStack.push(new StringBuilder());
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               OJSONFetchContext.class,
               "Type stack in `manageTypes` null for `field` %s, `value` %s, and `type` %s.",

@@ -16,8 +16,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.method.sequence;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
@@ -45,7 +45,7 @@ public class OSQLMethodReset extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
     if (iThis == null) {
@@ -64,7 +64,7 @@ public class OSQLMethodReset extends OAbstractSQLMethod {
       return ((YTSequence) iThis).reset();
     } catch (YTDatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
-      OLogManager.instance().error(this, message, exc, (Object) null);
+      LogManager.instance().error(this, message, exc, (Object) null);
       throw new YTCommandExecutionException(message);
     }
   }

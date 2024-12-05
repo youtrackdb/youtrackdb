@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.OStringParser;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -738,7 +738,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
               // TRY TO PARSE AS DATE
               return ODateHelper.getDateFormatInstance().parseObject(iFieldValueAsString);
             } catch (ParseException ex) {
-              OLogManager.instance()
+              LogManager.instance()
                   .error(this, "Exception is suppressed, original exception is ", e);
               throw YTException.wrapException(
                   new YTSerializationException(
@@ -761,7 +761,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
               // TRY TO PARSE AS DATETIME
               return ODateHelper.getDateTimeFormatInstance().parseObject(iFieldValueAsString);
             } catch (ParseException ex) {
-              OLogManager.instance()
+              LogManager.instance()
                   .error(this, "Exception is suppressed, original exception is ", e);
               throw YTException.wrapException(
                   new YTSerializationException(

@@ -20,7 +20,7 @@
 package com.orientechnologies;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import org.testng.Assert;
 import org.testng.ISuite;
@@ -33,8 +33,8 @@ import org.testng.ISuiteResult;
  *   <li>Listens for the TestNG test run finishing and runs the direct memory leaks detector, if no
  *       tests failed. If leak detector finds some leaks, it triggers {@link AssertionError} and the
  *       build is marked as failed. Java assertions (-ea) must be active for this to work.
- *   <li>Triggers {@link AssertionError} if {@link OLogManager} is shutdown before test is finished.
- *       We may miss some errors because {@link OLogManager} is shutdown
+ *   <li>Triggers {@link AssertionError} if {@link LogManager} is shutdown before test is finished.
+ *       We may miss some errors because {@link LogManager} is shutdown
  * </ol>
  */
 public class OTestNGTestListener implements ISuiteListener {
@@ -42,7 +42,7 @@ public class OTestNGTestListener implements ISuiteListener {
   @Override
   public void onFinish(ISuite suite) {
 
-    if (OLogManager.instance().isShutdown()) {
+    if (LogManager.instance().isShutdown()) {
       final String msg = "LogManager was switched off before shutdown";
 
       System.err.println(msg);

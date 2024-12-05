@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -106,9 +106,9 @@ public class OServerCommandPostServer extends OServerCommandAuthenticatedServerA
       final OHttpResponse iResponse, final String settingName, final String settingValue)
       throws IOException {
     if (settingName.equals("console")) {
-      OLogManager.instance().setConsoleLevel(settingValue);
+      LogManager.instance().setConsoleLevel(settingValue);
     } else if (settingName.equals("file")) {
-      OLogManager.instance().setFileLevel(settingValue);
+      LogManager.instance().setFileLevel(settingValue);
     } else {
       iResponse.send(
           OHttpUtils.STATUS_BADREQ_CODE,

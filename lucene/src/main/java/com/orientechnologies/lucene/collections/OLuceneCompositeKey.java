@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
 import java.util.List;
 
@@ -27,17 +27,17 @@ import java.util.List;
  */
 public class OLuceneCompositeKey extends OCompositeKey {
 
-  private OCommandContext context;
+  private CommandContext context;
 
   public OLuceneCompositeKey(List<?> keys) {
     super(keys);
   }
 
-  public OCommandContext getContext() {
+  public CommandContext getContext() {
     return context;
   }
 
-  public OLuceneCompositeKey setContext(OCommandContext context) {
+  public OLuceneCompositeKey setContext(CommandContext context) {
     this.context = context;
     return this;
   }

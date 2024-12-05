@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
@@ -8,7 +8,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.encryption.OEncryption;
 import com.jetbrains.youtrack.db.internal.core.encryption.OEncryptionFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
 
 public class SBTreeV1TestEncryptionTestIT extends SBTreeV1TestIT {
@@ -19,7 +19,7 @@ public class SBTreeV1TestEncryptionTestIT extends SBTreeV1TestIT {
 
     dbName = "localSBTreeEncryptedTest";
     final File dbDirectory = new File(buildDirectory, dbName);
-    OFileUtils.deleteRecursively(dbDirectory);
+    FileUtils.deleteRecursively(dbDirectory);
 
     youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
 
@@ -32,10 +32,10 @@ public class SBTreeV1TestEncryptionTestIT extends SBTreeV1TestIT {
             "sbTreeEncrypted",
             ".sbt",
             ".nbt",
-            (OAbstractPaginatedStorage)
+            (AbstractPaginatedStorage)
                 ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage());
     storage =
-        (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     final OEncryption encryption =
         OEncryptionFactory.INSTANCE.getEncryption("aes/gcm", "T1JJRU5UREJfSVNfQ09PTA==");

@@ -1,6 +1,6 @@
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -20,7 +20,7 @@ public class LuceneFreezeReleaseTest {
 
   @Before
   public void setUp() throws Exception {
-    OFileUtils.deleteRecursively(new File("./target/freezeRelease"));
+    FileUtils.deleteRecursively(new File("./target/freezeRelease"));
   }
 
   @Test

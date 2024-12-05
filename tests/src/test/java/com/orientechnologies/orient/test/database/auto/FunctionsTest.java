@@ -18,7 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     YTIdentifiable result =
         database
             .command(
-                new OCommandSQL(
+                new CommandSQL(
                     "create function FunctionsTest \"return a + b\" PARAMETERS [a,b] IDEMPOTENT"
                         + " true LANGUAGE Javascript"))
             .execute(database);
@@ -68,7 +68,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
   public void testFunctionCacheAndReload() {
     YTIdentifiable f =
         database
-            .command(new OCommandSQL("create function testCache \"return 1;\" LANGUAGE Javascript"))
+            .command(new CommandSQL("create function testCache \"return 1;\" LANGUAGE Javascript"))
             .execute(database);
     Assert.assertNotNull(f);
 

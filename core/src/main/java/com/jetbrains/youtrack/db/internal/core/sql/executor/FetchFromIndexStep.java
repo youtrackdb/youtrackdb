@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.OExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -18,9 +18,9 @@ import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinitionMultiValue;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OMultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBetweenCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
@@ -65,7 +65,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   private long count = 0;
 
   public FetchFromIndexStep(
-      IndexSearchDescriptor desc, boolean orderAsc, OCommandContext ctx, boolean profilingEnabled) {
+      IndexSearchDescriptor desc, boolean orderAsc, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.desc = desc;
     this.orderAsc = orderAsc;
@@ -75,7 +75,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     var prev = this.prev;
     if (prev != null) {
       prev.start(ctx).close(ctx);
@@ -88,32 +88,32 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
           private final Iterator<Stream<ORawPair<Object, YTRID>>> iter = streams.iterator();
 
           @Override
-          public OExecutionStream next(OCommandContext ctx) {
+          public ExecutionStream next(CommandContext ctx) {
             Stream<ORawPair<Object, YTRID>> s = iter.next();
-            return OExecutionStream.resultIterator(
+            return ExecutionStream.resultIterator(
                 s.map((nextEntry) -> readResult(ctx, nextEntry)).iterator());
           }
 
           @Override
-          public boolean hasNext(OCommandContext ctx) {
+          public boolean hasNext(CommandContext ctx) {
             return iter.hasNext();
           }
 
           @Override
-          public void close(OCommandContext ctx) {
+          public void close(CommandContext ctx) {
             while (iter.hasNext()) {
               iter.next().close();
             }
           }
         };
-    return new OMultipleExecutionStream(res).onClose(this::close);
+    return new MultipleExecutionStream(res).onClose(this::close);
   }
 
-  private void close(OCommandContext context) {
+  private void close(CommandContext context) {
     updateIndexStats();
   }
 
-  private YTResult readResult(OCommandContext ctx, ORawPair<Object, YTRID> nextEntry) {
+  private YTResult readResult(CommandContext ctx, ORawPair<Object, YTRID> nextEntry) {
     if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
       throw new YTCommandInterruptedException("The command has been interrupted");
     }
@@ -169,7 +169,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static List<Stream<ORawPair<Object, YTRID>>> init(
-      IndexSearchDescriptor desc, boolean isOrderAsc, OCommandContext ctx) {
+      IndexSearchDescriptor desc, boolean isOrderAsc, CommandContext ctx) {
 
     OIndexInternal index = desc.getIndex().getInternal();
     OBooleanExpression condition = desc.getKeyCondition();
@@ -196,7 +196,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static List<Stream<ORawPair<Object, YTRID>>> processInCondition(
-      OIndexInternal index, OBooleanExpression condition, OCommandContext ctx, boolean orderAsc) {
+      OIndexInternal index, OBooleanExpression condition, CommandContext ctx, boolean orderAsc) {
     List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
     Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
@@ -250,7 +250,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       OBooleanExpression condition,
       OBinaryCondition additionalRangeCondition,
       boolean isOrderAsc,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     OCollection fromKey = indexKeyFrom((OAndBlock) condition, additionalRangeCondition);
     OCollection toKey = indexKeyTo((OAndBlock) condition, additionalRangeCondition);
     boolean fromKeyIncluded = indexKeyFromIncluded((OAndBlock) condition, additionalRangeCondition);
@@ -304,7 +304,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       OBooleanExpression condition,
       boolean isOrderAsc,
       OBinaryCondition additionalRangeCondition,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     var db = ctx.getDatabase();
     List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
     Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
@@ -476,12 +476,12 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return value;
   }
 
-  private static List<OCollection> cartesianProduct(OCollection key, OCommandContext ctx) {
+  private static List<OCollection> cartesianProduct(OCollection key, CommandContext ctx) {
     return cartesianProduct(new OCollection(-1), key, ctx); // TODO
   }
 
   private static List<OCollection> cartesianProduct(
-      OCollection head, OCollection key, OCommandContext ctx) {
+      OCollection head, OCollection key, CommandContext ctx) {
     if (key.getExpressions().isEmpty()) {
       return Collections.singletonList(head);
     }
@@ -575,7 +575,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static List<Stream<ORawPair<Object, YTRID>>> processBetweenCondition(
-      OIndexInternal index, OBooleanExpression condition, boolean isOrderAsc, OCommandContext ctx) {
+      OIndexInternal index, OBooleanExpression condition, boolean isOrderAsc, CommandContext ctx) {
     List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
 
     OIndexDefinition definition = index.getDefinition();
@@ -607,7 +607,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       OIndexInternal index,
       OBooleanExpression condition,
       boolean isOrderAsc,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
     Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
@@ -802,7 +802,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String result =
-        OExecutionStepInternal.getIndent(depth, indent)
+        ExecutionStepInternal.getIndent(depth, indent)
             + "+ FETCH FROM INDEX "
             + desc.getIndex().getName();
     if (profilingEnabled) {
@@ -815,7 +815,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
               .orElse("");
       result +=
           ("\n"
-              + OExecutionStepInternal.getIndent(depth, indent)
+              + ExecutionStepInternal.getIndent(depth, indent)
               + "  "
               + desc.getKeyCondition()
               + additional);
@@ -826,7 +826,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   @Override
   public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("indexName", desc.getIndex().getName());
     if (desc.getKeyCondition() != null) {
       result.setProperty("condition", desc.getKeyCondition().serialize(db));
@@ -842,7 +842,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   @Override
   public void deserialize(YTResult fromResult) {
     try {
-      OExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this);
       String indexName = fromResult.getProperty("indexName");
       OBooleanExpression condition = null;
       if (fromResult.getProperty("condition") != null) {
@@ -874,7 +874,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new FetchFromIndexStep(desc, this.orderAsc, ctx, this.profilingEnabled);
   }
 

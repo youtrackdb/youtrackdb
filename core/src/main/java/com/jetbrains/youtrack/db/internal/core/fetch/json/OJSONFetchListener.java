@@ -17,7 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.fetch.json;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTFetchException;
 import com.jetbrains.youtrack.db.internal.core.fetch.OFetchContext;
@@ -72,7 +72,7 @@ public class OJSONFetchListener implements OFetchListener {
               true,
               OJSONWriter.encode(iFieldValue));
     } catch (IOException e) {
-      OLogManager.instance().error(this, "Error on processStandardCollectionValue", e);
+      LogManager.instance().error(this, "Error on processStandardCollectionValue", e);
     }
   }
 

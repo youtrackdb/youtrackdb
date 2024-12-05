@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -82,12 +82,12 @@ public class OMethodCall extends SimpleNode {
     return bidirectionalMethods.contains(methodName.getStringValue().toLowerCase(Locale.ENGLISH));
   }
 
-  public Object execute(Object targetObjects, OCommandContext ctx) {
+  public Object execute(Object targetObjects, CommandContext ctx) {
     return execute(targetObjects, ctx, methodName.getStringValue(), params, null);
   }
 
   public Object execute(
-      Object targetObjects, Iterable<YTIdentifiable> iPossibleResults, OCommandContext ctx) {
+      Object targetObjects, Iterable<YTIdentifiable> iPossibleResults, CommandContext ctx) {
     return execute(targetObjects, ctx, methodName.getStringValue(), params, iPossibleResults);
   }
 
@@ -118,7 +118,7 @@ public class OMethodCall extends SimpleNode {
 
   private Object execute(
       Object targetObjects,
-      OCommandContext ctx,
+      CommandContext ctx,
       String name,
       List<OExpression> iParams,
       Iterable<YTIdentifiable> iPossibleResults) {
@@ -141,7 +141,7 @@ public class OMethodCall extends SimpleNode {
   private static Object invokeMethod(
       OSQLMethod method,
       Object targetObjects,
-      OCommandContext ctx,
+      CommandContext ctx,
       Object val,
       List<Object> paramValues) {
     if (val instanceof YTResult) {
@@ -154,7 +154,7 @@ public class OMethodCall extends SimpleNode {
   private static Object invokeGraphFunction(
       OSQLFunction graphFunction,
       Object targetObjects,
-      OCommandContext ctx,
+      CommandContext ctx,
       Iterable<YTIdentifiable> iPossibleResults,
       List<Object> paramValues) {
     if (graphFunction instanceof OSQLFunctionFiltered) {
@@ -190,7 +190,7 @@ public class OMethodCall extends SimpleNode {
 
   private static Object executeGraphFunction(
       Object targetObjects,
-      OCommandContext ctx,
+      CommandContext ctx,
       String name,
       List<OExpression> iParams,
       Iterable<YTIdentifiable> iPossibleResults) {
@@ -204,7 +204,7 @@ public class OMethodCall extends SimpleNode {
   }
 
   private static List<Object> resolveParams(
-      Object targetObjects, OCommandContext ctx, List<OExpression> iParams, Object val) {
+      Object targetObjects, CommandContext ctx, List<OExpression> iParams, Object val) {
     List<Object> paramValues = new ArrayList<Object>();
     for (OExpression expr : iParams) {
       if (val instanceof YTIdentifiable) {
@@ -222,7 +222,7 @@ public class OMethodCall extends SimpleNode {
     return paramValues;
   }
 
-  public Object executeReverse(Object targetObjects, OCommandContext ctx) {
+  public Object executeReverse(Object targetObjects, CommandContext ctx) {
     if (!isBidirectional()) {
       throw new UnsupportedOperationException();
     }

@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseStats;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
@@ -39,9 +39,9 @@ public class OExplainStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -67,8 +67,8 @@ public class OExplainStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map args, OCommandContext parentCtx, boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+      YTDatabaseSessionInternal db, Map args, CommandContext parentCtx, boolean usePlanCache) {
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -87,7 +87,7 @@ public class OExplainStatement extends OStatement {
   }
 
   @Override
-  public OInternalExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     return statement.createExecutionPlan(ctx, enableProfiling);
   }
 

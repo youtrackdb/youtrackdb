@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,7 +73,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
   }
@@ -91,7 +91,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
   }
@@ -109,7 +109,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
   }
@@ -127,7 +127,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
   }
@@ -145,7 +145,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
   }
@@ -163,7 +163,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
   }
@@ -181,7 +181,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
   }
@@ -199,7 +199,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
     Assert.assertTrue(
@@ -219,7 +219,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
     Assert.assertTrue(
@@ -239,7 +239,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
     Assert.assertTrue(
@@ -259,7 +259,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
     Assert.assertTrue(
@@ -279,7 +279,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
     Assert.assertTrue(
@@ -299,7 +299,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
     Assert.assertTrue(
@@ -319,7 +319,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
     Assert.assertTrue(
@@ -341,7 +341,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
   }
@@ -361,7 +361,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertEquals(explain.<Object>field("rangeQueryConvertedInBetween"), 1);
     Assert.assertTrue(
@@ -381,7 +381,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertNull(explain.field("rangeQueryConvertedInBetween"));
   }
@@ -399,7 +399,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertNull(explain.field("rangeQueryConvertedInBetween"));
   }
@@ -417,7 +417,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertNull(explain.field("rangeQueryConvertedInBetween"));
   }
@@ -435,7 +435,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertNull(explain.field("rangeQueryConvertedInBetween"));
   }
@@ -453,7 +453,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertNull(explain.field("rangeQueryConvertedInBetween"));
   }
@@ -471,7 +471,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertNull(explain.field("rangeQueryConvertedInBetween"));
   }
@@ -489,7 +489,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(values.isEmpty());
 
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
 
     Assert.assertNull(explain.field("rangeQueryConvertedInBetween"));
   }

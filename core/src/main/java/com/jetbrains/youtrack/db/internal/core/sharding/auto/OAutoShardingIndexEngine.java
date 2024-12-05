@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sharding.auto;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
@@ -37,7 +37,7 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
 import com.jetbrains.youtrack.db.internal.core.index.engine.OIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.iterator.OEmptyIterator;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashTable;
@@ -69,7 +69,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   private static final String SUBINDEX_BUCKET_FILE_EXTENSION = ".asb";
   private static final String SUBINDEX_NULL_BUCKET_FILE_EXTENSION = ".asn";
 
-  private final OAbstractPaginatedStorage storage;
+  private final AbstractPaginatedStorage storage;
   private List<OHashTable<Object, Object>> partitions;
   private OAutoShardingStrategy strategy;
   private final String name;
@@ -78,7 +78,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   private final int id;
 
   OAutoShardingIndexEngine(
-      final String iName, int id, final OAbstractPaginatedStorage iStorage, final int iVersion) {
+      final String iName, int id, final AbstractPaginatedStorage iStorage, final int iVersion) {
     this.name = iName;
     this.id = id;
     this.storage = iStorage;
@@ -105,7 +105,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
     OBinarySerializer keySerializer = storage.resolveObjectSerializer(data.getKeySerializedId());
 
     final OEncryption encryption =
-        OAbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
+        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
 
     this.strategy = new OAutoShardingMurmurStrategy(keySerializer);
 
@@ -122,7 +122,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
       try {
         this.partitionSize = Integer.parseInt(partitionsProperty);
       } catch (NumberFormatException e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this, "Invalid value of 'partitions' property : `" + partitionsProperty + "`", e);
       }
@@ -157,7 +157,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
     Map<String, String> engineProperties = data.getEngineProperties();
 
     final OEncryption encryption =
-        OAbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
+        AbstractPaginatedStorage.loadEncryption(data.getEncryption(), data.getEncryptionOptions());
 
     this.strategy = new OAutoShardingMurmurStrategy(keySerializer);
 

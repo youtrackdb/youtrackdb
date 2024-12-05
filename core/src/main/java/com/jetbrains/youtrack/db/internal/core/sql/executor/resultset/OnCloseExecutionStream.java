@@ -1,30 +1,30 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 
-public class OnCloseExecutionStream implements OExecutionStream {
+public class OnCloseExecutionStream implements ExecutionStream {
 
-  private final OExecutionStream source;
+  private final ExecutionStream source;
   private final OnClose onClose;
 
-  public OnCloseExecutionStream(OExecutionStream source, OnClose onClose) {
+  public OnCloseExecutionStream(ExecutionStream source, OnClose onClose) {
     this.source = source;
     this.onClose = onClose;
   }
 
   @Override
-  public boolean hasNext(OCommandContext ctx) {
+  public boolean hasNext(CommandContext ctx) {
     return source.hasNext(ctx);
   }
 
   @Override
-  public YTResult next(OCommandContext ctx) {
+  public YTResult next(CommandContext ctx) {
     return source.next(ctx);
   }
 
   @Override
-  public void close(OCommandContext ctx) {
+  public void close(CommandContext ctx) {
     onClose.close(ctx);
     source.close(ctx);
   }

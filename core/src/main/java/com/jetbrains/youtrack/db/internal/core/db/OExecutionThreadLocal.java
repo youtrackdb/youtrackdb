@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.common.thread.OSoftThread;
-import com.jetbrains.youtrack.db.internal.core.OOrientListenerAbstract;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.replication.OAsyncReplicationError;
 import com.jetbrains.youtrack.db.internal.core.replication.OAsyncReplicationOk;
@@ -67,7 +67,7 @@ public class OExecutionThreadLocal extends ThreadLocal<OExecutionThreadLocal.OEx
   static {
     final YouTrackDBManager inst = YouTrackDBManager.instance();
     inst.registerListener(
-        new OOrientListenerAbstract() {
+        new YouTrackDBListenerAbstract() {
           @Override
           public void onStartup() {
             if (INSTANCE == null) {

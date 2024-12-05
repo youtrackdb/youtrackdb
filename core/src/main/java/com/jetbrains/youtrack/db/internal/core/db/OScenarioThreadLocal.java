@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.OOrientListenerAbstract;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import java.util.concurrent.Callable;
 
@@ -43,7 +43,7 @@ public class OScenarioThreadLocal extends ThreadLocal<OScenarioThreadLocal.RunCo
   static {
     YouTrackDBManager.instance()
         .registerListener(
-            new OOrientListenerAbstract() {
+            new YouTrackDBListenerAbstract() {
               @Override
               public void onStartup() {
                 if (INSTANCE == null) {

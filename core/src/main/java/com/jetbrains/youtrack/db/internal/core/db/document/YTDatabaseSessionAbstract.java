@@ -24,11 +24,11 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
 import com.jetbrains.youtrack.db.internal.common.listener.OListenerManger;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCache;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestInternal;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestInternal;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
@@ -70,7 +70,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityShared
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
-import com.jetbrains.youtrack.db.internal.core.query.OQuery;
+import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
@@ -216,7 +216,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
         //noinspection deprecation
         listener.onOpen(getDatabaseOwner());
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error during call of database listener", e);
+        LogManager.instance().error(this, "Error during call of database listener", e);
       }
     }
   }
@@ -234,7 +234,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       try {
         listener.onClose(getDatabaseOwner());
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error during call of database listener", e);
+        LogManager.instance().error(this, "Error during call of database listener", e);
       }
     }
   }
@@ -250,7 +250,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
         //noinspection deprecation
         listener.onDelete(getDatabaseOwner());
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error during call of database listener", e);
+        LogManager.instance().error(this, "Error during call of database listener", e);
       }
     }
   }
@@ -322,10 +322,10 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
   /**
    * {@inheritDoc}
    */
-  public OCommandRequest command(final OCommandRequest iCommand) {
+  public CommandRequest command(final CommandRequest iCommand) {
     checkSecurity(ORule.ResourceGeneric.COMMAND, ORole.PERMISSION_READ);
     checkIfActive();
-    final OCommandRequestInternal command = (OCommandRequestInternal) iCommand;
+    final CommandRequestInternal command = (CommandRequestInternal) iCommand;
     try {
       command.reset();
       return command;
@@ -337,7 +337,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
   /**
    * {@inheritDoc}
    */
-  public <RET extends List<?>> RET query(final OQuery<?> iCommand, final Object... iArgs) {
+  public <RET extends List<?>> RET query(final Query<?> iCommand, final Object... iArgs) {
     checkIfActive();
     iCommand.reset();
     return iCommand.execute(this, iArgs);
@@ -1106,7 +1106,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       try {
         listener.onBeforeTxBegin(this);
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error before tx begin", e);
+        LogManager.instance().error(this, "Error before tx begin", e);
       }
     }
 
@@ -1592,7 +1592,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       try {
         rollback();
       } catch (Exception re) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "Exception during rollback `%08X`", re, System.identityHashCode(re));
       }
       throw e;
@@ -1602,10 +1602,10 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
     } catch (RuntimeException e) {
 
       if ((e instanceof YTHighLevelException) || (e instanceof YTNeedRetryException)) {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(this, "Error on transaction commit `%08X`", e, System.identityHashCode(e));
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "Error on transaction commit `%08X`", e, System.identityHashCode(e));
       }
 
@@ -1616,7 +1616,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
         // ROLLBACK TX AT DB LEVEL
         currentTx.internalRollback();
       } catch (Exception re) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this, "Error during transaction rollback `%08X`", re, System.identityHashCode(re));
       }
@@ -1634,7 +1634,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       try {
         listener.onBeforeTxCommit(this);
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Cannot commit the transaction: caught exception on execution of"
@@ -1663,7 +1663,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
                 + listener.getClass()
                 + ".onAfterTxCommit() `%08X`";
 
-        OLogManager.instance().error(this, message, e, System.identityHashCode(e));
+        LogManager.instance().error(this, message, e, System.identityHashCode(e));
 
         throw YTException.wrapException(new YTTransactionBlockedException(message), e);
       }
@@ -1675,7 +1675,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       try {
         listener.onBeforeTxRollback(this);
       } catch (Exception t) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "Error before transaction rollback `%08X`", t, System.identityHashCode(t));
       }
     }
@@ -1686,7 +1686,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       try {
         listener.onAfterTxRollback(this);
       } catch (Exception t) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "Error after transaction rollback `%08X`", t, System.identityHashCode(t));
       }
     }
@@ -1976,12 +1976,12 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
               + activeQueries.size()
               + " open command/query result sets, please make sure you close them with"
               + " YTResultSet.close()";
-      OLogManager.instance().warn(this, msg);
-      if (OLogManager.instance().isDebugEnabled()) {
+      LogManager.instance().warn(this, msg);
+      if (LogManager.instance().isDebugEnabled()) {
         activeQueries.values().stream()
             .map(pendingQuery -> pendingQuery.getResultSet().getExecutionPlan())
             .filter(Objects::nonNull)
-            .forEach(plan -> OLogManager.instance().debug(this, plan.toString()));
+            .forEach(plan -> LogManager.instance().debug(this, plan.toString()));
       }
     }
     this.activeQueries.put(id, state);

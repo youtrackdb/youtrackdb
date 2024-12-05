@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
 
 /**
@@ -22,21 +22,21 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
   private final String targetClass;
 
   public CheckClusterTypeStep(
-      String targetClusterName, String clazz, OCommandContext ctx, boolean profilingEnabled) {
+      String targetClusterName, String clazz, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.clusterName = targetClusterName;
     this.targetClass = clazz;
   }
 
   public CheckClusterTypeStep(
-      OCluster targetCluster, String clazz, OCommandContext ctx, boolean profilingEnabled) {
+      OCluster targetCluster, String clazz, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.cluster = targetCluster;
     this.targetClass = clazz;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext context) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext context) throws YTTimeoutException {
     var prev = this.prev;
     if (prev != null) {
       prev.start(context).close(ctx);
@@ -75,12 +75,12 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       throw new YTCommandExecutionException(
           "Cluster " + clusterId + " does not belong to class " + targetClass);
     }
-    return OExecutionStream.empty();
+    return ExecutionStream.empty();
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ CHECK TARGET CLUSTER FOR CLASS");

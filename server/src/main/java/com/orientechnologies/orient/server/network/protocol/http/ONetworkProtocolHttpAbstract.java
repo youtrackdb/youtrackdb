@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
@@ -272,7 +272,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
         }
       } else {
         try {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "->"
@@ -349,8 +349,8 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     } finally {
       server.getClientConnectionManager().disconnect(connection.getId());
       OServerPluginHelper.invokeHandlerCallbackOnSocketDestroyed(server, this);
-      if (OLogManager.instance().isDebugEnabled()) {
-        OLogManager.instance().debug(this, "Connection closed");
+      if (LogManager.instance().isDebugEnabled()) {
+        LogManager.instance().debug(this, "Connection closed");
       }
     }
   }
@@ -393,8 +393,8 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   protected void handleError(Throwable e, OHttpRequest iRequest) {
-    if (OLogManager.instance().isDebugEnabled()) {
-      OLogManager.instance().debug(this, "Caught exception", e);
+    if (LogManager.instance().isDebugEnabled()) {
+      LogManager.instance().debug(this, "Caught exception", e);
     }
 
     int errorCode = 500;
@@ -479,9 +479,9 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     if (errorReason == null) {
       errorReason = OHttpUtils.STATUS_INTERNALERROR_DESCRIPTION;
       if (e instanceof NullPointerException) {
-        OLogManager.instance().error(this, "Internal server error:\n", e);
+        LogManager.instance().error(this, "Internal server error:\n", e);
       } else {
-        OLogManager.instance().debug(this, "Internal server error:\n", e);
+        LogManager.instance().debug(this, "Internal server error:\n", e);
       }
     }
 
@@ -665,7 +665,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
             contentLength =
                 Integer.parseInt(line.substring(OHttpUtils.HEADER_CONTENT_LENGTH.length()));
             if (contentLength > requestMaxContentLength) {
-              OLogManager.instance()
+              LogManager.instance()
                   .warn(
                       this,
                       "->"
@@ -759,8 +759,8 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       }
     }
 
-    if (OLogManager.instance().isDebugEnabled()) {
-      OLogManager.instance()
+    if (LogManager.instance().isDebugEnabled()) {
+      LogManager.instance()
           .debug(
               this,
               "Error on parsing HTTP content from client %s:\n%s",
@@ -810,7 +810,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
         if (c == '\r') {
           final String[] words = requestContent.toString().split(" ");
           if (words.length < 3) {
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(
                     this,
                     "->"
@@ -846,8 +846,8 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
                 URLDecoder.decode(request.getContent(), StandardCharsets.UTF_8).trim());
           }
 
-          if (OLogManager.instance().isDebugEnabled()) {
-            OLogManager.instance()
+          if (LogManager.instance().isDebugEnabled()) {
+            LogManager.instance()
                 .debug(
                     this,
                     "[ONetworkProtocolHttpAbstract.execute] Requested: %s %s",
@@ -872,8 +872,8 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
         }
       }
 
-      if (OLogManager.instance().isDebugEnabled()) {
-        OLogManager.instance()
+      if (LogManager.instance().isDebugEnabled()) {
+        LogManager.instance()
             .debug(
                 this,
                 "Parsing request from client "
@@ -949,7 +949,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       String newstr = baos.toString(StandardCharsets.UTF_8);
       return newstr;
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "Error on decompressing HTTP response", ex);
+      LogManager.instance().error(this, "Error on decompressing HTTP response", ex);
     } finally {
       try {
         if (gzip != null) {
@@ -1056,7 +1056,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       try {
         cmdManager.registerCommand(OServerNetworkListener.createCommand(server, c));
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(caller, "Error on creating stateful command '%s'", e, c.implementation);
       }
     }

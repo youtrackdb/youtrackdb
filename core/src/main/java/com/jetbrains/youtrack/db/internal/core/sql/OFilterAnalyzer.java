@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
@@ -65,12 +65,12 @@ public class OFilterAnalyzer {
   }
 
   public List<List<OIndexSearchResult>> analyzeMainCondition(
-      OSQLFilterCondition condition, final YTClass schemaClass, OCommandContext context) {
+      OSQLFilterCondition condition, final YTClass schemaClass, CommandContext context) {
     return analyzeOrFilterBranch(schemaClass, condition, context);
   }
 
   private List<List<OIndexSearchResult>> analyzeOrFilterBranch(
-      final YTClass iSchemaClass, OSQLFilterCondition condition, OCommandContext iContext) {
+      final YTClass iSchemaClass, OSQLFilterCondition condition, CommandContext iContext) {
     if (condition == null) {
       return null;
     }
@@ -109,7 +109,7 @@ public class OFilterAnalyzer {
    * @return list of OIndexSearchResult items
    */
   public List<OIndexSearchResult> analyzeCondition(
-      OSQLFilterCondition condition, final YTClass schemaClass, OCommandContext context) {
+      OSQLFilterCondition condition, final YTClass schemaClass, CommandContext context) {
 
     final List<OIndexSearchResult> indexSearchResults = new ArrayList<OIndexSearchResult>();
     OIndexSearchResult lastCondition =
@@ -129,7 +129,7 @@ public class OFilterAnalyzer {
       YTDatabaseSession session, final YTClass iSchemaClass,
       OSQLFilterCondition condition,
       final List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     if (condition == null) {
       return null;
     }
@@ -162,7 +162,7 @@ public class OFilterAnalyzer {
       YTClass iSchemaClass,
       OSQLFilterCondition condition,
       List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     return condition
         .getOperator()
         .getOIndexSearchResult(iSchemaClass, condition, iIndexSearchResults, iContext);
@@ -172,7 +172,7 @@ public class OFilterAnalyzer {
       YTDatabaseSession session, YTClass iSchemaClass,
       OSQLFilterCondition condition,
       List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     OIndexSearchResult result = createIndexedProperty(condition, condition.getLeft(), ctx);
     if (result == null) {
       result = createIndexedProperty(condition, condition.getRight(), ctx);
@@ -193,7 +193,7 @@ public class OFilterAnalyzer {
       YTDatabaseSession session, YTClass iSchemaClass,
       OSQLFilterCondition condition,
       List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     final OIndexSearchResult leftResult =
         analyzeFilterBranch(session
             , iSchemaClass, (OSQLFilterCondition) condition.getLeft(), iIndexSearchResults,
@@ -219,7 +219,7 @@ public class OFilterAnalyzer {
   }
 
   private List<List<OIndexSearchResult>> analyzeUnion(
-      YTClass iSchemaClass, OSQLFilterCondition condition, OCommandContext iContext) {
+      YTClass iSchemaClass, OSQLFilterCondition condition, CommandContext iContext) {
     List<List<OIndexSearchResult>> result = new ArrayList<List<OIndexSearchResult>>();
 
     result.addAll(
@@ -238,7 +238,7 @@ public class OFilterAnalyzer {
    * @return true if the property was indexed and found, otherwise false
    */
   private static OIndexSearchResult createIndexedProperty(
-      final OSQLFilterCondition iCondition, final Object iItem, OCommandContext ctx) {
+      final OSQLFilterCondition iCondition, final Object iItem, CommandContext ctx) {
     if (iItem == null || !(iItem instanceof OSQLFilterItemField item)) {
       return null;
     }

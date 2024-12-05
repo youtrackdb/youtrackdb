@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
@@ -36,7 +36,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -52,7 +52,7 @@ public abstract class OIdentifiableIterator<REC extends YTIdentifiable>
 
   protected final YTDatabaseSessionInternal database;
   protected final YTRecordId current = new ChangeableRecordId();
-  private final OStorage dbStorage;
+  private final Storage dbStorage;
   protected boolean liveUpdated = false;
   protected long limit = -1;
   protected long browsedRecords = 0;
@@ -248,7 +248,7 @@ public abstract class OIdentifiableIterator<REC extends YTIdentifiable>
         record = null;
         brokenRIDs.add(current.copy());
 
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this, "Error on fetching record during browsing. The record has been skipped", e);
       } else {

@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
@@ -69,7 +69,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     final OSQLFilterCondition condition;
     final Object target;
 
@@ -91,7 +91,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
       final OSQLFilterCondition iCondition,
       final int iLevel,
       final Set<YTRID> iEvaluatedRecords,
-      final OCommandContext iContext) {
+      final CommandContext iContext) {
     if (endDeepLevel > -1 && iLevel > endDeepLevel) {
       return false;
     }

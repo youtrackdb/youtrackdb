@@ -17,7 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.coll;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.OAbstractSQLMethod;
@@ -44,7 +44,7 @@ public class OSQLMethodMultiValue extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
     if (iThis == null || iParams[0] == null) {

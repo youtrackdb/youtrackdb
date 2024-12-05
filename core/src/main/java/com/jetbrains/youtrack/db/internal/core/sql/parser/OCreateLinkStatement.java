@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -18,7 +18,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +50,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public OExecutionStream executeSimple(OCommandContext ctx) {
+  public ExecutionStream executeSimple(CommandContext ctx) {
     Object total = execute(ctx);
     YTResultInternal result = new YTResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create link");
@@ -58,13 +58,13 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
     result.setProperty("count", total);
     result.setProperty("fromClass", sourceClass.getStringValue());
     result.setProperty("toClass", destClass.getStringValue());
-    return OExecutionStream.singleton(result);
+    return ExecutionStream.singleton(result);
   }
 
   /**
    * Execute the CREATE LINK.
    */
-  private Object execute(OCommandContext ctx) {
+  private Object execute(CommandContext ctx) {
     if (destField == null) {
       throw new YTCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

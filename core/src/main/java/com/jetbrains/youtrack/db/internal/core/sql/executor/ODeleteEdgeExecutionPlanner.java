@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBatch;
@@ -76,7 +76,7 @@ public class ODeleteEdgeExecutionPlanner {
   }
 
   public OInternalExecutionPlan createExecutionPlan(
-      OCommandContext ctx, boolean enableProfiling, boolean useCache) {
+      CommandContext ctx, boolean enableProfiling, boolean useCache) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
@@ -149,7 +149,7 @@ public class ODeleteEdgeExecutionPlanner {
 
   private void handleWhere(
       ODeleteExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OWhereClause whereClause,
       boolean profilingEnabled) {
     if (whereClause != null) {
@@ -159,7 +159,7 @@ public class ODeleteEdgeExecutionPlanner {
 
   private void handleFetchFromTo(
       ODeleteExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       String fromAlias,
       String toAlias,
       OIdentifier targetClass,
@@ -176,7 +176,7 @@ public class ODeleteEdgeExecutionPlanner {
   }
 
   private void handleTargetRids(
-      ODeleteExecutionPlan result, OCommandContext ctx, List<ORid> rids, boolean profilingEnabled) {
+      ODeleteExecutionPlan result, CommandContext ctx, List<ORid> rids, boolean profilingEnabled) {
     if (rids != null) {
       result.chain(
           new FetchFromRidsStep(
@@ -190,7 +190,7 @@ public class ODeleteEdgeExecutionPlanner {
 
   private void handleTargetCluster(
       ODeleteExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OIdentifier targetClusterName,
       boolean profilingEnabled) {
     if (targetClusterName != null) {
@@ -205,7 +205,7 @@ public class ODeleteEdgeExecutionPlanner {
 
   private void handleTargetClass(
       ODeleteExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OIdentifier className,
       boolean profilingEnabled) {
     if (className != null) {
@@ -219,7 +219,7 @@ public class ODeleteEdgeExecutionPlanner {
       ODeleteExecutionPlan result,
       OIndexIdentifier indexIdentifier,
       OWhereClause whereClause,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     if (indexIdentifier == null) {
       return false;
@@ -228,30 +228,30 @@ public class ODeleteEdgeExecutionPlanner {
   }
 
   private void handleDelete(
-      ODeleteExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      ODeleteExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     result.chain(new DeleteStep(ctx, profilingEnabled));
   }
 
   private void handleReturn(
-      ODeleteExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      ODeleteExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     result.chain(new CountStep(ctx, profilingEnabled));
   }
 
   private void handleLimit(
-      OUpdateExecutionPlan plan, OCommandContext ctx, OLimit limit, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, OLimit limit, boolean profilingEnabled) {
     if (limit != null) {
       plan.chain(new LimitExecutionStep(limit, ctx, profilingEnabled));
     }
   }
 
   private void handleCastToEdge(
-      ODeleteExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {
+      ODeleteExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
     plan.chain(new CastToEdgeStep(ctx, profilingEnabled));
   }
 
   private void handleTarget(
       OUpdateExecutionPlan result,
-      OCommandContext ctx,
+      CommandContext ctx,
       OFromClause target,
       OWhereClause whereClause,
       boolean profilingEnabled) {
@@ -268,7 +268,7 @@ public class ODeleteEdgeExecutionPlanner {
       ODeleteExecutionPlan result,
       OIdentifier name,
       OExpression expression,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     if (expression != null) {
       result.chain(new GlobalLetExpressionStep(name, expression, ctx, profilingEnabled));

@@ -16,7 +16,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.method.misc;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunction;
@@ -51,7 +51,7 @@ public class OSQLMethodFunctionDelegate extends OAbstractSQLMethod {
   public Object execute(
       final Object iThis,
       final YTIdentifiable iCurrentRecord,
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final Object ioResult,
       final Object[] iParams) {
 

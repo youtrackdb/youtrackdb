@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.parser;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.orientechnologies.lucene.builder.OLuceneDateTools;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.orientechnologies.lucene.builder.OLuceneDateTools;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.lucene.analysis.Analyzer;
@@ -118,7 +118,7 @@ public class OLuceneMultiFieldQueryParser extends MultiFieldQueryParser {
                     Math.addExact(OLuceneDateTools.stringToTime(part2), end)));
 
           } catch (final java.text.ParseException e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(this, "Exception is suppressed, original exception exception is ", e);
             //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
             throw new ParseException(e.getMessage());

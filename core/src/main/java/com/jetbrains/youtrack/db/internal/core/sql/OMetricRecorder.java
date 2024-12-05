@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,9 +30,9 @@ import java.util.Set;
  */
 public class OMetricRecorder {
 
-  protected OCommandContext context;
+  protected CommandContext context;
 
-  public void setContext(OCommandContext context) {
+  public void setContext(CommandContext context) {
     this.context = context;
   }
 
@@ -59,7 +59,7 @@ public class OMetricRecorder {
     }
   }
 
-  OCommandContext orderByElapsed(long startOrderBy) {
+  CommandContext orderByElapsed(long startOrderBy) {
     return context.setVariable("orderByElapsed", (System.currentTimeMillis() - startOrderBy));
   }
 

@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +81,7 @@ public class OMatchFilter extends SimpleNode {
     return null;
   }
 
-  public String getClassName(OCommandContext context) {
+  public String getClassName(CommandContext context) {
     for (OMatchFilterItem item : items) {
       if (item.className != null) {
         if (item.className.value instanceof String) {
@@ -102,7 +102,7 @@ public class OMatchFilter extends SimpleNode {
     return null;
   }
 
-  public String getClusterName(OCommandContext context) {
+  public String getClusterName(CommandContext context) {
     for (OMatchFilterItem item : items) {
       if (item.clusterName != null) {
         return item.clusterName.getStringValue();
@@ -117,7 +117,7 @@ public class OMatchFilter extends SimpleNode {
     return null;
   }
 
-  public ORid getRid(OCommandContext context) {
+  public ORid getRid(CommandContext context) {
     for (OMatchFilterItem item : items) {
       if (item.rid != null) {
         return item.rid;

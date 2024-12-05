@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.engine;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,7 +28,7 @@ public class OLuceneDirectoryFactory {
   public static final String DIRECTORY_PATH = "directory_path";
 
   public OLuceneDirectory createDirectory(
-      final OStorage storage, final String indexName, final Map<String, ?> metadata) {
+      final Storage storage, final String indexName, final Map<String, ?> metadata) {
     final String luceneType =
         metadata.containsKey(DIRECTORY_TYPE) ? metadata.get(DIRECTORY_TYPE).toString()
             : DIRECTORY_MMAP;
@@ -41,7 +41,7 @@ public class OLuceneDirectoryFactory {
   }
 
   private OLuceneDirectory createDirectory(
-      final OStorage storage,
+      final Storage storage,
       final String indexName,
       final Map<String, ?> metadata,
       final String luceneType) {
@@ -62,10 +62,10 @@ public class OLuceneDirectoryFactory {
       }
       return new OLuceneDirectory(dir, luceneIndexPath.toString());
     } catch (final IOException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "unable to create Lucene Directory with type " + luceneType, e);
     }
-    OLogManager.instance().warn(this, "unable to create Lucene Directory, FALL BACK to ramDir");
+    LogManager.instance().warn(this, "unable to create Lucene Directory, FALL BACK to ramDir");
     return new OLuceneDirectory(new RAMDirectory(), null);
   }
 }

@@ -12,7 +12,7 @@ import com.jetbrains.youtrack.db.internal.core.index.OPropertyRidBagIndexDefinit
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import java.util.Arrays;
 import java.util.List;
@@ -460,7 +460,7 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
             + EXPECTED_PROP1_TYPE;
 
     try {
-      database.command(new OCommandSQL(query)).execute(database);
+      database.command(new CommandSQL(query)).execute(database);
       Assert.fail();
     } catch (YTCommandExecutionException e) {
       Assert.assertTrue(

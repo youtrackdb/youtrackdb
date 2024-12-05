@@ -4,13 +4,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OPairLongObject;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLResultsetDelegate;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLSelect;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
 import com.jetbrains.youtrack.db.internal.core.sql.OIterableRecordSource;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
@@ -54,7 +54,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class OMatchStatement extends OStatement implements OCommandExecutor, OIterableRecordSource {
+public class OMatchStatement extends OStatement implements CommandExecutor, OIterableRecordSource {
 
   static final String DEFAULT_ALIAS_PREFIX = "$ORIENT_DEFAULT_ALIAS_";
 
@@ -80,7 +80,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   private Map<String, String> aliasClasses;
 
   // execution data
-  private OCommandContext context;
+  private CommandContext context;
   private OProgressListener progressListener;
 
   long threshold = 20;
@@ -175,9 +175,9 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -201,8 +201,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -218,7 +218,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     return new YTLocalResultSet(executionPlan);
   }
 
-  public OInternalExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     OMatchExecutionPlanner planner = new OMatchExecutionPlanner(this);
     OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(originalStatement);
@@ -238,8 +238,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
    * @return
    */
   @Override
-  public <RET extends OCommandExecutor> RET parse(OCommandRequest iRequest) {
-    final OCommandRequestText textRequest = (OCommandRequestText) iRequest;
+  public <RET extends CommandExecutor> RET parse(CommandRequest iRequest) {
+    final CommandRequestText textRequest = (CommandRequestText) iRequest;
     if (iRequest instanceof OSQLSynchQuery) {
       request = (OSQLSynchQuery<EntityImpl>) iRequest;
     } else if (iRequest instanceof OSQLAsynchQuery) {
@@ -264,7 +264,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         osql = new OrientSql(is, db.getStorageInfo().getConfiguration().getCharset());
       }
     } catch (UnsupportedEncodingException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Invalid charset for database "
@@ -380,7 +380,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
    */
   public Object execute(
       OSQLAsynchQuery<EntityImpl> request,
-      OCommandContext context,
+      CommandContext context,
       OProgressListener progressListener) {
     if (orderBy != null) {
       throw new YTCommandExecutionException("ORDER BY is not supported in MATCH on the legacy API");
@@ -659,7 +659,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       MatchContext matchContext,
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
-      OCommandContext iCommandContext,
+      CommandContext iCommandContext,
       OSQLAsynchQuery<EntityImpl> request,
       MatchExecutionPlan executionPlan) {
 
@@ -734,7 +734,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       MatchContext matchContext,
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
-      OCommandContext iCommandContext,
+      CommandContext iCommandContext,
       OSQLAsynchQuery<EntityImpl> request,
       Iterable<YTIdentifiable> candidates,
       String alias,
@@ -759,7 +759,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   private Iterable<YTIdentifiable> fetchAliasCandidates(
       String nextAlias,
       Map<String, OWhereClause> aliasFilters,
-      OCommandContext iCommandContext,
+      CommandContext iCommandContext,
       Map<String, String> aliasClasses) {
     Iterator<YTIdentifiable> it =
         query(aliasClasses.get(nextAlias), aliasFilters.get(nextAlias), iCommandContext);
@@ -777,7 +777,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       MatchContext matchContext,
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
-      OCommandContext iCommandContext,
+      CommandContext iCommandContext,
       OSQLAsynchQuery<EntityImpl> request) {
 
     var db = iCommandContext.getDatabase();
@@ -1114,7 +1114,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       MatchContext matchContext,
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
-      OCommandContext iCommandContext,
+      CommandContext iCommandContext,
       OSQLAsynchQuery<EntityImpl> request) {
     for (String alias : pattern.aliasToNode.keySet()) {
       if (!matchContext.matched.containsKey(alias)) {
@@ -1160,7 +1160,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   private boolean addResult(
-      MatchContext matchContext, OSQLAsynchQuery<EntityImpl> request, OCommandContext ctx) {
+      MatchContext matchContext, OSQLAsynchQuery<EntityImpl> request, CommandContext ctx) {
 
     var db = ctx.getDatabase();
     EntityImpl doc = null;
@@ -1170,7 +1170,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
           try {
             Record record = entry.getValue().getRecord();
             if (request.getResultListener() != null) {
-              if (!addSingleResult(request, (OBasicCommandContext) ctx, record)) {
+              if (!addSingleResult(request, (BasicCommandContext) ctx, record)) {
                 return false;
               }
             }
@@ -1185,7 +1185,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
           try {
             Record record = entry.getValue().getRecord();
             if (request.getResultListener() != null) {
-              if (!addSingleResult(request, (OBasicCommandContext) ctx, record)) {
+              if (!addSingleResult(request, (BasicCommandContext) ctx, record)) {
                 return false;
               }
             }
@@ -1241,7 +1241,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     }
 
     if (request.getResultListener() != null && doc != null) {
-      return addSingleResult(request, (OBasicCommandContext) ctx, doc);
+      return addSingleResult(request, (BasicCommandContext) ctx, doc);
     }
 
     return true;
@@ -1254,8 +1254,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
    * @return false if limit was reached
    */
   private boolean addSingleResult(
-      OSQLAsynchQuery<EntityImpl> request, OBasicCommandContext ctx, Record record) {
-    if (((OBasicCommandContext) context).addToUniqueResult(record)) {
+      OSQLAsynchQuery<EntityImpl> request, BasicCommandContext ctx, Record record) {
+    if (((BasicCommandContext) context).addToUniqueResult(record)) {
       request.getResultListener().result(ctx.getDatabase(), record);
       long currentCount = ctx.getResultsProcessed().incrementAndGet();
       long limitValue = limitFromProtocol;
@@ -1312,7 +1312,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         && returnAliases.get(0) == null;
   }
 
-  private EntityImpl jsonToDoc(MatchContext matchContext, OCommandContext ctx) {
+  private EntityImpl jsonToDoc(MatchContext matchContext, CommandContext ctx) {
     if (returnItems.size() == 1
         && (returnItems.get(0).value instanceof OJson)
         && returnAliases.get(0) == null) {
@@ -1329,7 +1329,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   private Iterator<YTIdentifiable> query(
-      String className, OWhereClause oWhereClause, OCommandContext ctx) {
+      String className, OWhereClause oWhereClause, CommandContext ctx) {
     final var database = ctx.getDatabase();
     YTClass schemaClass = database.getMetadata().getSchema().getClass(className);
     database.checkSecurity(
@@ -1368,14 +1368,14 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       return null;
     }
 
-    if (targetResult instanceof OCommandExecutorSQLSelect) {
-      ((OCommandExecutorSQLSelect) targetResult)
+    if (targetResult instanceof CommandExecutorSQLSelect) {
+      ((CommandExecutorSQLSelect) targetResult)
           .getContext()
           .setRecordingMetrics(ctx.isRecordingMetrics());
-    } else if (targetResult instanceof OCommandExecutorSQLResultsetDelegate) {
-      OCommandExecutor delegate =
-          ((OCommandExecutorSQLResultsetDelegate) targetResult).getDelegate();
-      if (delegate instanceof OCommandExecutorSQLSelect) {
+    } else if (targetResult instanceof CommandExecutorSQLResultsetDelegate) {
+      CommandExecutor delegate =
+          ((CommandExecutorSQLResultsetDelegate) targetResult).getDelegate();
+      if (delegate instanceof CommandExecutorSQLSelect) {
         delegate.getContext().setRecordingMetrics(ctx.isRecordingMetrics());
       }
     }
@@ -1431,7 +1431,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   private Map<String, Long> estimateRootEntries(
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     Set<String> allAliases = new LinkedHashSet<String>();
     allAliases.addAll(aliasClasses.keySet());
     allAliases.addAll(aliasFilters.keySet());
@@ -1472,7 +1472,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       OMatchExpression expr,
       Map<String, OWhereClause> aliasFilters,
       Map<String, String> aliasClasses,
-      OCommandContext context) {
+      CommandContext context) {
     addAliases(expr.origin, aliasFilters, aliasClasses, context);
     for (OMatchPathItem item : expr.items) {
       if (item.filter != null) {
@@ -1485,7 +1485,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       OMatchFilter matchFilter,
       Map<String, OWhereClause> aliasFilters,
       Map<String, String> aliasClasses,
-      OCommandContext context) {
+      CommandContext context) {
     var db = context.getDatabase();
     String alias = matchFilter.getAlias();
     OWhereClause filter = matchFilter.getFilter();
@@ -1547,14 +1547,14 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   @Override
-  public <RET extends OCommandExecutor> RET setProgressListener(
+  public <RET extends CommandExecutor> RET setProgressListener(
       OProgressListener progressListener) {
     this.progressListener = progressListener;
     return (RET) this;
   }
 
   @Override
-  public <RET extends OCommandExecutor> RET setLimit(int iLimit) {
+  public <RET extends CommandExecutor> RET setLimit(int iLimit) {
     limitFromProtocol = iLimit;
     return (RET) this;
   }
@@ -1570,12 +1570,12 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   @Override
-  public OCommandContext getContext() {
+  public CommandContext getContext() {
     return context;
   }
 
   @Override
-  public void setContext(OCommandContext context) {
+  public void setContext(CommandContext context) {
     this.context = context;
   }
 
@@ -1740,7 +1740,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   public Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
       Map<Object, Object> iArgs) {
     if (context == null) {
-      var context = new OBasicCommandContext();
+      var context = new BasicCommandContext();
       context.setDatabase(querySession);
 
       this.context = context;

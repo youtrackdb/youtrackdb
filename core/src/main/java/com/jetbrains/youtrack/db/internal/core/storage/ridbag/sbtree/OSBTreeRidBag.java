@@ -38,7 +38,7 @@ import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.OSimpleMultiValueTracker;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.ORecordSerializationContext;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.ORidBagDeleteSerializationOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.ORidBagUpdateSerializationOperation;
@@ -714,7 +714,7 @@ public class OSBTreeRidBag implements RidBagDelegate {
         assert clusterId > -1;
         try {
           final OAtomicOperationsManager atomicOperationsManager =
-              ((OAbstractPaginatedStorage) databaseDocumentInternal.getStorage())
+              ((AbstractPaginatedStorage) databaseDocumentInternal.getStorage())
                   .getAtomicOperationsManager();
           final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
           assert atomicOperation != null;

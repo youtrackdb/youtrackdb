@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.server.network.protocol.binary;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -104,7 +104,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
                   protocol.channel.writeByte((byte) 2); // CACHE IT ON THE CLIENT
                   ONetworkProtocolBinary.writeIdentifiable(protocol.channel, connection, iLinked);
                 } catch (IOException e) {
-                  OLogManager.instance().error(this, "Cannot write against channel", e);
+                  LogManager.instance().error(this, "Cannot write against channel", e);
                 }
               }
             }
@@ -131,11 +131,11 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
       if (connections.size() == 0) {
         try {
           YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
-          OLogManager.instance()
+          LogManager.instance()
               .warn(this, "Unsubscribing live query for connection " + connection);
           OLiveQueryHook.unsubscribe(iToken, db);
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(this, "Unsubscribing live query for connection " + connection, e);
         }
         break;
@@ -177,7 +177,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           break;
         }
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Cannot push cluster configuration to the client %s",
@@ -231,7 +231,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           break;
         }
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Cannot push cluster configuration to the client %s",

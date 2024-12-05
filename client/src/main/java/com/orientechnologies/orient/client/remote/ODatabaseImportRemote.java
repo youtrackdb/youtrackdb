@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.client.remote;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImpExpAbstract;
@@ -29,7 +29,7 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
     try {
       importDatabase();
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Error during database import", e);
+      LogManager.instance().error(this, "Error during database import", e);
     }
   }
 
@@ -40,7 +40,7 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
   }
 
   public void importDatabase() throws YTDatabaseImportException {
-    OStorageRemote storage = (OStorageRemote) getDatabase().getStorage();
+    StorageRemote storage = (StorageRemote) getDatabase().getStorage();
     File file = new File(getFileName());
     try {
       storage.importDatabase((YTDatabaseSessionRemote) database, options, new FileInputStream(file),

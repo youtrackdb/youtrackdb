@@ -28,7 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityRole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
@@ -298,7 +298,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance("reader", "reader");
 
     try {
-      database.command(new OCommandSQL("select from ouser")).execute(database);
+      database.command(new CommandSQL("select from ouser")).execute(database);
     } catch (YTSecurityException e) {
     }
 
@@ -324,7 +324,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance("writer", "writer");
 
     try {
-      database.command(new OCommandSQL("alter class Protected superclass OUser")).execute(database);
+      database.command(new CommandSQL("alter class Protected superclass OUser")).execute(database);
       Assert.fail();
     } catch (YTSecurityException e) {
     } finally {

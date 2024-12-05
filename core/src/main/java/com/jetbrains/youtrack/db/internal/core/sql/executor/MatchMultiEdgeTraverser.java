@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItemFirst;
@@ -25,8 +25,8 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     super(lastUpstreamRecord, edge);
   }
 
-  protected OExecutionStream traversePatternEdge(
-      YTIdentifiable startingPoint, OCommandContext iCommandContext) {
+  protected ExecutionStream traversePatternEdge(
+      YTIdentifiable startingPoint, CommandContext iCommandContext) {
 
     Iterable possibleResults = null;
     //    if (this.edge.edge.item.getFilter() != null) {
@@ -67,7 +67,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
             current = ((YTResult) current).getEntity().orElse(null);
           }
           MatchEdgeTraverser subtraverser = new MatchEdgeTraverser(null, sub);
-          OExecutionStream rightStream =
+          ExecutionStream rightStream =
               subtraverser.executeTraversal(iCommandContext, sub, (YTIdentifiable) current, 0,
                   null);
           while (rightStream.hasNext(iCommandContext)) {
@@ -118,10 +118,10 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     iCommandContext.setVariable("$current", oldCurrent);
     //    return (qR instanceof Iterable) ? (Iterable) qR : Collections.singleton((YTIdentifiable)
     // qR);
-    return OExecutionStream.resultIterator(result.iterator());
+    return ExecutionStream.resultIterator(result.iterator());
   }
 
-  private boolean matchesCondition(YTResultInternal x, OMatchFilter filter, OCommandContext ctx) {
+  private boolean matchesCondition(YTResultInternal x, OMatchFilter filter, CommandContext ctx) {
     if (filter == null) {
       return true;
     }

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
@@ -235,7 +235,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
           try {
             exportClass(db, json, cls);
           } catch (Exception e) {
-            OLogManager.instance().error(this, "Error on exporting class '" + cls + "'", e);
+            LogManager.instance().error(this, "Error on exporting class '" + cls + "'", e);
           }
         }
         json.endCollection();
@@ -283,7 +283,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
           // Exclude index size because it's too costly
           // json.writeAttribute("size", index.getSize());
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Cannot serialize index configuration", e);
+          LogManager.instance().error(this, "Cannot serialize index configuration", e);
         }
         json.endObject();
       }

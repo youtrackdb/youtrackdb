@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.parser.OBaseParser;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -31,11 +31,11 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLAbstract;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandExecutorSQLResultsetDelegate;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQLResultset;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLResultset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,10 +47,10 @@ import java.util.Map;
 /**
  * Target parser.
  */
-public class OSQLTarget extends OBaseParser {
+public class OSQLTarget extends BaseParser {
 
   protected final boolean empty;
-  protected final OCommandContext context;
+  protected final CommandContext context;
   protected String targetVariable;
   protected String targetQuery;
   protected Iterable<? extends YTIdentifiable> targetRecords;
@@ -62,11 +62,11 @@ public class OSQLTarget extends OBaseParser {
   protected String targetIndexValues;
   protected boolean targetIndexValuesAsc;
 
-  public OSQLTarget(final String iText, final OCommandContext iContext) {
+  public OSQLTarget(final String iText, final CommandContext iContext) {
     super();
     context = iContext;
     parserText = iText;
-    parserTextUpperCase = OSQLPredicate.upperCase(iText);
+    parserTextUpperCase = SQLPredicate.upperCase(iText);
 
     try {
       empty = !extractTargets();
@@ -178,24 +178,24 @@ public class OSQLTarget extends OBaseParser {
       parserSetCurrentPosition(
           OStringSerializerHelper.getEmbedded(parserText, parserGetCurrentPosition(), -1, subText)
               + 1);
-      final OCommandSQL subCommand = new OCommandSQLResultset(subText.toString());
+      final CommandSQL subCommand = new CommandSQLResultset(subText.toString());
 
       YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
-      final OCommandExecutorSQLResultsetDelegate executor =
-          (OCommandExecutorSQLResultsetDelegate)
+      final CommandExecutorSQLResultsetDelegate executor =
+          (CommandExecutorSQLResultsetDelegate)
               db.getSharedContext()
                   .getYouTrackDB()
                   .getScriptManager()
                   .getCommandManager()
                   .getExecutor(subCommand);
       executor.setContext(context);
-      var commandContext = new OBasicCommandContext();
+      var commandContext = new BasicCommandContext();
       context.setChild(commandContext);
 
       subCommand.setContext(commandContext);
       executor.setProgressListener(subCommand.getProgressListener());
       executor.parse(subCommand);
-      OCommandContext childContext = executor.getContext();
+      CommandContext childContext = executor.getContext();
       if (childContext != null) {
         childContext.setParent(context);
       }
@@ -240,13 +240,13 @@ public class OSQLTarget extends OBaseParser {
         }
 
         final String subjectToMatch = subjectName;
-        if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
+        if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
           // REGISTER AS CLUSTER
           if (targetClusters == null) {
             targetClusters = new HashMap<String, String>();
           }
           final String clusterNames =
-              subjectName.substring(OCommandExecutorSQLAbstract.CLUSTER_PREFIX.length());
+              subjectName.substring(CommandExecutorSQLAbstract.CLUSTER_PREFIX.length());
           if (clusterNames.startsWith("[") && clusterNames.endsWith("]")) {
             final Collection<String> clusters = new HashSet<String>(3);
             OStringSerializerHelper.getCollection(clusterNames, 0, clusters);
@@ -257,17 +257,17 @@ public class OSQLTarget extends OBaseParser {
             targetClusters.put(clusterNames, alias);
           }
 
-        } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.INDEX_PREFIX)) {
+        } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.INDEX_PREFIX)) {
           // REGISTER AS INDEX
           targetIndex =
-              originalSubjectName.substring(OCommandExecutorSQLAbstract.INDEX_PREFIX.length());
-        } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.METADATA_PREFIX)) {
+              originalSubjectName.substring(CommandExecutorSQLAbstract.INDEX_PREFIX.length());
+        } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.METADATA_PREFIX)) {
           // METADATA
           final String metadataTarget =
-              subjectName.substring(OCommandExecutorSQLAbstract.METADATA_PREFIX.length());
+              subjectName.substring(CommandExecutorSQLAbstract.METADATA_PREFIX.length());
           targetRecords = new ArrayList<YTIdentifiable>();
 
-          if (metadataTarget.equals(OCommandExecutorSQLAbstract.METADATA_SCHEMA)) {
+          if (metadataTarget.equals(CommandExecutorSQLAbstract.METADATA_SCHEMA)) {
             ((ArrayList<YTIdentifiable>) targetRecords)
                 .add(
                     new YTRecordId(
@@ -276,7 +276,7 @@ public class OSQLTarget extends OBaseParser {
                             .getStorageInfo()
                             .getConfiguration()
                             .getSchemaRecordId()));
-          } else if (metadataTarget.equals(OCommandExecutorSQLAbstract.METADATA_INDEXMGR)) {
+          } else if (metadataTarget.equals(CommandExecutorSQLAbstract.METADATA_INDEXMGR)) {
             ((ArrayList<YTIdentifiable>) targetRecords)
                 .add(
                     new YTRecordId(
@@ -289,10 +289,10 @@ public class OSQLTarget extends OBaseParser {
             throw new YTQueryParsingException("Metadata element not supported: " + metadataTarget);
           }
 
-        } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.DICTIONARY_PREFIX)) {
+        } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.DICTIONARY_PREFIX)) {
           // DICTIONARY
           final String key =
-              originalSubjectName.substring(OCommandExecutorSQLAbstract.DICTIONARY_PREFIX.length());
+              originalSubjectName.substring(CommandExecutorSQLAbstract.DICTIONARY_PREFIX.length());
           targetRecords = new ArrayList<YTIdentifiable>();
 
           final YTIdentifiable value =
@@ -301,27 +301,27 @@ public class OSQLTarget extends OBaseParser {
             ((List<YTIdentifiable>) targetRecords).add(value);
           }
 
-        } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.INDEX_VALUES_PREFIX)) {
+        } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.INDEX_VALUES_PREFIX)) {
           targetIndexValues =
               originalSubjectName.substring(
-                  OCommandExecutorSQLAbstract.INDEX_VALUES_PREFIX.length());
+                  CommandExecutorSQLAbstract.INDEX_VALUES_PREFIX.length());
           targetIndexValuesAsc = true;
-        } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.INDEX_VALUES_ASC_PREFIX)) {
+        } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.INDEX_VALUES_ASC_PREFIX)) {
           targetIndexValues =
               originalSubjectName.substring(
-                  OCommandExecutorSQLAbstract.INDEX_VALUES_ASC_PREFIX.length());
+                  CommandExecutorSQLAbstract.INDEX_VALUES_ASC_PREFIX.length());
           targetIndexValuesAsc = true;
         } else if (subjectToMatch.startsWith(
-            OCommandExecutorSQLAbstract.INDEX_VALUES_DESC_PREFIX)) {
+            CommandExecutorSQLAbstract.INDEX_VALUES_DESC_PREFIX)) {
           targetIndexValues =
               originalSubjectName.substring(
-                  OCommandExecutorSQLAbstract.INDEX_VALUES_DESC_PREFIX.length());
+                  CommandExecutorSQLAbstract.INDEX_VALUES_DESC_PREFIX.length());
           targetIndexValuesAsc = false;
         } else {
-          if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.CLASS_PREFIX))
+          if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.CLASS_PREFIX))
           // REGISTER AS CLASS
           {
-            subjectName = subjectName.substring(OCommandExecutorSQLAbstract.CLASS_PREFIX.length());
+            subjectName = subjectName.substring(CommandExecutorSQLAbstract.CLASS_PREFIX.length());
           }
 
           // REGISTER AS CLASS

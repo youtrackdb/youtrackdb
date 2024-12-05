@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.Collection;
 import java.util.List;
@@ -152,7 +152,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(explain.<Set<String>>field("involvedIndexes").contains("collateIndexCSP"));
 
     query = "select from collateIndexTest where cip = 'VaL'";
@@ -165,7 +165,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     //noinspection deprecation
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(explain.<Set<String>>field("involvedIndexes").contains("collateIndexCIP"));
   }
 
@@ -202,7 +202,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateWasChangedIndex"));
 
@@ -219,7 +219,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     //noinspection deprecation
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateWasChangedIndex"));
   }
@@ -263,7 +263,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateCompositeIndexCS"));
 
@@ -278,7 +278,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     //noinspection deprecation
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateCompositeIndexCS"));
 
@@ -338,7 +338,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -357,7 +357,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     //noinspection deprecation
-    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    explain = database.command(new CommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -374,7 +374,7 @@ public class CollateTest extends DocumentDBBaseTest {
     //noinspection deprecation
     database
         .command(
-            new OCommandSQL(
+            new CommandSQL(
                 "create index collateTestViaSQL.index on collateTestViaSQL (cip COLLATE CI)"
                     + " NOTUNIQUE"))
         .execute(database);

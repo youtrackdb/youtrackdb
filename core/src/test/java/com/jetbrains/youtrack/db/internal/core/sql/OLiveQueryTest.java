@@ -34,7 +34,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -161,7 +161,7 @@ public class OLiveQueryTest {
     YTClass clazz = db.getMetadata().getSchema().createClass("test");
 
     int defaultCluster = clazz.getDefaultClusterId();
-    final OStorage storage = db.getStorage();
+    final Storage storage = db.getStorage();
 
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(1));
 

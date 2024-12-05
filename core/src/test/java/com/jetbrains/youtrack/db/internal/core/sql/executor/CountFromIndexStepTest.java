@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexName;
 import java.util.Arrays;
@@ -67,11 +67,11 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
     identifier.setIndexNameString(name.getValue());
     identifier.setType(identifierType);
 
-    OBasicCommandContext context = new OBasicCommandContext();
+    BasicCommandContext context = new BasicCommandContext();
     context.setDatabase(db);
     CountFromIndexStep step = new CountFromIndexStep(identifier, ALIAS, context, false);
 
-    OExecutionStream result = step.start(context);
+    ExecutionStream result = step.start(context);
     Assert.assertEquals(20, (long) result.next(context).getProperty(ALIAS));
     Assert.assertFalse(result.hasNext(context));
   }

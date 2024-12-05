@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.db.tool;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
 import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
@@ -73,7 +73,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.s
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ORidSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -450,14 +450,14 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       schema.dropClass(OClassTrigger.CLASSNAME);
     }
 
-    database.dropCluster(OStorage.CLUSTER_DEFAULT_NAME);
+    database.dropCluster(Storage.CLUSTER_DEFAULT_NAME);
 
-    database.setDefaultClusterId(database.addCluster(OStorage.CLUSTER_DEFAULT_NAME));
+    database.setDefaultClusterId(database.addCluster(Storage.CLUSTER_DEFAULT_NAME));
 
     // Starting from v4 schema has been moved to internal cluster.
     // Create a stub at #2:0 to prevent cluster position shifting.
     database.begin();
-    new EntityImpl().save(OStorage.CLUSTER_DEFAULT_NAME);
+    new EntityImpl().save(Storage.CLUSTER_DEFAULT_NAME);
     database.commit();
 
     database.getSharedContext().getSecurity().create(database);
@@ -902,7 +902,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       jsonReader.readNext(OJSONReader.END_OBJECT);
       jsonReader.readNext(OJSONReader.COMMA_SEPARATOR);
     } catch (final Exception e) {
-      OLogManager.instance().error(this, "Error on importing schema", e);
+      LogManager.instance().error(this, "Error on importing schema", e);
       listener.onMessage("ERROR (" + classImported + " entries): " + e);
     }
   }
@@ -1337,7 +1337,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
       // Incorrect record format, skip this record
       if (record == null || record.getIdentity() == null) {
-        OLogManager.instance().warn(this, "Broken record was detected and will be skipped");
+        LogManager.instance().warn(this, "Broken record was detected and will be skipped");
         return null;
       }
 
@@ -1482,7 +1482,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
     } catch (Exception t) {
       if (record != null) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Error importing record "
@@ -1493,7 +1493,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     + jsonReader.getColumnNumber(),
                 t);
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Error importing record. Source line "
@@ -1550,7 +1550,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     long last = begin;
     Set<String> involvedClusters = new HashSet<>();
 
-    OLogManager.instance().debug(this, "Detected exporter version " + exporterVersion + ".");
+    LogManager.instance().debug(this, "Detected exporter version " + exporterVersion + ".");
     while (jsonReader.lastChar() != ']') {
       // TODO: add special handling for `exporterVersion` / `ODatabaseExport.EXPORTER_VERSION` >= 13
       rid = importRecord(recordsBeforeImport, beforeImportSchemaSnapshot);
@@ -1908,7 +1908,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
       final int clusterId = database.getClusterIdByName(clusterName);
       final long clusterRecords = database.countClusterElements(clusterId);
-      OStorage storage = database.getStorage();
+      Storage storage = database.getStorage();
 
       OPhysicalPosition[] positions =
           storage.ceilingPhysicalPositions(database, clusterId, new OPhysicalPosition(0));

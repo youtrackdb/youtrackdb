@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.util.Collection;
@@ -79,8 +79,8 @@ public class OIndexRIDContainer implements Set<YTIdentifiable> {
   }
 
   private static long resolveFileIdByName(String fileName) {
-    final OAbstractPaginatedStorage storage =
-        (OAbstractPaginatedStorage) ODatabaseRecordThreadLocal.instance().get().getStorage();
+    final AbstractPaginatedStorage storage =
+        (AbstractPaginatedStorage) ODatabaseRecordThreadLocal.instance().get().getStorage();
     final OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
     final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
     Objects.requireNonNull(atomicOperation);
@@ -221,7 +221,7 @@ public class OIndexRIDContainer implements Set<YTIdentifiable> {
   private void convertToSbTree() {
     final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
     final OIndexRIDContainerSBTree tree =
-        new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
+        new OIndexRIDContainerSBTree(fileId, (AbstractPaginatedStorage) db.getStorage());
 
     tree.addAll(underlying);
 

@@ -4,7 +4,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.core.command.OServerCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -49,7 +49,7 @@ public class OServerStatement extends SimpleNode {
 
   public Object execute(
       OSQLAsynchQuery<EntityImpl> request,
-      OServerCommandContext context,
+      ServerCommandContext context,
       OProgressListener progressListener) {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());
   }
@@ -59,7 +59,7 @@ public class OServerStatement extends SimpleNode {
   }
 
   public YTResultSet execute(
-      YouTrackDBInternal db, Object[] args, OServerCommandContext parentContext) {
+      YouTrackDBInternal db, Object[] args, ServerCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
@@ -67,7 +67,7 @@ public class OServerStatement extends SimpleNode {
     return execute(db, args, true);
   }
 
-  public YTResultSet execute(YouTrackDBInternal db, Map args, OServerCommandContext parentContext) {
+  public YTResultSet execute(YouTrackDBInternal db, Map args, ServerCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
@@ -78,7 +78,7 @@ public class OServerStatement extends SimpleNode {
   public YTResultSet execute(
       YouTrackDBInternal db,
       Object[] args,
-      OServerCommandContext parentContext,
+      ServerCommandContext parentContext,
       boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
@@ -88,7 +88,7 @@ public class OServerStatement extends SimpleNode {
   }
 
   public YTResultSet execute(
-      YouTrackDBInternal db, Map args, OServerCommandContext parentContext, boolean usePlanCache) {
+      YouTrackDBInternal db, Map args, ServerCommandContext parentContext, boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 
@@ -98,7 +98,7 @@ public class OServerStatement extends SimpleNode {
    * @param ctx the context that will be used to execute the statement
    * @return an execution plan
    */
-  public OInternalExecutionPlan createExecutionPlan(OServerCommandContext ctx) {
+  public OInternalExecutionPlan createExecutionPlan(ServerCommandContext ctx) {
     return createExecutionPlan(ctx, false);
   }
 
@@ -109,12 +109,12 @@ public class OServerStatement extends SimpleNode {
    * @param profile true to enable profiling, false to disable it
    * @return an execution plan
    */
-  public OInternalExecutionPlan createExecutionPlan(OServerCommandContext ctx, boolean profile) {
+  public OInternalExecutionPlan createExecutionPlan(ServerCommandContext ctx, boolean profile) {
     throw new UnsupportedOperationException();
   }
 
   public OInternalExecutionPlan createExecutionPlanNoCache(
-      OServerCommandContext ctx, boolean profile) {
+      ServerCommandContext ctx, boolean profile) {
     return createExecutionPlan(ctx, profile);
   }
 

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 
 public class OServerMain {
 
@@ -50,7 +50,7 @@ public class OServerMain {
               instance.startup().activate();
               instance.waitForShutdown();
             } catch (Exception e) {
-              OLogManager.instance().error(this, "Error during server execution", e);
+              LogManager.instance().error(this, "Error during server execution", e);
             }
           }
         };

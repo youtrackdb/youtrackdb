@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.cache;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -74,7 +74,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<YTRID, V>
     }
 
     if (evicted > 0) {
-      OLogManager.instance().debug(this, "Evicted %d items", evicted);
+      LogManager.instance().debug(this, "Evicted %d items", evicted);
     }
   }
 

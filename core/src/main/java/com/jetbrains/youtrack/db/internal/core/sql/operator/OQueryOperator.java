@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.operator;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -139,7 +139,7 @@ public abstract class OQueryOperator {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer);
 
   /**
@@ -155,7 +155,7 @@ public abstract class OQueryOperator {
       YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext context) {
+      CommandContext context) {
 
     return null;
   }
@@ -182,7 +182,7 @@ public abstract class OQueryOperator {
    * and <code>null</code> otherwise.
    */
   public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
-      OCommandContext iContext, OIndex index, final List<Object> keyParams, boolean ascSortOrder) {
+      CommandContext iContext, OIndex index, final List<Object> keyParams, boolean ascSortOrder) {
     return Stream.empty();
   }
 
@@ -253,7 +253,7 @@ public abstract class OQueryOperator {
   }
 
   protected void updateProfiler(
-      final OCommandContext iContext,
+      final CommandContext iContext,
       final OIndex index,
       final List<Object> keyParams,
       final OIndexDefinition indexDefinition) {

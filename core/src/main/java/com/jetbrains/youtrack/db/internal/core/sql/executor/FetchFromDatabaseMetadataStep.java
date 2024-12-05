@@ -1,30 +1,30 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OProduceExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 
 /**
  * Returns an YTResult containing metadata regarding the database
  */
 public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
 
-  public FetchFromDatabaseMetadataStep(OCommandContext ctx, boolean profilingEnabled) {
+  public FetchFromDatabaseMetadataStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(FetchFromDatabaseMetadataStep::produce).limit(1);
+    return new ProduceExecutionStream(FetchFromDatabaseMetadataStep::produce).limit(1);
   }
 
-  private static YTResult produce(OCommandContext ctx) {
+  private static YTResult produce(CommandContext ctx) {
     var db = ctx.getDatabase();
     YTResultInternal result = new YTResultInternal(db);
 
@@ -59,7 +59,7 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ FETCH DATABASE METADATA";
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";

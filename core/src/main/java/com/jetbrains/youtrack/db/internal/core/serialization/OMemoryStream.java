@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization;
 
-import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler.OProfilerHookValue;
+import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.common.util.OArrays;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -53,7 +53,7 @@ public class OMemoryStream extends OutputStream {
             "system.memory.stream.resize",
             "Number of resizes of memory stream buffer",
             METRIC_TYPE.COUNTER,
-            new OProfilerHookValue() {
+            new ProfilerHookValue() {
               public Object getValue() {
                 return metricResize;
               }

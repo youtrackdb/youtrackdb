@@ -25,8 +25,8 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.OIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.List;
 
 /**
@@ -60,8 +60,8 @@ public class OAutoShardingClusterSelectionStrategy implements OClusterSelectionS
               + "' has an auto-sharding index defined with multiple fields");
     }
 
-    final OStorage stg = ODatabaseRecordThreadLocal.instance().get().getStorage();
-    if (!(stg instanceof OAbstractPaginatedStorage)) {
+    final Storage stg = ODatabaseRecordThreadLocal.instance().get().getStorage();
+    if (!(stg instanceof AbstractPaginatedStorage)) {
       throw new YTConfigurationException(
           "Cannot use auto-sharding cluster strategy because storage is not embedded");
     }
@@ -69,7 +69,7 @@ public class OAutoShardingClusterSelectionStrategy implements OClusterSelectionS
     try {
       indexEngine =
           (OIndexEngine)
-              ((OAbstractPaginatedStorage) stg)
+              ((AbstractPaginatedStorage) stg)
                   .getIndexEngine(((OIndexInternal) index).getIndexId());
     } catch (OInvalidIndexEngineIdException e) {
       throw YTException.wrapException(

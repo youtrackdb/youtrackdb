@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.metadata;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.Optional;
 
 public interface OIndexFinder {
@@ -19,14 +19,14 @@ public interface OIndexFinder {
     }
   }
 
-  Optional<OIndexCandidate> findExactIndex(OPath fieldName, Object value, OCommandContext ctx);
+  Optional<OIndexCandidate> findExactIndex(OPath fieldName, Object value, CommandContext ctx);
 
-  Optional<OIndexCandidate> findByKeyIndex(OPath fieldName, Object value, OCommandContext ctx);
+  Optional<OIndexCandidate> findByKeyIndex(OPath fieldName, Object value, CommandContext ctx);
 
   Optional<OIndexCandidate> findAllowRangeIndex(
-      OPath fieldName, Operation operation, Object value, OCommandContext ctx);
+      OPath fieldName, Operation operation, Object value, CommandContext ctx);
 
-  Optional<OIndexCandidate> findByValueIndex(OPath fieldName, Object value, OCommandContext ctx);
+  Optional<OIndexCandidate> findByValueIndex(OPath fieldName, Object value, CommandContext ctx);
 
-  Optional<OIndexCandidate> findFullTextIndex(OPath fieldName, Object value, OCommandContext ctx);
+  Optional<OIndexCandidate> findFullTextIndex(OPath fieldName, Object value, CommandContext ctx);
 }

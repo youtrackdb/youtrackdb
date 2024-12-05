@@ -4,9 +4,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
  *
  */
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,21 +17,21 @@ public class OIfExecutionPlan implements OInternalExecutionPlan {
 
   private String location;
 
-  private final OCommandContext ctx;
+  private final CommandContext ctx;
 
   @Override
-  public OCommandContext getContext() {
+  public CommandContext getContext() {
     return ctx;
   }
 
   protected IfStep step;
 
-  public OIfExecutionPlan(OCommandContext ctx) {
+  public OIfExecutionPlan(CommandContext ctx) {
     this.ctx = ctx;
   }
 
   @Override
-  public void reset(OCommandContext ctx) {
+  public void reset(CommandContext ctx) {
     // TODO
     throw new UnsupportedOperationException();
   }
@@ -42,7 +42,7 @@ public class OIfExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OExecutionStream start() {
+  public ExecutionStream start() {
     return step.start(ctx);
   }
 
@@ -56,12 +56,12 @@ public class OIfExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public List<OExecutionStep> getSteps() {
+  public List<ExecutionStep> getSteps() {
     // TODO do a copy of the steps
     return Collections.singletonList(step);
   }
 
-  public void setSteps(List<OExecutionStepInternal> steps) {
+  public void setSteps(List<ExecutionStepInternal> steps) {
     this.step = (IfStep) steps.get(0);
   }
 
@@ -86,7 +86,7 @@ public class OIfExecutionPlan implements OInternalExecutionPlan {
     return false;
   }
 
-  public OExecutionStepInternal executeUntilReturn() {
+  public ExecutionStepInternal executeUntilReturn() {
     OScriptExecutionPlan plan = step.producePlan(ctx);
     if (plan != null) {
       return plan.executeUntilReturn();

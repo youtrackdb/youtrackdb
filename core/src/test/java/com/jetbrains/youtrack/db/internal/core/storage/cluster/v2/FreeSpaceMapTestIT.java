@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
 import java.io.File;
@@ -26,7 +26,7 @@ public class FreeSpaceMapTestIT {
 
   protected static YouTrackDB youTrackDB;
   protected static String dbName;
-  protected static OAbstractPaginatedStorage storage;
+  protected static AbstractPaginatedStorage storage;
   private static OAtomicOperationsManager atomicOperationsManager;
 
   @BeforeClass
@@ -37,7 +37,7 @@ public class FreeSpaceMapTestIT {
     }
 
     buildDirectory += File.separator + FreeSpaceMapTestIT.class.getSimpleName();
-    OFileUtils.deleteRecursively(new File(buildDirectory));
+    FileUtils.deleteRecursively(new File(buildDirectory));
 
     dbName = "freeSpaceMapTest";
 
@@ -48,7 +48,7 @@ public class FreeSpaceMapTestIT {
     final YTDatabaseSessionInternal databaseDocumentTx =
         (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-    storage = (OAbstractPaginatedStorage) databaseDocumentTx.getStorage();
+    storage = (AbstractPaginatedStorage) databaseDocumentTx.getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseDocumentTx.close();
   }

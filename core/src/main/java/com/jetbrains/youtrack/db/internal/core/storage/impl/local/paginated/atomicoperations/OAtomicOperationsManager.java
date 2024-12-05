@@ -24,17 +24,17 @@ import com.jetbrains.youtrack.db.internal.common.concur.lock.OOneEntryPerKeyLock
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.function.TxConsumer;
 import com.jetbrains.youtrack.db.internal.common.function.TxFunction;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCoreException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AtomicOperationIdGen;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.operationsfreezer.OperationsFreezer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWriteAheadLog;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class OAtomicOperationsManager {
 
   private final ThreadLocal<OAtomicOperation> currentOperation = new ThreadLocal<>();
 
-  private final OAbstractPaginatedStorage storage;
+  private final AbstractPaginatedStorage storage;
 
   @Nonnull
   private final OWriteAheadLog writeAheadLog;
@@ -67,7 +67,7 @@ public class OAtomicOperationsManager {
   private final AtomicOperationsTable atomicOperationsTable;
 
   public OAtomicOperationsManager(
-      OAbstractPaginatedStorage storage, AtomicOperationsTable atomicOperationsTable) {
+      AbstractPaginatedStorage storage, AtomicOperationsTable atomicOperationsTable) {
     this.storage = storage;
     this.writeAheadLog = storage.getWALInstance();
     this.readCache = storage.getReadCache();
@@ -147,7 +147,7 @@ public class OAtomicOperationsManager {
 
   public void executeInsideComponentOperation(
       final OAtomicOperation atomicOperation,
-      final ODurableComponent component,
+      final DurableComponent component,
       final TxConsumer consumer) {
     executeInsideComponentOperation(atomicOperation, component.getLockName(), consumer);
   }
@@ -178,7 +178,7 @@ public class OAtomicOperationsManager {
 
   public <T> T calculateInsideComponentOperation(
       final OAtomicOperation atomicOperation,
-      final ODurableComponent component,
+      final DurableComponent component,
       final TxFunction<T> function) {
     return calculateInsideComponentOperation(atomicOperation, component.getLockName(), function);
   }
@@ -241,7 +241,7 @@ public class OAtomicOperationsManager {
     final OAtomicOperation operation = currentOperation.get();
 
     if (operation == null) {
-      OLogManager.instance().error(this, "There is no atomic operation active", null);
+      LogManager.instance().error(this, "There is no atomic operation active", null);
       throw new YTDatabaseException("There is no atomic operation active");
     }
 
@@ -324,20 +324,20 @@ public class OAtomicOperationsManager {
    * Acquires exclusive lock in the active atomic operation running on the current thread for the
    * {@code durableComponent}.
    */
-  public void acquireExclusiveLockTillOperationComplete(ODurableComponent durableComponent) {
+  public void acquireExclusiveLockTillOperationComplete(DurableComponent durableComponent) {
     final OAtomicOperation operation = currentOperation.get();
     assert operation != null;
     acquireExclusiveLockTillOperationComplete(operation, durableComponent.getLockName());
   }
 
-  public void acquireReadLock(ODurableComponent durableComponent) {
+  public void acquireReadLock(DurableComponent durableComponent) {
     assert durableComponent.getLockName() != null;
 
     storage.checkErrorState();
     lockManager.acquireLock(durableComponent.getLockName(), OOneEntryPerKeyLockManager.LOCK.SHARED);
   }
 
-  public void releaseReadLock(ODurableComponent durableComponent) {
+  public void releaseReadLock(DurableComponent durableComponent) {
     assert durableComponent.getName() != null;
     assert durableComponent.getLockName() != null;
 

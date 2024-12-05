@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -106,7 +106,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
               database.command("CREATE USER admin IDENTIFIED BY ? ROLE admin", adminPwd);
               database.commit();
             } catch (Exception e) {
-              OLogManager.instance()
+              LogManager.instance()
                   .warn(this, "Could not create admin user for database " + databaseName, e);
             }
           }
@@ -154,7 +154,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
             exportClass(db, json, cls);
             exportedNames.add(cls.getName());
           } catch (Exception e) {
-            OLogManager.instance().error(this, "Error on exporting class '" + cls + "'", e);
+            LogManager.instance().error(this, "Error on exporting class '" + cls + "'", e);
           }
         }
       }

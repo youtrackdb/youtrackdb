@@ -17,7 +17,7 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.script.OScriptManager;
 import com.jetbrains.youtrack.db.internal.core.command.script.YTCommandScriptException;
@@ -204,7 +204,7 @@ public class OClassTrigger {
                 // ignore
               }
             } catch (Exception ex) {
-              OLogManager.instance().error(OClassTrigger.class, "illegal record id : ", ex);
+              LogManager.instance().error(OClassTrigger.class, "illegal record id : ", ex);
             }
           }
         }
@@ -240,7 +240,7 @@ public class OClassTrigger {
       Method method = clz.getMethod(methodName, EntityImpl.class);
       return new Object[]{clz, method};
     } catch (Exception ex) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(
               OClassTrigger.class, "illegal class or method : " + clzName + "/" + methodName, ex);
       return null;

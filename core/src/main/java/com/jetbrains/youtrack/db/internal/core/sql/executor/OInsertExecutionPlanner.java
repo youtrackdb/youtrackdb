@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
@@ -50,7 +50,7 @@ public class OInsertExecutionPlanner {
         statement.getSelectStatement() == null ? null : statement.getSelectStatement().copy();
   }
 
-  public OInsertExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OInsertExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     OInsertExecutionPlan result = new OInsertExecutionPlan(ctx);
 
     if (targetIndex != null) {
@@ -82,7 +82,7 @@ public class OInsertExecutionPlanner {
   private void handleSave(
       OInsertExecutionPlan result,
       OIdentifier targetClusterName,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     result.chain(new SaveElementStep(ctx, targetClusterName, profilingEnabled));
   }
@@ -90,7 +90,7 @@ public class OInsertExecutionPlanner {
   private void handleReturn(
       OInsertExecutionPlan result,
       OProjection returnStatement,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     if (returnStatement != null) {
       result.chain(new ProjectionCalculationStep(returnStatement, ctx, profilingEnabled));
@@ -100,7 +100,7 @@ public class OInsertExecutionPlanner {
   private void handleSetFields(
       OInsertExecutionPlan result,
       OInsertBody insertBody,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     if (insertBody == null) {
       return;
@@ -134,7 +134,7 @@ public class OInsertExecutionPlanner {
   }
 
   private void handleTargetClass(
-      OInsertExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
+      OInsertExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     var database = ctx.getDatabase();
     YTSchema schema = database.getMetadata().getSchema();
     OIdentifier tc = null;
@@ -166,7 +166,7 @@ public class OInsertExecutionPlanner {
   private void handleCreateRecord(
       OInsertExecutionPlan result,
       OInsertBody body,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     int tot = 1;
 
@@ -193,7 +193,7 @@ public class OInsertExecutionPlanner {
   private void handleInsertSelect(
       OInsertExecutionPlan result,
       OSelectStatement selectStatement,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     OInternalExecutionPlan subPlan = selectStatement.createExecutionPlan(ctx, profilingEnabled);
     result.chain(new SubQueryStep(subPlan, ctx, ctx, profilingEnabled));

@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OResultSetEdgeTraverser;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ResultSetEdgeTraverser;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFieldMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OMultiMatchPathItem;
 
@@ -14,22 +14,22 @@ public class MatchStep extends AbstractExecutionStep {
 
   protected final EdgeTraversal edge;
 
-  public MatchStep(OCommandContext context, EdgeTraversal edge, boolean profilingEnabled) {
+  public MatchStep(CommandContext context, EdgeTraversal edge, boolean profilingEnabled) {
     super(context, profilingEnabled);
     this.edge = edge;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
 
-    OExecutionStream resultSet = prev.start(ctx);
+    ExecutionStream resultSet = prev.start(ctx);
     return resultSet.flatMap(this::createNextResultSet);
   }
 
-  public OExecutionStream createNextResultSet(YTResult lastUpstreamRecord, OCommandContext ctx) {
+  public ExecutionStream createNextResultSet(YTResult lastUpstreamRecord, CommandContext ctx) {
     MatchEdgeTraverser trav = createTraverser(lastUpstreamRecord);
-    return new OResultSetEdgeTraverser(trav);
+    return new ResultSetEdgeTraverser(trav);
   }
 
   protected MatchEdgeTraverser createTraverser(YTResult lastUpstreamRecord) {
@@ -46,7 +46,7 @@ public class MatchStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ MATCH ");

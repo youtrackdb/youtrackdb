@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -99,7 +99,7 @@ public class OFindReferenceHelper {
             checkObject(iSourceRIDs, map, value, record);
           }
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .debug(OFindReferenceHelper.class, "Error reading record " + record.getIdentity(), e);
         }
       }

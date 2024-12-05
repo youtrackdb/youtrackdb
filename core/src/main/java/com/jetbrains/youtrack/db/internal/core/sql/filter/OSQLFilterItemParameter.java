@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 
 /**
@@ -37,7 +37,7 @@ public class OSQLFilterItemParameter implements OSQLFilterItem {
   }
 
   public Object getValue(
-      final YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContetx) {
+      final YTIdentifiable iRecord, Object iCurrentResult, CommandContext iContetx) {
     return value;
   }
 

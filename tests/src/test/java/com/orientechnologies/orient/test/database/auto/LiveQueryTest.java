@@ -19,8 +19,8 @@ import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
     MyLiveQueryListener listener = new MyLiveQueryListener();
 
     OLegacyResultSet<EntityImpl> tokens =
-        database.query(new OLiveQuery<EntityImpl>("live select from " + className1, listener));
+        database.query(new LiveQuery<EntityImpl>("live select from " + className1, listener));
     Assert.assertEquals(tokens.size(), 1);
     EntityImpl tokenDoc = tokens.get(0);
     int token = tokenDoc.field("token");

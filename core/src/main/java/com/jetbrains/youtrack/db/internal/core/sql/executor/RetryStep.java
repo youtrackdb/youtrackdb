@@ -2,11 +2,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.OExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class RetryStep extends AbstractExecutionStep {
       int retries,
       List<OStatement> elseStatements,
       Boolean elseFail,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean enableProfiling) {
     super(ctx, enableProfiling);
     this.body = statements;
@@ -35,7 +35,7 @@ public class RetryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -47,7 +47,7 @@ public class RetryStep extends AbstractExecutionStep {
           throw new YTCommandInterruptedException("The command has been interrupted");
         }
         OScriptExecutionPlan plan = initPlan(body, ctx);
-        OExecutionStepInternal result = plan.executeFull();
+        ExecutionStepInternal result = plan.executeFull();
         if (result != null) {
           return result.start(ctx);
         }
@@ -62,7 +62,7 @@ public class RetryStep extends AbstractExecutionStep {
         if (i == retries - 1) {
           if (elseBody != null && !elseBody.isEmpty()) {
             OScriptExecutionPlan plan = initPlan(elseBody, ctx);
-            OExecutionStepInternal result = plan.executeFull();
+            ExecutionStepInternal result = plan.executeFull();
             if (result != null) {
               return result.start(ctx);
             }
@@ -70,7 +70,7 @@ public class RetryStep extends AbstractExecutionStep {
           if (elseFail) {
             throw ex;
           } else {
-            return OExecutionStream.empty();
+            return ExecutionStream.empty();
           }
         }
       }
@@ -79,8 +79,8 @@ public class RetryStep extends AbstractExecutionStep {
     return new EmptyStep(ctx, false).start(ctx);
   }
 
-  public OScriptExecutionPlan initPlan(List<OStatement> body, OCommandContext ctx) {
-    OBasicCommandContext subCtx1 = new OBasicCommandContext();
+  public OScriptExecutionPlan initPlan(List<OStatement> body, CommandContext ctx) {
+    BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
     OScriptExecutionPlan plan = new OScriptExecutionPlan(subCtx1);
     for (OStatement stm : body) {

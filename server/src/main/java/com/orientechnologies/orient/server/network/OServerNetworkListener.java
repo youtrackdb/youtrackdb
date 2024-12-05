@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
@@ -82,7 +82,7 @@ public class OServerNetworkListener extends Thread {
       protocolVersion = iProtocol.getConstructor(OServer.class).newInstance(server).getVersion();
     } catch (Exception e) {
       final String message = "Error on reading protocol version for " + iProtocol;
-      OLogManager.instance().error(this, message, e);
+      LogManager.instance().error(this, message, e);
 
       throw YTException.wrapException(new YTNetworkProtocolException(message), e);
     }
@@ -232,7 +232,7 @@ public class OServerNetworkListener extends Thread {
             conns = server.getClientConnectionManager().getTotal();
             if (conns >= max) {
               // MAXIMUM OF CONNECTIONS EXCEEDED
-              OLogManager.instance()
+              LogManager.instance()
                   .warn(
                       this,
                       "Reached maximum number of concurrent connections (max=%d, current=%d),"
@@ -262,12 +262,12 @@ public class OServerNetworkListener extends Thread {
 
         } catch (Exception e) {
           if (active) {
-            OLogManager.instance().error(this, "Error on client connection", e);
+            LogManager.instance().error(this, "Error on client connection", e);
           }
         }
       }
     } catch (NoSuchMethodException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "error finding the protocol constructor with the server as parameter", e);
     } finally {
       try {
@@ -299,7 +299,7 @@ public class OServerNetworkListener extends Thread {
         try {
           address = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
-          OLogManager.instance().warn(this, "Error resolving current host address", e);
+          LogManager.instance().warn(this, "Error resolving current host address", e);
         }
       }
     }
@@ -373,7 +373,7 @@ public class OServerNetworkListener extends Thread {
         serverSocket = socketFactory.createServerSocket(port, 0, InetAddress.getByName(iHostName));
 
         if (serverSocket.isBound()) {
-          OLogManager.instance()
+          LogManager.instance()
               .info(
                   this,
                   "Listening $ANSI{green "
@@ -391,19 +391,19 @@ public class OServerNetworkListener extends Thread {
           return;
         }
       } catch (BindException be) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(this, "Port %s:%d busy, trying the next available...", iHostName, port);
       } catch (SocketException se) {
-        OLogManager.instance().error(this, "Unable to create socket", se);
+        LogManager.instance().error(this, "Unable to create socket", se);
         throw new RuntimeException(se);
       } catch (IOException ioe) {
-        OLogManager.instance().error(this, "Unable to read data from an open socket", ioe);
+        LogManager.instance().error(this, "Unable to read data from an open socket", ioe);
         System.err.println("Unable to read data from an open socket.");
         throw new RuntimeException(ioe);
       }
     }
 
-    OLogManager.instance()
+    LogManager.instance()
         .error(
             this,
             "Unable to listen for connections using the configured ports '%s' on host '%s'",

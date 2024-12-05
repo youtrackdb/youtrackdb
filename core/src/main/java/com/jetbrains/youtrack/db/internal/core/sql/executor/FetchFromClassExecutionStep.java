@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OMultipleExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,16 +25,16 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   protected String className;
   protected boolean orderByRidAsc = false;
   protected boolean orderByRidDesc = false;
-  protected List<OExecutionStep> subSteps = new ArrayList<>();
+  protected List<ExecutionStep> subSteps = new ArrayList<>();
 
-  protected FetchFromClassExecutionStep(OCommandContext ctx, boolean profilingEnabled) {
+  protected FetchFromClassExecutionStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
 
   public FetchFromClassExecutionStep(
       String className,
       Set<String> clusters,
-      OCommandContext ctx,
+      CommandContext ctx,
       Boolean ridOrder,
       boolean profilingEnabled) {
     this(className, clusters, null, ctx, ridOrder, profilingEnabled);
@@ -52,7 +52,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
       String className,
       Set<String> clusters,
       QueryPlanningInfo planningInfo,
-      OCommandContext ctx,
+      CommandContext ctx,
       Boolean ridOrder,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -105,7 +105,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  protected YTClass loadClassFromSchema(String className, OCommandContext ctx) {
+  protected YTClass loadClassFromSchema(String className, CommandContext ctx) {
     YTClass clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot()
         .getClass(className);
     if (clazz == null) {
@@ -129,34 +129,34 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    List<OExecutionStep> stepsIter = subSteps;
+    List<ExecutionStep> stepsIter = subSteps;
 
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {
-          private final Iterator<OExecutionStep> iter = stepsIter.iterator();
+          private final Iterator<ExecutionStep> iter = stepsIter.iterator();
 
           @Override
-          public OExecutionStream next(OCommandContext ctx) {
-            OExecutionStep step = iter.next();
+          public ExecutionStream next(CommandContext ctx) {
+            ExecutionStep step = iter.next();
             return ((AbstractExecutionStep) step).start(ctx);
           }
 
           @Override
-          public boolean hasNext(OCommandContext ctx) {
+          public boolean hasNext(CommandContext ctx) {
             return iter.hasNext();
           }
 
           @Override
-          public void close(OCommandContext ctx) {
+          public void close(CommandContext ctx) {
           }
         };
 
-    return new OMultipleExecutionStream(res)
+    return new MultipleExecutionStream(res)
         .map(
             (result, context) -> {
               context.setVariable("$current", result);
@@ -166,7 +166,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void sendTimeout() {
-    for (OExecutionStep step : subSteps) {
+    for (ExecutionStep step : subSteps) {
       ((AbstractExecutionStep) step).sendTimeout();
     }
     if (prev != null) {
@@ -176,7 +176,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void close() {
-    for (OExecutionStep step : subSteps) {
+    for (ExecutionStep step : subSteps) {
       ((AbstractExecutionStep) step).close();
     }
     if (prev != null) {
@@ -187,7 +187,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     StringBuilder builder = new StringBuilder();
-    String ind = OExecutionStepInternal.getIndent(depth, indent);
+    String ind = ExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
     builder.append("+ FETCH FROM CLASS ").append(className);
     if (profilingEnabled) {
@@ -195,7 +195,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     }
     builder.append("\n");
     for (int i = 0; i < subSteps.size(); i++) {
-      OExecutionStepInternal step = (OExecutionStepInternal) subSteps.get(i);
+      ExecutionStepInternal step = (ExecutionStepInternal) subSteps.get(i);
       builder.append(step.prettyPrint(depth + 1, indent));
       if (i < subSteps.size() - 1) {
         builder.append("\n");
@@ -206,7 +206,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("className", className);
     result.setProperty("orderByRidAsc", orderByRidAsc);
     result.setProperty("orderByRidDesc", orderByRidDesc);
@@ -216,7 +216,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   @Override
   public void deserialize(YTResult fromResult) {
     try {
-      OExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this);
       this.className = fromResult.getProperty("className");
       this.orderByRidAsc = fromResult.getProperty("orderByRidAsc");
       this.orderByRidDesc = fromResult.getProperty("orderByRidDesc");
@@ -226,7 +226,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public List<OExecutionStep> getSubSteps() {
+  public List<ExecutionStep> getSubSteps() {
     return subSteps;
   }
 
@@ -236,14 +236,14 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     FetchFromClassExecutionStep result = new FetchFromClassExecutionStep(ctx, profilingEnabled);
     result.className = this.className;
     result.orderByRidAsc = this.orderByRidAsc;
     result.orderByRidDesc = this.orderByRidDesc;
     result.subSteps =
         this.subSteps.stream()
-            .map(x -> ((OExecutionStepInternal) x).copy(ctx))
+            .map(x -> ((ExecutionStepInternal) x).copy(ctx))
             .collect(Collectors.toList());
     return result;
   }

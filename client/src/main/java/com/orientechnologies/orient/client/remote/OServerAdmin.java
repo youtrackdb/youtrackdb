@@ -36,7 +36,7 @@ import java.util.Optional;
 public class OServerAdmin {
 
   protected OStorageRemoteSession session = new OStorageRemoteSession(-1);
-  protected String clientType = OStorageRemote.DRIVER_NAME;
+  protected String clientType = StorageRemote.DRIVER_NAME;
   protected boolean collectStats = true;
   private final ORemoteURLs urls;
   private final YouTrackDBRemote remote;
@@ -88,7 +88,7 @@ public class OServerAdmin {
    * @param iStorage
    */
   @Deprecated
-  public OServerAdmin(final OStorageRemote iStorage) {
+  public OServerAdmin(final StorageRemote iStorage) {
     this.remote = iStorage.context;
     urls = new ORemoteURLs(new String[]{}, remote.getContextConfiguration());
     urls.parseServerUrls(iStorage.getURL(), remote.getContextConfiguration());

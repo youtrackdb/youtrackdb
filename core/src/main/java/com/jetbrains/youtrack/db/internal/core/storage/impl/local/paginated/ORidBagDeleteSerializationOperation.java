@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeRidBag;
 
@@ -34,7 +34,7 @@ public class ORidBagDeleteSerializationOperation implements ORecordSerialization
 
   @Override
   public void execute(
-      final OAtomicOperation atomicOperation, final OAbstractPaginatedStorage paginatedStorage) {
+      final OAtomicOperation atomicOperation, final AbstractPaginatedStorage paginatedStorage) {
     paginatedStorage.deleteTreeRidBag(ridBag);
   }
 }

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.OStreamSerializerAnyStreamable;
@@ -36,13 +36,13 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
 
   private YTDatabaseSessionInternal database;
   private boolean asynch;
-  private OCommandRequestText query;
+  private CommandRequestText query;
   private boolean live;
 
   public OCommandRequest(
       YTDatabaseSessionInternal database,
       boolean asynch,
-      OCommandRequestText iCommand,
+      CommandRequestText iCommand,
       boolean live) {
     this.database = database;
     this.asynch = asynch;
@@ -88,7 +88,7 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
     return "Execute remote command";
   }
 
-  public OCommandRequestText getQuery() {
+  public CommandRequestText getQuery() {
     return query;
   }
 

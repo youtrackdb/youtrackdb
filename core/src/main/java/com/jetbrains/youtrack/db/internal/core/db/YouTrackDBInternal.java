@@ -28,7 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.OAuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -349,7 +349,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
 
   void removeShutdownHook();
 
-  Collection<OStorage> getStorages();
+  Collection<Storage> getStorages();
 
   void forceDatabaseClose(String databaseName);
 
@@ -363,7 +363,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
 
   <X> X executeNoAuthorizationSync(YTDatabaseSessionInternal database, ODatabaseTask<X> task);
 
-  default OStorage fullSync(String dbName, InputStream backupStream, YouTrackDBConfig config) {
+  default Storage fullSync(String dbName, InputStream backupStream, YouTrackDBConfig config) {
     throw new UnsupportedOperationException();
   }
 

@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OUTF8Serializer;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.File;
 import java.util.Iterator;
@@ -44,17 +44,17 @@ public class CellBTreeSingleValueV3TestIT {
 
     dbName = "localSingleBTreeTest";
     final File dbDirectory = new File(buildDirectory, dbName);
-    OFileUtils.deleteRecursively(dbDirectory);
+    FileUtils.deleteRecursively(dbDirectory);
 
     final YouTrackDBConfig config = YouTrackDBConfig.builder().build();
     youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-    OAbstractPaginatedStorage storage;
+    AbstractPaginatedStorage storage;
     try (YTDatabaseSession databaseDocumentTx = youTrackDB.open(dbName, "admin", "admin")) {
       storage =
-          (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+          (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
     }
     singleValueTree = new CellBTreeSingleValueV3<>("singleBTree", ".sbt", ".nbt", storage);
     atomicOperationsManager = storage.getAtomicOperationsManager();

@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -63,7 +63,7 @@ public class OQueryOperatorMinorEquals extends OQueryOperatorEqualityNotNulls {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     final Object right = YTType.convert(iContext.getDatabase(), iRight, iLeft.getClass());
     if (right == null) {
       return false;
@@ -81,7 +81,7 @@ public class OQueryOperatorMinorEquals extends OQueryOperatorEqualityNotNulls {
 
   @Override
   public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
-      OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
+      CommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     final OIndexInternal internalIndex = index.getInternal();
@@ -165,7 +165,7 @@ public class OQueryOperatorMinorEquals extends OQueryOperatorEqualityNotNulls {
   public boolean evaluate(
       final OBinaryField iFirstField,
       final OBinaryField iSecondField,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
     return serializer.getComparator().compare(iFirstField, iSecondField) <= 0;
   }

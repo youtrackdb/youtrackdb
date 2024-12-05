@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.operator;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -42,7 +42,7 @@ public class OQueryOperatorMatches extends OQueryOperatorEqualityNotNulls {
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     return this.matches(iLeft.toString(), (String) iRight, iContext);
   }
 
@@ -63,7 +63,7 @@ public class OQueryOperatorMatches extends OQueryOperatorEqualityNotNulls {
   }
 
   private boolean matches(
-      final String iValue, final String iRegex, final OCommandContext iContext) {
+      final String iValue, final String iRegex, final CommandContext iContext) {
     final String key = "MATCHES_" + iRegex.hashCode();
     Pattern p = (Pattern) iContext.getVariable(key);
     if (p == null) {

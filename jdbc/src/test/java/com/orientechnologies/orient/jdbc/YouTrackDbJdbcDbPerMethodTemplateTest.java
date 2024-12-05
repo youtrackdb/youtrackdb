@@ -16,7 +16,7 @@ package com.orientechnologies.orient.jdbc;
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSchemaDB;
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import java.io.File;
@@ -62,7 +62,7 @@ public abstract class YouTrackDbJdbcDbPerMethodTemplateTest {
     createSchemaDB(db);
 
     if (!new File("./src/test/resources/file.pdf").exists()) {
-      OLogManager.instance().warn(this, "attachment will be not loaded!");
+      LogManager.instance().warn(this, "attachment will be not loaded!");
     }
 
     loadDB(db, 20);

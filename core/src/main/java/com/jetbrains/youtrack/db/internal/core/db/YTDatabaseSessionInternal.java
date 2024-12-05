@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.document.OQueryDatabaseState;
@@ -33,6 +33,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.enterprise.OEnterpriseEndpoint;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTTransactionException;
@@ -47,14 +48,13 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceAction;
-import com.jetbrains.youtrack.db.internal.core.query.OQuery;
+import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.OStorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
@@ -551,9 +551,9 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * Returns the underlying storage implementation.
    *
    * @return The underlying storage implementation
-   * @see OStorage
+   * @see Storage
    */
-  OStorage getStorage();
+  Storage getStorage();
 
   OStorageInfo getStorageInfo();
 
@@ -568,7 +568,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * @param iNewStorage The new storage to use. Usually it's a wrapped instance of the current
    *                    cluster.
    */
-  void replaceStorage(OStorage iNewStorage);
+  void replaceStorage(Storage iNewStorage);
 
   void resetInitialization();
 
@@ -854,7 +854,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
   void rollback(boolean force) throws YTTransactionException;
 
   /**
-   * Execute a query against the database. If the OStorage used is remote (OStorageRemote) then the
+   * Execute a query against the database. If the Storage used is remote (OStorageRemote) then the
    * command will be executed remotely and the result returned back to the calling client.
    *
    * @param iCommand Query command
@@ -863,12 +863,12 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * @deprecated use {@link #query(String, Map)} or {@link #query(String, Object...)} instead
    */
   @Deprecated
-  <RET extends List<?>> RET query(final OQuery<?> iCommand, final Object... iArgs);
+  <RET extends List<?>> RET query(final Query<?> iCommand, final Object... iArgs);
 
   /**
    * Creates a command request to run a command against the database (you have to invoke
    * .execute(parameters) to actually execute it). A command can be a SQL statement or a Procedure.
-   * If the OStorage used is remote (OStorageRemote) then the command will be executed remotely and
+   * If the Storage used is remote (OStorageRemote) then the command will be executed remotely and
    * the result returned back to the calling client.
    *
    * @param iCommand Command request to execute.
@@ -877,7 +877,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * {@link #execute(String, String, Map)}, {@link #execute(String, String, Object...)} instead
    */
   @Deprecated
-  <RET extends OCommandRequest> RET command(OCommandRequest iCommand);
+  <RET extends CommandRequest> RET command(CommandRequest iCommand);
 
   /**
    * Returns if the Multi Version Concurrency Control is enabled or not. If enabled the version of

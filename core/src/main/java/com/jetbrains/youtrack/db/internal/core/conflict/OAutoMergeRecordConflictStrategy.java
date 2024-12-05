@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.conflict;
 
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -33,7 +33,7 @@ public class OAutoMergeRecordConflictStrategy extends OVersionRecordConflictStra
 
   @Override
   public byte[] onUpdate(
-      OStorage storage,
+      Storage storage,
       byte iRecordType,
       final YTRecordId rid,
       final int iRecordVersion,

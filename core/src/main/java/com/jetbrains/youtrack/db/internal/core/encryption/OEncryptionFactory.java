@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.encryption;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.encryption.impl.OAESEncryption;
 import com.jetbrains.youtrack.db.internal.core.encryption.impl.OAESGCMEncryption;
 import com.jetbrains.youtrack.db.internal.core.encryption.impl.ODESEncryption;
@@ -101,7 +101,7 @@ public class OEncryptionFactory {
 
       instances.put(name, iEncryption);
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Cannot register storage encryption algorithm '%s'", e, iEncryption);
     }
   }
@@ -129,7 +129,7 @@ public class OEncryptionFactory {
 
       classes.put(name, iEncryption);
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Cannot register storage encryption algorithm '%s'", e, iEncryption);
     }
   }

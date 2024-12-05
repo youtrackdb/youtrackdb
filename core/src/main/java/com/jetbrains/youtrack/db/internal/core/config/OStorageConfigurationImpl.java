@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.config;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategyFactory;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
@@ -29,8 +29,8 @@ import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.serialization.OSerializableStream;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -77,7 +77,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
 
   private String charset;
   private final List<OStorageEntryConfiguration> properties = new ArrayList<>();
-  private final transient OAbstractPaginatedStorage storage;
+  private final transient AbstractPaginatedStorage storage;
   private YTContextConfiguration configuration;
   private int version;
   private String name;
@@ -118,7 +118,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
   protected final Charset streamCharset;
 
   public OStorageConfigurationImpl(
-      final OAbstractPaginatedStorage iStorage, Charset streamCharset) {
+      final AbstractPaginatedStorage iStorage, Charset streamCharset) {
     lock.writeLock().lock();
     try {
       this.streamCharset = streamCharset;
@@ -342,8 +342,8 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       lock.readLock().unlock();
     }
 
-    if (storage instanceof OLocalPaginatedStorage) {
-      return ((OLocalPaginatedStorage) storage).getStoragePath().toString();
+    if (storage instanceof LocalPaginatedStorage) {
+      return ((LocalPaginatedStorage) storage).getStoragePath().toString();
     } else {
       return null;
     }
@@ -357,7 +357,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
           localeInstance = new Locale(localeLanguage, localeCountry);
         } catch (RuntimeException e) {
           localeInstance = Locale.getDefault();
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "Error during initialization of locale, default one %s will be used",
@@ -426,7 +426,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         final Locale locale = Locale.getDefault();
 
         if (localeLanguage == null) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "Information about storage locale is undefined (language is undefined) default"
@@ -436,7 +436,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         }
 
         if (localeCountry == null) {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(
                   this,
                   "Information about storage locale is undefined (country is undefined) default"
@@ -575,7 +575,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
             configuration.setValue(key, YTType.convert(null, value, cfg.getType()));
           }
         } else {
-          OLogManager.instance()
+          LogManager.instance()
               .warn(this, "Ignored storage configuration because not supported: %s=%s", key, value);
         }
       }
@@ -810,7 +810,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
             write(buffer, cfg.isHidden() ? null : configuration.getValueAsString(cfg));
           } else {
             write(buffer, null);
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(
                     this,
                     "Storing configuration for property:'"
@@ -948,7 +948,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       final IndexEngineData oldEngine = indexEngines.putIfAbsent(name, engineData);
 
       if (oldEngine != null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Index engine with name '"

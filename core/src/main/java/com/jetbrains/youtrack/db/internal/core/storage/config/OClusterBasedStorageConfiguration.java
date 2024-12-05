@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.config;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OStringSerializer;
@@ -25,9 +25,9 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OPaginatedClusterFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v1.CellBTreeSingleValueV1;
@@ -126,9 +126,9 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   private boolean validation;
 
   private final CellBTreeSingleValueV1<String> btree;
-  private final OPaginatedCluster cluster;
+  private final PaginatedCluster cluster;
 
-  private final OAbstractPaginatedStorage storage;
+  private final AbstractPaginatedStorage storage;
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
   private final HashMap<String, Object> cache = new HashMap<>();
@@ -142,11 +142,11 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     return writeCache.exists(COMPONENT_NAME + DATA_FILE_EXTENSION);
   }
 
-  public OClusterBasedStorageConfiguration(final OAbstractPaginatedStorage storage) {
+  public OClusterBasedStorageConfiguration(final AbstractPaginatedStorage storage) {
     cluster =
         OPaginatedClusterFactory.createCluster(
             COMPONENT_NAME,
-            OPaginatedCluster.getLatestBinaryVersion(),
+            PaginatedCluster.getLatestBinaryVersion(),
             storage,
             DATA_FILE_EXTENSION,
             MAP_FILE_EXTENSION,
@@ -442,7 +442,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
             write(buffer, cfg.isHidden() ? null : configuration.getValueAsString(cfg));
           } else {
             write(buffer, null);
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(
                     this,
                     "Storing configuration for property:'"
@@ -907,7 +907,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         totalSize += value.length;
         entries.add(value);
 
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Storing configuration for property:'" + k + "' not existing in current version");
@@ -944,7 +944,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
           configuration.setValue(key, YTType.convert(null, value, cfg.getType()));
         }
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(this, "Ignored storage configuration because not supported: %s=%s", key, value);
       }
     }
@@ -1062,8 +1062,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
   @Override
   public String getDirectory() {
-    if (storage instanceof OLocalPaginatedStorage) {
-      return ((OLocalPaginatedStorage) storage).getStoragePath().toString();
+    if (storage instanceof LocalPaginatedStorage) {
+      return ((LocalPaginatedStorage) storage).getStoragePath().toString();
     } else {
       return null;
     }
@@ -1213,7 +1213,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     try {
       final YTRID identifiable = btree.get(ENGINE_PREFIX_PROPERTY + name);
       if (identifiable != null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Index engine with name '"

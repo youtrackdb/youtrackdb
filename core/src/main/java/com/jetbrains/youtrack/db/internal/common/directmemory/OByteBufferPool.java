@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.common.directmemory;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import java.nio.ByteBuffer;
@@ -200,7 +200,7 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
     if (TRACK) {
       for (Map.Entry<OPointer, PointerTracker> entry : pointerMapping.entrySet()) {
         final Object[] iAdditionalArgs = new Object[]{System.identityHashCode(entry.getKey())};
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "DIRECT-TRACK: unreleased direct memory pointer `%X` detected.",

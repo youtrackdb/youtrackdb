@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,24 +14,24 @@ public class OInsertExecutionPlan extends OSelectExecutionPlan {
 
   private final List<YTResult> result = new ArrayList<>();
 
-  public OInsertExecutionPlan(OCommandContext ctx) {
+  public OInsertExecutionPlan(CommandContext ctx) {
     super(ctx);
   }
 
   @Override
-  public OExecutionStream start() {
-    return OExecutionStream.resultIterator(result.iterator());
+  public ExecutionStream start() {
+    return ExecutionStream.resultIterator(result.iterator());
   }
 
   @Override
-  public void reset(OCommandContext ctx) {
+  public void reset(CommandContext ctx) {
     result.clear();
     super.reset(ctx);
     executeInternal();
   }
 
   public void executeInternal() throws YTCommandExecutionException {
-    OExecutionStream nextBlock = super.start();
+    ExecutionStream nextBlock = super.start();
 
     while (nextBlock.hasNext(ctx)) {
       result.add(nextBlock.next(ctx));
@@ -47,7 +47,7 @@ public class OInsertExecutionPlan extends OSelectExecutionPlan {
   }
 
   @Override
-  public OInternalExecutionPlan copy(OCommandContext ctx) {
+  public OInternalExecutionPlan copy(CommandContext ctx) {
     OInsertExecutionPlan copy = new OInsertExecutionPlan(ctx);
     super.copyOn(copy, ctx);
     return copy;

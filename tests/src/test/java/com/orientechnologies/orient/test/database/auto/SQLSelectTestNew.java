@@ -32,7 +32,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
@@ -1798,7 +1798,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     }
 
     EntityImpl res =
-        database.command(new OCommandSQL("explain select from OUser order by @rid desc"))
+        database.command(new CommandSQL("explain select from OUser order by @rid desc"))
             .execute(database);
     Assert.assertNull(res.field("orderByElapsed"));
   }

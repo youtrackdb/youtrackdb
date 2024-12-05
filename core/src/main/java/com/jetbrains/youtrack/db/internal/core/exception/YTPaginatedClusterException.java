@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.exception;
 
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 
 /**
  * @since 10/2/2015
@@ -11,7 +11,7 @@ public class YTPaginatedClusterException extends YTDurableComponentException {
     super(exception);
   }
 
-  public YTPaginatedClusterException(String message, OPaginatedCluster component) {
+  public YTPaginatedClusterException(String message, PaginatedCluster component) {
     super(message, component);
   }
 }

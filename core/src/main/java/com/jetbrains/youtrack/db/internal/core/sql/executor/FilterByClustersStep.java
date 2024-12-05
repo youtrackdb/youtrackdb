@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Set;
 
@@ -17,7 +17,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   private Set<String> clusters;
 
   public FilterByClustersStep(
-      Set<String> filterClusters, OCommandContext ctx, boolean profilingEnabled) {
+      Set<String> filterClusters, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.clusters = filterClusters;
   }
@@ -32,12 +32,12 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     IntOpenHashSet ids = init(ctx.getDatabase());
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    OExecutionStream resultSet = prev.start(ctx);
+    ExecutionStream resultSet = prev.start(ctx);
     return resultSet.filter((value, context) -> this.filterMap(value, ids));
   }
 
@@ -60,16 +60,16 @@ public class FilterByClustersStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    return OExecutionStepInternal.getIndent(depth, indent)
+    return ExecutionStepInternal.getIndent(depth, indent)
         + "+ FILTER ITEMS BY CLUSTERS \n"
-        + OExecutionStepInternal.getIndent(depth, indent)
+        + ExecutionStepInternal.getIndent(depth, indent)
         + "  "
         + String.join(", ", clusters);
   }
 
   @Override
   public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     if (clusters != null) {
       result.setProperty("clusters", clusters);
     }
@@ -80,7 +80,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   @Override
   public void deserialize(YTResult fromResult) {
     try {
-      OExecutionStepInternal.basicDeserialize(fromResult, this);
+      ExecutionStepInternal.basicDeserialize(fromResult, this);
       clusters = fromResult.getProperty("clusters");
     } catch (Exception e) {
       throw YTException.wrapException(new YTCommandExecutionException(""), e);

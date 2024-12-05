@@ -2,15 +2,15 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class OAlterClusterStatement extends ODDLStatement {
   }
 
   @Override
-  public OExecutionStream executeDDL(OCommandContext ctx) {
+  public ExecutionStream executeDDL(CommandContext ctx) {
     List<YTResult> result = new ArrayList<>();
     IntArrayList clustersToUpdate = getClusters(ctx);
 
@@ -90,7 +90,7 @@ public class OAlterClusterStatement extends ODDLStatement {
                             + "'. Supported attributes are: "
                             + noDeprecatedValues(OCluster.ATTRIBUTES.values())));
 
-    final OStorage storage = ctx.getDatabase().getStorage();
+    final Storage storage = ctx.getDatabase().getStorage();
     for (final int clusterId : clustersToUpdate) {
       storage.setClusterAttribute(clusterId, attribute, finalValue);
 
@@ -99,7 +99,7 @@ public class OAlterClusterStatement extends ODDLStatement {
       result.add(resultItem);
     }
 
-    return OExecutionStream.resultIterator(result.iterator());
+    return ExecutionStream.resultIterator(result.iterator());
   }
 
   private List<OCluster.ATTRIBUTES> noDeprecatedValues(final OCluster.ATTRIBUTES[] values) {
@@ -120,7 +120,7 @@ public class OAlterClusterStatement extends ODDLStatement {
     return value != null ? value : "";
   }
 
-  private IntArrayList getClusters(OCommandContext ctx) {
+  private IntArrayList getClusters(CommandContext ctx) {
     YTDatabaseSessionInternal database = ctx.getDatabase();
     if (starred) {
       IntArrayList result = new IntArrayList();

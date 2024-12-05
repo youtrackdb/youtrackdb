@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.fetch;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
@@ -89,7 +89,7 @@ public class OFetchHelper {
             record, userObject, fetchPlan, 0, 0, -1, parsedRecords, "", listener, context, format);
       }
     } catch (final Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OFetchHelper.class, "Fetching error on record %s", e, rootRecord.getIdentity());
     }
   }
@@ -198,7 +198,7 @@ public class OFetchHelper {
               fieldPath,
               iContext);
         } catch (Exception e) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(OFetchHelper.class, "Fetching error on record %s", e, record.getIdentity());
         }
       }
@@ -598,7 +598,7 @@ public class OFetchHelper {
               settings);
         }
       } catch (final Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(OFetchHelper.class, "Fetching error on record %s", e, record.getIdentity());
       }
     }
@@ -638,7 +638,7 @@ public class OFetchHelper {
                 && (((EntityImpl) f).isEmbedded()
                 || !((EntityImpl) f).getIdentity().isPersistent()));
       } catch (Exception e) {
-        OLogManager.instance().error(OFetchHelper.class, "", e);
+        LogManager.instance().error(OFetchHelper.class, "", e);
         // IGNORE IT
       }
     }

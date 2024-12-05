@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +16,7 @@ public class WhileMatchStep extends AbstractUnrollStep {
   private final OWhereClause condition;
 
   public WhileMatchStep(
-      OCommandContext ctx,
+      CommandContext ctx,
       OWhereClause condition,
       OInternalExecutionPlan body,
       boolean profilingEnabled) {
@@ -26,10 +26,10 @@ public class WhileMatchStep extends AbstractUnrollStep {
   }
 
   @Override
-  protected Collection<YTResult> unroll(YTResult doc, OCommandContext iContext) {
+  protected Collection<YTResult> unroll(YTResult doc, CommandContext iContext) {
     body.reset(iContext);
     List<YTResult> result = new ArrayList<>();
-    OExecutionStream block = body.start();
+    ExecutionStream block = body.start();
     while (block.hasNext(iContext)) {
       result.add(block.next(iContext));
     }
@@ -39,8 +39,8 @@ public class WhileMatchStep extends AbstractUnrollStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String indentStep = OExecutionStepInternal.getIndent(1, indent);
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String indentStep = ExecutionStepInternal.getIndent(1, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
 
     String result =
         spaces

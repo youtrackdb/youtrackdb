@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIfStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OReturnStatement;
@@ -19,21 +19,21 @@ public class IfStep extends AbstractExecutionStep {
   public List<OStatement> positiveStatements;
   public List<OStatement> negativeStatements;
 
-  public IfStep(OCommandContext ctx, boolean profilingEnabled) {
+  public IfStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     OScriptExecutionPlan plan = producePlan(ctx);
     if (plan != null) {
       return plan.start();
     } else {
-      return OExecutionStream.empty();
+      return ExecutionStream.empty();
     }
   }
 
-  public OScriptExecutionPlan producePlan(OCommandContext ctx) {
+  public OScriptExecutionPlan producePlan(CommandContext ctx) {
     if (condition.evaluate((YTResult) null, ctx)) {
       OScriptExecutionPlan positivePlan = initPositivePlan(ctx);
       return positivePlan;
@@ -43,8 +43,8 @@ public class IfStep extends AbstractExecutionStep {
     }
   }
 
-  public OScriptExecutionPlan initPositivePlan(OCommandContext ctx) {
-    OBasicCommandContext subCtx1 = new OBasicCommandContext();
+  public OScriptExecutionPlan initPositivePlan(CommandContext ctx) {
+    BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
     OScriptExecutionPlan positivePlan = new OScriptExecutionPlan(subCtx1);
     for (OStatement stm : positiveStatements) {
@@ -53,10 +53,10 @@ public class IfStep extends AbstractExecutionStep {
     return positivePlan;
   }
 
-  public OScriptExecutionPlan initNegativePlan(OCommandContext ctx) {
+  public OScriptExecutionPlan initNegativePlan(CommandContext ctx) {
     if (negativeStatements != null) {
       if (negativeStatements.size() > 0) {
-        OBasicCommandContext subCtx2 = new OBasicCommandContext();
+        BasicCommandContext subCtx2 = new BasicCommandContext();
         subCtx2.setParent(ctx);
         OScriptExecutionPlan negativePlan = new OScriptExecutionPlan(subCtx2);
         for (OStatement stm : negativeStatements) {

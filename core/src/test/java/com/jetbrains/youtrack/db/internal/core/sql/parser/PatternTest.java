@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,8 +95,8 @@ public class PatternTest extends OParserTestAbstract {
     }
   }
 
-  private OCommandContext getContext() {
-    var ctx = new OBasicCommandContext();
+  private CommandContext getContext() {
+    var ctx = new BasicCommandContext();
     ctx.setDatabase(db);
 
     return ctx;

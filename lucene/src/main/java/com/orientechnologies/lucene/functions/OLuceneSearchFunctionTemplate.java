@@ -1,8 +1,6 @@
 package com.orientechnologies.lucene.functions;
 
-import com.orientechnologies.lucene.collections.OLuceneResultSet;
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OIndexableSQLFunction;
@@ -10,6 +8,8 @@ import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstrac
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.orientechnologies.lucene.collections.OLuceneResultSet;
+import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import java.util.Map;
 
 /**
@@ -27,7 +27,7 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     return allowsIndexedExecution(target, operator, rightValue, ctx, args);
   }
@@ -37,7 +37,7 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     OLuceneFullTextIndex index = searchForIndex(target, ctx, args);
     return index != null;
@@ -48,7 +48,7 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
     return false;
   }
@@ -58,7 +58,7 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     Iterable<YTIdentifiable> a = searchFromTarget(target, operator, rightValue, ctx, args);
@@ -73,7 +73,7 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
     return count;
   }
 
-  protected Map<String, ?> getMetadata(OExpression metadata, OCommandContext ctx) {
+  protected Map<String, ?> getMetadata(OExpression metadata, CommandContext ctx) {
     final Object md = metadata.execute((YTIdentifiable) null, ctx);
     if (md instanceof EntityImpl document) {
       return document.toMap();
@@ -91,5 +91,5 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
   }
 
   protected abstract OLuceneFullTextIndex searchForIndex(
-      OFromClause target, OCommandContext ctx, OExpression... args);
+      OFromClause target, CommandContext ctx, OExpression... args);
 }

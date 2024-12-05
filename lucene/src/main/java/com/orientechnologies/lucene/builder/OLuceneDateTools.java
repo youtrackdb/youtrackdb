@@ -1,6 +1,6 @@
 package com.orientechnologies.lucene.builder;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -55,7 +55,7 @@ public class OLuceneDateTools {
       SimpleDateFormat format = RESOLUTIONS[dateString.length()].format();
       return format.parse(dateString);
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OLuceneDateTools.class, "Exception is suppressed, original exception is ", e);
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw new ParseException("Input is not a valid date string: " + dateString, 0);

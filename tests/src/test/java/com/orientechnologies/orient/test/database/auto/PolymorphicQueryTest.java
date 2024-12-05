@@ -75,7 +75,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
             "create class IndexInSubclassesTestChild1Fail extends IndexInSubclassesTestBaseFail")
         .close();
     // database.command(
-    // new OCommandSQL("create index IndexInSubclassesTestChild1Fail.name on
+    // new CommandSQL("create index IndexInSubclassesTestChild1Fail.name on
     // IndexInSubclassesTestChild1Fail (name) notunique"))
     // .execute();
 

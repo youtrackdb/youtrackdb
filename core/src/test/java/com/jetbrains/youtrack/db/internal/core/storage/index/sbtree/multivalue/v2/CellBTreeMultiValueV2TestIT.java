@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OUTF8Serializer;
 import com.jetbrains.youtrack.db.internal.common.types.OModifiableInteger;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
@@ -12,7 +12,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.File;
@@ -36,7 +36,7 @@ public class CellBTreeMultiValueV2TestIT {
 
   private CellBTreeMultiValueV2<String> multiValueTree;
   private YouTrackDB youTrackDB;
-  private OAbstractPaginatedStorage storage;
+  private AbstractPaginatedStorage storage;
   private OAtomicOperationsManager atomicOperationsManager;
 
   private static final String DB_NAME = "localMultiBTreeTest";
@@ -49,7 +49,7 @@ public class CellBTreeMultiValueV2TestIT {
             + CellBTreeMultiValueV2TestIT.class.getSimpleName();
 
     final File dbDirectory = new File(buildDirectory, DB_NAME);
-    OFileUtils.deleteRecursively(dbDirectory);
+    FileUtils.deleteRecursively(dbDirectory);
 
     final YouTrackDBConfig config = YouTrackDBConfig.builder().build();
     youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
@@ -58,7 +58,7 @@ public class CellBTreeMultiValueV2TestIT {
 
     try (YTDatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin")) {
       storage =
-          (OAbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+          (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
     }
 
     atomicOperationsManager = storage.getAtomicOperationsManager();

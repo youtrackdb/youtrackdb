@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
 import java.io.IOException;
 import org.junit.After;
@@ -31,7 +31,7 @@ public class StorageBackupTestWithLuceneIndex {
     buildDirectory = System.getProperty("buildDirectory", ".");
     dbDirectory =
         buildDirectory + File.separator + StorageBackupTestWithLuceneIndex.class.getSimpleName();
-    OFileUtils.deleteRecursively(new File(dbDirectory));
+    FileUtils.deleteRecursively(new File(dbDirectory));
     db = new YTDatabaseDocumentTx("plocal:" + dbDirectory);
     db.create();
 
@@ -60,8 +60,8 @@ public class StorageBackupTestWithLuceneIndex {
       }
     }
 
-    OFileUtils.deleteRecursively(new File(dbDirectory));
-    OFileUtils.deleteRecursively(new File(buildDirectory, "backupDir"));
+    FileUtils.deleteRecursively(new File(dbDirectory));
+    FileUtils.deleteRecursively(new File(buildDirectory, "backupDir"));
   }
 
   // @Test
@@ -86,25 +86,25 @@ public class StorageBackupTestWithLuceneIndex {
     db.commit();
 
     final File backupDir = new File(buildDirectory, "backupDir");
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
 
     if (!backupDir.exists()) {
       Assert.assertTrue(backupDir.mkdirs());
     }
 
     db.incrementalBackup(backupDir.getAbsolutePath());
-    final OStorage storage = db.getStorage();
+    final Storage storage = db.getStorage();
     db.close();
 
     storage.close(db, true);
 
-    OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
+    FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
     final YTDatabaseSessionInternal backedUpDb =
         new YTDatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final OStorage backupStorage = backedUpDb.getStorage();
+    final Storage backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
     backupStorage.close(db, true);
@@ -142,7 +142,7 @@ public class StorageBackupTestWithLuceneIndex {
         "LUCENE", new String[]{"name"});
 
     final File backupDir = new File(buildDirectory, "backupDir");
-    OFileUtils.deleteRecursively(backupDir);
+    FileUtils.deleteRecursively(backupDir);
 
     if (!backupDir.exists()) {
       Assert.assertTrue(backupDir.mkdirs());
@@ -166,7 +166,7 @@ public class StorageBackupTestWithLuceneIndex {
 
     db.incrementalBackup(backupDir.getAbsolutePath());
 
-    final OStorage storage = db.getStorage();
+    final Storage storage = db.getStorage();
     db.close();
 
     storage.close(db, true);
@@ -176,13 +176,13 @@ public class StorageBackupTestWithLuceneIndex {
             + File.separator
             + StorageBackupTestWithLuceneIndex.class.getSimpleName()
             + "BackUp";
-    OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
+    FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
     final YTDatabaseSessionInternal backedUpDb =
         new YTDatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final OStorage backupStorage = backedUpDb.getStorage();
+    final Storage backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
     backupStorage.close(db, true);

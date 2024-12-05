@@ -17,8 +17,8 @@
 package com.jetbrains.youtrack.db.internal.core.schedule;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.script.YTCommandScriptException;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -75,7 +75,7 @@ public class OScheduledEvent extends ODocumentWrapper {
     try {
       cron = new OCronExpression(getRule(session));
     } catch (ParseException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Error on compiling cron expression " + getRule(session), e);
     }
   }
@@ -176,7 +176,7 @@ public class OScheduledEvent extends ODocumentWrapper {
     try {
       cron.buildExpression(getRule(session));
     } catch (ParseException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Error on compiling cron expression " + getRule(session), e);
     }
   }
@@ -243,7 +243,7 @@ public class OScheduledEvent extends ODocumentWrapper {
 
     private void runTask(YTDatabaseSession db) {
       if (event.running.get()) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Error: The scheduled event '" + event.getName(db) + "' is already running",
@@ -252,7 +252,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       }
 
       if (event.function == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Error: The scheduled event '" + event.getName(db) + "' has no configured function",
@@ -263,7 +263,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       try {
         event.setRunning(true);
 
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Checking for the execution of the scheduled event '%s' executionId=%d...",
@@ -272,7 +272,7 @@ public class OScheduledEvent extends ODocumentWrapper {
         try {
           boolean executeEvent = executeEvent(db);
           if (executeEvent) {
-            OLogManager.instance()
+            LogManager.instance()
                 .info(
                     this,
                     "Executing scheduled event '%s' executionId=%d...",
@@ -285,7 +285,7 @@ public class OScheduledEvent extends ODocumentWrapper {
           event.setRunning(false);
         }
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error during execution of scheduled function", e);
+        LogManager.instance().error(this, "Error during execution of scheduled function", e);
       } finally {
         if (event.timer != null) {
           // RE-SCHEDULE THE NEXT EVENT
@@ -318,7 +318,7 @@ public class OScheduledEvent extends ODocumentWrapper {
             break;
           }
 
-          OLogManager.instance()
+          LogManager.instance()
               .info(
                   this,
                   "Cannot change the status of the scheduled event '%s' executionId=%d, retry %d",
@@ -328,7 +328,7 @@ public class OScheduledEvent extends ODocumentWrapper {
                   retry);
 
         } catch (YTRecordNotFoundException e) {
-          OLogManager.instance()
+          LogManager.instance()
               .info(
                   this,
                   "Scheduled event '%s' executionId=%d not found on database, removing event",
@@ -339,7 +339,7 @@ public class OScheduledEvent extends ODocumentWrapper {
           break;
         } catch (Exception e) {
           // SUSPEND EXECUTION
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "Error during starting of scheduled event '%s' executionId=%d",
@@ -357,13 +357,13 @@ public class OScheduledEvent extends ODocumentWrapper {
     private void executeEventFunction(YTDatabaseSession session) {
       Object result = null;
       try {
-        var context = new OBasicCommandContext();
+        var context = new BasicCommandContext();
         context.setDatabase((YTDatabaseSessionInternal) session);
 
         result = session.computeInTx(
             () -> event.function.executeInContext(context, event.getArguments(session)));
       } finally {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Scheduled event '%s' executionId=%d completed with result: %s",
@@ -380,7 +380,7 @@ public class OScheduledEvent extends ODocumentWrapper {
                 } catch (YTNeedRetryException e) {
                   eventDoc.unload();
                 } catch (Exception e) {
-                  OLogManager.instance()
+                  LogManager.instance()
                       .error(this, "Error on saving status for event '%s'", e,
                           event.getName(session));
                 }
@@ -404,7 +404,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       }
 
       if (currentExecutionId >= event.nextExecutionId.get()) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 this,
                 "Scheduled event '%s' with id %d is already running (current id=%d)",

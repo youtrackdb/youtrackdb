@@ -21,13 +21,13 @@ package com.jetbrains.youtrack.db.internal.core.engine.memory;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.engine.OEngineAbstract;
 import com.jetbrains.youtrack.db.internal.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.memory.ODirectMemoryStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.memory.DirectMemoryStorage;
 
 public class OEngineMemory extends OEngineAbstract {
 
@@ -36,17 +36,17 @@ public class OEngineMemory extends OEngineAbstract {
   public OEngineMemory() {
   }
 
-  public OStorage createStorage(
+  public Storage createStorage(
       String url,
       long maxWalSegSize,
       long doubleWriteLogMaxSegSize,
       int storageId,
       YouTrackDBInternal context) {
     try {
-      return new ODirectMemoryStorage(url, url, storageId, context);
+      return new DirectMemoryStorage(url, url, storageId, context);
     } catch (Exception e) {
       final String message = "Error on opening in memory storage: " + url;
-      OLogManager.instance().error(this, message, e);
+      LogManager.instance().error(this, message, e);
 
       throw YTException.wrapException(new YTDatabaseException(message), e);
     }

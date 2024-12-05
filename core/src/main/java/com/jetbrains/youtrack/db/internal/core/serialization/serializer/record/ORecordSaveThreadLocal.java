@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record;
 
-import com.jetbrains.youtrack.db.internal.core.OOrientListenerAbstract;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 
@@ -35,7 +35,7 @@ public class ORecordSaveThreadLocal extends ThreadLocal<Record> {
   static {
     YouTrackDBManager.instance()
         .registerListener(
-            new OOrientListenerAbstract() {
+            new YouTrackDBListenerAbstract() {
               @Override
               public void onStartup() {
                 if (INSTANCE == null) {

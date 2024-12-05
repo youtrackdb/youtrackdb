@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.OIOException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
@@ -89,10 +89,10 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     if (!fileName.endsWith(".gz")) {
       fileName += ".gz";
     }
-    OFileUtils.prepareForFileCreationOrReplacement(Paths.get(fileName), this, "exporting");
+    FileUtils.prepareForFileCreationOrReplacement(Paths.get(fileName), this, "exporting");
 
     this.tempFileName = fileName + ".tmp";
-    OFileUtils.prepareForFileCreationOrReplacement(Paths.get(tempFileName), this, "exporting");
+    FileUtils.prepareForFileCreationOrReplacement(Paths.get(tempFileName), this, "exporting");
 
     final GZIPOutputStream gzipOS =
         new GZIPOutputStream(new FileOutputStream(tempFileName), compressionBuffer) {
@@ -146,7 +146,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
       writer.flush();
     } catch (Exception e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Error on exporting database '%s' to: %s", e, database.getName(), fileName);
       throw new ODatabaseExportException(
           "Error on exporting database '" + database.getName() + "' to: " + fileName, e);
@@ -210,7 +210,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
           brokenRids.addAll(it.getBrokenRIDs());
         } catch (OIOException e) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   this,
                   "\nError on exporting record %s because of I/O problems",
@@ -222,7 +222,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
           if (rec != null) {
             final byte[] buffer = rec.toStream();
 
-            OLogManager.instance()
+            LogManager.instance()
                 .error(
                     this,
                     """
@@ -282,7 +282,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       writer.close();
       writer = null;
     } catch (IOException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Error on exporting database '%s' to: %s", e, database.getName(), fileName);
       throw new ODatabaseExportException(
           "Error on exporting database '" + database.getName() + "' to: " + fileName, e);
@@ -291,9 +291,9 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     if (tempFileName != null) // may be null if writing to an output stream w/o file
     {
       try {
-        OFileUtils.atomicMoveWithFallback(Paths.get(tempFileName), Paths.get(fileName), this);
+        FileUtils.atomicMoveWithFallback(Paths.get(tempFileName), Paths.get(fileName), this);
       } catch (IOException e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this, "Error on exporting database '%s' to: %s", e, database.getName(), fileName);
         throw new ODatabaseExportException(
@@ -661,7 +661,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
         final byte[] buffer = rec.toStream();
 
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 """

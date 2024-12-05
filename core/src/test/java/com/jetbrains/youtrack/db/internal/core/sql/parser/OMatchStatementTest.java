@@ -2,8 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import static org.junit.Assert.fail;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OrientSql;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SimpleNode;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.Test;

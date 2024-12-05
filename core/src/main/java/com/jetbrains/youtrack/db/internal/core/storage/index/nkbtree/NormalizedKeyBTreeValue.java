@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree;
 
 import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 
-public class NormalizedKeyBTreeValue<K> extends ODurableComponent implements NormalizedKeyBTree<K> {
+public class NormalizedKeyBTreeValue<K> extends DurableComponent implements NormalizedKeyBTree<K> {
 
   private final String nullFileExtension;
 
@@ -12,7 +12,7 @@ public class NormalizedKeyBTreeValue<K> extends ODurableComponent implements Nor
       final String name,
       final String dataFileExtension,
       final String nullFileExtension,
-      final OAbstractPaginatedStorage storage) {
+      final AbstractPaginatedStorage storage) {
     super(storage, name, dataFileExtension, name + dataFileExtension);
     acquireExclusiveLock();
     try {

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import java.util.Collections;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class OMatchPathItemFirst extends OMatchPathItem {
   protected Iterable<YTIdentifiable> traversePatternEdge(
       OMatchStatement.MatchContext matchContext,
       YTIdentifiable startingPoint,
-      OCommandContext iCommandContext) {
+      CommandContext iCommandContext) {
     Object qR = this.function.execute(startingPoint, iCommandContext);
     return (qR instanceof Iterable) ? (Iterable) qR : Collections.singleton((YTIdentifiable) qR);
   }

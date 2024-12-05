@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.exception;
 
-import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.OVersionPositionMap;
+import com.jetbrains.youtrack.db.internal.core.storage.index.versionmap.VersionPositionMap;
 
 /**
  * @since 10/2/2015
@@ -12,7 +12,7 @@ public class YTVersionPositionMapException extends YTDurableComponentException {
     super(exception);
   }
 
-  public YTVersionPositionMapException(String message, OVersionPositionMap component) {
+  public YTVersionPositionMapException(String message, VersionPositionMap component) {
     super(message, component);
   }
 }

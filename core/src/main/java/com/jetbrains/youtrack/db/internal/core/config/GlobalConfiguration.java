@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.config;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -1078,7 +1078,7 @@ public enum GlobalConfiguration {
       "info",
       new OConfigurationChangeCallback() {
         public void change(final Object iCurrentValue, final Object iNewValue) {
-          OLogManager.instance().setLevel((String) iNewValue, ConsoleHandler.class);
+          LogManager.instance().setLevel((String) iNewValue, ConsoleHandler.class);
         }
       }),
 
@@ -1089,7 +1089,7 @@ public enum GlobalConfiguration {
       "info",
       new OConfigurationChangeCallback() {
         public void change(final Object iCurrentValue, final Object iNewValue) {
-          OLogManager.instance().setLevel((String) iNewValue, FileHandler.class);
+          LogManager.instance().setLevel((String) iNewValue, FileHandler.class);
         }
       }),
 
@@ -1988,7 +1988,7 @@ public enum GlobalConfiguration {
         changeCallback.change(
             oldValue == nullValue ? null : oldValue, value == nullValue ? null : value);
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error during call of 'change callback'", e);
+        LogManager.instance().error(this, "Error during call of 'change callback'", e);
       }
     }
   }
@@ -2007,14 +2007,14 @@ public enum GlobalConfiguration {
   public int getValueAsInteger() {
     final Object v = value != null && value != nullValue ? value : defValue;
     return (int)
-        (v instanceof Number ? ((Number) v).intValue() : OFileUtils.getSizeAsNumber(v.toString()));
+        (v instanceof Number ? ((Number) v).intValue() : FileUtils.getSizeAsNumber(v.toString()));
   }
 
   public long getValueAsLong() {
     final Object v = value != null && value != nullValue ? value : defValue;
     return v instanceof Number
         ? ((Number) v).longValue()
-        : OFileUtils.getSizeAsNumber(v.toString());
+        : FileUtils.getSizeAsNumber(v.toString());
   }
 
   public float getValueAsFloat() {

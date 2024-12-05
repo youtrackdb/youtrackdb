@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
@@ -50,7 +50,7 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       final Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     if (iParams.length == 1) {
       if (iParams[0] instanceof Number) {
         sum((Number) iParams[0]);

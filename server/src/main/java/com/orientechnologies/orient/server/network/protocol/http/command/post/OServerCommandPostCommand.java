@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseStats;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -27,10 +27,10 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ODDLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFetchPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseStatement;
@@ -222,7 +222,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
         limit = ((OTraverseStatement) statement).getLimit();
       }
       if (limit != null) {
-        return limit.getValue(new OBasicCommandContext());
+        return limit.getValue(new BasicCommandContext());
       }
 
     } catch (Exception e) {

@@ -94,7 +94,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     // / 100) + 1) + " and uid < " + (
     //              ((i + 1) * nodes / 100) + 1) + ") TO (SELECT FROM IndexedVertex WHERE uid = 1)";
     //      System.out.println(cmd);
-    //      db.command(new OCommandSQL(cmd)).execute();
+    //      db.command(new CommandSQL(cmd)).execute();
     //    }
 
     //    db.query("select expand(out()) from IndexedVertex where uid = 0").stream().forEach(x->

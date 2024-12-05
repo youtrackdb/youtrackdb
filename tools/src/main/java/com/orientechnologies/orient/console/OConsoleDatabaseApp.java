@@ -28,17 +28,17 @@ import com.jetbrains.youtrack.db.internal.common.console.TTYConsoleReader;
 import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleCommand;
 import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleParameter;
 import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.OIOException;
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import com.jetbrains.youtrack.db.internal.core.OSignalHandler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandExecutorScript;
-import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
@@ -82,14 +82,14 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.O
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.util.OURLConnection;
 import com.jetbrains.youtrack.db.internal.core.util.OURLHelper;
 import com.orientechnologies.orient.client.remote.ODatabaseImportRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.client.remote.OStorageRemote;
+import com.orientechnologies.orient.client.remote.StorageRemote;
 import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
@@ -1277,10 +1277,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(currentDatabase);
 
-    final Object result = new OSQLPredicate(context, iText).evaluate(currentRecord, null,
+    final Object result = new SQLPredicate(context, iText).evaluate(currentRecord, null,
         null);
 
     if (result != null) {
@@ -1315,10 +1315,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    var context = new OBasicCommandContext();
+    var context = new BasicCommandContext();
     context.setDatabase(currentDatabase);
 
-    final Object result = new OSQLPredicate(context, iText).evaluate(currentRecord, null,
+    final Object result = new SQLPredicate(context, iText).evaluate(currentRecord, null,
         null);
     if (result != null) {
       out.println("\n" + result);
@@ -1362,8 +1362,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     long start = System.currentTimeMillis();
     while (true) {
       try {
-        final OCommandExecutorScript cmd = new OCommandExecutorScript();
-        cmd.parse(new OCommandScript("Javascript", iText));
+        final CommandExecutorScript cmd = new CommandExecutorScript();
+        cmd.parse(new CommandScript("Javascript", iText));
 
         currentResult = cmd.execute(null, currentDatabase);
         break;
@@ -2240,7 +2240,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       footer.field("NAME", "TOTAL");
       footer.field("COUNT", totalElements);
       if (!isRemote) {
-        footer.field("SPACE-USED", OFileUtils.getSizeAsString(totalSpaceUsed));
+        footer.field("SPACE-USED", FileUtils.getSizeAsString(totalSpaceUsed));
         if (commandOptions.containsKey("-v")) {
           footer.field("TOMBSTONES", totalTombstones);
         }
@@ -2387,13 +2387,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
             "UsedMemory",
             String.format(
                 "%s (%.2f%%)",
-                OFileUtils.getSizeAsString(usedMem), ((float) usedMem / (float) maxMem) * 100));
+                FileUtils.getSizeAsString(usedMem), ((float) usedMem / (float) maxMem) * 100));
         server.field(
             "FreeMemory",
             String.format(
                 "%s (%.2f%%)",
-                OFileUtils.getSizeAsString(freeMem), ((float) freeMem / (float) maxMem) * 100));
-        server.field("MaxMemory", OFileUtils.getSizeAsString(maxMem));
+                FileUtils.getSizeAsString(freeMem), ((float) freeMem / (float) maxMem) * 100));
+        server.field("MaxMemory", FileUtils.getSizeAsString(maxMem));
 
         servers.add(server);
       }
@@ -2433,7 +2433,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     message("\nChecking storage.");
     try {
-      ((OAbstractPaginatedStorage) currentDatabase.getStorage()).check(verbose, this);
+      ((AbstractPaginatedStorage) currentDatabase.getStorage()).check(verbose, this);
     } catch (YTDatabaseImportException e) {
       printError(e);
     }
@@ -3239,7 +3239,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     }
 
     if (currentDatabase.isRemote()) {
-      final OStorageRemote stg = ((YTDatabaseSessionRemote) currentDatabase).getStorageRemote();
+      final StorageRemote stg = ((YTDatabaseSessionRemote) currentDatabase).getStorageRemote();
       final EntityImpl distributedCfg = stg.getClusterConfiguration();
       if (distributedCfg != null && !distributedCfg.isEmpty()) {
         message("\n\nDISTRIBUTED CONFIGURATION:\n" + distributedCfg.toJSON("prettyPrint"));
@@ -3251,9 +3251,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   protected EntityImpl getDistributedConfiguration() {
     if (currentDatabase != null) {
-      final OStorage stg = currentDatabase.getStorage();
-      if (stg instanceof OStorageRemote) {
-        return ((OStorageRemote) stg).getClusterConfiguration();
+      final Storage stg = currentDatabase.getStorage();
+      if (stg instanceof StorageRemote) {
+        return ((StorageRemote) stg).getClusterConfiguration();
       }
     }
     return null;
@@ -3294,7 +3294,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   }
 
   protected void printApplicationInfo() {
-    message("\nYouTrackDB console v." + OConstants.getVersion() + " " + OConstants.ORIENT_URL);
+    message(
+        "\nYouTrackDB console v." + OConstants.getVersion() + " " + OConstants.YOU_TRACK_DB_URL);
     message("\nType 'help' to display all the supported commands.");
   }
 
@@ -3446,7 +3447,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       for (String o : opts) {
         final int sep = o.indexOf('=');
         if (sep == -1) {
-          OLogManager.instance().warn(this, "Unrecognized option %s, skipped", o);
+          LogManager.instance().warn(this, "Unrecognized option %s, skipped", o);
           continue;
         }
 

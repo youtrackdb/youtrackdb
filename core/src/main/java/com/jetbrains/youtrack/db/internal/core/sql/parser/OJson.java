@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
@@ -62,7 +62,7 @@ public class OJson extends SimpleNode {
     builder.append("}");
   }
 
-  public EntityImpl toDocument(YTIdentifiable source, OCommandContext ctx) {
+  public EntityImpl toDocument(YTIdentifiable source, CommandContext ctx) {
     String className = getClassNameForDocument(ctx);
     EntityImpl doc;
     if (className != null) {
@@ -87,7 +87,7 @@ public class OJson extends SimpleNode {
     return doc;
   }
 
-  private EntityImpl toDocument(YTResult source, OCommandContext ctx, String className) {
+  private EntityImpl toDocument(YTResult source, CommandContext ctx, String className) {
     EntityImpl retDoc = new EntityImpl(className);
     Map<String, Character> types = null;
     for (OJsonItem item : items) {
@@ -128,7 +128,7 @@ public class OJson extends SimpleNode {
    * @param ctx
    * @return
    */
-  public Object toObjectDetermineType(YTResult source, OCommandContext ctx) {
+  public Object toObjectDetermineType(YTResult source, CommandContext ctx) {
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
     if (className != null || ("d".equalsIgnoreCase(type))) {
@@ -138,7 +138,7 @@ public class OJson extends SimpleNode {
     }
   }
 
-  public Object toObjectDetermineType(YTIdentifiable source, OCommandContext ctx) {
+  public Object toObjectDetermineType(YTIdentifiable source, CommandContext ctx) {
     var db = ctx.getDatabase();
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
@@ -158,7 +158,7 @@ public class OJson extends SimpleNode {
     }
   }
 
-  public Map<String, Object> toMap(YTIdentifiable source, OCommandContext ctx) {
+  public Map<String, Object> toMap(YTIdentifiable source, CommandContext ctx) {
     Map<String, Object> doc = new LinkedHashMap<String, Object>();
     for (OJsonItem item : items) {
       String name = item.getLeftValue();
@@ -172,7 +172,7 @@ public class OJson extends SimpleNode {
     return doc;
   }
 
-  public Map<String, Object> toMap(YTResult source, OCommandContext ctx) {
+  public Map<String, Object> toMap(YTResult source, CommandContext ctx) {
     Map<String, Object> doc = new LinkedHashMap<String, Object>();
     for (OJsonItem item : items) {
       String name = item.getLeftValue();
@@ -186,7 +186,7 @@ public class OJson extends SimpleNode {
     return doc;
   }
 
-  private String getClassNameForDocument(OCommandContext ctx) {
+  private String getClassNameForDocument(CommandContext ctx) {
     for (OJsonItem item : items) {
       String left = item.getLeftValue();
       if (left != null && left.toLowerCase(Locale.ENGLISH).equals("@class")) {
@@ -196,7 +196,7 @@ public class OJson extends SimpleNode {
     return null;
   }
 
-  private String getTypeForDocument(OCommandContext ctx) {
+  private String getTypeForDocument(CommandContext ctx) {
     for (OJsonItem item : items) {
       String left = item.getLeftValue();
       if (left != null && left.toLowerCase(Locale.ENGLISH).equals("@type")) {
@@ -224,7 +224,7 @@ public class OJson extends SimpleNode {
     return false;
   }
 
-  public OJson splitForAggregation(AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
+  public OJson splitForAggregation(AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
     if (isAggregate(ctx.getDatabase())) {
       OJson result = new OJson(-1);
       for (OJsonItem item : items) {

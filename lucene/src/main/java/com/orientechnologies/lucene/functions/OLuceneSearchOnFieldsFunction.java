@@ -2,11 +2,7 @@ package com.orientechnologies.lucene.functions;
 
 import static com.orientechnologies.lucene.functions.OLuceneFunctionsUtils.getOrCreateMemoryIndex;
 
-import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
-import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
@@ -19,6 +15,10 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
+import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
+import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
+import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
+import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] params,
-      OCommandContext ctx) {
+      CommandContext ctx) {
 
     if (iThis instanceof YTRID) {
       try {
@@ -117,7 +117,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     OLuceneFullTextIndex index = searchForIndex(target, ctx, args);
@@ -143,7 +143,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     throw new RuntimeException();
   }
 
-  private Map<String, ?> getMetadata(OExpression[] args, OCommandContext ctx) {
+  private Map<String, ?> getMetadata(OExpression[] args, CommandContext ctx) {
     if (args.length == 3) {
       return getMetadata(args[2], ctx);
     }
@@ -152,7 +152,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
 
   @Override
   protected OLuceneFullTextIndex searchForIndex(
-      OFromClause target, OCommandContext ctx, OExpression... args) {
+      OFromClause target, CommandContext ctx, OExpression... args) {
     List<String> fieldNames = (List<String>) args[0].execute((YTIdentifiable) null, ctx);
     OFromItem item = target.getItem();
     String className = item.getIdentifier().getStringValue();
@@ -161,7 +161,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
   }
 
   private static OLuceneFullTextIndex searchForIndex(
-      String className, OCommandContext ctx, List<String> fieldNames) {
+      String className, CommandContext ctx, List<String> fieldNames) {
     var db = ctx.getDatabase();
     db.activateOnCurrentThread();
     OMetadataInternal dbMetadata = db.getMetadata();

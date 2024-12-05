@@ -50,7 +50,7 @@ import java.nio.ByteOrder;
  * <p>Developer which will extend this class should use all page memory starting from {@link
  * #NEXT_FREE_POSITION} offset. All data structures which use this kind of pages should be derived
  * from {@link
- * ODurableComponent} class.
+ * DurableComponent} class.
  *
  * @since 16.08.13
  */

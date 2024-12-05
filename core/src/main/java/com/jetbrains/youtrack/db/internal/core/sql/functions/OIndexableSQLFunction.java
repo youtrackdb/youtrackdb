@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
@@ -52,7 +52,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args);
 
   /**
@@ -74,7 +74,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args);
 
   /**
@@ -96,7 +96,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args);
 
   /**
@@ -118,7 +118,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args);
 
   /**
@@ -141,6 +141,6 @@ public interface OIndexableSQLFunction extends OSQLFunction {
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args);
 }

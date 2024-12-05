@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.handler;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.parser.OVariableParser;
 import com.jetbrains.youtrack.db.internal.common.parser.OVariableParserListener;
@@ -154,7 +154,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
         filePath.mkdirs();
       }
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Automatic Backup plugin installed and active: delay=%dms, firstTime=%s,"
@@ -167,7 +167,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
           new Runnable() {
             @Override
             public void run() {
-              OLogManager.instance().info(this, "Scanning databases to backup...");
+              LogManager.instance().info(this, "Scanning databases to backup...");
 
               int ok = 0;
               int errors = 0;
@@ -199,7 +199,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                       case INCREMENTAL_BACKUP:
                         incrementalBackupDatabase(dbURL, targetDirectory, db);
 
-                        OLogManager.instance()
+                        LogManager.instance()
                             .info(
                                 this,
                                 "Incremental Backup of database '"
@@ -212,7 +212,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                       case EXPORT:
                         exportDatabase(dbURL, targetDirectory + getFileName(database), db);
 
-                        OLogManager.instance()
+                        LogManager.instance()
                             .info(
                                 this,
                                 "Export of database '"
@@ -229,14 +229,14 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                         listener.onBackupCompleted(dbName);
                       }
                     } catch (Exception e) {
-                      OLogManager.instance()
+                      LogManager.instance()
                           .error(this, "Error on listener for database '" + dbURL, e);
                     }
                     ok++;
 
                   } catch (Exception e) {
 
-                    OLogManager.instance()
+                    LogManager.instance()
                         .error(
                             this,
                             "Error on backup of database '"
@@ -250,14 +250,14 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                         listener.onBackupError(dbName, e);
                       }
                     } catch (Exception l) {
-                      OLogManager.instance()
+                      LogManager.instance()
                           .error(this, "Error on listener for database '" + dbURL, l);
                     }
                     errors++;
                   }
                 }
               }
-              OLogManager.instance()
+              LogManager.instance()
                   .info(this, "Automatic Backup finished: %d ok, %d errors", ok, errors);
             }
           };
@@ -276,7 +276,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
         YouTrackDBManager.instance().scheduleTask(task, firstTime, delay);
       }
     } else {
-      OLogManager.instance().info(this, "Automatic Backup plugin is disabled");
+      LogManager.instance().info(this, "Automatic Backup plugin is disabled");
     }
   }
 
@@ -304,7 +304,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
         f.createNewFile();
         OIOUtils.writeFile(f, configuration.toJSON("prettyPrint"));
 
-        OLogManager.instance()
+        LogManager.instance()
             .info(this, "Automatic Backup: migrated configuration to file '%s'", f);
       } catch (IOException e) {
         throw YTException.wrapException(
@@ -393,7 +393,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
     }
     iPath += db.getName();
 
-    OLogManager.instance()
+    LogManager.instance()
         .info(
             this,
             "AutomaticBackup: executing incremental backup of database '%s' to %s",
@@ -407,7 +407,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       final String dbURL, final String iPath, final YTDatabaseSessionInternal db)
       throws IOException {
 
-    OLogManager.instance()
+    LogManager.instance()
         .info(this, "AutomaticBackup: executing export of database '%s' to %s", dbURL, iPath);
 
     final ODatabaseExport exp =
@@ -417,7 +417,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
             new OCommandOutputListener() {
               @Override
               public void onMessage(String iText) {
-                OLogManager.instance().info(this, iText);
+                LogManager.instance().info(this, iText);
               }
             });
 

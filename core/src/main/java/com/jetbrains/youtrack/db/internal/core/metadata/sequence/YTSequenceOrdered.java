@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
@@ -81,7 +81,7 @@ public class YTSequenceOrdered extends YTSequence {
                       + limitValue
                       + " with step: "
                       + increment;
-              OLogManager.instance().warn(this, warningMessage);
+              LogManager.instance().warn(this, warningMessage);
             }
           }
 

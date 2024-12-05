@@ -16,7 +16,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.conversion;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.OAbstractSQLMethod;
 import java.math.BigDecimal;
@@ -42,7 +42,7 @@ public class OSQLMethodAsDecimal extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
     if (iThis instanceof Date) {

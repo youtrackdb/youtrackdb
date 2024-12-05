@@ -18,7 +18,7 @@ import com.cloudbees.syslog.MessageFormat;
 import com.cloudbees.syslog.Severity;
 import com.cloudbees.syslog.SyslogMessage;
 import com.cloudbees.syslog.sender.UdpSyslogMessageSender;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.security.OSyslog;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -52,7 +52,7 @@ public class ODefaultSyslog extends OServerPluginAbstract implements OSyslog {
         messageSender.setMessageFormat(MessageFormat.RFC_3164); // optional, default is RFC 3164
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "ODefaultSyslog.active()", ex);
+      LogManager.instance().error(this, "ODefaultSyslog.active()", ex);
     }
   }
 
@@ -145,7 +145,7 @@ public class ODefaultSyslog extends OServerPluginAbstract implements OSyslog {
         messageSender.sendMessage(sysMsg);
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "ODefaultSyslog.log()", ex);
+      LogManager.instance().error(this, "ODefaultSyslog.log()", ex);
     }
   }
 

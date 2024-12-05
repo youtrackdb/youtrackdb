@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -79,7 +79,7 @@ public class OArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, Object result, OCommandContext ctx) {
+  public Object execute(YTIdentifiable iCurrentRecord, Object result, CommandContext ctx) {
     if (result == null) {
       return null;
     }
@@ -119,7 +119,7 @@ public class OArrayRangeSelector extends SimpleNode {
     return Arrays.asList(Arrays.copyOfRange(arrayResult, lFrom, lTo));
   }
 
-  public Object execute(YTResult iCurrentRecord, Object result, OCommandContext ctx) {
+  public Object execute(YTResult iCurrentRecord, Object result, CommandContext ctx) {
     if (result == null) {
       return null;
     }
@@ -241,7 +241,7 @@ public class OArrayRangeSelector extends SimpleNode {
    * @param ctx
    * @return
    */
-  public void setValue(Object target, Object value, OCommandContext ctx) {
+  public void setValue(Object target, Object value, CommandContext ctx) {
     if (target == null) {
       return;
     }
@@ -256,7 +256,7 @@ public class OArrayRangeSelector extends SimpleNode {
 
   }
 
-  public void setValue(List target, Object value, OCommandContext ctx) {
+  public void setValue(List target, Object value, CommandContext ctx) {
     int from = this.from == null ? 0 : this.from;
     int to = target.size() - 1;
     if (this.to != null) {
@@ -279,7 +279,7 @@ public class OArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public void setValue(Set target, Object value, OCommandContext ctx) {
+  public void setValue(Set target, Object value, CommandContext ctx) {
     Set result = new LinkedHashSet<>();
     int from = this.from == null ? 0 : this.from;
     int to = target.size() - 1;
@@ -311,7 +311,7 @@ public class OArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public void setValue(Map target, Object value, OCommandContext ctx) {
+  public void setValue(Map target, Object value, CommandContext ctx) {
     int from = this.from == null ? 0 : this.from;
     int to = this.to;
     if (!included) {
@@ -326,7 +326,7 @@ public class OArrayRangeSelector extends SimpleNode {
     }
   }
 
-  private void setArrayValue(Object target, Object value, OCommandContext ctx) {
+  private void setArrayValue(Object target, Object value, CommandContext ctx) {
 
     int from = this.from == null ? 0 : this.from;
     int to = Array.getLength(target) - 1;
@@ -346,7 +346,7 @@ public class OArrayRangeSelector extends SimpleNode {
   }
 
   public void applyRemove(
-      Object currentValue, YTResultInternal originalRecord, OCommandContext ctx) {
+      Object currentValue, YTResultInternal originalRecord, CommandContext ctx) {
     if (currentValue == null) {
       return;
     }

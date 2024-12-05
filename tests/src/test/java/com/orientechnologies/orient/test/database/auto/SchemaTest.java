@@ -30,7 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityShared;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
@@ -371,7 +371,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   public void invalidClusterWrongClusterId() {
 
     try {
-      database.command(new OCommandSQL("create class Antani cluster 212121")).execute(database);
+      database.command(new CommandSQL("create class Antani cluster 212121")).execute(database);
       Assert.fail();
     } catch (Exception e) {
       Assert.assertTrue(e instanceof YTClusterDoesNotExistException);
@@ -381,7 +381,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test
   public void invalidClusterWrongClusterName() {
     try {
-      database.command(new OCommandSQL("create class Antani cluster blaaa")).execute(database);
+      database.command(new CommandSQL("create class Antani cluster blaaa")).execute(database);
       Assert.fail();
 
     } catch (Exception e) {
@@ -393,7 +393,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   public void invalidClusterWrongKeywords() {
 
     try {
-      database.command(new OCommandSQL("create class Antani the pen is on the table"))
+      database.command(new CommandSQL("create class Antani the pen is on the table"))
           .execute(database);
       Assert.fail();
     } catch (Exception e) {
@@ -431,7 +431,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   public void testMinimumClustersAndClusterSelection() {
 
-    database.command(new OCommandSQL("alter database minimumclusters 3")).execute(database);
+    database.command(new CommandSQL("alter database minimumclusters 3")).execute(database);
 
     try {
       database.command("create class multipleclusters").close();
@@ -665,7 +665,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     databaseDocumentTx.command("DROP CLUSTER TestRenameClusterOriginal").close();
     databaseDocumentTx
         .command(
-            new OCommandSQL("ALTER CLUSTER TestRenameClusterNew name TestRenameClusterOriginal"))
+            new CommandSQL("ALTER CLUSTER TestRenameClusterNew name TestRenameClusterOriginal"))
         .execute(database);
 
     database.begin();

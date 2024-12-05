@@ -4,7 +4,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -38,12 +38,12 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     return operator.execute(left.execute(currentRecord, ctx), right.execute(currentRecord, ctx));
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -64,7 +64,7 @@ public class OBinaryCondition extends OBooleanExpression {
     return operator.execute(leftVal, rightVal);
   }
 
-  private boolean evaluateAny(YTResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       Object rightVal = right.execute(currentRecord, ctx);
@@ -78,7 +78,7 @@ public class OBinaryCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       Object rightVal = right.execute(currentRecord, ctx);
@@ -153,13 +153,13 @@ public class OBinaryCondition extends OBooleanExpression {
     return null;
   }
 
-  public long estimateIndexed(OFromClause target, OCommandContext context) {
+  public long estimateIndexed(OFromClause target, CommandContext context) {
     return left.estimateIndexedFunction(
         target, context, operator, right.execute((YTResult) null, context));
   }
 
   public Iterable<YTIdentifiable> executeIndexedFunction(
-      OFromClause target, OCommandContext context) {
+      OFromClause target, CommandContext context) {
     return left.executeIndexedFunction(
         target, context, operator, right.execute((YTResult) null, context));
   }
@@ -174,7 +174,7 @@ public class OBinaryCondition extends OBooleanExpression {
    * on this target, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
-      OFromClause target, OCommandContext context) {
+      OFromClause target, CommandContext context) {
     return left.canExecuteIndexedFunctionWithoutIndex(
         target, context, operator, right.execute((YTResult) null, context));
   }
@@ -189,7 +189,7 @@ public class OBinaryCondition extends OBooleanExpression {
    * on this target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
-      OFromClause target, OCommandContext context) {
+      OFromClause target, CommandContext context) {
     return left.allowsIndexedFunctionExecutionOnTarget(
         target, context, operator, right.execute((YTResult) null, context));
   }
@@ -206,7 +206,7 @@ public class OBinaryCondition extends OBooleanExpression {
    * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
-      OFromClause target, OCommandContext context) {
+      OFromClause target, CommandContext context) {
     return left.executeIndexedFunctionAfterIndexSearch(
         target, context, operator, right.execute((YTResult) null, context));
   }
@@ -450,7 +450,7 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   @Override
-  public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, YTClass clazz) {
+  public OBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
     if (operator instanceof OEqualsCompareOperator
         && right.isEarlyCalculated(ctx)
         && left.isIndexChain(ctx, clazz)) {
@@ -480,7 +480,7 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   public static OSelectStatement indexChainToStatement(
-      OModifier modifier, YTClass clazz, OExpression right, OCommandContext ctx) {
+      OModifier modifier, YTClass clazz, OExpression right, CommandContext ctx) {
     YTClass queryClass = clazz;
 
     OSelectStatement result = new OSelectStatement(-1);
@@ -507,7 +507,7 @@ public class OBinaryCondition extends OBooleanExpression {
     return result;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, OCommandContext ctx) {
+  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
     Optional<OPath> path = left.getPath();
     if (path.isPresent()) {
       OPath p = path.get();

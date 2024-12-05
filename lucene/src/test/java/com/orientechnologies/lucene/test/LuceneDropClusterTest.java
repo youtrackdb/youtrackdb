@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
 import java.io.InputStream;
 import java.util.logging.Level;
@@ -33,7 +33,7 @@ public class LuceneDropClusterTest extends BaseLuceneTest {
 
   @Test
   public void shouldRemoveCluster() throws Exception {
-    OLogManager.instance().setConsoleLevel(Level.FINE.getName());
+    LogManager.instance().setConsoleLevel(Level.FINE.getName());
     InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
 
     db.execute("sql", getScriptFromStream(stream)).close();

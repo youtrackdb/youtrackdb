@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAlloc
 import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPairIntegerInteger;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPairLongLong;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
@@ -156,7 +156,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
       blockMask = blockSize - 1;
 
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "DWL:%s: block size = %d bytes, maximum segment size = %d MB",
@@ -327,7 +327,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
                   final Path segmentPath = storagePath.resolve(segment);
                   Files.delete(segmentPath);
                 } catch (final IOException e) {
-                  OLogManager.instance()
+                  LogManager.instance()
                       .error(
                           this,
                           "Can not delete segment of double write log - %s in storage %s",
@@ -553,7 +553,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
   }
 
   private void printSegmentIsBroken(Path segment) {
-    OLogManager.instance()
+    LogManager.instance()
         .warn(
             this,
             "DWL Segment "

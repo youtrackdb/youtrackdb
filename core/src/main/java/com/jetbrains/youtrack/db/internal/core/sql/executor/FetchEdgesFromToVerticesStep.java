@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
@@ -9,9 +9,9 @@ import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.ODirection;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OMultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +34,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       String toAlias,
       OIdentifier targetClass,
       OIdentifier targetCluster,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.targetClass = targetClass;
@@ -44,7 +44,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -60,26 +60,26 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
           private final Set<YTRID> to = toList;
 
           @Override
-          public OExecutionStream next(OCommandContext ctx) {
+          public ExecutionStream next(CommandContext ctx) {
             return createResultSet(db, to, iter.next());
           }
 
           @Override
-          public boolean hasNext(OCommandContext ctx) {
+          public boolean hasNext(CommandContext ctx) {
             return iter.hasNext();
           }
 
           @Override
-          public void close(OCommandContext ctx) {
+          public void close(CommandContext ctx) {
           }
         };
 
-    return new OMultipleExecutionStream(res);
+    return new MultipleExecutionStream(res);
   }
 
-  private OExecutionStream createResultSet(YTDatabaseSessionInternal db, Set<YTRID> toList,
+  private ExecutionStream createResultSet(YTDatabaseSessionInternal db, Set<YTRID> toList,
       Object val) {
-    return OExecutionStream.resultIterator(
+    return ExecutionStream.resultIterator(
         StreamSupport.stream(this.loadNextResults(val).spliterator(), false)
             .filter((e) -> filterResult(e, toList))
             .map(
@@ -176,7 +176,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ FOR EACH x in " + fromAlias + "\n";
     result += spaces + "    FOR EACH y in " + toAlias + "\n";
     result += spaces + "       FETCH EDGES FROM x TO y";
@@ -195,7 +195,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new FetchEdgesFromToVerticesStep(
         fromAlias, toAlias, targetClass, targetCluster, ctx, profilingEnabled);
   }

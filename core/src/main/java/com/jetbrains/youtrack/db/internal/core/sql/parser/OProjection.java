@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -120,7 +120,7 @@ public class OProjection extends SimpleNode {
     }
   }
 
-  public YTResult calculateSingle(OCommandContext iContext, YTResult iRecord) {
+  public YTResult calculateSingle(CommandContext iContext, YTResult iRecord) {
     initExcludes(iContext);
     if (isExpand()) {
       throw new IllegalStateException(
@@ -182,7 +182,7 @@ public class OProjection extends SimpleNode {
     return result;
   }
 
-  private void initExcludes(OCommandContext iContext) {
+  private void initExcludes(CommandContext iContext) {
     if (excludes == null) {
       this.excludes = new HashSet<String>();
       for (OProjectionItem item : items) {
@@ -193,7 +193,7 @@ public class OProjection extends SimpleNode {
     }
   }
 
-  public OLegacyResultSet calculateExpand(OCommandContext iContext, YTResult iRecord) {
+  public OLegacyResultSet calculateExpand(CommandContext iContext, YTResult iRecord) {
     if (!isExpand()) {
       throw new IllegalStateException("This is not an expand projection:" + this);
     }

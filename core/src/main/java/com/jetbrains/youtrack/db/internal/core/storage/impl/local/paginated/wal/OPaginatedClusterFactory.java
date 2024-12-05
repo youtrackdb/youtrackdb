@@ -21,20 +21,20 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal;
 
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.v2.OPaginatedClusterV2;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.v2.PaginatedClusterV2;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 
 /**
  * @since 10/8/13
  */
 public final class OPaginatedClusterFactory {
 
-  public static OPaginatedCluster createCluster(
+  public static PaginatedCluster createCluster(
       final String name,
       final int configurationVersion,
       final int binaryVersion,
-      final OAbstractPaginatedStorage storage) {
+      final AbstractPaginatedStorage storage) {
     if (configurationVersion >= 0 && configurationVersion < 6) {
       throw new YTStorageException(
           "You use deprecated version of storage cluster, this version is not supported in current"
@@ -46,16 +46,16 @@ public final class OPaginatedClusterFactory {
           "Version 0 of cluster is not supported with given configuration");
       case 1 -> throw new IllegalStateException(
           "Version 1 of cluster is not supported with given configuration");
-      case 2 -> new OPaginatedClusterV2(name, storage);
+      case 2 -> new PaginatedClusterV2(name, storage);
       default ->
           throw new IllegalStateException("Invalid binary version of cluster " + binaryVersion);
     };
   }
 
-  public static OPaginatedCluster createCluster(
+  public static PaginatedCluster createCluster(
       final String name,
       final int binaryVersion,
-      final OAbstractPaginatedStorage storage,
+      final AbstractPaginatedStorage storage,
       final String dataExtension,
       final String cpmExtension,
       final String fsmExtension) {
@@ -64,7 +64,7 @@ public final class OPaginatedClusterFactory {
           "Version 0 of cluster is not supported with given configuration");
       case 1 -> throw new IllegalStateException(
           "Version 1 of cluster is not supported with given configuration");
-      case 2 -> new OPaginatedClusterV2(name, dataExtension, cpmExtension, fsmExtension, storage);
+      case 2 -> new PaginatedClusterV2(name, dataExtension, cpmExtension, fsmExtension, storage);
       default ->
           throw new IllegalStateException("Invalid binary version of cluster " + binaryVersion);
     };

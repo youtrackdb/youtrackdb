@@ -13,8 +13,7 @@
  */
 package com.orientechnologies.spatial.operator;
 
-import com.orientechnologies.lucene.operator.OLuceneOperatorUtil;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
@@ -27,6 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OIndexReuseType;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryTargetOperator;
+import com.orientechnologies.lucene.operator.OLuceneOperatorUtil;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import java.util.List;
@@ -48,7 +48,7 @@ public abstract class OLuceneSpatialOperator extends OQueryTargetOperator {
       YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext context) {
+      CommandContext context) {
     return OLuceneOperatorUtil.buildOIndexSearchResult(
         iSchemaClass, iCondition, iIndexSearchResults, context);
   }
@@ -61,7 +61,7 @@ public abstract class OLuceneSpatialOperator extends OQueryTargetOperator {
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
 
     OSQLFunction function = OSQLEngine.getInstance().getFunction(iContext.getDatabase(), keyword);

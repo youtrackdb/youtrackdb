@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.shutdown;
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownYouTrackDBInstancesHandler;
 
 /**
  * Handler which is used inside of shutdown priority queue. The higher priority we have the earlier
@@ -25,7 +26,7 @@ public interface OShutdownHandler {
   int SHUTDOWN_PENDING_THREADS_PRIORITY = 1100;
 
   /**
-   * Priority of {@link YouTrackDBManager.OShutdownOrientDBInstancesHandler} handler.
+   * Priority of {@link ShutdownYouTrackDBInstancesHandler} handler.
    */
   int SHUTDOWN_ENGINES_PRIORITY = 1200;
 

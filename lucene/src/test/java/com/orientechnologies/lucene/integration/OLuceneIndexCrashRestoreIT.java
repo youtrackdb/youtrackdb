@@ -2,8 +2,8 @@ package com.orientechnologies.lucene.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -74,14 +74,14 @@ public class OLuceneIndexCrashRestoreIT {
   }
 
   public void spawnServer() throws Exception {
-    OLogManager.instance().installCustomFormatter();
+    LogManager.instance().installCustomFormatter();
     GlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(1000000);
     GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
     GlobalConfiguration.FILE_LOCK.setValue(false);
 
     final File buildDir = new File(BUILD_DIRECTORY);
     if (buildDir.exists()) {
-      OFileUtils.deleteRecursively(buildDir);
+      FileUtils.deleteRecursively(buildDir);
     }
 
     buildDir.mkdirs();
@@ -123,7 +123,7 @@ public class OLuceneIndexCrashRestoreIT {
   @After
   public void tearDown() {
     File buildDir = new File("./target/databases");
-    OFileUtils.deleteRecursively(buildDir);
+    FileUtils.deleteRecursively(buildDir);
     Assert.assertFalse(buildDir.exists());
   }
 
@@ -286,7 +286,7 @@ public class OLuceneIndexCrashRestoreIT {
       OServer server = OServerMain.create();
       InputStream conf = RemoteDBRunner.class.getResourceAsStream("index-crash-config.xml");
 
-      OLogManager.instance().installCustomFormatter();
+      LogManager.instance().installCustomFormatter();
       server.startup(conf);
       server.activate();
 

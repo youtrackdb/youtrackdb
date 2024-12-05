@@ -31,8 +31,8 @@ import java.util.Set;
  */
 public class OLiveCommandExecutorSQLFactory implements OCommandExecutorSQLFactory {
 
-  private static Map<String, Class<? extends OCommandExecutorSQLAbstract>> COMMANDS =
-      new HashMap<String, Class<? extends OCommandExecutorSQLAbstract>>();
+  private static Map<String, Class<? extends CommandExecutorSQLAbstract>> COMMANDS =
+      new HashMap<String, Class<? extends CommandExecutorSQLAbstract>>();
 
   static {
     init();
@@ -42,14 +42,14 @@ public class OLiveCommandExecutorSQLFactory implements OCommandExecutorSQLFactor
     if (COMMANDS.size() == 0) {
       synchronized (OLiveCommandExecutorSQLFactory.class) {
         if (COMMANDS.size() == 0) {
-          final Map<String, Class<? extends OCommandExecutorSQLAbstract>> commands =
-              new HashMap<String, Class<? extends OCommandExecutorSQLAbstract>>();
+          final Map<String, Class<? extends CommandExecutorSQLAbstract>> commands =
+              new HashMap<String, Class<? extends CommandExecutorSQLAbstract>>();
           commands.put(
-              OCommandExecutorSQLLiveSelect.KEYWORD_LIVE_SELECT,
-              OCommandExecutorSQLLiveSelect.class);
+              CommandExecutorSQLLiveSelect.KEYWORD_LIVE_SELECT,
+              CommandExecutorSQLLiveSelect.class);
           commands.put(
-              OCommandExecutorSQLLiveUnsubscribe.KEYWORD_LIVE_UNSUBSCRIBE,
-              OCommandExecutorSQLLiveUnsubscribe.class);
+              CommandExecutorSQLLiveUnsubscribe.KEYWORD_LIVE_UNSUBSCRIBE,
+              CommandExecutorSQLLiveUnsubscribe.class);
 
           COMMANDS = Collections.unmodifiableMap(commands);
         }
@@ -67,9 +67,9 @@ public class OLiveCommandExecutorSQLFactory implements OCommandExecutorSQLFactor
   /**
    * {@inheritDoc}
    */
-  public OCommandExecutorSQLAbstract createCommand(final String name)
+  public CommandExecutorSQLAbstract createCommand(final String name)
       throws YTCommandExecutionException {
-    final Class<? extends OCommandExecutorSQLAbstract> clazz = COMMANDS.get(name);
+    final Class<? extends CommandExecutorSQLAbstract> clazz = COMMANDS.get(name);
 
     if (clazz == null) {
       throw new YTCommandExecutionException("Unknowned command name :" + name);

@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableSchema;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OProduceExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 
 /**
@@ -25,22 +25,22 @@ public class CountFromClassStep extends AbstractExecutionStep {
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountFromClassStep(
-      OIdentifier targetClass, String alias, OCommandContext ctx, boolean profilingEnabled) {
+      OIdentifier targetClass, String alias, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.target = targetClass;
     this.alias = alias;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(this::produce).limit(1);
+    return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(OCommandContext ctx) {
+  private YTResult produce(CommandContext ctx) {
     var db = ctx.getDatabase();
     YTImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
     YTClass clazz = schema.getClass(target.getStringValue());
@@ -59,7 +59,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     String result = spaces + "+ CALCULATE CLASS SIZE: " + target;
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";

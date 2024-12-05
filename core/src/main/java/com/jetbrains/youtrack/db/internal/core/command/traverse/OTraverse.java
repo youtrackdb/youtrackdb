@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.OCommand;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.OCommandPredicate;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -43,7 +43,7 @@ public class OTraverse implements OCommand, Iterable<YTIdentifiable>, Iterator<Y
   private long limit = 0;
   private YTIdentifiable lastTraversed;
   private STRATEGY strategy = STRATEGY.DEPTH_FIRST;
-  private final OTraverseContext context = new OTraverseContext();
+  private final TraverseContext context = new TraverseContext();
   private int maxDepth = -1;
 
   public OTraverse(YTDatabaseSessionInternal db) {
@@ -91,7 +91,7 @@ public class OTraverse implements OCommand, Iterable<YTIdentifiable>, Iterator<Y
       throw new IllegalStateException("Traverse ended abnormally");
     }
 
-    if (!OCommandExecutorAbstract.checkInterruption(context)) {
+    if (!CommandExecutorAbstract.checkInterruption(context)) {
       return false;
     }
 
@@ -137,7 +137,7 @@ public class OTraverse implements OCommand, Iterable<YTIdentifiable>, Iterator<Y
     return this;
   }
 
-  public OTraverseContext getContext() {
+  public TraverseContext getContext() {
     return context;
   }
 

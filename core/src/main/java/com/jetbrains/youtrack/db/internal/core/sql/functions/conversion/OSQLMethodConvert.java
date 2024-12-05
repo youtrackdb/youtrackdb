@@ -16,8 +16,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.conversion;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.OAbstractSQLMethod;
@@ -43,7 +43,7 @@ public class OSQLMethodConvert extends OAbstractSQLMethod {
   public Object execute(
       Object iThis,
       YTIdentifiable iCurrentRecord,
-      OCommandContext iContext,
+      CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
     if (iThis == null || iParams[0] == null) {
@@ -57,7 +57,7 @@ public class OSQLMethodConvert extends OAbstractSQLMethod {
       try {
         return YTType.convert(db, iThis, Class.forName(destType));
       } catch (ClassNotFoundException e) {
-        OLogManager.instance().error(this, "Class for destination type was not found", e);
+        LogManager.instance().error(this, "Class for destination type was not found", e);
       }
     } else {
       final YTType orientType = YTType.valueOf(destType.toUpperCase(Locale.ENGLISH));

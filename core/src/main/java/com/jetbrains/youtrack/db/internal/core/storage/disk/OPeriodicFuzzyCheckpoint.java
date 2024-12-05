@@ -1,18 +1,18 @@
 package com.jetbrains.youtrack.db.internal.core.storage.disk;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 
 public class OPeriodicFuzzyCheckpoint implements Runnable {
 
   /**
    *
    */
-  private final OLocalPaginatedStorage storage;
+  private final LocalPaginatedStorage storage;
 
   /**
    * @param storage
    */
-  public OPeriodicFuzzyCheckpoint(OLocalPaginatedStorage storage) {
+  public OPeriodicFuzzyCheckpoint(LocalPaginatedStorage storage) {
     this.storage = storage;
   }
 
@@ -21,7 +21,7 @@ public class OPeriodicFuzzyCheckpoint implements Runnable {
     try {
       storage.makeFuzzyCheckpoint();
     } catch (final RuntimeException e) {
-      OLogManager.instance().error(this, "Error during fuzzy checkpoint", e);
+      LogManager.instance().error(this, "Error during fuzzy checkpoint", e);
     }
   }
 }

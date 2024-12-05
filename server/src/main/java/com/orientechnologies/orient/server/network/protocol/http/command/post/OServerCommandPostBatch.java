@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
@@ -92,7 +92,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
       if (db.getTransaction().isActive()) {
         // TEMPORARY PATCH TO UNDERSTAND WHY UNDER HIGH LOAD TX IS NOT COMMITTED AFTER BATCH. MAYBE
         // A PENDING TRANSACTION?
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Found database instance from the pool with a pending transaction. Forcing rollback"
@@ -240,7 +240,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
       try {
         iResponse.writeResult(lastResult, db);
       } catch (RuntimeException e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Error (%s) on serializing result of batch command:\n%s",

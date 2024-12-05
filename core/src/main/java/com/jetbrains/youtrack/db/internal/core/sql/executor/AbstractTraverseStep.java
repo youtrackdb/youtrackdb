@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OInteger;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseProjectionItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
@@ -26,7 +26,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
       List<OTraverseProjectionItem> projections,
       OWhereClause whileClause,
       OInteger maxDepth,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.whileClause = whileClause;
@@ -38,17 +38,17 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     assert prev != null;
 
-    OExecutionStream resultSet = prev.start(ctx);
-    return new OExecutionStream() {
+    ExecutionStream resultSet = prev.start(ctx);
+    return new ExecutionStream() {
       private final List<YTResult> entryPoints = new ArrayList<>();
       private final List<YTResult> results = new ArrayList<>();
       private final Set<YTRID> traversed = new ORidSet();
 
       @Override
-      public boolean hasNext(OCommandContext ctx) {
+      public boolean hasNext(CommandContext ctx) {
         if (results.isEmpty()) {
           fetchNextBlock(ctx, this.entryPoints, this.results, this.traversed, resultSet);
         }
@@ -56,7 +56,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
       }
 
       @Override
-      public YTResult next(OCommandContext ctx) {
+      public YTResult next(CommandContext ctx) {
         if (!hasNext(ctx)) {
           throw new IllegalStateException();
         }
@@ -68,17 +68,17 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
       }
 
       @Override
-      public void close(OCommandContext ctx) {
+      public void close(CommandContext ctx) {
       }
     };
   }
 
   private void fetchNextBlock(
-      OCommandContext ctx,
+      CommandContext ctx,
       List<YTResult> entryPoints,
       List<YTResult> results,
       Set<YTRID> traversed,
-      OExecutionStream resultSet) {
+      ExecutionStream resultSet) {
     if (!results.isEmpty()) {
       return;
     }
@@ -97,13 +97,13 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
   }
 
   protected abstract void fetchNextEntryPoints(
-      OExecutionStream toFetch,
-      OCommandContext ctx,
+      ExecutionStream toFetch,
+      CommandContext ctx,
       List<YTResult> entryPoints,
       Set<YTRID> traversed);
 
   protected abstract void fetchNextResults(
-      OCommandContext ctx, List<YTResult> results, List<YTResult> entryPoints,
+      CommandContext ctx, List<YTResult> results, List<YTResult> entryPoints,
       Set<YTRID> traversed);
 
   @Override

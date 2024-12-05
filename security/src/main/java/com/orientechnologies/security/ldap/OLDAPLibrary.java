@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.security.ldap;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.PrivilegedAction;
@@ -65,7 +65,7 @@ public class OLDAPLibrary {
                 env.put(Context.PROVIDER_URL, url);
 
                 if (debug) {
-                  OLogManager.instance()
+                  LogManager.instance()
                       .info(
                           OLDAPLibrary.class,
                           "OLDAPLibrary.openContext() Trying ProviderURL: " + url);
@@ -75,7 +75,7 @@ public class OLDAPLibrary {
                 dc = new InitialDirContext(env);
                 break;
               } catch (Exception ex) {
-                OLogManager.instance()
+                LogManager.instance()
                     .error(OLDAPLibrary.class, "OLDAPLibrary.openContext() Exception: ", ex);
               }
             }
@@ -95,7 +95,7 @@ public class OLDAPLibrary {
 
     if (ldap.isAlias()) {
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 OLDAPLibrary.class,
                 "OLDAPLibrary.getRealURL() Alias hostname = " + ldap.getHostname());
@@ -106,7 +106,7 @@ public class OLDAPLibrary {
       InetAddress ipAddress = InetAddress.getByName(ldap.getHostname());
 
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 OLDAPLibrary.class,
                 "OLDAPLibrary.getRealURL() IP Address = " + ipAddress.getHostAddress());
@@ -117,7 +117,7 @@ public class OLDAPLibrary {
       InetAddress realAddress = InetAddress.getByName(ipAddress.getHostAddress());
 
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 OLDAPLibrary.class,
                 "OLDAPLibrary.getRealURL() Real hostname = " + realAddress.getHostName());
@@ -126,7 +126,7 @@ public class OLDAPLibrary {
       realURL = ldap.getURL(realAddress.getHostName());
 
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(OLDAPLibrary.class, "OLDAPLibrary.getRealURL() Real URL = " + realURL);
       }
     }
@@ -160,12 +160,12 @@ public class OLDAPLibrary {
         }
       } else {
         if (debug) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(OLDAPLibrary.class, "OLDAPLibrary.retrieveUsers() DirContext is null", null);
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OLDAPLibrary.class, "OLDAPLibrary.retrieveUsers() Exception: ", ex);
     }
   }
@@ -180,7 +180,7 @@ public class OLDAPLibrary {
         			// userPrincipalName
         			String upn = getUserPrincipalName(attrs);
 
-        			if(debug) OLogManager.instance().info(null, "OLDAPLibrary.addPrincipal() userPrincipalName: " + upn);
+        			if(debug) LogManager.instance().info(null, "OLDAPLibrary.addPrincipal() userPrincipalName: " + upn);
 
         			if(upn != null)
         			{
@@ -195,7 +195,7 @@ public class OLDAPLibrary {
         fillAttributeList(attrs, "altSecurityIdentities", principalList, debug);
       }
     } catch (Exception ex) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OLDAPLibrary.class, "OLDAPLibrary.addPrincipal() Exception: ", ex);
     }
   }
@@ -208,7 +208,7 @@ public class OLDAPLibrary {
       final boolean debug) {
     try {
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 OLDAPLibrary.class,
                 "OLDAPLibrary.traverse() startingDN: %s, memberOfFilter: %s",
@@ -220,7 +220,7 @@ public class OLDAPLibrary {
 
       if (attrs != null) {
         if (debug) {
-          OLogManager.instance()
+          LogManager.instance()
               .info(
                   OLDAPLibrary.class,
                   "OLDAPLibrary.traverse() Found attributes for startingDN: %s",
@@ -237,7 +237,7 @@ public class OLDAPLibrary {
           }
         } else {
           if (debug) {
-            OLogManager.instance()
+            LogManager.instance()
                 .info(
                     OLDAPLibrary.class,
                     "OLDAPLibrary.traverse() startingDN: %s has no \"member\" attributes.",
@@ -246,7 +246,7 @@ public class OLDAPLibrary {
         }
       } else {
         if (debug) {
-          OLogManager.instance()
+          LogManager.instance()
               .error(
                   OLDAPLibrary.class,
                   "OLDAPLibrary.traverse() Unable to find attributes for startingDN: %s",
@@ -255,7 +255,7 @@ public class OLDAPLibrary {
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(OLDAPLibrary.class, "OLDAPLibrary.traverse() Exception: ", ex);
+      LogManager.instance().error(OLDAPLibrary.class, "OLDAPLibrary.traverse() Exception: ", ex);
     }
   }
 
@@ -270,7 +270,7 @@ public class OLDAPLibrary {
 
       if (attrs != null) {
         if (debug) {
-          OLogManager.instance()
+          LogManager.instance()
               .info(
                   OLDAPLibrary.class,
                   "OLDAPLibrary.findMembers() Found attributes for startingDN: %s",
@@ -279,7 +279,7 @@ public class OLDAPLibrary {
 
         if (isGroup(attrs)) {
           if (debug) {
-            OLogManager.instance()
+            LogManager.instance()
                 .info(
                     OLDAPLibrary.class,
                     "OLDAPLibrary.findMembers() Found group for startingDN: %s",
@@ -296,7 +296,7 @@ public class OLDAPLibrary {
           }
         } else if (isUser(attrs)) {
           if (debug) {
-            OLogManager.instance()
+            LogManager.instance()
                 .info(
                     OLDAPLibrary.class,
                     "OLDAPLibrary.findMembers() Found user for startingDN: %s",
@@ -308,7 +308,7 @@ public class OLDAPLibrary {
             String upn = getUserPrincipalName(attrs);
 
             if (debug) {
-              OLogManager.instance()
+              LogManager.instance()
                   .info(
                       OLDAPLibrary.class,
                       "OLDAPLibrary.findMembers() StartingDN: "
@@ -328,7 +328,7 @@ public class OLDAPLibrary {
           }
         }
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 OLDAPLibrary.class,
                 "OLDAPLibrary.findMembers() Unable to find attributes for startingDN: %s",
@@ -336,7 +336,7 @@ public class OLDAPLibrary {
                 startingDN);
       }
     } catch (Exception ex) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OLDAPLibrary.class, "OLDAPLibrary.findMembers() Exception: ", ex);
     }
   }
@@ -375,7 +375,7 @@ public class OLDAPLibrary {
         }
       }
     } catch (Exception ex) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OLDAPLibrary.class, "OLDAPLibrary fillAttributeList(" + name + ")", ex);
     }
   }
@@ -388,7 +388,7 @@ public class OLDAPLibrary {
         return (String) attribute.get(0);
       }
     } catch (Exception ex) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OLDAPLibrary.class, "OLDAPLibrary.getFirstValue(" + name + ") ", ex);
     }
 
@@ -436,12 +436,12 @@ public class OLDAPLibrary {
           }
         }
       } else {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 OLDAPLibrary.class, "OLDAPLibrary.isMemberOf() Has no 'memberOf' attribute.", null);
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(OLDAPLibrary.class, "OLDAPLibrary.isMemberOf()", ex);
+      LogManager.instance().error(OLDAPLibrary.class, "OLDAPLibrary.isMemberOf()", ex);
     }
 
     return false;
@@ -452,7 +452,7 @@ public class OLDAPLibrary {
   private static String removeKerberos(String upn, final boolean debug) {
     if ((upn.startsWith("kerberos:") || upn.startsWith("Kerberos:")) && upn.length() > 9) {
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(OLDAPLibrary.class, "OLDAPLibrary.removeKerberos() upn before: %s", upn);
       }
 
@@ -460,7 +460,7 @@ public class OLDAPLibrary {
       upn.trim();
 
       if (debug) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(OLDAPLibrary.class, "OLDAPLibrary.removeKerberos() upn after: %s", upn);
       }
     }

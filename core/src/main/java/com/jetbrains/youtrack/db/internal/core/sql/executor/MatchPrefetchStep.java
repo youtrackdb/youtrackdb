@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class MatchPrefetchStep extends AbstractExecutionStep {
   private final OInternalExecutionPlan prefetchExecutionPlan;
 
   public MatchPrefetchStep(
-      OCommandContext ctx,
+      CommandContext ctx,
       OInternalExecutionPlan prefetchExecPlan,
       String alias,
       boolean profilingEnabled) {
@@ -32,12 +32,12 @@ public class MatchPrefetchStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    OExecutionStream nextBlock = prefetchExecutionPlan.start();
+    ExecutionStream nextBlock = prefetchExecutionPlan.start();
     List<YTResult> prefetched = new ArrayList<>();
     while (nextBlock.hasNext(ctx)) {
       prefetched.add(nextBlock.next(ctx));
@@ -45,12 +45,12 @@ public class MatchPrefetchStep extends AbstractExecutionStep {
     nextBlock.close(ctx);
     prefetchExecutionPlan.close();
     ctx.setVariable(PREFETCHED_MATCH_ALIAS_PREFIX + alias, prefetched);
-    return OExecutionStream.empty();
+    return ExecutionStream.empty();
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     return spaces
         + "+ PREFETCH "
         + alias

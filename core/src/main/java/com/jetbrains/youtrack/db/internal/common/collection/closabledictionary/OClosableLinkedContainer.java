@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.common.collection.closabledictionary;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import java.util.Iterator;
@@ -853,7 +853,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
     }
 
     if (closedFiles > 0) {
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               this,
               "Reached maximum of opened files %d (max=%d), closed %d files. Consider to raise this"

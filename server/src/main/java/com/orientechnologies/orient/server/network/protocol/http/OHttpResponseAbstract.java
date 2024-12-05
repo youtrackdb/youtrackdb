@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
@@ -387,7 +387,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                 iArgument.flush();
 
               } catch (IOException e) {
-                OLogManager.instance().error(this, "HTTP response: error on writing records", e);
+                LogManager.instance().error(this, "HTTP response: error on writing records", e);
               }
 
               return null;
@@ -419,7 +419,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                     databaseDocumentInternal);
                 writer.flush();
               } catch (IOException e) {
-                OLogManager.instance()
+                LogManager.instance()
                     .error(this, "Error during writing of records to the HTTP response", e);
               }
               return null;
@@ -510,7 +510,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
               buffer.append(objectJson);
             } catch (Exception e) {
-              OLogManager.instance()
+              LogManager.instance()
                   .error(this, "Error transforming record " + identifiable + " to JSON", e);
             }
           } else if (OMultiValue.isMultiValue(entry)) {
@@ -601,7 +601,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       gout.finish();
       return baos.toByteArray();
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "Error on compressing HTTP response", ex);
+      LogManager.instance().error(this, "Error on compressing HTTP response", ex);
     } finally {
       try {
         if (gout != null) {

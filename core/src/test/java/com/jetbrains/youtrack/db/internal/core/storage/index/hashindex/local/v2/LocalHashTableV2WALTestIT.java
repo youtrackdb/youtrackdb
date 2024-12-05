@@ -9,8 +9,8 @@ public class LocalHashTableV2WALTestIT {
   //  private static final String EXPECTED_DB_NAME = LocalHashTableV2WALTestIT.class.getSimpleName()
   // + "Expected";
   //
-  //  private OLocalPaginatedStorage actualStorage;
-  //  private OLocalPaginatedStorage expectedStorage;
+  //  private LocalPaginatedStorage actualStorage;
+  //  private LocalPaginatedStorage expectedStorage;
   //
   //  private String actualStorageDir;
   //  private String expectedStorageDir;
@@ -31,7 +31,7 @@ public class LocalHashTableV2WALTestIT {
   //    buildDirectory += "/" + this.getClass().getSimpleName();
   //
   //    final java.io.File buildDir = new java.io.File(buildDirectory);
-  //    OFileUtils.deleteRecursively(buildDir);
+  //    FileUtils.deleteRecursively(buildDir);
   //
   //    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
   //
@@ -41,17 +41,17 @@ public class LocalHashTableV2WALTestIT {
   //    youTrackDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
   //    expectedDatabaseDocumentTx = youTrackDB.open(EXPECTED_DB_NAME, "admin", "admin");
   //
-  //    expectedStorage = ((OLocalPaginatedStorage) ((ODatabaseInternal)
+  //    expectedStorage = ((LocalPaginatedStorage) ((ODatabaseInternal)
   // expectedDatabaseDocumentTx).getStorage());
-  //    actualStorage = (OLocalPaginatedStorage) ((ODatabaseInternal)
+  //    actualStorage = (LocalPaginatedStorage) ((ODatabaseInternal)
   // databaseDocumentTx).getStorage();
   //
   //    actualStorageDir = actualStorage.getStoragePath().toString();
   //    expectedStorageDir = expectedStorage.getStoragePath().toString();
   //
-  //    actualWriteCache = ((OLocalPaginatedStorage) ((ODatabaseInternal)
+  //    actualWriteCache = ((LocalPaginatedStorage) ((ODatabaseInternal)
   // databaseDocumentTx).getStorage()).getWriteCache();
-  //    expectedWriteCache = ((OLocalPaginatedStorage) ((ODatabaseInternal)
+  //    expectedWriteCache = ((LocalPaginatedStorage) ((ODatabaseInternal)
   // expectedDatabaseDocumentTx).getStorage()).getWriteCache();
   //
   //    CASDiskWriteAheadLog diskWriteAheadLog = (CASDiskWriteAheadLog)
@@ -76,7 +76,7 @@ public class LocalHashTableV2WALTestIT {
   //
   //    localHashTable = new LocalHashTableV2<>(42, "actualLocalHashTable", ".imc", ".tsc", ".obf",
   // ".nbh",
-  //        (OAbstractPaginatedStorage) ((ODatabaseInternal) databaseDocumentTx).getStorage());
+  //        (AbstractPaginatedStorage) ((ODatabaseInternal) databaseDocumentTx).getStorage());
   //    localHashTable
   //        .create(OIntegerSerializer.INSTANCE,
   // OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING), null, null,
@@ -203,7 +203,7 @@ public class LocalHashTableV2WALTestIT {
   //  }
   //
   //  private void restoreDataFromWAL() throws IOException {
-  //    final OReadCache expectedReadCache = ((OAbstractPaginatedStorage) ((ODatabaseInternal)
+  //    final OReadCache expectedReadCache = ((AbstractPaginatedStorage) ((ODatabaseInternal)
   // expectedDatabaseDocumentTx).getStorage())
   //        .getReadCache();
   //

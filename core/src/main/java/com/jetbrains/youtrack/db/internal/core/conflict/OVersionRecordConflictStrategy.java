@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTFastConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -37,7 +37,7 @@ public class OVersionRecordConflictStrategy implements ORecordConflictStrategy {
 
   @Override
   public byte[] onUpdate(
-      OStorage storage,
+      Storage storage,
       final byte iRecordType,
       final YTRecordId rid,
       final int iRecordVersion,

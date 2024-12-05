@@ -17,7 +17,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal
 
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
 import com.jetbrains.youtrack.db.internal.common.types.OModifiableLong;
-import com.jetbrains.youtrack.db.internal.core.OOrientListenerAbstract;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
@@ -37,7 +37,7 @@ public class OOperationUnitId {
   static {
     YouTrackDBManager.instance()
         .registerListener(
-            new OOrientListenerAbstract() {
+            new YouTrackDBListenerAbstract() {
               @Override
               public void onStartup() {
                 if (localId == null) {

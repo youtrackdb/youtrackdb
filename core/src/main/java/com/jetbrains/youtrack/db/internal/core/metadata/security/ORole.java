@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -185,7 +185,7 @@ public class ORole extends OIdentity implements OSecurityRole {
       }
 
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "illegal mode " + ex.getMessage(), ex);
+      LogManager.instance().error(this, "illegal mode " + ex.getMessage(), ex);
       mode = ALLOW_MODES.DENY_ALL_BUT;
     }
 

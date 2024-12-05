@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.common.collection;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.jetbrains.youtrack.db.internal.common.util.OResettable;
 import com.jetbrains.youtrack.db.internal.common.util.OSizeable;
@@ -146,7 +146,7 @@ public class OMultiValue {
       }
     } catch (RuntimeException e) {
       // IGNORE IT
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               iObject, "Error on reading the first item of the Multi-value field '%s'", iObject, e);
     }
@@ -189,7 +189,7 @@ public class OMultiValue {
       }
     } catch (RuntimeException e) {
       // IGNORE IT
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               iObject, "Error on reading the last item of the Multi-value field '%s'", iObject, e);
     }
@@ -261,7 +261,7 @@ public class OMultiValue {
       }
     } catch (RuntimeException e) {
       // IGNORE IT
-      OLogManager.instance()
+      LogManager.instance()
           .debug(
               iObject, "Error on reading the first item of the Multi-value field '%s'", iObject, e);
     }

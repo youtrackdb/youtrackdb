@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.tx;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
@@ -67,7 +67,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     server.shutdown();
 
     YouTrackDBManager.instance().shutdown();
-    OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
+    FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
     YouTrackDBManager.instance().startup();
   }
 

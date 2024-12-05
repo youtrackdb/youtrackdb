@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
@@ -459,7 +459,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     // RETURN with $current.
     EntityImpl doc =
         database
-            .command(new OCommandSQL("INSERT INTO Actor2 SET FirstName=\"FFFF\" RETURN $current"))
+            .command(new CommandSQL("INSERT INTO Actor2 SET FirstName=\"FFFF\" RETURN $current"))
             .execute(database);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getClassName(), "Actor2");
@@ -486,7 +486,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 + ","
                 + another.toString()
                 + "]";
-        List res3 = database.command(new OCommandSQL(sql)).execute(database);
+        List res3 = database.command(new CommandSQL(sql)).execute(database);
         Assert.assertEquals(res3.size(), 2);
         Assert.assertTrue(((List<?>) res3).get(0) instanceof EntityImpl);
         final EntityImpl res3doc = (EntityImpl) res3.get(0);

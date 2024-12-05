@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.viewmanager;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.OScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -148,7 +148,7 @@ public class ViewManager {
       } while (view != null && !closed);
 
     } catch (Exception e) {
-      OLogManager.instance().warn(this, "Failed to update views", e);
+      LogManager.instance().warn(this, "Failed to update views", e);
     }
   }
 
@@ -313,7 +313,7 @@ public class ViewManager {
         refreshing.add(viewName);
       }
 
-      OLogManager.instance().info(this, "Starting refresh of view '%s'", viewName);
+      LogManager.instance().info(this, "Starting refresh of view '%s'", viewName);
       long lastRefreshTime = System.currentTimeMillis();
       String clusterName = createNextClusterNameFor(view, db);
       int cluster = db.getClusterIdByName(clusterName);
@@ -341,7 +341,7 @@ public class ViewManager {
       }
       OViewRemovedMetadata oldMetadata =
           ((YTViewImpl) view).replaceViewClusterAndIndex(db, cluster, indexes, lastRefreshTime);
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Replaced for view '%s' clusters '%s' with '%s'",
@@ -351,7 +351,7 @@ public class ViewManager {
                   .collect(Collectors.toList())
                   .toString(),
               cluster + " => " + db.getClusterNameById(cluster));
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "Replaced for view '%s' indexes '%s' with '%s'",
@@ -369,7 +369,7 @@ public class ViewManager {
                 indexesToDrop.add(idx);
               });
 
-      OLogManager.instance().info(this, "Finished refresh of view '%s'", viewName);
+      LogManager.instance().info(this, "Finished refresh of view '%s'", viewName);
     } finally {
       refreshing.remove(viewName);
     }
@@ -513,7 +513,7 @@ public class ViewManager {
             if (listener != null) {
               listener.onError(name, e);
             }
-            OLogManager.instance().warn(this, "Failed to update views", e);
+            LogManager.instance().warn(this, "Failed to update views", e);
           }
           return null;
         });
@@ -646,7 +646,7 @@ public class ViewManager {
                 }
               } else {
                 for (OProjectionItem oProjectionItem : projection.getItems()) {
-                  Object value = oProjectionItem.execute(origin, new OBasicCommandContext());
+                  Object value = oProjectionItem.execute(origin, new BasicCommandContext());
                   boundRow.setProperty(oProjectionItem.getProjectionAliasAsString(), value);
                 }
               }
@@ -672,7 +672,7 @@ public class ViewManager {
 
     @Override
     public void onError(YTDatabaseSession database, YTException exception) {
-      OLogManager.instance().error(ViewManager.this, "Error updating view " + viewName, exception);
+      LogManager.instance().error(ViewManager.this, "Error updating view " + viewName, exception);
     }
 
     @Override

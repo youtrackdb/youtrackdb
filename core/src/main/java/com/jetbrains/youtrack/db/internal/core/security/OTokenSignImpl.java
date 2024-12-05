@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.security;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
@@ -94,7 +94,7 @@ public class OTokenSignImpl implements OTokenSign {
       final byte[] calculatedSignature = mac.doFinal();
       boolean valid = MessageDigest.isEqual(calculatedSignature, signature);
       if (!valid) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "Token signature failure: %s",

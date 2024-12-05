@@ -2,17 +2,17 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import java.util.Map;
@@ -82,7 +82,7 @@ public class ORecordAttribute extends SimpleNode {
     name = fromResult.getProperty("name");
   }
 
-  public Object evaluate(YTResult iCurrentRecord, OCommandContext ctx) {
+  public Object evaluate(YTResult iCurrentRecord, CommandContext ctx) {
     if (name.equalsIgnoreCase("@rid")) {
       YTRID identity = iCurrentRecord.getIdentity().orElse(null);
       if (identity == null) {
@@ -126,7 +126,7 @@ public class ORecordAttribute extends SimpleNode {
     return null;
   }
 
-  public Object evaluate(Entity iCurrentRecord, OCommandContext ctx) {
+  public Object evaluate(Entity iCurrentRecord, CommandContext ctx) {
     if (iCurrentRecord == null) {
       return null;
     }

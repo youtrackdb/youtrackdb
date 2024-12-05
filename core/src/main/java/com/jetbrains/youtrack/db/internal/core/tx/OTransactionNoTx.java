@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
@@ -108,7 +108,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
   private void checkNonTXReads() {
     if (nonTxReadMode == NonTxReadMode.WARN) {
-      OLogManager.instance().warn(this, NON_TX_WARNING_READ_MESSAGE);
+      LogManager.instance().warn(this, NON_TX_WARNING_READ_MESSAGE);
     } else if (nonTxReadMode == NonTxReadMode.EXCEPTION) {
       throw new YTNoTxRecordReadException(NON_TX_EXCEPTION_READ_MESSAGE);
     }

@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.security.password;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.OPasswordValidator;
@@ -38,7 +38,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
 
   // OSecurityComponent
   public void active() {
-    OLogManager.instance().debug(this, "ODefaultPasswordValidator is active");
+    LogManager.instance().debug(this, "ODefaultPasswordValidator is active");
   }
 
   // OSecurityComponent
@@ -69,7 +69,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
         hasUppercase = Pattern.compile(jsonConfig.field("uppercaseRegEx"));
       }
     } catch (Exception ex) {
-      OLogManager.instance().error(this, "ODefaultPasswordValidator.config()", ex);
+      LogManager.instance().error(this, "ODefaultPasswordValidator.config()", ex);
     }
   }
 
@@ -95,7 +95,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
       }
 
       if (password.length() < minLength) {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "ODefaultPasswordValidator.validatePassword() Password length (%d) is too short",
@@ -105,7 +105,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
       }
 
       if (hasNumber != null && !isValid(hasNumber, password)) {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "ODefaultPasswordValidator.validatePassword() Password requires a minimum count of"
@@ -114,7 +114,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
       }
 
       if (hasSpecial != null && !isValid(hasSpecial, password)) {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "ODefaultPasswordValidator.validatePassword() Password requires a minimum count of"
@@ -124,7 +124,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
       }
 
       if (hasUppercase != null && !isValid(hasUppercase, password)) {
-        OLogManager.instance()
+        LogManager.instance()
             .debug(
                 this,
                 "ODefaultPasswordValidator.validatePassword() Password requires a minimum count of"
@@ -133,7 +133,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
             "Password requires a minimum count of uppercase characters");
       }
     } else {
-      OLogManager.instance()
+      LogManager.instance()
           .debug(this, "ODefaultPasswordValidator.validatePassword() Password is null or empty");
       throw new YTInvalidPasswordException(
           "ODefaultPasswordValidator.validatePassword() Password is null or empty");

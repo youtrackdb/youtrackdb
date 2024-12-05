@@ -15,7 +15,7 @@ package com.orientechnologies.spatial;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
@@ -73,7 +73,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
                     long maxMemory = runtime.maxMemory();
                     long allocatedMemory = runtime.totalMemory();
                     long freeMemory = runtime.freeMemory();
-                    OLogManager.instance()
+                    LogManager.instance()
                         .info(
                             this,
                             "Memory Stats: free [%d], allocated [%d], max [%d] total free [%d]",
@@ -109,7 +109,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
 
             doc.save();
             if (i % 100000 == 0) {
-              OLogManager.instance().info(this, "Imported: [%d] records", i);
+              LogManager.instance().info(this, "Imported: [%d] records", i);
               db.commit();
               db.begin();
             }

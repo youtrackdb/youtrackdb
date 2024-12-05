@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OMultipleExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,14 +18,14 @@ public class ParallelExecStep extends AbstractExecutionStep {
 
   public ParallelExecStep(
       List<OInternalExecutionPlan> subExecuitonPlans,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.subExecutionPlans = subExecuitonPlans;
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -37,28 +37,28 @@ public class ParallelExecStep extends AbstractExecutionStep {
           private final Iterator<OInternalExecutionPlan> iter = stepsIter.iterator();
 
           @Override
-          public OExecutionStream next(OCommandContext ctx) {
+          public ExecutionStream next(CommandContext ctx) {
             OInternalExecutionPlan step = iter.next();
             return step.start();
           }
 
           @Override
-          public boolean hasNext(OCommandContext ctx) {
+          public boolean hasNext(CommandContext ctx) {
             return iter.hasNext();
           }
 
           @Override
-          public void close(OCommandContext ctx) {
+          public void close(CommandContext ctx) {
           }
         };
 
-    return new OMultipleExecutionStream(res);
+    return new MultipleExecutionStream(res);
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
     StringBuilder result = new StringBuilder();
-    String ind = OExecutionStepInternal.getIndent(depth, indent);
+    String ind = ExecutionStepInternal.getIndent(depth, indent);
 
     int[] blockSizes = new int[subExecutionPlans.size()];
 
@@ -137,7 +137,7 @@ public class ParallelExecStep extends AbstractExecutionStep {
   }
 
   private String head(int depth, int indent) {
-    String ind = OExecutionStepInternal.getIndent(depth, indent);
+    String ind = ExecutionStepInternal.getIndent(depth, indent);
     return ind + "+ PARALLEL";
   }
 
@@ -165,7 +165,7 @@ public class ParallelExecStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStep copy(OCommandContext ctx) {
+  public ExecutionStep copy(CommandContext ctx) {
     return new ParallelExecStep(
         subExecutionPlans.stream().map(x -> x.copy(ctx)).collect(Collectors.toList()),
         ctx,

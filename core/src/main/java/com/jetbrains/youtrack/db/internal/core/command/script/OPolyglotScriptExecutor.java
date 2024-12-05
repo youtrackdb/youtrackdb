@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.command.script;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePool;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePoolListener;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.OScriptTransformer;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.OAbstractScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
@@ -151,7 +151,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
 
   @Override
   public Object executeFunction(
-      OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
+      CommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     YTDatabaseSessionInternal database = context.getDatabase();
     final OFunction f = database.getMetadata().getFunctionLibrary().getFunction(functionName);

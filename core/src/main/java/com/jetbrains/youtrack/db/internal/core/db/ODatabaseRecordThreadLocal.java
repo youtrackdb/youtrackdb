@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.OOrientListenerAbstract;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,7 +54,7 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<YTDatabaseSessionInt
         throw new YTDatabaseException("YouTrackDB API is not active.");
       }
       inst.registerListener(
-          new OOrientListenerAbstract() {
+          new YouTrackDBListenerAbstract() {
             @Override
             public void onStartup() {
             }

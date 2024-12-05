@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.List;
 
 /**
@@ -13,12 +13,12 @@ public class MatchFirstStep extends AbstractExecutionStep {
   private final PatternNode node;
   private final OInternalExecutionPlan executionPlan;
 
-  public MatchFirstStep(OCommandContext context, PatternNode node, boolean profilingEnabled) {
+  public MatchFirstStep(CommandContext context, PatternNode node, boolean profilingEnabled) {
     this(context, node, null, profilingEnabled);
   }
 
   public MatchFirstStep(
-      OCommandContext context,
+      CommandContext context,
       PatternNode node,
       OInternalExecutionPlan subPlan,
       boolean profilingEnabled) {
@@ -35,19 +35,19 @@ public class MatchFirstStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    OExecutionStream data;
+    ExecutionStream data;
     String alias = getAlias();
 
     @SuppressWarnings("unchecked")
     List<YTResult> matchedNodes =
         (List<YTResult>) ctx.getVariable(MatchPrefetchStep.PREFETCHED_MATCH_ALIAS_PREFIX + alias);
     if (matchedNodes != null) {
-      data = OExecutionStream.resultIterator(matchedNodes.iterator());
+      data = ExecutionStream.resultIterator(matchedNodes.iterator());
     } else {
       data = executionPlan.start();
     }
@@ -63,7 +63,7 @@ public class MatchFirstStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ SET \n");

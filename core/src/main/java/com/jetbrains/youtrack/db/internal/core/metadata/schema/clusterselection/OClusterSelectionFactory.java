@@ -15,10 +15,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection;
 
-import static com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper.lookupProviderWithOrientClassLoader;
+import static com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader;
 
 import com.jetbrains.youtrack.db.internal.common.factory.OConfigurableStatefulFactory;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 
@@ -38,7 +38,7 @@ public class OClusterSelectionFactory
 
   private void registerStrategy() {
     final Iterator<OClusterSelectionStrategy> ite =
-        lookupProviderWithOrientClassLoader(OClusterSelectionStrategy.class, orientClassLoader);
+        lookupProviderWithYouTrackDBClassLoader(OClusterSelectionStrategy.class, orientClassLoader);
     while (ite.hasNext()) {
       OClusterSelectionStrategy strategy = ite.next();
       Class clz = strategy.getClass();
@@ -48,10 +48,10 @@ public class OClusterSelectionFactory
           String key = (String) method.invoke(clz.newInstance());
           register(key, clz);
         } else {
-          OLogManager.instance().error(this, "getName() funciton missing", null);
+          LogManager.instance().error(this, "getName() funciton missing", null);
         }
       } catch (Exception ex) {
-        OLogManager.instance().error(this, "failed to register class - " + clz.getName(), ex);
+        LogManager.instance().error(this, "failed to register class - " + clz.getName(), ex);
       }
     }
   }

@@ -20,9 +20,9 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.core.OOrientListenerAbstract;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -38,7 +38,7 @@ public class ORecordSerializationContext {
   static {
     YouTrackDBManager.instance()
         .registerListener(
-            new OOrientListenerAbstract() {
+            new YouTrackDBListenerAbstract() {
               @Override
               public void onStartup() {
                 if (SERIALIZATION_CONTEXT_STACK == null) {
@@ -90,7 +90,7 @@ public class ORecordSerializationContext {
   }
 
   public void executeOperations(
-      OAtomicOperation atomicOperation, OAbstractPaginatedStorage storage) {
+      OAtomicOperation atomicOperation, AbstractPaginatedStorage storage) {
     for (ORecordSerializationOperation operation : operations) {
       operation.execute(atomicOperation, storage);
     }

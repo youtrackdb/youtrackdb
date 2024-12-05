@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.OScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
@@ -1907,7 +1907,7 @@ public class OSecurityShared implements OSecurityInternal {
             } catch (YTRecordNotFoundException e) {
               // ignore
             } catch (Exception e) {
-              OLogManager.instance().error(this, "Error on loading security policy", e);
+              LogManager.instance().error(this, "Error on loading security policy", e);
             }
           }
         }

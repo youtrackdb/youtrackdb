@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
@@ -55,7 +55,7 @@ public class ORidBagUpdateSerializationOperation implements ORecordSerialization
 
   @Override
   public void execute(
-      OAtomicOperation atomicOperation, OAbstractPaginatedStorage paginatedStorage) {
+      OAtomicOperation atomicOperation, AbstractPaginatedStorage paginatedStorage) {
     if (changedValues.isEmpty()) {
       return;
     }

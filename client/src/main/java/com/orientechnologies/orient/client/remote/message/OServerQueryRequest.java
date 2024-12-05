@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
-import com.orientechnologies.orient.client.remote.OStorageRemote;
+import com.orientechnologies.orient.client.remote.StorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
@@ -57,7 +57,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
-    params = OStorageRemote.paramsArrayToParamsMap(positionalParams);
+    params = StorageRemote.paramsArrayToParamsMap(positionalParams);
     namedParams = false;
     this.serializer = serializer;
     this.operationType = operationType;

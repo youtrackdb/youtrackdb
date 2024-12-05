@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
@@ -97,7 +97,7 @@ public class YTImmutableUser implements YTSecurityUser {
       final int iOperation) {
     for (OImmutableRole r : roles) {
       if (r == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "User '%s' has a null role, ignoring it.  Consider fixing this user's roles before"
@@ -116,7 +116,7 @@ public class YTImmutableUser implements YTSecurityUser {
       String resourceSpecific) {
     for (OImmutableRole r : roles) {
       if (r == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .warn(
                 this,
                 "UseOSecurityAuthenticatorr '%s' has a null role, ignoring it.  Consider fixing"

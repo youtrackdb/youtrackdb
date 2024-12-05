@@ -16,12 +16,9 @@
 
 package com.orientechnologies.lucene.operator;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -38,6 +35,9 @@ import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OIndexReuseType;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryTargetOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
+import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
+import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
+import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,7 +74,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
       YTClass iSchemaClass,
       OSQLFilterCondition iCondition,
       List<OIndexSearchResult> iIndexSearchResults,
-      OCommandContext context) {
+      CommandContext context) {
 
     // FIXME questo non trova l'indice se l'ordine e' errato
     return OLuceneOperatorUtil.buildOIndexSearchResult(
@@ -83,7 +83,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
 
   @Override
   public Stream<ORawPair<Object, YTRID>> executeIndexQuery(
-      OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
+      CommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     if (!index.getType().toLowerCase().contains("fulltext")) {
       return null;
     }
@@ -121,7 +121,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
-      OCommandContext iContext,
+      CommandContext iContext,
       final ODocumentSerializer serializer) {
 
     OLuceneFullTextIndex index = involvedIndex(iContext.getDatabase(), iRecord, iCurrentResult,
@@ -149,10 +149,10 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
       }
 
     } catch (ParseException e) {
-      OLogManager.instance().error(this, "error occurred while building query", e);
+      LogManager.instance().error(this, "error occurred while building query", e);
 
     } catch (IOException e) {
-      OLogManager.instance().error(this, "error occurred while building memory index", e);
+      LogManager.instance().error(this, "error occurred while building memory index", e);
     }
     return null;
   }

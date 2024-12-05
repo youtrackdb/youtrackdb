@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.concur.resource.OReentrantResourcePool;
+import com.jetbrains.youtrack.db.internal.common.concur.resource.ReentrantResourcePool;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
@@ -33,7 +33,7 @@ public abstract class ODatabasePoolBase extends Thread {
   protected final String url;
   protected final String userName;
   protected final String userPassword;
-  protected ODatabasePoolAbstract dbPool;
+  protected DatabasePoolAbstract dbPool;
 
   protected ODatabasePoolBase() {
     url = userName = userPassword = null;
@@ -73,7 +73,7 @@ public abstract class ODatabasePoolBase extends Thread {
       synchronized (this) {
         if (dbPool == null) {
           dbPool =
-              new ODatabasePoolAbstract(
+              new DatabasePoolAbstract(
                   this, iMinSize, iMaxSize, idleTimeout, timeBetweenEvictionRunsMillis) {
 
                 public void onShutdown() {
@@ -225,7 +225,7 @@ public abstract class ODatabasePoolBase extends Thread {
   /**
    * Returns all the configured pools.
    */
-  public Map<String, OReentrantResourcePool<String, YTDatabaseSession>> getPools() {
+  public Map<String, ReentrantResourcePool<String, YTDatabaseSession>> getPools() {
     return dbPool.getPools();
   }
 

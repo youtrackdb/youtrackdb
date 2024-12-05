@@ -90,8 +90,8 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
     database.commit();
 
     // TODO complete this!
-    // database.command(new OCommandSQL("create vertex set")).execute();
-    // database.command(new OCommandSQL("create vertex set set set = 1")).execute();
+    // database.command(new CommandSQL("create vertex set")).execute();
+    // database.command(new CommandSQL("create vertex set set set = 1")).execute();
 
   }
 

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.all;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.script.YTCommandScriptException;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
@@ -65,7 +65,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       System.arraycopy(parts, 3, args, 0, parts.length - 3);
 
       // BIND CONTEXT VARIABLES
-      final OBasicCommandContext context = new OBasicCommandContext();
+      final BasicCommandContext context = new BasicCommandContext();
       context.setDatabase(db);
       context.setVariable(
           "session", server.getHttpSessionManager().getSession(iRequest.getSessionId()));

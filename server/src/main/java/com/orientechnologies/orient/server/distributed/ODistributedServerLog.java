@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import javax.annotation.Nonnull;
 
 /**
@@ -35,7 +35,7 @@ public class ODistributedServerLog {
   }
 
   public static boolean isDebugEnabled() {
-    return OLogManager.instance().isDebugEnabled();
+    return LogManager.instance().isDebugEnabled();
   }
 
   public static void debug(
@@ -45,7 +45,7 @@ public class ODistributedServerLog {
       final DIRECTION iDirection,
       @Nonnull final String iMessage,
       final Object... iAdditionalArgs) {
-    OLogManager.instance()
+    LogManager.instance()
         .debug(
             iRequester,
             formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
@@ -61,7 +61,7 @@ public class ODistributedServerLog {
       @Nonnull final String iMessage,
       final Throwable iException,
       final Object... iAdditionalArgs) {
-    OLogManager.instance()
+    LogManager.instance()
         .debug(
             iRequester,
             formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
@@ -76,7 +76,7 @@ public class ODistributedServerLog {
       final DIRECTION iDirection,
       @Nonnull final String iMessage,
       final Object... iAdditionalArgs) {
-    OLogManager.instance()
+    LogManager.instance()
         .info(
             iRequester,
             formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
@@ -92,7 +92,7 @@ public class ODistributedServerLog {
       @Nonnull final String iMessage,
       final Throwable iException,
       final Object... iAdditionalArgs) {
-    OLogManager.instance()
+    LogManager.instance()
         .info(
             iRequester,
             formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
@@ -107,7 +107,7 @@ public class ODistributedServerLog {
       final DIRECTION iDirection,
       @Nonnull final String iMessage,
       final Object... iAdditionalArgs) {
-    OLogManager.instance()
+    LogManager.instance()
         .warn(
             iRequester,
             formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
@@ -123,7 +123,7 @@ public class ODistributedServerLog {
       @Nonnull final String iMessage,
       final Throwable iException,
       final Object... iAdditionalArgs) {
-    OLogManager.instance()
+    LogManager.instance()
         .warn(
             iRequester,
             formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
@@ -138,7 +138,7 @@ public class ODistributedServerLog {
       final DIRECTION iDirection,
       @Nonnull final String iMessage,
       final Object... iAdditionalArgs) {
-    OLogManager.instance()
+    LogManager.instance()
         .error(
             iRequester,
             formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
@@ -154,7 +154,7 @@ public class ODistributedServerLog {
       @Nonnull final String iMessage,
       final Throwable iException,
       final Object... iAdditionalArgs) {
-    OLogManager.instance()
+    LogManager.instance()
         .error(
             iRequester,
             formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),

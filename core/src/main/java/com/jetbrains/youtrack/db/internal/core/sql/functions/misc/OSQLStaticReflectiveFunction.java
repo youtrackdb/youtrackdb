@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.misc;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
@@ -98,7 +98,7 @@ public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
 
     final Supplier<String> paramsPrettyPrint =
         () ->
@@ -120,7 +120,7 @@ public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
           new YTQueryParsingException("Error executing function " + name + paramsPrettyPrint.get()),
           e);
     } catch (IllegalArgumentException x) {
-      OLogManager.instance().error(this, "Error executing function %s", x, name);
+      LogManager.instance().error(this, "Error executing function %s", x, name);
 
       return null; // if a function fails for given input, just return null to avoid breaking the
       // query execution

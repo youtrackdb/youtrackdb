@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
@@ -29,7 +29,7 @@ public class OMatchesCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     String regex = right;
     if (regex != null) {
       regex = regex.substring(1, regex.length() - 1);
@@ -53,7 +53,7 @@ public class OMatchesCondition extends OBooleanExpression {
     return matches(value, regex, ctx);
   }
 
-  private boolean matches(Object value, String regex, OCommandContext ctx) {
+  private boolean matches(Object value, String regex, CommandContext ctx) {
     final String key = "MATCHES_" + regex.hashCode();
     java.util.regex.Pattern p = (java.util.regex.Pattern) ctx.getVariable(key);
     if (p == null) {
@@ -69,7 +69,7 @@ public class OMatchesCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
     String regex = right;
     if (regex != null) {
       regex = regex.substring(1, regex.length() - 1);

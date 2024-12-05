@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.OBinarySerializerFactory;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashFunction;
 import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashTable;
@@ -30,7 +30,7 @@ public class LocalHashTableV3IterationTestIT {
 
   private YTDatabaseSessionInternal db;
 
-  private OLocalHashTableV3<Integer, String> localHashTable;
+  private LocalHashTableV3<Integer, String> localHashTable;
   private OAtomicOperationsManager atomicOperationsManager;
 
   @Before
@@ -51,16 +51,16 @@ public class LocalHashTableV3IterationTestIT {
     OHashFunction<Integer> hashFunction = value -> Long.MAX_VALUE / 2 + value;
 
     localHashTable =
-        new OLocalHashTableV3<>(
+        new LocalHashTableV3<>(
             "localHashTableIterationTest",
             ".imc",
             ".tsc",
             ".obf",
             ".nbh",
-            (OAbstractPaginatedStorage) db.getStorage());
+            (AbstractPaginatedStorage) db.getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
+        ((AbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->

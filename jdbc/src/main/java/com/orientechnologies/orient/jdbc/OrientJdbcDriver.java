@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.OConstants;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,7 +30,7 @@ public class OrientJdbcDriver implements java.sql.Driver {
     try {
       DriverManager.registerDriver(new OrientJdbcDriver());
     } catch (SQLException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(OrientJdbcDriver.class, "Error while registering the JDBC Driver", e);
     }
   }

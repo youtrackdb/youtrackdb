@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.functions.sequence;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
@@ -26,7 +26,7 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     final String seqName;
     if (configuredParameters != null
         && configuredParameters.length > 0

@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ODeleteEdgeExecutionPlanner;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ODeleteExecutionPlan;
@@ -44,8 +44,8 @@ public class ODeleteEdgeStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
-    OBasicCommandContext ctx = new OBasicCommandContext();
+      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+    BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
@@ -63,7 +63,7 @@ public class ODeleteEdgeStatement extends OStatement {
 
   @Override
   public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, OCommandContext parentCtx,
+      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
@@ -74,7 +74,7 @@ public class ODeleteEdgeStatement extends OStatement {
     return execute(db, params, parentCtx, usePlanCache);
   }
 
-  public OInternalExecutionPlan createExecutionPlan(OCommandContext ctx, boolean enableProfiling) {
+  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
     ODeleteEdgeExecutionPlanner planner = new ODeleteEdgeExecutionPlanner(this);
     OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, true);
     result.setStatement(this.originalStatement);
@@ -83,7 +83,7 @@ public class ODeleteEdgeStatement extends OStatement {
   }
 
   public OInternalExecutionPlan createExecutionPlanNoCache(
-      OCommandContext ctx, boolean enableProfiling) {
+      CommandContext ctx, boolean enableProfiling) {
     ODeleteEdgeExecutionPlanner planner = new ODeleteEdgeExecutionPlanner(this);
     OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, false);
     result.setStatement(this.originalStatement);

@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
@@ -25,12 +25,12 @@ public class OIsNullCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
     return expression.execute(currentRecord, ctx) == null;
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, OCommandContext ctx) {
+  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
     if (expression.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -42,7 +42,7 @@ public class OIsNullCondition extends OBooleanExpression {
     return expression.execute(currentRecord, ctx) == null;
   }
 
-  private boolean evaluateAny(YTResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(YTResult currentRecord, CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       if (leftVal == null) {
@@ -52,7 +52,7 @@ public class OIsNullCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAllFunction(YTResult currentRecord, CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       if (!(leftVal == null)) {

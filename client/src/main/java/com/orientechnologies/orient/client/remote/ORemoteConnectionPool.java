@@ -4,10 +4,10 @@ import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePool;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePoolListener;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
-import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ORemoteConnectionPool
 
     // TRY WITH CURRENT URL IF ANY
     try {
-      OLogManager.instance().debug(this, "Trying to connect to the remote host %s...", serverURL);
+      LogManager.instance().debug(this, "Trying to connect to the remote host %s...", serverURL);
 
       int sepPos = serverURL.indexOf(':');
       final String remoteHost = serverURL.substring(0, sepPos);
@@ -48,7 +48,7 @@ public class ORemoteConnectionPool
       // RE-THROW IT
       throw e;
     } catch (Exception e) {
-      OLogManager.instance().debug(this, "Error on connecting to %s", e, serverURL);
+      LogManager.instance().debug(this, "Error on connecting to %s", e, serverURL);
       throw YTException.wrapException(new OIOException("Error on connecting to " + serverURL), e);
     }
   }
@@ -69,7 +69,7 @@ public class ORemoteConnectionPool
       try {
         iValue.close();
       } catch (Exception e) {
-        OLogManager.instance().debug(this, "Error on closing socket connection", e);
+        LogManager.instance().debug(this, "Error on closing socket connection", e);
       }
     }
     iValue.markInUse();

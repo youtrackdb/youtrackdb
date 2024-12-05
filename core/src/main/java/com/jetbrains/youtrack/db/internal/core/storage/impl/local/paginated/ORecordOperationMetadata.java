@@ -20,13 +20,13 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationMetadata;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class is used inside of {@link OPaginatedCluster} class as container for the records ids
+ * This class is used inside of {@link PaginatedCluster} class as container for the records ids
  * which were changed during active atomic operation.
  */
 public class ORecordOperationMetadata implements OAtomicOperationMetadata<Set<YTRID>> {

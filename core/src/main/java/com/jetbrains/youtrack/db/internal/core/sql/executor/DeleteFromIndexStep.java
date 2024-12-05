@@ -2,16 +2,16 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OMultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBetweenCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
@@ -50,7 +50,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       OBooleanExpression condition,
       OBinaryCondition additionalRangeCondition,
       OBooleanExpression ridCondition,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     this(index, condition, additionalRangeCondition, ridCondition, true, ctx, profilingEnabled);
   }
@@ -61,7 +61,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       OBinaryCondition additionalRangeCondition,
       OBooleanExpression ridCondition,
       boolean orderAsc,
-      OCommandContext ctx,
+      CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.index = index.getInternal();
@@ -72,7 +72,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -84,9 +84,9 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
           private final Iterator<Stream<ORawPair<Object, YTRID>>> iter = streams.iterator();
 
           @Override
-          public OExecutionStream next(OCommandContext ctx) {
+          public ExecutionStream next(CommandContext ctx) {
             Stream<ORawPair<Object, YTRID>> s = iter.next();
-            return OExecutionStream.resultIterator(
+            return ExecutionStream.resultIterator(
                 s.filter(
                         (entry) -> {
                           return filter(entry, ctx);
@@ -96,18 +96,18 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
           }
 
           @Override
-          public boolean hasNext(OCommandContext ctx) {
+          public boolean hasNext(CommandContext ctx) {
             return iter.hasNext();
           }
 
           @Override
-          public void close(OCommandContext ctx) {
+          public void close(CommandContext ctx) {
             while (iter.hasNext()) {
               iter.next().close();
             }
           }
         };
-    return new OMultipleExecutionStream(res);
+    return new MultipleExecutionStream(res);
   }
 
   private YTResult readResult(YTDatabaseSessionInternal session, ORawPair<Object, YTRID> entry) {
@@ -117,7 +117,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return result;
   }
 
-  private boolean filter(ORawPair<Object, YTRID> entry, OCommandContext ctx) {
+  private boolean filter(ORawPair<Object, YTRID> entry, CommandContext ctx) {
     if (ridCondition != null) {
       YTResultInternal res = new YTResultInternal(ctx.getDatabase());
       res.setProperty("rid", entry.second);
@@ -413,7 +413,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String result =
-        OExecutionStepInternal.getIndent(depth, indent) + "+ DELETE FROM INDEX " + index.getName();
+        ExecutionStepInternal.getIndent(depth, indent) + "+ DELETE FROM INDEX " + index.getName();
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }
@@ -426,7 +426,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
             .map(
                 oBooleanExpression ->
                     ("\n"
-                        + OExecutionStepInternal.getIndent(depth, indent)
+                        + ExecutionStepInternal.getIndent(depth, indent)
                         + "  "
                         + oBooleanExpression
                         + additional))

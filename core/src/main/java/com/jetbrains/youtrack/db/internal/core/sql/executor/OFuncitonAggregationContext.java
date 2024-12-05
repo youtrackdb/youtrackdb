@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class OFuncitonAggregationContext implements AggregationContext {
   }
 
   @Override
-  public void apply(YTResult next, OCommandContext ctx) {
+  public void apply(YTResult next, CommandContext ctx) {
     List<Object> paramValues = new ArrayList<>();
     for (OExpression expr : params) {
       paramValues.add(expr.execute(next, ctx));

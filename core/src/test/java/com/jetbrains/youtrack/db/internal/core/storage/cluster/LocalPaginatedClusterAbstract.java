@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,11 +29,11 @@ import org.junit.Test;
 public abstract class LocalPaginatedClusterAbstract {
 
   protected static String buildDirectory;
-  protected static OPaginatedCluster paginatedCluster;
+  protected static PaginatedCluster paginatedCluster;
   protected static YTDatabaseSessionInternal databaseDocumentTx;
   protected static YouTrackDB youTrackDB;
   protected static String dbName;
-  protected static OAbstractPaginatedStorage storage;
+  protected static AbstractPaginatedStorage storage;
   private static OAtomicOperationsManager atomicOperationsManager;
 
   @AfterClass

@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.common.concur.lock.OOneEntryPerKeyLock
 import com.jetbrains.youtrack.db.internal.common.concur.lock.OPartitionedLockManager;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
@@ -41,11 +41,11 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OIndexRIDContainer;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges.OPERATION;
@@ -76,7 +76,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   private static final OAlwaysGreaterKey ALWAYS_GREATER_KEY = new OAlwaysGreaterKey();
   protected static final String CONFIG_MAP_RID = "mapRid";
   private static final String CONFIG_CLUSTERS = "clusters";
-  protected final OAbstractPaginatedStorage storage;
+  protected final AbstractPaginatedStorage storage;
   private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
 
   protected volatile int indexId = -1;
@@ -85,11 +85,11 @@ public abstract class OIndexAbstract implements OIndexInternal {
   protected Set<String> clustersToIndex = new HashSet<>();
   protected OIndexMetadata im;
 
-  public OIndexAbstract(OIndexMetadata im, final OStorage storage) {
+  public OIndexAbstract(OIndexMetadata im, final Storage storage) {
     acquireExclusiveLock();
     try {
       this.im = im;
-      this.storage = (OAbstractPaginatedStorage) storage;
+      this.storage = (AbstractPaginatedStorage) storage;
     } finally {
       releaseExclusiveLock();
     }
@@ -221,12 +221,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
           removeValuesContainer();
         }
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error during deletion of index '%s'", e, im.getName());
+        LogManager.instance().error(this, "Error during deletion of index '%s'", e, im.getName());
       }
       Map<String, String> engineProperties = new HashMap<>();
       indexMetadata.setVersion(im.getVersion());
       indexId = storage.addIndexEngine(indexMetadata, engineProperties);
-      apiVersion = OAbstractPaginatedStorage.extractEngineAPIVersion(indexId);
+      apiVersion = AbstractPaginatedStorage.extractEngineAPIVersion(indexId);
 
       assert indexId >= 0;
       assert apiVersion >= 0;
@@ -237,7 +237,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         fillIndex(session, progressListener, false);
       }
     } catch (Exception e) {
-      OLogManager.instance().error(this, "Exception during index '%s' creation", e, im.getName());
+      LogManager.instance().error(this, "Exception during index '%s' creation", e, im.getName());
       // index is created inside of storage
       if (indexId >= 0) {
         doDelete(session);
@@ -253,7 +253,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   protected void doReloadIndexEngine() {
     indexId = storage.loadIndexEngine(im.getName());
-    apiVersion = OAbstractPaginatedStorage.extractEngineAPIVersion(indexId);
+    apiVersion = AbstractPaginatedStorage.extractEngineAPIVersion(indexId);
 
     if (indexId < 0) {
       throw new IllegalStateException("Index " + im.getName() + " can not be loaded");
@@ -272,12 +272,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
       try {
         indexId = storage.loadIndexEngine(im.getName());
-        apiVersion = OAbstractPaginatedStorage.extractEngineAPIVersion(indexId);
+        apiVersion = AbstractPaginatedStorage.extractEngineAPIVersion(indexId);
 
         if (indexId == -1) {
           Map<String, String> engineProperties = new HashMap<>();
           indexId = storage.loadExternalIndexEngine(indexMetadata, engineProperties);
-          apiVersion = OAbstractPaginatedStorage.extractEngineAPIVersion(indexId);
+          apiVersion = AbstractPaginatedStorage.extractEngineAPIVersion(indexId);
         }
 
         if (indexId == -1) {
@@ -287,7 +287,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         onIndexEngineChange(indexId);
 
       } catch (Exception e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(
                 this,
                 "Error during load of index '%s'",
@@ -296,12 +296,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
         if (isAutomatic()) {
           // AUTOMATIC REBUILD IT
-          OLogManager.instance()
+          LogManager.instance()
               .warn(this, "Cannot load index '%s' rebuilt it from scratch", im.getName());
           try {
             rebuild(session);
           } catch (Exception t) {
-            OLogManager.instance()
+            LogManager.instance()
                 .error(
                     this,
                     "Cannot rebuild index '%s' because '"
@@ -485,13 +485,13 @@ public abstract class OIndexAbstract implements OIndexInternal {
           doDelete(session);
         }
       } catch (Exception e) {
-        OLogManager.instance().error(this, "Error during index '%s' delete", e, im.getName());
+        LogManager.instance().error(this, "Error during index '%s' delete", e, im.getName());
       }
 
       OIndexMetadata indexMetadata = this.loadMetadata(updateConfiguration(session));
       Map<String, String> engineProperties = new HashMap<>();
       indexId = storage.addIndexEngine(indexMetadata, engineProperties);
-      apiVersion = OAbstractPaginatedStorage.extractEngineAPIVersion(indexId);
+      apiVersion = AbstractPaginatedStorage.extractEngineAPIVersion(indexId);
 
       onIndexEngineChange(indexId);
     } catch (Exception e) {
@@ -500,7 +500,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
           storage.clearIndex(indexId);
         }
       } catch (Exception e2) {
-        OLogManager.instance().error(this, "Error during index rebuild", e2);
+        LogManager.instance().error(this, "Error during index rebuild", e2);
         // IGNORE EXCEPTION: IF THE REBUILD WAS LAUNCHED IN CASE OF RID INVALID CLEAR ALWAYS GOES IN
         // ERROR
       }
@@ -516,13 +516,13 @@ public abstract class OIndexAbstract implements OIndexInternal {
     try {
       documentIndexed = fillIndex(session, iProgressListener, true);
     } catch (final Exception e) {
-      OLogManager.instance().error(this, "Error during index rebuild", e);
+      LogManager.instance().error(this, "Error during index rebuild", e);
       try {
         if (indexId >= 0) {
           storage.clearIndex(indexId);
         }
       } catch (Exception e2) {
-        OLogManager.instance().error(this, "Error during index rebuild", e2);
+        LogManager.instance().error(this, "Error during index rebuild", e2);
         // IGNORE EXCEPTION: IF THE REBUILD WAS LAUNCHED IN CASE OF RID INVALID CLEAR ALWAYS GOES IN
         // ERROR
       }
@@ -574,7 +574,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Override
-  public boolean doRemove(YTDatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+  public boolean doRemove(YTDatabaseSessionInternal session, AbstractPaginatedStorage storage,
       Object key, YTRID rid)
       throws OInvalidIndexEngineIdException {
     return doRemove(storage, key);
@@ -594,7 +594,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Override
-  public boolean doRemove(OAbstractPaginatedStorage storage, Object key)
+  public boolean doRemove(AbstractPaginatedStorage storage, Object key)
       throws OInvalidIndexEngineIdException {
     return storage.removeKeyFromIndex(indexId, key);
   }
@@ -641,7 +641,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         } catch (YTIndexEngineException e) {
           throw e;
         } catch (RuntimeException e) {
-          OLogManager.instance().error(this, "Error Dropping Index %s", e, getName());
+          LogManager.instance().error(this, "Error Dropping Index %s", e, getName());
           // Just log errors of removing keys while dropping and keep dropping
         }
 
@@ -652,7 +652,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         } catch (YTIndexEngineException e) {
           throw e;
         } catch (RuntimeException e) {
-          OLogManager.instance().error(this, "Error Dropping Index %s", e, getName());
+          LogManager.instance().error(this, "Error Dropping Index %s", e, getName());
           // Just log errors of removing keys while dropping and keep dropping
         }
 
@@ -1004,7 +1004,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
             readCache.deleteFile(fileId, writeCache);
           }
         } catch (IOException e) {
-          OLogManager.instance().error(this, "Cannot delete file for value containers", e);
+          LogManager.instance().error(this, "Cannot delete file for value containers", e);
         }
       } else {
         try {
@@ -1014,7 +1014,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
             atomicOperation.deleteFile(fileId);
           }
         } catch (IOException e) {
-          OLogManager.instance().error(this, "Cannot delete file for value containers", e);
+          LogManager.instance().error(this, "Cannot delete file for value containers", e);
         }
       }
     }
@@ -1047,7 +1047,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
 
     if (GlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES_WARNING.getValueAsBoolean()) {
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               OIndexAbstract.class,
               "Seems you use manual indexes. Manual indexes are deprecated, not supported any more"

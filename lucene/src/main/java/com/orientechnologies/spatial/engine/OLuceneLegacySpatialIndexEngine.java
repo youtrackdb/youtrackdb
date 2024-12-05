@@ -19,10 +19,7 @@ package com.orientechnologies.spatial.engine;
 
 import static com.orientechnologies.lucene.builder.OLuceneQueryBuilder.EMPTY_METADATA;
 
-import com.orientechnologies.lucene.collections.OLuceneResultSet;
-import com.orientechnologies.lucene.query.OLuceneQueryContext;
-import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
@@ -33,8 +30,11 @@ import com.jetbrains.youtrack.db.internal.core.index.OIndexKeyUpdater;
 import com.jetbrains.youtrack.db.internal.core.index.YTIndexEngineException;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.orientechnologies.lucene.collections.OLuceneResultSet;
+import com.orientechnologies.lucene.query.OLuceneQueryContext;
+import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
 import com.orientechnologies.spatial.query.OSpatialQueryContext;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
@@ -71,7 +71,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   private final OShapeBuilderLegacy legacyBuilder = OShapeBuilderLegacyImpl.INSTANCE;
 
   public OLuceneLegacySpatialIndexEngine(
-      OStorage storage, String indexName, int id, OShapeBuilder factory) {
+      Storage storage, String indexName, int id, OShapeBuilder factory) {
     super(storage, indexName, id, factory);
   }
 
@@ -97,7 +97,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
 
   private Set<YTIdentifiable> searchIntersect(
       YTDatabaseSessionInternal session, OCompositeKey key, double distance,
-      OCommandContext context,
+      CommandContext context,
       OLuceneTxChanges changes)
       throws IOException {
 
@@ -135,7 +135,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   }
 
   private Set<YTIdentifiable> searchWithin(
-      OSpatialCompositeKey key, OCommandContext context, OLuceneTxChanges changes) {
+      OSpatialCompositeKey key, CommandContext context, OLuceneTxChanges changes) {
 
     Shape shape = legacyBuilder.makeShape(context.getDatabase(), key, ctx);
     if (shape == null) {

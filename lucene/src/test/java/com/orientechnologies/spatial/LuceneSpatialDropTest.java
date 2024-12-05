@@ -1,6 +1,6 @@
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.db.OPartitionedDatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
@@ -46,7 +46,7 @@ public class LuceneSpatialDropTest {
   @Test
   public void testDeleteLuceneIndex1() {
 
-    OPartitionedDatabasePool dbPool = new OPartitionedDatabasePool(dbName, "admin", "admin");
+    PartitionedDatabasePool dbPool = new PartitionedDatabasePool(dbName, "admin", "admin");
 
     YTDatabaseSessionInternal db = dbPool.acquire();
     fillDb(db, insertcount);

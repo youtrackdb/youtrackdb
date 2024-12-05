@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.core.db.OPartitionedDatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
 import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
@@ -19,8 +19,8 @@ import org.junit.Test;
 
 public class OLiveIndexRebuildTest {
 
-  private final OPartitionedDatabasePool pool =
-      new OPartitionedDatabasePool("memory:liveIndexRebuild", "admin", "admin");
+  private final PartitionedDatabasePool pool =
+      new PartitionedDatabasePool("memory:liveIndexRebuild", "admin", "admin");
 
   private final String indexName = "liveIndex";
   private final String className = "liveIndexClass";

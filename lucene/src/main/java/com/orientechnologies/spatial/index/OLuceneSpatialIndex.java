@@ -14,16 +14,16 @@
  */
 package com.orientechnologies.spatial.index;
 
-import com.orientechnologies.lucene.index.OLuceneIndexNotUnique;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.OInvalidIndexEngineIdException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
 import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
+import com.orientechnologies.lucene.index.OLuceneIndexNotUnique;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexContainer;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import java.util.LinkedHashMap;
@@ -36,7 +36,7 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
 
   private final OShapeFactory shapeFactory = OShapeFactory.INSTANCE;
 
-  public OLuceneSpatialIndex(OIndexMetadata im, final OStorage storage) {
+  public OLuceneSpatialIndex(OIndexMetadata im, final Storage storage) {
     super(im, storage);
   }
 

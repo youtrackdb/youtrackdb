@@ -16,18 +16,18 @@
 
 package com.orientechnologies.lucene.index;
 
-import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.OInvalidIndexEngineIdException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
 
 public class OLuceneFullTextIndex extends OLuceneIndexNotUnique {
 
-  public OLuceneFullTextIndex(OIndexMetadata im, final OStorage storage) {
+  public OLuceneFullTextIndex(OIndexMetadata im, final Storage storage) {
     super(im, storage);
   }
 

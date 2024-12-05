@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Map;
@@ -100,7 +100,7 @@ public class DocumentTest extends DBTestBase {
 
     doc.field("amount", 300);
 
-    OBasicCommandContext context = new OBasicCommandContext();
+    BasicCommandContext context = new BasicCommandContext();
     context.setVariable("vat", 20);
     context.setDatabase(db);
     Number amountPlusVat = (Number) doc.eval("amount * (100 + $vat) / 100", context);

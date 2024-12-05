@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePoolFactory;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePoolListener;
+import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolFactory;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import javax.script.ScriptEngine;
@@ -30,19 +30,19 @@ import javax.script.ScriptException;
  * Manages Script engines per database. Parsing of function library is done only the first time and
  * when changes.
  *
- * @see OCommandScript
+ * @see CommandScript
  */
 public class ODatabaseScriptManager {
 
   private final OScriptManager scriptManager;
-  protected OResourcePoolFactory<String, ScriptEngine> pooledEngines;
+  protected ResourcePoolFactory<String, ScriptEngine> pooledEngines;
 
   public ODatabaseScriptManager(final OScriptManager iScriptManager, final String iDatabaseName) {
     scriptManager = iScriptManager;
 
     pooledEngines =
-        new OResourcePoolFactory<String, ScriptEngine>(
-            new OResourcePoolFactory.ObjectFactoryFactory<String, ScriptEngine>() {
+        new ResourcePoolFactory<String, ScriptEngine>(
+            new ResourcePoolFactory.ObjectFactoryFactory<String, ScriptEngine>() {
               @Override
               public OResourcePoolListener<String, ScriptEngine> create(final String language) {
                 return new OResourcePoolListener<String, ScriptEngine>() {

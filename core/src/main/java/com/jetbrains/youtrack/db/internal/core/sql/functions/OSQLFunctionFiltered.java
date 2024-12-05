@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql.functions;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 
 /**
@@ -48,5 +48,5 @@ public interface OSQLFunctionFiltered extends OSQLFunction {
       Object iCurrentResult,
       Object[] iParams,
       Iterable<YTIdentifiable> iPossibleResults,
-      OCommandContext iContext);
+      CommandContext iContext);
 }

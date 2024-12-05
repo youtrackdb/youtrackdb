@@ -19,16 +19,16 @@
 package com.orientechnologies.lucene.collections;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineUtils;
 import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesAbstract;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -112,7 +112,7 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
         topDocs = searcher.search(query, PAGE_SIZE, queryContext.getSort());
       }
     } catch (final IOException e) {
-      OLogManager.instance()
+      LogManager.instance()
           .error(this, "Error on fetching document by query '%s' to Lucene index", e, query);
     }
   }
@@ -172,7 +172,7 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
     throw new UnsupportedOperationException();
   }
 
-  public void sendLookupTime(OCommandContext commandContext, long start) {
+  public void sendLookupTime(CommandContext commandContext, long start) {
     OLuceneIndexEngineUtils.sendLookupTime(indexName, commandContext, topDocs, -1, start);
   }
 
@@ -247,7 +247,7 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
       try {
         return queryContext.getSearcher().doc(score.doc);
       } catch (final IOException e) {
-        OLogManager.instance().error(this, "Error during conversion to document", e);
+        LogManager.instance().error(this, "Error during conversion to document", e);
         return null;
       }
     }
@@ -293,7 +293,7 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
         }
         scoreDocs = topDocs.scoreDocs;
       } catch (final IOException e) {
-        OLogManager.instance()
+        LogManager.instance()
             .error(this, "Error on fetching document by query '%s' to Lucene index", e, query);
       }
     }

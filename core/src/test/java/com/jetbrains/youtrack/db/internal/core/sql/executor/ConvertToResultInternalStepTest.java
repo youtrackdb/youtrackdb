@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStream;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -23,7 +23,7 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
 
   @Test
   public void shouldConvertUpdatableResult() {
-    OCommandContext context = new OBasicCommandContext();
+    CommandContext context = new BasicCommandContext();
     context.setDatabase(db);
     ConvertToResultInternalStep step = new ConvertToResultInternalStep(context, false);
     AbstractExecutionStep previous =
@@ -31,7 +31,7 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
           boolean done = false;
 
           @Override
-          public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
             List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
@@ -44,12 +44,12 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
               }
               done = true;
             }
-            return OExecutionStream.resultIterator(result.iterator());
+            return ExecutionStream.resultIterator(result.iterator());
           }
         };
 
     step.setPrevious(previous);
-    OExecutionStream result = step.start(context);
+    ExecutionStream result = step.start(context);
 
     int counter = 0;
     while (result.hasNext(context)) {

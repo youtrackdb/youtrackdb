@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.parser;
 
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 
 /**
  * Resolve entity class and descriptors using the paths configured.
@@ -63,7 +63,7 @@ public class OVariableParser {
 
     if (resolved == null) {
       if (iDefaultValue == null) {
-        OLogManager.instance()
+        LogManager.instance()
             .info(
                 OVariableParser.class,
                 "[OVariableParser.resolveVariables] Property not found: %s",

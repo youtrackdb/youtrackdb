@@ -18,7 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
@@ -519,7 +519,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
                   YTIdentifiable iCurrentRecord,
                   Object iCurrentResult,
                   final Object[] iParams,
-                  OCommandContext iContext) {
+                  CommandContext iContext) {
                 if (iParams[0] == null || iParams[1] == null)
                 // CHECK BOTH EXPECTED PARAMETERS
                 {

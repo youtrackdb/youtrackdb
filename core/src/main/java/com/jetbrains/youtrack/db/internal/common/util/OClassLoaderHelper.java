@@ -21,7 +21,7 @@
 package com.jetbrains.youtrack.db.internal.common.util;
 
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -36,21 +36,22 @@ public class OClassLoaderHelper {
    * @param clazz the class to lookup foor
    * @return an Iterator on the class implementation
    */
-  public static synchronized <T extends Object> Iterator<T> lookupProviderWithOrientClassLoader(
+  public static synchronized <T extends Object> Iterator<T> lookupProviderWithYouTrackDBClassLoader(
       Class<T> clazz) {
 
-    return lookupProviderWithOrientClassLoader(clazz, OClassLoaderHelper.class.getClassLoader());
+    return lookupProviderWithYouTrackDBClassLoader(clazz,
+        OClassLoaderHelper.class.getClassLoader());
   }
 
-  public static synchronized <T extends Object> Iterator<T> lookupProviderWithOrientClassLoader(
-      Class<T> clazz, ClassLoader orientClassLoader) {
+  public static synchronized <T extends Object> Iterator<T> lookupProviderWithYouTrackDBClassLoader(
+      Class<T> clazz, ClassLoader youTrackDBClassLoader) {
 
     final ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
-    Thread.currentThread().setContextClassLoader(orientClassLoader);
+    Thread.currentThread().setContextClassLoader(youTrackDBClassLoader);
     try {
       return ServiceLoader.load(clazz).iterator();
     } catch (Exception e) {
-      OLogManager.instance().warn(OClassLoaderHelper.class, "Cannot lookup in service registry", e);
+      LogManager.instance().warn(OClassLoaderHelper.class, "Cannot lookup in service registry", e);
       throw YTException.wrapException(
           new YTConfigurationException("Cannot lookup in service registry"), e);
     } finally {

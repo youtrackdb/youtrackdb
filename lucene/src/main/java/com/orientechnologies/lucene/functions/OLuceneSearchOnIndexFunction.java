@@ -1,22 +1,22 @@
 package com.orientechnologies.lucene.functions;
 
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
-import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
+import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
+import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
+import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
       YTIdentifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] params,
-      OCommandContext ctx) {
+      CommandContext ctx) {
     Entity element =
         iThis instanceof Entity ? (Entity) iThis : ((YTResult) iThis).toEntity();
 
@@ -91,7 +91,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
     return OLuceneQueryBuilder.EMPTY_METADATA;
   }
 
-  private static MemoryIndex getOrCreateMemoryIndex(OCommandContext ctx) {
+  private static MemoryIndex getOrCreateMemoryIndex(CommandContext ctx) {
     MemoryIndex memoryIndex = (MemoryIndex) ctx.getVariable(MEMORY_INDEX);
     if (memoryIndex == null) {
       memoryIndex = new MemoryIndex();
@@ -117,7 +117,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
-      OCommandContext ctx,
+      CommandContext ctx,
       OExpression... args) {
 
     OLuceneFullTextIndex index = searchForIndex(target, ctx, args);
@@ -143,7 +143,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
     return Collections.emptyList();
   }
 
-  private Map<String, ?> getMetadata(OExpression[] args, OCommandContext ctx) {
+  private Map<String, ?> getMetadata(OExpression[] args, CommandContext ctx) {
     if (args.length == 3) {
       return getMetadata(args[2], ctx);
     }
@@ -152,7 +152,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
 
   @Override
   protected OLuceneFullTextIndex searchForIndex(
-      OFromClause target, OCommandContext ctx, OExpression... args) {
+      OFromClause target, CommandContext ctx, OExpression... args) {
 
     OFromItem item = target.getItem();
     OIdentifier identifier = item.getIdentifier();
@@ -160,7 +160,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   private OLuceneFullTextIndex searchForIndex(
-      String className, OCommandContext ctx, OExpression... args) {
+      String className, CommandContext ctx, OExpression... args) {
 
     String indexName = (String) args[0].execute((YTIdentifiable) null, ctx);
 
@@ -178,7 +178,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
     return null;
   }
 
-  private OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String indexName) {
+  private OLuceneFullTextIndex searchForIndex(CommandContext ctx, String indexName) {
     final YTDatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
 

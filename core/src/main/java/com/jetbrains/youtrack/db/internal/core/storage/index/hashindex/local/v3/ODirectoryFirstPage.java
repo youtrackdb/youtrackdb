@@ -36,7 +36,7 @@ public final class ODirectoryFirstPage extends ODirectoryPage {
 
   public static final int NODES_PER_PAGE =
       (GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024 - ITEMS_OFFSET)
-          / OHashTableDirectory.BINARY_LEVEL_SIZE;
+          / HashTableDirectory.BINARY_LEVEL_SIZE;
 
   ODirectoryFirstPage(OCacheEntry cacheEntry, OCacheEntry entry) {
     super(cacheEntry, entry);

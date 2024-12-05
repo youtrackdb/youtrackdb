@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer;
 import com.jetbrains.youtrack.db.internal.common.collection.OMultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
@@ -250,7 +250,7 @@ public class OJSONWriter {
 
                 buffer.append(objectJson);
               } catch (Exception e) {
-                OLogManager.instance()
+                LogManager.instance()
                     .error(json, "Error transforming record " + rec.getIdentity() + " to JSON", e);
               }
             }

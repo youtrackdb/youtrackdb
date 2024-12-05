@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.math;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import java.math.BigDecimal;
@@ -43,7 +43,7 @@ public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
       final YTIdentifiable iRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      OCommandContext iContext) {
+      CommandContext iContext) {
     Object inputValue = iParams[0];
     if (inputValue == null) {
       result = null;

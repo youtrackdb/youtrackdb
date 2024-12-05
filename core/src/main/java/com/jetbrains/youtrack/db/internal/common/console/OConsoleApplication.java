@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.common.console;
 
 import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleCommand;
 import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleParameter;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.OStringParser;
 import com.jetbrains.youtrack.db.internal.common.util.OArrays;
 import java.io.BufferedReader;
@@ -149,7 +149,7 @@ public class OConsoleApplication {
         } catch (Exception e) {
           result = 1;
           out.print("Error on reading console input: " + e.getMessage());
-          OLogManager.instance().error(this, "Error on reading console input: %s", e, consoleInput);
+          LogManager.instance().error(this, "Error on reading console input: %s", e, consoleInput);
         }
       }
     } else {

@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAlloc
 import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
 import com.jetbrains.youtrack.db.internal.common.thread.OThreadPoolExecutors;
@@ -15,7 +15,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.EncryptionKeyAbsentExce
 import com.jetbrains.youtrack.db.internal.core.exception.YTInvalidStorageEncryptionKeyException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OCheckpointRequestListener;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAtomicUnitEndRecord;
@@ -105,11 +105,11 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
   static {
     commitExecutor =
         OThreadPoolExecutors.newSingleThreadScheduledPool(
-            "YouTrackDB WAL Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
+            "YouTrackDB WAL Flush Task", AbstractPaginatedStorage.storageThreadGroup);
 
     writeExecutor =
         OThreadPoolExecutors.newSingleThreadPool(
-            "YouTrackDB WAL Write Task Thread", OAbstractPaginatedStorage.storageThreadGroup);
+            "YouTrackDB WAL Write Task Thread", AbstractPaginatedStorage.storageThreadGroup);
   }
 
   private final boolean keepSingleWALSegment;
@@ -268,7 +268,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     pageSize = CASWALPage.DEFAULT_PAGE_SIZE;
     maxRecordSize = CASWALPage.DEFAULT_MAX_RECORD_SIZE;
 
-    OLogManager.instance()
+    LogManager.instance()
         .info(
             this,
             "Page size for WAL located in %s is set to %d bytes.",
@@ -507,7 +507,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         try {
           flushLatch.get().await();
         } catch (final InterruptedException e) {
-          OLogManager.instance().error(this, "WAL write was interrupted", e);
+          LogManager.instance().error(this, "WAL write was interrupted", e);
         }
 
         writtenLSN = this.writtenUpTo.get().getLsn();
@@ -610,7 +610,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
               pagesRead++;
 
               if (checkPageIsBrokenAndDecrypt(buffer, segment, pageIndex, pageSize)) {
-                OLogManager.instance()
+                LogManager.instance()
                     .error(
                         this,
                         "WAL page %d of segment %s is broken, read of records will be stopped",
@@ -784,7 +784,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         try {
           flushLatch.get().await();
         } catch (final InterruptedException e) {
-          OLogManager.instance().error(this, "WAL write was interrupted", e);
+          LogManager.instance().error(this, "WAL write was interrupted", e);
         }
 
         writtenLSN = this.writtenUpTo.get().getLsn();
@@ -1006,7 +1006,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
           threadsWaitingSum.add(endTs - startTs);
         }
       } catch (final InterruptedException e) {
-        OLogManager.instance().error(this, "WAL write was interrupted", e);
+        LogManager.instance().error(this, "WAL write was interrupted", e);
       }
 
       qsize = queueSize.get();
@@ -1363,7 +1363,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     try {
       future.get();
     } catch (final Exception e) {
-      OLogManager.instance().error(this, "Exception during WAL flush", e);
+      LogManager.instance().error(this, "Exception during WAL flush", e);
       throw new IllegalStateException(e);
     }
   }
@@ -1434,7 +1434,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
 
       final Cursor<OWALRecord> nextCursor = MPSCFAAArrayDequeue.prev(cursor);
       if (nextCursor == null && record.getLsn().getPosition() < 0) {
-        OLogManager.instance().warn(this, cursor.toString());
+        LogManager.instance().warn(this, cursor.toString());
         throw new IllegalStateException("Invalid last record");
       }
 
@@ -1748,7 +1748,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
                       writeFuture.get();
                     }
                   } catch (final InterruptedException e) {
-                    OLogManager.instance().error(this, "WAL write was interrupted", e);
+                    LogManager.instance().error(this, "WAL write was interrupted", e);
                   }
 
                   assert walFile.position() == currentPosition;
@@ -1900,7 +1900,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
               writeFuture.get();
             }
           } catch (final InterruptedException e) {
-            OLogManager.instance().error(this, "WAL write was interrupted", e);
+            LogManager.instance().error(this, "WAL write was interrupted", e);
           }
 
           assert walFile == null || walFile.position() == currentPosition;
@@ -1917,10 +1917,10 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         }
       }
     } catch (final IOException | ExecutionException e) {
-      OLogManager.instance().error(this, "Error during WAL writing", e);
+      LogManager.instance().error(this, "Error during WAL writing", e);
       throw new IllegalStateException(e);
     } catch (final RuntimeException | Error e) {
-      OLogManager.instance().error(this, "Error during WAL writing", e);
+      LogManager.instance().error(this, "Error during WAL writing", e);
       throw e;
     } finally {
       recordsWriterLock.unlock();
@@ -1976,7 +1976,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         fsyncCount++;
       }
     } catch (final IOException e) {
-      OLogManager.instance().error(this, "Error during FSync of WAL data", e);
+      LogManager.instance().error(this, "Error during FSync of WAL data", e);
       throw e;
     }
   }
@@ -2037,9 +2037,9 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         writeFuture.get();
       }
     } catch (final InterruptedException e) {
-      OLogManager.instance().error(this, "WAL write was interrupted", e);
+      LogManager.instance().error(this, "WAL write was interrupted", e);
     } catch (final Exception e) {
-      OLogManager.instance().error(this, "Error during WAL write", e);
+      LogManager.instance().error(this, "Error during WAL write", e);
       throw YTException.wrapException(new YTStorageException("Error during WAL data write"), e);
     }
 
@@ -2117,7 +2117,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         bytesWrittenTime += (endTs - startTs);
       }
     } catch (final IOException e) {
-      OLogManager.instance().error(this, "Error during WAL data write", e);
+      LogManager.instance().error(this, "Error during WAL data write", e);
       throw e;
     }
   }
@@ -2153,7 +2153,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
               threadsWaitingCount,
               threadsWaitingCount > 0 ? threadsWaitingSum / threadsWaitingCount / 1_000_000 : -1
           };
-      OLogManager.instance()
+      LogManager.instance()
           .info(
               this,
               "WAL stat:%s: %d KB was written, write speed is %d KB/s. FSync count %d. Avg. fsync"

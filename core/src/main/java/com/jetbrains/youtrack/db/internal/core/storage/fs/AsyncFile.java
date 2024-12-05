@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.storage.fs;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.ScalableRWLock;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.YTInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.ORawPairLongObject;
 import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
 import java.io.EOFException;
@@ -104,7 +104,7 @@ public final class AsyncFile implements OFile {
       currentSize = (currentSize / pageSize) * pageSize;
       fileChannel.truncate(currentSize + HEADER_SIZE);
 
-      OLogManager.instance()
+      LogManager.instance()
           .warn(
               this,
               "Data page in file {} was partially written and will be truncated, "
@@ -316,7 +316,7 @@ public final class AsyncFile implements OFile {
           try {
             fileChannel.force(true);
           } catch (final IOException e) {
-            OLogManager.instance()
+            LogManager.instance()
                 .warn(
                     this,
                     "Error during flush of file %s. Data may be lost in case of power failure",
@@ -361,7 +361,7 @@ public final class AsyncFile implements OFile {
       doClose();
 
       if (logFileDeletion) {
-        OLogManager.instance().info(this, "File " + osFile + " has been deleted.");
+        LogManager.instance().info(this, "File " + osFile + " has been deleted.");
       }
       Files.delete(osFile);
     } finally {
@@ -452,7 +452,7 @@ public final class AsyncFile implements OFile {
     @Override
     public void failed(Throwable exc, CountDownLatch attachment) {
       ioResult.exc = exc;
-      OLogManager.instance().error(this, "Error during write operation to the file " + osFile, exc);
+      LogManager.instance().error(this, "Error during write operation to the file " + osFile, exc);
 
       dirtyCounter.incrementAndGet();
       attachment.countDown();
